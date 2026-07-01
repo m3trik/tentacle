@@ -10,7 +10,7 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class Settings(SlotsBlender):
     """Blender port of the shared ``settings`` menu.
 
-    The package/editor controls (Update, UI Style / Hotkey / Browser editors, reset marking-menu
+    The package/editor controls (Update, UI Style / Shortcut / Browser editors, reset marking-menu
     bindings) are DCC-agnostic uitk switchboard features and port directly. Update Package
     drives ``ptk.PackageManager`` with Blender's bundled python (``sys.executable``); Reload
     Scripts rides ``tcl_blender.reload()`` (guarded in-place reload — ``script.reload()``
@@ -87,12 +87,17 @@ class Settings(SlotsBlender):
         self.sb.editors.show("style")
 
     def b021(self):
-        """Hotkey Editor"""
-        self.sb.editors.show("hotkey")
+        """Shortcut Editor"""
+        self.sb.editors.show("shortcut")
 
     def b022(self):
         """UI Browser"""
         self.sb.editors.show("browser")
+
+    def b023(self):
+        """Global Shortcuts: focused shortcut editor for the global triggers
+        (marking-menu activation key, repeat-last, reopen-last UI)."""
+        self.sb.editors.show("global_shortcuts")
 
     def b_reset_bindings(self):
         """Reset marking-menu bindings to defaults."""

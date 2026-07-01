@@ -10,7 +10,7 @@
 | Bridge | 0 | 0 | 0 | OK |
 | Calculator | 0 | 0 | 0 | OK |
 | Channels | 0 | 0 | 0 | OK |
-| ColorManager | 0 | 2 | 0 | **GAP** |
+| ColorId | 0 | 2 | 0 | **GAP** |
 | Curtain | 0 | 0 | 0 | OK |
 | CurveToTube | 0 | 0 | 0 | OK |
 | CutOnAxis | 0 | 0 | 0 | OK |
@@ -36,12 +36,11 @@
 | TelescopeRig | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 4 | **GAP** |
 | TubeRig | 1 | 0 | 0 | **GAP** |
-| UnityBridge | 0 | 0 | 0 | OK |
 | WheelRig | 1 | 0 | 2 | **GAP** |
 
 ### Panel gap detail
 
-- **ColorManager** — affordances ['add_presets', 'preset_dir']
+- **ColorId** — affordances ['add_presets', 'preset_dir']
 - **GameShader**
   - control `lbl_graph_material` — header None 'Open in Editor'
 - **HdrManager** — `config_buttons` ['refresh', 'menu', 'collapse', 'hide']
@@ -87,7 +86,7 @@
   - control `b010` — optbox QPushButton 'Get Wheel Size'
   - control `chk_world_space` — header QCheckBox 'World Space (decomposeMatrix)'
 
-**Missing panels — mayatk `*Slots` with NO blendertk class (12):** ArnoldBridge, AudioClips, BlenderBridge, BlendshapeAnimator, HierarchyManager, MarmosetBridge, SceneExporter, ShotManifest, ShotSequencer, Shots, SubstanceBridge, WorkspaceMap
+**Missing panels — mayatk `*Slots` with NO blendertk class (14):** ArnoldBridge, AudioClips, BlenderBridge, BlendshapeAnimator, HierarchyManager, MacroManager, MarmosetBridge, SceneExporter, ShotManifest, ShotSequencer, Shots, SubstanceBridge, UnityBridge, WorkspaceMap
 
 ## tentacle marking-menu slots (`slots/maya` <-> `slots/blender`)
 
@@ -101,22 +100,22 @@
 | deformation.py | 0 | 0 | OK |
 | display.py | 15 | 0 | **GAP** |
 | duplicate.py | 0 | 0 | OK |
-| edit.py | 2 | 9 | **GAP** |
+| edit.py | 4 | 9 | **GAP** |
 | editors.py | 0 | 0 | OK |
 | hud.py | 0 | 0 | OK |
 | lighting.py | 0 | 0 | OK |
 | main.py | 0 | 0 | OK |
-| materials.py | 1 | 3 | **GAP** |
+| materials.py | 0 | 3 | **GAP** |
 | normals.py | 0 | 0 | OK |
 | nurbs.py | 24 | 19 | **GAP** |
 | pivot.py | 2 | 7 | **GAP** |
 | polygons.py | 3 | 2 | **GAP** |
-| preferences.py | 1 | 0 | **GAP** |
-| rendering.py | 0 | 4 | **GAP** |
+| preferences.py | 2 | 0 | **GAP** |
+| rendering.py | 0 | 8 | **GAP** |
 | rigging.py | 4 | 17 | **GAP** |
-| scene.py | 13 | 9 | **GAP** |
+| scene.py | 14 | 10 | **GAP** |
 | selection.py | 10 | 17 | **GAP** |
-| settings.py | 7 | 0 | **GAP** |
+| settings.py | 5 | 0 | **GAP** |
 | subdivision.py | 3 | 0 | **GAP** |
 | symmetry.py | 0 | 0 | OK |
 | transform.py | 6 | 8 | **GAP** |
@@ -127,20 +126,19 @@
 
 - **animation.py** — tb010_init, tb012_init, tb018_init
 - **display.py** — b000, b001, b002, b003, b004, b005, b006, b007, b009, b011, b012, b021, b022, b023, b024
-- **edit.py** — tb001_init, tb004_init
-- **materials.py** — b026
+- **edit.py** — cmb000, cmb000_init, tb001_init, tb004_init
 - **nurbs.py** — b012, b014, b016, b018, b019, b020, b022, b024, b026, b028, b036, b038, b040, b041, b042, b043, b045, b046, b047, b049, b051, b052, b054, list000
 - **pivot.py** — tb002_init, tb003_init
 - **polygons.py** — chk008, chk009, chk010
-- **preferences.py** — b002
+- **preferences.py** — b002, b011
 - **rigging.py** — chk000, chk001, chk002, s000
-- **scene.py** — b000, b006, b009, b012, b013, b014, b014_init, b015, cmb000, cmb000_init, cmb005, cmb005_init, txt000
+- **scene.py** — b000, b006, b009, b012, b013, b014, b014_init, b015, b016, cmb000, cmb000_init, cmb005, cmb005_init, txt000
 - **selection.py** — b016, b017, b018, b019, chk000, chk001, chk002, chk008, lbl003, lbl004
-- **settings.py** — cmb_bind_default_init, cmb_bind_left_init, cmb_bind_left_right_init, cmb_bind_middle_init, cmb_bind_right_init, kse_activation_key_init, kse_repeat_last_init
+- **settings.py** — cmb_bind_default_init, cmb_bind_left_init, cmb_bind_left_right_init, cmb_bind_middle_init, cmb_bind_right_init
 - **subdivision.py** — b009, cmb001, cmb002
 - **transform.py** — chk021, chk022, chk026, s021, s022, s023
 - **uv.py** — b029_init, b030_init
 
 **Missing slot files — `slots/maya` with NO `slots/blender` (33):** arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py
 
-## Totals: 32 panels paired (+12 maya-only); 27 tentacle slots paired (+33 maya-only).
+## Totals: 31 panels paired (+14 maya-only); 27 tentacle slots paired (+33 maya-only).

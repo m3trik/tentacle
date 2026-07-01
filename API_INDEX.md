@@ -13,7 +13,6 @@ _Generated: 2026-07-01_
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: repeat_last_command
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
@@ -114,7 +113,7 @@ _Generated: 2026-07-01_
 
 ### `slots/blender/settings.py`
 - `class Settings(SlotsBlender)`
-  - methods: header_init, tb000, tb001, b020, b021, b022, b_reset_bindings
+  - methods: header_init, tb000, tb001, b020, b021, b022, b023, b_reset_bindings
 
 ### `slots/blender/subdivision.py`
 - `class Subdivision(SlotsBlender)`
@@ -305,7 +304,7 @@ _Generated: 2026-07-01_
 
 ### `slots/maya/settings.py`
 - `class Settings(SlotsMaya)`
-  - methods: header_init, tb000, tb001, check_for_update, b020, b021, b022, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, kse_activation_key_init, kse_repeat_last_init, b_reset_bindings
+  - methods: header_init, tb000, tb001, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
 
 ### `slots/maya/skeleton.py`
 - `class SkeletonSlots(SlotsMaya)`

@@ -73,17 +73,7 @@
           "bases": [
             "QtCore.QObject"
           ],
-          "members": [
-            {
-              "name": "repeat_last_command",
-              "qualname": "Slots.repeat_last_command",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Repeat the last stored command.",
-              "line": 56,
-              "deprecated": false
-            }
-          ]
+          "members": []
         }
       ]
     },
@@ -981,7 +971,7 @@
               "qualname": "DisplaySlots.b014",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Color Manager — swatch palette to color-code objects (material / object color / vertex).",
+              "summary": "Color ID — swatch palette to color-code objects (material / object color / vertex).",
               "line": 162,
               "deprecated": false
             }
@@ -3485,7 +3475,7 @@
               "qualname": "Settings.b021",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Hotkey Editor",
+              "summary": "Shortcut Editor",
               "line": 89,
               "deprecated": false
             },
@@ -3499,12 +3489,21 @@
               "deprecated": false
             },
             {
+              "name": "b023",
+              "qualname": "Settings.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Global Shortcuts: focused shortcut editor for the global triggers",
+              "line": 97,
+              "deprecated": false
+            },
+            {
               "name": "b_reset_bindings",
               "qualname": "Settings.b_reset_bindings",
               "kind": "method",
               "signature": "(self)",
               "summary": "Reset marking-menu bindings to defaults.",
-              "line": 97,
+              "line": 102,
               "deprecated": false
             }
           ]
@@ -5252,7 +5251,7 @@
               "qualname": "DisplaySlots.b014",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Color Manager GUI",
+              "summary": "Color ID GUI",
               "line": 275,
               "deprecated": false
             },
@@ -8610,7 +8609,7 @@
               "qualname": "Settings.b021",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Hotkey Editor",
+              "summary": "Shortcut Editor",
               "line": 180,
               "deprecated": false
             },
@@ -8624,12 +8623,21 @@
               "deprecated": false
             },
             {
+              "name": "b023",
+              "qualname": "Settings.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Global Shortcuts: open the shortcut editor focused on the global",
+              "line": 188,
+              "deprecated": false
+            },
+            {
               "name": "cmb_bind_default_init",
               "qualname": "Settings.cmb_bind_default_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Default binding (key only).",
-              "line": 265,
+              "summary": "Default menu (activation key only).",
+              "line": 241,
               "deprecated": false
             },
             {
@@ -8637,8 +8645,8 @@
               "qualname": "Settings.cmb_bind_left_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Left button binding.",
-              "line": 271,
+              "summary": "Left mouse button.",
+              "line": 246,
               "deprecated": false
             },
             {
@@ -8646,8 +8654,8 @@
               "qualname": "Settings.cmb_bind_middle_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Middle button binding.",
-              "line": 277,
+              "summary": "Middle mouse button.",
+              "line": 253,
               "deprecated": false
             },
             {
@@ -8655,8 +8663,8 @@
               "qualname": "Settings.cmb_bind_right_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Right button binding.",
-              "line": 283,
+              "summary": "Right mouse button.",
+              "line": 260,
               "deprecated": false
             },
             {
@@ -8664,26 +8672,8 @@
               "qualname": "Settings.cmb_bind_left_right_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Left+Right button binding.",
-              "line": 289,
-              "deprecated": false
-            },
-            {
-              "name": "kse_activation_key_init",
-              "qualname": "Settings.kse_activation_key_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize activation key sequence editor.",
-              "line": 295,
-              "deprecated": false
-            },
-            {
-              "name": "kse_repeat_last_init",
-              "qualname": "Settings.kse_repeat_last_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize repeat last command key sequence editor.",
-              "line": 309,
+              "summary": "Left + Right mouse buttons.",
+              "line": 267,
               "deprecated": false
             },
             {
@@ -8691,8 +8681,8 @@
               "qualname": "Settings.b_reset_bindings",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Reset bindings to defaults.",
-              "line": 361,
+              "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
+              "line": 274,
               "deprecated": false
             }
           ]

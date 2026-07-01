@@ -124,7 +124,6 @@ Shared HUD warning framework (DCC-agnostic).
 ### `slots/_slots.py`
 
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L6)** — Provides methods that can be triggered by widgets in the ui.
-  - `Slots.repeat_last_command(self)` — Repeat the last stored command.
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -246,7 +245,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `DisplaySlots.list000_init(self, widget)` — Initialize Display expandable list (categories → actions).
   - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
   - `DisplaySlots.b013(self)` — Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /
-  - `DisplaySlots.b014(self)` — Color Manager — swatch palette to color-code objects (material / object color / vertex).
+  - `DisplaySlots.b014(self)` — Color ID — swatch palette to color-code objects (material / object color / vertex).
 
 <a id="slots--blender--duplicate"></a>
 ### `slots/blender/duplicate.py`
@@ -577,8 +576,9 @@ Shared HUD warning framework (DCC-agnostic).
   - `Settings.tb000(self)` — Update Package (PyPI check via Blender's bundled python — sys.executable).
   - `Settings.tb001(self)` — Reload Scripts (tear down, reload the tentacle ecosystem in place, re-register).
   - `Settings.b020(self)` — UI Style Editor
-  - `Settings.b021(self)` — Hotkey Editor
+  - `Settings.b021(self)` — Shortcut Editor
   - `Settings.b022(self)` — UI Browser
+  - `Settings.b023(self)` — Global Shortcuts: focused shortcut editor for the global triggers
   - `Settings.b_reset_bindings(self)` — Reset marking-menu bindings to defaults.
 
 <a id="slots--blender--subdivision"></a>
@@ -827,7 +827,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `DisplaySlots.b011(self)` — Toggle Component ID Display
   - `DisplaySlots.b012(self)` — Wireframe Non Active (Wireframe All But The Selected Item)
   - `DisplaySlots.b013(self)` — Explode View GUI
-  - `DisplaySlots.b014(self)` — Color Manager GUI
+  - `DisplaySlots.b014(self)` — Color ID GUI
   - `DisplaySlots.b021(self)` — Template Selected
   - `DisplaySlots.b022(self)` — Display UV Borders
   - `DisplaySlots.b023(self)` — Soft Edge Display
@@ -1314,16 +1314,15 @@ Shared HUD warning framework (DCC-agnostic).
   - `Settings.tb001(self)` — Reload Tentacle package with its dependencies.
   - `Settings.check_for_update(self)` — Check for Tentacle package updates
   - `Settings.b020(self)` — UI Style Editor
-  - `Settings.b021(self)` — Hotkey Editor
+  - `Settings.b021(self)` — Shortcut Editor
   - `Settings.b022(self)` — UI Browser: open the tentacle UI browser (search, show/hide registered UIs).
-  - `Settings.cmb_bind_default_init(self, widget)` — Default binding (key only).
-  - `Settings.cmb_bind_left_init(self, widget)` — Left button binding.
-  - `Settings.cmb_bind_middle_init(self, widget)` — Middle button binding.
-  - `Settings.cmb_bind_right_init(self, widget)` — Right button binding.
-  - `Settings.cmb_bind_left_right_init(self, widget)` — Left+Right button binding.
-  - `Settings.kse_activation_key_init(self, widget)` — Initialize activation key sequence editor.
-  - `Settings.kse_repeat_last_init(self, widget)` — Initialize repeat last command key sequence editor.
-  - `Settings.b_reset_bindings(self)` — Reset bindings to defaults.
+  - `Settings.b023(self)` — Global Shortcuts: open the shortcut editor focused on the global
+  - `Settings.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
+  - `Settings.cmb_bind_left_init(self, widget)` — Left mouse button.
+  - `Settings.cmb_bind_middle_init(self, widget)` — Middle mouse button.
+  - `Settings.cmb_bind_right_init(self, widget)` — Right mouse button.
+  - `Settings.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
+  - `Settings.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`

@@ -15,7 +15,7 @@ class DisplaySlots(SlotsBlender):
     displays) are viewport/editor state with no per-object Blender analogue and are omitted rather
     than shown as dead entries; the ones that DO map (wireframe-on-inactive → non-selected
     ``display_type``, face-normals overlay) are wired below. Explode View is a toggle backed by
-    ``btk.explode_view`` (bbox-driven separation with exact restore); Color Manager opens the
+    ``btk.explode_view`` (bbox-driven separation with exact restore); Color ID opens the
     co-located swatch-palette panel.
     """
 
@@ -116,10 +116,10 @@ class DisplaySlots(SlotsBlender):
 
     def _set_wireframe_color(self):
         """Set Wireframe Color — Blender has no 8-slot object-color palette (Maya's
-        ``objectColorPalette``); route to the Color Manager panel, which color-codes objects
+        ``objectColorPalette``); route to the Color ID panel, which color-codes objects
         via object color / material / vertex (a superset of Maya's wireframe-color swatches)."""
-        self.sb.handlers.marking_menu.show("color_manager")
-        return "Wireframe Color: <hl>Color Manager opened</hl>"
+        self.sb.handlers.marking_menu.show("color_id")
+        return "Wireframe Color: <hl>Color ID opened</hl>"
 
     def _display_normals(self):
         """Toggle the viewport face-normals overlay (visible in Edit Mode) — the Blender
@@ -160,8 +160,8 @@ class DisplaySlots(SlotsBlender):
         self.sb.handlers.marking_menu.show("exploded_view")
 
     def b014(self):
-        """Color Manager — swatch palette to color-code objects (material / object color / vertex)."""
-        self.sb.handlers.marking_menu.show("color_manager")
+        """Color ID — swatch palette to color-code objects (material / object color / vertex)."""
+        self.sb.handlers.marking_menu.show("color_id")
 
 
 # --------------------------------------------------------------------------------------------
