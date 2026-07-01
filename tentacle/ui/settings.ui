@@ -133,7 +133,7 @@
             <string>Customize the UI shortcuts.</string>
            </property>
            <property name="text">
-            <string>Hotkey Editor</string>
+            <string>Shortcut Editor</string>
            </property>
           </widget>
          </item>
@@ -254,7 +254,7 @@
       <item>
        <widget class="QGroupBox" name="bindings_group_2">
         <property name="title">
-         <string>Key Bindings</string>
+         <string>Shortcuts</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_bindings_3">
          <property name="spacing">
@@ -273,28 +273,24 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QKeySequenceEdit" name="kse_activation_key">
+          <widget class="QPushButton" name="b023">
            <property name="minimumSize">
             <size>
              <width>0</width>
              <height>19</height>
             </size>
            </property>
-           <property name="toolTip">
-            <string>Set the hotkey to show the marking menu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QKeySequenceEdit" name="kse_repeat_last">
-           <property name="minimumSize">
+           <property name="maximumSize">
             <size>
-             <width>0</width>
+             <width>16777215</width>
              <height>19</height>
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the hotkey to repeat the last called slot</string>
+            <string>Edit the global shortcut triggers — the marking-menu activation key, repeat-last, and reopen-last UI.</string>
+           </property>
+           <property name="text">
+            <string>Global Shortcuts</string>
            </property>
           </widget>
          </item>

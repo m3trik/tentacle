@@ -140,7 +140,7 @@
      <string>Customize the UI shortcuts.</string>
     </property>
     <property name="text">
-     <string>Hotkey Editor</string>
+     <string>Shortcut Editor</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b022">

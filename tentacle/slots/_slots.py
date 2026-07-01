@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-from qtpy import QtCore, QtWidgets, QtGui
+from qtpy import QtCore
 
 
 class Slots(QtCore.QObject):
@@ -13,55 +13,62 @@ class Slots(QtCore.QObject):
                     return int(f)
     """
 
-    _repeat_last_shortcut: QtWidgets.QShortcut = None
+    #: One-shot guard so the legacy repeat-last migration runs once per process,
+    #: not on every slot instantiation (the base ``__init__`` runs for every
+    #: slot class).
+    _legacy_repeat_last_migrated = False
 
     def __init__(self, switchboard):
         super().__init__()
-        """ """
         self.sb = switchboard
 
-        # Connect to configurable change signal to update shortcut dynamically
-        self.sb.configurable.repeat_last_shortcut.changed.connect(
-            self._update_repeat_last_shortcut
-        )
-        # Initialize shortcut with current value (or default)
-        self._update_repeat_last_shortcut()
+        # Repeat-last is the unified uitk ``repeat_last_command`` command now —
+        # registered by the Switchboard and bound ONCE to an always-visible host.
+        # The old path created an application-scoped QShortcut here in every slot
+        # instance's __init__, so N loaded UIs stacked N identical Ctrl+Shift+R
+        # shortcuts on the (normally hidden) marking menu; Qt saw an ambiguous
+        # overload and fired none. Fold any customized legacy key into the command
+        # once, then never again.
+        if not Slots._legacy_repeat_last_migrated:
+            Slots._legacy_repeat_last_migrated = True
+            try:
+                self._migrate_legacy_repeat_last(switchboard)
+            except Exception:
+                pass  # best-effort; a migration hiccup must never block slot init
 
-    def _update_repeat_last_shortcut(self, _value=None):
-        """Update the repeat last shortcut based on configurable value."""
-        # Get the configured sequence (default to Ctrl+Shift+R)
-        sequence = self.sb.configurable.repeat_last_shortcut.get("Ctrl+Shift+R")
+    @staticmethod
+    def _migrate_legacy_repeat_last(sb) -> None:
+        """Fold the retired ``configurable.repeat_last_shortcut`` into the unified
+        ``repeat_last_command`` command, then delete the legacy key.
 
-        # Clean up existing shortcut
-        if self._repeat_last_shortcut is not None:
-            self._repeat_last_shortcut.activated.disconnect()
-            self._repeat_last_shortcut.deleteLater()
-            self._repeat_last_shortcut = None
+        The command ships **unbound** (no default key), so:
 
-        if not sequence:
-            return  # Disabled if empty
+        - Key absent (the common case — user never customized it): no-op;
+          repeat-last stays unbound until assigned in the editor.
+        - Key present and different from the command default (``""``): preserve
+          the user's choice as a command override — including a user who carried
+          the *old* ``Ctrl+Shift+R`` default, so the "no default" change never
+          yanks a working shortcut out from under them.
+        - Key present and equal to the default (``""`` — explicitly disabled):
+          retire it without writing a redundant override; the unbound default
+          already yields the same result.
 
-        # Find appropriate parent widget for the shortcut
-        parent = self.sb.handlers.marking_menu
-        if parent is None:
+        Idempotent: the legacy key is cleared afterward, so a later session finds
+        nothing to migrate.
+        """
+        legacy = sb.configurable.repeat_last_shortcut.get(None)
+        if legacy is None:
+            return  # never customized — repeat-last stays unbound
+        reg = {e["method"]: e for e in sb.get_command_registry()}
+        entry = reg.get("repeat_last_command")
+        if entry is None:
+            # The migration target isn't registered (shouldn't happen — it's a
+            # built-in). Keep the legacy key rather than clearing it into the
+            # void, so the user's value isn't silently lost.
             return
-
-        # Create new shortcut
-        self._repeat_last_shortcut = QtWidgets.QShortcut(
-            QtGui.QKeySequence(sequence), parent
-        )
-        self._repeat_last_shortcut.setContext(QtCore.Qt.ApplicationShortcut)
-        self._repeat_last_shortcut.activated.connect(self.repeat_last_command)
-
-    def repeat_last_command(self):
-        """Repeat the last stored command."""
-        method = self.sb.prev_slot
-
-        if callable(method):
-            widget = self.sb.get_widget_from_slot(method)
-            widget.call_slot()
-        else:
-            print("No recent commands in history.")
+        if legacy != entry.get("default"):
+            sb.set_command_shortcut("repeat_last_command", legacy, "application")
+        sb.configurable.clear("repeat_last_shortcut")
 
 
 # --------------------------------------------------------------------------------------------

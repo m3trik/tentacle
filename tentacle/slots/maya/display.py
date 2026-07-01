@@ -273,8 +273,8 @@ class DisplaySlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("exploded_view")
 
     def b014(self):
-        """Color Manager GUI"""
-        self.sb.handlers.marking_menu.show("color_manager")
+        """Color ID GUI"""
+        self.sb.handlers.marking_menu.show("color_id")
 
     def b021(self):
         """Template Selected"""

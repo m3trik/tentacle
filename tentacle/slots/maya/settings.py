@@ -178,191 +178,104 @@ class Settings(SlotsMaya):
         self.sb.editors.show("style")
 
     def b021(self):
-        """Hotkey Editor"""
-        self.sb.editors.show("hotkey")
+        """Shortcut Editor"""
+        self.sb.editors.show("shortcut")
 
     def b022(self):
         """UI Browser: open the tentacle UI browser (search, show/hide registered UIs)."""
         self.sb.editors.show("browser")
+
+    def b023(self):
+        """Global Shortcuts: open the shortcut editor focused on the global
+        triggers — the marking-menu activation key, repeat-last, and reopen-last
+        UI. Replaces the inline activation-key / repeat-last key-sequence editors;
+        the marking-menu chord→menu targets stay in the Menu Bindings combos."""
+        self.sb.editors.show("global_shortcuts")
 
     # -------------------------------------------------------------------------
     # Marking Menu Bindings
     # -------------------------------------------------------------------------
 
     def _get_startmenus(self) -> list:
-        """Get available startmenu UIs from the registry."""
-        filenames = self.sb.registry.ui_registry.get("filename") or []
-        return sorted([f for f in filenames if "#startmenu" in f])
+        """Available startmenu UIs — via the marking menu's SSoT helper."""
+        mm = self.sb.handlers.marking_menu
+        return mm.start_menu_names(short=False) if mm is not None else []
 
-    def _get_bindings(self) -> dict:
-        """Current marking-menu bindings — read from the SSoT (the menu's store).
+    def _init_binding_combo(self, widget, buttons):
+        """Initialize a route combo for the activation-key + *buttons* gesture.
 
-        Goes through ``marking_menu`` rather than ``configurable.marking_menu_bindings``
-        directly because that key is host-namespaced (Maya/Blender share one
-        QSettings backend; see uitk ``MarkingMenu._binding_store_key``). Poking the
-        bare key here would desync the editor from the live menu.
+        Binds by *gesture* (a button tuple like ``("LeftButton",)``), not a
+        captured key string, so the combo stays correct when the activation key is
+        changed in the shortcut editor. Target get/set delegate to the marking
+        menu (the SSoT), which resolves the gesture against the current key.
         """
-        mm = self.sb.handlers.marking_menu
-        return mm.bindings if mm is not None else {}
+        widget.restore_state = False  # managed via the marking-menu store, not QSettings
 
-    def _set_bindings(self, bindings: dict) -> None:
-        """Persist marking-menu bindings via the SSoT (auto-rebuilds + notifies)."""
-        mm = self.sb.handlers.marking_menu
-        if mm is not None:
-            mm.bindings = bindings
-
-    def _init_binding_combo(self, widget, binding_key: str):
-        """Initialize a binding combo box."""
-        # Disable auto-restore state for these widgets, as they are managed manually
-        # via the marking-menu binding store.
-        widget.restore_state = False
-
-        available = self._get_startmenus()
-        items = {ui.replace("#startmenu", ""): ui for ui in available}
+        items = {ui.replace("#startmenu", ""): ui for ui in self._get_startmenus()}
         widget.clear()
         widget.add(items)
 
-        marking_menu = self.sb.handlers.marking_menu
-        if marking_menu is not None:
-            marking_menu.on_bindings_changed(
-                lambda v: self._sync_binding_combo(widget, binding_key, v)
-            )
+        mm = self.sb.handlers.marking_menu
+        if mm is not None:
+            mm.on_bindings_changed(lambda _v: self._sync_binding_combo(widget, buttons))
+        self._sync_binding_combo(widget, buttons)
 
-        bindings = self._get_bindings()
-        if not bindings:
-            bindings = (
-                getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
-            )
-
-        self._sync_binding_combo(widget, binding_key, bindings)
-
-    def _sync_binding_combo(self, widget, key, bindings):
-        """Sync combo box with settings value."""
+    def _sync_binding_combo(self, widget, buttons):
+        """Reflect the gesture's current target menu in the combo."""
+        mm = self.sb.handlers.marking_menu
+        if mm is None:
+            return
         try:
-            val = bindings.get(key, "")
-            if val in widget.items:
-                if widget.currentData() != val:
-                    widget.setCurrentIndex(widget.items.index(val))
+            val = mm.get_route_target(buttons)
+            if val in widget.items and widget.currentData() != val:
+                widget.setCurrentIndex(widget.items.index(val))
         except (RuntimeError, AttributeError):
-            pass  # Widget likely deleted
+            pass  # widget likely deleted
 
-    def _on_binding_change(self, binding_key: str, widget):
-        """Handle binding combo change."""
-        bindings = self._get_bindings()
-        if bindings.get(binding_key) != widget.currentData():
-            bindings[binding_key] = widget.currentData()
-            self._set_bindings(bindings)
-
-    def _get_activation_key(self) -> str:
-        """Get activation key from bindings."""
-        bindings = self._get_bindings()
-        for key in bindings:
-            for part in key.split("|"):
-                if part.startswith("Key_"):
-                    return part
-        return "Key_F12"
+    def _on_binding_change(self, buttons, widget):
+        """Persist a route combo change via the marking menu (the SSoT)."""
+        mm = self.sb.handlers.marking_menu
+        if mm is not None and mm.get_route_target(buttons) != widget.currentData():
+            mm.set_route_target(buttons, widget.currentData())
 
     def cmb_bind_default_init(self, widget):
-        """Default binding (key only)."""
-        key = self._get_activation_key()
-        self._init_binding_combo(widget, key)
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+        """Default menu (activation key only)."""
+        self._init_binding_combo(widget, ())
+        widget.currentIndexChanged.connect(lambda: self._on_binding_change((), widget))
 
     def cmb_bind_left_init(self, widget):
-        """Left button binding."""
-        key = f"{self._get_activation_key()}|LeftButton"
-        self._init_binding_combo(widget, key)
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+        """Left mouse button."""
+        self._init_binding_combo(widget, ("LeftButton",))
+        widget.currentIndexChanged.connect(
+            lambda: self._on_binding_change(("LeftButton",), widget)
+        )
 
     def cmb_bind_middle_init(self, widget):
-        """Middle button binding."""
-        key = f"{self._get_activation_key()}|MiddleButton"
-        self._init_binding_combo(widget, key)
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+        """Middle mouse button."""
+        self._init_binding_combo(widget, ("MiddleButton",))
+        widget.currentIndexChanged.connect(
+            lambda: self._on_binding_change(("MiddleButton",), widget)
+        )
 
     def cmb_bind_right_init(self, widget):
-        """Right button binding."""
-        key = f"{self._get_activation_key()}|RightButton"
-        self._init_binding_combo(widget, key)
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
+        """Right mouse button."""
+        self._init_binding_combo(widget, ("RightButton",))
+        widget.currentIndexChanged.connect(
+            lambda: self._on_binding_change(("RightButton",), widget)
+        )
 
     def cmb_bind_left_right_init(self, widget):
-        """Left+Right button binding."""
-        key = f"{self._get_activation_key()}|LeftButton|RightButton"
-        self._init_binding_combo(widget, key)
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change(key, widget))
-
-    def kse_activation_key_init(self, widget):
-        """Initialize activation key sequence editor."""
-        if not widget.is_initialized:
-            val = self._get_activation_key()
-            try:
-                seq_str = val.replace("Key_", "")
-                widget.setKeySequence(self.sb.QtGui.QKeySequence(seq_str))
-            except Exception:
-                pass
-
-            widget.keySequenceChanged.connect(
-                lambda: self._on_activation_key_change(widget)
-            )
-
-    def kse_repeat_last_init(self, widget):
-        """Initialize repeat last command key sequence editor."""
-        if not widget.is_initialized:
-            sequence = self.sb.configurable.repeat_last_shortcut.get("Ctrl+Shift+R")
-            if sequence:
-                widget.setKeySequence(self.sb.QtGui.QKeySequence(sequence))
-
-            widget.keySequenceChanged.connect(
-                lambda: self._on_repeat_last_change(widget)
-            )
-
-    def _on_repeat_last_change(self, widget):
-        """Handle repeat last shortcut change."""
-        try:
-            sequence = widget.keySequence().toString()
-        except AttributeError:
-            return
-
-        self.sb.configurable.repeat_last_shortcut.set(sequence)
-
-    def _on_activation_key_change(self, widget):
-        """Handle activation key change."""
-        try:
-            val = widget.keySequence().toString()
-        except AttributeError:
-            return
-
-        if not val:
-            return
-
-        new_key_part = f"Key_{val}"
-        old_key_part = self._get_activation_key()
-
-        if new_key_part == old_key_part:
-            return
-
-        bindings = self._get_bindings()
-        new_bindings = {}
-
-        for key, menu in bindings.items():
-            parts = key.split("|")
-            new_parts = []
-            for part in parts:
-                if part == old_key_part:
-                    new_parts.append(new_key_part)
-                else:
-                    new_parts.append(part)
-            new_key = "|".join(new_parts)
-            new_bindings[new_key] = menu
-
-        self._set_bindings(new_bindings)
+        """Left + Right mouse buttons."""
+        self._init_binding_combo(widget, ("LeftButton", "RightButton"))
+        widget.currentIndexChanged.connect(
+            lambda: self._on_binding_change(("LeftButton", "RightButton"), widget)
+        )
 
     def b_reset_bindings(self):
-        """Reset bindings to defaults."""
-        marking_menu = self.sb.handlers.marking_menu
-        defaults = getattr(marking_menu, "default_bindings", {}) if marking_menu else {}
-        self._set_bindings(defaults)
+        """Reset marking-menu bindings (routes + activation key) to defaults."""
+        mm = self.sb.handlers.marking_menu
+        if mm is not None:
+            mm.bindings = getattr(mm, "default_bindings", {})
 
 
 # -------------------------------------------------------------------------------------------

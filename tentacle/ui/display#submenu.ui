@@ -147,10 +147,10 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open the color manager window.</string>
+     <string>Open the Color ID window.</string>
     </property>
     <property name="text">
-     <string>Color Manager</string>
+     <string>Color ID</string>
     </property>
    </widget>
   </widget>

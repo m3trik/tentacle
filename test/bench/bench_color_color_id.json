@@ -1,6 +1,6 @@
 {
   "label": "color#1",
-  "ui": "color_manager",
+  "ui": "color_id",
   "widget_count": 24,
   "phases_ms_best": {
     "01_imports": 35.465,
