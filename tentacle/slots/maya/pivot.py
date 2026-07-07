@@ -42,12 +42,10 @@ class Pivot(SlotsMaya):
         mel.eval(
             f"manipPivotReset {int(resetPivotPosition)} {int(resetPivotOrientation)}"
         )
-        cmds.inViewMessage(
-            statusMessage="Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
+        self.sb.message_box(
+            "Reset Pivot Position <hl>{0}</hl>.<br>Reset Pivot Orientation <hl>{1}</hl>.".format(
                 resetPivotPosition, resetPivotOrientation
-            ),
-            pos="topCenter",
-            fade=True,
+            )
         )
 
     def tb001_init(self, widget):
@@ -169,16 +167,12 @@ class Pivot(SlotsMaya):
 
         if result:
             if pivot_type == "manip":
-                cmds.inViewMessage(
-                    statusMessage="World-aligned <hl>manipulator</hl> pivot set (temporary).",
-                    pos="topCenter",
-                    fade=True,
+                self.sb.message_box(
+                    "World-aligned <hl>manipulator</hl> pivot set (temporary)."
                 )
             else:
-                cmds.inViewMessage(
-                    statusMessage="World-aligned <hl>object</hl> pivot set (permanent).",
-                    pos="topCenter",
-                    fade=True,
+                self.sb.message_box(
+                    "World-aligned <hl>object</hl> pivot set (permanent)."
                 )
 
     def b000(self):

@@ -301,7 +301,6 @@ class Edit(SlotsMaya):
                 bakePartialHistory=delete_history,
             )
         except (ValueError, RuntimeError) as exc:
-            cmds.warning(str(exc))
             self.sb.message_box(str(exc))
             return
 
@@ -568,20 +567,20 @@ class Edit(SlotsMaya):
                 try:
                     mel.eval(cmd)
                 except Exception as e:
-                    cmds.warning(f"Error creating curve '{text}': {e}")
+                    self.sb.message_box(f"Error creating curve '{text}': {e}")
         elif parent_text == "Helper":
             fn = self._HELPER_COMMANDS.get(text)
             if fn:
                 try:
                     fn()
                 except Exception as e:
-                    cmds.warning(f"Error creating helper '{text}': {e}")
+                    self.sb.message_box(f"Error creating helper '{text}': {e}")
         else:
             try:
                 mtk.Primitives.create_default_primitive(parent_text, text)
                 cmds.selectMode(object=True)
             except Exception as e:
-                cmds.warning(f"Error creating {parent_text} {text}: {e}")
+                self.sb.message_box(f"Error creating {parent_text} {text}: {e}")
 
     # --- Convert Expandable List ----------------------------------------
 
@@ -628,7 +627,7 @@ class Edit(SlotsMaya):
             try:
                 mel.eval(cmd)
             except Exception as e:
-                cmds.warning(f"Convert '{text}' failed: {e}")
+                self.sb.message_box(f"Convert '{text}' failed: {e}")
 
     # --- Transfer ComboBox -----------------------------------------------
 
@@ -714,11 +713,7 @@ class Edit(SlotsMaya):
             self.sb.message_box(
                 f"<b>{label}</b> needs a source and at least one target surface."
                 f"<br>Select the <hl>source</hl> first, then the target(s)."
-            )
-            cmds.warning(
-                f"Transfer '{label}' aborted: {len(surfaces)} surface(s) selected "
-                f"({surfaces or 'none'}); requires >= {op['min']} "
-                f"(source first, then target(s))."
+                f"<br>{len(surfaces)} of {op['min']} required surface(s) selected."
             )
             return
 
@@ -728,8 +723,9 @@ class Edit(SlotsMaya):
         try:
             mel.eval(op["command"])
         except Exception as e:
-            self.sb.message_box(f"<b>{label}</b> failed.<br>{e}")
-            cmds.warning(f"Transfer '{label}' failed running `{op['command']}`: {e}")
+            self.sb.message_box(
+                f"<b>{label}</b> failed running <hl>{op['command']}</hl>.<br>{e}"
+            )
             return
 
         # Console: detailed breakdown of what ran.

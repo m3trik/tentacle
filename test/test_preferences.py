@@ -8,10 +8,15 @@ worth pinning at this layer:
 - cmb001: sets cmds.currentUnit(linear=...) from widget.currentData(),
   lowercased — case drift would silently break the option.
 - cmb002: sets cmds.currentUnit(time=...) — pin the unit name forwarded.
-- b002 (Autosave Delete All): iterates mtk.get_recent_autosave() and
-  os.remove()s each file. Captures the (file, _) tuple unpacking.
+
+- cmb003: app-style / theme selector. Its slot forwards the picked template
+  (widget.currentData()) to mtk.StyleSetter.apply_template — pin that wiring.
+
+(A prior b002 "Autosave Delete All" handler was removed 2026-07-02 as dead code;
+b002 was briefly reused 2026-07-04 for a "Match Style" push-button, then that was
+replaced the same day by the cmb003 combo — a theme selector mirroring the app's
+native theme dropdown. See Preferences.cmb003 here and in slots/blender/preferences.py.)
 """
-import os
 import unittest
 
 try:
@@ -91,10 +96,36 @@ class TestCmb002SetTimeUnit(unittest.TestCase):
         self.assertEqual(self.calls, [{"time": "ntsc"}])
 
 
+class _FakeCombo:
+    """Minimal stand-in for the uitk ComboBox: records add()/setCurrentIndex and returns a
+    chosen currentData(), so cmb003_init/cmb003 can be exercised without a real widget.
+
+    Faithful to the real ComboBox contract that tripped up the first draft: ``.items`` returns the
+    item DATA values (``itemData`` when set), NOT the display labels — so the slot must index by a
+    template's token, not its display name."""
+
+    def __init__(self, current_data=None):
+        self.is_initialized = False
+        self.items = []
+        self._current_data = current_data
+        self.current_index = None
+
+    def add(self, mapping):
+        self.items = list(mapping.values())  # data values, matching the real ComboBox.items
+
+    def setCurrentIndex(self, i):
+        self.current_index = i
+
+    def currentData(self):
+        return self._current_data
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB002DeleteAutosaves(unittest.TestCase):
-    """b002 iterates mtk.get_recent_autosave() (file, ts tuples) and
-    deletes the files via os.remove. Errors are swallowed (print only)."""
+class TestCmb003StyleSelector(unittest.TestCase):
+    """cmb003 is the app-style selector. Its init just populates from
+    mtk.StyleSetter.list_templates() (no backup/auto-select — removed 2026-07-05, see the mayatk
+    CHANGELOG); picking an entry forwards its token to apply_template. Both are mocked here so the
+    wiring is pinned without touching real Maya color prefs."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -102,50 +133,35 @@ class TestB002DeleteAutosaves(unittest.TestCase):
             preferences_module.Preferences
         )
 
-        import mayatk as mtk
-        self._orig = mtk.get_recent_autosave
-        # Will be set per-test:
-        self.fake_files = []
-        mtk.get_recent_autosave = lambda: self.fake_files
-
-        self._orig_remove = os.remove
-        self.removed = []
-        os.remove = lambda path: self.removed.append(path)
-
     def tearDown(self):
-        import mayatk as mtk
-        mtk.get_recent_autosave = self._orig
-        os.remove = self._orig_remove
         cmds.file(new=True, force=True)
 
-    def test_removes_every_listed_file(self):
-        self.fake_files = [
-            ("/tmp/scene1.ma", 100),
-            ("/tmp/scene2.ma", 200),
-        ]
-        self.instance.b002()
-        self.assertEqual(self.removed, ["/tmp/scene1.ma", "/tmp/scene2.ma"])
+    def test_init_populates_from_list_templates(self):
+        import mayatk as mtk
 
-    def test_empty_list_is_noop(self):
-        self.fake_files = []
-        self.instance.b002()
-        self.assertEqual(self.removed, [])
+        # Tokens deliberately DIFFER from display names (as Blender's real filepath tokens do) so
+        # this pins that .items holds tokens, not labels, even though nothing gets auto-selected.
+        orig_list = mtk.StyleSetter.list_templates
+        mtk.StyleSetter.list_templates = staticmethod(lambda: {"Maya": "tok_maya", "Blender": "tok_blender"})
+        try:
+            widget = _FakeCombo()
+            self.instance.cmb003_init(widget)
+        finally:
+            mtk.StyleSetter.list_templates = orig_list
+        self.assertEqual(widget.items, ["tok_maya", "tok_blender"])  # .items are DATA tokens
+        self.assertIsNone(widget.current_index)  # no auto-select — mirrors the native dropdown
 
-    def test_os_remove_failure_is_swallowed(self):
-        """A missing-file error should not crash b002."""
-        self.fake_files = [("/tmp/missing.ma", 100), ("/tmp/ok.ma", 200)]
+    def test_select_forwards_token_to_apply_template(self):
+        import mayatk as mtk
 
-        def fake_remove(path):
-            if path == "/tmp/missing.ma":
-                raise OSError("no such file")
-            self.removed.append(path)
-
-        os.remove = fake_remove
-
-        # Should not raise.
-        self.instance.b002()
-        # Second file still removed.
-        self.assertEqual(self.removed, ["/tmp/ok.ma"])
+        calls = []
+        orig = mtk.StyleSetter.apply_template
+        mtk.StyleSetter.apply_template = staticmethod(lambda token, **kw: calls.append(token))
+        try:
+            self.instance.cmb003(1, _FakeCombo(current_data="Blender"))
+        finally:
+            mtk.StyleSetter.apply_template = orig
+        self.assertEqual(calls, ["Blender"])
 
 
 if __name__ == "__main__":

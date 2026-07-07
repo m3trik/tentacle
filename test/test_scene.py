@@ -6,9 +6,9 @@ Most of SceneSlots is a thin shell around MEL/cmds calls (Export, Import,
 SetProject menus). Those are too thin to unit-test meaningfully. This
 covers the units with branching logic:
 
-- _ensure_fbx_plugin     — graceful fail when plugin missing
+- _ensure_fbx_plugin      — graceful fail when plugin missing
 - _resolve_workspace_text — env fallback
-- b015 (rename pattern)  — startswith/contains asterisk modifiers
+- _confirm_dense_export   — dense-mesh tangent-export confirmation gate
 """
 import unittest
 

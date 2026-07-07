@@ -2,7 +2,6 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
-import pythontk as ptk
 import mayatk as mtk
 from uitk import Signals
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -82,7 +81,7 @@ class Nurbs(SlotsMaya):
                 try:
                     mel.eval(command)
                 except Exception as e:
-                    cmds.warning(f"Nurbs '{text}' ({command}) failed: {e}")
+                    self.sb.message_box(f"Nurbs '{text}' ({command}) failed: {e}")
                 return
 
     def b056(self):
@@ -293,14 +292,6 @@ class Nurbs(SlotsMaya):
             angleLoftSpans=angleLoftSpans,
         )
 
-    def b012(self):
-        """Project Curve"""
-        mel.eval("ProjectCurveOnMesh")
-
-    def b014(self):
-        """Duplicate Curve"""
-        mel.eval("DuplicateCurve")
-
     def b016(self):
         """Extract Curve"""
         try:
@@ -308,89 +299,9 @@ class Nurbs(SlotsMaya):
         except Exception:
             mtk.create_curve_from_edges()
 
-    def b018(self):
-        """Lock Curve"""
-        mel.eval("LockCurveLength")
-
-    def b019(self):
-        """Unlock Curve"""
-        mel.eval("UnlockCurveLength")
-
-    def b020(self):
-        """Bend Curve"""
-        mel.eval("BendCurves")
-
-    def b022(self):
-        """Curl Curve"""
-        mel.eval("CurlCurves")
-
-    def b024(self):
-        """Modify Curve Curvature"""
-        mel.eval("ScaleCurvature")
-
-    def b026(self):
-        """Smooth Curve"""
-        mel.eval("SmoothHairCurves")
-
-    def b028(self):
-        """Straighten Curve"""
-        mel.eval("StraightenCurves")
-
     def b030(self):
         """Extrude: extrude the selected NURBS curve(s) into a surface."""
         mel.eval("Extrude")
-
-    def b036(self):
-        """Planar"""
-        mel.eval("Planar")
-
-    def b038(self):
-        """Insert Isoparm"""
-        mel.eval("InsertIsoparms")
-
-    def b040(self):
-        """Edit Curve Tool"""
-        mel.eval("CurveEditTool")
-
-    def b041(self):
-        """Attach Curve"""
-        mel.eval("AttachCurveOptions")
-
-    def b042(self):
-        """Detach Curve"""
-        mel.eval("DetachCurve")
-
-    def b043(self):
-        """Extend Curve"""
-        mel.eval("ExtendCurveOptions")
-
-    def b045(self):
-        """Cut Curve"""
-        mel.eval("CutCurve")
-
-    def b046(self):
-        """Open/Close Curve"""
-        mel.eval("OpenCloseCurve")
-
-    def b047(self):
-        """Insert Knot"""
-        mel.eval("InsertKnot")
-
-    def b049(self):
-        """Add Points Tool"""
-        mel.eval("AddPointsTool")
-
-    def b051(self):
-        """Reverse Curve"""
-        mel.eval("ReverseCurve")
-
-    def b052(self):
-        """Extend Curve"""
-        mel.eval("ExtendCurve")
-
-    def b054(self):
-        """Extend On Surface"""
-        mel.eval("ExtendCurveOnSurface")
 
 
 # --------------------------------------------------------------------------------------------

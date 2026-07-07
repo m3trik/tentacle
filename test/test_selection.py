@@ -195,5 +195,90 @@ class TestSelectionToolStatic(unittest.TestCase):
         self.assertTrue(result is None or isinstance(result, str))
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestCmb003ConvertToBorderEdges(unittest.TestCase):
+    """Regression pin for a real bug: cmb003's "Border Edges" used to call
+    ``self.getBorderEdgeFromFace()``, a method that doesn't exist anywhere in the
+    codebase — every selection raised AttributeError. Fixed 2026-07-06 to reuse the
+    same ``mtk.Components`` pipeline ``tb000``'s own Border-Edges option already used
+    correctly a few methods above. Pins both "doesn't crash" and "selects the right
+    edges" against a real open mesh (a closed mesh has zero border edges either way)."""
+
+    def test_border_edges_selects_naked_edges_of_an_open_plane(self):
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+
+        cmds.file(new=True, force=True)
+        plane = cmds.polyPlane(sx=3, sy=3, w=2, h=2, ch=False)[0]
+        cmds.select(f"{plane}.f[0:8]")  # all 9 faces of the 3x3 plane
+
+        try:
+            instance.cmb003(8, _Widget_ConvertTo())  # index 8 == "Border Edges"
+        finally:
+            border_result = cmds.ls(sl=True, flatten=True) or []
+            cmds.file(new=True, force=True)
+
+        # A 3x3 open plane has a perimeter of 4*3=12 border edges.
+        self.assertEqual(len(border_result), 12, f"got {border_result}")
+        self.assertFalse(instance.sb.messages, "should not warn on a valid selection")
+
+    def test_getBorderEdgeFromFace_is_truly_gone(self):
+        """Confirms the ORIGINAL bug's method reference doesn't silently reappear."""
+        self.assertFalse(hasattr(selection_module.Selection, "getBorderEdgeFromFace"))
+
+    def test_border_edges_empty_selection_warns_and_does_not_raise(self):
+        """Regression: get_border_components() raises ValueError("No valid
+        components given.") by design as an API-boundary guard, but cmb003
+        called it with an empty selection unguarded, crashing the slot.
+        Fixed 2026-07-06 to warn via message_box and return early instead."""
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+
+        cmds.file(new=True, force=True)
+        cmds.select(clear=True)
+        instance.cmb003(8, _Widget_ConvertTo())  # index 8 == "Border Edges"
+
+        self.assertTrue(instance.sb.messages, "should warn on an empty selection")
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestCmb003EdgeLoop(unittest.TestCase):
+    """Regression pin for a real bug: cmb003's "Edge Loop" case called
+    ``mel.eval("polySelectSp -loop 1")`` — a nonexistent MEL command — which
+    raised RuntimeError("Invalid object or value: 1") on every use. Fixed
+    2026-07-06 to call ``SelectEdgeLoopSp``, the same global proc Maya's own
+    Polygons > Select menu wires "Convert Selection to Edge Loop" to (see
+    PolygonsSelectMenu.mel, sibling of "Edge Ring"'s SelectEdgeRingSp used a
+    few lines below)."""
+
+    def test_edge_loop_selects_the_full_border_loop(self):
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+
+        cmds.file(new=True, force=True)
+        plane = cmds.polyPlane(sx=4, sy=4, w=4, h=4, ch=False)[0]
+        cmds.select(f"{plane}.e[0]")
+
+        try:
+            instance.cmb003(4, _Widget_ConvertTo())  # index 4 == "Edge Loop"
+        finally:
+            result = cmds.ls(sl=True, flatten=True) or []
+            cmds.file(new=True, force=True)
+
+        # A border edge's loop on a 4x4 grid traces the full 16-edge perimeter.
+        self.assertEqual(len(result), 16, f"got {result}")
+
+
+class _Widget_ConvertTo:
+    """cmb003's dispatch only reads ``widget.items`` (by index)."""
+
+    items = [
+        "Verts", "Vertex Faces", "Vertex Perimeter", "Edges", "Edge Loop", "Edge Ring",
+        "Contained Edges", "Edge Perimeter", "Border Edges", "Faces", "Face Path",
+        "Contained Faces", "Face Perimeter", "UV's", "UV Shell", "UV Shell Border",
+        "UV Perimeter", "UV Edge Loop", "Shell", "Shell Border",
+    ]
+
+
 if __name__ == "__main__":
     unittest.main()

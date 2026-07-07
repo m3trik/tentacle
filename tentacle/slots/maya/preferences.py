@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import os
-
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
@@ -120,15 +118,19 @@ class Preferences(SlotsMaya):
         """Color Settings"""
         mel.eval("colorPrefWnd")
 
-    def b002(self):
-        """Autosave: Delete All"""
-        files = mtk.get_recent_autosave()
-        for file, _ in files:
-            try:
-                os.remove(file)
+    def cmb003_init(self, widget):
+        """App-style / color selector — the Maya-side counterpart to the Blender slot's ``cmb003``.
+        Maya has no *native* color-preset dropdown to mirror (its Colors editor offers no named
+        templates), so this just lists our own shipped styles (e.g. ``Blender``). See
+        ``mayatk.ui_utils.style_setter``."""
+        if not widget.is_initialized:
+            widget.add(mtk.StyleSetter.list_templates())  # {display_name: token}
 
-            except Exception as error:
-                print(error)
+    def cmb003(self, index, widget):
+        """Apply the selected shipped style (e.g. ``Blender``), recoloring Maya's viewport toward
+        that look. Scoped to what Maya exposes scriptably (displayRGBColor/colorIndex/displayColor)
+        — Maya's Qt chrome itself has no scriptable equivalent, unlike Blender's full theme."""
+        mtk.StyleSetter.apply_template(widget.currentData())
 
     def b008(self):
         """Hotkeys: open Maya's native Hotkey Preferences window."""

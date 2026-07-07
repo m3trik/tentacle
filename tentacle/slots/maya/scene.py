@@ -118,35 +118,6 @@ class SceneSlots(SlotsMaya):
                 setToolTip="Toggle Maya command ports on/off (MEL :7001, Python :7002).\nUsed for external editor connections.",
             )
 
-    @Signals("textChanged", "returnPressed")
-    def txt000(self, widget):
-        """Workspace Scenes: Filter"""
-        self.ui.cmb000.init_slot()
-
-    def cmb000_init(self, widget):
-        """Initialize Workspace Scenes"""
-        if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
-            mgr = ScriptJobManager.instance()
-            mgr.subscribe(
-                "workspaceChanged", self._on_workspace_changed, owner=widget
-            )
-            mgr.connect_cleanup(widget, owner=widget)
-
-        include = self.ui.txt000.text() or None
-
-        scenes = {
-            ptk.format_path(f, "file"): f
-            for f in mtk.get_workspace_scenes(
-                recursive=True, inc=include, basename_only=True
-            )
-        }
-        widget.add(
-            scenes,
-            header="Scenes:",
-            clear=True,
-        )
-
     def _ensure_fbx_plugin(self):
         """Load fbxmaya if not already loaded. Returns True on success."""
         if cmds.pluginInfo("fbxmaya", query=True, loaded=True):
@@ -170,11 +141,6 @@ class SceneSlots(SlotsMaya):
             mel.eval(f'FBXUICallBack -1 "{suffix}"')
         except Exception as e:
             self.sb.message_box(f"FBX UI callback failed:\n{e}")
-
-    def cmb000(self, index, widget):
-        """Workspace Scenes"""
-        scene = widget.items[index]
-        cmds.file(scene, open=True, force=True)
 
     def cmb002_init(self, widget):
         """Initialize Autosave"""
@@ -278,17 +244,6 @@ class SceneSlots(SlotsMaya):
         elif text == "OBJ Export Presets":  # Obj Export Presets
             self._eval_fbx_uicallback('editExportPresetInNewWindow" "obj')
 
-    def cmb005_init(self, widget):
-        """Initialize Recent Files"""
-        recent_files = mtk.get_recent_files(slice(0, 20))
-        truncated = ptk.truncate(recent_files, 165)
-        widget.add(zip(truncated, recent_files), header="Recent Files", clear=True)
-
-    def cmb005(self, index: int, widget):
-        """Recent Files"""
-        force = not mtk.get_env_info("scene_modified")
-        cmds.file(widget.items[index], open=True, force=force, ignoreVersion=True)
-
     def list000_init(self, widget):
         """Initialize Recent Files"""
         widget.fixed_item_height = 18
@@ -306,8 +261,7 @@ class SceneSlots(SlotsMaya):
         cmds.file(data, open=True, force=True)
 
     def _on_workspace_changed(self):
-        """Maya workspaceChanged scriptJob handler — refresh dependent UI."""
-        self.ui.cmb000.init_slot()
+        """Maya workspaceChanged scriptJob handler — refresh the footer status."""
         if self._footer_controller:
             self._footer_controller.update()
 
@@ -315,6 +269,13 @@ class SceneSlots(SlotsMaya):
         footer = getattr(self.ui, "footer", None)
         if not footer:
             return None
+        # The workspaceChanged subscription must live on a widget that actually
+        # exists — it previously rode the Workspace-Scenes combo's _init, which
+        # went dead when that widget left scene.ui (footer silently stopped
+        # refreshing on workspace switches).
+        mgr = ScriptJobManager.instance()
+        mgr.subscribe("workspaceChanged", self._on_workspace_changed, owner=footer)
+        mgr.connect_cleanup(footer, owner=footer)
         return FooterStatusController(
             footer=footer,
             resolver=self._resolve_workspace_text,
@@ -324,19 +285,6 @@ class SceneSlots(SlotsMaya):
 
     def _resolve_workspace_text(self) -> str:
         return mtk.get_env_info("workspace_dir") or ""
-
-    def b000(self):
-        """Autosave: Open Directory"""
-        autosave_dir = os.environ.get("MAYA_AUTOSAVE_FOLDER", "")
-        if not autosave_dir:
-            return
-        dirs = autosave_dir.split(";")[0]
-
-        try:
-            os.startfile(ptk.format_path(dirs))
-
-        except FileNotFoundError:
-            self.sb.message_box("The system cannot find the file specified.")
 
     def b001(self):
         """Open Reference Manager"""
@@ -913,30 +861,6 @@ class SceneSlots(SlotsMaya):
             self.sb.message_box(f"Saved to <hl>{os.path.basename(saved)}</hl>.")
         else:
             self.sb.message_box("Save failed. See script editor for details.")
-
-    def b015(self):
-        """Remove String From Object Names."""
-        # asterisk denotes startswith*, *endswith, *contains*
-        from_ = str(self.ui.t000.text())
-        to = str(self.ui.t001.text())
-        replace = self.ui.chk004.isChecked()
-        selected = self.ui.chk005.isChecked()
-
-        objects = cmds.ls(from_) or []  # Stores a list of all objects starting with 'from_'
-        if selected:  # get user selected objects instead
-            objects = cmds.ls(sl=True) or []
-        from_ = from_.strip("*")  # strip modifier asterisk from user input
-
-        for obj in objects:  # Get a list of it's direct parent
-            relatives = cmds.listRelatives(obj, parent=1) or []
-            # If that parent starts with group, it came in root level and is pasted in a group, so ungroup it
-            if relatives and "group" in relatives[0]:
-                cmds.ungroup(relatives[0])
-
-            newName = to
-            if replace:
-                newName = obj.replace(from_, to)
-            cmds.rename(obj, newName)  # Rename the object with the new name
 
 
 # --------------------------------------------------------------------------------------------
