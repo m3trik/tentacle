@@ -29,7 +29,6 @@
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MacroManager | 0 | 0 | 0 | 0 | OK |
-| MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
@@ -41,7 +40,6 @@
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
-| SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
 | TubeRig | 0 | 0 | 0 | 8 | OK |
@@ -127,7 +125,7 @@
 - **ShotSequencer** — XXL Shots pipeline; lowest priority
 - **Shots** — XXL Shots pipeline; lowest priority
 
-**N/A by design (1):** WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
+**N/A by design (3):** MarmosetBridge (live-RPC external bridge; Blender uses the thin export+launch flow in slots/blender/materials.py); SubstanceBridge (live-RPC external bridge; see MarmosetBridgeSlots); WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
 
 **[counterpart-set OK]** BlenderBridge <-> MayaBridge — cross-DCC send pair — each package ships the bridge named after its TARGET app
 
@@ -246,4 +244,4 @@ Blender-only panels: MayaBridge
 - **duplicate** `s001` — optbox QDoubleSpinBox None  [pending] see tb002
 - **duplicate** `tb002` — [pending] Auto Instance (find geometrically identical meshes, convert to instances of one prototype) added to Maya's duplicate.py 2026-07-05, backed by mayatk's core_utils.auto_instancer (AutoInstancer engine + AssemblyReconstructor + geometry_matcher — a substantial standalone mesh-matching/instancing subsystem, still an active workstream per its own project ledger). Porting it to blendertk is a dedicated engine port (mesh signature/matching via bmesh, assembly separate/reassemble via parent/collection graphs, get_instances/replace_with_instances already exist in blendertk's node_utils and are the eventual landing point) — out of scope for the selection/component-conversion work that surfaced this gap; tracked here rather than silently left unhandled. Covers tb002's whole option box (chk004-011, s000-001), which has no independent life without the handler.
 
-## Totals: 41 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 14 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 39 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 14 open-work items; 0 stale Maya handlers. Sweep PASSES.
