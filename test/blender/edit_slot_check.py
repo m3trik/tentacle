@@ -9,7 +9,9 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 Drives the real ``Edit`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
 can't load headless): Mesh-Cleanup option routing, mode-aware Delete-Selected (FACE vs VERT
 dispatch — deleting by VERT in face mode would nuke neighboring faces), Create-Primitive and
-Convert list handlers.
+Convert list handlers, and the cmb000 Transfer menu (UVs / Vertex Colors / Vertex Group
+Weights / Custom Normals / Material Slots — real per-vertex/per-loop data copied source-object
+-> target-object via native Data-Transfer, not just "no exception").
 """
 import sys
 import os
@@ -30,6 +32,22 @@ lines = []
 
 def check(name, cond, detail=""):
     lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
+
+
+def _op_exists(module, name):
+    """hasattr(bpy.ops.<module>, name) is NOT a reliable existence check -- bpy.ops lazily
+    constructs a wrapper for any attribute name asked of it, so hasattr returns True even for
+    operator ids that don't really exist. get_rna_type() is the only reliable check."""
+    import bpy
+
+    op = getattr(getattr(bpy.ops, module, None), name, None)
+    if op is None:
+        return False
+    try:
+        op.get_rna_type()
+    except Exception:
+        return False
+    return True
 
 
 def make_slot(cls):
@@ -55,6 +73,7 @@ def list_item(text, parent=""):
 
 try:
     import bpy
+    import blendertk as btk
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
     from tentacle.slots.blender.edit import Edit
 
@@ -65,7 +84,7 @@ try:
         f"{cat}/{label}"
         for cat, items in Edit._PRIMITIVES.items()
         for label, op in items.items()
-        if not hasattr(bpy.ops.mesh, op)
+        if not _op_exists("mesh", op)
     ]
     check("list000 primitive ops all exist", missing == [], f"missing={missing}")
 
@@ -76,12 +95,124 @@ try:
           len(bpy.data.objects) == 1 and bpy.data.objects[0].type == "MESH",
           f"objects={[o.name for o in bpy.data.objects]}")
 
+    # list000 invoked while the user is in Edit Mode on an unrelated mesh: unlike Maya's
+    # primitive commands (always create a new DAG node regardless of component-select mode),
+    # Blender's mesh/curve/surface primitive-add ops MERGE into the currently-edited mesh
+    # instead of making a new object when called from Edit Mode (verified live) -- list000 must
+    # force Object Mode first so "click Create -> get a new object" holds here too.
+    reset()
+    bpy.ops.mesh.primitive_plane_add()  # 4 verts
+    other = bpy.context.active_object
+    v0 = len(other.data.vertices)
+    bpy.ops.object.mode_set(mode="EDIT")
+    slot.list000(list_item("Cube", "Polygon"))
+    other.update_from_editmode()
+    check(
+        "list000 forces Object Mode so Create doesn't merge into the edited mesh",
+        bpy.context.object.mode == "OBJECT" and len(other.data.vertices) == v0
+        and len(bpy.data.objects) == 2,
+        f"mode={bpy.context.object.mode} plane_verts={v0}->{len(other.data.vertices)} "
+        f"objects={[o.name for o in bpy.data.objects]}",
+    )
+
     # list001 Convert: bezier circle -> Mesh
     reset()
     bpy.ops.curve.primitive_bezier_circle_add()
     o = bpy.context.active_object
     slot.list001(list_item("Mesh"))
     check("list001 'Mesh' converts curve -> MESH", o.type == "MESH", f"type={o.type}")
+
+    # list000 Create Primitive — NURBS/Curve/Helper/Light/Control categories (parity fix:
+    # these were entirely absent before). Every mapped op/preset must exist AND actually
+    # create the expected object type when clicked.
+    missing = [
+        f"Curve/{label}" for label, op in Edit._CURVE_PRIMITIVES.items()
+        if not _op_exists("curve", op)
+    ] + [
+        f"NURBS/{label}" for label, op in Edit._NURBS_SURFACES.items()
+        if not _op_exists("surface", op)
+    ] + [
+        f"Control/{label}" for label, shape in Edit._CONTROLS.items()
+        if shape not in btk.Controls.shapes()
+    ]
+    check("list000 curve/surface ops + control presets all exist", missing == [], f"missing={missing}")
+
+    reset()
+    slot.list000(list_item("Sun", "Light"))  # not a real label -> no-op, no crash
+    check("list000 unknown Light item is a safe no-op", len(bpy.data.objects) == 0)
+
+    reset()
+    slot.list000(list_item("Directional", "Light"))
+    o = bpy.data.objects[0] if bpy.data.objects else None
+    check("list000 Light/Directional creates a SUN light", o is not None and o.type == "LIGHT"
+          and o.data.type == "SUN", f"objects={[ob.name for ob in bpy.data.objects]}")
+
+    reset()
+    slot.list000(list_item("Locator", "Helper"))
+    o = bpy.data.objects[0] if bpy.data.objects else None
+    check("list000 Helper/Locator creates a PLAIN_AXES empty", o is not None and o.type == "EMPTY"
+          and o.empty_display_type == "PLAIN_AXES")
+
+    reset()
+    n_coll_before = len(bpy.data.collections)
+    slot.list000(list_item("Set", "Helper"))
+    check("list000 Helper/Set links a new Collection",
+          len(bpy.data.collections) == n_coll_before + 1)
+
+    reset()
+    slot.list000(list_item("Path", "Curve"))
+    o = bpy.data.objects[0] if bpy.data.objects else None
+    check("list000 Curve/Path creates a CURVE object", o is not None and o.type == "CURVE")
+
+    reset()
+    slot.list000(list_item("Torus", "NURBS"))
+    o = bpy.data.objects[0] if bpy.data.objects else None
+    check("list000 NURBS/Torus creates a SURFACE object", o is not None and o.type == "SURFACE")
+
+    reset()
+    slot.list000(list_item("Circle", "Control"))
+    o = bpy.data.objects[0] if bpy.data.objects else None
+    check("list000 Control/Circle creates a curve control (wires up blendertk.Controls)",
+          o is not None and o.type == "CURVE" and bpy.context.view_layer.objects.active is o)
+
+    # list001 Convert — 2 of the 3 newly-exposed native targets convert a plain MESH source
+    # (Point Cloud, Grease Pencil); "Hair Curves" (CURVES) does not — verified live that
+    # bpy.ops.object.convert(target="CURVES") on a bare mesh (even one with a hair particle
+    # system added but never combed/baked) silently no-ops (FINISHED, object unchanged), matching
+    # Blender's own Convert-To menu, which lists all 5 targets unconditionally with no
+    # per-source-type graying. So "Hair Curves" is exercised from a source it actually converts:
+    # an existing Curve object (Blender's real legacy-Curve -> new-Curves-data upgrade path).
+    for label, expect_type in (("Point Cloud", "POINTCLOUD"), ("Grease Pencil", "GREASEPENCIL")):
+        reset()
+        bpy.ops.mesh.primitive_cube_add()
+        o = bpy.context.active_object
+        slot.list001(list_item(label))
+        check(f"list001 '{label}' converts mesh -> {expect_type}", o.type == expect_type,
+              f"type={o.type}")
+
+    reset()
+    bpy.ops.curve.primitive_bezier_curve_add()
+    o = bpy.context.active_object
+    slot.list001(list_item("Hair Curves"))
+    check("list001 'Hair Curves' converts a Curve object -> CURVES", o.type == "CURVES",
+          f"type={o.type}")
+
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    src = bpy.context.active_object
+    bpy.ops.object.select_all(action="DESELECT")
+    src.select_set(True)
+    bpy.context.view_layer.objects.active = src
+    bpy.ops.object.duplicate_move_linked()  # a real linked duplicate (shared mesh data)
+    dup = bpy.context.active_object
+    shared_before = dup.data == src.data
+    bpy.ops.object.select_all(action="DESELECT")
+    dup.select_set(True)
+    bpy.context.view_layer.objects.active = dup
+    slot.list001(list_item("Instance to Object"))
+    check("list001 'Instance to Object' gives the linked duplicate unique data",
+          shared_before and dup.data != src.data,
+          f"shared_before={shared_before} shared_after={dup.data == src.data}")
 
     # tb000 Mesh Cleanup option routing (chk024/chk032/chk033/chk028/chk029 + s000)
     reset()
@@ -100,8 +231,20 @@ try:
     def chk(state):
         return NS(isChecked=lambda s=state: s)
 
-    menu = NS(chk024=chk(True), s000=NS(value=lambda: 0.001), chk032=chk(True),
-              chk033=chk(True), chk028=chk(True), chk029=chk(False))
+    # tb000 reads chk004/005/022/023/025 unconditionally (repair mode + object-duplicate
+    # scope) plus every _DIAGNOSTIC_CRITERIA checkbox (built into `criteria` before the
+    # repair/select branch), even though this repair-mode run never selects by them.
+    menu = NS(
+        chk004=chk(True), chk005=chk(False),  # Repair ON, All Geometry OFF
+        chk022=chk(False), chk023=chk(False),  # skip the object-duplicate branch
+        chk025=chk(False),  # skip the overlapping-faces pass
+        chk002=chk(False), chk011=chk(False), chk003=chk(False), chk017=chk(False),
+        chk010=chk(False), chk013=chk(False), chk014=chk(False), chk015=chk(False),
+        s006=NS(value=lambda: 0.00001), s007=NS(value=lambda: 0.00001),
+        s008=NS(value=lambda: 0.00001),
+        chk024=chk(True), s000=NS(value=lambda: 0.001), chk032=chk(True),
+        chk033=chk(True), chk028=chk(True), chk029=chk(False),
+    )
     slot.tb000(NS(option_box=NS(menu=menu)))
     # the loose double welds into the corner vert (9 -> 8); nothing loose remains after
     check("tb000 cleanup merges the loose double", len(o.data.vertices) == v0 - 1,
@@ -131,6 +274,102 @@ try:
     slot.tb002(None)
     check("tb002 object-mode delete removes object", len(bpy.data.objects) == 0,
           f"objects={len(bpy.data.objects)}")
+
+    # cmb000 Transfer: active object = source, other selected object = target (real data
+    # copied per data type, driven through the actual combo dispatch, not the bare bpy.ops call).
+    transfer_labels = list(Edit._TRANSFER_OPS)
+    transfer_widget = NS(items=transfer_labels)
+
+    def make_transfer_pair():
+        bpy.ops.mesh.primitive_cube_add()
+        source = bpy.context.active_object
+        bpy.ops.mesh.primitive_cube_add()  # coincident cube -> unambiguous nearest-vertex match
+        target = bpy.context.active_object
+        target.select_set(True)
+        source.select_set(True)
+        bpy.context.view_layer.objects.active = source
+        return source, target
+
+    # UVs
+    reset()
+    source, target = make_transfer_pair()
+    for loop in source.data.uv_layers.active.data:
+        loop.uv = (0.123, 0.456)
+    before = [tuple(loop.uv) for loop in target.data.uv_layers.active.data]
+    slot.cmb000(transfer_labels.index("UVs"), transfer_widget)
+    after = [tuple(loop.uv) for loop in target.data.uv_layers.active.data]
+    check(
+        "cmb000 'UVs' copies real per-loop UV data",
+        before != after
+        and all(abs(u - 0.123) < 1e-4 and abs(v - 0.456) < 1e-4 for u, v in after),
+        f"{before[0]} -> {after[0]}",
+    )
+
+    # Vertex Colors
+    reset()
+    source, target = make_transfer_pair()
+    bpy.ops.geometry.color_attribute_add()  # point-domain color attr on the active (source)
+    for elem in source.data.color_attributes.active_color.data:
+        elem.color = (1.0, 0.0, 0.0, 1.0)
+    had_none = len(target.data.color_attributes) == 0
+    slot.cmb000(transfer_labels.index("Vertex Colors"), transfer_widget)
+    got_layer = len(target.data.color_attributes) > 0
+    colors = (
+        [tuple(elem.color) for elem in target.data.color_attributes.active_color.data]
+        if got_layer else []
+    )
+    check(
+        "cmb000 'Vertex Colors' copies real per-vertex color data",
+        had_none and got_layer
+        and all(abs(c[0] - 1.0) < 1e-3 and abs(c[1]) < 1e-3 for c in colors),
+        f"before=none after={colors[:1]}",
+    )
+
+    # Vertex Group Weights
+    reset()
+    source, target = make_transfer_pair()
+    vg = source.vertex_groups.new(name="Grp")
+    vg.add(range(len(source.data.vertices)), 0.75, 'REPLACE')
+    had_none = len(target.vertex_groups) == 0
+    slot.cmb000(transfer_labels.index("Vertex Group Weights"), transfer_widget)
+    got_group = "Grp" in target.vertex_groups
+    weights = (
+        [target.vertex_groups["Grp"].weight(i) for i in range(len(target.data.vertices))]
+        if got_group else []
+    )
+    check(
+        "cmb000 'Vertex Group Weights' copies real per-vertex weight data",
+        had_none and got_group and all(abs(w - 0.75) < 1e-3 for w in weights),
+        f"before=none after={weights[:3]}",
+    )
+
+    # Custom Normals
+    reset()
+    source, target = make_transfer_pair()
+    source.data.normals_split_custom_set([(0.0, 0.0, 1.0)] * len(source.data.loops))
+    had_none = not target.data.has_custom_normals
+    slot.cmb000(transfer_labels.index("Custom Normals"), transfer_widget)
+    got_normals = target.data.has_custom_normals
+    normals = [tuple(cn.vector) for cn in target.data.corner_normals] if got_normals else []
+    check(
+        "cmb000 'Custom Normals' copies real per-loop normal data",
+        had_none and got_normals
+        and all(abs(n[0]) < 0.05 and abs(n[1]) < 0.05 and n[2] > 0.9 for n in normals),
+        f"before=none after={normals[:1]}",
+    )
+
+    # Material Slots
+    reset()
+    source, target = make_transfer_pair()
+    source.data.materials.append(bpy.data.materials.new("MatA"))
+    source.data.materials.append(bpy.data.materials.new("MatB"))
+    had_none = len(target.data.materials) == 0
+    slot.cmb000(transfer_labels.index("Material Slots"), transfer_widget)
+    check(
+        "cmb000 'Material Slots' copies real material-slot assignments",
+        had_none and list(target.data.materials) == list(source.data.materials),
+        f"after={[m.name if m else None for m in target.data.materials]}",
+    )
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

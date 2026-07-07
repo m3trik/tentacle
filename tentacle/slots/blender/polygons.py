@@ -315,7 +315,7 @@ class PolygonsSlots(SlotsBlender):
         # chk016 reuses the Maya name for the SAME option — apply (freeze) object transforms
         # first so the two meshes are compared in a common world space.
         widget.option_box.menu.add(
-            "QCheckBox", setText="Freeze Transforms", setObjectName="chk016",
+            "QCheckBox", setText="Freeze Transforms", setObjectName="chk016", setChecked=True,
             setToolTip="Apply (freeze) the objects' transforms before snapping, so the vertex "
             "match is computed in world space.",
         )

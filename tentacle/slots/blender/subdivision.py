@@ -1,6 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import bpy
 import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
@@ -50,7 +49,7 @@ class Subdivision(SlotsBlender):
         menu.add("QCheckBox", setText="Preserve Hard/Crease Edges", setObjectName="chk011",
                  setChecked=True, setToolTip="Planar dissolve won't cross sharp edges.")
         menu.add("QCheckBox", setText="Preserve UV Borders", setObjectName="chk012",
-                 setToolTip="Planar dissolve won't cross UV island borders.")
+                 setChecked=True, setToolTip="Planar dissolve won't cross UV island borders.")
 
         collapse_widgets = [menu.s010, menu.chk013, menu.chk014]
         planar_widgets = [menu.s011, menu.chk010, menu.chk011, menu.chk012]
@@ -93,12 +92,20 @@ class Subdivision(SlotsBlender):
     @btk.undoable
     def s000(self, value, widget):
         """Division Level (live Subdivision-Surface viewport level)."""
-        btk.set_subdivision(self.selected_objects(), viewport_levels=value)
+        changed = btk.set_subdivision(self.selected_objects(), viewport_levels=value)
+        if changed:
+            self.sb.message_box(
+                f"Division Level: <hl>{value}</hl> on <hl>{len(changed)}</hl> object(s)."
+            )
 
     @btk.undoable
     def s001(self, value, widget):
         """Tesselation Level (Subdivision-Surface render level)."""
-        btk.set_subdivision(self.selected_objects(), render_levels=value)
+        changed = btk.set_subdivision(self.selected_objects(), render_levels=value)
+        if changed:
+            self.sb.message_box(
+                f"Tesselation Level: <hl>{value}</hl> on <hl>{len(changed)}</hl> object(s)."
+            )
 
     # ------------------------------------------------------------------ b-slots
     @btk.undoable

@@ -16,8 +16,9 @@ class SceneSlots(SlotsBlender):
     autosaves (``btk.get_recent_files`` / ``btk.get_recent_autosave``); import/export route
     through Blender's native format operators (file dialogs via ``INVOKE_DEFAULT``).
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
-    Maya's workspace model, the remaining mayatk manager windows (hierarchy/exporter) and
-    command ports have no Blender analogue and are deferred.
+    Scene Exporter and Hierarchy Manager are native blendertk panels (Diff/Fix; Pull isn't
+    ported yet). Maya's workspace model and command ports have no Blender analogue and are
+    deferred.
     """
 
     # (label -> bpy.ops path) for the import/export combos; resolved at call time so a
@@ -51,7 +52,7 @@ class SceneSlots(SlotsBlender):
         widget.menu.add("Separator", setTitle="Export")
         widget.menu.add(
             "QPushButton", setText="Scene Exporter", setObjectName="b002",
-            setToolTip="Open Blender's native FBX export dialog (carries its own presets).",
+            setToolTip="Batch-export via a configurable task/check pipeline (FBX/GLB).",
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton, setText="Export Scene", setObjectName="tb003",
@@ -65,9 +66,11 @@ class SceneSlots(SlotsBlender):
             "QPushButton", setText="Maya Bridge", setObjectName="b010",
             setToolTip="Send the selected objects to a fresh Maya (export FBX + run a chosen import template).",
         )
-        # Unity Bridge lives in the Materials menu's Bridges group (like Marmoset /
-        # Substance) — it reuses the DCC-agnostic extapps unity_workflow panel
-        # (export FBX → pre-fill), not a blendertk panel. See materials.py b026.
+        # Unity Bridge lives in the Materials menu's Bridges group alongside Marmoset /
+        # Substance (all three are bridges, grouped by what they act on) — a native
+        # blendertk panel (env_utils/unity_bridge), 1:1 with mayatk's, exporting the
+        # selection and copying the FBX into a Unity project's Assets/ directly (no
+        # extapps relay). See materials.py b026.
         widget.menu.add("Separator", setTitle="Manage")
         widget.menu.add(
             "QPushButton", setText="Reference Manager", setObjectName="b001",
@@ -75,11 +78,21 @@ class SceneSlots(SlotsBlender):
         )
         widget.menu.add(
             "QPushButton", setText="Hierarchy Manager", setObjectName="b004",
-            setToolTip="Open the Outliner in its own window.",
+            setToolTip="Diff/repair the scene hierarchy against a reference .blend.",
         )
         widget.menu.add(
             "QPushButton", setText="Naming", setObjectName="b005",
             setToolTip="Blender's native Batch Rename.",
+        )
+        widget.menu.add(
+            "QPushButton", setText="Audio Clips", setObjectName="b003",
+            setToolTip="Manage scene-wide audio clips in the Video Sequence Editor "
+            "(add/remove/trim/sync).",
+        )
+        widget.menu.add(
+            "QPushButton", setText="Blendshape Animator", setObjectName="b015",
+            setToolTip="Build a morph between two meshes as a shape key, sculpt in-between "
+            "tweens to customize the curve, and apply them back.",
         )
         widget.menu.add("Separator", setTitle="Fix")
         widget.menu.add(
@@ -465,20 +478,40 @@ class SceneSlots(SlotsBlender):
             html, "Ok", title="Get Scene Info", size=(640, 600), monospace=False
         )
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
     def b002(self):
-        """Scene Exporter — the mayatk batch/preset exporter window isn't ported; open Blender's
-        native FBX export dialog (which carries its own operator presets via the +/− buttons) as
-        the don't-reinvent stand-in."""
-        self.invoke_op("export_scene.fbx")
+        """Scene Exporter — native blendertk panel (task/check pipeline, FBX or GLB), 1:1 with
+        mayatk's ``scene_exporter``. See ``blendertk.env_utils.scene_exporter`` for which tasks/
+        checks are ported vs. disabled placeholders (hierarchy_manager / smart_bake /
+        data_export subsystems aren't ported yet)."""
+        self.sb.handlers.marking_menu.show("scene_exporter")
 
     def b004(self):
-        """Hierarchy Manager (Blender's native Outliner in a new window — the
-        don't-reinvent answer; the mayatk diff/pull workflow is Maya-specific)."""
-        try:
-            btk.open_editor("Outliner")
-        except Exception as e:
-            self.sb.message_box(str(e))
+        """Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend
+        (native blendertk panel, 1:1 with mayatk's ``hierarchy_manager`` for Diff/Fix; Pull
+        isn't ported yet — see ``blendertk.env_utils.hierarchy_manager`` for why)."""
+        self.sb.handlers.marking_menu.show("hierarchy_manager")
+
+    def b003(self):
+        """Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
+        trim a clip + scene-range sync), 1:1 role with mayatk's ``AudioClipsSlots``. Mayatk's
+        launcher lives inside the (not-yet-ported) Shot Manifest panel; this sits here in
+        Scene ▸ Manage instead until that panel exists — see
+        ``blendertk.audio_utils.audio_clips`` for the scope. ``b003`` (not Maya's ``b012``,
+        "Toggle Command Ports" — a Maya command-port concept with no Blender analogue) to
+        avoid a cross-DCC objectName collision (see ``test_blender_slots.py``'s semantics
+        guard); ``b003`` is unused by Maya's ``scene.py``."""
+        self.sb.handlers.marking_menu.show("audio_clips")
+
+    def b015(self):
+        """Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
+        driver-driven corrective "tween" shapes for a custom curve); the panel/engine is 1:1 with
+        mayatk's ``BlendshapeAnimatorSlots`` (Maya's blendShape multi-target in-betweens have no
+        direct Blender equivalent; see ``blendertk.anim_utils.blendshape_animator.applicator``
+        for how they're rebuilt). This button itself is a new, Blender-only marking-menu entry
+        point, not a mirror of an existing tentacle launcher: mayatk's ``BlendshapeAnimatorSlots``
+        has no tentacle-Maya wiring of its own (it's only reachable via
+        ``MayaUiHandler.instance().show("blendshape_animator")``)."""
+        self.sb.handlers.marking_menu.show("blendshape_animator")
 
 
 # --------------------------------------------------------------------------------------------

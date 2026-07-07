@@ -91,6 +91,26 @@ class Preferences(SlotsBlender):
         """Color Settings → Blender Preferences (Themes)."""
         self._open_preferences("THEMES")
 
+    def cmb003_init(self, widget):
+        """App-style / theme selector — mirrors Blender's Preferences > Themes dropdown. On first
+        init it injects our shipped ``Maya`` theme into Blender's preset dir, then lists the whole
+        native set (built-in + user + ours) exactly like the dropdown would. Reverting to the
+        user's own look is just picking their built-in/own theme back from this same list — no
+        bespoke backup entry needed. See ``blendertk.ui_utils.style_setter`` and the Maya-side
+        counterpart (``slots/maya/preferences.py`` ``cmb003``)."""
+        if not widget.is_initialized:
+            import blendertk as btk
+
+            btk.StyleSetter.install()  # inject shipped 'Maya' theme into the native dropdown
+            widget.add(btk.StyleSetter.list_templates())  # {display_name: token}
+
+    def cmb003(self, index, widget):
+        """Apply the selected native theme preset (Blender's built-in, the user's own, or our
+        injected ``Maya``) — exactly as Blender's own Themes dropdown would."""
+        import blendertk as btk
+
+        btk.StyleSetter.apply_template(widget.currentData())
+
     def b008(self):
         """Hotkeys → Blender Preferences (Keymap)."""
         self._open_preferences("KEYMAP")
@@ -102,6 +122,12 @@ class Preferences(SlotsBlender):
     def b010(self):
         """Settings/Preferences → Blender Preferences (Interface)."""
         self._open_preferences("INTERFACE")
+
+    def b011(self):
+        """Macro Manager — native blendertk panel (blendertk.edit_utils.macros.Macros),
+        1:1 with mayatk's ``macro_manager``: assign a hotkey/category to any macro, filter,
+        save/load binding presets. See ``blendertk.edit_utils.macro_manager_slots``."""
+        self.sb.handlers.marking_menu.show("macro_manager")
 
 
 # --------------------------------------------------------------------------------------------

@@ -10,8 +10,30 @@ class Rendering(SlotsBlender):
 
     Render-frame / show-last-render map onto ``render.render`` / ``render.view_show``;
     playblast maps onto Blender's OpenGL viewport render; render settings live in the
-    Properties editor. Maya's Render-Setup / Rendering-Flags editors have no analogue.
+    Properties editor. Maya's Render-Setup / Rendering-Flags editors map onto the
+    Properties editor's View Layer / Object Visibility tabs (b003/b004 below).
     """
+
+    # label -> Blender-core render-engine identifier (never a bpy.types.RenderEngine
+    # subclass — EEVEE/Workbench are built into Blender itself, not addon-registered).
+    _BUILTIN_ENGINES = [("BLENDER_EEVEE", "EEVEE"), ("BLENDER_WORKBENCH", "Workbench")]
+
+    @classmethod
+    def _render_engines(cls):
+        """(identifier, label) pairs for every renderer ``scene.render.engine`` accepts:
+        the two built-ins above plus Cycles and any installed-addon engine (each a
+        ``bpy.types.RenderEngine`` subclass — ``scene.render.engine``'s own dynamic enum
+        under-reports registered engines when there is no active window/screen, e.g. under
+        ``--background``, so the subclass list is the reliable source rather than
+        ``bl_rna.properties['engine'].enum_items``)."""
+        engines = list(cls._BUILTIN_ENGINES)
+        seen = {ident for ident, _ in engines}
+        for rcls in bpy.types.RenderEngine.__subclasses__():
+            ident = getattr(rcls, "bl_idname", None)
+            if ident and ident not in seen:
+                engines.append((ident, getattr(rcls, "bl_label", None) or ident))
+                seen.add(ident)
+        return engines
 
     def __init__(self, switchboard):
         super().__init__(switchboard)
@@ -20,8 +42,9 @@ class Rendering(SlotsBlender):
     # ------------------------------------------------------------------ tb000  Playblast
     # Reuses the Maya rendering objectNames/labels for the same options (cross-DCC QSettings rule):
     # t000 path · cmb010/s010/s011 range · s012 padding · cmb040 resolution · s015 scale ·
-    # cmb016 quality · cmb041 camera · cmb050 format · chk058 viewer. Format/quality drive the
-    # tested btk.configure_render_output engine; the rest is capture-time scene override (restored).
+    # cmb016 quality · cmb041 camera · cmb050 format · chk057 ornaments · chk058 viewer. Format/
+    # quality drive the tested btk.configure_render_output engine; the rest is capture-time scene
+    # override (restored), including chk057 driving the active 3D viewport's overlay visibility.
     _RESOLUTIONS = [
         ("3840 x 2160", (3840, 2160)), ("2560 x 1440", (2560, 1440)),
         ("1920 x 1080", (1920, 1080)), ("1280 x 720", (1280, 720)),
@@ -77,21 +100,21 @@ class Rendering(SlotsBlender):
         menu.add(
             "QComboBox",
             addItems=["Playback Range", "Animation Range", "Current Frame", "Custom Range"],
-            setObjectName="cmb010", setToolTip="Frame range to capture.",
+            setObjectName="cmb010", setCurrentIndex=0, setToolTip="Frame range to capture.",
         )
         menu.add(
             "QSpinBox", setPrefix="Custom Start Frame: ", setObjectName="s010",
-            set_limits=[-1000000, 1000000], setValue=scene.frame_start,
+            setMinimum=-1000000, setMaximum=1000000, setValue=scene.frame_start,
             setToolTip="First frame captured when using Custom Range.",
         )
         menu.add(
             "QSpinBox", setPrefix="Custom End Frame: ", setObjectName="s011",
-            set_limits=[-1000000, 1000000], setValue=scene.frame_end,
+            setMinimum=-1000000, setMaximum=1000000, setValue=scene.frame_end,
             setToolTip="Last frame captured when using Custom Range.",
         )
         menu.add(
             "QSpinBox", setPrefix="Frame Padding: ", setObjectName="s012",
-            set_limits=[1, 10], setValue=4,
+            setMinimum=1, setMaximum=10, setValue=4,
             setToolTip="Digits used for image-sequence frame numbers (encoded as '#' in the path).",
         )
         cmb040 = menu.add(
@@ -103,7 +126,7 @@ class Rendering(SlotsBlender):
         cmb040.setCurrentIndex(2)  # 1920 x 1080
         menu.add(
             "QSpinBox", setPrefix="Scale %: ", setObjectName="s015",
-            set_limits=[1, 100], setValue=scene.render.resolution_percentage,
+            setMinimum=1, setMaximum=100, setValue=100,
             setToolTip="Resolution percentage applied during capture.",
         )
         cmb016 = menu.add(
@@ -121,6 +144,7 @@ class Rendering(SlotsBlender):
         cmb041.addItem("Active Viewport", None)
         for cam in self._camera_objects():
             cmb041.addItem(cam.name, cam)
+        cmb041.setCurrentIndex(0)
         cmb050 = menu.add(
             "QComboBox", setObjectName="cmb050", setMaxVisibleItems=12,
             setToolTip="Output format. Movie formats write one file; sequences write one image "
@@ -129,7 +153,12 @@ class Rendering(SlotsBlender):
         for label, kwargs, is_movie, is_still in self._FORMATS:
             cmb050.addItem(label, (kwargs, is_movie, is_still))
         menu.add(
-            "QCheckBox", setText="Launch Viewer", setObjectName="chk058", setChecked=True,
+            "QCheckBox", setText="Show Ornaments", setObjectName="chk057", setChecked=True,
+            setToolTip="Include viewport overlays (grid, gizmos, empties, HUD) in the capture; "
+            "unchecked renders the clean geometry only.",
+        )
+        menu.add(
+            "QCheckBox", setText="Launch Viewer", setObjectName="chk058", setChecked=False,
             setToolTip="Play the rendered output when the playblast finishes.",
         )
 
@@ -165,6 +194,10 @@ class Rendering(SlotsBlender):
         render = scene.render
         ff, imgs = render.ffmpeg, render.image_settings
         has_media_type = hasattr(imgs, "media_type")  # Blender 5.x movie/image gate
+        # showOrnaments toggles overlay visibility on the 3D viewport the capture reads from
+        # (grid/gizmos/HUD) — there's no scene-level equivalent, only a per-space one.
+        view3d_ctx = btk.get_view3d_context()
+        view3d_space = view3d_ctx["area"].spaces.active if view3d_ctx else None
         snap = {
             "fs": scene.frame_start, "fe": scene.frame_end, "cam": scene.camera,
             "rx": render.resolution_x, "ry": render.resolution_y,
@@ -172,6 +205,7 @@ class Rendering(SlotsBlender):
             "media": imgs.media_type if has_media_type else None,
             "fmt": imgs.file_format, "q": imgs.quality,
             "ffmt": ff.format, "fcodec": ff.codec, "fcrf": ff.constant_rate_factor,
+            "overlays": view3d_space.overlay.show_overlays if view3d_space else None,
         }
         try:
             render.resolution_x, render.resolution_y = m.cmb040.currentData()
@@ -188,6 +222,8 @@ class Rendering(SlotsBlender):
                 scene.frame_start, scene.frame_end = start, end
             else:
                 scene.frame_set(start)
+            if view3d_space is not None:
+                view3d_space.overlay.show_overlays = m.chk057.isChecked()
             bpy.ops.render.opengl(
                 animation=animation, write_still=single_frame, view_context=view_context,
             )
@@ -196,7 +232,7 @@ class Rendering(SlotsBlender):
         except (RuntimeError, TypeError, ReferenceError) as e:
             self.sb.message_box(str(e))
             return
-        finally:  # restore every scene setting the capture borrowed
+        finally:  # restore every scene/viewport setting the capture borrowed
             scene.frame_start, scene.frame_end, scene.camera = snap["fs"], snap["fe"], snap["cam"]
             render.resolution_x, render.resolution_y = snap["rx"], snap["ry"]
             render.resolution_percentage, render.filepath = snap["pct"], snap["path"]
@@ -204,6 +240,8 @@ class Rendering(SlotsBlender):
                 imgs.media_type = snap["media"]
             imgs.file_format, imgs.quality = snap["fmt"], snap["q"]
             ff.format, ff.codec, ff.constant_rate_factor = snap["ffmt"], snap["fcodec"], snap["fcrf"]
+            if view3d_space is not None:
+                view3d_space.overlay.show_overlays = snap["overlays"]
         if m.chk058.isChecked():
             try:
                 bpy.ops.render.play_rendered_anim()
@@ -223,14 +261,16 @@ class Rendering(SlotsBlender):
 
     # ------------------------------------------------------------------ tb001  Render
     def tb001_init(self, widget):
-        """Render: pick the camera, then render the current frame.
+        """Render: pick the camera and renderer, then render the current frame.
 
         Blender port of the Maya render control (the shared ``rendering.ui``
         folded the old render / show-last buttons + camera combo into ``tb001``).
-        Maya's renderer / Arnold-network / IPR / smart-redo options have no
-        Blender analogue, so only the shared camera option is carried over —
-        ``cmb002`` keeps the Maya objectName for the cross-DCC QSettings rule.
-        The click renders the current frame; Blender's render window shows it.
+        ``cmb002``/``cmb003`` keep the Maya objectNames for the cross-DCC QSettings
+        rule. Maya's Arnold-network / IPR / smart-redo options have no Blender
+        analogue (Blender's interactive render is the viewport shading state, not a
+        render-op flag, and Render Result slots make a manual "redo" moot) — only
+        camera and renderer carry over. The click renders the current frame;
+        Blender's Render Result window shows it.
         """
         menu = widget.option_box.menu
         menu.setTitle("Render")
@@ -243,12 +283,29 @@ class Rendering(SlotsBlender):
         for cam in self._camera_objects():
             cmb002.addItem(cam.name, cam)
 
+        cmb003 = menu.add(
+            "QComboBox", setObjectName="cmb003",
+            setToolTip="Renderer to use (Cycles/EEVEE/Workbench, or an installed add-on "
+            "engine), applied to the scene before rendering.",
+        )
+        engines = self._render_engines()
+        current = bpy.context.scene.render.engine
+        for ident, label in engines:
+            cmb003.addItem(label, ident)
+        cmb003.setCurrentIndex(next(
+            (i for i, (ident, _) in enumerate(engines) if ident == current), 0
+        ))
+
     def tb001(self, widget):
         """Render Current Frame"""
-        cam = widget.option_box.menu.cmb002.currentData()
+        menu = widget.option_box.menu
+        cam = menu.cmb002.currentData()
+        engine = menu.cmb003.currentData()
         try:
             if cam is not None:  # otherwise keep the scene's active camera
                 bpy.context.scene.camera = cam
+            if engine:
+                bpy.context.scene.render.engine = engine
             bpy.ops.render.render("INVOKE_DEFAULT")
         # ReferenceError: a camera chosen at init that was since deleted.
         except (RuntimeError, ReferenceError) as e:

@@ -39,6 +39,9 @@ class Pivot(SlotsBlender):
             self.sb.message_box("Reset Pivot requires a selection.")
             return
         btk.center_pivot(objects, mode="object")
+        self.sb.message_box(
+            f"Reset Pivot Position for <hl>{len(objects)}</hl> object(s)."
+        )
 
     # ------------------------------------------------------------------ tb001  Center Pivot
     def tb001_init(self, widget):

@@ -48,6 +48,7 @@ class Editors(SlotsBlender):
         "General Editors": [
             "Outliner", "Properties", "Preferences", "Spreadsheet", "Text Editor",
             "Python Console", "Info Log", "File Browser", "Asset Browser",
+            "3D Viewport",
         ],
         "Modeling Editors": [
             "UV Editor", "Image Editor",
@@ -155,8 +156,13 @@ class Editors(SlotsBlender):
         self._open_button("b009")
 
     def b010(self):
-        """Script Output (Info log)"""
-        self._open_button("b010")
+        """Script Output — a dockable native Info Log window skinned with the shared
+        ``uitk.ScriptOutput`` console (syntax-highlighted stdout/stderr/logging mirror),
+        the Blender analogue of mayatk's dockable ScriptConsole. Degrades to the bare
+        native Info Log window off-Windows / without the Qt host. Toggles open/closed."""
+        from blendertk.env_utils import script_output
+
+        script_output.toggle()
 
     def b011(self):
         """Command Line (Python Console)"""

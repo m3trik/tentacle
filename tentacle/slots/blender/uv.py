@@ -4,6 +4,7 @@ import math
 
 import bpy
 import blendertk as btk
+from uitk import IconManager
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -80,16 +81,31 @@ class Uv(SlotsBlender):
             "QCheckBox", setText="Rotate Islands", setObjectName="chk_pack_rotate", setChecked=True,
             setToolTip="Allow islands to rotate for a tighter pack.",
         )
+        # s004 reuses the Maya objectName + label (same target-UDIM-tile option, cross-DCC
+        # rule): pack_islands always packs into the 0-1 square, so the tile is applied as a
+        # post-pack shift rather than a native packBox (no Blender pack-op analogue).
+        m.add(
+            "QSpinBox", setPrefix="UDIM: ", setObjectName="s004",
+            set_limits=[1001, 1200], setValue=1001,
+            setToolTip="Target UDIM tile (1001-1200). Islands pack into the 0-1 square, then "
+            "shift into this tile (1001 = no shift).",
+        )
 
     @btk.undoable
     def tb000(self, widget):
-        """Pack UVs"""
+        """Pack UVs (into the 0-1 square, then shifted into the target UDIM tile)."""
         m = widget.option_box.menu
-        self._uv_op(
+        ran = self._uv_op(
             lambda: bpy.ops.uv.pack_islands(
                 margin=m.s_pack_margin.value(), rotate=m.chk_pack_rotate.isChecked()
             )
         )
+        if not ran:
+            return
+        udim = m.s004.value()
+        u_tile, v_tile = (udim - 1001) % 10, (udim - 1001) // 10
+        if u_tile or v_tile:
+            btk.move_uvs(self.selected_objects(), du=float(u_tile), dv=float(v_tile))
 
     # cmb011 projection method -> the native Blender projection op (Maya's projection-method
     # selector; reuses the Maya objectName, cross-DCC rule). Smart uses the angle/margin below;
@@ -167,14 +183,27 @@ class Uv(SlotsBlender):
             "QCheckBox", setText="Orient", setObjectName="chk007", setChecked=True,
             setToolTip="Rotate each shell parallel to the nearest U/V axis (Align Rotation).",
         )
+        # chk022/s000 reuse the Maya objectNames + labels (same options, cross-DCC rule):
+        # post-unfold similarity-gated stacking (btk.stack_uv_shells(tolerance=...)).
+        m.add(
+            "QCheckBox", setText="Stack Similar", setObjectName="chk022", setChecked=True,
+            setToolTip="Stack only shells that fall within the set tolerance.",
+        )
+        m.add(
+            "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="s000",
+            set_limits=[0, 10, 0.1, 1], setValue=1.0,
+            setToolTip="Stack shells with uv's within the given range.",
+        )
 
     @btk.undoable
     def tb004(self, widget):
-        """Unfold (unwrap, then optionally relax and axis-align the shells)."""
+        """Unfold (unwrap, then optionally relax, axis-align, and stack similar shells)."""
         m = widget.option_box.menu
         method = self._UNWRAP_METHODS.get(m.cmb_unfold_method.currentText(), "ANGLE_BASED")
         optimize = m.chk017.isChecked()
         orient = m.chk007.isChecked()
+        stack_similar = m.chk022.isChecked()
+        tolerance = m.s000.value()
 
         def _run():
             bpy.ops.uv.unwrap(method=method, margin=m.s_unfold_margin.value())
@@ -182,6 +211,8 @@ class Uv(SlotsBlender):
                 bpy.ops.uv.minimize_stretch(iterations=10)
             if orient:
                 bpy.ops.uv.align_rotation(method="AUTO")
+            if stack_similar:
+                btk.stack_uv_shells(self.selected_objects(), tolerance=tolerance)
 
         self._uv_op(_run)
 
@@ -192,7 +223,7 @@ class Uv(SlotsBlender):
         m.setTitle("Cut Cylinder")
         m.add(
             "QDoubleSpinBox", setPrefix="Crease Angle: ", setObjectName="s016",
-            set_limits=[0, 180, 1, 1], setValue=45.0,
+            set_limits=[1, 179], setValue=45.0, setSuffix="°",
             setToolTip="Edges sharper than this angle (degrees) become UV seams — cuts ~90° steps "
             "and cap rings while keeping shallow chamfers merged.",
         )
@@ -404,6 +435,16 @@ class Uv(SlotsBlender):
         btk.set_texel_density(objects, self.ui.s003.value(), self.get_map_size())
 
     # ------------------------------------------------------------------ b029  Pin / Unpin
+    def b029_init(self, widget):
+        """Initialize Pin/Unpin button — static pin icon, non-checkable.
+
+        Defensively strips any `checkable`/`text` properties a Qt Designer
+        round-trip may have re-added, then installs the static `pin` icon.
+        """
+        widget.setCheckable(False)
+        widget.setText("")
+        IconManager.set_icon(widget, "pin", size=(16, 16))
+
     def b029(self, widget):
         """Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
         pins, the next unpins; selection change resets. Edit mode pins the selected verts'
@@ -427,30 +468,45 @@ class Uv(SlotsBlender):
         widget.option_box.menu.setTitle("Mirror UVs")
         widget.option_box.menu.add(
             "QRadioButton", setText="Mirror U", setObjectName="chk031", setChecked=True,
-            setToolTip="Mirror across U (about the selection's shared UV bbox center).",
+            setToolTip="Mirror across U. Default mode preserves the UV footprint.",
         )
         widget.option_box.menu.add(
             "QRadioButton", setText="Mirror V", setObjectName="chk032",
-            setToolTip="Mirror across V (about the selection's shared UV bbox center).",
+            setToolTip="Mirror across V. Default mode preserves the UV footprint.",
+        )
+        # chk033/chk034 reuse the Maya objectNames + labels (same options, cross-DCC rule).
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Per Shell", setObjectName="chk033", setChecked=True,
+            setToolTip="If enabled, mirrors each UV shell independently.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Preserve Footprint", setObjectName="chk034", setChecked=True,
+            setToolTip="If enabled, preserves the exact UV point set using one-to-one "
+            "reassignment.\nIf disabled, performs a geometric mirror around the pivot.",
         )
 
     @btk.undoable
     def tb008(self, widget):
-        """Mirror UVs (whole-map flip about the shared UV bbox center — Maya's per-shell
-        and footprint-preserving modes are not mirrored)."""
+        """Mirror UVs (footprint-preserving reassignment by default; per-shell by default)."""
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
         if not objects:
             self.sb.message_box("Nothing selected.")
             return
-        flip_u = widget.option_box.menu.chk031.isChecked()
-        btk.transform_uvs(objects, flip_u=flip_u, flip_v=not flip_u)
+        m = widget.option_box.menu
+        mirror_u = m.chk031.isChecked()
+        per_shell = m.chk033.isChecked()
+        preserve_position = m.chk034.isChecked()
+        btk.mirror_uvs(
+            objects, axis="u" if mirror_u else "v",
+            per_shell=per_shell, preserve_position=preserve_position,
+        )
 
     # ------------------------------------------------------------------ tb022  Cut Hard Edges
     def tb022_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Cut Hard Edges")
         m.add(
-            "QDoubleSpinBox", setPrefix="Angle Low: ", setObjectName="s017",
+            "QDoubleSpinBox", setPrefix="Angle Low:  ", setObjectName="s017",
             set_limits=[0, 180], setValue=70,
             setToolTip="Lower bound: edges whose dihedral angle is at least this are seam-cut.",
         )
@@ -464,14 +520,22 @@ class Uv(SlotsBlender):
             "QCheckBox", setText="Include UV Borders", setObjectName="chk025",
             setToolTip="Also mark seams at the current UV island borders (Seams From Islands).",
         )
+        # chk026 reuses the Maya objectName + label (same option, cross-DCC rule): a temporary
+        # Smart UV Project decomposition stands in for u3dAutoSeam (btk.derive_auto_seams).
+        m.add(
+            "QCheckBox", setText="Include Auto Seams", setObjectName="chk026",
+            setToolTip="Also cut seams auto-detected via a temporary Smart UV Project pass.",
+        )
 
     @btk.undoable
     def tb022(self, widget):
         """Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
-        band, optionally also at existing UV island borders)."""
+        band, optionally also at existing UV island borders and/or Smart-Project-derived auto
+        seams)."""
         m = widget.option_box.menu
         low, high = m.s017.value(), m.s018.value()
         include_borders = m.chk025.isChecked()
+        include_auto_seams = m.chk026.isChecked()
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
 
         def _run():
@@ -480,6 +544,8 @@ class Uv(SlotsBlender):
                     bpy.ops.uv.seams_from_islands()
                 except RuntimeError:
                     pass  # a mesh without a UV layer has no islands to seam — skip
+            if include_auto_seams:
+                btk.derive_auto_seams(objects)
             # btk.select_edges_by_angle gives the [low, high] band (mesh.edges_select_sharp is a
             # single lower threshold); then seam the selection.
             if btk.select_edges_by_angle(objects, low_angle=low, high_angle=high):
@@ -503,16 +569,27 @@ class Uv(SlotsBlender):
             "QCheckBox", setText="Straighten V", setObjectName="chk019", setChecked=True,
             setToolTip="Snap near-vertical UV edges flat.",
         )
+        # chk020 reuses the Maya objectName + label (same option, cross-DCC rule): a native
+        # Follow Active Quads pass stands in for texStraightenShell (btk.straighten_uv_shells).
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Straighten Shell", setObjectName="chk020",
+            setToolTip="Rectangularize the whole shell by unfolding around a selected UV's "
+            "edge loop (Follow Active Quads).",
+        )
 
     @btk.undoable
     def tb005(self, widget):
-        """Straighten UV (selected UV edges within the angle threshold snap flat)."""
+        """Straighten UV (selected UV edges within the angle threshold snap flat; optionally
+        rectangularize the whole shell)."""
         m = widget.option_box.menu
         snapped = btk.straighten_uvs(
             self.selected_objects(),
             u=m.chk018.isChecked(), v=m.chk019.isChecked(), angle=m.s001.value(),
         )
-        if not snapped:
+        straightened = 0
+        if m.chk020.isChecked():
+            straightened = btk.straighten_uv_shells(self.selected_objects())
+        if not snapped and not straightened:
             self.sb.message_box(
                 "<strong>Nothing straightened.</strong><br>Select UV edges in Edit Mode "
                 "within the angle threshold."
@@ -539,6 +616,16 @@ class Uv(SlotsBlender):
                 "<strong>Nothing distributed.</strong><br>Needs three or more UV shells "
                 "(in Edit Mode, shells touched by the selection)."
             )
+
+    def b030_init(self, widget):
+        """Initialize Stack button — static stack icon, non-checkable.
+
+        Defensively strips any `checkable`/`text` properties a Qt Designer
+        round-trip may have re-added, then installs the static `stack` icon.
+        """
+        widget.setCheckable(False)
+        widget.setText("")
+        IconManager.set_icon(widget, "stack", size=(16, 16))
 
     @btk.undoable
     def b030(self, widget):

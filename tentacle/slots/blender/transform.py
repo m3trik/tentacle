@@ -69,11 +69,11 @@ class TransformSlots(SlotsBlender):
             setToolTip="Which bounding-box point to drop onto the grid (Z=0).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Move to Origin", setObjectName="chk014",
+            "QCheckBox", setText="Move to Origin", setObjectName="chk014", setChecked=True,
             setToolTip="Move to the world origin (0,0,0) first.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Center Pivot", setObjectName="chk016",
+            "QCheckBox", setText="Center Pivot", setObjectName="chk016", setChecked=True,
             setToolTip="Re-center the object origin on its bounding box.",
         )
         widget.option_box.menu.add(
@@ -121,6 +121,7 @@ class TransformSlots(SlotsBlender):
         widget.option_box.menu.add(
             "QComboBox", setObjectName="cmb_center_pivot",
             addItems=["Center Pivot: None", "Center Pivot: Mesh", "Center Pivot: All"],
+            setCurrentIndex=0,
             setToolTip="After freezing, re-center the object origin on its bounding box.\n"
             "• None: leave the origin\n• Mesh: mesh objects only\n• All: all geometry objects",
         )

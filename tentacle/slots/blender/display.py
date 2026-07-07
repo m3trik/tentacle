@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import bpy
-import blendertk as btk
 from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
@@ -9,12 +8,14 @@ from tentacle.slots.blender._slots_blender import SlotsBlender
 class DisplaySlots(SlotsBlender):
     """Blender port of the shared ``display`` menu.
 
-    The display list is curated to the object-property toggles that map cleanly to Blender —
-    visibility (``hide_set``), wireframe (``display_type``), and see-through (``show_in_front``).
-    Maya's modelEditor / textureWindow editor settings (component-ID, material-override, UV-editor
-    displays) are viewport/editor state with no per-object Blender analogue and are omitted rather
-    than shown as dead entries; the ones that DO map (wireframe-on-inactive → non-selected
-    ``display_type``, face-normals overlay) are wired below. Explode View is a toggle backed by
+    The display list is curated to the object-property and per-viewport-overlay toggles that map
+    cleanly to Blender — visibility (``hide_set``), wireframe (``display_type``), see-through
+    (``show_in_front``), and the ``View3DOverlay``/``View3DShading``/``SpaceUVEditor`` viewport
+    toggles that ARE Blender's per-viewport analogues of Maya's modelEditor / textureWindow editor
+    settings (component-ID, material-override, UV-editor displays are themselves viewport/editor
+    state in Maya too, not per-object — see each handler's docstring for the confirmed-live
+    mapping). Only items with no verified Blender surface at all are omitted (UV Border/Checkered/
+    Borders — see the UV category comment below). Explode View is a toggle backed by
     ``btk.explode_view`` (bbox-driven separation with exact restore); Color ID opens the
     co-located swatch-palette panel.
     """
@@ -24,6 +25,8 @@ class DisplaySlots(SlotsBlender):
         "View": [
             ("Hide Selected", "_hide_selected"),
             ("Show All", "_show_all"),
+            ("Component ID", "_component_id"),
+            ("Mat Override", "_mat_override"),
         ],
         "Wireframe": [
             ("Wireframe Selected", "_wireframe_selected"),
@@ -36,8 +39,16 @@ class DisplaySlots(SlotsBlender):
             ("Un-Xray All", "_un_xray_all"),
             ("Xray Other", "_xray_other"),
         ],
+        # Border/Checkered/Borders dropped — verified live (Blender 5.1) that neither a UV-editor
+        # checker-background overlay nor a mesh/UV border-edge-highlight overlay (with adjustable
+        # width) exists on SpaceUVEditor/View3DOverlay; see parity_map.py HANDLERS['display'] for
+        # the per-item rationale. Distortion maps directly to SpaceUVEditor.show_stretch.
+        "UV": [
+            ("Distortion", "_uv_distortion"),
+        ],
         "Normals": [
             ("Display Normals", "_display_normals"),
+            ("Soft Edge Display", "_soft_edge_display"),
         ],
     }
 
@@ -131,6 +142,77 @@ class DisplaySlots(SlotsBlender):
                 ov.show_face_normals = not ov.show_face_normals
                 toggled += 1
         return f"Display Normals: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+
+    def _soft_edge_display(self):
+        """Toggle the viewport sharp-edge overlay (``View3DOverlay.show_edge_sharp``) — the
+        Blender analogue of Maya's Soft Edge Display (both are per-viewport edge-shading state,
+        not per-object; confirmed live in Blender 5.1)."""
+        toggled = 0
+        for area in bpy.context.screen.areas:
+            if area.type == "VIEW_3D":
+                ov = area.spaces.active.overlay
+                ov.show_edge_sharp = not ov.show_edge_sharp
+                toggled += 1
+        return f"Soft Edge Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+
+    def _component_id(self):
+        """Toggle the viewport index-numbers overlay (``View3DOverlay.show_extra_indices``) — the
+        Blender analogue of Maya's Component ID Display (both are per-viewport overlay state, not
+        per-object; confirmed live in Blender 5.1)."""
+        toggled = 0
+        for area in bpy.context.screen.areas:
+            if area.type == "VIEW_3D":
+                ov = area.spaces.active.overlay
+                ov.show_extra_indices = not ov.show_extra_indices
+                toggled += 1
+        return f"Component ID Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+
+    def _mat_override(self):
+        """Toggle the viewport's solid-shading color source between Material and a flat Single
+        color (``View3DShading.color_type``) — the Blender analogue of Maya's Material Override
+        (both replace real material feedback with a flat default look; confirmed live in
+        Blender 5.1: MATERIAL/OBJECT/RANDOM/VERTEX/TEXTURE/SINGLE).
+
+        Every ``VIEW_3D`` area is driven to the SAME resulting state in one click (any area
+        already in Single -> all areas go back to Material, mirroring ``_wireframe_inactive``'s
+        any()-driven convention) — toggling each area independently off its own prior state would
+        let a split/quad viewport end up half On/half Off while the message reports only one of
+        them (confirmed live: a 2-way split with divergent starting states produced a mismatched
+        message before this fix)."""
+        areas = [a for a in bpy.context.screen.areas if a.type == "VIEW_3D"]
+        if not areas:
+            return "Material Override: <hl>no 3D viewport</hl>"
+        turn_on = not any(a.spaces.active.shading.color_type == "SINGLE" for a in areas)
+        new_type = "SINGLE" if turn_on else "MATERIAL"
+        for a in areas:
+            a.spaces.active.shading.color_type = new_type
+        return f"Material Override: <hl>{'On' if turn_on else 'Off'}</hl>"
+
+    def _uv_distortion(self):
+        """Cycle the UV Editor's stretch (distortion) overlay: Off -> Angle -> Area -> Off
+        (``SpaceUVEditor.show_stretch`` / ``display_stretch_type``) — the Blender analogue of
+        Maya's textureWindow UV Distortion display and its distortion sub-modes (confirmed live
+        in Blender 5.1).
+
+        The next phase is decided once, from the first matched editor's current phase, then
+        applied to every ``IMAGE_EDITOR`` area — keeping multiple open UV editors in lockstep
+        (and the returned message accurate for all of them), the same reasoning as
+        ``_mat_override``."""
+        areas = [a for a in bpy.context.screen.areas if a.type == "IMAGE_EDITOR"]
+        if not areas:
+            return "UV Distortion: <hl>no UV editor open</hl>"
+        uv0 = areas[0].spaces.active.uv_editor
+        if not uv0.show_stretch:
+            show, stretch_type, state = True, "ANGLE", "On (Angle)"
+        elif uv0.display_stretch_type == "ANGLE":
+            show, stretch_type, state = True, "AREA", "On (Area)"
+        else:
+            show, stretch_type, state = False, uv0.display_stretch_type, "Off"
+        for a in areas:
+            uv = a.spaces.active.uv_editor
+            uv.show_stretch = show
+            uv.display_stretch_type = stretch_type
+        return f"UV Distortion: <hl>{state}</hl>"
 
     def _xray_selected(self):
         sel = self.selected_objects()

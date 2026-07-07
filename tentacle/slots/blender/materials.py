@@ -19,10 +19,12 @@ class MaterialsSlots(SlotsBlender):
     Materials / Game Shader / Shader Templates / Texture Path Editor / Image to Plane) that work on
     the live scene; the host-agnostic ``extapps`` panels (Map Converter / Packer / Compositor and
     the photogrammetry workflows), surfaced exactly as in Maya via ``external_app.launch`` (wired in
-    ``tcl_blender``); and the Marmoset / Substance / Unity **bridges**, which export the Blender
-    *selection* to FBX and hand off to the matching extapps workflow (the Blender analogue of Maya's
-    bridges — for Unity, Maya keeps a native panel while Blender reuses the extapps one).
-    Maya-only shaders (Arnold preview) have no Blender equivalent and are absent.
+    ``tcl_blender``); and the Marmoset / Substance / Unity **bridges** — native ``blendertk`` panels
+    1:1 with mayatk's (``marmoset_bridge`` / ``substance_bridge`` / ``unity_bridge``), each exporting
+    the Blender selection and handing off to the matching external app directly (no extapps relay).
+    Arnold (mayatk's in-Maya preview-shader bridge) has no Blender rendering equivalent — its panel
+    exists for structural parity (``marking_menu.show("arnold_bridge")``) but every widget is
+    disabled, and it is deliberately not exposed in this menu.
     """
 
     # Submenu Tools list. Categories group tools by *what they act on* (mirrors Maya):
@@ -377,6 +379,7 @@ class MaterialsSlots(SlotsBlender):
         else:
             self._assign_named(text)
 
+    @btk.undoable
     def _assign_named(self, mat_name):
         """Assign the named material to the selection and report; sync cmb002."""
         selection = self.selected_objects()
@@ -646,44 +649,21 @@ class MaterialsSlots(SlotsBlender):
         """Brush Splat Workflow"""
         self._launch_extapp("gaussian_splat_workflow")
 
-    # ------------------------------------------------------------------ external-app bridges
-    # The "Reuse extapps" bridge approach: export the current selection to FBX, then launch the
-    # DCC-agnostic extapps workflow with that mesh pre-filled — the Blender analogue of Maya's
-    # Substance/Marmoset bridges (which export the Maya selection). Maya objectNames mirrored
-    # (Marmoset b019 / Substance b020).
-    def _launch_bridge(self, app, prefill):
-        """Export the selection to FBX and launch ``app`` (an extapps workflow) with it pre-filled.
-
-        ``prefill`` is the slots method name that accepts the mesh path (``set_model_path`` /
-        ``set_mesh_path``). Any failure surfaces as a message box rather than a traceback."""
-        selection = btk.selected_objects()
-        if not selection:
-            self.sb.message_box("<hl>Nothing selected</hl><br>Select mesh object(s) to send.")
-            return
-        try:
-            fbx = btk.export_selection_fbx(objects=selection)
-        except Exception as error:
-            self.sb.message_box(f"<hl>Export failed</hl><br>{error}")
-            return
-        ui = self._safe_launch(app, show=False)
-        if ui is None:
-            return
-        setter = getattr(getattr(ui, "slots", None), prefill, None)
-        if callable(setter):
-            setter(fbx)
-        self.sb.handlers.marking_menu.show(ui)
-
+    # ------------------------------------------------------------------ bridges
+    # Native blendertk panels, 1:1 with mayatk's (co-located ``.ui`` + ``*Slots``, discovered by
+    # BlenderUiHandler) — each exports the Blender selection and hands off to the external app
+    # directly. Maya objectNames mirrored (Marmoset b019 / Substance b020 / Unity b026).
     def b019(self):
-        """Marmoset Bridge — export selection → Marmoset Toolbag workflow."""
-        self._launch_bridge("marmoset_workflow", "set_model_path")
+        """Marmoset Bridge"""
+        self.sb.handlers.marking_menu.show("marmoset_bridge")
 
     def b020(self):
-        """Substance Bridge — export selection → Substance Painter workflow."""
-        self._launch_bridge("substance_workflow", "set_mesh_path")
+        """Substance Bridge"""
+        self.sb.handlers.marking_menu.show("substance_bridge")
 
     def b026(self):
-        """Unity Bridge — export selection → Unity Workflow (copy into a project's Assets/)."""
-        self._launch_bridge("unity_workflow", "set_model_path")
+        """Unity Bridge"""
+        self.sb.handlers.marking_menu.show("unity_bridge")
 
 
 # --------------------------------------------------------------------------------------------

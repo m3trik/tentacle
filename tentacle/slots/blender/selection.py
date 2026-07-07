@@ -11,9 +11,12 @@ class Selection(SlotsBlender):
 
     Per the capability map (BLENDER_PORT_PLAN §5), selection maps almost entirely to **native
     Blender operators**, so most handlers call ``bpy.ops`` directly (proven to work from the Qt
-    event-pump context); select-by-type rides ``object.select_by_type``; the dR_ selection
-    constraints become one-shot selection expansion (no modal analogue). Reorder Selection is
-    closed as not-applicable (no ordered object selection in Blender).
+    event-pump context); select-by-type (``list000``) rides ``btk.Selection`` -- a full mirror of
+    mayatk's ``Selection._SELECTION_CONFIG`` category breadth (Animation/Dynamics/Geometry/
+    Hierarchy/Scene/UV), built from Object-level bpy primitives instead of Maya's string-node type
+    lookups; the dR_ selection constraints become one-shot selection expansion (no modal
+    analogue). Reorder Selection is closed as not-applicable (no ordered object selection in
+    Blender).
     """
 
     # Maya "Marquee/Lasso/Paint" select styles -> Blender's box/lasso/circle select tools.
@@ -76,9 +79,9 @@ class Selection(SlotsBlender):
             self.sb.message_box("Select Nth requires a mesh.")
             return
         if m.chk000.isChecked():            # Edge Ring
-            bpy.ops.mesh.loop_multi_select(ring=True)
+            bpy.ops.mesh.select_edge_ring_multi()
         elif m.chk001.isChecked():          # Edge Loop
-            bpy.ops.mesh.loop_multi_select(ring=False)
+            bpy.ops.mesh.select_edge_loop_multi()
         elif m.chk021.isChecked() or m.chk002.isChecked():   # Loop / Shortest path
             try:
                 bpy.ops.mesh.shortest_path_select()
@@ -114,7 +117,7 @@ class Selection(SlotsBlender):
         ("chk015", "Shell", "The number of shells (disconnected pieces).", False),
         ("chk016", "Uv Coord", "The number of UV coordinates.", False),
         ("chk017", "Area", "The surface area of the faces in local space.", False),
-        ("chk018", "World Area", "The surface area of the faces in world space.", False),
+        ("chk018", "World Area", "The surface area of the faces in world space.", True),
         ("chk019", "Bounding Box", "The object's bounding-box dimensions.", False),
         ("chk020", "Include Original", "Include the originally selected object(s) in the result.", False),
     )
@@ -228,32 +231,61 @@ class Selection(SlotsBlender):
             self.sb.message_box("No edges found in that angle range.")
 
     # ------------------------------------------------------------------ cmb003  Convert To
+    # Mirror of Maya's 20-item Convert-To combo, minus 5 ledgered in tentacle/docs/parity_map.py
+    # (HANDLERS["selection"]): Vertex Faces (Maya's vtxFace sub-component -- a per-corner
+    # split-normal-style component with no Blender selection-mode analogue) and the UV-domain
+    # items UV's / UV Shell Border / UV Perimeter / UV Edge Loop (Blender edits UV topology
+    # through the UV Editor's own selection state, not a 3D-viewport component type -- UV Shell
+    # is the one exception, ported via the mesh-domain UV delimiter). Touching-vs-contained
+    # (plain "Faces"/"Edges" vs. "Contained Faces"/"Contained Edges") is a single native
+    # ``use_expand`` flag -- see ``btk.Selection.convert_to``'s docstring for how it was
+    # verified; Perimeter/Path/Border items have no single native op and are real bmesh
+    # helpers on ``btk.Selection``.
     def cmb003_init(self, widget):
         widget.add(
-            ["Verts", "Edges", "Faces", "Edge Loop", "Edge Ring", "Border Edges", "Shell"],
+            [
+                "Verts", "Vertex Perimeter",
+                "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
+                "Border Edges",
+                "Faces", "Face Path", "Contained Faces", "Face Perimeter",
+                "UV Shell",
+                "Shell", "Shell Border",
+            ],
             header="Convert To:",
         )
 
     def cmb003(self, index, widget):
-        """Convert the current selection to another component type."""
+        """Convert the current selection to another component type (Maya Convert-To parity)."""
         text = widget.items[index]
-        if not self._edit_mesh():
+        obj = self._edit_mesh()
+        if not obj:
             self.sb.message_box("Convert requires a mesh in edit mode.")
             return
         conversions = {
             "Verts": lambda: bpy.ops.mesh.select_mode(type="VERT"),
-            "Edges": lambda: bpy.ops.mesh.select_mode(type="EDGE"),
-            "Faces": lambda: bpy.ops.mesh.select_mode(type="FACE"),
-            "Edge Loop": lambda: bpy.ops.mesh.loop_multi_select(ring=False),
-            "Edge Ring": lambda: bpy.ops.mesh.loop_multi_select(ring=True),
-            "Border Edges": lambda: bpy.ops.mesh.region_to_loop(),
+            "Vertex Perimeter": lambda: btk.Selection.select_vertex_perimeter(obj),
+            "Edges": lambda: btk.Selection.convert_to(obj, "EDGE"),
+            "Edge Loop": lambda: bpy.ops.mesh.select_edge_loop_multi(),
+            "Edge Ring": lambda: bpy.ops.mesh.select_edge_ring_multi(),
+            "Contained Edges": lambda: btk.Selection.convert_to(obj, "EDGE", contained=True),
+            "Edge Perimeter": lambda: btk.Selection.select_edge_perimeter(obj),
+            "Border Edges": lambda: btk.Selection.select_border_edges(obj),
+            "Faces": lambda: btk.Selection.convert_to(obj, "FACE"),
+            "Face Path": lambda: btk.Selection.select_face_path(obj),
+            "Contained Faces": lambda: btk.Selection.convert_to(obj, "FACE", contained=True),
+            "Face Perimeter": lambda: btk.Selection.select_face_perimeter(obj),
+            "UV Shell": lambda: btk.Selection.select_uv_shell(obj),
             "Shell": lambda: bpy.ops.mesh.select_linked(),
+            "Shell Border": lambda: btk.Selection.select_shell_border(obj),
         }
         op = conversions.get(text)
-        if op:
-            op()
-        else:
+        if not op:
             self.sb.message_box(f"'{text}' conversion not yet mapped for Blender.")
+            return
+        try:
+            op()
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ chk004  Ignore Backfacing
     def chk004(self, state, widget):
@@ -305,8 +337,8 @@ class Selection(SlotsBlender):
     _CONSTRAINT_OPS = {
         "Angle": lambda: bpy.ops.mesh.faces_select_linked_flat(),
         "Border": lambda: bpy.ops.mesh.region_to_loop(),
-        "Edge Loop": lambda: bpy.ops.mesh.loop_multi_select(ring=False),
-        "Edge Ring": lambda: bpy.ops.mesh.loop_multi_select(ring=True),
+        "Edge Loop": lambda: bpy.ops.mesh.select_edge_loop_multi(),
+        "Edge Ring": lambda: bpy.ops.mesh.select_edge_ring_multi(),
         "Shell": lambda: bpy.ops.mesh.select_linked(),
     }
 
@@ -342,43 +374,38 @@ class Selection(SlotsBlender):
         )
 
     # ------------------------------------------------------------------ list000  Select by Type
-    # Friendly label -> Object.type enum, grouped for the hierarchical list (Maya parity).
-    _SELECT_TYPES = {
-        "Geometry": {
-            "Mesh": "MESH", "Curve": "CURVE", "Surface": "SURFACE",
-            "Metaball": "META", "Text": "FONT", "Volume": "VOLUME",
-        },
-        "Helpers": {"Empty": "EMPTY", "Lattice": "LATTICE", "Armature": "ARMATURE"},
-        "Lights & Cameras": {
-            "Light": "LIGHT", "Light Probe": "LIGHT_PROBE",
-            "Camera": "CAMERA", "Speaker": "SPEAKER",
-        },
-    }
-
+    # Category breadth mirrors mayatk's Selection._SELECTION_CONFIG 1:1 (same category + leaf
+    # labels); the underlying handlers live in ``btk.Selection`` and use Blender-native
+    # primitives (Object.type / modifiers / constraints / physics / UV data) instead of Maya's
+    # string-node type lookups. See blendertk/blendertk/edit_utils/selection.py's module
+    # docstring for the full "why" (which Maya leaves have no Blender analogue -> tracked ``na``
+    # in tentacle/docs/parity_map.py instead of silently dropped).
     def list000_init(self, widget):
         """Select by Type: hierarchical type list."""
         widget.fixed_item_height = 18
         widget.apply_preset("expand_up")
         root = widget.add("By Type")
         root.sublist.setMinimumWidth(widget.width() or 120)
-        for category, types in self._SELECT_TYPES.items():
+        categories = btk.Selection.get_selection_categories()
+        for category, types in categories.items():
             w = root.sublist.add(category)
             w.sublist.add(sorted(types))
 
     @Signals("on_item_interacted")
     def list000(self, item):
-        """Select by Type (native ``object.select_by_type``). Only leaf items act —
+        """Select by Type (native bpy predicates via ``btk.Selection``). Only leaf items act —
         the root and category headers are navigation-only."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
             return
         label = item.item_text()
-        for types in self._SELECT_TYPES.values():
-            if label in types:
-                try:
-                    bpy.ops.object.select_by_type(type=types[label])
-                except (RuntimeError, TypeError) as e:  # enum drift across Blender versions
-                    self.sb.message_box(str(e))
-                return
+        objects = list(bpy.data.objects)
+        try:
+            result = btk.Selection.select_by_type(label, objects, mode="replace")
+            print(f"Selected {len(result)} objects of type: {label}")
+        except ValueError:
+            pass
+        except Exception as e:
+            self.sb.message_box(f"Error selecting by type '{label}': {e}")
 
 
 # --------------------------------------------------------------------------------------------
