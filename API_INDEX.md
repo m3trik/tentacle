@@ -43,7 +43,7 @@ _Generated: 2026-07-07_
 
 ### `slots/blender/duplicate.py`
 - `class Duplicate(SlotsBlender)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, b005, b000, b006, b007, b008
+  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002_init, b005, b000, b006, b007, b008
 
 ### `slots/blender/edit.py`
 - `class Edit(SlotsBlender)`

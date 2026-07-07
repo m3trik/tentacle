@@ -243,6 +243,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Duplicate.tb000(self, widget)` — Convert to Instances (selected objects share the active object's data).
   - `Duplicate.tb001_init(self, widget)`
   - `Duplicate.tb001(self, widget)` — Select Instanced Objects
+  - `Duplicate.tb002_init(self, widget)` — Auto Instance — hidden: blendertk has no ported equivalent of mayatk's
   - `Duplicate.b005(self)` — Uninstance Selected Objects (make their data single-user).
   - `Duplicate.b000(self)` — Mirror
   - `Duplicate.b006(self)` — Duplicate Linear

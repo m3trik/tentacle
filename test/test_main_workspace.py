@@ -170,6 +170,26 @@ class TestSetWorkspaceFromPath(unittest.TestCase):
         # Selecting a recent workspace bumps it to most-recent in the store.
         self.assertIn(self.root, self.inst._workspace_store.recorded)
 
+    def test_message_shows_real_name_for_trailing_slash_path(self):
+        """A stored recent-workspace entry with a trailing separator (what
+        Maya's raw ``workspace -q -rd`` returns, and what a stale
+        pre-normpath history entry may still carry) must still show the
+        real workspace name — not collapse to a bare period.
+
+        Regression: ``os.path.basename()`` on a trailing-slash path returns
+        ``""``, so ``f"Workspace set to {name}."`` rendered as literally
+        "Workspace set to ." with the sentence's own period misread as the
+        workspace name.
+        """
+        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
+            f.write("//Maya workspace stub\n")
+        trailing = self.root + os.sep
+        self.inst._set_workspace_from_path(trailing)
+        text = self.inst.sb.messages[-1][0][0]
+        expected_name = os.path.basename(os.path.normpath(self.root))
+        self.assertIn(expected_name, text)
+        self.assertNotIn("set to .", text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -920,12 +920,21 @@
               "deprecated": false
             },
             {
+              "name": "tb002_init",
+              "qualname": "Duplicate.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Auto Instance — hidden: blendertk has no ported equivalent of mayatk's",
+              "line": 109,
+              "deprecated": false
+            },
+            {
               "name": "b005",
               "qualname": "Duplicate.b005",
               "kind": "method",
               "signature": "(self)",
               "summary": "Uninstance Selected Objects (make their data single-user).",
-              "line": 110,
+              "line": 117,
               "deprecated": false
             },
             {
@@ -934,7 +943,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mirror",
-              "line": 115,
+              "line": 122,
               "deprecated": false
             },
             {
@@ -943,7 +952,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Linear",
-              "line": 119,
+              "line": 126,
               "deprecated": false
             },
             {
@@ -952,7 +961,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Radial",
-              "line": 123,
+              "line": 130,
               "deprecated": false
             },
             {
@@ -961,7 +970,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Grid",
-              "line": 127,
+              "line": 134,
               "deprecated": false
             }
           ]
