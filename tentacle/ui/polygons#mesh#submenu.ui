@@ -56,7 +56,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>345</x>
+      <x>360</x>
       <y>330</y>
       <width>71</width>
       <height>19</height>
@@ -182,14 +182,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>polygons</string>
-    </property>
-    <property name="filterTags">
-     <string>mesh</string>
-    </property>
     <property name="text">
      <string>Mesh</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags" stdset="0">
+     <string>mesh</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb008">

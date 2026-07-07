@@ -77,11 +77,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>animation</string>
-    </property>
     <property name="text">
      <string>Animation</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>animation</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i016">
@@ -105,11 +105,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>rigging</string>
-    </property>
     <property name="text">
      <string>Rigging</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>rigging</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb018">
@@ -119,8 +119,8 @@
     <property name="geometry">
      <rect>
       <x>145</x>
-      <y>265</y>
-      <width>91</width>
+      <y>255</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -273,7 +273,7 @@ Supports negative values to compress timing.</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set stepped (hold) out-tangents on animation keys.&lt;/p&gt;&lt;p&gt;Use the option box to choose: current time, selected keys, or all keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
-     <string>Step Keys</string>
+     <string>Step Tangents</string>
     </property>
     <property name="iconSize">
      <size>
@@ -307,7 +307,7 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=" font-weight:600;"&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>Delete Keys</string>
@@ -325,7 +325,7 @@ Supports negative values to compress timing.</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>145</x>
       <y>240</y>
       <width>86</width>
       <height>19</height>
@@ -454,8 +454,8 @@ Supports negative values to compress timing.</string>
    <header>widgets.pushbutton.h</header>
   </customwidget>
  </customwidgets>
- <resources />
- <connections />
+ <resources/>
+ <connections/>
  <designerdata>
   <property name="gridDeltaX">
    <number>5</number>
