@@ -212,18 +212,40 @@ class Rigging(SlotsMaya):
     def tb001(self, widget):
         """Constraint Switch"""
         sel = cmds.ls(sl=True, flatten=True) or []
+        if not sel:
+            self.sb.message_box(
+                "Nothing selected.<br>Select a <hl>constraint</hl> node."
+            )
+            return
+        if not cmds.objectType(sel[0], isAType="constraint"):
+            self.sb.message_box(
+                f"<hl>{mtk.short_name(sel[0])}</hl> is not a constraint node."
+                "<br>Select a <hl>constraint</hl> "
+                "(parent, point, orient, scale, or aim)."
+            )
+            return
 
         switch_name = widget.option_box.menu.t003.text()
         weighted = widget.option_box.menu.chk003.isChecked()
         anchor_name = widget.option_box.menu.t004.text()
 
-        mtk.connect_switch_to_constraint(
-            constraint_node=sel[0] if sel else None,
+        result = mtk.connect_switch_to_constraint(
+            constraint_node=sel[0],
             attr_name=switch_name,
             weighted=weighted,
             overwrite_existing=True,
             anchor=anchor_name,
         )
+        # ``switch_attr`` is the authoritative success signal — set on every
+        # success path and on none of the early-return failure paths (no
+        # targets / unresolved driven node / weight mismatch). The function
+        # warns the specifics to the console; point the user there.
+        if not result.get("switch_attr"):
+            self.sb.message_box(
+                f"Could not create a constraint switch on "
+                f"<hl>{mtk.short_name(sel[0])}</hl>.<br>"
+                "See the script editor for details."
+            )
 
     # ------------------------------------------------------------------
     # tb003 — Create Locator at Selection
@@ -319,18 +341,23 @@ class Rigging(SlotsMaya):
         if not selection:
             return mtk.create_locator(scale=loc_scale)
 
-        mtk.create_locator_at_object(
-            selection,
-            loc_scale=loc_scale,
-            grp_suffix=grp_suffix,
-            loc_suffix=loc_suffix,
-            obj_suffix=obj_suffix,
-            strip_digits=strip_digits,
-            strip_suffix=strip_suffix,
-            lock_translate=lock_translate,
-            lock_rotation=lock_rotation,
-            lock_scale=lock_scale,
-        )
+        try:
+            mtk.create_locator_at_object(
+                selection,
+                loc_scale=loc_scale,
+                grp_suffix=grp_suffix,
+                loc_suffix=loc_suffix,
+                obj_suffix=obj_suffix,
+                strip_digits=strip_digits,
+                strip_suffix=strip_suffix,
+                lock_translate=lock_translate,
+                lock_rotation=lock_rotation,
+                lock_scale=lock_scale,
+            )
+        except Exception as e:
+            self.sb.message_box(
+                f"Could not create the locator rig.<br><hl>{e}</hl>"
+            )
 
     def b003(self):
         """Remove Locator"""

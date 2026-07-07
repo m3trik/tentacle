@@ -2,7 +2,7 @@
 
 **Role**: Desktop app. Slots architecture integrates Maya / Max / Blender / Standalone DCCs (engine per DCC: `mayatk`, `blendertk`).
 
-**Nav**: [← root](../CLAUDE.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · [mayatk](../mayatk/CLAUDE.md)
+**Nav**: [← root](../CLAUDE.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · [mayatk](../mayatk/CLAUDE.md)
 
 ## API surface
 

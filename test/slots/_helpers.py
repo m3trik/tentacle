@@ -38,6 +38,32 @@ def maya_available() -> bool:
         return False
 
 
+def qt_widgets_available() -> bool:
+    """True iff QWidget construction is supported in the current process.
+
+    QWidget construction silently aborts (exit 127, no Python traceback) in
+    mayapy.standalone — even after a QApplication has been promoted by other
+    imports — because Maya's batch/standalone Qt is a stub that can't host
+    real widgets. A ``try/except`` around actually instantiating one cannot
+    catch this: it's a native abort, not a Python exception. ``cmds.about(
+    batch=True)`` is the safe, Qt-free discriminator (mirrors
+    ``test_overlay_safety.py``'s ``_can_create_widgets``, the other place
+    this same crash class is guarded against):
+
+    - Plain Python:      no maya.cmds  -> True (regular Qt context)
+    - Interactive Maya:   batch=False  -> True (full GUI Qt)
+    - mayapy.standalone:  batch=True   -> False (widgets abort the process)
+    """
+    if not maya_available():
+        return True
+    import maya.cmds as cmds
+
+    try:
+        return not bool(cmds.about(batch=True))
+    except Exception:
+        return False
+
+
 def iter_calls(tree: ast.AST) -> Iterator[ast.Call]:
     """Yield every ast.Call node in a tree."""
     for node in ast.walk(tree):

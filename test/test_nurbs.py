@@ -81,6 +81,31 @@ class _RecordedSb:
         self.messages.append((args, kwargs))
 
 
+class _FakeSublist:
+    """Mimics an ExpandableList node's populated sublist (a category, not a leaf)."""
+
+    def __init__(self, items):
+        self._items = items
+
+    def get_items(self):
+        return self._items
+
+
+class _FakeItem:
+    """Mimics an ExpandableList leaf/category item as list000 sees it."""
+
+    def __init__(self, text, parent_text, sublist=None):
+        self._text = text
+        self._parent_text = parent_text
+        self.sublist = sublist
+
+    def item_text(self):
+        return self._text
+
+    def parent_item_text(self):
+        return self._parent_text
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb000Revolve(unittest.TestCase):
     """tb000 forwards widget values to cmds.revolve as kwargs."""
@@ -146,6 +171,52 @@ class TestTb000Revolve(unittest.TestCase):
         """The axis stays pinned to Y (= [0, 1, 0]) by the slot."""
         self.instance.tb000(self._widget())
         self.assertEqual(self.captured[-1][1]["ax"], [0, 1, 0])
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestList000Dispatch(unittest.TestCase):
+    """list000 dispatches a Nurbs leaf's MEL command via mel.eval; on failure
+    it reports through self.sb.message_box (2026-07-04: replaced a native
+    cmds.warning popup so failures surface in-app instead of only in the
+    script editor)."""
+
+    def setUp(self):
+        self.instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        self.instance.sb = _RecordedSb()
+        self._orig_mel = mel.eval
+
+    def tearDown(self):
+        mel.eval = self._orig_mel
+
+    def test_success_does_not_report(self):
+        mel.eval = lambda cmd: None
+        self.instance.list000(_FakeItem("Project", "Create"))
+        self.assertEqual(self.instance.sb.messages, [])
+
+    def test_failure_reports_via_message_box(self):
+        def raise_(cmd):
+            raise RuntimeError("no target mesh")
+
+        mel.eval = raise_
+        self.instance.list000(_FakeItem("Project", "Create"))
+
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        msg = self.instance.sb.messages[0][0][0]
+        self.assertIn("Project", msg)
+        self.assertIn("ProjectCurveOnMesh", msg)
+        self.assertIn("no target mesh", msg)
+
+    def test_category_click_is_a_noop(self):
+        """A category node (has a populated sublist) returns early -- no
+        dispatch, no report."""
+        mel.eval = lambda cmd: (_ for _ in ()).throw(
+            AssertionError("category click should not dispatch mel.eval")
+        )
+        item = _FakeItem(
+            "Create", "Nurbs", sublist=_FakeSublist(["Project", "Extract", "Duplicate"])
+        )
+        self.instance.list000(item)
+        self.assertEqual(self.instance.sb.messages, [])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

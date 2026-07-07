@@ -13,29 +13,6 @@ class Subdivision(SlotsMaya):
         self.ui = self.sb.loaded_ui.subdivision
         self.submenu = self.sb.loaded_ui.subdivision_submenu
 
-    def cmb001(self, index, widget):
-        """Smooth Proxy"""
-        text = widget.items[index]
-        if text == "Create Subdiv Proxy":
-            mel.eval("SmoothProxyOptions")
-        elif text == "Remove Subdiv Proxy Mirror":
-            mel.eval("UnmirrorSmoothProxyOptions")
-        elif text == "Crease Tool":
-            mel.eval("polyCreaseProperties")
-        elif text == "Toggle Subdiv Proxy Display":
-            mel.eval("SmoothingDisplayToggle")
-        elif text == "Both Proxy and Subdiv Display":
-            mel.eval("SmoothingDisplayShowBoth")
-
-    def cmb002(self, index, widget):
-        """Maya Subdivision Operations"""
-        if index is widget.items.index("Reduce Polygons"):
-            mel.eval("ReducePolygonOptions")
-        elif index is widget.items.index("Add Divisions"):
-            mel.eval("SubdividePolygonOptions")
-        elif index is widget.items.index("Smooth"):
-            mel.eval("performPolySmooth 1")
-
     def s000(self, value: int, widget: object) -> None:
         """Division Level"""
         shapes = cmds.ls(selection=True, dag=True, leaf=True) or []
@@ -46,11 +23,7 @@ class Subdivision(SlotsMaya):
                 mtk.Attributes.set_attributes(obj, smoothLevel=value)
                 # SubDivision proxy options: 'divisions'
                 cmds.optionVar(intValue=("proxyDivisions", value))
-                cmds.inViewMessage(
-                    statusMessage=f"{obj}: Division Level: <hl>{value}</hl>",
-                    pos="topCenter",
-                    fade=True,
-                )
+                self.sb.message_box(f"{obj}: Division Level: <hl>{value}</hl>")
 
     def s001(self, value: int, widget: object) -> None:
         """Tesselation Level"""
@@ -60,11 +33,7 @@ class Subdivision(SlotsMaya):
             if cmds.attributeQuery("smoothLevel", node=obj, exists=True):
                 # Correctly pass attributes as keyword arguments
                 mtk.Attributes.set_attributes(obj, smoothTessLevel=value)
-                cmds.inViewMessage(
-                    statusMessage=f"{obj}: Tesselation Level: <hl>{value}</hl>",
-                    pos="topCenter",
-                    fade=True,
-                )
+                self.sb.message_box(f"{obj}: Tesselation Level: <hl>{value}</hl>")
 
     def b000(self):
         """Quadrangulate"""
@@ -201,10 +170,6 @@ class Subdivision(SlotsMaya):
     def b008(self):
         """Add Divisions - Subdivide Mesh"""
         mel.eval("SubdividePolygon")
-
-    def b009(self):
-        """Smooth"""
-        mel.eval("SmoothPolygon")
 
     def b011(self):
         """Apply Smooth Preview"""

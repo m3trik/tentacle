@@ -182,7 +182,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>335</x>
       <y>250</y>
       <width>56</width>
       <height>19</height>
@@ -456,14 +456,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>polygons</string>
-    </property>
-    <property name="filterTags">
-     <string>component</string>
-    </property>
     <property name="text">
      <string>Component</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags" stdset="0">
+     <string>component</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b011">

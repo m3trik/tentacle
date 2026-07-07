@@ -2,8 +2,7 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
-from qtpy import QtWidgets
-from uitk import Signals, WidgetComboBox, ToolBox
+from uitk import Signals
 import mayatk as mtk
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
@@ -47,7 +46,7 @@ class Selection(SlotsMaya):
         except ValueError:
             pass
         except Exception as e:
-            cmds.warning(f"Error selecting by type '{selection_type}': {e}")
+            self.sb.message_box(f"Error selecting by type '{selection_type}': {e}")
 
     def cmb001_init(self, widget):
         """Reorder Selection Init"""
@@ -149,7 +148,7 @@ class Selection(SlotsMaya):
         elif text == "Edges":  # Convert Selection To Edges
             mel.eval("PolySelectConvert 2")
         elif text == "Edge Loop":
-            mel.eval("polySelectSp -loop 1")
+            mel.eval("SelectEdgeLoopSp")
         elif text == "Edge Ring":  # Convert Selection To Edge Ring
             mel.eval("SelectEdgeRingSp")
         elif text == "Contained Edges":
@@ -157,7 +156,12 @@ class Selection(SlotsMaya):
         elif text == "Edge Perimeter":
             mel.eval("ConvertSelectionToEdgePerimeter")
         elif text == "Border Edges":
-            cmds.select(self.getBorderEdgeFromFace())
+            selection = cmds.ls(sl=True) or []
+            all_edges = mtk.Components.get_components(selection, "edges")
+            if not all_edges:
+                self.sb.message_box("No valid selection to convert to border edges.")
+                return
+            cmds.select(mtk.Components.get_border_components(all_edges))
         elif text == "Faces":  # Convert Selection To Faces
             mel.eval("PolySelectConvert 1")
         elif text == "Face Path":
@@ -252,14 +256,6 @@ class Selection(SlotsMaya):
         if state:
             self.set_selection_tool("artSelectContext")
 
-    def lbl003(self, *args):
-        """Grow Selection"""
-        mel.eval("GrowPolygonSelectionRegion")
-
-    def lbl004(self, *args):
-        """Shrink Selection"""
-        mel.eval("ShrinkPolygonSelectionRegion")
-
     def chk004(self, state, widget):
         """Ignore Backfacing (Camera Based Selection)"""
         if state:
@@ -268,15 +264,6 @@ class Selection(SlotsMaya):
         else:
             cmds.selectPref(useDepth=False)
             self.sb.message_box("Camera-based selection <hl>OFF</hl>.")
-
-    def chk008(self, state, widget):
-        """Toggle Soft Selection"""
-        if state:
-            cmds.softSelect(edit=1, softSelectEnabled=True)
-            self.sb.message_box("Soft Select <hl>ON</hl>.")
-        else:
-            cmds.softSelect(edit=1, softSelectEnabled=False)
-            self.sb.message_box("Soft Select <hl>OFF</hl>.")
 
     def chkxxx(self, **kwargs):
         """Transform Constraints: Constraint CheckBoxes"""
@@ -613,22 +600,6 @@ class Selection(SlotsMaya):
     def b001(self):
         """Toggle Selectability"""
         mtk.Macros.m_toggle_selectability()
-
-    def b016(self):
-        """Convert Selection To Vertices"""
-        mel.eval("PolySelectConvert 3")
-
-    def b017(self):
-        """Convert Selection To Edges"""
-        mel.eval("PolySelectConvert 2")
-
-    def b018(self):
-        """Convert Selection To Faces"""
-        mel.eval("PolySelectConvert 1")
-
-    def b019(self):
-        """Convert Selection To Edge Ring"""
-        mel.eval("SelectEdgeRingSp")
 
     @staticmethod
     def get_selection_tool():

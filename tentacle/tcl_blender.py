@@ -49,7 +49,7 @@ an add-on / Text-Editor ▸ Run-Script target when loaded from its package locat
 Env overrides: ``TENTACLE_MONOREPO``, ``TENTACLE_QT_DEPS``, ``TENTACLE_KEY`` (default ``F12`` —
 see Preferences ▸ Keymap; the activation key is configurable).
 
-See ``tentacle/docs/BLENDER_PORT_PLAN.md``.
+See ``tentacle/docs/archive/BLENDER_PORT_PLAN.md``.
 """
 import os
 import sys
@@ -836,7 +836,7 @@ class TclBlender(MarkingMenu):
     Blender is not a Qt app (GHOST loop, no bundled PySide6), so — unlike Maya — the
     QApplication, the Qt event pump, and the ``blender_widget`` parent are stood up by
     :meth:`BlenderHost.launch` (the Phase-0-proven recipe) *before* this is constructed.
-    See ``tentacle/docs/BLENDER_PORT_PLAN.md``.
+    See ``tentacle/docs/archive/BLENDER_PORT_PLAN.md``.
     """
 
     def __init__(

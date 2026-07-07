@@ -7,7 +7,7 @@ logic (curve scaling, stepping, baking, audio-shift, manifest) lives in
 mayatk and is covered by:
 
     test_anim_utils.py · test_scale_keys.py · test_stagger_keys.py ·
-    test_unbake_keys.py · test_smart_bake.py · test_segment_keys.py ·
+    test_smart_bake.py · test_segment_keys.py ·
     test_audio_utils_*.py · test_shot_*.py · test_blendshape_animator.py
 
 What's worth pinning at this layer:
@@ -44,19 +44,19 @@ class _FakeCombo:
 
 
 class _FakeMenu:
-    def __init__(self, cmb000_value, cmb001_value):
-        self.cmb000 = _FakeCombo(cmb000_value)
-        self.cmb001 = _FakeCombo(cmb001_value)
+    def __init__(self, cmb037_value, cmb040_value):
+        self.cmb037 = _FakeCombo(cmb037_value)
+        self.cmb040 = _FakeCombo(cmb040_value)
 
 
 class _FakeOptionBox:
-    def __init__(self, cmb000_value, cmb001_value):
-        self.menu = _FakeMenu(cmb000_value, cmb001_value)
+    def __init__(self, cmb037_value, cmb040_value):
+        self.menu = _FakeMenu(cmb037_value, cmb040_value)
 
 
 class _FakeWidget:
-    def __init__(self, cmb000_value, cmb001_value):
-        self.option_box = _FakeOptionBox(cmb000_value, cmb001_value)
+    def __init__(self, cmb037_value, cmb040_value):
+        self.option_box = _FakeOptionBox(cmb037_value, cmb040_value)
 
 
 class _RecordedSb:
@@ -111,7 +111,7 @@ class TestAnimationSlotRoster(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb017StepKeysModeTranslation(unittest.TestCase):
-    """tb017 translates the cmb000 'mode' string to step_keys' `keys` arg.
+    """tb017 translates the cmb037 'mode' string to step_keys' `keys` arg.
 
     The mapping is:
         "auto"          -> "auto"
@@ -147,24 +147,24 @@ class TestTb017StepKeysModeTranslation(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def test_mode_auto_passes_auto_string(self):
-        widget = _FakeWidget(cmb000_value="auto", cmb001_value="out")
+        widget = _FakeWidget(cmb037_value="auto", cmb040_value="out")
         self.instance.tb017(widget)
         self.assertEqual(self.recorded_keys, ["auto"])
 
     def test_mode_all_passes_none(self):
-        widget = _FakeWidget(cmb000_value="all", cmb001_value="out")
+        widget = _FakeWidget(cmb037_value="all", cmb040_value="out")
         self.instance.tb017(widget)
         self.assertEqual(self.recorded_keys, [None])
 
     def test_mode_current_time_passes_current_frame(self):
         cmds.currentTime(42)
-        widget = _FakeWidget(cmb000_value="current_time", cmb001_value="out")
+        widget = _FakeWidget(cmb037_value="current_time", cmb040_value="out")
         self.instance.tb017(widget)
         self.assertEqual(self.recorded_keys, [42.0])
 
     def test_mode_selected_with_no_selection_bails_with_message(self):
         """No keys selected in Graph Editor — must NOT call step_keys."""
-        widget = _FakeWidget(cmb000_value="selected", cmb001_value="out")
+        widget = _FakeWidget(cmb037_value="selected", cmb040_value="out")
         self.instance.tb017(widget)
         self.assertEqual(self.recorded_keys, [])  # never called
         self.assertTrue(self.instance.sb.messages, "User must be told why nothing ran")

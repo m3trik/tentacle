@@ -200,11 +200,14 @@ class TestTb000ToggleLocalAxes(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb001ConstraintSwitch(unittest.TestCase):
-    """tb001 forwards 3 widget values to mtk.connect_switch_to_constraint."""
+    """tb001 validates the selection up front, then forwards field values to
+    mtk.connect_switch_to_constraint. Empty / non-constraint selections are
+    rejected with a message box instead of calling the engine with junk."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
         self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance.sb = _FakeSb()
 
         import mayatk as mtk
         self._original = mtk.connect_switch_to_constraint
@@ -212,6 +215,9 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
 
         def fake_connect(**kwargs):
             self.captured.append(kwargs)
+            # Mimic the real engine's success return (see the switch_attr
+            # success-signal contract the slot relies on).
+            return {"switch_attr": f"{kwargs['constraint_node']}.{kwargs['attr_name']}"}
 
         mtk.connect_switch_to_constraint = fake_connect
 
@@ -220,17 +226,22 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
         mtk.connect_switch_to_constraint = self._original
         cmds.file(new=True, force=True)
 
-    def test_values_forwarded_with_selection(self):
-        cube = cmds.polyCube(name="cs_cube")[0]
-        cmds.select(cube)
-        widget = _FakeWidget(
-            [],
-            menu=_FakeMenu(
-                t003=_FakeLineEdit("mySwitch"),
-                t004=_FakeLineEdit("worldLoc"),
-                chk003=_FakeChk(True),
-            ),
+    def _menu(self, switch="sw", anchor="", weighted=False):
+        return _FakeMenu(
+            t003=_FakeLineEdit(switch),
+            t004=_FakeLineEdit(anchor),
+            chk003=_FakeChk(weighted),
         )
+
+    def _make_constraint(self):
+        src = cmds.spaceLocator(name="cs_src")[0]
+        driven = cmds.polyCube(name="cs_cube")[0]
+        return cmds.parentConstraint(src, driven)[0]
+
+    def test_values_forwarded_with_constraint_selection(self):
+        con = self._make_constraint()
+        cmds.select(con)
+        widget = _FakeWidget([], menu=self._menu("mySwitch", "worldLoc", True))
         self.instance.tb001(widget)
 
         self.assertEqual(len(self.captured), 1)
@@ -238,24 +249,19 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
         self.assertEqual(kw["attr_name"], "mySwitch")
         self.assertEqual(kw["anchor"], "worldLoc")
         self.assertTrue(kw["weighted"])
-        # Constraint node forwarded as first selection element.
-        self.assertEqual(kw["constraint_node"], cube)
+        self.assertEqual(kw["constraint_node"], con)
 
-    def test_empty_selection_passes_none(self):
-        """tb001 with no selection passes constraint_node=None."""
+    def test_empty_selection_warns_and_skips_engine(self):
         cmds.select(clear=True)
-        widget = _FakeWidget(
-            [],
-            menu=_FakeMenu(
-                t003=_FakeLineEdit("sw"),
-                t004=_FakeLineEdit(""),
-                chk003=_FakeChk(False),
-            ),
-        )
-        self.instance.tb001(widget)
+        self.instance.tb001(_FakeWidget([], menu=self._menu()))
+        self.assertEqual(self.captured, [])  # engine not called
+        self.assertIn("Nothing selected", self.instance.sb.messages[-1][0][0])
 
-        self.assertEqual(len(self.captured), 1)
-        self.assertIsNone(self.captured[0]["constraint_node"])
+    def test_non_constraint_selection_warns_and_skips_engine(self):
+        cmds.select(cmds.polyCube(name="plain_cube")[0])
+        self.instance.tb001(_FakeWidget([], menu=self._menu()))
+        self.assertEqual(self.captured, [])  # engine not called
+        self.assertIn("not a constraint", self.instance.sb.messages[-1][0][0])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

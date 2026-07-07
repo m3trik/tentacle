@@ -159,23 +159,25 @@ class Cameras(SlotsMaya):
 
     def b010(self):
         """Camera: Dolly"""
-        mel.eval("setToolTo $gDolly")
+        cmds.setToolTo("dollyContext")
 
     def b011(self):
         """Camera: Roll"""
-        # Maya doesn't have a standard 'Roll' tool active command usually exposed simply?
-        # Trying Track/Tumble?
-        # Maybe the user meant Tumble?
-        mel.eval("setToolTo $gTumble")
+        # Maya has no interactive 'roll' tool context; roll the active camera
+        # about its view axis (a discrete nudge, not a drag tool).
+        cam = mtk.CamUtils.get_current_cam()
+        if cam:
+            cmds.roll(cam, degree=15, relative=True)
 
     def b012(self):
         """Camera: Truck"""
-        mel.eval("setToolTo $gTrack")
+        # 'Truck' is Maya's Track tool (pan the camera perpendicular to the view).
+        cmds.setToolTo("trackContext")
 
     def b013(self):
         """Camera: Orbit"""
-        # Orbit is Tumble
-        mel.eval("setToolTo $gTumble")
+        # 'Orbit' is Maya's Tumble tool.
+        cmds.setToolTo("tumbleContext")
 
     def toggle_camera_view(self):
         """Toggle between the last two camera views in history."""

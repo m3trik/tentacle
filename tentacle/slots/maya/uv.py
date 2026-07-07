@@ -79,6 +79,14 @@ class UvSlots(SlotsMaya):
             "Align V Middle",
             "Align V Bottom",
             "Linear Align",
+            "Orient Shells",
+            "Orient to Edges",
+            "Gather Shells",
+            "Randomize Shells",
+            # Selection filters (act on the live UV selection; no transform).
+            "Back Facing",
+            "Overlapping",
+            "Unmapped",
         ]
         widget.add(items, header="Transform:")
 
@@ -360,7 +368,7 @@ class UvSlots(SlotsMaya):
         selection = cmds.ls(sl=True) or []
         if not selection:
             self.sb.message_box(
-                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
             )
             return
 
@@ -891,7 +899,7 @@ class UvSlots(SlotsMaya):
         selection = cmds.ls(sl=True) or []
         if not selection:
             self.sb.message_box(
-                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
             )
             return
 
@@ -989,7 +997,7 @@ class UvSlots(SlotsMaya):
         selection = cmds.ls(sl=True) or []
         if not selection:
             self.sb.message_box(
-                "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
             )
             return
 
@@ -1079,7 +1087,13 @@ class UvSlots(SlotsMaya):
             )
 
     def cmb002(self, index, widget):
-        """Transform: flip or rotate the selected UVs."""
+        """Transform, orient, or select-filter the selected UVs.
+
+        Flip / Rotate / Align / Orient / Gather / Randomize act on the live UV
+        selection; Back Facing / Overlapping / Unmapped are selection filters
+        (they replace the selection with the matched UV components) delegated to
+        ``mtk.Selection.select_by_type``.
+        """
         text = widget.items[index]
         if text == "Flip U":
             cmds.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
@@ -1090,7 +1104,7 @@ class UvSlots(SlotsMaya):
             selected_objects = cmds.ls(sl=True) or []
             if not selected_objects:
                 self.sb.message_box(
-                    "<b>Nothing selected.<b><br>The operation requires at least one selected object."
+                    "<b>Nothing selected.</b><br>The operation requires at least one selected object."
                 )
                 return
 
@@ -1098,7 +1112,7 @@ class UvSlots(SlotsMaya):
             selected_uvs = cmds.ls(selected_uvs, flatten=True) or []
             if not selected_uvs:
                 self.sb.message_box(
-                    "<b>No UVs found.<b><br>Select a mesh, faces, edges, or UVs."
+                    "<b>No UVs found.</b><br>Select a mesh, faces, edges, or UVs."
                 )
                 return
 
@@ -1121,14 +1135,42 @@ class UvSlots(SlotsMaya):
             mel.eval('performAlignUV "avgU"')
         elif text == "Align U Right":
             mel.eval('performAlignUV "maxU"')
-        elif text == "Align U Top":
+        elif text == "Align V Top":
             mel.eval('performAlignUV "maxV"')
-        elif text == "Align U Middle":
+        elif text == "Align V Middle":
             mel.eval('performAlignUV "avgV"')
-        elif text == "Align U Bottom":
+        elif text == "Align V Bottom":
             mel.eval('performAlignUV "minV"')
         elif text == "Linear Align":
             mel.eval("performLinearAlignUV")
+        elif text == "Orient Shells":
+            objects = cmds.ls(sl=True) or []
+            if not objects:
+                self.sb.message_box(
+                    "<b>Nothing selected.</b><br>Select mesh(es) or UVs to orient."
+                )
+                return
+            mtk.UvUtils.orient_shells(objects)
+        elif text == "Orient to Edges":
+            # texOrientEdge rotates each shell so its selected edge runs along
+            # U or V. Requires a mesh/UV edge selection (mask 32 = poly edges).
+            edges = cmds.filterExpand(cmds.ls(sl=True) or [], selectionMask=32)
+            if not edges:
+                self.sb.message_box(
+                    "<b>No edge selected.</b><br>Select a UV/mesh edge to orient the shell to."
+                )
+                return
+            mel.eval("texOrientEdge")
+        elif text == "Gather Shells":
+            mel.eval("UVGatherShells")
+        elif text == "Randomize Shells":
+            mel.eval("RandomizeShells")
+        elif text == "Back Facing":
+            mtk.Selection.select_by_type("Back-Facing")
+        elif text == "Overlapping":
+            mtk.Selection.select_by_type("Overlapping")
+        elif text == "Unmapped":
+            mtk.Selection.select_by_type("Unmapped")
 
     def cmb003(self, index, widget):
         """UV Map Size — passive input; read by get_map_size for the texel-density

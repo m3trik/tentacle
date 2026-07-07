@@ -178,7 +178,15 @@ class TeeStream:
         self.streams = streams
     def write(self, text):
         for stream in self.streams:
-            stream.write(text)
+            try:
+                stream.write(text)
+            except UnicodeEncodeError:
+                # mayapy's console is cp1252 and can't encode every
+                # character a test docstring/failure message contains
+                # (arrows, em-dashes, ...). Losing those glyphs here beats
+                # crashing mid-report and discarding every other result.
+                encoding = getattr(stream, "encoding", None) or "ascii"
+                stream.write(text.encode(encoding, errors="replace").decode(encoding))
     def flush(self):
         for stream in self.streams:
             stream.flush()
@@ -209,7 +217,6 @@ def update_readme_badge(passed: int, failed: int, readme_path: Path) -> bool:
     
     try:
         content = readme_path.read_text(encoding="utf-8")
-        total = passed + failed
         if failed == 0:
             color = "brightgreen"; status = f"{passed} passed"
         elif passed == 0:
@@ -217,7 +224,11 @@ def update_readme_badge(passed: int, failed: int, readme_path: Path) -> bool:
         else:
             color = "orange"; status = f"{passed} passed, {failed} failed"
 
-        new_badge = f"[![Tests](https://img.shields.io/badge/Tests-{status.replace(' ', '%20').replace(',', '')}-{color}.svg)](test/)"
+        # Link target computed relative to the README's location (this runner
+        # writes both README.md -> test/ and docs/README.md -> ../test/).
+        test_dir = Path(__file__).resolve().parent
+        link_target = Path(os.path.relpath(test_dir, readme_path.parent)).as_posix() + "/"
+        new_badge = f"[![Tests](https://img.shields.io/badge/Tests-{status.replace(' ', '%20').replace(',', '')}-{color}.svg)]({link_target})"
         tests_badge_pattern = r"\[!\[Tests\]\(https://img\.shields\.io/badge/Tests-[^\)]+\)\]\([^\)]+\)"
 
         if re.search(tests_badge_pattern, content):

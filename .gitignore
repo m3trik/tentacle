@@ -47,6 +47,9 @@ desktop.ini
 
 # Generated UI python modules
 *_ui.py
+# ...except this hand-written bench harness — its name just happens to
+# collide with the compiled-`.ui` naming convention above.
+!test/bench/standalone_ui.py
 .vscode
 .test
 **/grepWin_backup

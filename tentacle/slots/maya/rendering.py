@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional
 
 import maya.cmds as cmds
 import maya.mel as mel
-import maya.api.OpenMaya as om
 
 from uitk.switchboard import Cancelable
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -336,7 +335,7 @@ class Rendering(SlotsMaya):
                 try:
                     scene_name = re.sub(pattern, replacement, scene_name)
                 except re.error as exc:
-                    cmds.warning(f"Invalid regex pattern '{pattern}': {exc}")
+                    self.sb.message_box(f"Invalid regex pattern '{pattern}': {exc}")
         if not scene_name:
             scene_name = self._scene_base_name()
 
@@ -545,15 +544,14 @@ class Rendering(SlotsMaya):
                 outputs.append(f"{result['label']} mp4: {compressed}")
 
         if outputs:
-            om.MGlobal.displayInfo("Playblast export complete:\n" + "\n".join(outputs))
+            self.sb.message_box("Playblast export complete:<br>" + "<br>".join(outputs))
 
         if errors:
-            for entry in errors:
-                cmds.warning(
-                    f"Playblast variant '{entry['label']}' failed: {entry.get('error')}"
-                )
+            error_lines = [
+                f"{entry['label']}: {entry.get('error')}" for entry in errors
+            ]
             self.sb.message_box(
-                "One or more playblast exports failed. Check the Script Editor for details."
+                "One or more playblast exports failed:<br>" + "<br>".join(error_lines)
             )
         elif outputs:
             self.sb.message_box("Playblast exports completed successfully.")

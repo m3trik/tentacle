@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>618</width>
-    <height>503</height>
+    <width>600</width>
+    <height>475</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>0</height>
+    <width>600</width>
+    <height>475</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -66,7 +66,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QWidget" name="staticWindow" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="leftMargin">
@@ -84,403 +84,377 @@
        <property name="spacing">
         <number>0</number>
        </property>
-       <item row="0" column="0" rowspan="3">
-        <widget class="Region" name="region_4" native="true"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="Region" name="region" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <spacer name="verticalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="main_layout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_A" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>150</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="spacing">
+             <number>0</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
+            <property name="leftMargin">
+             <number>0</number>
             </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="Region" name="widget_3" native="true">
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="Region" name="region_A" native="true"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="main" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>320</width>
+             <height>160</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>999</height>
+            </size>
+           </property>
+           <widget class="MenuButton" name="i001">
+            <property name="geometry">
+             <rect>
+              <x>240</x>
+              <y>70</y>
+              <width>56</width>
+              <height>21</height>
+             </rect>
+            </property>
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>100</height>
+              <height>21</height>
              </size>
             </property>
-            <widget class="QPushButton" name="b006">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>30</y>
-               <width>91</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>dynLayout</string>
-             </property>
-             <property name="text">
-              <string>Vertex</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="b007">
-             <property name="geometry">
-              <rect>
-               <x>120</x>
-               <y>10</y>
-               <width>91</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>dynLayout</string>
-             </property>
-             <property name="text">
-              <string>Edge</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="b008">
-             <property name="geometry">
-              <rect>
-               <x>120</x>
-               <y>40</y>
-               <width>91</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>dynLayout</string>
-             </property>
-             <property name="text">
-              <string>Face</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="b009">
-             <property name="geometry">
-              <rect>
-               <x>225</x>
-               <y>30</y>
-               <width>91</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>21</height>
-              </size>
-             </property>
-             <property name="whatsThis">
-              <string>dynLayout</string>
-             </property>
-             <property name="text">
-              <string>UV</string>
-             </property>
-            </widget>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>View</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>view</string>
+            </property>
            </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="2" rowspan="3">
-        <widget class="Region" name="region_2" native="true"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="QWidget" name="widget_0" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>325</width>
-           <height>200</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>300</width>
-           <height>200</height>
-          </size>
-         </property>
-         <widget class="QPushButton" name="b000">
-          <property name="geometry">
-           <rect>
-            <x>117</x>
-            <y>20</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="b001">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>90</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>Object</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="b002">
-          <property name="geometry">
-           <rect>
-            <x>215</x>
-            <y>90</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>Select</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="b003">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>130</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>Transform</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="b004">
-          <property name="geometry">
-           <rect>
-            <x>215</x>
-            <y>130</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>Snap</string>
-          </property>
-         </widget>
-         <widget class="QPushButton" name="b005">
-          <property name="geometry">
-           <rect>
-            <x>105</x>
-            <y>165</y>
-            <width>116</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>21</height>
-           </size>
-          </property>
-          <property name="whatsThis">
-           <string>dynLayout</string>
-          </property>
-          <property name="text">
-           <string>View</string>
-          </property>
-         </widget>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="Region" name="region_3" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="Region" name="widget_2" native="true">
+           <widget class="MenuButton" name="i002">
+            <property name="geometry">
+             <rect>
+              <x>215</x>
+              <y>40</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>80</height>
+              <height>21</height>
              </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Select</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>select</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
+           <widget class="MenuButton" name="i003">
+            <property name="geometry">
+             <rect>
+              <x>25</x>
+              <y>90</y>
+              <width>70</width>
+              <height>21</height>
+             </rect>
             </property>
-            <property name="sizeHint" stdset="0">
+            <property name="minimumSize">
              <size>
-              <width>20</width>
-              <height>40</height>
+              <width>0</width>
+              <height>21</height>
              </size>
             </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>add</string>
+            </property>
+           </widget>
+           <widget class="MenuButton" name="i004">
+            <property name="geometry">
+             <rect>
+              <x>30</x>
+              <y>30</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Object</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>object</string>
+            </property>
+           </widget>
+           <widget class="MenuButton" name="i005">
+            <property name="geometry">
+             <rect>
+              <x>185</x>
+              <y>10</y>
+              <width>74</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Mesh</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>mesh</string>
+            </property>
+           </widget>
+           <widget class="MenuButton" name="i007">
+            <property name="geometry">
+             <rect>
+              <x>25</x>
+              <y>60</y>
+              <width>71</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Armature</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>armature</string>
+            </property>
+           </widget>
+           <widget class="MenuButton" name="i008">
+            <property name="geometry">
+             <rect>
+              <x>220</x>
+              <y>100</y>
+              <width>66</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Render</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>render</string>
+            </property>
+           </widget>
+           <widget class="MenuButton" name="i006">
+            <property name="geometry">
+             <rect>
+              <x>185</x>
+              <y>130</y>
+              <width>66</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>999</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Curve</string>
+            </property>
+            <property name="target" stdset="0">
+             <string>curve</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="widget_B" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>150</height>
+            </size>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="Region" name="region_B" native="true"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>28</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
+    </item>
+    <item row="0" column="0">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>19</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="2">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>19</height>
+       </size>
+      </property>
+     </spacer>
     </item>
    </layout>
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
+  </customwidget>
   <customwidget>
    <class>Region</class>
    <extends>QWidget</extends>

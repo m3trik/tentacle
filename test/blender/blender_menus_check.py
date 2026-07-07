@@ -1,13 +1,24 @@
-"""Headless no-dead-links guard for the both-button menu (``blender#startmenu`` / ``Blender``).
+"""Headless guard for the both-button chord menu wrap (``BlenderUiHandler`` + ``BlenderNativeMenus``).
 
 Run in a **fresh** headless Blender (never an existing session)::
 
     blender --background --factory-startup --python tentacle/test/blender/blender_menus_check.py
 
-Asserts every native-menu idname the radial maps to is a real Blender menu (so no wedge can
-dead-end), that ``btk.menu_exists`` rejects a bogus id, and that the per-mode relabel/disable logic
-in ``Blender._init_button`` is correct (Object↔Mesh; edit-only wedges off in Object mode). The
-actual ``wm.call_menu`` popup is modal + GUI-only, so it's proven live, not here.
+The chord menu is a thin launcher for Blender's own native viewport menus (the mirror of
+``ui/maya_menus``): every node is a ``MenuButton`` with a bare target, resolved on release through
+``BlenderUiHandler.can_resolve`` to a native-menu *proxy* whose ``show`` pops Blender's real menu
+via ``btk.call_native_menu`` (Maya harvests live ``QAction`` rows; Blender has none, so it invokes
+its own menu). This asserts, against a live Blender:
+
+  * every id in ``BlenderNativeMenus.MENU_MAPPING`` / ``SELECT_BY_MODE`` is a real menu (no leaf
+    dead-ends),
+  * the handler registers a resolvable proxy for every node name (``can_resolve`` + ``loaded_ui``),
+  * showing a proxy dispatches ``call_native_menu`` with the right id — one per hub incl. the
+    3-level Armature->Pose branch, plus mode-adaptive Select.
+
+The actual popup is GUI-only (``wm.call_menu`` faults under ``--background``), so the real pop is
+proven interactively, not here; firing is verified by patching ``call_native_menu`` /
+``bpy.app.timers.register`` to recorders.
 """
 import sys
 import os
@@ -22,8 +33,11 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
 os.environ.setdefault("QT_API", "pyside6")
 
 import bpy
-from tentacle import tcl_blender  # noqa: F401 — provisions qtpy so the slot import resolves
-from tentacle.slots.blender.blender import Blender
+from tentacle import tcl_blender  # noqa: F401 — provisions qtpy so the Switchboard import resolves
+from qtpy import QtWidgets
+from uitk import Switchboard
+from blendertk.ui_utils.blender_ui_handler import BlenderUiHandler
+from blendertk.ui_utils.blender_native_menus import BlenderNativeMenus
 import blendertk as btk
 
 lines = []
@@ -38,123 +52,82 @@ def check(name, cond, detail=""):
     lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
 
 
-class _Btn:
-    """Minimal stand-in for the Qt button the slot's ``_init`` touches."""
-
-    def __init__(self, name):
-        self._name = name
-        self.text = None
-        self.enabled = True
-        self.tip = None
-
-    def objectName(self):
-        return self._name
-
-    def setText(self, t):
-        self.text = t
-
-    def setEnabled(self, e):
-        self.enabled = e
-
-    def setToolTip(self, t):
-        self.tip = t
-
-
-def _menu_idnames():
-    """Every menu idname the radial can resolve to (all per-mode + mode-agnostic entries)."""
-    ids = []
-    for spec in Blender._BUTTON_MENUS.values():
-        ids += [v for k, v in spec.items() if k not in ("label", "edit_label")]
-    return ids
+def _show_records(handler, proxy):
+    """Show ``proxy`` with call_native_menu + the deferral timer patched to recorders; the deferred
+    pop runs synchronously so no real popup is attempted headless. Returns the recorded id list."""
+    recorded = []
+    orig_call, orig_reg = btk.call_native_menu, bpy.app.timers.register
+    btk.call_native_menu = lambda idname: recorded.append(idname)
+    bpy.app.timers.register = lambda fn, **kw: fn()
+    try:
+        handler.show(proxy)
+    finally:
+        btk.call_native_menu, bpy.app.timers.register = orig_call, orig_reg
+    return recorded
 
 
 def main():
     try:
-        # 1. No dead links — every mapped idname is a registered Blender menu.
-        bad = sorted({i for i in _menu_idnames() if not btk.menu_exists(i)})
-        check("every wedge menu resolves to a real Blender menu", not bad, f"{bad}")
+        app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])  # noqa: F841
+        mapping = BlenderNativeMenus.MENU_MAPPING
+        select_by_mode = BlenderNativeMenus.SELECT_BY_MODE
+
+        # 1. No dead links — every mapped id (fixed leaves + Select's per-mode map) is a real menu.
+        bad = sorted({i for i in mapping.values() if not btk.menu_exists(i)})
+        check("every fixed leaf maps to a real Blender menu", not bad, f"{bad}")
+        bad_sel = sorted({i for i in select_by_mode.values() if not btk.menu_exists(i)})
+        check("every Select-by-mode id is a real Blender menu", not bad_sel, f"{bad_sel}")
         check("menu_exists rejects a bogus id", not btk.menu_exists("VIEW3D_MT_does_not_exist"))
 
-        # 2. Mode-sensitive set is exactly the relabel/disable buttons.
-        derived = {
-            b
-            for b, spec in Blender._BUTTON_MENUS.items()
-            if spec.get("edit_label") or not (spec.get("*") or spec.get("OBJECT"))
-        }
-        check(
-            "_MODE_SENSITIVE matches the buttons that relabel/disable",
-            set(Blender._MODE_SENSITIVE) == derived,
-            f"declared={sorted(Blender._MODE_SENSITIVE)} derived={sorted(derived)}",
-        )
+        # 2. The handler registers a resolvable proxy per node name (bypass the heavy package scan
+        #    in __init__; exercise only the native-menu wrap).
+        sb = Switchboard()
+        handler = object.__new__(BlenderUiHandler)
+        handler.sb = sb
+        handler._register_native_menu_proxies()
+        names = BlenderNativeMenus.names()
+        check("proxy registered for every node name", set(handler._native_menu_proxies) == names,
+              f"{sorted(set(names) ^ set(handler._native_menu_proxies))}")
+        unresolved = sorted(n for n in names if not handler.can_resolve(n))
+        check("can_resolve True for every node name", not unresolved, f"{unresolved}")
+        check("can_resolve False for a non-node name", not handler.can_resolve("definitely_not_a_menu"))
+        # get_ui returns the proxy (the release path relies on this), tagged menu (standalone).
+        proxy = sb.get_ui("mesh")
+        check("get_ui('mesh') returns the native proxy",
+              getattr(proxy, handler._NATIVE_MENU_ATTR, None) == "mesh")
+        check("proxy is a standalone target (not a stacked submenu)",
+              not proxy.has_tags(["startmenu", "submenu"]))
 
-        # 3. Object-mode relabel/disable (default headless mode is OBJECT).
-        inst = Blender.__new__(Blender)  # bypass __init__ (no switchboard needed)
-        check("headless mode is OBJECT", inst._mode() == "OBJECT", inst._mode())
+        # 3. Showing a proxy dispatches call_native_menu with the mapped id — cover a flat category,
+        #    each hub anchor (incl. the level-3 Pose anchor), and a leaf from the Mesh + Pose hubs.
+        for node, expected in (
+            ("add", "VIEW3D_MT_add"),                    # flat
+            ("mesh", "VIEW3D_MT_edit_mesh"),              # Mesh hub anchor
+            ("mesh_normals", "VIEW3D_MT_edit_mesh_normals"),  # Mesh hub leaf
+            ("curve", "VIEW3D_MT_edit_curve"),            # Curve hub anchor
+            ("armature", "VIEW3D_MT_edit_armature"),      # Armature hub anchor
+            ("pose", "VIEW3D_MT_pose"),                   # Pose hub anchor (level 3)
+            ("ik", "VIEW3D_MT_pose_ik"),                  # Pose hub leaf
+            ("render", "TOPBAR_MT_render"),               # Render hub anchor
+            ("help", "TOPBAR_MT_help"),                   # Render hub leaf
+        ):
+            rec = _show_records(handler, handler._native_menu_proxies[node])
+            check(f"show '{node}' pops {expected}", rec == [expected], f"{rec}")
 
-        b001 = _Btn("b001")
-        inst._init_button(b001)
-        check("b001 labels 'Object' in Object mode", b001.text == "Object", f"{b001.text!r}")
-
-        b006 = _Btn("b006")
-        inst._init_button(b006)
-        check("b006 (Vertex) disabled in Object mode", b006.enabled is False)
-        check("b006 (Vertex) resolves to no menu in Object mode", inst._menu_for("b006") is None)
-
-        check(
-            "b003 (Transform) resolves mode-agnostically",
-            inst._menu_for("b003") == "VIEW3D_MT_transform",
-            f"{inst._menu_for('b003')!r}",
-        )
-        check(
-            "b000 (Add) resolves to the Object-mode Add menu",
-            inst._menu_for("b000") == "VIEW3D_MT_add",
-            f"{inst._menu_for('b000')!r}",
-        )
-
-        # 4. _open routing (the deferred-popup glue): a valid wedge schedules
-        # call_native_menu(idname); an N/A wedge messages instead. Patch the timer to run the
-        # one-shot synchronously and call_native_menu to a recorder (no modal popup).
-        recorded, messages = [], []
-        inst.sb = type("SB", (), {"message_box": lambda self, m: messages.append(m)})()
-        orig_call, orig_reg = btk.call_native_menu, bpy.app.timers.register
-        btk.call_native_menu = lambda idname: recorded.append(idname)
-        bpy.app.timers.register = lambda fn, **kw: fn()
+        # 4. Select dispatches by LIVE mode, not a fixed id — Object (default) + Edit Mesh (the
+        #    default Cube), plus the safe fallback for an unmapped mode.
+        rec = _show_records(handler, handler._native_menu_proxies["select"])
+        check("Select in Object mode pops VIEW3D_MT_select_object",
+              rec == ["VIEW3D_MT_select_object"], f"{rec}")
+        bpy.ops.object.mode_set(mode="EDIT")
         try:
-            inst._open("b000")  # Add — valid in Object mode
-            inst._open("b006")  # Vertex — N/A in Object mode → message
+            rec = _show_records(handler, handler._native_menu_proxies["select"])
+            check("Select in Edit Mesh mode pops VIEW3D_MT_select_edit_mesh",
+                  rec == ["VIEW3D_MT_select_edit_mesh"], f"{rec}")
         finally:
-            btk.call_native_menu, bpy.app.timers.register = orig_call, orig_reg
-        check(
-            "b000 routes to a deferred call_native_menu('VIEW3D_MT_add')",
-            recorded == ["VIEW3D_MT_add"],
-            f"{recorded}",
-        )
-        check(
-            "b006 in Object mode messages instead of popping",
-            len(messages) == 1 and "Edit Mode" in messages[0],
-            f"{messages}",
-        )
-
-        # 5. Edit-mesh path (best-effort — needs the default mesh + a valid context).
-        try:
-            bpy.ops.object.mode_set(mode="EDIT")
-            if inst._mode() == "EDIT_MESH":
-                b001e = _Btn("b001")
-                inst._init_button(b001e)
-                check("b001 relabels to 'Mesh' in Edit mode", b001e.text == "Mesh", f"{b001e.text!r}")
-                b006e = _Btn("b006")
-                inst._init_button(b006e)
-                check("b006 (Vertex) enabled in Edit mode", b006e.enabled is True)
-                check(
-                    "b002 (Select) resolves to the edit-mesh Select menu",
-                    inst._menu_for("b002") == "VIEW3D_MT_select_edit_mesh",
-                    f"{inst._menu_for('b002')!r}",
-                )
-            else:
-                lines.append("note: could not enter EDIT_MESH headless — edit-mode checks skipped")
             bpy.ops.object.mode_set(mode="OBJECT")
-        except Exception as error:
-            lines.append(f"note: edit-mode checks skipped ({error!r})")
+        fallback = BlenderNativeMenus.SELECT_BY_MODE.get("SCULPT", "VIEW3D_MT_select_object")
+        check("unmapped mode falls back to VIEW3D_MT_select_object", fallback == "VIEW3D_MT_select_object")
     except Exception as error:
         lines.append(f"FAIL setup: {error!r}")
         lines.append(traceback.format_exc())

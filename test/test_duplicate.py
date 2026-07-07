@@ -3,13 +3,17 @@
 """Regression tests for tentacle.slots.maya.duplicate.
 
 The mayatk duplicate_* engines (linear/radial/grid) are covered in
-mayatk's test_edit_tools_duplicate. This file pins the *slot-layer*
-gating logic:
+mayatk's test_edit_tools_duplicate; `mtk.auto_instance`/`AutoInstancer`
+itself is covered in mayatk's own instancing test suite. This file pins
+the *slot-layer* gating logic:
 
 - tb000 (Convert to Instances): requires ≥2 ordered-selected objects;
   warns and skips otherwise.
 - tb001 (Select Instanced Objects): routes by 'All Instanced' checkbox
   — true → all-scene, false → selection-restricted.
+- tb002 (Auto Instance): forwards the option-box settings to
+  `mtk.auto_instance`, selects the surviving result, and warns instead
+  of silently no-op'ing when nothing matched.
 """
 import unittest
 
@@ -32,13 +36,23 @@ class _FakeChk:
         return self._state
 
 
+class _FakeSpin:
+    def __init__(self, value):
+        self._value = value
+
+    def value(self):
+        return self._value
+
+
 class _FakeMenu:
-    def __init__(self, chk000, chk001=None, chk002=None):
-        self.chk000 = _FakeChk(chk000)
-        if chk001 is not None:
-            self.chk001 = _FakeChk(chk001)
-        if chk002 is not None:
-            self.chk002 = _FakeChk(chk002)
+    """Fake option-box menu: chk* names become checkboxes, s* spinboxes."""
+
+    def __init__(self, **widgets):
+        for name, value in widgets.items():
+            if value is None:
+                continue
+            fake = _FakeSpin(value) if name.startswith("s") else _FakeChk(value)
+            setattr(self, name, fake)
 
 
 class _FakeOptionBox:
@@ -126,7 +140,7 @@ class TestTb000ConvertToInstancesGate(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb001SelectInstancedRouting(unittest.TestCase):
-    """tb001 (Select Instanced Objects) routes by chk000 = All Instanced."""
+    """tb001 (Select Instanced Objects) routes by chk003 = All Instanced."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -150,17 +164,17 @@ class TestTb001SelectInstancedRouting(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def test_all_instanced_passes_none(self):
-        """chk000=True → mtk.get_instances(objects=None) (whole scene)."""
-        widget = _FakeWidget(_FakeMenu(chk000=True))
+        """chk003=True → mtk.get_instances(objects=None) (whole scene)."""
+        widget = _FakeWidget(_FakeMenu(chk003=True))
         self.instance.tb001(widget)
         self.assertEqual(self.captured, [None])
 
     def test_selected_only_passes_selection(self):
-        """chk000=False with a selection → mtk.get_instances(selection)."""
+        """chk003=False with a selection → mtk.get_instances(selection)."""
         a = cmds.polyCube(name="dup_tb001_a")[0]
         cmds.select(a)
 
-        widget = _FakeWidget(_FakeMenu(chk000=False))
+        widget = _FakeWidget(_FakeMenu(chk003=False))
         self.instance.tb001(widget)
 
         self.assertEqual(len(self.captured), 1)
@@ -168,11 +182,102 @@ class TestTb001SelectInstancedRouting(unittest.TestCase):
         self.assertIn(a, self.captured[0])
 
     def test_selected_only_with_no_selection_warns(self):
-        """chk000=False AND no selection → warn, don't query."""
+        """chk003=False AND no selection → warn, don't query."""
         cmds.select(clear=True)
-        widget = _FakeWidget(_FakeMenu(chk000=False))
+        widget = _FakeWidget(_FakeMenu(chk003=False))
         self.instance.tb001(widget)
         self.assertEqual(self.captured, [])
+        self.assertTrue(self.instance.sb.messages)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb002AutoInstanceRouting(unittest.TestCase):
+    """tb002 (Auto Instance) forwards option-box settings to mtk.auto_instance."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance.sb = _RecordedSb()
+
+        import mayatk as mtk
+
+        self._original = mtk.auto_instance
+        self.captured = []
+        self.result = []
+
+        def fake_auto_instance(nodes, **kwargs):
+            self.captured.append((nodes, kwargs))
+            return self.result
+
+        mtk.auto_instance = fake_auto_instance
+
+    def tearDown(self):
+        import mayatk as mtk
+
+        mtk.auto_instance = self._original
+        cmds.file(new=True, force=True)
+
+    def _widget(self, **overrides):
+        defaults = dict(
+            s000=0.001,
+            chk004=True,
+            chk005=False,
+            chk006=False,
+            chk007=False,
+            chk008=False,
+            chk009=True,
+            chk010=True,
+            chk011=True,
+            s001=10000.0,
+        )
+        defaults.update(overrides)
+        return _FakeWidget(_FakeMenu(**defaults))
+
+    def test_passes_nodes_none_regardless_of_selection(self):
+        """Scope is left to AutoInstancer's own selection→whole-scene
+        fallback (mirrors tb001's 'All Instanced' whole-scene default)."""
+        a = cmds.polyCube(name="dup_tb002_a")[0]
+        cmds.select(a)
+        self.instance.tb002(self._widget())
+        self.assertEqual(len(self.captured), 1)
+        self.assertIsNone(self.captured[0][0])
+
+    def test_option_box_values_forwarded(self):
+        widget = self._widget(
+            s000=0.05,
+            chk004=False,
+            chk005=True,
+            chk006=True,
+            chk007=True,
+            chk008=True,
+            chk009=False,
+            chk010=False,
+            chk011=False,
+            s001=250.0,
+        )
+        self.instance.tb002(widget)
+
+        kwargs = self.captured[0][1]
+        self.assertEqual(kwargs["tolerance"], 0.05)
+        self.assertFalse(kwargs["require_same_material"])
+        self.assertTrue(kwargs["check_uvs"])
+        self.assertTrue(kwargs["check_hierarchy"])
+        self.assertTrue(kwargs["separate_combined"])
+        self.assertTrue(kwargs["combine_assemblies"])
+        self.assertFalse(kwargs["combine_non_instanced"])
+        self.assertFalse(kwargs["combine_by_material"])
+        self.assertFalse(kwargs["combine_by_distance"])
+        self.assertEqual(kwargs["combine_distance_threshold"], 250.0)
+
+    def test_selects_surviving_result(self):
+        a = cmds.polyCube(name="dup_tb002_survivor")[0]
+        self.result = [a]
+        self.instance.tb002(self._widget())
+        self.assertEqual(cmds.ls(selection=True), [a])
+
+    def test_no_matches_warns_instead_of_silent_noop(self):
+        self.result = []
+        self.instance.tb002(self._widget())
         self.assertTrue(self.instance.sb.messages)
 
 

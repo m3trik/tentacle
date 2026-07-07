@@ -71,11 +71,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>duplicate</string>
-    </property>
     <property name="text">
      <string>Duplicate</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>duplicate</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb001">
@@ -173,7 +173,7 @@
    <widget class="PushButton" name="tb000">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>365</x>
       <y>290</y>
       <width>136</width>
       <height>19</height>
