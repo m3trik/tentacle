@@ -142,7 +142,7 @@ Blender-only panels: MayaBridge
 | crease.py | 0 | 0 | 0 | 0 | 0 | OK |
 | deformation.py | 0 | 0 | 0 | 0 | 0 | OK |
 | display.py | 0 | 0 | 0 | 0 | 0 | OK |
-| duplicate.py | 0 | 12 | 0 | 0 | 0 | open |
+| duplicate.py | 0 | 11 | 0 | 0 | 0 | open |
 | edit.py | 0 | 0 | 11 | 0 | 0 | OK |
 | editors.py | 0 | 0 | 0 | 0 | 0 | OK |
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -245,6 +245,5 @@ Blender-only panels: MayaBridge
 - **duplicate** `s000` — optbox QDoubleSpinBox None  [pending] see tb002
 - **duplicate** `s001` — optbox QDoubleSpinBox None  [pending] see tb002
 - **duplicate** `tb002` — [pending] Auto Instance (find geometrically identical meshes, convert to instances of one prototype) added to Maya's duplicate.py 2026-07-05, backed by mayatk's core_utils.auto_instancer (AutoInstancer engine + AssemblyReconstructor + geometry_matcher — a substantial standalone mesh-matching/instancing subsystem, still an active workstream per its own project ledger). Porting it to blendertk is a dedicated engine port (mesh signature/matching via bmesh, assembly separate/reassemble via parent/collection graphs, get_instances/replace_with_instances already exist in blendertk's node_utils and are the eventual landing point) — out of scope for the selection/component-conversion work that surfaced this gap; tracked here rather than silently left unhandled. Covers tb002's whole option box (chk004-011, s000-001), which has no independent life without the handler.
-- **duplicate** `tb002_init` — [pending] Auto Instance (find geometrically identical meshes, convert to instances of one prototype) added to Maya's duplicate.py 2026-07-05, backed by mayatk's core_utils.auto_instancer (AutoInstancer engine + AssemblyReconstructor + geometry_matcher — a substantial standalone mesh-matching/instancing subsystem, still an active workstream per its own project ledger). Porting it to blendertk is a dedicated engine port (mesh signature/matching via bmesh, assembly separate/reassemble via parent/collection graphs, get_instances/replace_with_instances already exist in blendertk's node_utils and are the eventual landing point) — out of scope for the selection/component-conversion work that surfaced this gap; tracked here rather than silently left unhandled. Covers tb002's whole option box (chk004-011, s000-001), which has no independent life without the handler.
 
-## Totals: 41 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 15 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 41 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 14 open-work items; 0 stale Maya handlers. Sweep PASSES.

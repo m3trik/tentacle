@@ -105,6 +105,13 @@ class Duplicate(SlotsBlender):
             o.select_set(True)
         bpy.context.view_layer.objects.active = instances[0]
 
+    # ------------------------------------------------------------------ tb002  Auto Instance (not yet ported)
+    def tb002_init(self, widget):
+        """Auto Instance — hidden: blendertk has no ported equivalent of mayatk's
+        core_utils.auto_instancer yet (mayatk parity gap, tracked in
+        docs/parity_map.py)."""
+        widget.setVisible(False)
+
     # ------------------------------------------------------------------ b005  Uninstance
     @btk.undoable
     def b005(self):
