@@ -103,7 +103,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: m3trik/m3trik
-          ref: dev
+          ref: main
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           path: m3trik
 
