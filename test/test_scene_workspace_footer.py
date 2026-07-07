@@ -101,14 +101,17 @@ class TestSceneWorkspaceFooter(unittest.TestCase):
         )
 
     def test_workspace_changed_handler_updates_footer(self):
-        """cmb000_init's scriptJob must target _on_workspace_changed, which
-        refreshes both the scenes dropdown and the footer status when Maya's
-        workspace flips (including changes made from the main Workspace list)."""
+        """_create_footer_controller must subscribe the workspaceChanged scriptJob
+        to _on_workspace_changed, which refreshes the footer status when Maya's
+        workspace flips (including changes made from the main Workspace list).
+        The subscription must NOT ride a widget _init — the old host (the
+        Workspace-Scenes combo's cmb000_init) went dead when that widget left
+        scene.ui, and the footer silently stopped refreshing."""
         self.assertTrue(
             self.mod.has_method("SceneSlots", "_on_workspace_changed"),
             "SceneSlots must define _on_workspace_changed",
         )
-        src = self.mod.method_source("SceneSlots", "cmb000_init")
+        src = self.mod.method_source("SceneSlots", "_create_footer_controller")
         self.assertIn("workspaceChanged", src)
         self.assertIn("_on_workspace_changed", src)
         handler = self.mod.method_source("SceneSlots", "_on_workspace_changed")
@@ -135,6 +138,12 @@ class TestWorkspaceControlsLeftScene(unittest.TestCase):
             "_set_workspace_interactive",
             "_auto_set_workspace",
             "_set_workspace_from_path",
+            # dead Workspace-Scenes cluster (widgets removed from scene.ui;
+            # deleted 2026-07-02 — the footer subscription moved to
+            # _create_footer_controller):
+            "cmb000_init",
+            "cmb000",
+            "txt000",
         ):
             self.assertFalse(
                 self.mod.has_method("SceneSlots", gone),

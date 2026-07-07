@@ -72,3 +72,55 @@ jobs:
       - name: Fail if tests failed
         if: steps.tests.outputs.exit_code != '0'
         run: exit 1
+
+  parity:
+    # Static Maya<->Blender parity gate. Every UI delta must be fixed or
+    # ledgered in docs/parity_map.py — an UNTRIAGED delta exits 1. The
+    # comparer lives in the m3trik repo and expects the monorepo layout
+    # (tentacle/, mayatk/, blendertk/ as siblings of m3trik/), so the
+    # sibling repos are checked out at dev alongside this one.
+    # See docs/PARITY_PORTING_PLAN.md for the system overview.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tentacle
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/mayatk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: mayatk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/blendertk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: blendertk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/m3trik
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: m3trik
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Parity sweep (fix-or-ledger gate)
+        # --write regenerates PARITY_SURFACE.md; the git diff then also
+        # fails the job if the committed doc is stale.
+        run: |
+          python m3trik/scripts/compare_panel_surface.py --all --write
+          git -C tentacle diff --exit-code -- docs/PARITY_SURFACE.md
+
+      - name: Parity audit up-to-date
+        # mtimes are meaningless in a fresh checkout, so skip the
+        # mtime-based registry-freshness guard; --check still
+        # content-diffs the committed PARITY_AUDIT.md.
+        run: python m3trik/scripts/generate_parity_audit.py --check --allow-stale
