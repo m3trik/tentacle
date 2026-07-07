@@ -24,37 +24,15 @@ Runs under mayapy.standalone via:
 """
 from __future__ import annotations
 
-import os
 import sys
 import unittest
 
-from _helpers import maya_available
-
-
-def _qt_widgets_available() -> bool:
-    """True iff a real QWidgets class can be instantiated (some mayapy
-    configurations ship a non-GUI Qt stub)."""
-    try:
-        from qtpy import QtWidgets, QtCore  # noqa: F401
-        app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
-        # Probe with a leaf widget. Use a context that owns it so we
-        # don't leak even one widget across the lifetime of the test
-        # process.
-        probe = QtWidgets.QCheckBox()
-        try:
-            probe.objectName()  # sanity touch
-        finally:
-            probe.deleteLater()
-            QtWidgets.QApplication.processEvents()
-        return True
-    except Exception:
-        return False
-
+from _helpers import maya_available, qt_widgets_available
 
 _SKIP_REASON = "Requires maya.cmds + Qt widgets (run via mayapy)"
 
 
-@unittest.skipUnless(maya_available() and _qt_widgets_available(), _SKIP_REASON)
+@unittest.skipUnless(maya_available() and qt_widgets_available(), _SKIP_REASON)
 class _PersistenceBase(unittest.TestCase):
     """Shared setup: one TclMaya per class, isolated QSettings, event drain.
 
@@ -251,7 +229,6 @@ class TestEveryPanelPersistsAtLeastOneWidget(_PersistenceBase):
         # combobox that can't change index, etc.) doesn't make the test
         # spuriously skip.
         for cand in candidates[:5]:
-            before = self._raw_keys()
             if not self._flip(cand):
                 continue
             self._drain()

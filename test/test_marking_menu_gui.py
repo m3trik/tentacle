@@ -35,7 +35,6 @@ This is the same gating ``test_overlay_safety`` uses.
 from __future__ import annotations
 
 import unittest
-from typing import Optional
 
 
 def _can_run_marking_menu_tests() -> bool:
@@ -272,9 +271,9 @@ class MarkingMenuGuiTest(unittest.TestCase):
         main_ui = self._find_loaded_ui("main#startmenu")
         self.assertIsNotNone(main_ui, "main#startmenu did not load")
 
-        btn = self._find_button(main_ui, "animation")
+        btn = self._find_menu_button(main_ui, "animation")
         self.assertIsNotNone(
-            btn, "no button with accessibleName='animation' in main#startmenu"
+            btn, "no MenuButton with target='animation' in main#startmenu"
         )
 
         self._hover_button(btn)
