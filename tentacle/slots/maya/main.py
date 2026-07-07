@@ -136,7 +136,10 @@ class Main(SlotsMaya):
         mel.eval("SetProject")
         workspace = mtk.get_env_info("workspace")
         if workspace:
-            self._workspace_store.record(workspace)
+            # cmds.workspace(q=True, rd=True) keeps a trailing slash; normalize
+            # before storing so a later os.path.basename() on this entry (e.g.
+            # reselecting it from Recent Workspaces) doesn't collapse to "".
+            self._workspace_store.record(os.path.normpath(workspace))
         self.sb.handlers.marking_menu.hide()
 
     def _auto_set_workspace(self):
@@ -145,19 +148,27 @@ class Main(SlotsMaya):
         if not workspace:
             self.sb.message_box("No workspace found.")
             return
-        cmds.workspace(workspace, openWorkspace=True)
-        self._workspace_store.record(workspace)
-        self.sb.message_box(f"Workspace set to {os.path.basename(workspace)}.")
-        self.sb.handlers.marking_menu.hide()
+        self._switch_to_workspace(workspace)
 
     def _set_workspace_from_path(self, path):
         """Switch to a recent workspace *path* (re-validates the workspace.mel)."""
         if not self._is_workspace(path):
             self.sb.message_box("Not a valid workspace.")
             return
+        self._switch_to_workspace(path)
+
+    def _switch_to_workspace(self, path):
+        """Set Maya's workspace to *path*, bump it to most-recent, and report it.
+
+        Normalizes first (strips any trailing slash — Maya's own
+        ``workspace -q -rd`` keeps one, which would otherwise collapse
+        ``os.path.basename()`` below to ``""``) so the confirmation message
+        always shows the real workspace name.
+        """
+        path = os.path.normpath(path)
         cmds.workspace(path, openWorkspace=True)
-        self._workspace_store.record(path)  # bump to most-recent
-        self.sb.message_box(f"Workspace set to {os.path.basename(path)}.")
+        self._workspace_store.record(path)
+        self.sb.message_box(f"Workspace set to <hl>{os.path.basename(path)}</hl>.")
         self.sb.handlers.marking_menu.hide()
 
 
