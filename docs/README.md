@@ -8,9 +8,7 @@ A Qt marking-menu (pie-menu) launcher for DCC apps. Hold a hotkey, flick toward 
 
 Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~60 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …) and wrapper entry points for Blender and 3ds Max.
 
-<video src="https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.mp4" controls>
-Your browser does not support inline video playback — <a href="https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.mp4">download the demo</a>.
-</video>
+![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
 ## Install
 
