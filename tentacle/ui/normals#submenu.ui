@@ -71,11 +71,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>normals</string>
-    </property>
     <property name="text">
      <string>Normals</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>normals</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb001">
@@ -85,7 +85,7 @@
     <property name="geometry">
      <rect>
       <x>435</x>
-      <y>240</y>
+      <y>250</y>
       <width>81</width>
       <height>19</height>
      </rect>
@@ -121,8 +121,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>290</x>
-      <y>210</y>
+      <x>265</x>
+      <y>220</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -159,7 +159,7 @@
     <property name="geometry">
      <rect>
       <x>265</x>
-      <y>240</y>
+      <y>250</y>
       <width>76</width>
       <height>19</height>
      </rect>
@@ -196,7 +196,7 @@
     <property name="geometry">
      <rect>
       <x>355</x>
-      <y>240</y>
+      <y>250</y>
       <width>66</width>
       <height>19</height>
      </rect>
@@ -307,7 +307,7 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>270</y>
+      <y>280</y>
       <width>91</width>
       <height>19</height>
      </rect>
@@ -343,8 +343,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>415</x>
-      <y>210</y>
+      <x>390</x>
+      <y>220</y>
       <width>126</width>
       <height>19</height>
      </rect>

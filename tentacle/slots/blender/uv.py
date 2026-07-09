@@ -4,7 +4,6 @@ import math
 
 import bpy
 import blendertk as btk
-from uitk import IconManager
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -13,10 +12,11 @@ class Uv(SlotsBlender):
 
     Core UV operators (unwrap, the cmb011 Smart/Cube/Cylinder/Sphere projections, pack, seam,
     angle-band hard-edge cut) run as ``bpy.ops.uv.*`` in edit mode via :meth:`_uv_op` (verified to
-    work headless). Data-level UV work (move/transform/mirror/pin/straighten/distribute/stack/texel
-    density/UV-set cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless); UV transfer rides
-    the native Data-Transfer operator; RizomUV is a one-way bridge. The deferred Maya-only depth is
-    in the parity overrides (RizomUV/u3dLayout packing params + the unwrap_cylinder crease algorithm).
+    work headless). Data-level UV work (pin/stack/texel density/UV-set cleanup) is backed by
+    ``blendertk.uv_utils`` (bmesh — headless); move/transform/mirror/straighten/distribute live in
+    the blendertk ``uv_transform`` panel (launched via b033); UV transfer rides the native
+    Data-Transfer operator; RizomUV is a one-way bridge. The deferred Maya-only depth is in the
+    parity overrides (RizomUV/u3dLayout packing params + the unwrap_cylinder crease algorithm).
     """
 
     def __init__(self, switchboard):
@@ -275,27 +275,6 @@ class Uv(SlotsBlender):
         """Unfold and Pack UVs"""
         self._uv_op(lambda: (bpy.ops.uv.unwrap(method="ANGLE_BASED"), bpy.ops.uv.pack_islands()))
 
-    # ------------------------------------------------------------------ move to UV space (data op)
-    @btk.undoable
-    def b023(self):
-        """Move To UV Space: Left"""
-        btk.move_uvs(self.selected_objects(), du=-1.0)
-
-    @btk.undoable
-    def b024(self):
-        """Move To UV Space: Down"""
-        btk.move_uvs(self.selected_objects(), dv=-1.0)
-
-    @btk.undoable
-    def b025(self):
-        """Move To UV Space: Up"""
-        btk.move_uvs(self.selected_objects(), dv=1.0)
-
-    @btk.undoable
-    def b026(self):
-        """Move To UV Space: Right"""
-        btk.move_uvs(self.selected_objects(), du=1.0)
-
     # ------------------------------------------------------------------ tb007  Cleanup UV Sets
     def tb007_init(self, widget):
         """Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,
@@ -361,8 +340,14 @@ class Uv(SlotsBlender):
         self.sb.message_box(f"{header}<br><br>" + "<br>".join(lines))
 
     def header_init(self, widget):
-        """Header menu — Create UV Snapshot + RizomUV Bridge (both reuse the Maya objectNames +
-        labels, cross-DCC QSettings rule). Open UV Editor is already on ``b031``."""
+        """Header menu — UV Transform + Create UV Snapshot + RizomUV Bridge (all reuse the Maya
+        objectNames + labels, cross-DCC QSettings rule). Open UV Editor is already on ``b031``."""
+        widget.menu.add(
+            "QPushButton", setText="UV Transform", setObjectName="btn_uv_transform",
+            setToolTip="Open the UV Transform panel "
+            "(move / flip / rotate / straighten / mirror / distribute).",
+            clicked=lambda: self.b033(),
+        )
         widget.menu.add(
             "QPushButton", setText="Create UV Snapshot", setObjectName="uv_snapshot",
             setToolTip="Export the active mesh's UV layout to an image (native Export UV Layout) "
@@ -377,7 +362,7 @@ class Uv(SlotsBlender):
 
     def uv_snapshot(self):
         """Create UV Snapshot — export the active mesh's UV layout to an image."""
-        obj = bpy.context.active_object
+        obj = self.active_object()
         if not (obj and obj.type == "MESH" and obj.data.uv_layers):
             self.sb.message_box("Create UV Snapshot requires a mesh with a UV map.")
             return
@@ -387,26 +372,6 @@ class Uv(SlotsBlender):
     def b031(self):
         """Open UV Editor"""
         btk.open_editor("UV Editor")
-
-    # ------------------------------------------------------------------ cmb002  Transform
-    def cmb002_init(self, widget):
-        widget.add(["Flip U", "Flip V", "Rotate 45"], header="Transform:")
-
-    @btk.undoable
-    def cmb002(self, index, widget):
-        """Transform (flip/rotate the selection's UV maps about their shared bbox center —
-        whole-map, unlike Maya's selected-UV transform)."""
-        objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        if not objects:
-            self.sb.message_box("Nothing selected.")
-            return
-        text = widget.items[index]
-        if text == "Flip U":
-            btk.transform_uvs(objects, flip_u=True)
-        elif text == "Flip V":
-            btk.transform_uvs(objects, flip_v=True)
-        elif text == "Rotate 45":
-            btk.transform_uvs(objects, angle=-45.0)
 
     # ------------------------------------------------------------------ b000  Transfer UVs
     @btk.undoable
@@ -436,14 +401,12 @@ class Uv(SlotsBlender):
 
     # ------------------------------------------------------------------ b029  Pin / Unpin
     def b029_init(self, widget):
-        """Initialize Pin/Unpin button — static pin icon, non-checkable.
+        """Initialize Pin/Unpin button — non-checkable text button.
 
-        Defensively strips any `checkable`/`text` properties a Qt Designer
-        round-trip may have re-added, then installs the static `pin` icon.
+        Defensively clears any `checkable` property a Qt Designer round-trip
+        may have re-added (the button's "Pin" label lives in the .ui).
         """
         widget.setCheckable(False)
-        widget.setText("")
-        IconManager.set_icon(widget, "pin", size=(16, 16))
 
     def b029(self, widget):
         """Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
@@ -462,44 +425,6 @@ class Uv(SlotsBlender):
             selected_only=any(o.mode == "EDIT" for o in objects),
         )
         self._b029_last_selection = names
-
-    # ------------------------------------------------------------------ tb008  Mirror UVs
-    def tb008_init(self, widget):
-        widget.option_box.menu.setTitle("Mirror UVs")
-        widget.option_box.menu.add(
-            "QRadioButton", setText="Mirror U", setObjectName="chk031", setChecked=True,
-            setToolTip="Mirror across U. Default mode preserves the UV footprint.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton", setText="Mirror V", setObjectName="chk032",
-            setToolTip="Mirror across V. Default mode preserves the UV footprint.",
-        )
-        # chk033/chk034 reuse the Maya objectNames + labels (same options, cross-DCC rule).
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Per Shell", setObjectName="chk033", setChecked=True,
-            setToolTip="If enabled, mirrors each UV shell independently.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Preserve Footprint", setObjectName="chk034", setChecked=True,
-            setToolTip="If enabled, preserves the exact UV point set using one-to-one "
-            "reassignment.\nIf disabled, performs a geometric mirror around the pivot.",
-        )
-
-    @btk.undoable
-    def tb008(self, widget):
-        """Mirror UVs (footprint-preserving reassignment by default; per-shell by default)."""
-        objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        if not objects:
-            self.sb.message_box("Nothing selected.")
-            return
-        m = widget.option_box.menu
-        mirror_u = m.chk031.isChecked()
-        per_shell = m.chk033.isChecked()
-        preserve_position = m.chk034.isChecked()
-        btk.mirror_uvs(
-            objects, axis="u" if mirror_u else "v",
-            per_shell=per_shell, preserve_position=preserve_position,
-        )
 
     # ------------------------------------------------------------------ tb022  Cut Hard Edges
     def tb022_init(self, widget):
@@ -554,78 +479,13 @@ class Uv(SlotsBlender):
         self._uv_op(_run)
 
     # ------------------------------------------------------------------ shell ops (btk islands)
-    def tb005_init(self, widget):
-        widget.option_box.menu.setTitle("Straighten")
-        widget.option_box.menu.add(
-            "QSpinBox", setPrefix="Angle: ", setObjectName="s001",
-            set_limits=[0, 360], setValue=30,
-            setToolTip="Maximum angle used for straightening UVs.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Straighten UV", setObjectName="chk018", setChecked=True,
-            setToolTip="Snap near-horizontal UV edges flat.",  # Maya's label for the U axis
-        )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Straighten V", setObjectName="chk019", setChecked=True,
-            setToolTip="Snap near-vertical UV edges flat.",
-        )
-        # chk020 reuses the Maya objectName + label (same option, cross-DCC rule): a native
-        # Follow Active Quads pass stands in for texStraightenShell (btk.straighten_uv_shells).
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Straighten Shell", setObjectName="chk020",
-            setToolTip="Rectangularize the whole shell by unfolding around a selected UV's "
-            "edge loop (Follow Active Quads).",
-        )
-
-    @btk.undoable
-    def tb005(self, widget):
-        """Straighten UV (selected UV edges within the angle threshold snap flat; optionally
-        rectangularize the whole shell)."""
-        m = widget.option_box.menu
-        snapped = btk.straighten_uvs(
-            self.selected_objects(),
-            u=m.chk018.isChecked(), v=m.chk019.isChecked(), angle=m.s001.value(),
-        )
-        straightened = 0
-        if m.chk020.isChecked():
-            straightened = btk.straighten_uv_shells(self.selected_objects())
-        if not snapped and not straightened:
-            self.sb.message_box(
-                "<strong>Nothing straightened.</strong><br>Select UV edges in Edit Mode "
-                "within the angle threshold."
-            )
-
-    def tb006_init(self, widget):
-        widget.option_box.menu.setTitle("Distribute")
-        widget.option_box.menu.add(
-            "QRadioButton", setText="Distribute U", setObjectName="chk023", setChecked=True,
-            setToolTip="Distribute along U.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton", setText="Distribute V", setObjectName="chk024",
-            setToolTip="Distribute along V.",
-        )
-
-    @btk.undoable
-    def tb006(self, widget):
-        """Distribute (space the targeted UV shells evenly along U or V)."""
-        axis = "u" if widget.option_box.menu.chk023.isChecked() else "v"
-        moved = btk.distribute_uv_shells(self.selected_objects(), axis=axis)
-        if not moved:
-            self.sb.message_box(
-                "<strong>Nothing distributed.</strong><br>Needs three or more UV shells "
-                "(in Edit Mode, shells touched by the selection)."
-            )
-
     def b030_init(self, widget):
-        """Initialize Stack button — static stack icon, non-checkable.
+        """Initialize Stack button — non-checkable text button.
 
-        Defensively strips any `checkable`/`text` properties a Qt Designer
-        round-trip may have re-added, then installs the static `stack` icon.
+        Defensively clears any `checkable` property a Qt Designer round-trip
+        may have re-added (the button's "Stack" label lives in the .ui).
         """
         widget.setCheckable(False)
-        widget.setText("")
-        IconManager.set_icon(widget, "stack", size=(16, 16))
 
     @btk.undoable
     def b030(self, widget):
@@ -658,6 +518,12 @@ class Uv(SlotsBlender):
         """RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
         Lua load-script). Mirrors Maya's b032 → ``marking_menu.show("rizom_bridge")``."""
         self.sb.handlers.marking_menu.show("rizom_bridge")
+
+    def b033(self):
+        """Open the UV Transform panel — co-located blendertk tool in
+        ``blendertk.uv_utils.uv_transform`` (``UvTransformSlots``), discovered by
+        ``BlenderUiHandler``. Mirrors Maya's b033. Pin (b029) and Stack (b030) stay here."""
+        self.sb.handlers.marking_menu.show("uv_transform")
 
     def cmb003(self, index, widget):
         """UV Map Size — passive input; read by get_map_size for the texel-density tools.

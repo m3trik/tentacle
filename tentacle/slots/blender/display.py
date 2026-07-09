@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import bpy
+import blendertk as btk
 from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
@@ -31,7 +32,8 @@ class DisplaySlots(SlotsBlender):
         "Wireframe": [
             ("Wireframe Selected", "_wireframe_selected"),
             ("Wireframe Inactive", "_wireframe_inactive"),
-            ("Shaded Selected", "_shaded_selected"),
+            ("Template Selected", "_template_selected"),
+            ("Shaded Selected", "_shaded_selected"),  # Blender-only extra (see parity_map DEFAULT_DELTAS)
             ("Set Wireframe Color", "_set_wireframe_color"),
         ],
         "XRay": [
@@ -119,6 +121,32 @@ class DisplaySlots(SlotsBlender):
             o.display_type = "TEXTURED" if wire else "WIRE"
         return f"Wireframe Inactive: <hl>{'Off' if wire else 'On'}</hl> ({len(inactive)})"
 
+    def _template_selected(self):
+        """Template the selection — dimmed WIRE, non-renderable, non-selectable — the Blender
+        analogue of Maya's Display ▸ Wireframe ▸ Template Selected (b021 -> cmds.toggle(template=1);
+        matches blendertk.reference_manager's 'template' mode: display_type='WIRE' + hide_select).
+
+        Toggle handling accounts for a Blender quirk verified live (5.1): setting hide_select=True
+        DESELECTS the object, so templated objects can't be re-selected to untemplate. So: with a
+        selection, this templates it; with nothing selected, it releases every templated object
+        (display_type=='WIRE' AND hide_select — a pair only this handler sets together)."""
+        sel = self.selected_objects()
+        if sel:
+            for o in sel:
+                o.display_type = "WIRE"
+                o.hide_render = True
+                o.hide_select = True  # deselects as a side effect in Blender
+            return f"Template Selected: <hl>{len(sel)}</hl> object(s) templated"
+        templated = [o for o in bpy.data.objects if o.hide_select and o.display_type == "WIRE"]
+        for o in templated:
+            o.hide_select = False
+            o.hide_render = False
+            o.display_type = "TEXTURED"
+        return (
+            f"Template Selected: <hl>{len(templated)}</hl> released"
+            if templated else "Template Selected: <hl>nothing selected</hl>"
+        )
+
     def _shaded_selected(self):
         sel = self.selected_objects()
         for o in sel:
@@ -133,26 +161,36 @@ class DisplaySlots(SlotsBlender):
         return "Wireframe Color: <hl>Color ID opened</hl>"
 
     def _display_normals(self):
-        """Toggle the viewport face-normals overlay (visible in Edit Mode) — the Blender
-        analogue of Maya's Display ▸ Normals."""
-        toggled = 0
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                ov = area.spaces.active.overlay
-                ov.show_face_normals = not ov.show_face_normals
-                toggled += 1
-        return f"Display Normals: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+        """Cycle the viewport normals overlay Off -> Face -> Vertex -> Off (visible in Edit Mode) —
+        the Blender analogue of Maya's Display ▸ Normals, whose mtk.Macros.m_normals_display cycles
+        Off/Facet/Vertex/Tangent. Tangent has no View3DOverlay counterpart in Blender 5.1 (no
+        show_tangent RNA — verified live) and is dropped from the cycle; see parity_map.py
+        HANDLERS['display']. Every VIEW_3D area is driven to the SAME next state off the first
+        area's state (the split-viewport-consistency convention _mat_override uses)."""
+        areas = btk.get_areas("VIEW_3D")  # window-independent (context.screen is None from the Qt-pump context)
+        if not areas:
+            return "Display Normals: <hl>no 3D viewport</hl>"
+        ov0 = areas[0].spaces.active.overlay
+        if ov0.show_vertex_normals:      # Vertex -> Off
+            state, label = (False, False), "Off"
+        elif ov0.show_face_normals:      # Face -> Vertex
+            state, label = (False, True), "Vertex"
+        else:                            # Off -> Face
+            state, label = (True, False), "Face"
+        for area in areas:
+            ov = area.spaces.active.overlay
+            ov.show_face_normals, ov.show_vertex_normals = state
+        return f"Display Normals: <hl>{label}</hl>"
 
     def _soft_edge_display(self):
         """Toggle the viewport sharp-edge overlay (``View3DOverlay.show_edge_sharp``) — the
         Blender analogue of Maya's Soft Edge Display (both are per-viewport edge-shading state,
         not per-object; confirmed live in Blender 5.1)."""
         toggled = 0
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                ov = area.spaces.active.overlay
-                ov.show_edge_sharp = not ov.show_edge_sharp
-                toggled += 1
+        for area in btk.get_areas("VIEW_3D"):
+            ov = area.spaces.active.overlay
+            ov.show_edge_sharp = not ov.show_edge_sharp
+            toggled += 1
         return f"Soft Edge Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
 
     def _component_id(self):
@@ -160,11 +198,10 @@ class DisplaySlots(SlotsBlender):
         Blender analogue of Maya's Component ID Display (both are per-viewport overlay state, not
         per-object; confirmed live in Blender 5.1)."""
         toggled = 0
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                ov = area.spaces.active.overlay
-                ov.show_extra_indices = not ov.show_extra_indices
-                toggled += 1
+        for area in btk.get_areas("VIEW_3D"):
+            ov = area.spaces.active.overlay
+            ov.show_extra_indices = not ov.show_extra_indices
+            toggled += 1
         return f"Component ID Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
 
     def _mat_override(self):
@@ -179,7 +216,7 @@ class DisplaySlots(SlotsBlender):
         let a split/quad viewport end up half On/half Off while the message reports only one of
         them (confirmed live: a 2-way split with divergent starting states produced a mismatched
         message before this fix)."""
-        areas = [a for a in bpy.context.screen.areas if a.type == "VIEW_3D"]
+        areas = btk.get_areas("VIEW_3D")
         if not areas:
             return "Material Override: <hl>no 3D viewport</hl>"
         turn_on = not any(a.spaces.active.shading.color_type == "SINGLE" for a in areas)
@@ -198,7 +235,7 @@ class DisplaySlots(SlotsBlender):
         applied to every ``IMAGE_EDITOR`` area — keeping multiple open UV editors in lockstep
         (and the returned message accurate for all of them), the same reasoning as
         ``_mat_override``."""
-        areas = [a for a in bpy.context.screen.areas if a.type == "IMAGE_EDITOR"]
+        areas = btk.get_areas("IMAGE_EDITOR")
         if not areas:
             return "UV Distortion: <hl>no UV editor open</hl>"
         uv0 = areas[0].spaces.active.uv_editor

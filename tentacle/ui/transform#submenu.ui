@@ -71,11 +71,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>pivot</string>
-    </property>
     <property name="text">
      <string>Pivot</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>pivot</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i060">
@@ -99,11 +99,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>transform</string>
-    </property>
     <property name="text">
      <string>Transform</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>transform</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb000">
@@ -112,7 +112,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>160</x>
       <y>370</y>
       <width>91</width>
       <height>19</height>
@@ -379,7 +379,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>140</x>
       <y>340</y>
       <width>86</width>
       <height>19</height>

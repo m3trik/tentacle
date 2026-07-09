@@ -108,14 +108,14 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>polygons</string>
-    </property>
-    <property name="filterTags">
-     <string>vertex</string>
-    </property>
     <property name="text">
      <string>Vertex</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>polygons</string>
+    </property>
+    <property name="filterTags" stdset="0">
+     <string>vertex</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b043">
@@ -198,8 +198,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>190</y>
+      <x>235</x>
+      <y>200</y>
       <width>126</width>
       <height>19</height>
      </rect>

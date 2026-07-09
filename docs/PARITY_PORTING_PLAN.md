@@ -69,8 +69,13 @@ branchless (fast parser).
 |:--|:--|:--|:--|
 | **SceneExporter** | XL (3059 ln) | Same task-graph architecture over `bpy.ops.export_scene.fbx`; **reuse `env_utils/fbx_utils`** as the export primitive. RenderOpacity dual-key hook runs as a pre-export task. | Panel shipped; 4 preset-management buttons (`b003`/`b004`/`b007`/`b008`) remain `pending` — no Blender-native FBX external-preset-file mechanism (see `parity_map.py`) |
 | **Shots + ShotManifest + ShotSequencer** | XXL (15354 ln) | `ShotBlock`/`ShotStore` data model is DCC-neutral; apply layer → timeline **markers** + `marker.camera` / multiple Scenes / VSE. Port data model + manifest (read-only) before the sequencer. | Lowest priority — biggest divergence; out of scope for the 2026-07 push |
-| **SmartBake** | — | mayatk module landed 2026-07-02; blendertk port (engine + Slots + `.ui` under `anim_utils/smart_bake/`) in progress as a background workflow started 2026-07-03. | Re-run `compare_panel_surface.py --panel smart_bake` once it lands — still 9 untriaged widgets as of 2026-07-04 |
 | **WorkspaceMap** | N/A (ledgered) | Maya-workspace tool; no Blender project concept. Reframe as a `.blend`/asset browser only if wanted. | |
+
+**Closed 2026-07-08**: `duplicate.py` `tb002` Auto Instance — blendertk `core_utils/auto_instancer/`
+(`btk.auto_instance`), with the matching math + assembly clustering extracted to pythontk
+(`PointCloud.match_clouds` / `AssemblySorter`) and mayatk refactored onto the shared
+implementation; slot + option box mirror Maya's 1:1. **SmartBake** also shows clean on the sweep
+(its 2026-07-04 untriaged block is resolved). Open panel ports are now the Shots pipeline only.
 
 **Closed 2026-07-03/04**: BlendshapeAnimator (shape-key authoring, `anim_utils/blendshape_animator/`), HierarchyManager, AudioClips (VSE sound-strip CRUD, `audio_utils/`), MacroManager (`edit_utils/macro_manager/`, wraps the pre-existing `Macros` engine), and UnityBridge (native co-located bridge, `env_utils/unity_bridge/` — the "evaluate" question resolved in favor of building it: Unity's own asset pipeline ingests anything dropped into `Assets/` on focus, so, like Maya's, it needs no live-RPC relay). All five verified clean via `compare_panel_surface.py --panel <name>`; see `parity_map.py`'s `PANELS` dict for the per-panel verification notes.
 

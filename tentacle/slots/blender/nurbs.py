@@ -264,7 +264,7 @@ class Nurbs(SlotsBlender):
         if not meshes:
             self.sb.message_box("Extract requires selected mesh(es).")
             return
-        for o in bpy.context.selected_objects:
+        for o in self.selected_objects():
             o.select_set(False)
         for m in meshes:
             dup = m.copy()
@@ -287,7 +287,7 @@ class Nurbs(SlotsBlender):
             self.sb.message_box("Duplicate requires selected curve(s).")
             return
         dups = [btk.NurbsUtils.duplicate_curve(c) for c in curves]
-        for o in bpy.context.selected_objects:
+        for o in self.selected_objects():
             o.select_set(False)
         for d in dups:
             d.select_set(True)
@@ -353,7 +353,7 @@ class Nurbs(SlotsBlender):
         if len(curves) < 2:
             self.sb.message_box("Attach requires 2+ selected curves.")
             return
-        for o in bpy.context.selected_objects:
+        for o in self.selected_objects():
             o.select_set(o in curves)
         bpy.context.view_layer.objects.active = curves[0]
         try:

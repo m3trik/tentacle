@@ -71,11 +71,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>duplicate</string>
-    </property>
     <property name="text">
      <string>Duplicate</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>duplicate</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i057">
@@ -99,11 +99,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>subdivision</string>
-    </property>
     <property name="text">
      <string>Subdivision</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>subdivision</string>
     </property>
    </widget>
    <widget class="ExpandableList" name="list000" native="true">
@@ -165,11 +165,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>edit</string>
-    </property>
     <property name="text">
      <string>Edit</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>edit</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb001">
@@ -243,9 +243,9 @@
    <widget class="PushButton" name="tb002">
     <property name="geometry">
      <rect>
-      <x>415</x>
-      <y>70</y>
-      <width>56</width>
+      <x>410</x>
+      <y>60</y>
+      <width>66</width>
       <height>19</height>
      </rect>
     </property>
