@@ -74,11 +74,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>nurbs</string>
-    </property>
     <property name="text">
      <string>Nurbs</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>nurbs</string>
     </property>
    </widget>
    <widget class="ExpandableList" name="list000" native="true">
@@ -106,9 +106,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>395</x>
       <y>240</y>
-      <width>66</width>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -143,9 +143,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>240</y>
-      <width>71</width>
+      <x>395</x>
+      <y>200</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -180,9 +180,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>355</x>
-      <y>240</y>
-      <width>71</width>
+      <x>395</x>
+      <y>220</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -214,9 +214,9 @@
    <widget class="QPushButton" name="b056">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>210</y>
-      <width>86</width>
+      <x>275</x>
+      <y>220</y>
+      <width>106</width>
       <height>19</height>
      </rect>
     </property>
@@ -245,9 +245,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>395</x>
-      <y>210</y>
-      <width>101</width>
+      <x>275</x>
+      <y>200</y>
+      <width>106</width>
       <height>19</height>
      </rect>
     </property>

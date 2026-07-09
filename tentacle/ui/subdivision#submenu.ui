@@ -71,11 +71,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>subdivision</string>
-    </property>
     <property name="text">
      <string>Subdivision</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>subdivision</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b008">
@@ -84,8 +84,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>355</x>
-      <y>290</y>
+      <x>350</x>
+      <y>230</y>
       <width>86</width>
       <height>19</height>
      </rect>
@@ -158,9 +158,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>350</x>
       <y>260</y>
-      <width>66</width>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>
@@ -195,8 +195,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>315</x>
-      <y>320</y>
+      <x>305</x>
+      <y>330</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -232,7 +232,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>365</x>
+      <x>245</x>
       <y>230</y>
       <width>91</width>
       <height>19</height>
@@ -269,9 +269,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>265</x>
-      <y>230</y>
-      <width>76</width>
+      <x>245</x>
+      <y>250</y>
+      <width>91</width>
       <height>19</height>
      </rect>
     </property>
@@ -306,9 +306,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>260</y>
-      <width>81</width>
+      <x>350</x>
+      <y>290</y>
+      <width>86</width>
       <height>19</height>
      </rect>
     </property>

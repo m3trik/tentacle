@@ -80,17 +80,17 @@
     <property name="toolTip">
      <string>Preferences</string>
     </property>
-    <property name="target">
-     <string>preferences</string>
-    </property>
     <property name="text">
      <string>Preferences</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>preferences</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b010">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>385</x>
       <y>330</y>
       <width>123</width>
       <height>19</height>
@@ -115,7 +115,7 @@
    <widget class="QPushButton" name="b009">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>365</x>
       <y>260</y>
       <width>86</width>
       <height>19</height>
@@ -140,7 +140,7 @@
    <widget class="QPushButton" name="b008">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>385</x>
       <y>290</y>
       <width>86</width>
       <height>19</height>
@@ -168,8 +168,8 @@
    <widget class="QPushButton" name="b011">
     <property name="geometry">
      <rect>
-      <x>300</x>
-      <y>370</y>
+      <x>245</x>
+      <y>330</y>
       <width>123</width>
       <height>19</height>
      </rect>

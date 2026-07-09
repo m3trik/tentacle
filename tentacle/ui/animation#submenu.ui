@@ -215,7 +215,7 @@ Else move all keyframes of the selected objects.</string>
    <widget class="PushButton" name="tb002">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>130</x>
       <y>345</y>
       <width>121</width>
       <height>19</height>
@@ -417,7 +417,7 @@ Supports negative values to compress timing.</string>
      <rect>
       <x>130</x>
       <y>320</y>
-      <width>116</width>
+      <width>121</width>
       <height>19</height>
      </rect>
     </property>

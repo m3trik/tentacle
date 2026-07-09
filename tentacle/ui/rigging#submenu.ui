@@ -74,19 +74,19 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>rigging</string>
-    </property>
     <property name="text">
      <string>Rigging</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>rigging</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb003">
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>210</y>
-      <width>96</width>
+      <y>230</y>
+      <width>116</width>
       <height>19</height>
      </rect>
     </property>
@@ -116,20 +116,20 @@
     <property name="geometry">
      <rect>
       <x>240</x>
-      <y>235</y>
+      <y>250</y>
       <width>116</width>
       <height>19</height>
      </rect>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
     <property name="minimumSize">
      <size>
       <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
       <height>19</height>
      </size>
     </property>
@@ -161,18 +161,18 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>deformation</string>
-    </property>
     <property name="text">
      <string>Deformation</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>deformation</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b004">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>260</y>
+      <x>105</x>
+      <y>255</y>
       <width>111</width>
       <height>19</height>
      </rect>
@@ -201,8 +201,8 @@ Create, keyframe-fade, and remove per-object opacity controllers.</string>
    <widget class="PushButton" name="tb004">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>235</y>
+      <x>135</x>
+      <y>225</y>
       <width>81</width>
       <height>19</height>
      </rect>
