@@ -35,7 +35,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | node_utils | 126 | 50 | 42 | 33% |
 | nurbs_utils | 23 | 20 | 15 | 65% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
-| rig_utils | 69 | 66 | 28 | 41% |
+| rig_utils | 70 | 66 | 28 | 40% |
 | ui_utils | 70 | 42 | 22 | 31% |
 | uv_utils | 62 | 48 | 30 | 48% |
 | xform_utils | 51 | 32 | 16 | 31% |
@@ -59,7 +59,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | GameShader | 4→4 | 3→1 | 8→8 | 1800→236 | 13% | 100% | clean |
 | ArnoldBridge | 0→0 | 6→0 | 4→4 | 729→133 | 18% | 100% | clean |
-| TubeRig | 0→0 | 2→1 | 16→7 | 2347→499 | 21% | 44% | 9 open |
+| TubeRig | 0→0 | 2→1 | 16→7 | 2443→499 | 20% | 44% | 9 open |
 | ReferenceManager | 2→2 | 34→33 | 4→4 | 2916→995 | 34% | 100% | clean |
 | MatUpdater | 0→0 | 15→12 | 2→2 | 1048→395 | 38% | 100% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 749→286 | 38% | 100% | clean |
@@ -95,7 +95,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 199→211 | 106% | 100% | clean |
 | SmartBake | 0→0 | 3→3 | 12→10 | 285→305 | 107% | 83% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 230→250 | 109% | 100% | clean |
-| Naming | 13→13 | 26→26 | 6→6 | 461→517 | 112% | 100% | clean |
+| Naming | 13→13 | 26→26 | 6→6 | 466→523 | 112% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 205→237 | 116% | 100% | clean |
 | RenderOpacity | 3→3 | 6→6 | 4→4 | 355→413 | 116% | 100% | clean |
 | Bevel | 0→0 | 0→0 | 3→3 | 139→162 | 117% | 100% | clean |
