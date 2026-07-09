@@ -13,8 +13,9 @@ class TransformSlots(SlotsBlender):
     adds Fix Non-Orthogonal Axes (``btk.fix_non_orthogonal_axes``) + a master Snap toggle. Align-To
     rides native ``object.align``; Transform Snap maps onto the scene tool-settings increment snap
     (``use_snap_translate/rotate/scale``) — the per-transform toggles, not Maya's numeric increment
-    values (grid-driven in Blender). Maya rig/channel-box/DG-connection extras and Make-Live have no
-    Blender analogue and are classified in the parity overrides.
+    values (grid-driven in Blender). Make-Live maps onto face-projection snapping (tb003 Constrain
+    menu); Maya rig/channel-box/DG-connection extras have no Blender analogue and are classified in
+    the parity overrides.
     """
 
     def __init__(self, switchboard):
@@ -58,7 +59,7 @@ class TransformSlots(SlotsBlender):
     def _selection_source_target(self):
         """(source_objects, target) using Blender's active object as the target (= Maya's
         last-ordered-selection)."""
-        target = bpy.context.view_layer.objects.active
+        target = self.active_object()
         source = [o for o in self.selected_objects() if o is not target]
         return source, target
 
@@ -321,14 +322,29 @@ class TransformSlots(SlotsBlender):
     # ------------------------------------------------------------------ tb003  Transform Constraints
     # Maya's xformConstraint maps onto snap-to-element during move: Constrain Edge/Surface
     # become EDGE/FACE snap (single-element, like Maya's one-type-at-a-time constraint).
-    # Maya's Make Live (chk026) has no Blender analogue and is not mirrored.
+    # Make Live (chk026) maps onto face-projection snapping (FACE_NEAREST, Blender's
+    # retopology "stick to surface"): Maya designates one live surface, Blender projects
+    # onto every snap-target surface (use_snap_self/_nonedit gate the pool) — accepted delta.
+    # Edge/Surface/Make-Live act as a radio cluster (Blender's snap setters cross-clear the
+    # base/individual axes); any toggle off turns snapping off.
     @staticmethod
     def _snap_elements():
+        """Live snap-element set (combined ``snap_elements`` where present, else the base
+        set) — used for the Edge/Surface (EDGE/FACE) constraint reflection."""
         ts = bpy.context.scene.tool_settings
         try:
             return set(ts.snap_elements)
         except AttributeError:  # 4.x split: snap_elements_base/_individual
             return set(ts.snap_elements_base)
+
+    @staticmethod
+    def _snap_individual():
+        """Live per-element projection modes (FACE_PROJECT/FACE_NEAREST) as a set."""
+        ts = bpy.context.scene.tool_settings
+        try:
+            return set(ts.snap_elements_individual)
+        except AttributeError:  # pre-4.0 combined property
+            return {e for e in ts.snap_elements if e in ("FACE_NEAREST", "FACE_PROJECT")}
 
     def _set_constraint_snap(self, element, state):
         """Apply/clear an element constraint (``EDGE``/``FACE``) via the scene snap
@@ -344,15 +360,35 @@ class TransformSlots(SlotsBlender):
         else:
             ts.use_snap = False
 
+    def _set_project_snap(self, state):
+        """Make Live analogue — toggle face-projection snapping so transformed geometry
+        sticks to surfaces (FACE_NEAREST, the per-element 'individual' snap axis). Enabling
+        replaces any Edge/Surface base constraint: Blender's snap setters cross-clear the
+        base/individual axes, so the three act as a radio cluster like chk024<->chk025;
+        disabling turns snapping off (mirrors ``_set_constraint_snap``)."""
+        ts = bpy.context.scene.tool_settings
+        if state:
+            try:  # 4.0+: FACE_NEAREST/FACE_PROJECT live in the 'individual' set
+                ts.snap_elements_individual = {"FACE_NEAREST"}
+            except AttributeError:  # pre-split combined property
+                ts.snap_elements = {"FACE_NEAREST"}
+            ts.use_snap = True
+            ts.use_snap_translate = True
+        else:
+            ts.use_snap = False
+
     def tb003_init(self, widget):
         """Constraints Init (mirrors the Maya option box; state reflects the live snap)."""
         widget.option_box.menu.trigger_button = "left"
         widget.option_box.menu.add_apply_button = False
         widget.option_box.menu.setTitle("CONSTRAINTS")
-        active = self._snap_elements() if bpy.context.scene.tool_settings.use_snap else set()
+        use_snap = bpy.context.scene.tool_settings.use_snap
+        active = self._snap_elements() if use_snap else set()
+        individual = self._snap_individual() if use_snap else set()
         values = [
             ("chk024", "Constrain: Edge", "EDGE" in active),
             ("chk025", "Constrain: Surface", "FACE" in active),
+            ("chk026", "Make Live", "FACE_NEAREST" in individual),
         ]
         for name, text, state in values:
             widget.option_box.menu.add(
@@ -369,7 +405,7 @@ class TransformSlots(SlotsBlender):
             widget.setText("Constrain: ON" if state else "Constrain: OFF")
 
         update_text()
-        self.sb.connect_multi(widget.menu, "chk024-25", "toggled", update_text)
+        self.sb.connect_multi(widget.menu, "chk024-26", "toggled", update_text)
 
     def chk024(self, state, widget):
         """Transform Constraints: Edge (snap-to-edge during move)."""
@@ -379,6 +415,12 @@ class TransformSlots(SlotsBlender):
     def chk025(self, state, widget):
         """Transform Constraints: Surface (snap-to-face during move)."""
         self._set_constraint_snap("FACE", state)
+        self.ui.tb003.init_slot()
+
+    def chk026(self, state, widget):
+        """Transform Constraints: Make Live (project transformed geometry onto surfaces —
+        Blender's retopology face-snap; Maya's makeLive analogue)."""
+        self._set_project_snap(state)
         self.ui.tb003.init_slot()
 
 

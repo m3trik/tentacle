@@ -62,7 +62,7 @@ class Cameras(SlotsBlender):
 
         if parent_text == "Create Camera":
             bpy.ops.object.camera_add()
-            cam = bpy.context.active_object
+            cam = self.active_object()  # window-independent (bpy.context.active_object is None from the Qt-pump context)
             cam.data.lens = float(item.item_data())  # focal length (mm), matches Maya focalLength
 
         elif parent_text == "Select Camera":

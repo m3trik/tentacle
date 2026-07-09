@@ -3,7 +3,7 @@
 Covers the implementations that replaced deferred-message stubs once their Blender primitive
 existed: selection list000 (select-by-type), transform cmb002 (object.align), normals b002 +
 uv b000 (Data-Transfer), uv b003/b004 (texel density), uv b029 (pin toggle), uv tb022 (cut
-hard edges), uv cmb002 (UV transform), polygons b043 (target-weld toggle), animation
+hard edges), polygons b043 (target-weld toggle), animation
 tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys), transform
 chk024/chk025 (constraints -> snap elements), selection cmb005 (one-shot constraints),
 rigging cmb002 (Rigify quick rig), nurbs b056 (image tracer), the manager-panel routing,
@@ -172,25 +172,14 @@ try:
     reset()
     o = add_cube("Hard")  # every cube edge is 90 degrees
     slot = make_slot(Uv, ui=ui)
-    slot.tb022(option_box(s017=spin(70.0)))
+    slot.tb022(option_box(
+        s017=spin(70.0), s018=spin(180.0), chk025=chk(False), chk026=chk(False)
+    ))
     seams = sum(1 for e in o.data.edges if e.use_seam)
     check("uv tb022 seams all 12 sharp cube edges", seams == 12, f"seams={seams}")
 
-    # ---- uv cmb002: transform routing ---------------------------------------------------------
-    reset()
-    bpy.ops.mesh.primitive_plane_add(size=1.0); o = bpy.context.active_object
-    btk.move_uvs(o, du=1.0)
-    before = min_u(o)
-    slot = make_slot(Uv, ui=ui)
-    slot.cmb002(0, NS(items=["Flip U", "Flip V", "Rotate 45"]))  # flip about own center
-    check("uv cmb002 Flip U keeps bounds (mirror about center)",
-          abs(min_u(o) - before) < 1e-4, f"{before} -> {min_u(o)}")
-
-    # ---- uv tb008: mirror UVs -----------------------------------------------------------------
-    before = min_u(o)
-    slot.tb008(option_box(chk031=chk(True), chk032=chk(False)))  # Mirror U about own center
-    check("uv tb008 Mirror U keeps bounds (flip about center)",
-          abs(min_u(o) - before) < 1e-4, f"{before} -> {min_u(o)}")
+    # (uv cmb002 / tb005 / tb006 / tb008 moved to the blendertk uv_transform panel — the
+    # tentacle Uv slot only launches it now; see blendertk/uv_utils/uv_transform.py.)
 
     # ---- polygons b043: target-weld toggle ----------------------------------------------------
     ts = bpy.context.scene.tool_settings
@@ -401,6 +390,45 @@ try:
           all(tuple(o.location) == locs[o.name] for o in (a, b))
           and not btk.is_exploded([a, b]))
 
+    # ---- display Template Selected (WIRE + non-render + non-select; re-click releases) --------
+    reset()
+    a = add_cube("TA")
+    b = add_cube("TB", (3, 0, 0))
+    a.select_set(True)
+    b.select_set(True)
+    slot = make_slot(DisplaySlots)
+    slot._template_selected()  # template both
+    templated_ok = all(o.display_type == "WIRE" and o.hide_render and o.hide_select for o in (a, b))
+    deselected = not any(o.select_get() for o in (a, b))  # hide_select deselects (verified live)
+    slot._template_selected()  # nothing selected now -> release every templated object
+    released_ok = all(
+        not o.hide_select and not o.hide_render and o.display_type == "TEXTURED" for o in (a, b)
+    )
+    check("display Template Selected templates then releases",
+          templated_ok and deselected and released_ok,
+          f"templated={templated_ok} deselected={deselected} released={released_ok}")
+
+    # ---- display Display Normals cycle Off->Face->Vertex->Off (Maya minus na Tangent) ---------
+    # headless has no VIEW_3D area, so drive the state machine through a fake overlay
+    ov = NS(show_face_normals=False, show_vertex_normals=False)
+    fake_area = NS(spaces=NS(active=NS(overlay=ov)))
+    _orig_get_areas = btk.get_areas
+    btk.get_areas = lambda *a, **k: [fake_area]
+    try:
+        slot = make_slot(DisplaySlots)
+        m1 = slot._display_normals()
+        s1 = (ov.show_face_normals, ov.show_vertex_normals)
+        m2 = slot._display_normals()
+        s2 = (ov.show_face_normals, ov.show_vertex_normals)
+        m3 = slot._display_normals()
+        s3 = (ov.show_face_normals, ov.show_vertex_normals)
+        check("display normals cycles Off->Face->Vertex->Off",
+              s1 == (True, False) and s2 == (False, True) and s3 == (False, False)
+              and "Face" in m1 and "Vertex" in m2 and "Off" in m3,
+              f"{s1}|{s2}|{s3}")
+    finally:
+        btk.get_areas = _orig_get_areas
+
     # ---- uv tb005/tb006/b030 (shell ops through the slot readers)
     from tentacle.slots.blender.uv import Uv
 
@@ -432,38 +460,8 @@ try:
           btk.get_uv_coords([o])[o.name] != snap_after_stack[o.name]
           and round(btk.get_uv_coords([o])[o.name][0][0], 3) == 0.0)
 
-    reset()
-    o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.2, 0.0, 0.4, 0.2), (0.8, 0.0, 1.0, 0.2)])
-    slot = make_slot(Uv)
-    slot.tb006(option_box(chk023=chk(True), chk024=chk(False)))
-    from blendertk.uv_utils._uv_utils import _uv_islands, _island_bbox_center
-    bm = _bm.new()
-    bm.from_mesh(o.data)
-    uvl = bm.loops.layers.uv.active
-    centers = sorted(round(_island_bbox_center(isl, uvl)[0], 3) for isl in _uv_islands(bm, uvl))
-    bm.free()
-    check("uv tb006 distributes shells evenly", centers == [0.1, 0.5, 0.9], f"{centers}")
-
-    reset()
-    bpy.ops.mesh.primitive_plane_add()
-    o = bpy.context.active_object
-    bpy.ops.object.mode_set(mode="EDIT")
-    bm = _bm.from_edit_mesh(o.data)
-    uvl = bm.loops.layers.uv.verify()
-    for f in bm.faces:
-        for loop in f.loops:
-            if loop[uvl].uv.x > 0.5 and loop[uvl].uv.y < 0.5:
-                loop[uvl].uv.y = 0.1
-    for e in bm.edges:
-        e.select = True
-    _bm.update_edit_mesh(o.data)
-    slot = make_slot(Uv)
-    slot.tb005(option_box(s001=spin(30), chk018=chk(True), chk019=chk(False)))
-    bm = _bm.from_edit_mesh(o.data)
-    uvl = bm.loops.layers.uv.active
-    bottom = sorted(round(l[uvl].uv.y, 3) for f in bm.faces for l in f.loops if l[uvl].uv.y < 0.5)
-    check("uv tb005 straightens the skewed edge", bottom == [0.05, 0.05], f"{bottom}")
-    bpy.ops.object.mode_set(mode="OBJECT")
+    # (uv tb005 Straighten / tb006 Distribute moved to the blendertk uv_transform panel with
+    # the rest of the transform cluster — no longer tentacle Uv slot methods.)
 
     # ---- scene b005 / cameras b007: headless has no window / 3D view -> message, no crash
     from tentacle.slots.blender.scene import SceneSlots
@@ -497,6 +495,20 @@ try:
           f"elems={slot._snap_elements()}")
     slot.chk025(False, None)
     check("transform constraint off disables snap", not ts.use_snap)
+
+    # ---- transform chk026: Make Live -> FACE_NEAREST face-projection snap ------------------
+    ts.use_snap = False
+    slot.chk026(True, None)
+    check("transform chk026 (Make Live) enables FACE_NEAREST projection snap",
+          ts.use_snap and ts.use_snap_translate
+          and slot._snap_individual() == {"FACE_NEAREST"},
+          f"snap={ts.use_snap} indiv={slot._snap_individual()}")
+    slot.chk024(True, None)  # base Edge constraint cross-clears the projection axis (radio)
+    check("transform chk026<->chk024 mutually exclusive (radio cluster)",
+          slot._snap_elements() == {"EDGE"} and slot._snap_individual() == set(),
+          f"base={slot._snap_elements()} indiv={slot._snap_individual()}")
+    slot.chk026(False, None)
+    check("transform chk026 off disables snap", not ts.use_snap)
 
     # ---- selection cmb005: one-shot constraint expansion -----------------------------------
     reset()

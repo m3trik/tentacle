@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-08_
+_Generated: 2026-07-09_
 
 ## Index
 
@@ -130,6 +130,7 @@ Shared HUD warning framework (DCC-agnostic).
 
 - **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L8)** — App specific methods inherited by all other Blender slot classes.
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
+  - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
   - `SlotsBlender.set_viewport_tool(self, tool_id, label=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
   - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
@@ -228,7 +229,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--display"></a>
 ### `slots/blender/display.py`
 
-- **[`class DisplaySlots(SlotsBlender)`](tentacle/tentacle/slots/blender/display.py#L8)** — Blender port of the shared ``display`` menu.
+- **[`class DisplaySlots(SlotsBlender)`](tentacle/tentacle/slots/blender/display.py#L9)** — Blender port of the shared ``display`` menu.
   - `DisplaySlots.list000_init(self, widget)` — Initialize Display expandable list (categories → actions).
   - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
   - `DisplaySlots.b013(self)` — Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /
@@ -243,7 +244,8 @@ Shared HUD warning framework (DCC-agnostic).
   - `Duplicate.tb000(self, widget)` — Convert to Instances (selected objects share the active object's data).
   - `Duplicate.tb001_init(self, widget)`
   - `Duplicate.tb001(self, widget)` — Select Instanced Objects
-  - `Duplicate.tb002_init(self, widget)` — Auto Instance — hidden: blendertk has no ported equivalent of mayatk's
+  - `Duplicate.tb002_init(self, widget)` — Initialize Auto Instance — configure option-box menu.
+  - `Duplicate.tb002(self, widget)` — Auto Instance: find and convert geometrically identical meshes
   - `Duplicate.b005(self)` — Uninstance Selected Objects (make their data single-user).
   - `Duplicate.b000(self)` — Mirror
   - `Duplicate.b006(self)` — Duplicate Linear
@@ -631,6 +633,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `TransformSlots.tb003_init(self, widget)` — Constraints Init (mirrors the Maya option box;
   - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge (snap-to-edge during move).
   - `TransformSlots.chk025(self, state, widget)` — Transform Constraints: Surface (snap-to-face during move).
+  - `TransformSlots.chk026(self, state, widget)` — Transform Constraints: Make Live (project transformed geometry onto surfaces —
 
 <a id="slots--blender--utilities"></a>
 ### `slots/blender/utilities.py`
@@ -644,7 +647,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
 
-- **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L11)** — Blender port of the shared ``uv`` menu.
+- **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
   - `Uv.get_map_size(self)` — Get the map size from the combobox as an int.
   - `Uv.tb000_init(self, widget)`
   - `Uv.tb000(self, widget)` — Pack UVs (into the 0-1 square, then shifted into the target UDIM tile).
@@ -657,33 +660,22 @@ Shared HUD warning framework (DCC-agnostic).
   - `Uv.b005(self)` — Cut UVs (mark seam on selected edges)
   - `Uv.b011(self)` — Sew UVs (clear seam on selected edges)
   - `Uv.b021(self, widget)` — Unfold and Pack UVs
-  - `Uv.b023(self)` — Move To UV Space: Left
-  - `Uv.b024(self)` — Move To UV Space: Down
-  - `Uv.b025(self)` — Move To UV Space: Up
-  - `Uv.b026(self)` — Move To UV Space: Right
   - `Uv.tb007_init(self, widget)` — Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,
   - `Uv.tb007(self, widget)` — Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).
-  - `Uv.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (both reuse the Maya objectNames +
+  - `Uv.header_init(self, widget)` — Header menu — UV Transform + Create UV Snapshot + RizomUV Bridge (all reuse the Maya
   - `Uv.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
   - `Uv.b031(self)` — Open UV Editor
-  - `Uv.cmb002_init(self, widget)`
-  - `Uv.cmb002(self, index, widget)` — Transform (flip/rotate the selection's UV maps about their shared bbox center —
   - `Uv.b000(self, widget)` — Transfer UVs (active mesh → other selected, native Data-Transfer).
   - `Uv.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
   - `Uv.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
-  - `Uv.b029_init(self, widget)` — Initialize Pin/Unpin button — static pin icon, non-checkable.
+  - `Uv.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
   - `Uv.b029(self, widget)` — Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
-  - `Uv.tb008_init(self, widget)`
-  - `Uv.tb008(self, widget)` — Mirror UVs (footprint-preserving reassignment by default;
   - `Uv.tb022_init(self, widget)`
   - `Uv.tb022(self, widget)` — Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
-  - `Uv.tb005_init(self, widget)`
-  - `Uv.tb005(self, widget)` — Straighten UV (selected UV edges within the angle threshold snap flat;
-  - `Uv.tb006_init(self, widget)`
-  - `Uv.tb006(self, widget)` — Distribute (space the targeted UV shells evenly along U or V).
-  - `Uv.b030_init(self, widget)` — Initialize Stack button — static stack icon, non-checkable.
+  - `Uv.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
   - `Uv.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
   - `Uv.b032(self)` — RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
+  - `Uv.b033(self)` — Open the UV Transform panel — co-located blendertk tool in
   - `Uv.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `Uv.s003(self, value, widget)` — Texel Density — passive input;
 
@@ -926,11 +918,11 @@ Shared HUD warning framework (DCC-agnostic).
 
 - **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L13)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L55)**
+- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L56)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
   - `SelectionMixin.insert_component_info(self, hud, selection) -> None`
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L128)** — Maya HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L208)** — HUD Slots for Maya, providing scene and selection information.
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L129)** — Maya HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L209)** — HUD Slots for Maya, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
@@ -1390,27 +1382,19 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
 
-- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L12)**
+- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L11)**
   - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
-  - `UvSlots.cmb002_init(self, widget)` — Initialize UV Transform Menu
   - `UvSlots.tb000_init(self, widget)` — Initialize UV packing tool interface.
   - `UvSlots.tb000(self, widget)` — Pack UVs with specified settings.
   - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap.
   - `UvSlots.tb001(self, widget)` — Auto Unwrap: automatically unwrap UVs for the selected objects.
   - `UvSlots.tb004_init(self, widget)` — Initialize Unfold UV
   - `UvSlots.tb004(self, widget)` — Unfold: relax/unfold the selected UVs to reduce stretch and distortion.
-  - `UvSlots.tb005_init(self, widget)` — Initialize Straighten UV
-  - `UvSlots.tb005(self, widget)` — Straighten UV
-  - `UvSlots.tb006_init(self, widget)` — Initialize Distribute
-  - `UvSlots.tb006(self, widget)` — Distribute: evenly space the selected UV shells horizontally or vertically.
   - `UvSlots.tb007_init(self, widget)` — Initialize Cleanup UV Sets
   - `UvSlots.tb007(self, widget)` — Cleanup UV Sets
-  - `UvSlots.tb008_init(self, widget)` — Initialize Mirror UVs.
-  - `UvSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
   - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
   - `UvSlots.tb009(self, widget)` — Cut Cylinder
-  - `UvSlots.cmb002(self, index, widget)` — Transform, orient, or select-filter the selected UVs.
   - `UvSlots.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `UvSlots.s003(self, value, widget)` — Texel Density — passive input;
   - `UvSlots.b000(self, widget)` — Transfer UV's
@@ -1421,16 +1405,13 @@ Shared HUD warning framework (DCC-agnostic).
   - `UvSlots.b021(self, widget)` — Unfold and Pack UVs
   - `UvSlots.tb022_init(self, widget)` — Initialize Cut Hard Edges option menu.
   - `UvSlots.tb022(self, widget)` — Cut UV hard edges (always), optionally also UV borders and auto-detected seams.
-  - `UvSlots.b023(self)` — Move To Uv Space: Left
-  - `UvSlots.b024(self)` — Move To Uv Space: Down
-  - `UvSlots.b025(self)` — Move To Uv Space: Up
-  - `UvSlots.b026(self)` — Move To Uv Space: Right
-  - `UvSlots.b029_init(self, widget)` — Initialize Pin/Unpin button — static pin icon, non-checkable.
+  - `UvSlots.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
   - `UvSlots.b029(self, widget)` — Pin / Unpin selected UVs (dual-state toggle).
-  - `UvSlots.b030_init(self, widget)` — Initialize Stack button — static stack icon, non-checkable.
+  - `UvSlots.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
   - `UvSlots.b030(self, widget)` — Stack / Unstack similar shells (dual-state toggle).
   - `UvSlots.b031(self)` — Open UV Editor
   - `UvSlots.b032(self)` — RizomUV Bridge
+  - `UvSlots.b033(self)` — Open the UV Transform panel (move / flip / rotate / align / orient / distribute).
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`

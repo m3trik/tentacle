@@ -1,5 +1,5 @@
 # tentacle — API Changes
 
-_Diff vs prior baseline. Generated 2026-07-08._
+_Diff vs prior baseline. Generated 2026-07-09._
 
 No public API changes since last refresh.

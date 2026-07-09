@@ -32,11 +32,11 @@ class Selection(SlotsBlender):
         self.submenu = self.sb.loaded_ui.selection_submenu
 
     # ------------------------------------------------------------------ helpers
-    @staticmethod
-    def _edit_mesh(select_mode=None):
+    @classmethod
+    def _edit_mesh(cls, select_mode=None):
         """Ensure the active object is a mesh in Edit Mode (optionally setting the component
         select mode). Returns the object, or None if there is no mesh to act on."""
-        obj = bpy.context.active_object
+        obj = cls.active_object()  # not bpy.context.active_object: None from the Qt-pump context
         if not obj or obj.type != "MESH":
             return None
         if obj.mode != "EDIT":
@@ -140,7 +140,7 @@ class Selection(SlotsBlender):
         (Maya parity, via ``btk.get_similar_mesh``); in Edit mode, fall back to Blender's native
         component ``select_similar``."""
         m = widget.option_box.menu
-        obj = bpy.context.active_object
+        obj = self.active_object()
         if obj and obj.mode == "EDIT":
             vert, edge, face = bpy.context.tool_settings.mesh_select_mode
             mode = "FACE" if face else "EDGE" if edge else "VERT"
@@ -290,9 +290,8 @@ class Selection(SlotsBlender):
     # ------------------------------------------------------------------ chk004  Ignore Backfacing
     def chk004(self, state, widget):
         """Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select."""
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                area.spaces.active.shading.show_xray = not state
+        for area in btk.get_areas("VIEW_3D"):  # window-independent (context.screen is None from the Qt-pump context)
+            area.spaces.active.shading.show_xray = not state
         self.sb.message_box(f"Ignore Backfacing <hl>{'ON' if state else 'OFF'}</hl>.")
 
     # ------------------------------------------------------------------ chk005-007  Select Style

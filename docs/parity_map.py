@@ -149,7 +149,12 @@ CONTROLS = {
         # add_action (txt000 filter ON/OFF toggle) ported 2026-07-03 — mirrors mayatk
         # channels_slots.py:144-164 verbatim (option_box.clear_option + 2-state add_action +
         # _filter_enabled gate in _refresh_table). No longer a divergence.
-        "cmb_attr_type": {"status": "na", "reason": "Create-Attribute type combo intentionally offers float/int/bool/string only: Blender ID custom props have no Maya-style enum type on arbitrary objects and no double3 compound child-plug semantics (documented drop in module docstring)."},
+        # cmb_attr_type (Create-Attribute type combo) is a QComboBox, so its item-list difference is
+        # a report-only "combo item deltas (review)" line, not a gate -- disposition documented in
+        # DEFAULT_DELTAS['channels_slots']['cmb_attr_type.items'] (Maya's 'enum' is na; 'double3' was
+        # BUILT 2026-07-08 as Blender's native 'vector' 3-float array type). No CONTROLS entry: the
+        # combo control itself is present on both sides, and item-level keys can't be a 'renamed'
+        # CONTROL (the .ui-lint requires a renamed target to be a real control objectName).
         "chk_keyable": {
             "status": "na",
             "reason": "every Blender custom prop is keyable; no per-attr keyable flag",
@@ -183,7 +188,11 @@ CONTROLS = {
         # Add HDR(s)… flow, Clear Network header action, config_buttons header chrome, and
         # the slider000/spn_exposure/spn_intensity .ui promotion to uitk classes).
         "spn_diffuse": {"status": "replaced", "to": "chk_diffuse", "reason": "Arnold float aiDiffuse contribution maps to the boolean Cycles world ray-visibility Diffuse toggle (EEVEE ignores it)"},
-        "spn_resolution": {"status": "na", "reason": "Arnold skydome importance-sampling resolution; Cycles importance-samples the world automatically (documented drop)"},
+        # spn_resolution: BUILT 2026-07-08 (was a false na). Now enabled + wired to
+        # btk.set_world_importance_resolution (world.cycles.sampling_method='MANUAL' +
+        # sample_map_resolution) -- the Cycles analogue of Arnold's skydome importance-sampling
+        # Resolution. No divergence to ledger (control present + functional on both, .ui `enabled`
+        # matches Maya's None now). spn_samples below stays na -- Cycles has no per-world sample count.
         "spn_samples": {"status": "na", "reason": "Arnold skydome light samples (aiSamples); Cycles samples globally, no per-light sample count (documented drop)"},
         "spn_specular": {"status": "replaced", "to": "chk_glossy", "reason": "Arnold float aiSpecular contribution maps to the boolean Cycles world ray-visibility Glossy toggle (EEVEE ignores it)"},
         # Triaged divergences (were documented in prose/docstrings but never machine-readable):
@@ -200,13 +209,13 @@ CONTROLS = {
             "reason": "_LYR suffix-by-type target; Maya display layers have no Blender analogue",
         },
     },
-    "wheel_rig": {
-        "chk_world_space": {
-            "status": "na",
-            "reason": "Blender rig is always world-space (RigUtils.add_transform_driver "
-                      "defaults WORLD_SPACE; no decomposeMatrix node needed)",
-        },
-    },
+    # wheel_rig chk_world_space: stale `na` "always world-space" entry removed 2026-07-08 -- the
+    # control EXISTS in Blender under the identical objectName (rig_utils/wheel_rig.py:299) as a
+    # fully-wired toggle that DEFAULTS OFF (use_world_space=False -> transform_space='TRANSFORM_SPACE',
+    # i.e. LOCAL, wheel_rig.py:199) exactly like Maya; the prior reason was factually wrong on every
+    # clause. Only the label differs ('World Space (decomposeMatrix)' -> 'World Space (driver Transform
+    # Space)', naming Blender's TRANSFORMS-driver-var mechanism for Maya's decomposeMatrix node) -- a
+    # report-only setText review delta, same capability, no ledger entry needed.
     "color_id": {
         "add_presets": {"status": "pending", "reason": "Swatch-palette preset combo (widget.menu.add_presets=True + PresetManager metadata_provider/on_metadata_loaded + default preset) missing from Blender header_init; DCC-agnostic uitk feature (swatch colors are Qt-side) — port mayatk color_id.py:369-446 (landed 2026-06-30 512f9ab)."},
         "chk012": {"status": "na", "reason": "Maya wireframe-override color channel (overrideEnabled/overrideRGBColors/overrideColorRGB); Blender has no per-object wireframe color — Maya's outliner+wireframe tints collapse into the single obj.color Object Color channel (documented drop)."},
@@ -230,6 +239,9 @@ CONTROLS = {
             "status": "na",
             "reason": "Use Blue Pencil toggle; see blue_pencil_button",
         },
+    },
+    "image_to_plane": {  # mayatk file stem is env_utils/image_to_plane/... ; added 2026-07-08
+        "cmb_mat_type": {"status": "na", "reason": "Maya shader-node-type pick (Stingray PBS realtime/DX11 vs Standard Surface Arnold/offline); Blender builds the one unified Principled BSDF for both EEVEE and Cycles, so there is no shader-node-type choice to make -- the Blender combo is disabled by design (documented in the module docstring). Same shape as game_shader.cmb004."},
     },
     "lightmap_baker": {
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
@@ -301,54 +313,51 @@ CONTROLS = {
     # QSettings collision is solved a different way at the Switchboard/MainWindow level instead).
     # No divergence to ledger; the item-count drop (Maya's Manip pivot has no Blender analogue)
     # still shows as a non-blocking combo-item "review" delta.
-    "duplicate_radial": {
-        "chk008": {"status": "na", "reason": "Suffix checkbox (Naming.append_location_based_suffix on the finished copies) documented as intentionally dropped — Blender's .001 numbering already disambiguates; note btk mirrors append_location_based_suffix (edit_utils/naming/_naming.py:175) so a 1:1 port is trivial if the drop is revisited."},
-    },
+    # duplicate_radial.chk008 (Suffix) removed 2026-07-08: it is NOT dropped — the Blender
+    # slot builds chk008 (identical .ui) and wires suffix=self.ui.chk008.isChecked() into
+    # duplicate_radial(..., suffix=…) -> Naming.append_location_based_suffix. Fully built on
+    # both sides (sweep sees no delta); the old "intentionally dropped" na was stale.
     "texture_path_editor": {
-        "btn_open_source_images": {
-            "status": "na",
-            "reason": "no sourceimages workspace in Blender (documented in PARITY history)",
-        },
-        "delete_file_node": {
-            "status": "na",
-            "reason": "Blender images aren't separable file nodes (image datablock == the node)",
-        },
-        "row_show_in_hypershade": {"status": "na", "reason": "no Hypershade in Blender"},
-        "select_file_node": {"status": "na", "reason": "no separable file node in Blender"},
+        # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
+        # removed 2026-07-08 -- all three ship in Blender under the IDENTICAL objectName (verified
+        # against blendertk/mat_utils/texture_path_editor.py: open_source_images os.startfile()s the
+        # resolved <blenddir>/textures folder; delete_file_node removes the image datablock via
+        # bpy.data.images.remove after a confirm; row_show_in_hypershade graphs the row's material via
+        # btk.open_editor("Shader Editor")). The capabilities were ported+relabeled, not dropped --
+        # the label differences are report-only setText review deltas, not divergences to ledger.
+        "select_file_node": {"status": "na", "reason": "no separable file node in Blender (kept as a disabled structural placeholder in the Blender panel)"},
+    },
+    # UV Transform tool (co-located mayatk/blendertk uv_utils/uv_transform.py). The Blender twin
+    # ships the shared subset (move / flip / rotate / straighten / mirror / distribute); the
+    # Maya-only shell ops below wrap Maya UV-editor MEL with no bpy operator analogue.
+    "uv_transform": {
+        "align_u_min": {"status": "na", "reason": "Maya UV-editor align (performAlignUV minU) snaps the selected UVs to their min U; Blender ships no per-selection UV align-to-bound operator."},
+        "align_u_avg": {"status": "na", "reason": "Maya performAlignUV avgU (align selected UVs to their average U); no Blender UV-align operator."},
+        "align_u_max": {"status": "na", "reason": "Maya performAlignUV maxU (align selected UVs to their max U); no Blender UV-align operator."},
+        "align_v_min": {"status": "na", "reason": "Maya performAlignUV minV (align selected UVs to their min V); no Blender UV-align operator."},
+        "align_v_avg": {"status": "na", "reason": "Maya performAlignUV avgV (align selected UVs to their average V); no Blender UV-align operator."},
+        "align_v_max": {"status": "na", "reason": "Maya performAlignUV maxV (align selected UVs to their max V); no Blender UV-align operator."},
+        "linear_align": {"status": "na", "reason": "Maya performLinearAlignUV distributes the selected UVs along the straight line between their two end UVs; no Blender operator analogue."},
+        "lbl_align_u": {"status": "na", "reason": "Cosmetic 'U' row label for the Maya-only Align group (the whole group has no Blender twin)."},
+        "lbl_align_v": {"status": "na", "reason": "Cosmetic 'V' row label for the Maya-only Align group (the whole group has no Blender twin)."},
+        "orient_shells": {"status": "na", "reason": "Standalone Maya texOrientShells / UvUtils.orient_shells button (square each shell to its nearest axis). Blender exposes shell orientation only as the Unfold 'Orient' option (chk007 -> align_rotation), not a standalone action."},
+        "orient_edges": {"status": "na", "reason": "Maya texOrientEdge orients a shell so its selected edge runs along U/V; Blender has no orient-shell-to-edge operator."},
+        "gather_shells": {"status": "na", "reason": "Maya UVGatherShells packs the selected shells back toward the 0-1 tile; no Blender operator analogue."},
+        "randomize_shells": {"status": "na", "reason": "Maya RandomizeShells applies a random per-shell offset; no Blender operator analogue."},
+        # select_back_facing / select_overlapping / select_unmapped removed 2026-07-08 — the
+        # Select group was dropped from the Maya panel, so there's no widget left to ledger.
     },
 }
 
 # --------------------------------------------------------------------------- tentacle shared slots
 # Keyed by slot file stem; entries cover both handler defs and code-built control keys.
 HANDLERS = {
-    "duplicate": {
-        "tb002": {
-            "status": "pending",
-            "reason": "Auto Instance (find geometrically identical meshes, convert to instances "
-                      "of one prototype) added to Maya's duplicate.py 2026-07-05, backed by "
-                      "mayatk's core_utils.auto_instancer (AutoInstancer engine + "
-                      "AssemblyReconstructor + geometry_matcher — a substantial standalone "
-                      "mesh-matching/instancing subsystem, still an active workstream per its own "
-                      "project ledger). Porting it to blendertk is a dedicated engine port (mesh "
-                      "signature/matching via bmesh, assembly separate/reassemble via "
-                      "parent/collection graphs, get_instances/replace_with_instances already "
-                      "exist in blendertk's node_utils and are the eventual landing point) — out "
-                      "of scope for the selection/component-conversion work that surfaced this gap; "
-                      "tracked here rather than silently left unhandled. Covers tb002's whole "
-                      "option box (chk004-011, s000-001), which has no independent life without "
-                      "the handler.",
-        },
-        "chk004": {"status": "pending", "reason": "tb002 option box control -- see HANDLERS['duplicate']['tb002']"},
-        "chk005": {"status": "pending", "reason": "see tb002"},
-        "chk006": {"status": "pending", "reason": "see tb002"},
-        "chk007": {"status": "pending", "reason": "see tb002"},
-        "chk008": {"status": "pending", "reason": "see tb002"},
-        "chk009": {"status": "pending", "reason": "see tb002"},
-        "chk010": {"status": "pending", "reason": "see tb002"},
-        "chk011": {"status": "pending", "reason": "see tb002"},
-        "s000": {"status": "pending", "reason": "see tb002"},
-        "s001": {"status": "pending", "reason": "see tb002"},
-    },
+    # duplicate: tb002 Auto Instance (+ its option box chk004-011/s000/s001) ported
+    # 2026-07-08 — blendertk core_utils/auto_instancer (btk.auto_instance), with the
+    # matching math and assembly clustering extracted to pythontk
+    # (PointCloud.match_clouds / AssemblySorter) and mayatk refactored onto the same
+    # shared implementation. Verified: blendertk test_auto_instancer.py headless +
+    # mayatk auto_instancer/instancer_ground_truth suites green.
     "cameras": {
         # PARITY_SURFACE.md "combo item deltas (review)": `list000` 11->5 items; missing=
         # ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive',
@@ -435,15 +444,17 @@ HANDLERS = {
         "list000:Sculpts": {"status": "na", "reason": "Maya's implicitSphere/sculpt deformer nodes; Blender Sculpt Mode is a mesh edit mode, not a selectable Object type or deformer node."},
         "list000:Wires": {"status": "na", "reason": "Maya wire deformer nodes (curve-driven mesh deform) are their own selectable node; Blender's nearest tools (Lattice/Hook/Curve modifiers) attach to the deformed object rather than existing as their own selectable Object."},
         "list000:Templated Geometry": {"status": "na", "reason": "Maya's legacy 'template' display mode (dashed wireframe, non-selectable/non-renderable) has no Blender display-mode counterpart; Non-Selectable Geometry (hide_select) and Hidden Geometry (hide_get) already cover the adjacent non-selectable/hidden capabilities."},
-        "list000:Back-Facing": {"status": "na", "reason": "Maya's UV back-facing selection reads the active camera's view direction against face normals; Blender ships no select-by-orientation UV operator to wrap, and there is no reliable 3D-viewport/camera reference available from this context-free selection sweep."},
-        "list000:Front-Facing": {"status": "na", "reason": "see Back-Facing"},
+        "list000:Back-Facing": {"status": "pending", "reason": "Reason corrected 2026-07-08: Maya's selectUVFaceOrientationComponents ({} 0 2 1) detects UV-SPACE flipped/mirrored winding (negative signed UV area), NOT the active camera -- the camera-depth backface pref is the separate, already-ledgered chk004. Portable to Blender with a small bmesh pass (per-face signed UV area over face.loops[].uv; negative = flipped) with no camera and no native op; deferred as a niche filter pending a mirrored/seamed-UV verification pass rather than dropped."},
+        "list000:Front-Facing": {"status": "pending", "reason": "see Back-Facing (positive signed UV area = front-facing winding)."},
         "list000:nParticles": {"status": "replaced", "to": "list000 Particles", "reason": "Blender has one unified particle system (no separate classic-vs-Nucleus split like Maya's legacy Particles vs nParticles); EMITTER-type particle systems cover both roles under the single 'Particles' leaf."},
     },
     "transform": {
         "chk021": {"status": "replaced", "to": "apply-model tb004",
                    "reason": "widget exists on both; Maya applies live on toggle, Blender reads at apply"},
         "chk022": {"status": "replaced", "to": "apply-model tb004", "reason": "see chk021"},
-        "chk026": {"status": "na", "reason": "Maya Make Live has no Blender analogue (documented in slot)"},
+        # chk026 (Make Live) removed 2026-07-08: BUILT — the Blender chk026 handler maps
+        # makeLive onto face-projection snapping (_set_project_snap -> snap_elements_individual
+        # ={FACE_NEAREST}). Handler present on both sides; no delta.
         "s021": {"status": "na", "reason": "snap increments are grid-driven in Blender (slot docstring)"},
         "s022": {"status": "na", "reason": "see s021"},
         "s023": {"status": "na", "reason": "see s021"},
@@ -472,6 +483,13 @@ HANDLERS = {
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
     "display": {
+        # list000[Normals] "Display Normals": the visible item-delta is only a label rename (Maya
+        # "Display Normal" -> Blender "Display Normals", cosmetic/report-only, no entry needed).
+        # Behind the item, Maya's mtk DisplayMacros.m_normals_display cycles Off/Face/Vertex/Tangent.
+        # BUILT 2026-07-08: the Blender item now cycles Off -> Face -> Vertex -> Off
+        # (View3DOverlay.show_face_normals / show_vertex_normals), matching Maya minus the na Tangent
+        # state (no show_tangent RNA in Blender 5.1 -- verified live). Kept as a comment (not
+        # fabricated leaf keys) since Maya cycles ONE item, not separate leaves.
         "list000[View].Show Selected": {
             "status": "replaced", "to": "Show All",
             "reason": "Maya's 'reveal only the current selection' has no faithful Blender translation: "
@@ -486,13 +504,14 @@ HANDLERS = {
                       "folds into the same Show All control — Blender has no separate per-type "
                       "(geometry-only vs everything) visibility action to mirror it as a distinct item.",
         },
-        "list000[Wireframe].Template Selected": {
-            "status": "replaced", "to": "Shaded Selected",
-            "reason": "Blender has no non-selectable template-display concept (cmds.toggle(template=1) "
-                      "makes an object visible-but-unpickable); Shaded Selected (display_type='TEXTURED') "
-                      "is the nearest same-slot control — a defensible translation, now documented here "
-                      "rather than left unexplained.",
-        },
+        # list000[Wireframe].Template Selected: BUILT 2026-07-08 (was a false 'replaced->Shaded
+        # Selected' na). The Blender display slot now ships a real "Template Selected" item under the
+        # identical label -- obj.display_type='WIRE' + hide_render=True + hide_select=True (the Maya
+        # cmds.toggle(template=1) analogue, matching blendertk.reference_manager's own 'template'
+        # mode). Re-click with nothing selected releases every templated object (hide_select DESELECTS
+        # in Blender -- verified live -- so a plain toggle-on-selection would be one-way). No
+        # divergence to ledger. 'Shaded Selected' is KEPT as a Blender-only extra item -> a
+        # report-only "extra" combo delta, documented in DEFAULT_DELTAS['display'].
         "list000[UV].Display UV Border": {
             "status": "na",
             "reason": "Same underlying capability as list000[UV].Borders (Maya routes both through "
@@ -661,7 +680,9 @@ CONTROLS_SLOTS = {
                    "reason": "[Snap Rotate] handled by the standalone chk023 slot (static widget in "
                              "transform#submenu.ui, live toggle -> use_snap_rotate); re-building it in "
                              "tb004_init like Maya would duplicate the objectName."},
-        "chk026": {"status": "na", "reason": "Make Live has no Blender analogue"},
+        # chk026 (Make Live) removed 2026-07-08: BUILT as a tb003 option-box checkbox mapping
+        # onto face-projection snapping (FACE_NEAREST); single-live-surface vs all-surfaces is
+        # an accepted delta documented in the slot's tb003 comment. No delta.
         "s021": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
         "s022": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
         "s023": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
@@ -683,11 +704,17 @@ DEFAULT_DELTAS = {
     "blendshape_animator_slots": {
         "group_name.setText": "Maya's default '_morphInbetweens_GRP' names a real transform node; the Blender counterpart is a plain Empty used purely as a parent, so the '_GRP' Maya-suffix convention is dropped -- default is '_morphInbetweens' (Targets.GROUP_NAME).",
     },
+    "channels_slots": {
+        "cmb_attr_type.items": "Create-Attribute type combo: Maya offers bool/int/float/string/enum/double3; Blender offers bool/int/float/string/vector. 'enum' is dropped (na -- Blender ID custom props have no Maya-style enum type on arbitrary objects). 'double3' is BUILT 2026-07-08 as 'vector' (Blender's native term): create_attribute makes a 3-float XYZ array custom prop (obj[name]=(d,d,d) + id_properties_ui subtype='XYZ'), parse_value round-trips the '(x, y, z)' cell on edit, and the table already displayed/keyed vectors (_value_type='vector'). The 'double3'->'vector' label difference is the combo item rename.",
+    },
     "materials": {
         "chk_include_optimization.setChecked": "Environment-driven default (documented in-file: builder comment + tooltip + docstring). Same ptk.MapOptimizer toggle, but Blender's bundled Python lacks Pillow, so the map-analysis report degrades to per-texture 'unavailable'; opt-in avoids a noise-filled default report. Maya's tooltip assumes PIL present.",
     },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
+    },
+    "display": {
+        "list000[Wireframe].items": "Blender's Wireframe category carries a 'Shaded Selected' item (display_type='TEXTURED', the inverse of Wireframe Selected) that Maya lacks -- a Blender-only ENHANCEMENT kept when 'Template Selected' was built 2026-07-08, so the sweep shows it as a report-only extra. Every Maya item now has its twin.",
     },
     "edit": {
         "cmb000.items": "Deliberately different item list (Transfer menu): Blender's Data-Transfer operator works one data-layer at a time, so Maya's single 'Attribute Values' dialog (UVs/vertex colors/weights/normals together) is broken out into its natural granular items (UVs / Vertex Colors / Vertex Group Weights / Custom Normals); 'Shading Sets' is renamed to Blender's own term 'Material Slots'. Maya's 'Maps' (Cycles-scale bake setup) and 'Vertex Order' (interactive click-to-match reindex, no bpy primitive) are intentionally dropped rather than added as inert entries — see the _TRANSFER_OPS comment in blender/edit.py.",
@@ -714,7 +741,18 @@ DEFAULT_DELTAS = {
     },
     "rigging": {
         "chk000.setChecked": "Not a same-meaning toggle: Maya chk000 is a QRadioButton 'Joints' (checked as the default of a 3-way Joints/IK/IK-FK group driving display scales); Blender chk000 is a standalone QCheckBox opting into armature bone-axes (show_axes) — a mode Maya lacks. Defaulting True would make tb000 error ('No armatures selected') on non-armature selections. Documented in the Blender file's name-reuse comment.",
+        "cmb010.items": "Deliberately different item list: Maya's Attrs scope ['Attrs: Auto','Attrs: Channel Box'] names Channel-Box-driven attribute scoping; Blender has no Channel Box, so the scope is re-expressed as the concrete transform channels ['Attrs: Translate','Attrs: Rotate','Attrs: Scale']. Documented only in the Blender slot comment previously; recorded here 2026-07-08.",
+        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's 4 items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop.",
     },
+    "animation": {
+        "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
+    },
+    # uv.cmb002 (the 17->3 Transform submenu) was relocated 2026-07-08 into the dedicated UV
+    # Transform tool (co-located mayatk/blendertk uv_utils/uv_transform.py). The Maya-only ops
+    # (Align/Orient/Gather/Randomize/select filters) are now ledgered under CONTROLS["uv_transform"]
+    # as `na`; Flip/Rotate (+ the move pad and Straighten/Mirror/Distribute) ship in the Blender
+    # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
+    # (no "uv" entry needed here while the panel has no other triaged deltas).
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
     },
@@ -727,9 +765,12 @@ DEFAULT_DELTAS = {
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
     "ArnoldBridgeSlots": {"status": "na", "reason": "no Arnold in Blender (Cycles/EEVEE)"},
-    "MarmosetBridgeSlots": {"status": "na", "reason": "live-RPC external bridge; Blender uses the thin "
-                                                      "export+launch flow in slots/blender/materials.py"},
-    "SubstanceBridgeSlots": {"status": "na", "reason": "live-RPC external bridge; see MarmosetBridgeSlots"},
+    # MarmosetBridgeSlots / SubstanceBridgeSlots: stale "no twin" rows removed 2026-07-08 -- both
+    # now ship real native blendertk twins (blendertk/mat_utils/{marmoset,substance}_bridge/
+    # *_bridge_slots.py -- full BlenderBridgeSlotsBase panels with co-located .ui + RPC clients +
+    # FBX export + Painter/Toolbag handoff), discovered by BlenderUiHandler and launched from
+    # materials.py b019/b020 via marking_menu.show(), exactly like Maya. Same condition that retired
+    # the five below on 2026-07-03/04; these two were missed. Track any residual gaps via panel rows.
     "BlenderBridgeSlots": {"status": "counterpart", "to": "MayaBridgeSlots",
                            "reason": "cross-DCC send pair — each package ships the bridge named "
                                      "after its TARGET app"},

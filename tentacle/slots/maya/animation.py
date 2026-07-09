@@ -937,7 +937,9 @@ class Animation(SlotsMaya):
             objects = None
 
         if untie_mode:
-            mtk.untie_keyframes(objects=objects, absolute=absolute)
+            # untie removes exactly the recorded/detected bookends — the
+            # absolute-range option only applies when tying.
+            mtk.untie_keyframes(objects=objects)
         else:
             mtk.tie_keyframes(objects=objects, absolute=absolute)
 
@@ -1538,7 +1540,7 @@ class Animation(SlotsMaya):
         if mode == "auto":
             keys = "auto"
         elif mode == "selected":
-            keys = cmds.keyframe(query=True, selected=True, name=True) or []
+            keys = mtk.AnimUtils.get_anim_curves(selected_keys_only=True)
             if not keys:
                 self.sb.message_box("No keys selected in the Graph Editor.")
                 return

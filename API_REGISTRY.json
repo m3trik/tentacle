@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-07-08",
+  "generated_at": "2026-07-09",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -100,12 +100,21 @@
               "deprecated": false
             },
             {
+              "name": "active_object",
+              "qualname": "SlotsBlender.active_object",
+              "kind": "staticmethod",
+              "signature": "()",
+              "summary": "The active object (or ``None``) — shared by all Blender slots.",
+              "line": 26,
+              "deprecated": false
+            },
+            {
               "name": "set_viewport_tool",
               "qualname": "SlotsBlender.set_viewport_tool",
               "kind": "method",
               "signature": "(self, tool_id, label=None)",
               "summary": "Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /",
-              "line": 19,
+              "line": 34,
               "deprecated": false
             },
             {
@@ -114,7 +123,7 @@
               "kind": "staticmethod",
               "signature": "(op_path)",
               "summary": "The ``bpy.ops`` callable at a dotted path (``\"wm.link\"``), or None when the",
-              "line": 58,
+              "line": 71,
               "deprecated": false
             },
             {
@@ -123,7 +132,7 @@
               "kind": "method",
               "signature": "(self, op_path, **kwargs)",
               "summary": "Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a",
-              "line": 64,
+              "line": 77,
               "deprecated": false
             },
             {
@@ -132,7 +141,7 @@
               "kind": "method",
               "signature": "(self, data_type, **kwargs)",
               "summary": "Run native Data-Transfer from the active mesh to the other selected meshes",
-              "line": 78,
+              "line": 91,
               "deprecated": false
             }
           ]
@@ -816,7 +825,7 @@
         {
           "name": "DisplaySlots",
           "summary": "Blender port of the shared ``display`` menu.",
-          "line": 8,
+          "line": 9,
           "bases": [
             "SlotsBlender"
           ],
@@ -827,7 +836,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Display expandable list (categories → actions).",
-              "line": 61,
+              "line": 63,
               "deprecated": false
             },
             {
@@ -836,7 +845,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Display action and report state via message_box.",
-              "line": 72,
+              "line": 74,
               "deprecated": false
             },
             {
@@ -845,7 +854,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /",
-              "line": 238,
+              "line": 275,
               "deprecated": false
             },
             {
@@ -854,7 +863,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color ID — swatch palette to color-code objects (material / object color / vertex).",
-              "line": 244,
+              "line": 281,
               "deprecated": false
             }
           ]
@@ -924,8 +933,17 @@
               "qualname": "Duplicate.tb002_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Auto Instance — hidden: blendertk has no ported equivalent of mayatk's",
-              "line": 109,
+              "summary": "Initialize Auto Instance — configure option-box menu.",
+              "line": 115,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Duplicate.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Auto Instance: find and convert geometrically identical meshes",
+              "line": 225,
               "deprecated": false
             },
             {
@@ -934,7 +952,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Uninstance Selected Objects (make their data single-user).",
-              "line": 117,
+              "line": 274,
               "deprecated": false
             },
             {
@@ -943,7 +961,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mirror",
-              "line": 122,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -952,7 +970,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Linear",
-              "line": 126,
+              "line": 283,
               "deprecated": false
             },
             {
@@ -961,7 +979,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Radial",
-              "line": 130,
+              "line": 287,
               "deprecated": false
             },
             {
@@ -970,7 +988,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Grid",
-              "line": 134,
+              "line": 291,
               "deprecated": false
             }
           ]
@@ -3251,7 +3269,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 299,
+              "line": 298,
               "deprecated": false
             },
             {
@@ -3260,7 +3278,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Box (Marquee)",
-              "line": 309,
+              "line": 308,
               "deprecated": false
             },
             {
@@ -3269,7 +3287,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Lasso",
-              "line": 313,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -3278,7 +3296,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Circle (Paint)",
-              "line": 317,
+              "line": 316,
               "deprecated": false
             },
             {
@@ -3287,7 +3305,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability of the selected object(s).",
-              "line": 323,
+              "line": 322,
               "deprecated": false
             },
             {
@@ -3296,7 +3314,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 345,
+              "line": 344,
               "deprecated": false
             },
             {
@@ -3305,7 +3323,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Selection Constraints (one-shot in Blender: expands the current selection by",
-              "line": 348,
+              "line": 347,
               "deprecated": false
             },
             {
@@ -3314,7 +3332,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reorder Selection — hidden: Blender has no ordered *object* selection to feed",
-              "line": 364,
+              "line": 363,
               "deprecated": false
             },
             {
@@ -3323,7 +3341,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Reorder Selection — not applicable in Blender.",
-              "line": 369,
+              "line": 368,
               "deprecated": false
             },
             {
@@ -3332,7 +3350,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type: hierarchical type list.",
-              "line": 383,
+              "line": 382,
               "deprecated": false
             },
             {
@@ -3341,7 +3359,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Select by Type (native bpy predicates via ``btk.Selection``).",
-              "line": 395,
+              "line": 394,
               "deprecated": false
             }
           ]
@@ -3688,7 +3706,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header — Fix Non-Orthogonal Axes + the Snap Toolset button.",
-              "line": 25,
+              "line": 26,
               "deprecated": false
             },
             {
@@ -3697,7 +3715,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Snap Toolset — open the Snap panel (mirror of Maya's b_snap_ts).",
-              "line": 42,
+              "line": 43,
               "deprecated": false
             },
             {
@@ -3706,7 +3724,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Non-Orthogonal Axes (bake out shear on the selected objects).",
-              "line": 46,
+              "line": 47,
               "deprecated": false
             },
             {
@@ -3715,7 +3733,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 66,
+              "line": 67,
               "deprecated": false
             },
             {
@@ -3724,7 +3742,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Drop To Grid",
-              "line": 85,
+              "line": 86,
               "deprecated": false
             },
             {
@@ -3733,7 +3751,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 107,
+              "line": 108,
               "deprecated": false
             },
             {
@@ -3742,7 +3760,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations",
-              "line": 139,
+              "line": 140,
               "deprecated": false
             },
             {
@@ -3751,7 +3769,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 167,
+              "line": 168,
               "deprecated": false
             },
             {
@@ -3760,7 +3778,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To (align source object(s) to the active/target object).",
-              "line": 184,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -3769,7 +3787,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale (rescale source object(s) to the active/target object).",
-              "line": 200,
+              "line": 201,
               "deprecated": false
             },
             {
@@ -3778,7 +3796,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 217,
+              "line": 218,
               "deprecated": false
             },
             {
@@ -3787,7 +3805,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Align To (object centers onto the active object's, native ``object.align``).",
-              "line": 221,
+              "line": 222,
               "deprecated": false
             },
             {
@@ -3796,7 +3814,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 251,
+              "line": 252,
               "deprecated": false
             },
             {
@@ -3805,7 +3823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transform Snap (per-transform increment snapping via the scene tool settings — Blender",
-              "line": 265,
+              "line": 266,
               "deprecated": false
             },
             {
@@ -3814,7 +3832,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Rotate toggle — reflect the live tool-settings state.",
-              "line": 274,
+              "line": 275,
               "deprecated": false
             },
             {
@@ -3823,7 +3841,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Snap: Rotate (increment rotation snapping).",
-              "line": 278,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -3832,7 +3850,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 283,
+              "line": 284,
               "deprecated": false
             },
             {
@@ -3841,7 +3859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Connected Edges (each connected set of selected edges scales about its",
-              "line": 294,
+              "line": 295,
               "deprecated": false
             },
             {
@@ -3850,7 +3868,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Un-Freeze Transforms (restore the channels stamped by Freeze;",
-              "line": 307,
+              "line": 308,
               "deprecated": false
             },
             {
@@ -3859,7 +3877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraints Init (mirrors the Maya option box;",
-              "line": 347,
+              "line": 380,
               "deprecated": false
             },
             {
@@ -3868,7 +3886,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge (snap-to-edge during move).",
-              "line": 374,
+              "line": 410,
               "deprecated": false
             },
             {
@@ -3877,7 +3895,16 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Surface (snap-to-face during move).",
-              "line": 379,
+              "line": 415,
+              "deprecated": false
+            },
+            {
+              "name": "chk026",
+              "qualname": "TransformSlots.chk026",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Constraints: Make Live (project transformed geometry onto surfaces —",
+              "line": 420,
               "deprecated": false
             }
           ]
@@ -3945,7 +3972,7 @@
         {
           "name": "Uv",
           "summary": "Blender port of the shared ``uv`` menu.",
-          "line": 11,
+          "line": 10,
           "bases": [
             "SlotsBlender"
           ],
@@ -4059,48 +4086,12 @@
               "deprecated": false
             },
             {
-              "name": "b023",
-              "qualname": "Uv.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To UV Space: Left",
-              "line": 280,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "Uv.b024",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To UV Space: Down",
-              "line": 285,
-              "deprecated": false
-            },
-            {
-              "name": "b025",
-              "qualname": "Uv.b025",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To UV Space: Up",
-              "line": 290,
-              "deprecated": false
-            },
-            {
-              "name": "b026",
-              "qualname": "Uv.b026",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To UV Space: Right",
-              "line": 295,
-              "deprecated": false
-            },
-            {
               "name": "tb007_init",
               "qualname": "Uv.tb007_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,",
-              "line": 300,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -4109,7 +4100,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).",
-              "line": 331,
+              "line": 310,
               "deprecated": false
             },
             {
@@ -4117,8 +4108,8 @@
               "qualname": "Uv.header_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Header menu — Create UV Snapshot + RizomUV Bridge (both reuse the Maya objectNames +",
-              "line": 363,
+              "summary": "Header menu — UV Transform + Create UV Snapshot + RizomUV Bridge (all reuse the Maya",
+              "line": 342,
               "deprecated": false
             },
             {
@@ -4127,7 +4118,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Create UV Snapshot — export the active mesh's UV layout to an image.",
-              "line": 378,
+              "line": 363,
               "deprecated": false
             },
             {
@@ -4136,25 +4127,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 387,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "Uv.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 392,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "Uv.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Transform (flip/rotate the selection's UV maps about their shared bbox center —",
-              "line": 396,
+              "line": 372,
               "deprecated": false
             },
             {
@@ -4163,7 +4136,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs (active mesh → other selected, native Data-Transfer).",
-              "line": 413,
+              "line": 378,
               "deprecated": false
             },
             {
@@ -4172,7 +4145,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 420,
+              "line": 385,
               "deprecated": false
             },
             {
@@ -4181,7 +4154,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 429,
+              "line": 394,
               "deprecated": false
             },
             {
@@ -4189,8 +4162,8 @@
               "qualname": "Uv.b029_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 438,
+              "summary": "Initialize Pin/Unpin button — non-checkable text button.",
+              "line": 403,
               "deprecated": false
             },
             {
@@ -4199,25 +4172,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 448,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "Uv.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 467,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "Uv.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Mirror UVs (footprint-preserving reassignment by default;",
-              "line": 489,
+              "line": 411,
               "deprecated": false
             },
             {
@@ -4226,7 +4181,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 505,
+              "line": 430,
               "deprecated": false
             },
             {
@@ -4235,43 +4190,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 531,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "Uv.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 557,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "Uv.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Straighten UV (selected UV edges within the angle threshold snap flat;",
-              "line": 581,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "Uv.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 598,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "Uv.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Distribute (space the targeted UV shells evenly along U or V).",
-              "line": 610,
+              "line": 456,
               "deprecated": false
             },
             {
@@ -4279,8 +4198,8 @@
               "qualname": "Uv.b030_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 620,
+              "summary": "Initialize Stack button — non-checkable text button.",
+              "line": 482,
               "deprecated": false
             },
             {
@@ -4289,7 +4208,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 631,
+              "line": 491,
               "deprecated": false
             },
             {
@@ -4298,7 +4217,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a",
-              "line": 657,
+              "line": 517,
+              "deprecated": false
+            },
+            {
+              "name": "b033",
+              "qualname": "Uv.b033",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the UV Transform panel — co-located blendertk tool in",
+              "line": 522,
               "deprecated": false
             },
             {
@@ -4307,7 +4235,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 662,
+              "line": 528,
               "deprecated": false
             },
             {
@@ -4316,7 +4244,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 666,
+              "line": 532,
               "deprecated": false
             }
           ]
@@ -4583,7 +4511,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 944,
+              "line": 946,
               "deprecated": false
             },
             {
@@ -4592,7 +4520,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys: select keys on the selection within a frame range.",
-              "line": 993,
+              "line": 995,
               "deprecated": false
             },
             {
@@ -4601,7 +4529,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1025,
+              "line": 1027,
               "deprecated": false
             },
             {
@@ -4610,7 +4538,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys: scale the selected keys in time about a pivot.",
-              "line": 1207,
+              "line": 1209,
               "deprecated": false
             },
             {
@@ -4619,7 +4547,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1282,
+              "line": 1284,
               "deprecated": false
             },
             {
@@ -4628,7 +4556,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1323,
+              "line": 1325,
               "deprecated": false
             },
             {
@@ -4637,7 +4565,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — option box.",
-              "line": 1402,
+              "line": 1404,
               "deprecated": false
             },
             {
@@ -4646,7 +4574,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render the report to the viewer dialog.",
-              "line": 1458,
+              "line": 1460,
               "deprecated": false
             },
             {
@@ -4655,7 +4583,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents Init",
-              "line": 1506,
+              "line": 1508,
               "deprecated": false
             },
             {
@@ -4664,7 +4592,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents — set stepped tangents on keys.",
-              "line": 1534,
+              "line": 1536,
               "deprecated": false
             },
             {
@@ -4673,7 +4601,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 1558,
+              "line": 1560,
               "deprecated": false
             },
             {
@@ -4682,7 +4610,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys: copy the selected objects' keys for later paste.",
-              "line": 1575,
+              "line": 1577,
               "deprecated": false
             },
             {
@@ -4691,7 +4619,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 1625,
+              "line": 1627,
               "deprecated": false
             },
             {
@@ -4700,7 +4628,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys: paste previously copied keys onto the selection.",
-              "line": 1639,
+              "line": 1641,
               "deprecated": false
             },
             {
@@ -4709,7 +4637,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 1671,
+              "line": 1673,
               "deprecated": false
             },
             {
@@ -4718,7 +4646,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1707,
+              "line": 1709,
               "deprecated": false
             },
             {
@@ -4727,7 +4655,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 1748,
+              "line": 1750,
               "deprecated": false
             },
             {
@@ -4736,7 +4664,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 1752,
+              "line": 1754,
               "deprecated": false
             },
             {
@@ -4745,7 +4673,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 1756,
+              "line": 1758,
               "deprecated": false
             },
             {
@@ -4754,7 +4682,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 1760,
+              "line": 1762,
               "deprecated": false
             }
           ]
@@ -5853,7 +5781,7 @@
         {
           "name": "SelectionMixin",
           "summary": "",
-          "line": 55,
+          "line": 56,
           "bases": [],
           "members": [
             {
@@ -5862,7 +5790,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 56,
+              "line": 57,
               "deprecated": false
             },
             {
@@ -5871,7 +5799,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 103,
+              "line": 104,
               "deprecated": false
             }
           ]
@@ -5879,7 +5807,7 @@
         {
           "name": "WarningsMixin",
           "summary": "Maya HUD warnings — the framework lives in the shared",
-          "line": 128,
+          "line": 129,
           "bases": [
             "HudWarningsMixin"
           ],
@@ -5888,7 +5816,7 @@
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Maya, providing scene and selection information.",
-          "line": 208,
+          "line": 209,
           "bases": [
             "SlotsMaya",
             "ptk.PackageManager",
@@ -5903,7 +5831,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 224,
+              "line": 225,
               "deprecated": false
             },
             {
@@ -5912,7 +5840,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 244,
+              "line": 245,
               "deprecated": false
             }
           ]
@@ -8977,7 +8905,7 @@
         {
           "name": "UvSlots",
           "summary": "",
-          "line": 12,
+          "line": 11,
           "bases": [
             "SlotsMaya"
           ],
@@ -8988,7 +8916,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 41,
+              "line": 40,
               "deprecated": false
             },
             {
@@ -8997,16 +8925,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 45,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "UvSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize UV Transform Menu",
-              "line": 69,
+              "line": 44,
               "deprecated": false
             },
             {
@@ -9015,7 +8934,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 93,
+              "line": 75,
               "deprecated": false
             },
             {
@@ -9024,7 +8943,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 317,
+              "line": 299,
               "deprecated": false
             },
             {
@@ -9033,7 +8952,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap.",
-              "line": 495,
+              "line": 477,
               "deprecated": false
             },
             {
@@ -9042,7 +8961,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap: automatically unwrap UVs for the selected objects.",
-              "line": 577,
+              "line": 559,
               "deprecated": false
             },
             {
@@ -9051,7 +8970,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 631,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -9060,43 +8979,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold: relax/unfold the selected UVs to reduce stretch and distortion.",
-              "line": 680,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "UvSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Straighten UV",
-              "line": 768,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "UvSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Straighten UV",
-              "line": 800,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "UvSlots.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Distribute",
-              "line": 817,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "UvSlots.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Distribute: evenly space the selected UV shells horizontally or vertically.",
-              "line": 834,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -9105,7 +8988,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 844,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -9114,25 +8997,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 890,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "UvSlots.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Mirror UVs.",
-              "line": 951,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "UvSlots.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Mirror UVs (footprint-preserving by default).",
-              "line": 988,
+              "line": 796,
               "deprecated": false
             },
             {
@@ -9141,7 +9006,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 1011,
+              "line": 857,
               "deprecated": false
             },
             {
@@ -9150,16 +9015,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1060,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "UvSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Transform, orient, or select-filter the selected UVs.",
-              "line": 1089,
+              "line": 906,
               "deprecated": false
             },
             {
@@ -9168,7 +9024,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1175,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -9177,7 +9033,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1179,
+              "line": 939,
               "deprecated": false
             },
             {
@@ -9186,7 +9042,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 1184,
+              "line": 944,
               "deprecated": false
             },
             {
@@ -9195,7 +9051,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1196,
+              "line": 956,
               "deprecated": false
             },
             {
@@ -9204,7 +9060,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1202,
+              "line": 962,
               "deprecated": false
             },
             {
@@ -9213,7 +9069,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1209,
+              "line": 969,
               "deprecated": false
             },
             {
@@ -9222,7 +9078,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1239,
+              "line": 999,
               "deprecated": false
             },
             {
@@ -9231,7 +9087,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1262,
+              "line": 1022,
               "deprecated": false
             },
             {
@@ -9240,7 +9096,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1267,
+              "line": 1027,
               "deprecated": false
             },
             {
@@ -9249,43 +9105,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1302,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "UvSlots.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To Uv Space: Left",
-              "line": 1335,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "UvSlots.b024",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To Uv Space: Down",
-              "line": 1340,
-              "deprecated": false
-            },
-            {
-              "name": "b025",
-              "qualname": "UvSlots.b025",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To Uv Space: Up",
-              "line": 1345,
-              "deprecated": false
-            },
-            {
-              "name": "b026",
-              "qualname": "UvSlots.b026",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Move To Uv Space: Right",
-              "line": 1350,
+              "line": 1062,
               "deprecated": false
             },
             {
@@ -9293,8 +9113,8 @@
               "qualname": "UvSlots.b029_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Pin/Unpin button — static pin icon, non-checkable.",
-              "line": 1355,
+              "summary": "Initialize Pin/Unpin button — non-checkable text button.",
+              "line": 1095,
               "deprecated": false
             },
             {
@@ -9303,7 +9123,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1366,
+              "line": 1104,
               "deprecated": false
             },
             {
@@ -9311,8 +9131,8 @@
               "qualname": "UvSlots.b030_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Stack button — static stack icon, non-checkable.",
-              "line": 1388,
+              "summary": "Initialize Stack button — non-checkable text button.",
+              "line": 1126,
               "deprecated": false
             },
             {
@@ -9321,7 +9141,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1399,
+              "line": 1135,
               "deprecated": false
             },
             {
@@ -9330,7 +9150,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1456,
+              "line": 1192,
               "deprecated": false
             },
             {
@@ -9339,7 +9159,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1460,
+              "line": 1196,
+              "deprecated": false
+            },
+            {
+              "name": "b033",
+              "qualname": "UvSlots.b033",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the UV Transform panel (move / flip / rotate / align / orient / distribute).",
+              "line": 1200,
               "deprecated": false
             }
           ]

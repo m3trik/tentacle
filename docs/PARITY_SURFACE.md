@@ -23,12 +23,13 @@
 | DynamicPipe | 0 | 0 | 0 | 0 | OK |
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
 | GameShader | 0 | 0 | 0 | 2 | OK |
-| HdrManager | 0 | 0 | 0 | 3 | OK |
+| HdrManager | 0 | 0 | 0 | 2 | OK |
 | HierarchyManager | 0 | 0 | 0 | 1 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MacroManager | 0 | 0 | 0 | 0 | OK |
+| MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
@@ -40,10 +41,12 @@
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
+| SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
-| TubeRig | 0 | 0 | 0 | 8 | OK |
+| TubeRig | 0 | 9 | 4 | 1 | open |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
+| UvTransform | 0 | 0 | 13 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 1 | OK |
 
 ### Panel deltas
@@ -56,7 +59,7 @@
 
 #### Channels
 **combo item deltas (review)**
-  - `cmb_attr_type` 6->4 items; missing=['enum', 'double3'] extra=[]
+  - `cmb_attr_type` 6->5 items; missing=['enum', 'double3'] extra=['vector']
 
 #### ColorId
 **property deltas (review)**
@@ -70,7 +73,6 @@
 #### HdrManager
 **property deltas (review)**
   - `open_sourceimages.setText` maya=`'Open Sourceimages Folder'` blender=`'Open HDR Folder'`
-  - `spn_resolution..ui:enabled` maya=`None` blender=`'false'`
   - `spn_samples..ui:enabled` maya=`None` blender=`'false'`
 
 #### HierarchyManager
@@ -107,14 +109,7 @@
 
 #### TubeRig
 **property deltas (review)**
-  - `b004..ui:enabled` maya=`None` blender=`'false'`
-  - `chk_auto_bend..ui:enabled` maya=`None` blender=`'false'`
-  - `chk_squash..ui:checked` maya=`'true'` blender=`'false'`
-  - `chk_squash..ui:enabled` maya=`None` blender=`'false'`
-  - `chk_twist..ui:checked` maya=`'true'` blender=`'false'`
-  - `chk_twist..ui:enabled` maya=`None` blender=`'false'`
-  - `chk_volume..ui:checked` maya=`'true'` blender=`'false'`
-  - `chk_volume..ui:enabled` maya=`None` blender=`'false'`
+  - `b000.class` maya=`'QPushButton'` blender=`'PushButton'`
 
 #### WheelRig
 **property deltas (review)**
@@ -125,7 +120,7 @@
 - **ShotSequencer** — XXL Shots pipeline; lowest priority
 - **Shots** — XXL Shots pipeline; lowest priority
 
-**N/A by design (3):** MarmosetBridge (live-RPC external bridge; Blender uses the thin export+launch flow in slots/blender/materials.py); SubstanceBridge (live-RPC external bridge; see MarmosetBridgeSlots); WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
+**N/A by design (1):** WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
 
 **[counterpart-set OK]** BlenderBridge <-> MayaBridge — cross-DCC send pair — each package ships the bridge named after its TARGET app
 
@@ -140,7 +135,7 @@ Blender-only panels: MayaBridge
 | crease.py | 0 | 0 | 0 | 0 | 0 | OK |
 | deformation.py | 0 | 0 | 0 | 0 | 0 | OK |
 | display.py | 0 | 0 | 0 | 0 | 0 | OK |
-| duplicate.py | 0 | 11 | 0 | 0 | 0 | open |
+| duplicate.py | 0 | 0 | 0 | 0 | 0 | OK |
 | edit.py | 0 | 0 | 11 | 0 | 0 | OK |
 | editors.py | 0 | 0 | 0 | 0 | 0 | OK |
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -159,7 +154,7 @@ Blender-only panels: MayaBridge
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
-| transform.py | 0 | 0 | 13 | 0 | 0 | OK |
+| transform.py | 0 | 0 | 12 | 0 | 0 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
 | uv.py | 0 | 0 | 12 | 0 | 0 | OK |
 
@@ -180,7 +175,7 @@ Blender-only panels: MayaBridge
   - `_LIST000_ITEMS[Normals]` 2->2 items; missing=['Display Normal'] extra=['Display Normals']
   - `_LIST000_ITEMS[UV]` 4->1 items; missing=['Display UV Border', 'Checkered', 'Borders'] extra=[]
   - `_LIST000_ITEMS[View]` 5->4 items; missing=['Show Selected', 'Show Geometry'] extra=['Show All']
-  - `_LIST000_ITEMS[Wireframe]` 4->4 items; missing=['Template Selected'] extra=['Shaded Selected']
+  - `_LIST000_ITEMS[Wireframe]` 4->5 items; missing=[] extra=['Shaded Selected']
 
 #### materials.py
 **combo item deltas (review)**
@@ -219,29 +214,23 @@ Blender-only panels: MayaBridge
 **combo item deltas (review)**
   - `cmb000` 2->2 items; missing=['Reduce (Quadric Error %)'] extra=['Reduce (Collapse %)']
 
-#### uv.py
-**combo item deltas (review)**
-  - `cmb002` 17->3 items; missing=['Align U Left', 'Align U Middle', 'Align U Right', 'Align V Top', 'Align V Middle', 'Align V Bottom', 'Linear Align', 'Orient Shells', 'Orient to Edges', 'Gather Shells', 'Randomize Shells', 'Back Facing', 'Overlapping', 'Unmapped'] extra=[]
-
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> btk.call_native_menu) — Maya-native-menu Qt clones (QAction harvest — impossible in Blender's OpenGL UI); Blender pops its OWN native menus at the cursor instead (shipped 2026-06-12)
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
 ## Open work (ledgered `pending`)
 
+- **TubeRig** `b001` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Create Joints from Tube as a standalone step; Blender has strategy one-shot builds only
+- **TubeRig** `b002` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Create IK/Controls on EXISTING joints as a standalone step
+- **TubeRig** `b003` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Bind Joint Chain to Tube as a standalone step
+- **TubeRig** `b004` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Constrain Both Ends of Hose to Anchors as a standalone step
+- **TubeRig** `chk000` — .ui widget QPushButton  [pending] reverse-chain toggle for the granular step-workflow (see b001 block note); reverses joint-chain direction in create_joints_from_tube
+- **TubeRig** `chk_auto_bend` — .ui widget QPushButton  [pending] auto-bend system has no Blender engine counterpart yet
+- **TubeRig** `chk_squash` — .ui widget QPushButton  [pending] squash system has no Blender engine counterpart yet
+- **TubeRig** `chk_twist` — .ui widget QPushButton  [pending] twist system has no Blender engine counterpart yet
+- **TubeRig** `chk_volume` — .ui widget QPushButton  [pending] volume system has no Blender engine counterpart yet
 - **ShotManifest** `panel` — XXL Shots pipeline; lowest priority
 - **ShotSequencer** `panel` — XXL Shots pipeline; lowest priority
 - **Shots** `panel` — XXL Shots pipeline; lowest priority
-- **duplicate** `chk004` — optbox QCheckBox 'Require Same Material'  [pending] tb002 option box control -- see HANDLERS['duplicate']['tb002']
-- **duplicate** `chk005` — optbox QCheckBox 'Check UVs'  [pending] see tb002
-- **duplicate** `chk006` — optbox QCheckBox 'Match Whole Hierarchies'  [pending] see tb002
-- **duplicate** `chk007` — optbox QCheckBox 'Separate Combined Meshes'  [pending] see tb002
-- **duplicate** `chk008` — optbox QCheckBox 'Combine Reassembled Assemblies'  [pending] see tb002
-- **duplicate** `chk009` — optbox QCheckBox 'Combine Non-Instanced'  [pending] see tb002
-- **duplicate** `chk010` — optbox QCheckBox '   By Material'  [pending] see tb002
-- **duplicate** `chk011` — optbox QCheckBox '   By Distance'  [pending] see tb002
-- **duplicate** `s000` — optbox QDoubleSpinBox None  [pending] see tb002
-- **duplicate** `s001` — optbox QDoubleSpinBox None  [pending] see tb002
-- **duplicate** `tb002` — [pending] Auto Instance (find geometrically identical meshes, convert to instances of one prototype) added to Maya's duplicate.py 2026-07-05, backed by mayatk's core_utils.auto_instancer (AutoInstancer engine + AssemblyReconstructor + geometry_matcher — a substantial standalone mesh-matching/instancing subsystem, still an active workstream per its own project ledger). Porting it to blendertk is a dedicated engine port (mesh signature/matching via bmesh, assembly separate/reassemble via parent/collection graphs, get_instances/replace_with_instances already exist in blendertk's node_utils and are the eventual landing point) — out of scope for the selection/component-conversion work that surfaced this gap; tracked here rather than silently left unhandled. Covers tb002's whole option box (chk004-011, s000-001), which has no independent life without the handler.
 
-## Totals: 39 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 14 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 42 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 12 open-work items; 0 stale Maya handlers. Sweep PASSES.

@@ -3,7 +3,6 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import IconManager
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
@@ -46,6 +45,13 @@ class UvSlots(SlotsMaya):
         """Initialize UV Menu Header"""
         widget.menu.add(
             "QPushButton",
+            setText="UV Transform",
+            setObjectName="btn_uv_transform",
+            setToolTip="Open the UV Transform panel (move / flip / rotate / align / orient / distribute).",
+        )
+        widget.menu.btn_uv_transform.clicked.connect(lambda: self.b033())
+        widget.menu.add(
+            "QPushButton",
             setText="Create UV Snapshot",
             setObjectName="uv_snapshot",
             setToolTip="Save an image file of the current UV layout.",
@@ -65,30 +71,6 @@ class UvSlots(SlotsMaya):
             setToolTip="Round-trip selected meshes through RizomUV using a Lua preset.",
         )
         widget.menu.btn_rizom_bridge.clicked.connect(lambda: self.b032())
-
-    def cmb002_init(self, widget):
-        """Initialize UV Transform Menu"""
-        items = [
-            "Flip U",
-            "Flip V",
-            "Rotate 45",
-            "Align U Left",
-            "Align U Middle",
-            "Align U Right",
-            "Align V Top",
-            "Align V Middle",
-            "Align V Bottom",
-            "Linear Align",
-            "Orient Shells",
-            "Orient to Edges",
-            "Gather Shells",
-            "Randomize Shells",
-            # Selection filters (act on the live UV selection; no transform).
-            "Back Facing",
-            "Overlapping",
-            "Unmapped",
-        ]
-        widget.add(items, header="Transform:")
 
     def tb000_init(self, widget):
         """Initialize UV packing tool interface.
@@ -765,82 +747,6 @@ class UvSlots(SlotsMaya):
                 "<i>See the Script Editor for the per-mesh breakdown.</i>"
             )
 
-    def tb005_init(self, widget):
-        """Initialize Straighten UV"""
-        widget.option_box.menu.setTitle("Straighten")
-        widget.option_box.menu.add(
-            "QSpinBox",
-            setPrefix="Angle: ",
-            setObjectName="s001",
-            set_limits=[0, 360],
-            setValue=30,
-            setToolTip="Set the maximum angle used for straightening uv's.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Straighten UV",
-            setObjectName="chk018",
-            setChecked=True,
-            setToolTip="Unfold UV's along a horizonal contraint.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Straighten V",
-            setObjectName="chk019",
-            setChecked=True,
-            setToolTip="Unfold UV's along a vertical constaint.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Straighten Shell",
-            setObjectName="chk020",
-            setToolTip="Straighten a UV shell by unfolding UV's around a selected UV's edgeloop.",
-        )
-
-    def tb005(self, widget):
-        """Straighten UV"""
-        u = widget.option_box.menu.chk018.isChecked()
-        v = widget.option_box.menu.chk019.isChecked()
-        angle = widget.option_box.menu.s001.value()
-        straightenShell = widget.option_box.menu.chk020.isChecked()
-
-        if u and v:
-            mel.eval(f'texStraightenUVs "UV" {angle}')
-        elif u:
-            mel.eval(f'texStraightenUVs "U" {angle}')
-        elif v:
-            mel.eval(f'texStraightenUVs "V" {angle}')
-
-        if straightenShell:
-            mel.eval("texStraightenShell")
-
-    def tb006_init(self, widget):
-        """Initialize Distribute"""
-        widget.option_box.menu.setTitle("Distribute")
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Distribute U",
-            setObjectName="chk023",
-            setChecked=True,
-            setToolTip="Distribute along U.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Distribute V",
-            setObjectName="chk024",
-            setToolTip="Distribute along V.",
-        )
-
-    def tb006(self, widget):
-        """Distribute: evenly space the selected UV shells horizontally or vertically."""
-        u = widget.option_box.menu.chk023.isChecked()
-        v = widget.option_box.menu.chk024.isChecked()
-
-        if u:
-            mel.eval('texDistributeShells 0 0 "right" {}')  # 'left', 'right'
-        if v:
-            mel.eval('texDistributeShells 0 0 "down" {}')  # 'up', 'down'
-
     def tb007_init(self, widget):
         """Initialize Cleanup UV Sets"""
         widget.option_box.menu.setTitle("Cleanup UV Sets")
@@ -948,66 +854,6 @@ class UvSlots(SlotsMaya):
         header = "<b>Dry Run Report</b>" if dry_run else "<b>Cleanup Complete</b>"
         self.sb.message_box(f"{header}<br><br>" + "<br>".join(report_lines))
 
-    def tb008_init(self, widget):
-        """Initialize Mirror UVs.
-
-        Mirrors UVs across U or V. By default this uses the footprint-preserving
-        reassignment mode (preserve_position=True), which keeps the UV point set
-        unchanged and only reassigns which UV gets which point.
-        """
-        widget.option_box.menu.setTitle("Mirror UVs")
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Mirror U",
-            setObjectName="chk031",
-            setChecked=True,
-            setToolTip="Mirror across U. Default mode preserves the UV footprint.",
-        )
-        widget.option_box.menu.add(
-            "QRadioButton",
-            setText="Mirror V",
-            setObjectName="chk032",
-            setToolTip="Mirror across V. Default mode preserves the UV footprint.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Per Shell",
-            setObjectName="chk033",
-            setChecked=True,
-            setToolTip="If enabled, mirrors each UV shell independently.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Preserve Footprint",
-            setObjectName="chk034",
-            setChecked=True,
-            setToolTip="If enabled, preserves the exact UV point set using one-to-one reassignment.\nIf disabled, performs a geometric mirror around the pivot.",
-        )
-
-    @mtk.undoable
-    def tb008(self, widget):
-        """Mirror UVs (footprint-preserving by default)."""
-        mirror_u = widget.option_box.menu.chk031.isChecked()
-        mirror_v = widget.option_box.menu.chk032.isChecked()
-        per_shell = widget.option_box.menu.chk033.isChecked()
-        preserve_position = widget.option_box.menu.chk034.isChecked()
-
-        axis = "u" if mirror_u and not mirror_v else "v"
-
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
-            )
-            return
-
-        mtk.UvUtils.mirror_uvs(
-            selection,
-            axis=axis,
-            per_shell=per_shell,
-            preserve_position=preserve_position,
-        )
-
     def tb009_init(self, widget):
         """Initialize Cut Cylinder.
 
@@ -1085,92 +931,6 @@ class UvSlots(SlotsMaya):
                 "<b>No cylinder seams found.</b><br>Select polygon cylinder / "
                 "tube / turned mesh(es)."
             )
-
-    def cmb002(self, index, widget):
-        """Transform, orient, or select-filter the selected UVs.
-
-        Flip / Rotate / Align / Orient / Gather / Randomize act on the live UV
-        selection; Back Facing / Overlapping / Unmapped are selection filters
-        (they replace the selection with the matched UV components) delegated to
-        ``mtk.Selection.select_by_type``.
-        """
-        text = widget.items[index]
-        if text == "Flip U":
-            cmds.polyFlipUV(flipType=0, local=1, usePivot=1, pivotU=0, pivotV=0)
-        elif text == "Flip V":
-            cmds.polyFlipUV(flipType=1, local=1, usePivot=1, pivotU=0, pivotV=0)
-        elif text == "Rotate 45":
-            angle = -45
-            selected_objects = cmds.ls(sl=True) or []
-            if not selected_objects:
-                self.sb.message_box(
-                    "<b>Nothing selected.</b><br>The operation requires at least one selected object."
-                )
-                return
-
-            selected_uvs = cmds.polyListComponentConversion(selected_objects, toUV=True)
-            selected_uvs = cmds.ls(selected_uvs, flatten=True) or []
-            if not selected_uvs:
-                self.sb.message_box(
-                    "<b>No UVs found.</b><br>Select a mesh, faces, edges, or UVs."
-                )
-                return
-
-            all_u, all_v = [], []
-            for uv in selected_uvs:
-                u, v = cmds.polyEditUV(uv, query=True, uValue=True, vValue=True)
-                all_u.append(u)
-                all_v.append(v)
-
-            pivot_u = sum(all_u) / len(all_u)
-            pivot_v = sum(all_v) / len(all_v)
-
-            for uv in selected_uvs:
-                cmds.polyEditUV(
-                    uv, pivotU=pivot_u, pivotV=pivot_v, angle=angle, relative=True
-                )
-        elif text == "Align U Left":
-            mel.eval('performAlignUV "minU"')
-        elif text == "Align U Middle":
-            mel.eval('performAlignUV "avgU"')
-        elif text == "Align U Right":
-            mel.eval('performAlignUV "maxU"')
-        elif text == "Align V Top":
-            mel.eval('performAlignUV "maxV"')
-        elif text == "Align V Middle":
-            mel.eval('performAlignUV "avgV"')
-        elif text == "Align V Bottom":
-            mel.eval('performAlignUV "minV"')
-        elif text == "Linear Align":
-            mel.eval("performLinearAlignUV")
-        elif text == "Orient Shells":
-            objects = cmds.ls(sl=True) or []
-            if not objects:
-                self.sb.message_box(
-                    "<b>Nothing selected.</b><br>Select mesh(es) or UVs to orient."
-                )
-                return
-            mtk.UvUtils.orient_shells(objects)
-        elif text == "Orient to Edges":
-            # texOrientEdge rotates each shell so its selected edge runs along
-            # U or V. Requires a mesh/UV edge selection (mask 32 = poly edges).
-            edges = cmds.filterExpand(cmds.ls(sl=True) or [], selectionMask=32)
-            if not edges:
-                self.sb.message_box(
-                    "<b>No edge selected.</b><br>Select a UV/mesh edge to orient the shell to."
-                )
-                return
-            mel.eval("texOrientEdge")
-        elif text == "Gather Shells":
-            mel.eval("UVGatherShells")
-        elif text == "Randomize Shells":
-            mel.eval("RandomizeShells")
-        elif text == "Back Facing":
-            mtk.Selection.select_by_type("Back-Facing")
-        elif text == "Overlapping":
-            mtk.Selection.select_by_type("Overlapping")
-        elif text == "Unmapped":
-            mtk.Selection.select_by_type("Unmapped")
 
     def cmb003(self, index, widget):
         """UV Map Size — passive input; read by get_map_size for the texel-density
@@ -1332,35 +1092,13 @@ class UvSlots(SlotsMaya):
                 except Exception as error:
                     print(error)
 
-    def b023(self):
-        """Move To Uv Space: Left"""
-        selection = cmds.ls(sl=True) or []
-        mtk.move_to_uv_space(selection, -1, 0)  # move left
-
-    def b024(self):
-        """Move To Uv Space: Down"""
-        selection = cmds.ls(sl=True) or []
-        mtk.move_to_uv_space(selection, 0, -1)  # move down
-
-    def b025(self):
-        """Move To Uv Space: Up"""
-        selection = cmds.ls(sl=True) or []
-        mtk.move_to_uv_space(selection, 0, 1)  # move up
-
-    def b026(self):
-        """Move To Uv Space: Right"""
-        selection = cmds.ls(sl=True) or []
-        mtk.move_to_uv_space(selection, 1, 0)  # move right
-
     def b029_init(self, widget):
-        """Initialize Pin/Unpin button — static pin icon, non-checkable.
+        """Initialize Pin/Unpin button — non-checkable text button.
 
-        Defensively strips any `checkable`/`text` properties a Qt Designer
-        round-trip may have re-added, then installs the static `pin` icon.
+        Defensively clears any `checkable` property a Qt Designer round-trip
+        may have re-added (the button's "Pin" label lives in the .ui).
         """
         widget.setCheckable(False)
-        widget.setText("")
-        IconManager.set_icon(widget, "pin", size=(16, 16))
 
     @mtk.undoable
     def b029(self, widget):
@@ -1386,14 +1124,12 @@ class UvSlots(SlotsMaya):
         self._b029_last_selection = list(selection)
 
     def b030_init(self, widget):
-        """Initialize Stack button — static stack icon, non-checkable.
+        """Initialize Stack button — non-checkable text button.
 
-        Defensively strips any `checkable`/`text` properties a Qt Designer
-        round-trip may have re-added, then installs the static `stack` icon.
+        Defensively clears any `checkable` property a Qt Designer round-trip
+        may have re-added (the button's "Stack" label lives in the .ui).
         """
         widget.setCheckable(False)
-        widget.setText("")
-        IconManager.set_icon(widget, "stack", size=(16, 16))
 
     @mtk.undoable
     def b030(self, widget):
@@ -1460,6 +1196,16 @@ class UvSlots(SlotsMaya):
     def b032(self):
         """RizomUV Bridge"""
         self.sb.handlers.marking_menu.show("rizom_bridge")
+
+    def b033(self):
+        """Open the UV Transform panel (move / flip / rotate / align / orient / distribute).
+
+        The dedicated tool is co-located with its engine in
+        ``mayatk.uv_utils.uv_transform`` (``UvTransformSlots``) and auto-discovered
+        by ``MayaUiHandler``; Pin (b029) and Stack (b030) remain here as their own
+        buttons.
+        """
+        self.sb.handlers.marking_menu.show("uv_transform")
 
 
 # --------------------------------------------------------------------------------------------

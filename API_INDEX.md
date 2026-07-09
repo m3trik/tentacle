@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-07-08_
+_Generated: 2026-07-09_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -16,7 +16,7 @@ _Generated: 2026-07-08_
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
-  - methods: selected_objects, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
+  - methods: selected_objects, active_object, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
 
 ### `slots/blender/animation.py`
 - `class Animation(SlotsBlender)`
@@ -43,7 +43,7 @@ _Generated: 2026-07-08_
 
 ### `slots/blender/duplicate.py`
 - `class Duplicate(SlotsBlender)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002_init, b005, b000, b006, b007, b008
+  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b005, b000, b006, b007, b008
 
 ### `slots/blender/edit.py`
 - `class Edit(SlotsBlender)`
@@ -124,7 +124,7 @@ _Generated: 2026-07-08_
 
 ### `slots/blender/transform.py`
 - `class TransformSlots(SlotsBlender)`
-  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, chk023_init, chk023, tb001_init, tb001, b002, tb003_init, chk024, chk025
+  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, chk023_init, chk023, tb001_init, tb001, b002, tb003_init, chk024, chk025, chk026
 
 ### `slots/blender/utilities.py`
 - `class Utilities(SlotsBlender)`
@@ -132,7 +132,7 @@ _Generated: 2026-07-08_
 
 ### `slots/blender/uv.py`
 - `class Uv(SlotsBlender)`
-  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, b023, b024, b025, b026, tb007_init, tb007, header_init, uv_snapshot, b031, cmb002_init, cmb002, b000, b003, b004, b029_init, b029, tb008_init, tb008, tb022_init, tb022, tb005_init, tb005, tb006_init, tb006, b030_init, b030, b032, cmb003, s003
+  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030_init, b030, b032, b033, cmb003, s003
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -341,7 +341,7 @@ _Generated: 2026-07-08_
 
 ### `slots/maya/uv.py`
 - `class UvSlots(SlotsMaya)`
-  - methods: get_map_size, header_init, cmb002_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, cmb002, cmb003, s003, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b023, b024, b025, b026, b029_init, b029, b030_init, b030, b031, b032
+  - methods: get_map_size, header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, cmb003, s003, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030_init, b030, b031, b032, b033
 
 ### `slots/maya/visualize.py`
 - `class VisualizeSlots(SlotsMaya)`

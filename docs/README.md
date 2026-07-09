@@ -6,7 +6,7 @@
 
 A Qt marking-menu (pie-menu) launcher for DCC apps. Hold a hotkey, flick toward a wedge, release — the tool runs. Submenus open along the gesture path.
 
-Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~60 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …) and wrapper entry points for Blender and 3ds Max.
+Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~60 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …), a Blender integration with its own slot library in progress, and a thin 3ds Max wrapper.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
@@ -49,6 +49,8 @@ Defined in [`tcl_maya.py`](../tentacle/tcl_maya.py); chords are parsed by `uitk.
 | `Z + LMB + RMB`                    | `maya#startmenu`      |
 
 `Ctrl+Shift+R` repeats the last command (configurable in **Preferences**).
+
+The bare-key landing menu (`hud#startmenu`) is a live HUD: scene status, current selection and component info, and rule-based warning icons — each warning check is individually toggleable.
 
 ## How it works
 
@@ -99,7 +101,7 @@ tentacle/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
 │   ├── maya/              ~60 SlotsMaya subclasses
 │   └── blender/           SlotsBlender subclasses (Phase 3+)
-└── ui/                    .ui definitions; maya_menus/ holds Maya submenus
+└── ui/                    .ui definitions; maya_menus/ + blender_menus/ hold DCC submenus
 ```
 
 ## Platform support

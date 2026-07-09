@@ -13,8 +13,23 @@ class SlotsBlender(Slots):
 
     @staticmethod
     def selected_objects():
-        """The current object selection (filtered of ``None``) — shared by all Blender slots."""
-        return [o for o in (bpy.context.selected_objects or []) if o]
+        """The current object selection (filtered of ``None``) — shared by all Blender slots.
+
+        Delegates to ``btk.selected_objects`` (the SSoT reader), which reads the selection from
+        ``view_layer.objects`` rather than ``bpy.context.selected_objects``. The latter is a
+        *screen-context* member that returns ``[]`` whenever ``bpy.context.window`` is ``None`` —
+        the state the slots run in when driven from tentacle's Qt event-pump timer — which is why
+        operations reported *nothing selected* while an object was in fact selected."""
+        return btk.selected_objects()
+
+    @staticmethod
+    def active_object():
+        """The active object (or ``None``) — shared by all Blender slots.
+
+        Delegates to ``btk.active_object`` (reads ``view_layer.objects.active``), robust against the
+        ``bpy.context.window is None`` state the Qt event-pump timer context exhibits, unlike
+        ``bpy.context.active_object`` (which returns ``None`` there)."""
+        return btk.active_object()
 
     def set_viewport_tool(self, tool_id, label=None):
         """Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
@@ -46,10 +61,8 @@ class SlotsBlender(Slots):
         except Exception as e:
             self.sb.message_box(str(e))
             return False
-        for window in bpy.context.window_manager.windows:
-            for area in window.screen.areas:
-                if area.type == "VIEW_3D":
-                    area.tag_redraw()
+        for area in btk.get_areas("VIEW_3D"):
+            area.tag_redraw()
         if label:
             self.sb.message_box(f"<hl>{label}</hl> tool active.")
         return True
@@ -79,7 +92,7 @@ class SlotsBlender(Slots):
         """Run native Data-Transfer from the active mesh to the other selected meshes
         (shared by Transfer Normals / Transfer UVs). Returns True when the op ran."""
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active not in objects or len(objects) < 2:
             self.sb.message_box("Select target mesh(es) with the source mesh active.")
             return False

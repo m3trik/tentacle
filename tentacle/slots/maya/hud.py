@@ -12,13 +12,14 @@ from tentacle.slots.maya._slots_maya import SlotsMaya
 
 class StatusMixin:
     def insert_scene_status(self, hud) -> None:
-        # New version?
+        # New version? (Update via the settings header's "Update Package"
+        # button — the old auto-update option is gone, and its stale
+        # ``sb.settings.tb000.menu.auto_update`` widget-chain crashed here:
+        # ``sb.settings`` is a SettingsManager now, not the settings window.)
         if self.new_version_available:
             hud.insertText(
                 f'New release available: <font style="color: Cyan;">{self.latest_ver}</font>'
             )
-            if self.sb.settings.tb000.menu.auto_update:
-                self.sb.check_for_update()
         # Symmetry status
         if cmds.symmetricModelling(q=True, symmetry=True):
             axis = cmds.symmetricModelling(q=True, axis=True)
