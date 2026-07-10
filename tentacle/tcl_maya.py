@@ -41,6 +41,10 @@ class TclMaya(MarkingMenu):
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,
+            # Scoped preloading: warm the five binding-target startmenus once
+            # Maya's event loop is idle, so the FIRST key_show press behaves
+            # exactly like every later one (no cold-page lag/settle).
+            preload=True,
             context_tags={"maya"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
@@ -53,6 +57,20 @@ class TclMaya(MarkingMenu):
                 _editor_name,
                 lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
             )
+
+        # Apply the user's active macro preset on launch so its hotkeys are live
+        # immediately — without opening the Macro Manager. Maya persists
+        # non-default hotkeys on its own (mayatk's docstring calls this out as
+        # NOT a startup requirement), but re-applying makes the preset the
+        # deterministic source of truth: the saved bindings win over anything
+        # re-bound through Maya's native hotkey editor since the preset was
+        # saved. Also matches TclBlender, where this call IS required (the
+        # addon keyconfig doesn't outlive the process).
+        # No active preset -> a no-op (the shipped 'default' set is empty).
+        try:
+            mtk.Macros.apply_saved_macros()
+        except Exception as error:  # never let a preset issue block launch
+            print(f"# Warning: tentacle: apply_saved_macros failed: {error} #")
 
         # External apps (compositor, photogrammetry, texture/mesh tools)
         # self-describe via ``extapps``'s ``uitk.external_apps.in_process``

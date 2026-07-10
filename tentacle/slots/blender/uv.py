@@ -14,7 +14,7 @@ class Uv(SlotsBlender):
     angle-band hard-edge cut) run as ``bpy.ops.uv.*`` in edit mode via :meth:`_uv_op` (verified to
     work headless). Data-level UV work (pin/stack/texel density/UV-set cleanup) is backed by
     ``blendertk.uv_utils`` (bmesh — headless); move/transform/mirror/straighten/distribute live in
-    the blendertk ``uv_transform`` panel (launched via b033); UV transfer rides the native
+    the blendertk ``shell_xform`` panel (launched via b033); UV transfer rides the native
     Data-Transfer operator; RizomUV is a one-way bridge. The deferred Maya-only depth is in the
     parity overrides (RizomUV/u3dLayout packing params + the unwrap_cylinder crease algorithm).
     """
@@ -340,14 +340,9 @@ class Uv(SlotsBlender):
         self.sb.message_box(f"{header}<br><br>" + "<br>".join(lines))
 
     def header_init(self, widget):
-        """Header menu — UV Transform + Create UV Snapshot + RizomUV Bridge (all reuse the Maya
-        objectNames + labels, cross-DCC QSettings rule). Open UV Editor is already on ``b031``."""
-        widget.menu.add(
-            "QPushButton", setText="UV Transform", setObjectName="btn_uv_transform",
-            setToolTip="Open the UV Transform panel "
-            "(move / flip / rotate / straighten / mirror / distribute).",
-            clicked=lambda: self.b033(),
-        )
+        """Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
+        cross-DCC QSettings rule). Open UV Editor is already on ``b031``; Shell Xform is the
+        ``More..`` button in the Transform group (``b033``)."""
         widget.menu.add(
             "QPushButton", setText="Create UV Snapshot", setObjectName="uv_snapshot",
             setToolTip="Export the active mesh's UV layout to an image (native Export UV Layout) "
@@ -520,10 +515,12 @@ class Uv(SlotsBlender):
         self.sb.handlers.marking_menu.show("rizom_bridge")
 
     def b033(self):
-        """Open the UV Transform panel — co-located blendertk tool in
-        ``blendertk.uv_utils.uv_transform`` (``UvTransformSlots``), discovered by
-        ``BlenderUiHandler``. Mirrors Maya's b033. Pin (b029) and Stack (b030) stay here."""
-        self.sb.handlers.marking_menu.show("uv_transform")
+        """Open the Shell Xform panel — the ``More..`` button in the Transform group.
+
+        Co-located blendertk tool in ``blendertk.uv_utils.shell_xform``
+        (``ShellXformSlots``), discovered by ``BlenderUiHandler``. Mirrors Maya's b033;
+        Pin (b029) and Stack (b030) sit beside it in the same group."""
+        self.sb.handlers.marking_menu.show("shell_xform")
 
     def cmb003(self, index, widget):
         """UV Map Size — passive input; read by get_map_size for the texel-density tools.

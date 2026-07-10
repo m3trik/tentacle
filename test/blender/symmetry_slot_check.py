@@ -35,7 +35,8 @@ def check(name, cond, detail=""):
 def make_slot(cls):
     """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
     slot = cls.__new__(cls)
-    slot.sb = NS(message_box=lambda *a, **k: None)
+    slot.messages = []
+    slot.sb = NS(message_box=lambda *a, **k: slot.messages.append(a[0] if a else ""))
     return slot
 
 
@@ -72,6 +73,10 @@ try:
     slot.chk000(state=True, widget=None)
     check("chk000 sets use_mirror_x on both selected meshes",
           a.data.use_mirror_x and b.data.use_mirror_x)
+    check("chk000 posts 'Symmetry: <space> <hl>X</hl>' feedback",
+          bool(slot.messages) and slot.messages[-1].startswith("Symmetry:")
+          and "<hl>X</hl>" in slot.messages[-1],
+          f"msg={(slot.messages or [None])[-1]!r}")
     slot.chk001(state=True, widget=None)
     slot.chk002(state=True, widget=None)
     check("chk001/chk002 set y/z", a.data.use_mirror_y and a.data.use_mirror_z)

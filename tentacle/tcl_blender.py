@@ -878,6 +878,12 @@ class TclBlender(MarkingMenu):
             handlers={"ui": BlenderUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
+            # Scoped preloading: warm the binding-target startmenus once
+            # Blender's event loop is idle, so the FIRST activation behaves
+            # exactly like every later one (no cold-page lag/settle). The
+            # blender#startmenu target resolves like any other page; a
+            # host-synthesized target would simply be skipped.
+            preload=True,
             context_tags={"blender"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
@@ -903,6 +909,20 @@ class TclBlender(MarkingMenu):
             _KeymapBridge.install_poller(self, key_show)
         except Exception as error:
             print(f"{__file__}: Blender keymap bridge skipped: {error}")
+
+        # Apply the user's active macro preset on launch so its hotkeys are live
+        # immediately. Essential on Blender: the addon keyconfig only lives for
+        # the current process, so — unlike Maya's persisted runtimeCommands —
+        # macro bindings must be re-applied every launch (the active-preset name
+        # persists via the panel's combo, but the keymap itself does not). This
+        # is the ``tentacle_startup.py`` entry point referenced by
+        # ``Macros.apply_saved_macros``. No active preset -> a no-op.
+        try:
+            from blendertk.edit_utils.macros import Macros
+
+            Macros.apply_saved_macros()
+        except Exception as error:  # never let a preset issue block launch
+            print(f"{__file__}: apply_saved_macros skipped: {error}")
 
         # Own the overlay to Blender's GHOST window so the OS keeps it stacked above Blender.
         self._parent_to_blender(self)

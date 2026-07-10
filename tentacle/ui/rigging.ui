@@ -128,7 +128,7 @@
        </widget>
       </item>
       <item>
-       <widget class="CollapsableGroup" name="create">
+       <widget class="CollapsableGroup" name="create_group">
         <property name="title">
          <string>Create</string>
         </property>

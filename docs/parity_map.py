@@ -43,10 +43,6 @@ CONTROLS = {
     # No entry needed here anymore -- nothing to ledger.
     "rizom_bridge_slots": {
         "cmb000": {"status": "na", "reason": "Lua preset-script picker; the thin Blender bridge has no Lua script-template machinery (one-way send, no preset/param/round-trip)"},
-        "btnopen_uv_editor": {
-            "status": "na",
-            "reason": "thin Blender bridge has no header menu (help-text only)",
-        },
         "btn_open_scripts": {
             "status": "na",
             "reason": "no Lua script-template machinery in the thin Blender bridge",
@@ -327,10 +323,10 @@ CONTROLS = {
         # the label differences are report-only setText review deltas, not divergences to ledger.
         "select_file_node": {"status": "na", "reason": "no separable file node in Blender (kept as a disabled structural placeholder in the Blender panel)"},
     },
-    # UV Transform tool (co-located mayatk/blendertk uv_utils/uv_transform.py). The Blender twin
+    # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). The Blender twin
     # ships the shared subset (move / flip / rotate / straighten / mirror / distribute); the
     # Maya-only shell ops below wrap Maya UV-editor MEL with no bpy operator analogue.
-    "uv_transform": {
+    "shell_xform": {
         "align_u_min": {"status": "na", "reason": "Maya UV-editor align (performAlignUV minU) snaps the selected UVs to their min U; Blender ships no per-selection UV align-to-bound operator."},
         "align_u_avg": {"status": "na", "reason": "Maya performAlignUV avgU (align selected UVs to their average U); no Blender UV-align operator."},
         "align_u_max": {"status": "na", "reason": "Maya performAlignUV maxU (align selected UVs to their max U); no Blender UV-align operator."},
@@ -748,8 +744,8 @@ DEFAULT_DELTAS = {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
     },
     # uv.cmb002 (the 17->3 Transform submenu) was relocated 2026-07-08 into the dedicated UV
-    # Transform tool (co-located mayatk/blendertk uv_utils/uv_transform.py). The Maya-only ops
-    # (Align/Orient/Gather/Randomize/select filters) are now ledgered under CONTROLS["uv_transform"]
+    # Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). The Maya-only ops
+    # (Align/Orient/Gather/Randomize/select filters) are now ledgered under CONTROLS["shell_xform"]
     # as `na`; Flip/Rotate (+ the move pad and Straighten/Mirror/Distribute) ship in the Blender
     # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
     # (no "uv" entry needed here while the panel has no other triaged deltas).
