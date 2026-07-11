@@ -178,8 +178,8 @@ try:
     seams = sum(1 for e in o.data.edges if e.use_seam)
     check("uv tb022 seams all 12 sharp cube edges", seams == 12, f"seams={seams}")
 
-    # (uv cmb002 / tb005 / tb006 / tb008 moved to the blendertk uv_transform panel — the
-    # tentacle Uv slot only launches it now; see blendertk/uv_utils/uv_transform.py.)
+    # (uv cmb002 / tb005 / tb006 / tb008 moved to the blendertk shell_xform panel — the
+    # tentacle Uv slot only launches it now; see blendertk/uv_utils/shell_xform.py.)
 
     # ---- polygons b043: target-weld toggle ----------------------------------------------------
     ts = bpy.context.scene.tool_settings
@@ -460,7 +460,7 @@ try:
           btk.get_uv_coords([o])[o.name] != snap_after_stack[o.name]
           and round(btk.get_uv_coords([o])[o.name][0][0], 3) == 0.0)
 
-    # (uv tb005 Straighten / tb006 Distribute moved to the blendertk uv_transform panel with
+    # (uv tb005 Straighten / tb006 Distribute moved to the blendertk shell_xform panel with
     # the rest of the transform cluster — no longer tentacle Uv slot methods.)
 
     # ---- scene b005 / cameras b007: headless has no window / 3D view -> message, no crash

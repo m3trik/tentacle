@@ -39,6 +39,7 @@
 | SceneExporter | 0 | 0 | 0 | 0 | OK |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
+| ShellXform | 0 | 0 | 13 | 0 | OK |
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
@@ -46,7 +47,6 @@
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
 | TubeRig | 0 | 9 | 4 | 1 | open |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
-| UvTransform | 0 | 0 | 13 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 1 | OK |
 
 ### Panel deltas

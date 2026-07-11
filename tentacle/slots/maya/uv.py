@@ -45,13 +45,6 @@ class UvSlots(SlotsMaya):
         """Initialize UV Menu Header"""
         widget.menu.add(
             "QPushButton",
-            setText="UV Transform",
-            setObjectName="btn_uv_transform",
-            setToolTip="Open the UV Transform panel (move / flip / rotate / align / orient / distribute).",
-        )
-        widget.menu.btn_uv_transform.clicked.connect(lambda: self.b033())
-        widget.menu.add(
-            "QPushButton",
             setText="Create UV Snapshot",
             setObjectName="uv_snapshot",
             setToolTip="Save an image file of the current UV layout.",
@@ -1198,14 +1191,14 @@ class UvSlots(SlotsMaya):
         self.sb.handlers.marking_menu.show("rizom_bridge")
 
     def b033(self):
-        """Open the UV Transform panel (move / flip / rotate / align / orient / distribute).
+        """Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).
 
-        The dedicated tool is co-located with its engine in
-        ``mayatk.uv_utils.uv_transform`` (``UvTransformSlots``) and auto-discovered
-        by ``MayaUiHandler``; Pin (b029) and Stack (b030) remain here as their own
-        buttons.
+        The ``More..`` button in the Transform group. The dedicated tool is
+        co-located with its engine in ``mayatk.uv_utils.shell_xform``
+        (``ShellXformSlots``) and auto-discovered by ``MayaUiHandler``; Pin
+        (b029) and Stack (b030) sit beside it in the same group.
         """
-        self.sb.handlers.marking_menu.show("uv_transform")
+        self.sb.handlers.marking_menu.show("shell_xform")
 
 
 # --------------------------------------------------------------------------------------------

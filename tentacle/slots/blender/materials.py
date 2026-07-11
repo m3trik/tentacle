@@ -353,7 +353,6 @@ class MaterialsSlots(SlotsBlender):
         widget.clear()
         current = self.ui.cmb002.currentData()
         root = widget.add(f"Assign: {current.name}" if current else "Assign")
-        root.sublist.setMinimumWidth(widget.width() or 160)
         root.sublist.add("New")
         root.sublist.add("Random")
         for mat in btk.get_scene_mats(sort=True):
@@ -400,7 +399,6 @@ class MaterialsSlots(SlotsBlender):
         widget.fixed_item_height = 18
         widget.apply_preset("expand_up")
         root = widget.add("Tools")
-        root.sublist.setMinimumWidth(widget.width() or 160)
         for category, items in self._TOOLS_ITEMS.items():
             cat = root.sublist.add(category)
             for label, _slot, *rest in items:

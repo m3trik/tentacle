@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-09_
+_Generated: 2026-07-10_
 
 ## Index
 
@@ -662,7 +662,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Uv.b021(self, widget)` — Unfold and Pack UVs
   - `Uv.tb007_init(self, widget)` — Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,
   - `Uv.tb007(self, widget)` — Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).
-  - `Uv.header_init(self, widget)` — Header menu — UV Transform + Create UV Snapshot + RizomUV Bridge (all reuse the Maya
+  - `Uv.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
   - `Uv.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
   - `Uv.b031(self)` — Open UV Editor
   - `Uv.b000(self, widget)` — Transfer UVs (active mesh → other selected, native Data-Transfer).
@@ -675,7 +675,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Uv.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
   - `Uv.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
   - `Uv.b032(self)` — RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
-  - `Uv.b033(self)` — Open the UV Transform panel — co-located blendertk tool in
+  - `Uv.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
   - `Uv.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `Uv.s003(self, value, widget)` — Texel Density — passive input;
 
@@ -1411,7 +1411,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `UvSlots.b030(self, widget)` — Stack / Unstack similar shells (dual-state toggle).
   - `UvSlots.b031(self)` — Open UV Editor
   - `UvSlots.b032(self)` — RizomUV Bridge
-  - `UvSlots.b033(self)` — Open the UV Transform panel (move / flip / rotate / align / orient / distribute).
+  - `UvSlots.b033(self)` — Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`
@@ -1428,25 +1428,25 @@ Shared HUD warning framework (DCC-agnostic).
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1365) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1370) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1375) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1380) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1385) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register()`](tentacle/tentacle/tcl_blender.py#L1390) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1395) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L1400) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1405) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1410) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1415) — Remove the click tracer.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1385) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1390) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1395) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1400) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1405) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register()`](tentacle/tentacle/tcl_blender.py#L1410) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1415) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L1420) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1425) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1430) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1435) — Remove the click tracer.
 - **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L833)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1196)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1216)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report()` *(static)* — Return (and print) the live activation state — run in Blender's Python console to see why
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1271)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1291)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register()` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

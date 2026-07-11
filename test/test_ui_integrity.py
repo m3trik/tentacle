@@ -238,5 +238,52 @@ class TestMenuButtonTargets(unittest.TestCase):
         self.assertGreater(n1 + n2, 0, "No MenuButton widgets found to validate")
 
 
+class TestNoShadowedObjectNames(unittest.TestCase):
+    """No widget objectName may shadow a callable attribute on uitk's MainWindow.
+
+    ``MainWindow.register_widget`` binds each child widget as an attribute keyed by
+    its objectName, but refuses (with a HUD warning) any name that collides with a
+    callable already on the class — e.g. a group named ``create`` shadows
+    ``QWidget.create()``. The widget is then unreachable via ``sb.<name>`` and
+    silently degrades. This guards every .ui against that whole collision class,
+    replicating the exact runtime check
+    (mainWindow.py: ``callable(getattr(type(self), name, None))``).
+    """
+
+    def _object_names(self, directory: Path):
+        """(file, objectName) for every ``<widget>`` under *directory*, recursively."""
+        names = []
+        for f in directory.rglob("*.ui"):
+            for w in ET.parse(f).getroot().iter("widget"):
+                name = w.get("name")
+                if name:
+                    names.append((f.name, name))
+        return names
+
+    def test_no_objectname_shadows_mainwindow(self):
+        try:
+            from uitk.widgets.mainWindow import MainWindow
+        except ImportError as e:  # Qt/uitk absent (e.g. minimal env) — nothing to check
+            self.skipTest(f"uitk/PySide unavailable: {e}")
+
+        names = self._object_names(UI_DIR)
+        # Guard against a vacuous pass (parsing finding zero widgets).
+        self.assertGreater(len(names), 0, "No widget objectNames found to validate")
+
+        offenders = sorted(
+            {
+                f"{fname}:{name}"
+                for fname, name in names
+                if callable(getattr(MainWindow, name, None))
+            }
+        )
+        self.assertEqual(
+            offenders,
+            [],
+            "objectName(s) shadow a MainWindow callable and won't bind as attributes "
+            f"— rename them: {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

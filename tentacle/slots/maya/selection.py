@@ -20,7 +20,6 @@ class Selection(SlotsMaya):
         widget.apply_preset("expand_up")
 
         root = widget.add("By Type")
-        root.sublist.setMinimumWidth(widget.width() or 120)
 
         categories = mtk.Selection.get_selection_categories()
         for category, types in categories.items():

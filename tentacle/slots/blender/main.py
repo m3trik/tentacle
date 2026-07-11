@@ -75,14 +75,12 @@ class Main(SlotsBlender):
 
         # --- workspace editing ---
         set_ws = widget.add("Set Workspace", data="__set_dir__")
-        set_ws.sublist.setMinimumWidth(widget.width())
         set_ws.sublist.add("Auto Set Workspace", data="__auto__")
         # Recent workspaces nest one level deeper, under Set Workspace (parent row has no
         # data so it only expands, never sets a workspace); valid workspace folders only.
         valid = self._workspace_store.valid_values()
         if valid:
             recent = set_ws.sublist.add("Recent Workspaces")
-            recent.sublist.setMinimumWidth(widget.width())
             display = self._workspace_store.display_map(valid)
             for path in valid:
                 recent.sublist.add(display[path], data=("__recent__", path))
@@ -92,7 +90,6 @@ class Main(SlotsBlender):
         workspace_dir = btk.get_env_info("workspace_dir")
         if workspace and os.path.isdir(workspace):
             w = widget.add(f"Current Workspace: {workspace_dir}", data=workspace)
-            w.sublist.setMinimumWidth(widget.width())
             self._populate_dir_contents(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)

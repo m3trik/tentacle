@@ -25,6 +25,20 @@ class Symmetry(SlotsBlender):
         for o in self._selected_meshes():
             setattr(o.data, f"use_mirror_{axis}", bool(state))
 
+    def _report_symmetry_state(self):
+        """When an axis is mirrored, surface it as ``Symmetry: <space> <axis>`` (axis
+        highlighted); stay silent otherwise. Reading the active mesh rather than the
+        ``state`` arg keeps the feedback accurate through the radio deselect cascade."""
+        active = bpy.context.view_layer.objects.active
+        if not (active and active.type == "MESH"):
+            return
+        me = active.data
+        axes = [a.upper() for a in ("x", "y", "z") if getattr(me, f"use_mirror_{a}")]
+        if not axes:
+            return
+        space = "Topological" if me.use_mirror_topology else "Position"
+        self.sb.message_box(f"Symmetry: {space} <hl>{'+'.join(axes)}</hl>")
+
     # ------------------------------------------------------------------ chk000-2  axis symmetry
     def chk000_init(self, widget):
         """Set initial symmetry state from the active mesh."""
@@ -43,14 +57,17 @@ class Symmetry(SlotsBlender):
     def chk000(self, state, widget):
         """Symmetry X"""
         self._set_mirror("x", state)
+        self._report_symmetry_state()
 
     def chk001(self, state, widget):
         """Symmetry Y"""
         self._set_mirror("y", state)
+        self._report_symmetry_state()
 
     def chk002(self, state, widget):
         """Symmetry Z"""
         self._set_mirror("z", state)
+        self._report_symmetry_state()
 
     # ------------------------------------------------------------------ chk004-5  match mode
     def chk004(self, state, widget):
@@ -59,6 +76,7 @@ class Symmetry(SlotsBlender):
         if state:
             for o in self._selected_meshes():
                 o.data.use_mirror_topology = False
+            self._report_symmetry_state()
 
     def chk005_init(self, widget):
         """Set symmetry reference space (position vs topology)."""
@@ -68,6 +86,7 @@ class Symmetry(SlotsBlender):
         """Symmetry: Topo (match mirrored verts by topology instead of position)."""
         for o in self._selected_meshes():
             o.data.use_mirror_topology = bool(state)
+        self._report_symmetry_state()
 
 
 # --------------------------------------------------------------------------------------------
