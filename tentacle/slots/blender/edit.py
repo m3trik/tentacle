@@ -338,7 +338,6 @@ class Edit(SlotsBlender):
         widget.fixed_item_height = 18
         widget.apply_preset("expand_left")
         root = widget.add("Create")
-        root.sublist.setMinimumWidth(widget.width() or 120)
 
         categories = {
             "Polygon": list(self._PRIMITIVES["Polygon"]),

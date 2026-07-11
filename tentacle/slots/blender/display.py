@@ -65,7 +65,6 @@ class DisplaySlots(SlotsBlender):
         widget.fixed_item_height = 18
         widget.apply_preset("expand_overlay_left")
         root = widget.add("Display")
-        root.sublist.setMinimumWidth(widget.width() or 120)
         for category, items in self._LIST000_ITEMS.items():
             cat = root.sublist.add(category)
             cat.sublist.add([label for label, _ in items])

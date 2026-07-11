@@ -138,7 +138,6 @@ class MaterialsSlots(SlotsMaya):
         current = self.ui.cmb002.currentData()
         root_text = f"Assign: {current}" if current else "Assign"
         root = widget.add(root_text)
-        root.sublist.setMinimumWidth(widget.width() or 160)
 
         # Special actions first
         root.sublist.add("New")
@@ -228,7 +227,6 @@ class MaterialsSlots(SlotsMaya):
         widget.apply_preset("expand_up")
 
         root = widget.add("Tools")
-        root.sublist.setMinimumWidth(widget.width() or 160)
 
         for category, items in self._TOOLS_ITEMS.items():
             cat = root.sublist.add(category)

@@ -471,7 +471,6 @@ class Edit(SlotsMaya):
         widget.apply_preset("expand_left")
 
         root = widget.add("Create")
-        root.sublist.setMinimumWidth(widget.width() or 120)
 
         primitives = {
             "Polygon": [

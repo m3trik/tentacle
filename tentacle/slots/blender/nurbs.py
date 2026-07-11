@@ -178,7 +178,6 @@ class Nurbs(SlotsBlender):
         widget.apply_preset("expand_overlay")
 
         root = widget.add("Nurbs")
-        root.sublist.setMinimumWidth(widget.width() or 120)
 
         for category, items in self._LIST000_COMMANDS.items():
             cat = root.sublist.add(category)

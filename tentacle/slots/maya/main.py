@@ -53,7 +53,6 @@ class Main(SlotsMaya):
         # Set Workspace prompts for the project dir on click; its flyout nests
         # the auto-detect alternative and the recent-workspaces sub-flyout.
         set_ws = widget.add("Set Workspace", data="__set_dir__")
-        set_ws.sublist.setMinimumWidth(widget.width())
         set_ws.sublist.add("Auto Set Workspace", data="__auto__")
         # Recent workspaces nest one level deeper, under Set Workspace (parent
         # row has no data so it only expands, never sets a workspace); valid
@@ -61,7 +60,6 @@ class Main(SlotsMaya):
         valid = self._workspace_store.valid_values()
         if valid:
             recent = set_ws.sublist.add("Recent Workspaces")
-            recent.sublist.setMinimumWidth(widget.width())
             display = self._workspace_store.display_map(valid)
             for v in valid:
                 recent.sublist.add(display[v], data=("__recent__", v))
@@ -75,7 +73,6 @@ class Main(SlotsMaya):
             # separators and reliably opens in the system file browser.
             workspace = os.path.normpath(workspace)
             w = widget.add(f"Current Workspace: {workspace_dir}", data=workspace)
-            w.sublist.setMinimumWidth(widget.width())
             self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)

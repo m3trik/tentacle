@@ -384,7 +384,6 @@ class Selection(SlotsBlender):
         widget.fixed_item_height = 18
         widget.apply_preset("expand_up")
         root = widget.add("By Type")
-        root.sublist.setMinimumWidth(widget.width() or 120)
         categories = btk.Selection.get_selection_categories()
         for category, types in categories.items():
             w = root.sublist.add(category)
