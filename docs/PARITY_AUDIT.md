@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 226, Blender 228 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **83%** (365/440) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 26 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **42 present** pairs (of Maya's 47), 3 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 11 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **40%** (643/1597 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **40%** (647/1632 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 40% with 1 module(s) absent (render_utils); 3 panel ports open.
 
@@ -33,13 +33,13 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | light_utils | 57 | 42 | 33 | 58% |
 | mat_utils | 229 | 189 | 163 | 71% |
 | node_utils | 126 | 50 | 42 | 33% |
-| nurbs_utils | 23 | 20 | 15 | 65% |
+| nurbs_utils | 25 | 20 | 15 | 60% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
-| rig_utils | 70 | 66 | 28 | 40% |
-| ui_utils | 70 | 42 | 22 | 31% |
+| rig_utils | 103 | 71 | 34 | 33% |
+| ui_utils | 71 | 42 | 22 | 31% |
 | uv_utils | 62 | 48 | 30 | 48% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1597** | **889** | **643** | **40%** |
+| **TOTAL (unique)** | **1632** | **892** | **647** | **40%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -58,9 +58,9 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | GameShader | 4→4 | 3→1 | 8→8 | 1800→236 | 13% | 100% | clean |
+| TubeRig | 0→0 | 3→1 | 16→7 | 3327→499 | 15% | 44% | 9 open |
 | ArnoldBridge | 0→0 | 6→0 | 4→4 | 729→133 | 18% | 100% | clean |
-| TubeRig | 0→0 | 2→1 | 16→7 | 2523→499 | 20% | 44% | 9 open |
-| ReferenceManager | 2→2 | 34→33 | 4→4 | 2917→996 | 34% | 100% | clean |
+| ReferenceManager | 2→2 | 34→33 | 4→4 | 2927→996 | 34% | 100% | clean |
 | MatUpdater | 0→0 | 15→12 | 2→2 | 1048→395 | 38% | 100% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 749→286 | 38% | 100% | clean |
 | SceneExporter | 3→3 | 16→14 | 6→6 | 1329→532 | 40% | 100% | clean |
@@ -69,33 +69,33 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | Snap | 3→3 | 6→6 | 3→3 | 413→193 | 47% | 100% | clean |
 | Channels | 2→3 | 36→22 | 4→4 | 3131→1522 | 49% | 100% | clean |
 | HierarchyManager | 4→3 ⚠ | 35→31 | 5→5 | 3501→1740 | 50% | 100% | clean |
+| LightmapBaker | 2→2 | 3→2 | 8→8 | 1813→914 | 50% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 15→5 | 2→6 | 803→412 | 51% | 300% | clean |
 | TexturePathEditor | 7→5 ⚠ | 26→21 | 1→1 | 1895→998 | 53% | 100% | clean |
 | DuplicateRadial | 0→0 | 0→0 | 12→12 | 475→255 | 54% | 100% | clean |
-| ShadowRig | 0→0 | 1→1 | 8→8 | 1001→569 | 57% | 100% | clean |
-| LightmapBaker | 2→2 | 3→2 | 8→8 | 1348→824 | 61% | 100% | clean |
 | HdrManager | 2→2 | 13→12 | 4→4 | 1706→1092 | 64% | 100% | clean |
 | ShellXform | 6→6 | 11→11 | 23→12 | 413→263 | 64% | 52% | clean |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 534→354 | 66% | 100% | clean |
 | DuplicateGrid | 0→0 | 1→1 | 8→8 | 349→233 | 67% | 100% | clean |
 | CutOnAxis | 0→0 | 0→0 | 10→10 | 161→120 | 75% | 100% | clean |
+| ShadowRig | 0→0 | 2→1 | 9→9 | 1217→988 | 81% | 100% | clean |
+| WheelRig | 1→1 | 2→2 | 7→7 | 676→559 | 83% | 100% | clean |
 | ColorId | 0→0 | 1→0 | 8→8 | 548→460 | 84% | 100% | clean |
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 187→162 | 87% | 100% | clean |
+| TelescopeRig | 0→0 | 0→0 | 2→2 | 319→276 | 87% | 100% | clean |
 | SubstanceBridge | 0→0 | 0→0 | 2→2 | 218→195 | 89% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 276→248 | 90% | 100% | clean |
 | Curtain | 0→0 | 1→1 | 13→13 | 867→799 | 92% | 100% | clean |
 | UnityBridge | 1→1 | 1→1 | 2→2 | 321→295 | 92% | 100% | clean |
-| WheelRig | 1→1 | 2→2 | 7→7 | 608→559 | 92% | 100% | clean |
 | BlendshapeAnimator | 10→10 | 13→12 | 15→15 | 863→827 | 96% | 100% | clean |
 | Bridge | 0→0 | 0→0 | 5→5 | 262→254 | 97% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 286→280 | 98% | 100% | clean |
 | DuplicateLinear | 0→0 | 2→2 | 7→7 | 331→329 | 99% | 100% | clean |
-| TelescopeRig | 0→0 | 0→0 | 2→2 | 272→276 | 101% | 100% | clean |
-| MacroManager | 1→1 | 6→6 | 3→3 | 598→618 | 103% | 100% | clean |
+| MacroManager | 1→1 | 6→6 | 3→3 | 600→619 | 103% | 100% | clean |
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 199→211 | 106% | 100% | clean |
 | SmartBake | 0→0 | 3→3 | 12→10 | 285→305 | 107% | 83% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 230→250 | 109% | 100% | clean |
-| Naming | 13→13 | 26→26 | 6→6 | 461→517 | 112% | 100% | clean |
+| Naming | 13→13 | 26→26 | 6→6 | 465→521 | 112% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 207→239 | 115% | 100% | clean |
 | RenderOpacity | 3→3 | 6→6 | 4→4 | 355→413 | 116% | 100% | clean |
 | Bevel | 0→0 | 0→0 | 3→3 | 139→162 | 117% | 100% | clean |
