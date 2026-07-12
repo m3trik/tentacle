@@ -140,7 +140,7 @@ Shared HUD warning framework (DCC-agnostic).
 ### `slots/blender/animation.py`
 
 - **[`class Animation(SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
-  - `Animation.header_init(self, widget)` — Header menu — mirror of the Maya animation header (the portable subset).
+  - `Animation.header_init(self, widget)` — Header menu — mirror of the Maya animation header.
   - `Animation.tb000_init(self, widget)`
   - `Animation.tb000(self, widget)` — Go To Frame (absolute, or relative offset from the current frame);
   - `Animation.tb001_init(self, widget)`
@@ -183,8 +183,8 @@ Shared HUD warning framework (DCC-agnostic).
   - `Animation.tb015_init(self, widget)`
   - `Animation.tb015(self, widget)` — Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;
   - `Animation.tb020(self, widget)` — Smart Bake
-  - `Animation.b000(self)` — Shot Sequencer — Maya's shot-node / scene-per-shot ripple editor.
-  - `Animation.b004(self)` — Shot Manifest — Maya's CSV-driven scene-assembly tool (built on Maya's shot nodes).
+  - `Animation.b000(self)` — Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
+  - `Animation.b004(self)` — Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
 
 <a id="slots--blender--blender"></a>
 ### `slots/blender/blender.py`
@@ -509,7 +509,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
 
-- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L12)** — Blender port of the shared ``scene`` menu.
+- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L13)** — Blender port of the shared ``scene`` menu.
   - `SceneSlots.header_init(self, widget)` — Header menu — mirror of the Maya scene header (portable subset).
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
@@ -534,6 +534,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b004(self)` — Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
   - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
+  - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of
 
 <a id="slots--blender--selection"></a>
 ### `slots/blender/selection.py`
@@ -650,7 +651,7 @@ Shared HUD warning framework (DCC-agnostic).
 - **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
   - `Uv.get_map_size(self)` — Get the map size from the combobox as an int.
   - `Uv.tb000_init(self, widget)`
-  - `Uv.tb000(self, widget)` — Pack UVs (into the 0-1 square, then shifted into the target UDIM tile).
+  - `Uv.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), into the 0-1 square, then
   - `Uv.tb001_init(self, widget)`
   - `Uv.tb001(self, widget)` — Auto Unwrap (Smart UV Project / Cube / Cylinder / Sphere projection).
   - `Uv.tb004_init(self, widget)`
@@ -1194,7 +1195,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L15)**
+- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L16)**
   - `SceneSlots.header_init(self, widget)` — Initialize Header
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
   - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
@@ -1218,6 +1219,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the audit report to the viewer dialog.
   - `SceneSlots.b011(self)` — Fix Color Spaces
   - `SceneSlots.b012(self)` — Toggle Command Ports
+  - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer.
   - `SceneSlots.b007(self)` — Import file: import a file via Maya's Import dialog.
   - `SceneSlots.b008(self)` — Export Selection
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)

@@ -635,140 +635,14 @@ class TestTb004ObjectModeGuard(unittest.TestCase):
         self.assertFalse(self.instance.sb.messages)
 
 
-class _FakeItemsWidget:
-    """Mimics a uitk ComboBox for cmb002: exposes .items (index→label)."""
-
-    def __init__(self, items):
-        self.items = items
-
-
-class _FakeAddWidget:
-    """Captures the item list passed to ComboBox.add by cmb002_init."""
-
-    def __init__(self):
-        self.added = None
-        self.header = None
-
-    def add(self, items, header=None, **kwargs):
-        self.added = list(items)
-        self.header = header
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestCmb002Dispatch(unittest.TestCase):
-    """cmb002 (UV Transform menu) maps each label to the right operation.
-
-    The runtime commands themselves (UVGatherShells, RandomizeShells,
-    texOrientEdge) are Maya UI runtime commands that don't exist in headless
-    mayapy — they were verified to run in a live GUI Maya. These tests pin the
-    label→command *wiring* (and the guards) by capturing mel.eval / the mtk
-    delegates, which is what regresses when the menu list drifts.
-    """
-
-    # Mirror of cmb002_init's list so index↔label matches the real UI.
-    ITEMS = [
-        "Flip U",
-        "Flip V",
-        "Rotate 45",
-        "Align U Left",
-        "Align U Middle",
-        "Align U Right",
-        "Align V Top",
-        "Align V Middle",
-        "Align V Bottom",
-        "Linear Align",
-        "Orient Shells",
-        "Orient to Edges",
-        "Gather Shells",
-        "Randomize Shells",
-        "Back Facing",
-        "Overlapping",
-        "Unmapped",
-    ]
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def _run(self, label):
-        self.instance.cmb002(self.ITEMS.index(label), _FakeItemsWidget(self.ITEMS))
-
-    def test_init_list_matches_dispatch_labels(self):
-        """cmb002_init adds exactly ITEMS — guards index/label drift between the
-        menu and the handler's `widget.items[index]` lookup."""
-        widget = _FakeAddWidget()
-        self.instance.cmb002_init(widget)
-        self.assertEqual(widget.added, self.ITEMS)
-        self.assertEqual(widget.header, "Transform:")
-
-    def test_align_v_maps_to_v_axis(self):
-        """Regression: the V-align items previously matched dead `Align U Top/
-        Middle/Bottom` branches and never fired. They must map to maxV/avgV/minV."""
-        calls = []
-        with mock.patch.object(uv_module.mel, "eval", lambda s: calls.append(s)):
-            self._run("Align V Top")
-            self._run("Align V Middle")
-            self._run("Align V Bottom")
-        self.assertEqual(
-            calls,
-            ['performAlignUV "maxV"', 'performAlignUV "avgV"', 'performAlignUV "minV"'],
-        )
-
-    def test_gather_and_randomize_run_maya_commands(self):
-        calls = []
-        with mock.patch.object(uv_module.mel, "eval", lambda s: calls.append(s)):
-            self._run("Gather Shells")
-            self._run("Randomize Shells")
-        self.assertEqual(calls, ["UVGatherShells", "RandomizeShells"])
-
-    def test_orient_shells_requires_selection(self):
-        cmds.select(clear=True)
-        with mock.patch.object(mtk.UvUtils, "orient_shells") as orient:
-            self._run("Orient Shells")
-        orient.assert_not_called()
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_orient_shells_dispatches_with_selection(self):
-        cube = cmds.polyCube()[0]
-        cmds.select(cube, replace=True)
-        with mock.patch.object(mtk.UvUtils, "orient_shells") as orient:
-            self._run("Orient Shells")
-        orient.assert_called_once()
-        self.assertFalse(self.instance.sb.messages)
-
-    def test_orient_to_edges_requires_edge(self):
-        cube = cmds.polyCube()[0]
-        cmds.select(cube, replace=True)  # object, not an edge
-        calls = []
-        with mock.patch.object(uv_module.mel, "eval", lambda s: calls.append(s)):
-            self._run("Orient to Edges")
-        self.assertEqual(calls, [])  # command withheld
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_orient_to_edges_runs_with_edge_selected(self):
-        cube = cmds.polyCube()[0]
-        cmds.select(f"{cube}.e[0]", replace=True)
-        calls = []
-        with mock.patch.object(uv_module.mel, "eval", lambda s: calls.append(s)):
-            self._run("Orient to Edges")
-        self.assertEqual(calls, ["texOrientEdge"])
-        self.assertFalse(self.instance.sb.messages)
-
-    def test_selection_filters_delegate_with_mayatk_labels(self):
-        """Back Facing / Overlapping / Unmapped delegate to Selection.select_by_type
-        using mayatk's canonical labels (note the hyphen in "Back-Facing")."""
-        with mock.patch.object(mtk.Selection, "select_by_type") as sel:
-            self._run("Back Facing")
-            self._run("Overlapping")
-            self._run("Unmapped")
-        self.assertEqual(
-            [c.args[0] for c in sel.call_args_list],
-            ["Back-Facing", "Overlapping", "Unmapped"],
-        )
+# TestCmb002Dispatch (+ its _FakeItemsWidget/_FakeAddWidget helpers) removed 2026-07-12:
+# the cmb002 "UV Transform" menu it drove was relocated wholesale to the mayatk
+# shell_xform panel on 2026-07-09 (commit e80fcdc0, "UV transform cluster relocated to
+# the DCC engines") — UvSlots has no cmb002/cmb002_init anymore, so all 8 tests raised
+# AttributeError under mayapy. The capability's coverage now lives with the engine:
+# mayatk/mayatk/uv_utils/shell_xform.py + mayatk/test/test_uv_utils.py (op-level), and
+# the Blender twin via blendertk's shell_xform + tentacle/test/blender checks — the
+# same relocation note as test/blender/uv_slot_check.py's tb005/tb008 removal.
 
 
 if __name__ == "__main__":

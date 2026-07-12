@@ -72,6 +72,19 @@ class Uv(SlotsBlender):
     def tb000_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Pack UVs")
+        # cmb009 reuses the Maya objectName + labels (same Pre-Scale-Mode option, cross-DCC rule):
+        # "Preserve 3D" runs a native average-islands-scale pass (equal texel density) before
+        # packing; "Preserve UV" skips it and keeps each shell's current relative proportions.
+        cmb009 = m.add(
+            "QComboBox", setObjectName="cmb009",
+            setToolTip="How shells are scaled before packing.\n"
+            "Preserve UV: keep each shell's current relative UV proportions.\n"
+            "Preserve 3D: rescale every shell to equal texel density "
+            "(bpy.ops.uv.average_islands_scale).",
+        )
+        for text, data in (("Pre-Scale: Preserve UV", 0), ("Pre-Scale: Preserve 3D", 1)):
+            cmb009.addItem(text, data)
+        cmb009.setCurrentIndex(1)  # matches Maya's default (Preserve 3D)
         m.add(
             "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_pack_margin",
             set_limits=[0, 1, 0.001, 3], setValue=0.001,
@@ -93,13 +106,20 @@ class Uv(SlotsBlender):
 
     @btk.undoable
     def tb000(self, widget):
-        """Pack UVs (into the 0-1 square, then shifted into the target UDIM tile)."""
+        """Pack UVs (optionally equal-texel-density pre-scaled), into the 0-1 square, then
+        shifted into the target UDIM tile."""
         m = widget.option_box.menu
-        ran = self._uv_op(
-            lambda: bpy.ops.uv.pack_islands(
+        preserve_3d = m.cmb009.currentData() == 1  # Pre-Scale Mode: 1 = Preserve 3D
+
+        def _pack():
+            if preserve_3d:
+                # Preserve 3D: rescale islands to equal texel density before packing.
+                bpy.ops.uv.average_islands_scale()
+            bpy.ops.uv.pack_islands(
                 margin=m.s_pack_margin.value(), rotate=m.chk_pack_rotate.isChecked()
             )
-        )
+
+        ran = self._uv_op(_pack)
         if not ran:
             return
         udim = m.s004.value()

@@ -43,18 +43,12 @@ CONTROLS = {
     # No entry needed here anymore -- nothing to ledger.
     "rizom_bridge_slots": {
         "cmb000": {"status": "na", "reason": "Lua preset-script picker; the thin Blender bridge has no Lua script-template machinery (one-way send, no preset/param/round-trip)"},
-        "btn_open_scripts": {
-            "status": "na",
-            "reason": "no Lua script-template machinery in the thin Blender bridge",
-        },
-        "btn_refresh_scripts": {
-            "status": "na",
-            "reason": "no Lua script-template machinery in the thin Blender bridge",
-        },
-        "btn_clear_log": {
-            "status": "na",
-            "reason": "thin Blender bridge has no header menu (help-text only)",
-        },
+        # btn_open_scripts / btn_refresh_scripts / btn_clear_log: removed 2026-07-11 — the Blender
+        # rizom bridge now ships all three as header-menu actions (rizom_bridge_slots.py
+        # HEADER_MENU_ITEMS -> open_templates_folder / refresh_templates / clear_log), matching the
+        # Maya panel's own HEADER_MENU_ITEMS buttons by objectName (sweep: RizomBridge 0 triaged).
+        # (refresh_templates rebuilds the combo from an in-memory list rather than re-scanning disk —
+        # a behavior nuance the static sweep can't see; not a presence delta.)
     },
     # mayatk file stem is audio_utils/audio_clips/audio_clips_slots.py. Ported 2026-07-03 --
     # see blendertk/blendertk/audio_utils/_audio_utils.py + audio_clips.py's module docstrings
@@ -221,10 +215,8 @@ CONTROLS = {
         "cmb002": {"status": "na", "reason": "Output Template (workflow-preset) map-export knob; Blender flow wires existing textures into the node graph and never bakes/writes maps (documented drop)"},
         "cmb003": {"status": "na", "reason": "Ext output-format knob for the map-export step; Blender flow wires existing textures and never writes output maps (documented drop)"},
         "cmb004": {"status": "na", "reason": "Maya shader-type choice (Stingray PBS / Standard Surface / OpenPBR are Maya shader nodes); Blender builds the one Principled BSDF (documented drop)"},
-        "lbl_graph_material": {
-            "status": "na",
-            "reason": "Maya Hypershade graph; Blender edits the node graph natively in the Shader Editor",
-        },
+        # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (game_shader.py:76,107 ->
+        # btk.graph_materials opens the Shader Editor), matched by objectName (GameShader 0 triaged).
     },
     "image_tracer": {
         "blue_pencil_button": {
@@ -248,10 +240,9 @@ CONTROLS = {
         },
     },
     "mat_updater": {
-        "chk_discover_sourceimages": {
-            "status": "na",
-            "reason": "no sourceimages workspace in Blender; discovery scopes to chosen folders",
-        },
+        # chk_discover_sourceimages: removed 2026-07-11 — Blender ships it 1:1 (mat_updater.py:161,310
+        # -> _mat_utils.py:1469 maps discover_sourceimages -> discover_dir = the .blend workspace dir),
+        # matched by objectName against the Maya panel (mat_updater.py:785,958); MatUpdater 0 triaged.
         "cmb_transfer_mode": {
             "status": "na",
             "reason": "copy/move transfer doesn't map — Blender engine writes to output_dir, "
@@ -269,7 +260,9 @@ CONTROLS = {
         # -templates-dir ship under the IDENTICAL names these entries claimed were renamed away
         # from. No divergence to ledger.
         "lbl002": {"status": "pending", "reason": "open-selected-template-file entry unported; saved templates are PresetStore JSON files so an open-in-editor entry is portable (built-in parameter presets are code-defined, not files)"},
-        "lbl_graph_material": {"status": "na", "reason": "Maya Hypershade graph of the last-restored material; Blender edits the node graph natively in the Shader Editor"},
+        # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (shader_templates.py:107,135
+        # -> btk.graph_materials opens the Shader Editor), matched by objectName against the Maya
+        # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
     },
     "tube_rig": {
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
@@ -278,27 +271,48 @@ CONTROLS = {
         "s001": {"status": "replaced", "to": "spec:num_controls", "reason": "AttributeSpec option"},
         "s002": {"status": "replaced", "to": "spec:radius", "reason": "AttributeSpec option"},
         "chk_stretch": {"status": "replaced", "to": "spec:enable_stretch", "reason": "AttributeSpec option"},
-        # GRANULAR STEP-WORKFLOW (b001-b004 + chk000) — the largest open TubeRig item. Maya
-        # exposes tube-rigging BOTH as a full pipeline AND as four manually-driven steps a rigger
-        # runs in sequence with hand-tweaks between them (create joints → add IK/controls on the
-        # EXISTING joints → bind the chain → constrain the ends). Blender's port is the confirmed
-        # HYBRID strategy registry (Spline/Anchor/FK one-shot builds), which covers the full-build
-        # capability but NOT the mid-build manual control. Porting the steps needs standalone
-        # engine methods operating on user-selected existing armature/bones (not a one-shot build),
-        # + b001-b004/chk000 in tube_rig.ui, + rig-correctness verification (IK solve / skinning /
-        # constraints) that requires a LIVE interactive Blender — structural headless tests can
-        # confirm bones/constraints exist but not that the mesh deforms right. XL; deferred to a
-        # dedicated live-Blender session rather than shipped unverified. Tracked in
-        # PARITY_PORTING_PLAN.md. (Prop-delta .ui promotion cmb_preset/txt000 → uitk closed 2026-07-03.)
-        "b001": {"status": "pending", "reason": "granular step-workflow (see block note): Create Joints from Tube as a standalone step; Blender has strategy one-shot builds only"},
-        "b002": {"status": "pending", "reason": "granular step-workflow (see block note): Create IK/Controls on EXISTING joints as a standalone step"},
-        "b003": {"status": "pending", "reason": "granular step-workflow (see block note): Bind Joint Chain to Tube as a standalone step"},
-        "b004": {"status": "pending", "reason": "granular step-workflow (see block note): Constrain Both Ends of Hose to Anchors as a standalone step"},
-        "chk_twist": {"status": "pending", "reason": "twist system has no Blender engine counterpart yet"},
-        "chk_squash": {"status": "pending", "reason": "squash system has no Blender engine counterpart yet"},
-        "chk_volume": {"status": "pending", "reason": "volume system has no Blender engine counterpart yet"},
-        "chk_auto_bend": {"status": "pending", "reason": "auto-bend system has no Blender engine counterpart yet"},
-        "chk000": {"status": "pending", "reason": "reverse-chain toggle for the granular step-workflow (see b001 block note); reverses joint-chain direction in create_joints_from_tube"},
+        # DEFORM TOGGLES — DONE 2026-07-11 (chk_stretch/squash/volume/auto_bend above): the prior
+        # "no Blender engine counterpart yet" rulings were over-scoped. Blender's Spline IK collapses
+        # Maya's per-node deform graphs to native constraint options — stretch=Y FIT_CURVE,
+        # squash/volume=XZ INVERSE_PRESERVE/VOLUME_PRESERVE — and auto_bend is one distance-driver on
+        # the mid control. chk_twist DONE too (its entry): Spline IK ignores curve tilt, so twist is a
+        # roll-control bone + per-bone Copy Rotation chain (the one non-native toggle) — TubeRig fully ported.
+        #
+        # The deferral's core premise — "rig correctness requires a LIVE interactive Blender; headless
+        # tests can't confirm the mesh deforms right" — is REFUTED. test_tube_rig.py already verifies
+        # deform numerically via the EVALUATED depsgraph (move a control -> read obj.evaluated_get(dg)
+        # .to_mesh() -> assert the deformed bbox/cross-section changed). Every deform toggle above is
+        # locked by such a headless test. So TubeRig is buildable + verifiable headlessly, NOT a
+        # live-only item.
+        #
+        # GRANULAR STEP-WORKFLOW — b001/b002/b003 + chk000 DONE 2026-07-11. The engine methods already
+        # existed and deform (create_joint_chain=Step1, attach_spline_rig=Step2, RigUtils.bind_armature
+        # =Step3; reverse=chk000). Added the buttons to a "Manual Steps (Spline)" group in tube_rig.ui
+        # + the TubeRigSlots b001/b002/b003 methods dispatching to those engine methods on the user's
+        # selection (b002 resolves the chain via a mesh-less TubeRig reusing the armature's root).
+        # Verified by tube_rig_slot_check.py 9/9 (incl. the moved-control deform check + chk000 reverse).
+        # The b001/b002/b003 (PushButton) + chk000 (QCheckBox) class deltas vs Maya's QPushButton are
+        # review-only — the same accepted cross-DCC pattern as b000. Tracked in PARITY_PORTING_PLAN.md.
+        # (cmb_preset/txt000 uitk .ui promotion closed 2026-07-03.)
+        #
+        # b004 Add End Constraints — DONE 2026-07-11. The "needs a NEW per-vertex weight-blend algorithm
+        # that doesn't exist here" ruling was the last over-scoped one. Ported as two reusable RigUtils
+        # primitives — RigUtils.add_bone (single-bone graft) + RigUtils.apply_falloff_weights (the
+        # per-vertex distance blend: target group = 1 - d/r, existing influences scaled by (1-w) so the
+        # row REDISTRIBUTES not adds — Maya's skinPercent semantics, crease-free at the boundary) — plus
+        # TubeRig.constrain_end_with_falloff (an anchor bone COPY_LOCATION-tracking the external object +
+        # the falloff paint) and the TubeRigSlots.b004 slot (armature + 2 anchors selection, bound-mesh
+        # lookup, proximity-based nearest-end assignment since Blender selection order is unreliable).
+        # Verified headlessly: test_tube_rig.py (falloff deform + exact redistribution invariant, 33/33)
+        # + tube_rig_slot_check.py (slot resolution + anchor-driven deform, 11/11). Divergence: Maya's
+        # parentConstraint copies position AND orientation; the port copies translation (COPY_LOCATION)
+        # to stay bind-time-stable (anchor rotation-follow would need a maintain-offset CHILD_OF inverse).
+        # b004 (PushButton) class delta is review-only. With b004 + chk_twist done, the TubeRig panel is
+        # FULLY PORTED — no pending items remain (only same-named PushButton/QCheckBox class deltas).
+        "chk_squash": {"status": "replaced", "to": "spec:enable_squash", "reason": "AttributeSpec option (SplineIKStrategy) — native Spline IK XZ scale INVERSE_PRESERVE (squash without volume)"},
+        "chk_volume": {"status": "replaced", "to": "spec:enable_volume", "reason": "AttributeSpec option (SplineIKStrategy) — native Spline IK XZ scale VOLUME_PRESERVE (squash + volume); Maya's 2 bools collapse onto the one XZ enum via _xz_scale_mode"},
+        "chk_auto_bend": {"status": "replaced", "to": "spec:enable_auto_bend", "reason": "AttributeSpec option (SplineIKStrategy) — distance-driven mid-control bulge (add_distance_driver on delta_location, mirrors Maya setup_auto_bend's multiplyDivide)"},
+        "chk_twist": {"status": "replaced", "to": "spec:enable_twist", "reason": "AttributeSpec option (SplineIKStrategy) — DONE 2026-07-11. Blender Spline IK ignores the driver curve's point tilt (probed), so twist is the one toggle with NO native scale-mode equivalent: TubeRig.add_twist builds a tip roll-control bone + a per-deform-bone Copy Rotation (local Y, mix ADD, CONSTANT influence 1/N) that composes AFTER the Spline IK solve — equal local increments accumulate LINEARLY down the parented chain, so rolling the control twists the tip a full turn while the start stays ~put. Verified headlessly (test_tube_rig.py: a 90deg roll -> tip cross-section 81deg vs start 19deg = progressive; + the OFF gate). The prior 'needs a custom bendy-bone, not a native toggle' ruling was right that it's not native but wrong that it wasn't portable."},
         # Note: Maya's spline default is Auto (-1 = one joint per edge loop); TubePath
         # supports -1 but the Blender spec's minimum=2 makes Auto unreachable from the UI.
     },
@@ -323,26 +337,24 @@ CONTROLS = {
         # the label differences are report-only setText review deltas, not divergences to ledger.
         "select_file_node": {"status": "na", "reason": "no separable file node in Blender (kept as a disabled structural placeholder in the Blender panel)"},
     },
-    # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). The Blender twin
-    # ships the shared subset (move / flip / rotate / straighten / mirror / distribute); the
-    # Maya-only shell ops below wrap Maya UV-editor MEL with no bpy operator analogue.
-    "shell_xform": {
-        "align_u_min": {"status": "na", "reason": "Maya UV-editor align (performAlignUV minU) snaps the selected UVs to their min U; Blender ships no per-selection UV align-to-bound operator."},
-        "align_u_avg": {"status": "na", "reason": "Maya performAlignUV avgU (align selected UVs to their average U); no Blender UV-align operator."},
-        "align_u_max": {"status": "na", "reason": "Maya performAlignUV maxU (align selected UVs to their max U); no Blender UV-align operator."},
-        "align_v_min": {"status": "na", "reason": "Maya performAlignUV minV (align selected UVs to their min V); no Blender UV-align operator."},
-        "align_v_avg": {"status": "na", "reason": "Maya performAlignUV avgV (align selected UVs to their average V); no Blender UV-align operator."},
-        "align_v_max": {"status": "na", "reason": "Maya performAlignUV maxV (align selected UVs to their max V); no Blender UV-align operator."},
-        "linear_align": {"status": "na", "reason": "Maya performLinearAlignUV distributes the selected UVs along the straight line between their two end UVs; no Blender operator analogue."},
-        "lbl_align_u": {"status": "na", "reason": "Cosmetic 'U' row label for the Maya-only Align group (the whole group has no Blender twin)."},
-        "lbl_align_v": {"status": "na", "reason": "Cosmetic 'V' row label for the Maya-only Align group (the whole group has no Blender twin)."},
-        "orient_shells": {"status": "na", "reason": "Standalone Maya texOrientShells / UvUtils.orient_shells button (square each shell to its nearest axis). Blender exposes shell orientation only as the Unfold 'Orient' option (chk007 -> align_rotation), not a standalone action."},
-        "orient_edges": {"status": "na", "reason": "Maya texOrientEdge orients a shell so its selected edge runs along U/V; Blender has no orient-shell-to-edge operator."},
-        "gather_shells": {"status": "na", "reason": "Maya UVGatherShells packs the selected shells back toward the 0-1 tile; no Blender operator analogue."},
-        "randomize_shells": {"status": "na", "reason": "Maya RandomizeShells applies a random per-shell offset; no Blender operator analogue."},
-        # select_back_facing / select_overlapping / select_unmapped removed 2026-07-08 — the
-        # Select group was dropped from the Maya panel, so there's no widget left to ledger.
-    },
+    # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
+    # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/
+    # straighten/mirror/distribute PLUS Align (min/avg/max + linear), Orient (shells + to-edge),
+    # Gather, and Randomize. Those Align/Orient/Gather/Randomize buttons were previously ruled `na`
+    # ("no bpy analogue"); that was an over-scope, corrected by the inverse audit. Realizations,
+    # each probed live in headless Blender 5.1 before building:
+    #   - orient_shells / orient_edges -> native bpy.ops.uv.align_rotation(AUTO|EDGE)
+    #   - randomize_shells            -> native bpy.ops.uv.randomize_uv_transform (seeded)
+    #   - align_u/v_min/avg/max       -> btk.align_uvs bmesh helper (avg = arithmetic mean of the
+    #                                    selected UVs; the natural reading of Maya avgU, exact
+    #                                    averaging method owed a live-Maya check)
+    #   - linear_align                -> btk.align_uvs mode="linear" (project onto the endpoint line)
+    #   - gather_shells               -> btk.gather_uv_shells bmesh helper (floor-subtract per island)
+    # All 15 controls (2 groups, 2 row labels, 7 align + 4 orient buttons) now match 1:1, so their
+    # ledger entries are dropped (dead — the sweep only consults `na` for a control MISSING from
+    # Blender). select_back_facing / select_overlapping / select_unmapped were removed from the
+    # Maya panel 2026-07-08, so there's no widget left to ledger either.
+    "shell_xform": {},
 }
 
 # --------------------------------------------------------------------------- tentacle shared slots
@@ -398,7 +410,7 @@ HANDLERS = {
         # per-leaf reasoning.
         "list000:Lock": {"status": "na", "reason": "Lock Curve Length constrains a NURBS curve to a fixed arc length under deformation; a Blender curve/mesh control point has no such constraint to toggle."},
         "list000:Unlock": {"status": "na", "reason": "see Lock"},
-        "list000:Bend": {"status": "na", "reason": "Maya drives Bend from its own option-box magnitude/weight; Blender's nearest analogue (Simple Deform modifier) is a persistent modifier needing that same kind of dedicated option UI as this file's own tb000/tb001 tools, not a parameterless one-click list action -- reviewer's call, same as flagged by the parity audit."},
+        "list000:Bend": {"status": "na", "reason": "Maya drives Bend from its own option-box magnitude/weight; Blender's nearest analogue (Simple Deform modifier) is a persistent modifier needing that same kind of dedicated option UI as this file's own tb000/tb001 tools, not a parameterless one-click list action -- reviewer's call, same as flagged by the parity audit. VERIFIED 2026-07-11 (headless Blender 5.1): a SIMPLE_DEFORM/BEND modifier applied to a curve DOES bake into the bezier control points, but ONLY when deform_axis is perpendicular to the curve's plane (deform_axis='Z' bends an X/Y-planar curve; 'X'/'Y' are silent no-ops) -- so a fixed-axis parameterless Bend no-ops for common orientations. A faithful Bend needs an option box (deform_axis + angle) = the dedicated option UI above; buildable later as a tb-style tool, stays na as a list-leaf action. (The 2026-07 divergence re-audit's 'trivial SIMPLE_DEFORM+apply' overturn is refuted by this probe.)"},
         "list000:Curl": {"status": "na", "reason": "see Bend"},
         "list000:Curvature": {"status": "na", "reason": "see Bend"},
         "list000:Straighten": {"status": "na", "reason": "see Bend -- Maya's StraightenCurves interpolates CVs toward a line by a magnitude/weight parameter; no parameterless Blender op matches."},
@@ -432,13 +444,13 @@ HANDLERS = {
         # analogue (sub-object / bone / brush-datablock concepts) and were intentionally NOT
         # built, rather than silently dropped -- see the module's own docstring for the full
         # per-leaf reasoning.
-        "list000:Clusters": {"status": "na", "reason": "Maya cluster deformer is a component-weight deformer node, not a selectable Object; Blender has no per-object cluster construct (closest tools -- Vertex Groups + Lattice/Hook modifiers -- attach to the deformed object, they aren't themselves Objects)."},
+        "list000:Clusters": {"status": "done-elsewhere", "to": "list000 Clusters (Hook-modifier carriers)", "reason": "BUILT 2026-07-11: the Blender Selection config now ships a 'Clusters' leaf in the same Animation category as Maya, selecting meshes that carry a Hook modifier (btk.Selection._select_by_modifier(objs,'HOOK')) -- Blender's control-object-driven per-vertex deformer, the direct analogue of Maya's cluster deformer, delivered via the same modifier-carrier idiom as the nCloths->CLOTH / Fluids->FLUID leaves. (The static sweep does not track list000 leaves, so this entry is documentation of the mapping decision.)"},
         "list000:IK Handles": {"status": "na", "reason": "Maya IK handles are their own DAG transform; Blender IK is a bone-level Constraint living inside an Armature's data, not a separate selectable Object."},
         "list000:Joints": {"status": "na", "reason": "Maya joints are DAG transforms; Blender bones live inside Armature data (pose bones), not as separate selectable Objects -- only the Armature Object itself is selectable."},
         "list000:Brushes": {"status": "na", "reason": "Maya paint-effects brush nodes; Blender sculpt/paint brushes are tool datablocks (bpy.data.brushes), not selectable scene Objects."},
         "list000:Dynamic Constraints": {"status": "na", "reason": "Maya's Nucleus dynamicConstraint (point/slide pin constraints for nCloth/nParticle) has no Blender analogue -- cloth pinning uses vertex groups, not constraint Objects. (Rigid Constraints, the OTHER Maya constraint leaf, DOES have a real analogue -- obj.rigid_body_constraint on an Empty -- and IS built; only the Nucleus dynamic-constraint concept is absent.)"},
         "list000:Sculpts": {"status": "na", "reason": "Maya's implicitSphere/sculpt deformer nodes; Blender Sculpt Mode is a mesh edit mode, not a selectable Object type or deformer node."},
-        "list000:Wires": {"status": "na", "reason": "Maya wire deformer nodes (curve-driven mesh deform) are their own selectable node; Blender's nearest tools (Lattice/Hook/Curve modifiers) attach to the deformed object rather than existing as their own selectable Object."},
+        "list000:Wires": {"status": "done-elsewhere", "to": "list000 Wires (Curve-modifier carriers)", "reason": "BUILT 2026-07-11: the Blender Selection config now ships a 'Wires' leaf in the same Dynamics category as Maya, selecting meshes that carry a Curve modifier (btk.Selection._select_by_modifier(objs,'CURVE')) -- Blender's curve-driven mesh-deform (bpy.types.CurveModifier), the analogue of Maya's wire deformer, via the same modifier-carrier idiom. (list000 leaves are not tracked by the static sweep; documentation of the mapping.)"},
         "list000:Templated Geometry": {"status": "na", "reason": "Maya's legacy 'template' display mode (dashed wireframe, non-selectable/non-renderable) has no Blender display-mode counterpart; Non-Selectable Geometry (hide_select) and Hidden Geometry (hide_get) already cover the adjacent non-selectable/hidden capabilities."},
         "list000:Back-Facing": {"status": "pending", "reason": "Reason corrected 2026-07-08: Maya's selectUVFaceOrientationComponents ({} 0 2 1) detects UV-SPACE flipped/mirrored winding (negative signed UV area), NOT the active camera -- the camera-depth backface pref is the separate, already-ledgered chk004. Portable to Blender with a small bmesh pass (per-face signed UV area over face.loops[].uv; negative = flipped) with no camera and no native op; deferred as a niche filter pending a mirrored/seamed-UV verification pass rather than dropped."},
         "list000:Front-Facing": {"status": "pending", "reason": "see Back-Facing (positive signed UV area = front-facing winding)."},
@@ -458,11 +470,16 @@ HANDLERS = {
     "scene": {
         "b006": {"status": "renamed", "to": "b_cleanup",
                  "reason": "Cleanup Unknown -> Scene Cleanup (different cleanup semantics)"},
-        "b009": {"status": "na", "reason": "Save to Original Scene — Maya-only header entry"},
-        "b012": {"status": "na", "reason": "Fix OCIO — Maya-only header entry"},
-        "b013": {"status": "na", "reason": "Toggle Command Ports — Maya-only header entry"},
-        "b014": {"status": "na", "reason": "Mesh Converter — Maya-only header entry"},
-        "b014_init": {"status": "na", "reason": "see b014"},
+        # Reason labels corrected 2026-07-11 (b013/b014) + 2026-07-12 (b009/b012) — all four had
+        # drifted onto the wrong widgets. The live Maya scene slot: b009 = "Fix OCIO" (def b009),
+        # b012 = "Toggle Command Ports" (def b012), b013 = "Mesh Converter" (scene.py:43),
+        # b014 = "Save to Original Scene" (scene.py:81). Statuses were already right (all
+        # genuinely Maya-only / pending); only the human-readable labels were swapped.
+        "b009": {"status": "na", "reason": "Fix OCIO — repairs Maya Color Management / OCIO config preferences; Maya-only header entry"},
+        "b012": {"status": "na", "reason": "Toggle Command Ports — Maya commandPort concept (MEL :7001 / Python :7002) with no Blender analogue; Maya-only header entry"},
+        "b013": {"status": "pending", "reason": "Mesh Converter (FBX->GLB) header button. FEASIBLE on Blender: the tool is the DCC-agnostic extapps/mesh_convert launched via self.sb.handlers.external_app.launch(\"mesh_convert\") over pythontk.MeshConvert (FBX2glTF) -- the SAME external_app handler the Blender materials.py bridge buttons already use. Recipe = mirror slots/maya/scene.py b013 as a header button + handler in the Blender scene slot. BLOCKED only by the user's uncommitted b017 'Scene Metadata'/DataNodes WIP in tentacle/slots/blender/scene.py + maya/scene.py -- adding the b013 header button to that same dirty file would entangle their WIP. Ready to build the instant that lands (commit/stash); do NOT edit scene.py while dirty. (The Shots trio is a separate in-progress port -- see the SHOTS TRIO note; b013 is the only WIP-BLOCKED item.)"},
+        "b014": {"status": "na", "reason": "Save to Original Scene -- writes an open Maya autosave back over its original scene file (enabled only when an autosave is open and the original is locatable). Blender's recovery model differs (File > Recover Auto Save reopens the .blend; there is no 'save the autosave back to the original' action), so no 1:1 header entry."},
+        "b014_init": {"status": "na", "reason": "see b014 (Save to Original Scene enable-state init)"},
         "b016": {"status": "relocated", "to": "materials.py:b026",
                  "reason": "Unity Bridge lives in the materials menu on Blender"},
     },
@@ -560,8 +577,12 @@ CONTROLS_SLOTS = {
     # under another objectName/mechanism — both count as triaged-OK, like "na").
     "animation": {
         "Repair Visibility Tangents": {"status": "na", "reason": "Maya-only visibility-curve tangent repair (mtk.Diagnostics.repair_visibility_tangents); Blender keys boolean props CONSTANT natively and the Blender header docstring explicitly documents omitting the tool rather than showing a dead entry."},
-        "b000": {"status": "divergent", "reason": "[Slot Sequencer] Maya's Shot Sequencer is a standalone shot-node / scene-per-shot ripple editor. Blender's sequencing model (VSE, linked scenes, timeline-marker cameras) is structurally different; b000 points the user at the native workflow."},
-        "b004": {"status": "divergent", "reason": "[Shot Manifest] Maya's Shot Manifest is a CSV-driven scene-assembly window built on Maya shot nodes; Blender assembles shots via linked Scenes/Collections."},
+        # b000 / b004: removed 2026-07-12 — BUILT. The Shots trio shipped in blendertk 2026-07-11
+        # (anim_utils/shots/shot_sequencer + shot_manifest, sweep: 0 element deltas each), so the
+        # Blender animation slot's b000/b004 now launch those panels via
+        # sb.handlers.marking_menu.show("shot_sequencer"/"shot_manifest") — the exact mirror of
+        # slots/maya/animation.py. The old `divergent` rulings ("VSE / linked Scenes cover it")
+        # described the pre-port message-box stubs, which are gone.
         "chk001": {"status": "divergent", "reason": "[Update] Blender's Go To Frame is a direct frame_set that always refreshes; Maya's auto-update playback toggle has no frame-nav analogue."},
         "chk007": {"status": "replaced", "to": "tb004 action-copy", "reason": "Blender tb004 transfers by duplicating the whole action, so fcurve handles/tangents always transfer — a tangents on/off toggle is inapplicable to that model."},
         "chk020": {"status": "na", "reason": "Delete Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box — channel scoping is covered by Dope Sheet/Graph Editor selection instead."},
@@ -570,11 +591,13 @@ CONTROLS_SLOTS = {
         "chk033": {"status": "na", "reason": "Move Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
         "chk034": {"status": "na", "reason": "Select Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
         "chk_channel_box": {"status": "na", "reason": "Scale Keys 'Channel Box Attrs Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
-        "chk_delete_inputs": {"status": "na", "reason": "[Delete Inputs] Blender has no construction-history input nodes to delete after baking."},
+        # chk_delete_inputs / chk_mute_drivers / chk_override_layer / chk_preserve_outside: removed
+        # 2026-07-11 — these bake-option widgets are NOT built in tentacle's Maya animation slot nor
+        # the shared animation .ui; they live on the co-located SmartBake panel (ledgered under
+        # CONTROLS['smart_bake_slots'], where the Blender engine ships them as chk_use_override /
+        # chk_delete_sources). The entries here named non-existent slot widgets and were never
+        # consulted by the sweep (dead config).
         "chk_inherited_vis": {"status": "divergent", "reason": "[Bake Inherited Visibility] Blender visibility isn't inherited through the hierarchy the Maya way; nothing to flatten on bake."},
-        "chk_mute_drivers": {"status": "divergent", "reason": "[Mute Drivers] nla.bake replaces the action and Blender has no override animation layer; no drivers left to mute."},
-        "chk_override_layer": {"status": "divergent", "reason": "[Use Override Layer] Blender has no animation layers (NLA differs structurally); bake targets the active action."},
-        "chk_preserve_outside": {"status": "divergent", "reason": "[Preserve Outside Keys] bpy.ops.nla.bake has no preserve-outside-range option."},
         "cmb037": {"status": "replaced", "to": "cmb_interp", "reason": "tb017 redesigned on Blender as an interpolation-type picker applied to all keys on the selection; code comment documents cmb_interp replacing cmb037/cmb040 (Maya's key-scope narrowing auto/current-time/selected dropped by design)."},
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
@@ -639,7 +662,11 @@ CONTROLS_SLOTS = {
         "chk000": {"status": "replaced", "to": "cube/cylinder/sphere_project (bounds-fit)", "reason": "Maya polyProjection -smartFit best-fits the projection manipulator; Blender's cube/cylinder/sphere_project ops fit from the object bounds natively and the slot documents 'no per-mode options, like Maya gates'."},
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
         "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
-        "cmb009": {"status": "na", "reason": "u3dLayout -preScaleMode is an Unfold3D-engine packing parameter; Blender pack rides pack_islands whose option box exposes the native operator's own params, and the module docstring documents u3dLayout packing params as deferred Maya-only depth with no Blender analogue."},
+        # cmb009 (Pre-Scale Mode): removed 2026-07-11 — BUILT. The Blender Pack UVs option box now
+        # ships cmb009 with Maya's exact labels ("Pre-Scale: Preserve UV" / "Preserve 3D", default
+        # Preserve 3D): Preserve 3D runs a native `bpy.ops.uv.average_islands_scale()` pass (equal
+        # texel density) before `pack_islands`; Preserve UV skips it. Matched by objectName + items
+        # against the Maya panel (uv.py 12 -> 11 triaged, no combo delta).
         "cmb010": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "Packing-time shell orientation is covered by pack_islands' rotate toggle (chk_pack_rotate); u3dLayout's one-shot axis pre-rotate modes (X/Y/Z to V, 3D-orientation-based) have no counterpart in that model."},
         "cmb012": {"status": "replaced", "to": "smart_project (s_smart_angle/s_smart_margin)", "reason": "Maya's Standard-projection Scale Mode is a polyAutoProjection flag; Blender's Smart UV Project normalizes to the unit square by default (= Maya's Uniform default) and its option box exposes the native operator params (angle limit / island margin) instead."},
         "cmb013": {"status": "na", "reason": "Non-Manifold strategy exists solely to handle Maya u3dUnfold's non-manifold RuntimeError (Warn+Select / Repair+Retry); Blender's uv.unwrap does not reject non-manifold meshes, so there is no failure mode to strategize and tb004 needs no error path."},
@@ -662,8 +689,8 @@ CONTROLS_SLOTS = {
         "b006": {"status": "renamed", "to": "b_cleanup", "reason": "see HANDLERS['scene']['b006']"},
         "b009": {"status": "na", "reason": "see HANDLERS['scene']"},
         "b012": {"status": "na", "reason": "see HANDLERS['scene']"},
-        "b013": {"status": "na", "reason": "see HANDLERS['scene']"},
-        "b014": {"status": "na", "reason": "see HANDLERS['scene']"},
+        "b013": {"status": "pending", "reason": "see HANDLERS['scene'] (Mesh Converter -- feasible, deferred)"},
+        "b014": {"status": "na", "reason": "see HANDLERS['scene'] (Save to Original Scene)"},
         "b016": {"status": "relocated", "to": "materials.py:b026", "reason": "see HANDLERS['scene']"},
         # lbl004/lbl005 ("Open Workspace Root"/"Auto Set Workspace") removed 2026-07-04: stale
         # entries matching no current Maya-only control (already flagged for removal in the
@@ -812,9 +839,16 @@ PANELS = {
     # / 0 item deltas) -- the one triaged control (btn_recover_setup, "Recover Setup") is `na`:
     # no Blender analogue to a corrupted blendShape NODE. Track remaining gaps via the CONTROLS
     # table instead of this "unbuilt" ledger.
-    "ShotManifestSlots": {"status": "pending", "reason": "XXL Shots pipeline; lowest priority"},
-    "ShotSequencerSlots": {"status": "pending", "reason": "XXL Shots pipeline; lowest priority"},
-    "ShotsSlots": {"status": "pending", "reason": "XXL Shots pipeline; lowest priority"},
+    # SHOTS TRIO — SHIPPED 2026-07-11 (user directive: full 1:1 workflow parity so a Maya user moves to
+    # Blender with the SAME tentacle tools). All three panels ported 1:1 (sweep: 0 element deltas each)
+    # and co-located in blendertk/anim_utils/shots/ (engine + <tool>.ui + <Tool>Slots, discovered by
+    # BlenderUiHandler; tentacle carries only the nav launch button). The DCC-agnostic core — shot model,
+    # planner, detection math, and the whole manifest (CSV/mapping/behaviors[JSON]/range) — extracted to
+    # pythontk.core_utils.engines.shots so mayatk + blendertk share ONE implementation. The divergence is
+    # in the ENGINE, not the UX: Blender realises shots on native primitives (fcurve key-motion,
+    # RenderOpacity fades, VSE audio). Ledgered follow-ups (not sweep gaps): sequencer AUDIO-track display
+    # + move-to-shot sequence grouping are deferred; the object-animation timeline is fully wired. The
+    # slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
     "WorkspaceMapSlots": {"status": "na",
                           "reason": "Maya-workspace management tool; no Blender project concept — "
                                     "reframe as a .blend/asset browser only if wanted (plan ruling)"},

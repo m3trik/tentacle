@@ -39,13 +39,16 @@
 | SceneExporter | 0 | 0 | 0 | 0 | OK |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
-| ShellXform | 0 | 0 | 13 | 0 | OK |
+| ShellXform | 0 | 0 | 0 | 0 | OK |
+| ShotManifest | 0 | 0 | 0 | 0 | OK |
+| ShotSequencer | 0 | 0 | 0 | 0 | OK |
+| Shots | 0 | 0 | 0 | 0 | OK |
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
-| TubeRig | 0 | 9 | 4 | 1 | open |
+| TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 1 | OK |
 
@@ -110,15 +113,15 @@
 #### TubeRig
 **property deltas (review)**
   - `b000.class` maya=`'QPushButton'` blender=`'PushButton'`
+  - `b001.class` maya=`'QPushButton'` blender=`'PushButton'`
+  - `b002.class` maya=`'QPushButton'` blender=`'PushButton'`
+  - `b003.class` maya=`'QPushButton'` blender=`'PushButton'`
+  - `b004.class` maya=`'QPushButton'` blender=`'PushButton'`
+  - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
 
 #### WheelRig
 **property deltas (review)**
   - `chk_world_space.setText` maya=`'World Space (decomposeMatrix)'` blender=`'World Space (driver Transform Space)'`
-
-**Open panel ports (3):**
-- **ShotManifest** — XXL Shots pipeline; lowest priority
-- **ShotSequencer** — XXL Shots pipeline; lowest priority
-- **Shots** — XXL Shots pipeline; lowest priority
 
 **N/A by design (1):** WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
 
@@ -149,14 +152,14 @@ Blender-only panels: MayaBridge
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 6 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
-| scene.py | 0 | 0 | 13 | 0 | 0 | OK |
+| scene.py | 0 | 2 | 11 | 0 | 0 | open |
 | selection.py | 0 | 0 | 8 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 12 | 0 | 0 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 0 | 12 | 0 | 0 | OK |
+| uv.py | 0 | 0 | 11 | 0 | 0 | OK |
 
 ### Slot deltas
 
@@ -220,17 +223,7 @@ Blender-only panels: MayaBridge
 
 ## Open work (ledgered `pending`)
 
-- **TubeRig** `b001` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Create Joints from Tube as a standalone step; Blender has strategy one-shot builds only
-- **TubeRig** `b002` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Create IK/Controls on EXISTING joints as a standalone step
-- **TubeRig** `b003` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Bind Joint Chain to Tube as a standalone step
-- **TubeRig** `b004` — .ui widget QPushButton  [pending] granular step-workflow (see block note): Constrain Both Ends of Hose to Anchors as a standalone step
-- **TubeRig** `chk000` — .ui widget QPushButton  [pending] reverse-chain toggle for the granular step-workflow (see b001 block note); reverses joint-chain direction in create_joints_from_tube
-- **TubeRig** `chk_auto_bend` — .ui widget QPushButton  [pending] auto-bend system has no Blender engine counterpart yet
-- **TubeRig** `chk_squash` — .ui widget QPushButton  [pending] squash system has no Blender engine counterpart yet
-- **TubeRig** `chk_twist` — .ui widget QPushButton  [pending] twist system has no Blender engine counterpart yet
-- **TubeRig** `chk_volume` — .ui widget QPushButton  [pending] volume system has no Blender engine counterpart yet
-- **ShotManifest** `panel` — XXL Shots pipeline; lowest priority
-- **ShotSequencer** `panel` — XXL Shots pipeline; lowest priority
-- **Shots** `panel` — XXL Shots pipeline; lowest priority
+- **scene** `b013` — header QPushButton 'Mesh Converter'  [pending] see HANDLERS['scene'] (Mesh Converter -- feasible, deferred)
+- **scene** `b013` — [pending] Mesh Converter (FBX->GLB) header button. FEASIBLE on Blender: the tool is the DCC-agnostic extapps/mesh_convert launched via self.sb.handlers.external_app.launch("mesh_convert") over pythontk.MeshConvert (FBX2glTF) -- the SAME external_app handler the Blender materials.py bridge buttons already use. Recipe = mirror slots/maya/scene.py b013 as a header button + handler in the Blender scene slot. BLOCKED only by the user's uncommitted b017 'Scene Metadata'/DataNodes WIP in tentacle/slots/blender/scene.py + maya/scene.py -- adding the b013 header button to that same dirty file would entangle their WIP. Ready to build the instant that lands (commit/stash); do NOT edit scene.py while dirty. (The Shots trio is a separate in-progress port -- see the SHOTS TRIO note; b013 is the only WIP-BLOCKED item.)
 
-## Totals: 42 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 12 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 2 open-work items; 0 stale Maya handlers. Sweep PASSES.

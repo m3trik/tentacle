@@ -1,12 +1,12 @@
-[![Tests](https://img.shields.io/badge/Tests-86%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-385%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
 # Tentacle
 
-A Qt marking-menu (pie-menu) launcher for DCC apps. Hold a hotkey, flick toward a wedge, release — the tool runs. Submenus open along the gesture path.
+A Qt marking-menu launcher for DCC apps — less a fixed menu than a framework you extend: pair a UI panel with a same-named slot module and its widgets wire themselves, or point Tentacle at a slot library of your own.
 
-Tentacle is the Maya-flavored shell on top of [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py). It ships ~60 Maya tool panels (modeling, UV, materials, rigging, animation, rendering, …), a Blender integration with its own slot library in progress, and a thin 3ds Max wrapper.
+Built on [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu.py), it ships ~60 Maya tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), a Blender integration whose slot library is still in progress, and a thin 3ds Max wrapper.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 

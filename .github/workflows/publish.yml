@@ -48,13 +48,17 @@ jobs:
           VERSION=$(grep -oP '__version__\s*=\s*["\x27]\K[^"\x27]+' tentacle/__init__.py)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-          PYPI=$(pip index versions tentacletk 2>/dev/null | grep -oP 'Available versions: \K[^,]+' || echo "none")
-          echo "pypi=$PYPI" >> $GITHUB_OUTPUT
-
-          if [ "$VERSION" != "$PYPI" ]; then
-            echo "publish=true" >> $GITHUB_OUTPUT
-          else
+          # Exact-membership check: publish only if THIS version is absent
+          # from PyPI. (Comparing against the latest release only re-entered
+          # the publish path — and re-fired the bump_dev/registry dispatches —
+          # whenever main held an older-but-published version. A transient
+          # network failure falls through to publish=true, which is safe:
+          # twine --skip-existing dedupes the upload.)
+          if curl --fail --silent --output /dev/null "https://pypi.org/pypi/tentacletk/$VERSION/json"; then
+            echo "v$VERSION already on PyPI"
             echo "publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "publish=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Build
@@ -65,7 +69,20 @@ jobs:
       
       - name: Verify Install
         if: steps.version.outputs.publish == 'true'
-        run: pip install dist/*.whl --no-deps
+        # Install WITH dependencies: proves the wheel's pins resolve on PyPI
+        # exactly as users will install them. Retries absorb index-propagation
+        # lag when an upstream package published minutes earlier in the same
+        # release cascade.
+        run: |
+          for attempt in 1 2 3; do
+            if pip install dist/*.whl; then exit 0; fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Install attempt $attempt failed; retrying in 30s (index propagation lag?)"
+              sleep 30
+            fi
+          done
+          echo "::error::Wheel install (with dependencies) failed"
+          exit 1
 
       - name: Publish
         if: steps.version.outputs.publish == 'true' && inputs.dry_run != true

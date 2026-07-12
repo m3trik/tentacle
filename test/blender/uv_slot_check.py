@@ -8,9 +8,10 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
 Drives the real ``Uv`` slot methods with a stubbed option-box menu (mirrors the fake widget
 idiom in ``edit_slot_check.py`` / ``rendering_slot_check.py``) but everything downstream is live
-``bpy``/bmesh state — this proves the widget objectNames the option boxes expose (tb000's s004,
-tb004's chk022/s000, tb005's chk020, tb008's chk033/chk034, tb022's chk026) are wired to the real
-underlying geometry change, not just present in the .ui.
+``bpy``/bmesh state — this proves the widget objectNames the option boxes expose (tb000's
+cmb009/s004, tb004's chk022/s000, tb022's chk026) are wired to the real underlying geometry
+change, not just present in the .ui. (uv tb005/tb006/tb008 Straighten/Distribute/Mirror moved to
+the blendertk shell_xform panel and are covered there.)
 """
 import sys
 import os
@@ -58,8 +59,8 @@ def spin(v):
     return NS(value=lambda x=v: x)
 
 
-def combo(text):
-    return NS(currentText=lambda t=text: t)
+def combo(text="", data=None):
+    return NS(currentText=lambda t=text: t, currentData=lambda d=data: d)
 
 
 def option_box(menu):
@@ -71,20 +72,8 @@ try:
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt for the slot imports
     from tentacle.slots.blender.uv import Uv
-    from blendertk.uv_utils._uv_utils import _uv_islands, _island_bbox_center
 
     slot = make_slot(Uv)
-
-    def island_centers(o):
-        bm = bmesh.new()
-        bm.from_mesh(o.data)
-        uvl = bm.loops.layers.uv.active
-        centers = sorted(
-            tuple(round(c, 4) for c in _island_bbox_center(isl, uvl))
-            for isl in _uv_islands(bm, uvl)
-        )
-        bm.free()
-        return centers
 
     def uv_bounds(o):
         bm = bmesh.new()
@@ -117,6 +106,7 @@ try:
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
     menu = NS(
+        cmb009=combo(data=0),  # Pre-Scale: Preserve UV (skip the average-islands-scale pre-pass)
         s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1012),
     )
     slot.tb000(option_box(menu))
@@ -130,12 +120,25 @@ try:
     # tb000 with the default tile (1001) leaves the pack in the 0-1 square
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001))
+    menu = NS(cmb009=combo(data=0), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001))
     slot.tb000(option_box(menu))
     b = uv_bounds(o)
     check(
         "tb000 s004=1001 (default tile) leaves the pack in 0-1",
         -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3,
+        f"bounds={b}",
+    )
+
+    # tb000 Pre-Scale "Preserve 3D" (cmb009=1) runs an average-islands-scale pre-pass before
+    # packing; the result still fits the 0-1 square (proves the new cmb009 branch is wired).
+    reset()
+    o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
+    menu = NS(cmb009=combo(data=1), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001))
+    slot.tb000(option_box(menu))
+    b = uv_bounds(o)
+    check(
+        "tb000 cmb009=Preserve 3D runs the pre-scale pass + packs into 0-1 (new branch wired)",
+        -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3 and -1e-3 <= b[2] and b[3] <= 1.0 + 1e-3,
         f"bounds={b}",
     )
 
@@ -169,57 +172,9 @@ try:
         bounds_c != bounds_a, f"c={bounds_c}",
     )
 
-    # ---- tb005 Straighten: chk020 Straighten Shell rectangularizes a sheared quad-grid
-    reset()
-    bpy.ops.mesh.primitive_plane_add(size=2)
-    o = bpy.context.active_object
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.mesh.subdivide(number_cuts=3)
-    bm = bmesh.from_edit_mesh(o.data)
-    uvl = bm.loops.layers.uv.verify()
-    for f in bm.faces:
-        for loop in f.loops:
-            x, y = loop.vert.co.x, loop.vert.co.y
-            loop[uvl].uv = (x + 0.3 * y, y)
-    bpy.ops.mesh.select_all(action="SELECT")
-    bmesh.update_edit_mesh(o.data)
-
-    def is_axis_aligned(bm, uvl):
-        for f in bm.faces:
-            us = {round(loop[uvl].uv.x, 4) for loop in f.loops}
-            vs = {round(loop[uvl].uv.y, 4) for loop in f.loops}
-            if len(us) != 2 or len(vs) != 2:
-                return False
-        return True
-
-    menu = NS(s001=spin(30), chk018=chk(False), chk019=chk(False), chk020=chk(True))
-    slot.tb005(option_box(menu))
-    bm2 = bmesh.from_edit_mesh(o.data)
-    uvl2 = bm2.loops.layers.uv.active
-    check("tb005 chk020 Straighten Shell rectangularizes the sheared grid", is_axis_aligned(bm2, uvl2))
-    bpy.ops.object.mode_set(mode="OBJECT")
-
-    # ---- tb008 Mirror UVs: chk033 Per Shell + chk034 Preserve Footprint
-    reset()
-    o = quads_object([(0.0, 0.0, 0.2, 0.2), (0.5, 0.5, 0.7, 0.7)])
-    before = island_centers(o)
-    menu = NS(chk031=chk(True), chk032=chk(False), chk033=chk(True), chk034=chk(True))
-    slot.tb008(option_box(menu))
-    check(
-        "tb008 chk033 Per Shell keeps each island's own center under mirror",
-        island_centers(o) == before, f"{island_centers(o)} vs {before}",
-    )
-
-    reset()
-    o = quads_object([(0.0, 0.0, 0.2, 0.2), (0.5, 0.5, 0.7, 0.7)])
-    before = island_centers(o)
-    menu = NS(chk031=chk(True), chk032=chk(False), chk033=chk(False), chk034=chk(True))
-    slot.tb008(option_box(menu))
-    check(
-        "tb008 chk033=False (whole-map) moves islands off their own centers",
-        island_centers(o) != before, f"{island_centers(o)}",
-    )
+    # ---- (uv tb005 Straighten / tb008 Mirror were relocated to the blendertk shell_xform panel;
+    # their coverage now lives there + in deepened_slots_check.py. The stale slot.tb005/tb008 calls
+    # here raised AttributeError on the current Uv slot — removed 2026-07-11.)
 
     # ---- tb022 Cut Hard Edges: chk026 Include Auto Seams marks extra seams
     reset()
