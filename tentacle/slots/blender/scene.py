@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
+import html
 
 import bpy
 import pythontk as ptk
@@ -109,6 +110,12 @@ class SceneSlots(SlotsBlender):
             self.sb.registered_widgets.PushButton, setText="Get Scene Info", setObjectName="tb001",
             setToolTip="Show an object / poly / material summary in a viewer.\n"
             "Use the option box to choose scope (Selected / Entire Scene).",
+        )
+        widget.menu.add(
+            "QPushButton", setText="Scene Metadata", setObjectName="b017",
+            setToolTip="Show the tool-authored metadata stored on the scene's data nodes "
+            "(data_internal + data_export) as JSON — shot metadata, audio manifests, etc.\n"
+            "Use Save in the viewer to write it to a .json file.",
         )
 
     def _open_file(self, filepath):
@@ -470,12 +477,14 @@ class SceneSlots(SlotsBlender):
             self.sb.message_box("<hl>No sections selected</hl> — tick at least one section.")
             return
         report = btk.analyze_scene(objects, adaptive=adaptive, sections=sections)
-        html = "".join(report.get(key, "") for key, _l, _d, _t in self._TB001_SECTIONS)
-        if not html:
+        # Named report_html (not ``html``) so the module-level ``import html`` used by
+        # b017's ``html.escape`` stays reachable — a bare ``html`` local would shadow it.
+        report_html = "".join(report.get(key, "") for key, _l, _d, _t in self._TB001_SECTIONS)
+        if not report_html:
             self.sb.message_box("<hl>No scene info</hl> available.")
             return
         self.sb.text_view_dialog(
-            html, "Ok", title="Get Scene Info", size=(640, 600), monospace=False
+            report_html, "Ok", title="Get Scene Info", size=(640, 600), monospace=False
         )
 
     def b002(self):
@@ -512,6 +521,47 @@ class SceneSlots(SlotsBlender):
         has no tentacle-Maya wiring of its own (it's only reachable via
         ``MayaUiHandler.instance().show("blendshape_animator")``)."""
         self.sb.handlers.marking_menu.show("blendshape_animator")
+
+    def b017(self):
+        """Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of
+        Maya's ``b017``; reads ``btk.DataNodes.dump`` — every custom property on the
+        ``data_internal`` / ``data_export`` Empties, JSON-decoded). The viewer's Save button
+        writes the same report to a ``.json`` file."""
+        report = btk.DataNodes.format_dump()
+        if not report:
+            self.sb.message_box(
+                "<hl>No scene metadata</hl> is stored — this scene has no "
+                "<b>data_internal</b> / <b>data_export</b> channels yet."
+            )
+            return
+
+        dlg = self.sb.text_view_dialog(
+            f"<pre>{html.escape(report)}</pre>",
+            "Save", "Ok",
+            title="Scene Metadata", size=(720, 560), monospace=True, word_wrap=False,
+        )
+        # "Save" is an Accept-role button (it closes the viewer); wire the export via the
+        # sanctioned realtime hook so the same click writes the file.
+        dlg.button_box.clicked.connect(
+            lambda btn, text=report: self._export_scene_metadata(btn, text)
+        )
+
+    def _export_scene_metadata(self, button, text):
+        """Write the Scene Metadata report to a chosen ``.json`` (viewer Save button)."""
+        if button.text().replace("&", "") != "Save":
+            return
+        blend_path = bpy.data.filepath or ""
+        base = (os.path.splitext(os.path.basename(blend_path))[0] or "untitled") + "_scene_metadata.json"
+        start = os.path.join(os.path.dirname(blend_path), base)
+        picked, _ = self.sb.QtWidgets.QFileDialog.getSaveFileName(
+            self.ui, "Save Scene Metadata As", start, "JSON (*.json)"
+        )
+        if not picked:
+            return
+        if not picked.lower().endswith(".json"):
+            picked += ".json"
+        ptk.FileUtils.atomic_write_text(picked, text)
+        self.sb.message_box(f"Saved scene metadata to <hl>{ptk.format_path(picked, 'file')}</hl>.")
 
 
 # --------------------------------------------------------------------------------------------

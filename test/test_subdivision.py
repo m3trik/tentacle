@@ -2,16 +2,22 @@
 # coding=utf-8
 """Regression tests for tentacle.slots.maya.subdivision.
 
-subdivision.py is dominated by mel.eval dispatch tables. The units worth
+subdivision.py is dominated by thin mel.eval dispatchers. The units worth
 pinning at this layer:
 
-- cmb001: 5-way dispatch by text — drift between init items and branches
-  would silently break menu options.
-- cmb002: 3-way dispatch by widget.items.index() lookup — different
-  fragility (relies on list order, not text comparison).
+- The one-click buttons (b000/b001/b008/b011/b028) each dispatch one exact
+  MEL command — silent drift in those strings would ship broken menu
+  entries with no error.
 - s000 (Division Level): only acts on transforms with a smoothLevel
   attribute, set via mtk.Attributes.set_attributes. Guards against
   applying smooth attrs to non-subdivision meshes.
+
+(TestCmb001SmoothProxyDispatch / TestCmb002MayaSubdivisionDispatch removed
+2026-07-12: the cmb001/cmb002 combo dispatchers they drove were redesigned
+out of the slot — their ops now ship as the direct buttons pinned below
+(Add Divisions=b008, Smooth=b011 apply-preview, Reduce=b005/tb000 Decimate)
+plus the smoothProxy() static — so both classes raised AttributeError under
+mayapy.)
 """
 import unittest
 
@@ -28,22 +34,27 @@ except ImportError:
     _MAYA_AVAILABLE = False
 
 
-class _FakeWidget:
-    def __init__(self, items):
-        self.items = list(items)
+class _FakeSb:
+    """Minimal switchboard stub recording message_box calls."""
+
+    def __init__(self):
+        self.messages = []
+
+    def message_box(self, string, *args, **kwargs):
+        self.messages.append(string)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestCmb001SmoothProxyDispatch(unittest.TestCase):
-    """cmb001 dispatches 5 options by text comparison; each routes to a
-    different mel command."""
+class TestMelDispatchButtons(unittest.TestCase):
+    """Each one-click button is a thin mel.eval dispatcher — pin the exact
+    MEL command per button so dispatch-string drift can't ship silently."""
 
     EXPECTED = {
-        "Create Subdiv Proxy": "SmoothProxyOptions",
-        "Remove Subdiv Proxy Mirror": "UnmirrorSmoothProxyOptions",
-        "Crease Tool": "polyCreaseProperties",
-        "Toggle Subdiv Proxy Display": "SmoothingDisplayToggle",
-        "Both Proxy and Subdiv Display": "SmoothingDisplayShowBoth",
+        "b000": "performPolyQuadrangulate 0",
+        "b001": "polyTriangulate",
+        "b008": "SubdividePolygon",
+        "b011": "performSmoothMeshPreviewToPolygon",
+        "b028": "dR_quadDrawTool",
     }
 
     def setUp(self):
@@ -59,57 +70,15 @@ class TestCmb001SmoothProxyDispatch(unittest.TestCase):
         mel.eval = self._orig
         cmds.file(new=True, force=True)
 
-    def test_each_item_routes_to_expected_mel(self):
-        items = list(self.EXPECTED.keys())
-        widget = _FakeWidget(items)
-        for idx, label in enumerate(items):
+    def test_each_button_routes_to_expected_mel(self):
+        for slot_name, command in self.EXPECTED.items():
             self.mel_calls.clear()
-            self.instance.cmb001(idx, widget)
+            getattr(self.instance, slot_name)()
             self.assertEqual(
                 self.mel_calls,
-                [self.EXPECTED[label]],
-                f"'{label}' (index {idx}) did not route correctly",
+                [command],
+                f"{slot_name} did not dispatch `{command}`",
             )
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestCmb002MayaSubdivisionDispatch(unittest.TestCase):
-    """cmb002 uses widget.items.index() — order-sensitive, distinct from
-    cmb001's text-based dispatch."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = subdivision_module.Subdivision.__new__(
-            subdivision_module.Subdivision
-        )
-        self._orig = mel.eval
-        self.mel_calls = []
-        mel.eval = lambda s: self.mel_calls.append(s)
-
-    def tearDown(self):
-        mel.eval = self._orig
-        cmds.file(new=True, force=True)
-
-    def test_reduce_polygons_routes_to_options(self):
-        items = ["Reduce Polygons", "Add Divisions", "Smooth"]
-        widget = _FakeWidget(items)
-        idx = items.index("Reduce Polygons")
-        self.instance.cmb002(idx, widget)
-        self.assertIn("ReducePolygonOptions", self.mel_calls)
-
-    def test_add_divisions_routes_to_subdivide(self):
-        items = ["Reduce Polygons", "Add Divisions", "Smooth"]
-        widget = _FakeWidget(items)
-        idx = items.index("Add Divisions")
-        self.instance.cmb002(idx, widget)
-        self.assertIn("SubdividePolygonOptions", self.mel_calls)
-
-    def test_smooth_routes_to_perform_polysmooth(self):
-        items = ["Reduce Polygons", "Add Divisions", "Smooth"]
-        widget = _FakeWidget(items)
-        idx = items.index("Smooth")
-        self.instance.cmb002(idx, widget)
-        self.assertIn("performPolySmooth 1", self.mel_calls)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -122,6 +91,9 @@ class TestS000DivisionLevel(unittest.TestCase):
         self.instance = subdivision_module.Subdivision.__new__(
             subdivision_module.Subdivision
         )
+        # s000 posts per-object message_box feedback (added post-redesign) —
+        # stub sb so the bare __new__ instance can run it headlessly.
+        self.instance.sb = _FakeSb()
 
         import mayatk as mtk
         self._orig = mtk.Attributes.set_attributes
@@ -141,9 +113,11 @@ class TestS000DivisionLevel(unittest.TestCase):
         cmds.select(cube)
         self.instance.s000(3, widget=None)
         self.assertEqual(self.set_calls, [])
+        self.assertEqual(self.instance.sb.messages, [])
 
     def test_object_with_smoothlevel_is_updated(self):
-        """An object with smoothLevel attr gets the new value."""
+        """An object with smoothLevel attr gets the new value (and posts the
+        per-object Division Level feedback message)."""
         cube = cmds.polyCube(name="sub_smooth")[0]
         cmds.addAttr(cube, longName="smoothLevel", attributeType="long")
         cmds.select(cube)
@@ -151,6 +125,8 @@ class TestS000DivisionLevel(unittest.TestCase):
         self.assertEqual(len(self.set_calls), 1)
         obj, kw = self.set_calls[0]
         self.assertEqual(kw["smoothLevel"], 5)
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("Division Level", self.instance.sb.messages[0])
 
 
 if __name__ == "__main__":

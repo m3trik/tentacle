@@ -325,7 +325,9 @@ class TestTransferSurfaces(unittest.TestCase):
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTransferDispatch(unittest.TestCase):
     """cmb000 dispatches the chosen transfer, validating the selection and
-    routing feedback to the message box (quick) and console (detailed).
+    routing all user feedback through the message box (abort/error detail
+    included — the separate cmds.warning path was removed 2026-07-06; the
+    console gets a plain print breakdown on success only).
     """
 
     def setUp(self):
@@ -367,8 +369,12 @@ class TestTransferDispatch(unittest.TestCase):
         idx = widget.items.index("Shading Sets")
         self.instance.cmb000(idx, widget)
         self.assertEqual(self.mel_calls, [])  # never ran the transfer
-        self.assertEqual(len(self.instance.sb.messages), 1)  # quick feedback
-        self.assertEqual(len(self.warnings), 1)  # detailed console warning
+        # The message box carries the full detail (incl. the selection count);
+        # the separate cmds.warning was deliberately dropped 2026-07-06
+        # (commit 20464958 routed all edit.py feedback through message_box).
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("1 of 2", self.instance.sb.messages[0])
+        self.assertEqual(self.warnings, [])
 
     def test_valid_selection_runs_command_and_reports(self):
         self._surfaces = ["src", "tgt1", "tgt2"]
@@ -399,10 +405,13 @@ class TestTransferDispatch(unittest.TestCase):
         widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
         idx = widget.items.index("Shading Sets")
         self.instance.cmb000(idx, widget)
-        # Error surfaced to both the message box and the console warning.
+        # Error surfaces in the message box (incl. the exception text); the
+        # separate cmds.warning was deliberately dropped 2026-07-06
+        # (commit 20464958 routed all edit.py feedback through message_box).
         self.assertEqual(len(self.instance.sb.messages), 1)
         self.assertIn("failed", self.instance.sb.messages[0].lower())
-        self.assertEqual(len(self.warnings), 1)
+        self.assertIn("kaboom", self.instance.sb.messages[0])
+        self.assertEqual(self.warnings, [])
 
 
 if __name__ == "__main__":

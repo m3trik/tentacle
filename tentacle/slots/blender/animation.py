@@ -11,8 +11,9 @@ class Animation(SlotsBlender):
     Every key operation (invert/stagger/snap/scale/step/move/spacing/align/copy/paste/
     transfer/intermediate/select/visibility-keys) is plain math over
     ``fcurve.keyframe_points`` via ``blendertk.anim_utils`` — the §5 finding that animation
-    is volume, not difficulty. Only the mayatk shot sequencer/manifest windows remain
-    deferred. Option-box widget names reused from Maya carry the same option (cross-DCC
+    is volume, not difficulty. The shot sequencer/manifest windows are native blendertk
+    panels (``anim_utils/shots``, shipped 2026-07-11) launched from ``b000``/``b004``.
+    Option-box widget names reused from Maya carry the same option (cross-DCC
     QSettings rule).
     """
 
@@ -22,11 +23,21 @@ class Animation(SlotsBlender):
         self._copied_action = None
 
     def header_init(self, widget):
-        """Header menu — mirror of the Maya animation header (the portable subset). The
-        Maya-only Sequencing (shot manifest/sequencer) and the Repair Visibility Tangents tool are
-        omitted rather than shown as dead entries. Reused objectNames carry the Maya label verbatim
-        (cross-DCC QSettings rule)."""
+        """Header menu — mirror of the Maya animation header. Sequencing (Shot Manifest /
+        Shot Sequencer) launches the native blendertk shots panels (added 2026-07-12, after the
+        Shots trio shipped — previously omitted as Maya-only). Only the Repair Visibility
+        Tangents tool stays omitted rather than shown as a dead entry. Reused objectNames carry
+        the Maya label verbatim (cross-DCC QSettings rule)."""
         Btn = self.sb.registered_widgets.PushButton
+        widget.menu.add("Separator", setTitle="Sequencing")
+        widget.menu.add(
+            "QPushButton", setText="Shot Manifest", setObjectName="b004",
+            setToolTip="Import a CSV sequence document and build scenes.",
+        )
+        widget.menu.add(
+            "QPushButton", setText="Shot Sequencer", setObjectName="b000",
+            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
+        )
         widget.menu.add("Separator", setTitle="Repair")
         widget.menu.add(
             Btn, setText="Repair Corrupted Curves", setObjectName="tb015",
@@ -1166,23 +1177,20 @@ class Animation(SlotsBlender):
         """Smart Bake"""
         self.sb.handlers.marking_menu.show("smart_bake")
 
-    # ------------------------------------------------------------------ divergent (Maya shot pipeline)
+    # ------------------------------------------------------------------ Shots pipeline (blendertk)
     def b000(self):
-        """Shot Sequencer — Maya's shot-node / scene-per-shot ripple editor. Blender's sequencing
-        model (the VSE, linked scenes, and timeline-marker cameras) is structurally different, so
-        there is no faithful port; pointing the user at the native equivalent."""
-        self.sb.message_box(
-            "Shot Sequencer is Maya-shot-pipeline specific. In Blender, sequence shots via the "
-            "<hl>Video Sequencer</hl> and bind cameras with timeline markers (Marker ▸ Bind Camera)."
-        )
+        """Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
+        with mayatk's: shots realized on timeline markers + ``marker.camera_bind`` behind the
+        shared pythontk shots core. (Replaced the pre-2026-07-11 "Maya-shot-pipeline specific"
+        message box — the panel shipped in blendertk.)"""
+        self.sb.handlers.marking_menu.show("shot_sequencer")
 
     def b004(self):
-        """Shot Manifest — Maya's CSV-driven scene-assembly tool (built on Maya's shot nodes). No
-        Blender analogue; Blender assembles shots via linked scenes / collections, a different model."""
-        self.sb.message_box(
-            "Shot Manifest is Maya-shot-pipeline specific (CSV-driven scene assembly). Blender "
-            "assembles shots via linked <hl>Scenes</hl> / <hl>Collections</hl> instead."
-        )
+        """Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
+        mayatk's CSV-driven scene assembly over linked Scenes/Collections behind the shared
+        pythontk shots core. (Replaced the pre-2026-07-11 "Maya-shot-pipeline specific" message
+        box — the panel shipped in blendertk.)"""
+        self.sb.handlers.marking_menu.show("shot_manifest")
 
 
 # --------------------------------------------------------------------------------------------

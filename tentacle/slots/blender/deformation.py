@@ -7,8 +7,8 @@ class Deformation(SlotsBlender):
     """Blender port of the shared ``deformation`` menu.
 
     The single shared widget launches the Curtain Generator panel
-    (``blender_menus/curtain`` — the shared ``ptk.CurtainDrape`` engine over a
-    bmesh build, same parameters as the Maya tool).
+    (``blender_menus/curtain`` — the ``CurtainDrape`` engine vendored in
+    blendertk over a bmesh build, same parameters as the Maya tool).
     """
 
     def __init__(self, *args, **kwargs):

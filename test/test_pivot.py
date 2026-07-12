@@ -23,6 +23,16 @@ except ImportError:
     _MAYA_AVAILABLE = False
 
 
+class _FakeSb:
+    """Minimal switchboard stub recording message_box calls."""
+
+    def __init__(self):
+        self.messages = []
+
+    def message_box(self, string, *args, **kwargs):
+        self.messages.append(string)
+
+
 class _FakeChk:
     def __init__(self, state):
         self._state = state
@@ -123,6 +133,9 @@ class TestTb003WorldAlignedPivot(unittest.TestCase):
     def setUp(self):
         cmds.file(new=True, force=True)
         self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        # tb003 posts message_box feedback on success (added post-redesign) —
+        # stub sb so the bare __new__ instance can run it headlessly.
+        self.instance.sb = _FakeSb()
 
         # Capture mtk.world_align_pivot calls.
         import mayatk as mtk
@@ -144,17 +157,21 @@ class TestTb003WorldAlignedPivot(unittest.TestCase):
         return _FakeWidget(_FakeMenu(chk010=manip))
 
     def test_manip_checked_routes_to_manip_type(self):
-        """chk010=True → mode='set', pivot_type='manip'."""
+        """chk010=True → mode='set', pivot_type='manip' (+ manip feedback)."""
         self.instance.tb003(self._widget(manip=True))
         self.assertEqual(len(self.captured), 1)
         self.assertEqual(self.captured[0]["pivot_type"], "manip")
         self.assertEqual(self.captured[0]["mode"], "set")
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("manipulator", self.instance.sb.messages[0])
 
     def test_manip_unchecked_routes_to_object_type(self):
-        """chk010=False → mode='set', pivot_type='object'."""
+        """chk010=False → mode='set', pivot_type='object' (+ object feedback)."""
         self.instance.tb003(self._widget(manip=False))
         self.assertEqual(len(self.captured), 1)
         self.assertEqual(self.captured[0]["pivot_type"], "object")
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("object", self.instance.sb.messages[0])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

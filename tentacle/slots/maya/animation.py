@@ -25,7 +25,7 @@ class Animation(SlotsMaya):
         )
         widget.menu.add(
             "QPushButton",
-            setText="Slot Sequencer",
+            setText="Shot Sequencer",
             setObjectName="b000",
             setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
         )
