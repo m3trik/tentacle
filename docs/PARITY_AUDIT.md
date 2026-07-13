@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 226, Blender 228 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **84%** (370/441) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 23 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 11 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **49%** (777/1572 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **49%** (778/1572 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 49% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -28,9 +28,9 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | cam_utils | 6 | 1 | 1 | 17% |
 | core_utils | 147 | 63 | 46 | 31% |
 | display_utils | 32 | 24 | 15 | 47% |
-| edit_utils | 148 | 132 | 102 | 69% |
+| edit_utils | 148 | 135 | 102 | 69% |
 | env_utils | 308 | 165 | 121 | 39% |
-| light_utils | 57 | 42 | 33 | 58% |
+| light_utils | 57 | 43 | 34 | 60% |
 | mat_utils | 223 | 183 | 157 | 70% |
 | node_utils | 128 | 52 | 44 | 34% |
 | nurbs_utils | 25 | 20 | 15 | 60% |
@@ -39,7 +39,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 71 | 42 | 22 | 31% |
 | uv_utils | 62 | 63 | 41 | 66% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1572** | **1036** | **777** | **49%** |
+| **TOTAL (unique)** | **1572** | **1040** | **778** | **49%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
