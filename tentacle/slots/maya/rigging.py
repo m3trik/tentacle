@@ -371,16 +371,18 @@ class Rigging(SlotsMaya):
     def tb004_init(self, widget):
         """Init Lock/Unlock Attributes"""
         widget.option_box.menu.setTitle("Lock / Unlock Attributes")
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Lock",
-            setObjectName="chk010",
-            setChecked=False,
-            setToolTip="When checked, the button locks attributes instead of unlocking.",
+        # Lock vs Unlock is a two-valued choice, not a modifier — a combobox names
+        # both states (its item text drives the button label). Extend with e.g.
+        # "Toggle" here without touching the layout.
+        action = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_lock",
+            setToolTip="Whether the button locks or unlocks the chosen attributes.",
         )
-        widget.option_box.menu.chk010.toggled.connect(
-            lambda state: widget.setText("Lock" if state else "Unlock")
-        )
+        action.addItems(["Lock", "Unlock"])
+        action.setCurrentText("Unlock")  # preserve prior default (checkbox off = unlock)
+        action.currentTextChanged.connect(widget.setText)
+        widget.setText(action.currentText())
         cmb = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb010",
@@ -399,7 +401,7 @@ class Rigging(SlotsMaya):
     @mtk.undoable
     def tb004(self, widget):
         """Lock/Unlock Attributes"""
-        lock = widget.option_box.menu.chk010.isChecked()
+        lock = widget.option_box.menu.cmb_lock.currentText() == "Lock"
         mode = widget.option_box.menu.cmb010.currentData()
 
         selection = cmds.ls(selection=True, type="transform")

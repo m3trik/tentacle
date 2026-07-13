@@ -563,13 +563,14 @@ class MaterialsSlots(SlotsMaya):
             setObjectName="chk005",
             setToolTip="Select object(s) containing the material.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Search in Selection Only",
-            setObjectName="chk006",
-            setChecked=False,
-            setToolTip="When checked, search only within currently selected objects (if nothing is selected will default to all objects)\nWhen unchecked, always search all objects in the scene.",
+        # Search scope is a choice between two named sets, not a modifier.
+        scope = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_search_scope",
+            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection (falls back to all objects if nothing is selected).",
         )
+        scope.addItems(["All Objects", "Selection Only"])
+        scope.setCurrentText("All Objects")  # preserve prior default (checkbox off)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Get and Select",
@@ -630,8 +631,8 @@ class MaterialsSlots(SlotsMaya):
 
         shell = widget.option_box.menu.chk005.isChecked()  # Select by material: shell
         search_in_selection_only = (
-            widget.option_box.menu.chk006.isChecked()
-        )  # Search in selection only
+            widget.option_box.menu.cmb_search_scope.currentText() == "Selection Only"
+        )
 
         if search_in_selection_only:
             selection = cmds.ls(sl=True, objectsOnly=True) or []

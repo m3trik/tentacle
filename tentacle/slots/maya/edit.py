@@ -417,22 +417,23 @@ class Edit(SlotsMaya):
         mtk.delete_selected()
 
     def tb004_init(self, widget):
-        """ """
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Toggle Lock/UnLock",
-            setObjectName="chk027",
-            setChecked=True,
-            setToolTip="Unlock nodes (else lock).",
+        """Init Lock/Unlock Nodes"""
+        # Lock vs Unlock is a two-valued choice, not a modifier — a combobox names both
+        # states (its item text drives the button label); extend with e.g. "Toggle" later.
+        action = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_lock",
+            setToolTip="Whether the button locks or unlocks the affected nodes.",
         )
-        widget.option_box.menu.chk027.toggled.connect(
-            lambda state: widget.setText("Unlock Nodes" if state else "Lock Nodes")
-        )
+        action.addItems(["Unlock Nodes", "Lock Nodes"])
+        action.setCurrentText("Unlock Nodes")  # preserve prior default (checkbox on = unlock)
+        action.currentTextChanged.connect(widget.setText)
+        widget.setText(action.currentText())
 
     @mtk.undoable
     def tb004(self, widget):
         """Node Locking"""
-        unlock = widget.option_box.menu.chk027.isChecked()
+        unlock = widget.option_box.menu.cmb_lock.currentText() == "Unlock Nodes"
 
         selection = cmds.ls(sl=True) or []
         # If not selection use all nodes

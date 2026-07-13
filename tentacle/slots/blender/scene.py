@@ -45,11 +45,12 @@ class SceneSlots(SlotsBlender):
 
     def header_init(self, widget):
         """Header menu — mirror of the Maya scene header (portable subset). ``b011`` (Fix Color
-        Spaces) is a genuine Blender build (data maps → 'Non-Color' by map type). Maya-only entries
-        (Save to Original Scene, Fix OCIO, Toggle Command Ports, the Mesh Converter batch tool) are
-        omitted — see the parity overrides. Reused objectNames carry the Maya label verbatim
-        (cross-DCC QSettings rule); ``b_cleanup`` is Blender-specific (Maya's b006 means the
-        unrelated 'Cleanup Unknown')."""
+        Spaces) is a genuine Blender build (data maps → 'Non-Color' by map type). ``b013`` (Mesh
+        Converter) is the DCC-agnostic extapps/mesh_convert tool, launched via the shared
+        external_app handler exactly like Maya. Maya-only entries (Save to Original Scene, Fix OCIO,
+        Toggle Command Ports) are omitted — see the parity overrides. Reused objectNames carry the
+        Maya label verbatim (cross-DCC QSettings rule); ``b_cleanup`` is Blender-specific (Maya's
+        b006 means the unrelated 'Cleanup Unknown')."""
         widget.menu.add("Separator", setTitle="Export")
         widget.menu.add(
             "QPushButton", setText="Scene Exporter", setObjectName="b002",
@@ -62,6 +63,10 @@ class SceneSlots(SlotsBlender):
         widget.menu.add(
             "QPushButton", setText="Export Selection", setObjectName="b008",
             setToolTip="Export only the selected objects (FBX).",
+        )
+        widget.menu.add(
+            "QPushButton", setText="Mesh Converter", setObjectName="b013",
+            setToolTip="Open the FBX -> GLB converter window.\nBacked by godotengine/FBX2glTF; the binary is downloaded on first use.",
         )
         widget.menu.add(
             "QPushButton", setText="Maya Bridge", setObjectName="b010",
@@ -404,6 +409,23 @@ class SceneSlots(SlotsBlender):
             self.sb.message_box("Export Selection requires a selection.")
             return
         self.invoke_op("export_scene.fbx", use_selection=True)
+
+    def b013(self):
+        """Mesh Converter (FBX -> GLB).
+
+        Launches the DCC-agnostic extapps/mesh_convert tool (pythontk.MeshConvert /
+        FBX2glTF) through the shared external_app handler — the same handler the
+        materials bridges use — defaulting its source directory to the current
+        .blend's folder. Maya's 'From FBX references' provider has no Blender
+        counterpart (Blender links .blend libraries, not FBX, and an imported FBX
+        leaves no live reference to trace back), so no fbx_provider is wired; the
+        converter's own file picker is used to choose inputs.
+        """
+        ui = self.sb.handlers.external_app.launch("mesh_convert", show=False)
+        blend_path = bpy.data.filepath or ""
+        if blend_path:
+            ui.slots.source_dir = os.path.dirname(blend_path)
+        self.sb.handlers.marking_menu.show(ui)
 
     def b_cleanup(self):
         """Scene Cleanup — purge orphan datablocks (no users / no fake user)."""

@@ -23,6 +23,16 @@ class _FakeCheck:
         return self._v
 
 
+class _FakeCombo:
+    """Stand-in for the option_box QComboBox: currentText()."""
+
+    def __init__(self, text):
+        self._text = text
+
+    def currentText(self):
+        return self._text
+
+
 class _FakeMenu:
     def __init__(self, **checks):
         for name, val in checks.items():
@@ -111,6 +121,38 @@ class TestDeleteHistoryUnusedNodes(unittest.TestCase):
             cmds.objExists(empty_grp),
             f"Empty group '{empty_grp}' should have been removed",
         )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004NodeLocking(unittest.TestCase):
+    """tb004 reads the Lock/Unlock combobox (cmb_lock, replacing the old
+    chk027 checkbox) and locks or unlocks the selected nodes."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance.sb = _FakeSb()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _widget(self, action):
+        widget = _FakeWidget()
+        widget.option_box.menu.cmb_lock = _FakeCombo(action)
+        return widget
+
+    def test_lock_nodes_locks_the_selection(self):
+        cube = cmds.polyCube(name="ln_cube")[0]
+        cmds.select(cube)
+        self.instance.tb004(self._widget("Lock Nodes"))
+        self.assertTrue(cmds.lockNode(cube, query=True, lock=True)[0])
+
+    def test_unlock_nodes_unlocks_the_selection(self):
+        cube = cmds.polyCube(name="ln_cube")[0]
+        cmds.lockNode(cube, lock=True)
+        cmds.select(cube)
+        self.instance.tb004(self._widget("Unlock Nodes"))
+        self.assertFalse(cmds.lockNode(cube, query=True, lock=True)[0])
 
 
 if __name__ == "__main__":

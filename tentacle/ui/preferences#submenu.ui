@@ -159,7 +159,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Platonic solids</string>
+     <string>Open the hotkey preferences.</string>
     </property>
     <property name="text">
      <string>Hotkeys</string>

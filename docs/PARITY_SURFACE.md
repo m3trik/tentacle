@@ -12,7 +12,7 @@
 | BlendshapeAnimator | 0 | 0 | 1 | 0 | OK |
 | Bridge | 0 | 0 | 0 | 0 | OK |
 | Calculator | 0 | 0 | 0 | 0 | OK |
-| Channels | 0 | 0 | 7 | 0 | OK |
+| Channels | 0 | 0 | 5 | 0 | OK |
 | ColorId | 0 | 0 | 0 | 1 | OK |
 | Curtain | 0 | 0 | 0 | 0 | OK |
 | CurveToTube | 0 | 0 | 0 | 0 | OK |
@@ -50,7 +50,7 @@
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
-| WheelRig | 0 | 0 | 0 | 1 | OK |
+| WheelRig | 0 | 0 | 0 | 0 | OK |
 
 ### Panel deltas
 
@@ -119,10 +119,6 @@
   - `b004.class` maya=`'QPushButton'` blender=`'PushButton'`
   - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
 
-#### WheelRig
-**property deltas (review)**
-  - `chk_world_space.setText` maya=`'World Space (decomposeMatrix)'` blender=`'World Space (driver Transform Space)'`
-
 **N/A by design (1):** WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
 
 **[counterpart-set OK]** BlenderBridge <-> MayaBridge — cross-DCC send pair — each package ships the bridge named after its TARGET app
@@ -133,7 +129,7 @@ Blender-only panels: MayaBridge
 
 | slot file | untriaged | pending | triaged OK | stale (Maya) | prop deltas | status |
 |:--|--:|--:|--:|--:|--:|:--|
-| animation.py | 0 | 0 | 12 | 0 | 0 | OK |
+| animation.py | 0 | 0 | 11 | 0 | 0 | OK |
 | cameras.py | 0 | 0 | 0 | 0 | 0 | OK |
 | crease.py | 0 | 0 | 0 | 0 | 0 | OK |
 | deformation.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -152,7 +148,7 @@ Blender-only panels: MayaBridge
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 6 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
-| scene.py | 0 | 2 | 11 | 0 | 0 | open |
+| scene.py | 0 | 0 | 11 | 0 | 0 | OK |
 | selection.py | 0 | 0 | 8 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -211,7 +207,7 @@ Blender-only panels: MayaBridge
 
 #### selection.py
 **combo item deltas (review)**
-  - `cmb003` 20->15 items; missing=['Vertex Faces', "UV's", 'UV Shell Border', 'UV Perimeter', 'UV Edge Loop'] extra=[]
+  - `cmb003` 20->18 items; missing=['Vertex Faces', "UV's"] extra=[]
 
 #### subdivision.py
 **combo item deltas (review)**
@@ -221,9 +217,4 @@ Blender-only panels: MayaBridge
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
-## Open work (ledgered `pending`)
-
-- **scene** `b013` — header QPushButton 'Mesh Converter'  [pending] see HANDLERS['scene'] (Mesh Converter -- feasible, deferred)
-- **scene** `b013` — [pending] Mesh Converter (FBX->GLB) header button. FEASIBLE on Blender: the tool is the DCC-agnostic extapps/mesh_convert launched via self.sb.handlers.external_app.launch("mesh_convert") over pythontk.MeshConvert (FBX2glTF) -- the SAME external_app handler the Blender materials.py bridge buttons already use. Recipe = mirror slots/maya/scene.py b013 as a header button + handler in the Blender scene slot. BLOCKED only by the user's uncommitted b017 'Scene Metadata'/DataNodes WIP in tentacle/slots/blender/scene.py + maya/scene.py -- adding the b013 header button to that same dirty file would entangle their WIP. Ready to build the instant that lands (commit/stash); do NOT edit scene.py while dirty. (The Shots trio is a separate in-progress port -- see the SHOTS TRIO note; b013 is the only WIP-BLOCKED item.)
-
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 2 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep PASSES.

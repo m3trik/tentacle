@@ -1,5 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+import sys
+
 import bpy
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
@@ -26,9 +29,21 @@ class Preferences(SlotsBlender):
         self.ui = self.sb.loaded_ui.preferences
         self.submenu = self.sb.loaded_ui.preferences_submenu
 
-    @staticmethod
-    def _open_preferences(section=None):
-        """Open Blender's Preferences editor, optionally on a specific section."""
+    def _open_preferences(self, section=None):
+        """Open Blender's Preferences editor, optionally on a specific section, and make sure
+        the window actually surfaces.
+
+        Two live-verified gotchas (see ``test/blender/userpref_visibility_check.py``):
+
+        - ``bpy.ops.screen.userpref_show`` can succeed *invisibly*: with OS foreground held by
+          another process (e.g. the user was last in Maya and clicked straight onto this Qt
+          panel), Windows denies GHOST the foreground transfer — the window opens (or is
+          reused) fully obscured and retries never raise it, which reads as a dead button.
+          Same-process the op raises it fine, so the explicit lift below is a cheap no-op
+          there and the visible fix otherwise.
+        - Failures were previously swallowed (``except Exception: pass``), making every
+          failure mode indistinguishable from a dead click — surface them like ``invoke_op``.
+        """
         if section:
             try:
                 bpy.context.preferences.active_section = section
@@ -36,8 +51,46 @@ class Preferences(SlotsBlender):
                 pass
         try:
             bpy.ops.screen.userpref_show()
-        except Exception:
-            pass
+        except Exception as error:
+            self.sb.message_box(f"Could not open Blender Preferences: {error}")
+            return
+        self._raise_ghost_window("Preferences")
+
+    @staticmethod
+    def _raise_ghost_window(title_fragment):
+        """Best-effort: lift this process's GHOST (Blender-native) window whose title contains
+        ``title_fragment`` above our own windows — and to OS foreground where Windows allows it
+        (always granted same-process; denied cross-process, where the z-lift still applies).
+        Windows-only and English-UI window titles; silently a no-op elsewhere or when no such
+        window exists (the operator itself already succeeded)."""
+        if sys.platform != "win32":
+            return
+        import ctypes
+        from ctypes import wintypes
+
+        user32 = ctypes.windll.user32
+        pid = os.getpid()
+        found = []
+
+        @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        def _enum(hwnd, _lparam):
+            wpid = wintypes.DWORD()
+            user32.GetWindowThreadProcessId(hwnd, ctypes.byref(wpid))
+            if wpid.value == pid and user32.IsWindowVisible(hwnd):
+                cls = ctypes.create_unicode_buffer(64)
+                user32.GetClassNameW(hwnd, cls, 64)
+                if cls.value == "GHOST_WindowClass":
+                    title = ctypes.create_unicode_buffer(128)
+                    user32.GetWindowTextW(hwnd, title, 128)
+                    if title_fragment in title.value:
+                        found.append(hwnd)
+            return True
+
+        user32.EnumWindows(_enum, 0)
+        if found:
+            HWND_TOP, SWP_NOMOVE, SWP_NOSIZE = 0, 0x2, 0x1
+            user32.SetWindowPos(found[0], HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
+            user32.SetForegroundWindow(found[0])
 
     # ------------------------------------------------------------------ cmb001  Linear units
     def cmb001_init(self, widget):

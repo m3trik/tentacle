@@ -88,9 +88,9 @@ CONTROLS = {
             "status": "renamed", "to": "chk_delete_sources",
             "reason": "same permanently-remove-drivers-after-baking capability; 'Delete Sources' matches the panel's own Mute Sources/Delete Sources wording pair (see chk_use_override)",
         },
-        "chk_override_layer": {
+        "cmb_bake_layer": {
             "status": "replaced", "to": "chk_use_override",
-            "reason": "Blender's bake always produces a brand-new Action -- there is no separate override-layer-vs-base-layer bake target to choose between, so there's no 'which layer' axis for this control to name; chk_use_override instead names the mute-vs-delete-sources choice that replaces it (see _smart_bake.py's module docstring)",
+            "reason": "Override Layer / Base Layer bake-target selector (was chk_override_layer). Blender's bake always produces a brand-new Action -- there is no separate override-layer-vs-base-layer bake target to choose between, so there's no 'which layer' axis for this control to name; chk_use_override instead names the mute-vs-delete-sources choice that replaces it (see _smart_bake.py's module docstring)",
         },
         "chk_mute_drivers": {
             "status": "na",
@@ -132,8 +132,6 @@ CONTROLS = {
             "reason": "ignore-empty-workspaces is moot; find_workspaces never returns empty dirs",
         },
         "txt_subfolder_structure": {"status": "renamed", "to": "txt_subfolder", "reason": "shorter name"},
-        "hdr_select_shape": {"status": "na", "reason": "no DAG transform/shape split in Blender"},
-        "hdr_select_history": {"status": "na", "reason": "no construction history in Blender"},
     },
     "channels_slots": {
         # add_action (txt000 filter ON/OFF toggle) ported 2026-07-03 — mirrors mayatk
@@ -159,8 +157,6 @@ CONTROLS = {
             "reason": "Maya Channel Control editor; Blender -> Properties/Drivers/Graph editors",
         },
         "hdr_connection_editor": {"status": "na", "reason": "Maya Connection Editor; no Blender analogue"},
-        "hdr_select_shape": {"status": "na", "reason": "no DAG transform/shape split in Blender"},
-        "hdr_select_history": {"status": "na", "reason": "no construction history in Blender"},
     },
     "blendshape_animator_slots": {
         "btn_recover_setup": {
@@ -207,9 +203,14 @@ CONTROLS = {
     # Space)', naming Blender's TRANSFORMS-driver-var mechanism for Maya's decomposeMatrix node) -- a
     # report-only setText review delta, same capability, no ledger entry needed.
     "color_id": {
-        "add_presets": {"status": "pending", "reason": "Swatch-palette preset combo (widget.menu.add_presets=True + PresetManager metadata_provider/on_metadata_loaded + default preset) missing from Blender header_init; DCC-agnostic uitk feature (swatch colors are Qt-side) — port mayatk color_id.py:369-446 (landed 2026-06-30 512f9ab)."},
+        # add_presets / preset_dir: BUILT — the Blender ColorIdSlots.header_init ships the swatch-
+        # palette preset combo 1:1 (color_id.py:330-334 widget.menu.add_presets=True + presets
+        # .preset_dir=self._PRESET_DIR + metadata_provider/on_metadata_loaded + _ensure_default_preset),
+        # a DCC-agnostic uitk feature (swatches are Qt-side) matching mayatk color_id.py:406-448. The
+        # store key is Blender's own 'blendertk/color_id' (color_id.py:237), not Maya's legacy
+        # 'mayatk/color_manager'. The header preset combo is not a distinct objectName the static sweep
+        # tracks, so no ledger row is needed now that both sides build it.
         "chk012": {"status": "na", "reason": "Maya wireframe-override color channel (overrideEnabled/overrideRGBColors/overrideColorRGB); Blender has no per-object wireframe color — Maya's outliner+wireframe tints collapse into the single obj.color Object Color channel (documented drop)."},
-        "preset_dir": {"status": "pending", "reason": "Companion to the missing add_presets combo: preset_dir keys the palette store (Maya uses legacy 'mayatk/color_manager'); Blender port needs its own key (e.g. 'blendertk/color_id') when the preset combo is added."},
     },
     "game_shader": {
         "cmb002": {"status": "na", "reason": "Output Template (workflow-preset) map-export knob; Blender flow wires existing textures into the node graph and never bakes/writes maps (documented drop)"},
@@ -233,7 +234,20 @@ CONTROLS = {
     },
     "lightmap_baker": {
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
-        "cmb002": {"status": "pending", "reason": "Packing combo (Per-Object / Atlas by Material). Per-Object is what the Blender baker does today; the blocker for shipping the combo is the ATLAS-CONSOLIDATION engine — mayatk's LightmapBaker.pack_atlas (per-primary-material grouping → area-weighted rects via ptk.ImgUtils.compute_atlas_layout → one shared EXR via assemble_atlas + a per-object scaleOffset) is unported to blendertk. The scaleOffset metadata carrier already exists (write_lightmap_metadata takes scale_offsets); needs the Blender-native per-material grouping + EXR atlas assembly (bpy image I/O, no cv2). A one-item Per-Object combo is pointless and shipping Atlas without the engine = a dead menu item, so the whole combo stays pending until pack_atlas lands. XL — tracked in PARITY_PORTING_PLAN.md."},
+        # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk
+        # LightmapBaker.pack_atlas now ports mayatk's atlas consolidation — per-primary-material
+        # grouping (obj.material_slots / dominant material_index), area-weighted rects REUSING the
+        # DCC-agnostic pythontk layout math (ptk.ImgUtils.compute_atlas_layout / inset_atlas_rects /
+        # atlas_pixel_rects — all pure-Python, no cv2, the same helpers mayatk uses), one shared EXR
+        # per group assembled via bpy image I/O + a numpy paste/gutter-dilate (Blender's runtime has
+        # no cv2), and a per-object lightmap-UV repack into each rect (so the mesh samples the atlas
+        # via UV2 — engine scaleOffset stays identity, the applied rect rides the marker's uvRect and
+        # is undone by revert_lightmap). The "Atlas by Material" item is enabled (the old
+        # _disable_unsupported_packing_mode removed); the slot b000 atlas branch calls pack_atlas +
+        # commit_lightmap(uv_rects=…). Verified end-to-end headlessly (blendertk/test/
+        # test_lightmap_baker.py: 2 objects sharing a material -> 1 shared area-weighted EXR, source
+        # maps consolidated, UVs repacked into their rects, revert EXACTLY restores the 0-1 layout).
+        # cmb002 is a QComboBox present+functional on both sides -> no ledger row needed.
         "open_sourceimages": {
             "status": "na",
             "reason": "no sourceimages workspace in Blender; output dir browsed explicitly",
@@ -259,7 +273,11 @@ CONTROLS = {
         # objectNames, same header-menu layout, same method shapes"); Save/Rename/Delete/Open-
         # -templates-dir ship under the IDENTICAL names these entries claimed were renamed away
         # from. No divergence to ledger.
-        "lbl002": {"status": "pending", "reason": "open-selected-template-file entry unported; saved templates are PresetStore JSON files so an open-in-editor entry is portable (built-in parameter presets are code-defined, not files)"},
+        # lbl002 ("Open Template File"): BUILT — the Blender twin ships it 1:1 on the cmb002
+        # submenu (shader_templates.py:167-172 add_action + def lbl002:206-209 -> ptk.open_explorer
+        # of self._store.path(template,"user")), matched by objectName against the Maya panel
+        # (_shader_templates.py:594-599 / lbl002:646-649). Saved templates are PresetStore JSON
+        # files, so open-in-editor is portable exactly as the Maya YAML entry is. No divergence.
         # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (shader_templates.py:107,135
         # -> btk.graph_materials opens the Shader Editor), matched by objectName against the Maya
         # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
@@ -429,13 +447,18 @@ HANDLERS = {
         # cmb003 "Convert To" -- ported 2026-07-06 from 7 to 15 of Maya's 20 items (Vertex
         # Perimeter, Contained Edges, Edge Perimeter, Contained Faces, Face Path, Face
         # Perimeter, UV Shell, Shell Border added; touching-vs-contained on plain Faces/Edges
-        # fixed to match Maya -- see btk.Selection.convert_to's docstring). The 5 below are
-        # genuinely NOT built (not silently dropped):
+        # fixed to match Maya -- see btk.Selection.convert_to's docstring). UV Shell Border / UV
+        # Perimeter / UV Edge Loop were BUILT 2026-07-13 (bmesh UV-graph helpers on btk.Selection --
+        # select_uv_shell_border / select_uv_perimeter / select_uv_edge_loop, keyed off a single
+        # UV-boundary test: a mesh-open edge OR a UV discontinuity where an edge's two faces assign
+        # different UVs to a shared vert, i.e. a seam that splits a manifold surface in UV space).
+        # Verified headlessly (blendertk/test/test_selection.py) against the two extremes that expose
+        # a wrong boundary test -- a smart-projected cube (6 one-face islands => every edge a seam)
+        # and a seamless grid (one island => no internal seams) -- incl. UV Edge Loop truncating a
+        # cross-loop at a real re-unwrapped seam (uv=3 < native=6). The 2 below stay genuinely NOT
+        # built (no Blender component analogue), not silently dropped:
         "cmb003:Vertex Faces": {"status": "na", "reason": "Maya's vtxFace (PolySelectConvert 5) is its own per-corner sub-component type (like a split-normal/face-corner element, cmds type 70) -- a hybrid vertex-belonging-to-one-face component with no Blender selection-mode analogue (Blender's VERT/EDGE/FACE modes have no fourth 'corner' mode); Blender's nearest concept (custom split normals per-loop) lives in a completely different workflow (Mesh > Normals), not a selectable component."},
-        "cmb003:UV's": {"status": "na", "reason": "Maya's UV component (PolySelectConvert 4, cmds .map[]) is a persistent 3D-viewport component type; Blender has no such thing -- UV coordinates are only selectable from within the UV Editor's own uv_select_mode, not the 3D viewport's VERT/EDGE/FACE modes. UV Shell (below) is the one UV-domain item that DOES have a viewport-reachable analogue (mesh.select_linked(delimit={'UV'})) and is built."},
-        "cmb003:UV Shell Border": {"status": "pending", "reason": "The naked/seam boundary edges of a UV island in UV SPACE (can differ from the 3D mesh's own topology -- a UV seam can split an otherwise-manifold mesh region into two UV islands). Genuinely portable (compare per-face-corner UV coords across each edge's two linked faces to detect a UV-domain boundary) but needs verification against a real multi-island seamed mesh (not just a single-island flat-plane test), deferred rather than shipped unverified."},
-        "cmb003:UV Perimeter": {"status": "pending", "reason": "The UV-space boundary of the CURRENT selection's UV footprint (the Edge Perimeter concept, but in UV coordinate space rather than 3D topology) -- same UV-graph-traversal work and verification need as UV Shell Border, deferred together."},
-        "cmb003:UV Edge Loop": {"status": "pending", "reason": "An edge-loop select that stops at UV seams (Maya's polySelectEdges \"edgeUVLoopOrBorder\") -- needs a custom bmesh loop walk that treats seam-marked edges as loop breaks (no native Blender op does this); deferred with the other UV-domain items pending a proper seamed-mesh verification pass."},
+        "cmb003:UV's": {"status": "na", "reason": "Maya's UV component (PolySelectConvert 4, cmds .map[]) is a persistent 3D-viewport component type; Blender has no such thing -- UV coordinates are only selectable from within the UV Editor's own uv_select_mode, not the 3D viewport's VERT/EDGE/FACE modes. UV Shell/UV Shell Border/UV Perimeter/UV Edge Loop are the UV-domain items with viewport-reachable bmesh analogues and ARE built (2026-07-13)."},
         # list000 "Select by Type" leaves -- code-built control keys sourced from
         # btk.Selection._SELECTION_CONFIG (blendertk/blendertk/edit_utils/selection.py), the
         # mirror of mayatk's Selection._SELECTION_CONFIG. Ported 2026-07-04: the category
@@ -452,8 +475,15 @@ HANDLERS = {
         "list000:Sculpts": {"status": "na", "reason": "Maya's implicitSphere/sculpt deformer nodes; Blender Sculpt Mode is a mesh edit mode, not a selectable Object type or deformer node."},
         "list000:Wires": {"status": "done-elsewhere", "to": "list000 Wires (Curve-modifier carriers)", "reason": "BUILT 2026-07-11: the Blender Selection config now ships a 'Wires' leaf in the same Dynamics category as Maya, selecting meshes that carry a Curve modifier (btk.Selection._select_by_modifier(objs,'CURVE')) -- Blender's curve-driven mesh-deform (bpy.types.CurveModifier), the analogue of Maya's wire deformer, via the same modifier-carrier idiom. (list000 leaves are not tracked by the static sweep; documentation of the mapping.)"},
         "list000:Templated Geometry": {"status": "na", "reason": "Maya's legacy 'template' display mode (dashed wireframe, non-selectable/non-renderable) has no Blender display-mode counterpart; Non-Selectable Geometry (hide_select) and Hidden Geometry (hide_get) already cover the adjacent non-selectable/hidden capabilities."},
-        "list000:Back-Facing": {"status": "pending", "reason": "Reason corrected 2026-07-08: Maya's selectUVFaceOrientationComponents ({} 0 2 1) detects UV-SPACE flipped/mirrored winding (negative signed UV area), NOT the active camera -- the camera-depth backface pref is the separate, already-ledgered chk004. Portable to Blender with a small bmesh pass (per-face signed UV area over face.loops[].uv; negative = flipped) with no camera and no native op; deferred as a niche filter pending a mirrored/seamed-UV verification pass rather than dropped."},
-        "list000:Front-Facing": {"status": "pending", "reason": "see Back-Facing (positive signed UV area = front-facing winding)."},
+        # list000:Back-Facing / Front-Facing: BUILT 2026-07-13. The blendertk Selection config's UV
+        # category now ships both leaves (edit_utils/selection.py _SELECTION_CONFIG["UV"]) via
+        # _select_uv_face_orientation -- a bmesh signed-UV-area (shoelace over face.loops[].uv) pass:
+        # negative area = flipped/mirrored winding (Back-Facing), positive = normal (Front-Facing).
+        # Object-level granularity (selects objects CONTAINING such a face), matching the sibling UV
+        # leaves (Texture Borders / Unmapped). This is the UV-space winding filter, NOT the camera-
+        # depth backface pref (that's the separate, already-handled chk004). Verified headlessly
+        # (test_selection.py: a CCW-UV quad -> Front-Facing, a CW-UV quad -> Back-Facing). list000
+        # leaves are not tracked by the static sweep, so this is documentation of the built mapping.
         "list000:nParticles": {"status": "replaced", "to": "list000 Particles", "reason": "Blender has one unified particle system (no separate classic-vs-Nucleus split like Maya's legacy Particles vs nParticles); EMITTER-type particle systems cover both roles under the single 'Particles' leaf."},
     },
     "transform": {
@@ -477,7 +507,14 @@ HANDLERS = {
         # genuinely Maya-only / pending); only the human-readable labels were swapped.
         "b009": {"status": "na", "reason": "Fix OCIO — repairs Maya Color Management / OCIO config preferences; Maya-only header entry"},
         "b012": {"status": "na", "reason": "Toggle Command Ports — Maya commandPort concept (MEL :7001 / Python :7002) with no Blender analogue; Maya-only header entry"},
-        "b013": {"status": "pending", "reason": "Mesh Converter (FBX->GLB) header button. FEASIBLE on Blender: the tool is the DCC-agnostic extapps/mesh_convert launched via self.sb.handlers.external_app.launch(\"mesh_convert\") over pythontk.MeshConvert (FBX2glTF) -- the SAME external_app handler the Blender materials.py bridge buttons already use. Recipe = mirror slots/maya/scene.py b013 as a header button + handler in the Blender scene slot. BLOCKED only by the user's uncommitted b017 'Scene Metadata'/DataNodes WIP in tentacle/slots/blender/scene.py + maya/scene.py -- adding the b013 header button to that same dirty file would entangle their WIP. Ready to build the instant that lands (commit/stash); do NOT edit scene.py while dirty. (The Shots trio is a separate in-progress port -- see the SHOTS TRIO note; b013 is the only WIP-BLOCKED item.)"},
+        # b013 Mesh Converter (FBX->GLB): BUILT 2026-07-13 — the Blender scene header now ships it
+        # (slots/blender/scene.py header_init + def b013) launching the DCC-agnostic extapps/
+        # mesh_convert tool via self.sb.handlers.external_app.launch("mesh_convert"), the SAME
+        # handler the Blender materials bridges use, defaulting source_dir to the .blend's folder.
+        # Divergence (internal, not a widget the sweep sees): Maya's 'From FBX references' provider
+        # is not wired -- Blender links .blend libraries, not FBX, and an imported FBX leaves no live
+        # reference to trace, so there is no selected-FBX set to feed; the converter's own file
+        # picker chooses inputs instead. Matched by objectName on both sides -> no ledger row needed.
         "b014": {"status": "na", "reason": "Save to Original Scene -- writes an open Maya autosave back over its original scene file (enabled only when an autosave is open and the original is locatable). Blender's recovery model differs (File > Recover Auto Save reopens the .blend; there is no 'save the autosave back to the original' action), so no 1:1 header entry."},
         "b014_init": {"status": "na", "reason": "see b014 (Save to Original Scene enable-state init)"},
         "b016": {"status": "relocated", "to": "materials.py:b026",
@@ -586,7 +623,7 @@ CONTROLS_SLOTS = {
         "chk001": {"status": "divergent", "reason": "[Update] Blender's Go To Frame is a direct frame_set that always refreshes; Maya's auto-update playback toggle has no frame-nav analogue."},
         "chk007": {"status": "replaced", "to": "tb004 action-copy", "reason": "Blender tb004 transfers by duplicating the whole action, so fcurve handles/tangents always transfer — a tangents on/off toggle is inapplicable to that model."},
         "chk020": {"status": "na", "reason": "Delete Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box — channel scoping is covered by Dope Sheet/Graph Editor selection instead."},
-        "chk022": {"status": "renamed", "to": "chk_untie", "reason": "Same untie/bookend-removal capability; Blender tb011 exposes it as chk_untie 'Untie' feeding btk.tie_keyframes(untie=)."},
+        # chk022 (Untie) -> cmb_tie on BOTH DCCs now (Tie/Untie combobox); name-matched, so no ledger entry needed.
         "chk024": {"status": "na", "reason": "Stagger Keys 'Channel Box Attrs Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
         "chk033": {"status": "na", "reason": "Move Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
         "chk034": {"status": "na", "reason": "Select Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
@@ -609,7 +646,7 @@ CONTROLS_SLOTS = {
         "chk019": {"status": "na", "reason": "Option of Maya tb001 Delete History (MLdeleteUnused + empty-group purge); Blender tb001 is a documented not-applicable stub (no construction history), so its option box is intentionally not built; a Blender purge-orphans surface would be a separate control if ever wanted."},
         "chk020": {"status": "na", "reason": "'Delete Deformers' toggles deleting full vs non-deformer construction history (cmds.delete ch=True vs bakePartialHistory); construction history does not exist in Blender (modifier stack is non-destructive) per the documented tb001 stub."},
         "chk026": {"status": "na", "reason": "tb000 pre-cleanup option 'Delete History' bakes non-deformer construction history (bakePartialHistory) before polyCleanup; Blender has no construction history so the pre-pass is meaningless, per the documented drop in blender/edit.py."},
-        "chk027": {"status": "na", "reason": "Sole option of tb004 Node Locking (cmds.lockNode); Blender tb004 is a documented not-applicable stub — Maya node locking (prevent delete/rename of DG nodes) has no Blender analogue."},
+        "cmb_lock": {"status": "na", "reason": "Lock/Unlock selector of tb004 Node Locking (cmds.lockNode; was chk027); Blender tb004 is a documented not-applicable stub — Maya node locking (prevent delete/rename of DG nodes) has no Blender analogue."},
         "chk030": {"status": "na", "reason": "Runs MEL 'OptimizeScene' (Maya scene optimizer) as a tb001 Delete History option; host tool is a documented not-applicable stub on Blender; nearest Blender analogue (outliner.orphans_purge) would be a separate surface if ever surfaced."},
         "chk031": {"status": "na", "reason": "'For All Objects' scope toggle for tb001 Delete History; rides on the construction-history capability that the Blender slot documents as not applicable, so no Blender surface should exist."},
     },
@@ -689,7 +726,7 @@ CONTROLS_SLOTS = {
         "b006": {"status": "renamed", "to": "b_cleanup", "reason": "see HANDLERS['scene']['b006']"},
         "b009": {"status": "na", "reason": "see HANDLERS['scene']"},
         "b012": {"status": "na", "reason": "see HANDLERS['scene']"},
-        "b013": {"status": "pending", "reason": "see HANDLERS['scene'] (Mesh Converter -- feasible, deferred)"},
+        # b013 Mesh Converter: BUILT 2026-07-13 — see HANDLERS['scene'] b013 note (present on both sides).
         "b014": {"status": "na", "reason": "see HANDLERS['scene'] (Save to Original Scene)"},
         "b016": {"status": "relocated", "to": "materials.py:b026", "reason": "see HANDLERS['scene']"},
         # lbl004/lbl005 ("Open Workspace Root"/"Auto Set Workspace") removed 2026-07-04: stale
@@ -741,6 +778,9 @@ DEFAULT_DELTAS = {
     },
     "edit": {
         "cmb000.items": "Deliberately different item list (Transfer menu): Blender's Data-Transfer operator works one data-layer at a time, so Maya's single 'Attribute Values' dialog (UVs/vertex colors/weights/normals together) is broken out into its natural granular items (UVs / Vertex Colors / Vertex Group Weights / Custom Normals); 'Shading Sets' is renamed to Blender's own term 'Material Slots'. Maya's 'Maps' (Cycles-scale bake setup) and 'Vertex Order' (interactive click-to-match reindex, no bpy primitive) are intentionally dropped rather than added as inert entries — see the _TRANSFER_OPS comment in blender/edit.py.",
+    },
+    "subdivision": {
+        "cmb000.items": "Decimate 'Reduce' item names its output metric by each host's native algorithm: Maya = Quadric Error % ('Reduce (Quadric Error %)', data 'qem', cmds.polyReduce QEM), Blender = Collapse % ('Reduce (Collapse %)', data 'collapse', Decimate modifier collapse mode). Same Reduce slot/operation; only the metric name in the item text (and its data token) differs to match each DCC's native reduction.",
     },
     "nurbs": {
         "s003.setValue": "Blender's Screw modifier takes ONE sweep angle computed as end-start (tb000: math.radians(s004-s003)); start=0 is the neutral origin. Matching Maya's 3 alongside its 3 end sweep would give a 0-degree (degenerate) revolve. Maya's 3/3 is itself drift from cmds.revolve defaults (ssw=0, esw=360).",

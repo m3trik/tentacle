@@ -223,6 +223,28 @@ try:
 
     bpy.ops.object.mode_set(mode="OBJECT")
 
+    # -- b001 Toggle Selectability round-trip: setting hide_select=True auto-deselects in
+    #    Blender, so a naive toggle could turn selectability OFF but never back ON. Pin that a
+    #    second click (with nothing selected, because the objects were auto-deselected) restores
+    #    selectability and re-selects. --
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    ca = bpy.context.active_object
+    bpy.ops.mesh.primitive_cube_add(location=(3, 0, 0))
+    cb = bpy.context.active_object
+    ca.select_set(True); cb.select_set(True)
+
+    slot.b001()  # selection present -> OFF
+    off_ok = ca.hide_select and cb.hide_select and not slot.selected_objects()
+    check("b001 turns selectability OFF and Blender auto-deselects", off_ok,
+          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in slot.selected_objects()]}")
+
+    slot.b001()  # nothing selected -> recover: ON + re-select
+    on_ok = (not ca.hide_select and not cb.hide_select
+             and {o.name for o in slot.selected_objects()} == {ca.name, cb.name})
+    check("b001 re-enables selectability from an empty selection (the reported bug)", on_ok,
+          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in slot.selected_objects()]}")
+
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")
     lines.append(traceback.format_exc())

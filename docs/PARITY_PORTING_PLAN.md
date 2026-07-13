@@ -67,9 +67,11 @@ branchless (fast parser).
 
 | Panel | Effort | Blender mapping sketch | Deps / notes |
 |:--|:--|:--|:--|
-| **SceneExporter** | XL (3059 ln) | Same task-graph architecture over `bpy.ops.export_scene.fbx`; **reuse `env_utils/fbx_utils`** as the export primitive. RenderOpacity dual-key hook runs as a pre-export task. | Panel shipped; 4 preset-management buttons (`b003`/`b004`/`b007`/`b008`) remain `pending` — no Blender-native FBX external-preset-file mechanism (see `parity_map.py`) |
-| **Shots + ShotManifest + ShotSequencer** | XXL (15354 ln) | `ShotBlock`/`ShotStore` data model is DCC-neutral; apply layer → timeline **markers** + `marker.camera` / multiple Scenes / VSE. Port data model + manifest (read-only) before the sequencer. | Lowest priority — biggest divergence; out of scope for the 2026-07 push |
-| **WorkspaceMap** | N/A (ledgered) | Maya-workspace tool; no Blender project concept. Reframe as a `.blend`/asset browser only if wanted. | |
+| **SceneExporter** | Shipped | Same task-graph architecture over `bpy.ops.export_scene.fbx`; reuses `env_utils/fbx_utils`. RenderOpacity dual-key hook runs as a pre-export task. | **Done** — the FBX export-option preset combo (`cmb000`) + its option-box `b003`/`b004`/`b007`/`b008` are built 1:1 against a `pythontk.PresetStore`-backed named-JSON preset engine (sweep: clean, 0 triaged). |
+| **Shots + ShotManifest + ShotSequencer** | Shipped 2026-07-11 | `ShotBlock`/`ShotStore` data model extracted to pythontk; apply layer → timeline **markers** + `marker.camera` / Scenes / VSE. | **Done** — all three panels ship 1:1 (sweep: 0 element deltas each). |
+| **WorkspaceMap** | N/A (ledgered) | Maya-workspace tool; no Blender project concept. Reframe as a `.blend`/asset browser only if wanted. | The one remaining Maya panel with no Blender twin, by design. |
+
+> **No big-ticket ports remain open.** Every mayatk `*Slots` panel is paired (45/45) or ledgered N/A (WorkspaceMap / counterpart bridges).
 
 **Closed 2026-07-08**: `duplicate.py` `tb002` Auto Instance — blendertk `core_utils/auto_instancer/`
 (`btk.auto_instance`), with the matching math + assembly clustering extracted to pythontk
@@ -81,15 +83,21 @@ implementation; slot + option box mirror Maya's 1:1. **SmartBake** also shows cl
 
 ### Element-level pendings (SSoT = `parity_map.py` `pending` entries; rollup in PARITY_SURFACE)
 
-Current highlights (as of 2026-07-03): **TubeRig** granular step-workflow (b001–b004 +
-reverse-chain chk000) + twist/squash/volume/auto-bend deformation toggles + the unreachable
-Auto joint count (spec `minimum=2` blocks the engine's supported `-1`) — the step-workflow is
-the single largest open item: it needs standalone step-engine methods operating on
-user-selected existing armature/bones plus **live-Blender rig-deformation verification**
-(structural headless tests can confirm bones/constraints exist but not correct deform), so
-it's deferred to a dedicated session rather than shipped unverified; **LightmapBaker** `cmb002`
-Atlas-by-Material packing (needs a Blender-native `pack_atlas` engine — per-material grouping +
-EXR atlas assembly via bpy image I/O + the already-present scaleOffset metadata carrier).
+**As of 2026-07-13 there are 0 open `pending` items — the sweep reports 0 open-work.** The last
+batch closed that day: **scene `b013`** Mesh Converter (extapps/mesh_convert via the shared
+`external_app` handler); **selection `cmb003`** UV Shell Border / UV Perimeter / UV Edge Loop
+(bmesh UV-graph helpers on `btk.Selection`) + `list000` Back-/Front-Facing (object-level signed-UV-
+area leaves); **LightmapBaker `cmb002`** Atlas-by-Material packing (new `LightmapBaker.pack_atlas`
+— per-material grouping + area-weighted rects reusing pythontk's `ImgUtils` layout math + bpy-native
+EXR assembly/UV-repack, revert-restorable); and the stale `color_id` preset-combo /
+`shader_templates` "Open Template File" rows (both already built). All engine work verified in
+fresh headless Blender 5.1 (`test_selection.py`, `test_lightmap_baker.py`). Remaining differences
+are all by-design (`na`/`replaced`/`counterpart`) — WorkspaceMap, ArnoldBridge, the native-menu
+stub set, per-camera visibility, NURBS-parametric / Channel-Box / node-locking families, etc.
+
+**Closed 2026-07-11**: **TubeRig** granular step-workflow (b001–b004 + reverse-chain chk000) +
+twist/squash/volume/auto-bend deformation toggles (the "needs live-Blender rig verification" ruling
+was refuted — deform is verified numerically via the evaluated depsgraph in `test_tube_rig.py`).
 **Closed 2026-07-03**: HdrManager full drift (config_buttons, clear_network, add_hdr_btn,
 cmb_add_mode, add_value, .ui promotion), WheelRig `b010`, LightmapBaker header chrome, TubeRig
 `cmb_preset`/`txt000` .ui promotion, and the whole slot default-flip channel. **Closed
