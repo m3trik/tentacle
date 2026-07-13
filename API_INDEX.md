@@ -104,7 +104,7 @@ _Generated: 2026-07-13_
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SlotsBlender)`
-  - methods: header_init, list000_init, list000, cmb002_init, cmb002, cmb003_init, cmb003, cmb004_init, cmb004, tb003_init, tb003, b011, b001, b010, b005, b007, b008, b_cleanup, tb001_init, tb001, b002, b004, b003, b015, b017
+  - methods: header_init, list000_init, list000, cmb002_init, cmb002, cmb003_init, cmb003, cmb004_init, cmb004, tb003_init, tb003, b011, b001, b010, b005, b007, b008, b013, b_cleanup, tb001_init, tb001, b002, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
 - `class Selection(SlotsBlender)`

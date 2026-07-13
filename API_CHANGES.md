@@ -2,4 +2,6 @@
 
 _Diff vs prior baseline. Generated 2026-07-13._
 
-No public API changes since last refresh.
+## Added (1)
+
+- `slots/blender/scene.py::SceneSlots.b013(self)`
