@@ -618,10 +618,13 @@ class Animation(SlotsBlender):
     def tb008_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Set Visibility Keys")
-        m.add(
-            "QCheckBox", setText="Visible", setObjectName="chk015", setChecked=True,
-            setToolTip="Set visibility to on (visible) or off (hidden).",
+        # Visible vs Hidden is a two-valued choice, not a modifier — name both states.
+        vis = m.add(
+            "QComboBox", setObjectName="cmb_visibility",
+            setToolTip="Whether the keyed visibility is Visible (on) or Hidden (off).",
         )
+        vis.addItems(["Visible", "Hidden"])
+        vis.setCurrentText("Visible")  # preserve prior default (checkbox on = visible)
         cmb = m.add(
             "QComboBox", setObjectName="cmb002",
             setToolTip="When to key visibility: at the current frame, or relative to each "
@@ -657,7 +660,7 @@ class Animation(SlotsBlender):
         m = widget.option_box.menu
         keyed = btk.set_visibility_keys(
             objects,
-            visible=m.chk015.isChecked(),
+            visible=m.cmb_visibility.currentText() == "Visible",
             when=m.cmb002.currentData(),
             offset=m.s008.value(),
             group_overlapping=m.chk016.isChecked(),
@@ -867,16 +870,19 @@ class Animation(SlotsBlender):
             "• Lower values = faster processing but less precise\n"
             "• Only applies in speed mode, ignored in uniform mode.",
         )
-        m.add(
-            "QCheckBox", setText="Absolute Mode", setObjectName="chk_absolute", setChecked=False,
-            setToolTip="Toggle between Absolute and Relative scaling:\n\n"
+        # Absolute vs Relative is a two-valued mode, not a modifier — name both states.
+        scale_mode = m.add(
+            "QComboBox", setObjectName="cmb_scale_mode",
+            setToolTip="How the Factor is interpreted:\n\n"
             "Uniform Mode:\n"
-            "• Unchecked (Relative): Factor is a multiplier (2.0 = 2x longer)\n"
-            "• Checked (Absolute): Factor is target duration in frames\n\n"
+            "• Relative: Factor is a multiplier (2.0 = 2x longer)\n"
+            "• Absolute: Factor is target duration in frames\n\n"
             "Speed Mode:\n"
-            "• Unchecked (Relative): Factor is a speed multiplier (2.0 = 2x faster)\n"
-            "• Checked (Absolute): Factor is target speed (units/frame)",
+            "• Relative: Factor is a speed multiplier (2.0 = 2x faster)\n"
+            "• Absolute: Factor is target speed (units/frame)",
         )
+        scale_mode.addItems(["Relative", "Absolute"])
+        scale_mode.setCurrentText("Relative")  # preserve prior default (checkbox off = relative)
         m.add(
             "QCheckBox", setText="Split Static Segments", setObjectName="chk_split_static",
             setChecked=True,
@@ -909,14 +915,14 @@ class Animation(SlotsBlender):
                 m.d001.setSingleStep(0.5)
                 m.d001.setValue(5.0)
                 m.d001.setToolTip(self._SCALE_SPEED_TOOLTIP)
-                m.chk_absolute.setChecked(True)
+                m.cmb_scale_mode.setCurrentText("Absolute")
             else:
                 m.d001.setPrefix("Factor: ")
                 m.d001.setRange(0.01, 100.0)
                 m.d001.setSingleStep(0.1)
                 m.d001.setValue(1.0)
                 m.d001.setToolTip(self._SCALE_UNIFORM_TOOLTIP)
-                m.chk_absolute.setChecked(False)
+                m.cmb_scale_mode.setCurrentText("Relative")
 
         cmb_mode.currentIndexChanged.connect(update_mode_ui)
         update_mode_ui(0)
@@ -949,7 +955,7 @@ class Animation(SlotsBlender):
             factor=m.d001.value(),
             pivot=pivot,
             mode=mode,
-            absolute=m.chk_absolute.isChecked(),
+            absolute=m.cmb_scale_mode.currentText() == "Absolute",
             group_mode=m.cmb033.currentData(),
             snap_mode=m.cmb034.currentData(),
             samples=m.s014.value(),
@@ -995,10 +1001,14 @@ class Animation(SlotsBlender):
     def tb011_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Tie Keyframes")
-        m.add(
-            "QCheckBox", setText="Untie", setObjectName="chk_untie", setChecked=False,
-            setToolTip="Remove the bookend keys at the range boundaries instead of adding them.",
+        # Tie vs Untie is a two-valued choice, not a modifier — name both states.
+        tie = m.add(
+            "QComboBox", setObjectName="cmb_tie",
+            setToolTip="Tie: add bookend keys at the range boundaries.\n"
+            "Untie: remove the bookend keys instead of adding them.",
         )
+        tie.addItems(["Tie", "Untie"])
+        tie.setCurrentText("Tie")  # preserve prior default (checkbox off = tie)
         m.add(
             "QCheckBox", setText="Use Absolute Range", setObjectName="chk023", setChecked=False,
             setToolTip="Bookend at the actual keyed extent across the objects instead of the "
@@ -1010,7 +1020,7 @@ class Animation(SlotsBlender):
         """Tie/Untie Keyframes"""
         objects = self.selected_objects() or None
         m = widget.option_box.menu
-        untie = m.chk_untie.isChecked()
+        untie = m.cmb_tie.currentText() == "Untie"
         changed = btk.tie_keyframes(objects, untie=untie, absolute=m.chk023.isChecked())
         verb = "Untied" if untie else "Tied"
         self.sb.message_box(f"{verb} <hl>{changed}</hl> bookend key(s).")

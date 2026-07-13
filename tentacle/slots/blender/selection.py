@@ -231,16 +231,16 @@ class Selection(SlotsBlender):
             self.sb.message_box("No edges found in that angle range.")
 
     # ------------------------------------------------------------------ cmb003  Convert To
-    # Mirror of Maya's 20-item Convert-To combo, minus 5 ledgered in tentacle/docs/parity_map.py
+    # Mirror of Maya's 20-item Convert-To combo, minus 2 ledgered in tentacle/docs/parity_map.py
     # (HANDLERS["selection"]): Vertex Faces (Maya's vtxFace sub-component -- a per-corner
-    # split-normal-style component with no Blender selection-mode analogue) and the UV-domain
-    # items UV's / UV Shell Border / UV Perimeter / UV Edge Loop (Blender edits UV topology
-    # through the UV Editor's own selection state, not a 3D-viewport component type -- UV Shell
-    # is the one exception, ported via the mesh-domain UV delimiter). Touching-vs-contained
-    # (plain "Faces"/"Edges" vs. "Contained Faces"/"Contained Edges") is a single native
-    # ``use_expand`` flag -- see ``btk.Selection.convert_to``'s docstring for how it was
-    # verified; Perimeter/Path/Border items have no single native op and are real bmesh
-    # helpers on ``btk.Selection``.
+    # split-normal-style component with no Blender selection-mode analogue) and UV's (Maya's
+    # .map[] component, only selectable from the UV Editor's own mode, not a 3D-viewport
+    # component type). The UV-domain conversions UV Shell / UV Shell Border / UV Perimeter /
+    # UV Edge Loop ARE ported as real bmesh UV-graph helpers on ``btk.Selection`` (a UV-island
+    # boundary = mesh-open edge or a UV seam splitting a manifold surface in UV space).
+    # Touching-vs-contained (plain "Faces"/"Edges" vs. "Contained Faces"/"Contained Edges") is a
+    # single native ``use_expand`` flag -- see ``btk.Selection.convert_to``'s docstring;
+    # Perimeter/Path/Border items have no single native op and are real bmesh helpers.
     def cmb003_init(self, widget):
         widget.add(
             [
@@ -248,7 +248,7 @@ class Selection(SlotsBlender):
                 "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
                 "Border Edges",
                 "Faces", "Face Path", "Contained Faces", "Face Perimeter",
-                "UV Shell",
+                "UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop",
                 "Shell", "Shell Border",
             ],
             header="Convert To:",
@@ -275,6 +275,9 @@ class Selection(SlotsBlender):
             "Contained Faces": lambda: btk.Selection.convert_to(obj, "FACE", contained=True),
             "Face Perimeter": lambda: btk.Selection.select_face_perimeter(obj),
             "UV Shell": lambda: btk.Selection.select_uv_shell(obj),
+            "UV Shell Border": lambda: btk.Selection.select_uv_shell_border(obj),
+            "UV Perimeter": lambda: btk.Selection.select_uv_perimeter(obj),
+            "UV Edge Loop": lambda: btk.Selection.select_uv_edge_loop(obj),
             "Shell": lambda: bpy.ops.mesh.select_linked(),
             "Shell Border": lambda: btk.Selection.select_shell_border(obj),
         }
@@ -320,15 +323,40 @@ class Selection(SlotsBlender):
     # ------------------------------------------------------------------ b001  Toggle Selectability
     @btk.undoable
     def b001(self):
-        """Toggle Selectability of the selected object(s)."""
+        """Toggle Selectability of the selected object(s).
+
+        Blender asymmetry vs. Maya's reference-display toggle: setting ``hide_select = True``
+        immediately drops the object from the selection (an unselectable object cannot stay
+        selected — verified). A naive "toggle whatever is selected" handler could therefore turn
+        selectability OFF but never back ON, because the second click would find nothing selected.
+        So: when there IS a selection, make it non-selectable (OFF); when there is NONE, restore
+        every currently non-selectable object — re-selecting it — as the recovery path (there is
+        no selection left to toggle otherwise)."""
         objs = self.selected_objects()
-        if not objs:
+        if objs:  # a selected object is by definition selectable -> make it non-selectable
+            for o in objs:
+                o.hide_select = True
+            self.sb.message_box(f"Selectability <hl>OFF</hl> ({len(objs)} object(s)).")
+            return
+        # Nothing selected: hide_select auto-deselected our targets, so recover by re-enabling
+        # (and re-selecting) every object currently marked non-selectable. Scope to the active
+        # view layer (what selected_objects reads / where the auto-deselect happened) so we don't
+        # reach into other scenes. Clearing hide_select is the essential part and never raises;
+        # re-selecting is best-effort and guarded — select_set raises on a view-layer-excluded
+        # object (which view_layer.objects can still include — verified), so restore its
+        # selectability but skip re-selecting it rather than aborting the loop.
+        vl = getattr(bpy.context, "view_layer", None)
+        hidden = [o for o in (vl.objects if vl else ()) if o.hide_select]
+        if not hidden:
             self.sb.message_box("Toggle Selectability requires a selection.")
             return
-        new_state = not objs[0].hide_select
-        for o in objs:
-            o.hide_select = new_state
-        self.sb.message_box(f"Selectability <hl>{'OFF' if new_state else 'ON'}</hl>.")
+        for o in hidden:
+            o.hide_select = False
+            try:
+                o.select_set(True)
+            except RuntimeError:
+                pass  # not in the active view layer (excluded collection) — selectability is restored regardless
+        self.sb.message_box(f"Selectability <hl>ON</hl> ({len(hidden)} object(s)).")
 
     # ------------------------------------------------------------------ cmb005  Selection Constraints
     # Maya's dR_selConstraint* are persistent drag-select constraints; Blender has no modal

@@ -720,13 +720,14 @@ class Animation(SlotsMaya):
     def tb008_init(self, widget):
         """Set Visibility Keys Init"""
         widget.option_box.menu.setTitle("Set Visibility Keys")
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Visible",
-            setObjectName="chk015",
-            setChecked=True,
-            setToolTip="Set visibility to on (visible) or off (hidden).",
+        # Visible vs Hidden is a two-valued choice, not a modifier — name both states.
+        vis = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_visibility",
+            setToolTip="Whether the keyed visibility is Visible (on) or Hidden (off).",
         )
+        vis.addItems(["Visible", "Hidden"])
+        vis.setCurrentText("Visible")  # preserve prior default (checkbox on = visible)
         cmb = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb002",
@@ -758,7 +759,7 @@ class Animation(SlotsMaya):
 
     def tb008(self, widget):
         """Set Visibility Keys"""
-        visible = widget.option_box.menu.chk015.isChecked()
+        visible = widget.option_box.menu.cmb_visibility.currentText() == "Visible"
         when = widget.option_box.menu.cmb002.currentData()
         offset = widget.option_box.menu.s008.value()
         group_overlapping = widget.option_box.menu.chk016.isChecked()
@@ -918,17 +919,19 @@ class Animation(SlotsMaya):
             setChecked=False,
             setToolTip="If checked, uses the absolute start/end keyframes across all objects.\nIf unchecked, uses the scene's playback range.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Untie Keyframes",
-            setObjectName="chk022",
-            setChecked=False,
-            setToolTip="If checked, removes bookend keyframes (preserves genuine animation).\nIf unchecked, adds keyframes at start/end of animation range.",
+        # Tie vs Untie is a two-valued choice, not a modifier — name both states.
+        tie = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_tie",
+            setToolTip="Tie: add bookend keyframes at the range start/end.\n"
+            "Untie: remove the bookend keyframes (preserves genuine animation).",
         )
+        tie.addItems(["Tie", "Untie"])
+        tie.setCurrentText("Tie")  # preserve prior default (checkbox off = tie)
 
     def tb011(self, widget):
         """Tie/Untie Keyframes"""
-        untie_mode = widget.option_box.menu.chk022.isChecked()
+        untie_mode = widget.option_box.menu.cmb_tie.currentText() == "Untie"
         absolute = widget.option_box.menu.chk023.isChecked()
 
         objects = cmds.ls(sl=True) or []
@@ -1135,19 +1138,20 @@ class Animation(SlotsMaya):
             "This allows precise control over which channels are affected.",
         )
 
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Absolute Mode",
-            setObjectName="chk_absolute",
-            setChecked=False,
-            setToolTip="Toggle between Absolute and Relative scaling:\n\n"
+        # Absolute vs Relative is a two-valued mode, not a modifier — name both states.
+        scale_mode = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_scale_mode",
+            setToolTip="How the Factor is interpreted:\n\n"
             "Uniform Mode:\n"
-            "• Unchecked (Relative): Factor is a multiplier (2.0 = 2x longer)\n"
-            "• Checked (Absolute): Factor is target duration in frames\n\n"
+            "• Relative: Factor is a multiplier (2.0 = 2x longer)\n"
+            "• Absolute: Factor is target duration in frames\n\n"
             "Speed Mode:\n"
-            "• Unchecked (Relative): Factor is speed multiplier (2.0 = 2x faster)\n"
-            "• Checked (Absolute): Factor is target speed (units/frame)",
+            "• Relative: Factor is speed multiplier (2.0 = 2x faster)\n"
+            "• Absolute: Factor is target speed (units/frame)",
         )
+        scale_mode.addItems(["Relative", "Absolute"])
+        scale_mode.setCurrentText("Relative")  # preserve prior default (checkbox off = relative)
 
         widget.option_box.menu.add(
             "QCheckBox",
@@ -1179,7 +1183,7 @@ class Animation(SlotsMaya):
             is_speed_mode = index > 0
             spinbox = widget.option_box.menu.d001
             samples_spinbox = widget.option_box.menu.s014
-            absolute_chk = widget.option_box.menu.chk_absolute
+            scale_mode = widget.option_box.menu.cmb_scale_mode
 
             # Only samples spinbox is speed-mode specific
             # Snap mode now works for both uniform and speed modes
@@ -1193,7 +1197,7 @@ class Animation(SlotsMaya):
                 spinbox.setValue(5.0)
                 spinbox.setToolTip(speed_tooltip)
                 # Default to Absolute (Target Speed) for Speed Mode
-                absolute_chk.setChecked(True)
+                scale_mode.setCurrentText("Absolute")
             else:
                 spinbox.setPrefix("Factor: ")
                 spinbox.setRange(0.01, 100.0)
@@ -1201,7 +1205,7 @@ class Animation(SlotsMaya):
                 spinbox.setValue(1.0)
                 spinbox.setToolTip(uniform_tooltip)
                 # Default to Relative (Multiplier) for Uniform Mode
-                absolute_chk.setChecked(False)
+                scale_mode.setCurrentText("Relative")
 
         widget.option_box.menu.cmb014.currentIndexChanged.connect(update_mode_ui)
         update_mode_ui(0)  # Initialize UI state
@@ -1211,7 +1215,7 @@ class Animation(SlotsMaya):
         mode_data = widget.option_box.menu.cmb014.currentData()
         factor = widget.option_box.menu.d001.value()
         channel_box_only = widget.option_box.menu.chk_channel_box.isChecked()
-        absolute_mode = widget.option_box.menu.chk_absolute.isChecked()
+        absolute_mode = widget.option_box.menu.cmb_scale_mode.currentText() == "Absolute"
         split_static = widget.option_box.menu.chk_split_static.isChecked()
         merge_touching = widget.option_box.menu.chk_merge_touching.isChecked()
         group_mode = widget.option_box.menu.cmb033.currentData()

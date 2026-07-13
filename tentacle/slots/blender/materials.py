@@ -187,10 +187,13 @@ class MaterialsSlots(SlotsBlender):
             "QCheckBox", setText="Shell", setObjectName="chk005",
             setToolTip="Select whole object(s) using the material (else select the faces).",
         )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Search in Selection Only", setObjectName="chk006",
-            setToolTip="Search only within the current selection (else the whole scene).",
+        # Search scope is a choice between two named sets, not a modifier.
+        scope = widget.option_box.menu.add(
+            "QComboBox", setObjectName="cmb_search_scope",
+            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection.",
         )
+        scope.addItems(["All Objects", "Selection Only"])
+        scope.setCurrentText("All Objects")  # preserve prior default (checkbox off)
         widget.option_box.menu.add(
             "QCheckBox", setText="Get and Select", setObjectName="chk007",
             setToolTip="First set the current material from the active selection, then select.",
@@ -213,7 +216,7 @@ class MaterialsSlots(SlotsBlender):
             self.sb.message_box("No material selected in the materials list.")
             return
 
-        pool = prior if m.chk006.isChecked() else None
+        pool = prior if m.cmb_search_scope.currentText() == "Selection Only" else None
         users = btk.find_by_mat_id(mat, objects=pool)
         if not users:
             self.sb.message_box(f"No objects use <hl>{mat.name}</hl>.")

@@ -290,14 +290,20 @@ class Rigging(SlotsBlender):
 
     # ------------------------------------------------------------------ tb004  Lock/Unlock Attributes
     def tb004_init(self, widget):
-        # chk010 / cmb010 reuse the Maya names. Maya's cmb010 'Channel Box' scope has no Blender
-        # analogue (no channel box), so the combo offers per-transform-group scopes instead.
+        # cmb_lock / cmb010 mirror the Maya panel. Maya's cmb010 'Channel Box' scope has no
+        # Blender analogue (no channel box), so the combo offers per-transform-group scopes instead.
         m = widget.option_box.menu
         m.setTitle("Lock / Unlock Attributes")
-        m.add(
-            "QCheckBox", setText="Lock", setObjectName="chk010", setChecked=False,
-            setToolTip="When checked, the button LOCKS the chosen channels instead of unlocking.",
+        # Lock vs Unlock is a two-valued choice, not a modifier — a combobox names both
+        # states (its item text drives the button label); extend with e.g. "Toggle" later.
+        action = m.add(
+            "QComboBox", setObjectName="cmb_lock",
+            setToolTip="Whether the button locks or unlocks the chosen channels.",
         )
+        action.addItems(["Lock", "Unlock"])
+        action.setCurrentText("Unlock")  # preserve prior default (checkbox off = unlock)
+        action.currentTextChanged.connect(widget.setText)
+        widget.setText(action.currentText())
         cmb = m.add(
             "QComboBox", setObjectName="cmb010",
             setToolTip="Which transform channels to affect (Blender has no channel box).",
@@ -307,7 +313,6 @@ class Rigging(SlotsBlender):
             ("Attrs: Rotate", "rotate"), ("Attrs: Scale", "scale"),
         ]:
             cmb.addItem(text, data)
-        m.chk010.toggled.connect(lambda s: widget.setText("Lock" if s else "Unlock"))
 
     @btk.undoable
     def tb004(self, widget):
@@ -317,7 +322,7 @@ class Rigging(SlotsBlender):
             self.sb.message_box("Lock/Unlock requires a selection.")
             return
         m = widget.option_box.menu
-        lock = m.chk010.isChecked()
+        lock = m.cmb_lock.currentText() == "Lock"
         scope = m.cmb010.currentData() or "all"
         for o in objects:
             if scope in ("all", "translate"):

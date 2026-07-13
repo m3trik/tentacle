@@ -34,6 +34,20 @@ class _FakeChk:
         return self._state
 
 
+class _FakeCombo:
+    """Stand-in for the option_box QComboBox: currentText()/currentData()."""
+
+    def __init__(self, text="", data=None):
+        self._text = text
+        self._data = data
+
+    def currentText(self):
+        return self._text
+
+    def currentData(self):
+        return self._data
+
+
 class _FakeLineEdit:
     def __init__(self, value):
         self._v = value
@@ -340,6 +354,50 @@ class TestB020RebindSkinClusters(unittest.TestCase):
         self.assertIn("w/o skinCluster", msg)
         self.assertIn("wrong type", msg)
         self.assertIn("See console", msg)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb004LockUnlockAttributes(unittest.TestCase):
+    """tb004 reads the Lock/Unlock combobox (cmb_lock, replacing the old
+    chk010 checkbox) and the attr-scope combobox (cmb010), then locks or
+    unlocks the resolved attributes. Pins the combobox-driven dispatch so a
+    label/reader rename can't silently invert the action."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance.sb = _FakeSb()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _widget(self, action, scope="all"):
+        menu = _FakeMenu(
+            cmb_lock=_FakeCombo(text=action),
+            cmb010=_FakeCombo(text=f"Attrs: {scope}", data=scope),
+        )
+        return _FakeWidget([], menu=menu)
+
+    def test_lock_locks_all_transform_attrs(self):
+        cube = cmds.polyCube(name="lk_cube")[0]
+        cmds.select(cube)
+        self.instance.tb004(self._widget("Lock", "all"))
+        self.assertTrue(cmds.getAttr(f"{cube}.tx", lock=True))
+        self.assertTrue(cmds.getAttr(f"{cube}.sz", lock=True))
+
+    def test_unlock_clears_the_lock(self):
+        cube = cmds.polyCube(name="lk_cube")[0]
+        for attr in ("tx", "sz"):
+            cmds.setAttr(f"{cube}.{attr}", lock=True)
+        cmds.select(cube)
+        self.instance.tb004(self._widget("Unlock", "all"))
+        self.assertFalse(cmds.getAttr(f"{cube}.tx", lock=True))
+        self.assertFalse(cmds.getAttr(f"{cube}.sz", lock=True))
+
+    def test_nothing_selected_warns_and_skips(self):
+        cmds.select(clear=True)
+        self.instance.tb004(self._widget("Lock", "all"))
+        self.assertTrue(self.instance.sb.messages)
 
 
 if __name__ == "__main__":
