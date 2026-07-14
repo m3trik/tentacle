@@ -404,5 +404,136 @@ class MarkingMenuGuiTest(unittest.TestCase):
         )
 
 
+@unittest.skipUnless(_can_run_marking_menu_tests(), _SKIP_REASON)
+class BrowserPolicyGuiTest(unittest.TestCase):
+    """Launcher-surface policy + hosted-page launch delegation on real TclMaya.
+
+    The mechanism layers are unit-tested in uitk
+    (``test_switchboard_browser.py::EntryFilterStructural``,
+    ``test_marking_menu.py::TestMarkingMenuBrowserEntryFilter``,
+    ``test_ui_handler.py`` delegation suites); this smoke test confirms they
+    wire up when bound to tentacle's TclMaya:
+
+    * the UI Browser built off tentacle's switchboard never lists the
+      marking-menu gesture pages (``*#startmenu*`` / ``*#submenu*``), and
+    * ``UiHandler.launch`` on a gesture page routes through the marking
+      menu (stacked child of the overlay) instead of re-hosting it as a
+      standalone window (the "browser-launched startmenu/submenu breaks
+      the marking menu" bug).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from qtpy import QtWidgets
+
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        from qtpy import QtWidgets
+        from tentacle.tcl_maya import TclMaya
+
+        self.parent = QtWidgets.QMainWindow()
+        self.parent.resize(1280, 720)
+        self.parent.show()
+        self._process()
+        self.mm = TclMaya(parent=self.parent)
+        self._process()
+
+    def tearDown(self):
+        try:
+            if self.mm._current_widget is not None:
+                self.mm._current_widget.hide()
+            self.mm.hide()
+        except Exception:
+            pass
+        try:
+            self.parent.hide()
+            self.parent.deleteLater()
+        except Exception:
+            pass
+        self._process()
+
+    def _process(self, times: int = 3) -> None:
+        from qtpy import QtWidgets
+
+        for _ in range(times):
+            QtWidgets.QApplication.processEvents()
+
+    def test_browser_excludes_gesture_pages(self):
+        browser = self.mm.sb.editors.get("browser")
+        try:
+            names = list(browser._model._names)
+            self.assertTrue(names, "browser lists no entries at all")
+            leaked = [n for n in names if "#startmenu" in n or "#submenu" in n]
+            self.assertEqual(
+                leaked,
+                [],
+                "marking-menu gesture pages leaked into the UI Browser",
+            )
+        finally:
+            browser.deleteLater()
+            self._process()
+
+    def test_launch_routes_gesture_page_through_marking_menu(self):
+        page_name = "cameras#startmenu"
+        ui = self.mm.sb.handlers.ui.launch(page_name)
+        self._process()
+        try:
+            self.assertIsNotNone(ui, f"launch({page_name!r}) returned None")
+            self.assertIs(
+                ui.parent(),
+                self.mm,
+                "gesture page was standalone-hosted instead of delegated "
+                "to the marking menu",
+            )
+            self.assertIs(self.mm._current_widget, ui)
+        finally:
+            self.mm.hide()
+            self._process()
+
+    def test_launch_gives_standalone_window_canonical_chrome(self):
+        """A browser-style launch of a standalone tentacle panel must produce
+        the marking menu's canonical window: pin chrome (not the launcher's
+        hide button), parented to the host app window (not the menu overlay,
+        which would drag the window down with it), and the hide-with-menu
+        lifecycle wired exactly once. Regression: browser-launched tools got
+        a hide button and menu-overlay parenting — whichever path touched
+        the shared window first decided its behavior forever."""
+        from qtpy import QtWidgets
+
+        ui = self.mm.sb.handlers.ui.launch("symmetry")
+        self._process()
+        try:
+            self.assertIsNotNone(ui, "launch('symmetry') returned None")
+            self.assertIs(
+                ui.parent(),
+                self.parent,
+                "standalone window must parent to the host app window, "
+                "not the marking-menu overlay",
+            )
+            header = getattr(ui, "header", None)
+            if header is None or not hasattr(header, "buttons"):
+                header = ui.findChild(QtWidgets.QWidget, "header")
+            self.assertIsNotNone(header, "panel has no header to assert on")
+            buttons = set(getattr(header, "buttons", {}).keys())
+            self.assertIn(
+                "pin",
+                buttons,
+                f"canonical chrome (pin) missing; header has {sorted(buttons)}",
+            )
+            self.assertNotIn(
+                "hide",
+                buttons,
+                "launcher-only hide button leaked onto a marking-menu window",
+            )
+            self.assertTrue(
+                getattr(ui, "_uitk_lifecycle_wired", False),
+                "hide-with-menu lifecycle was not wired",
+            )
+        finally:
+            ui.hide()
+            self._process()
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
