@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-07-13",
+  "generated_at": "2026-07-14",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -365,7 +365,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys (key viewport + render visibility).",
-              "line": 651,
+              "line": 654,
               "deprecated": false
             },
             {
@@ -374,7 +374,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 670,
+              "line": 673,
               "deprecated": false
             },
             {
@@ -383,7 +383,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys (align the selection's keys to the current frame).",
-              "line": 695,
+              "line": 698,
               "deprecated": false
             },
             {
@@ -392,7 +392,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 722,
+              "line": 725,
               "deprecated": false
             },
             {
@@ -401,7 +401,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys (from the active object;",
-              "line": 738,
+              "line": 741,
               "deprecated": false
             },
             {
@@ -410,7 +410,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 763,
+              "line": 766,
               "deprecated": false
             },
             {
@@ -419,7 +419,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys (independent copies onto the selection).",
-              "line": 776,
+              "line": 779,
               "deprecated": false
             },
             {
@@ -428,7 +428,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 810,
+              "line": 813,
               "deprecated": false
             },
             {
@@ -437,7 +437,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 925,
+              "line": 931,
               "deprecated": false
             },
             {
@@ -446,7 +446,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 967,
+              "line": 973,
               "deprecated": false
             },
             {
@@ -455,7 +455,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Tangents (key interpolation type — stepped / linear / smooth).",
-              "line": 975,
+              "line": 981,
               "deprecated": false
             },
             {
@@ -464,7 +464,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range (to the keyed extent of the selection, or the whole scene).",
-              "line": 985,
+              "line": 991,
               "deprecated": false
             },
             {
@@ -473,7 +473,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 995,
+              "line": 1001,
               "deprecated": false
             },
             {
@@ -482,7 +482,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 1009,
+              "line": 1019,
               "deprecated": false
             },
             {
@@ -491,7 +491,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1019,
+              "line": 1029,
               "deprecated": false
             },
             {
@@ -500,7 +500,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render a per-object keyframe summary to the viewer dialog.",
-              "line": 1042,
+              "line": 1052,
               "deprecated": false
             },
             {
@@ -509,7 +509,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1071,
+              "line": 1081,
               "deprecated": false
             },
             {
@@ -518,7 +518,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1093,
+              "line": 1103,
               "deprecated": false
             },
             {
@@ -527,7 +527,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1119,
+              "line": 1129,
               "deprecated": false
             },
             {
@@ -536,7 +536,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;",
-              "line": 1146,
+              "line": 1156,
               "deprecated": false
             },
             {
@@ -545,7 +545,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 1176,
+              "line": 1186,
               "deprecated": false
             },
             {
@@ -554,7 +554,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1",
-              "line": 1181,
+              "line": 1191,
               "deprecated": false
             },
             {
@@ -563,7 +563,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with",
-              "line": 1188,
+              "line": 1198,
               "deprecated": false
             }
           ]
@@ -1559,7 +1559,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 203,
+              "line": 206,
               "deprecated": false
             },
             {
@@ -1568,7 +1568,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 259,
+              "line": 262,
               "deprecated": false
             },
             {
@@ -1577,7 +1577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the text-view dialog.",
-              "line": 293,
+              "line": 296,
               "deprecated": false
             },
             {
@@ -1586,7 +1586,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: 'Assign: <current>' root + New / Random + scene materials.",
-              "line": 342,
+              "line": 345,
               "deprecated": false
             },
             {
@@ -1595,7 +1595,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Assign list: root assigns the current material;",
-              "line": 362,
+              "line": 365,
               "deprecated": false
             },
             {
@@ -1604,7 +1604,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list (Setup tools with a native Blender op).",
-              "line": 397,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -1613,7 +1613,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 408,
+              "line": 411,
               "deprecated": false
             },
             {
@@ -1622,7 +1622,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get Material: set the combo to the selection's material.",
-              "line": 420,
+              "line": 423,
               "deprecated": false
             },
             {
@@ -1631,7 +1631,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Random",
-              "line": 436,
+              "line": 439,
               "deprecated": false
             },
             {
@@ -1640,7 +1640,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Current",
-              "line": 452,
+              "line": 455,
               "deprecated": false
             },
             {
@@ -1649,7 +1649,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign New Material",
-              "line": 465,
+              "line": 468,
               "deprecated": false
             },
             {
@@ -1658,7 +1658,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scene Textures",
-              "line": 476,
+              "line": 479,
               "deprecated": false
             },
             {
@@ -1667,7 +1667,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Duplicate Materials",
-              "line": 482,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -1676,7 +1676,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Delete All Unused Materials",
-              "line": 493,
+              "line": 496,
               "deprecated": false
             },
             {
@@ -1685,7 +1685,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete the current material.",
-              "line": 500,
+              "line": 503,
               "deprecated": false
             },
             {
@@ -1694,7 +1694,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select Node — select the object(s) using the current material.",
-              "line": 508,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -1703,7 +1703,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename — make the combo editable so the user can type a new name.",
-              "line": 518,
+              "line": 521,
               "deprecated": false
             },
             {
@@ -1712,7 +1712,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 523,
+              "line": 526,
               "deprecated": false
             },
             {
@@ -1721,7 +1721,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers/underscores.",
-              "line": 531,
+              "line": 534,
               "deprecated": false
             },
             {
@@ -1730,7 +1730,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Strip trailing ints/underscores from ALL scene materials (skips on-collision).",
-              "line": 550,
+              "line": 553,
               "deprecated": false
             },
             {
@@ -1739,7 +1739,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 568,
+              "line": 571,
               "deprecated": false
             },
             {
@@ -1748,7 +1748,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
-              "line": 574,
+              "line": 577,
               "deprecated": false
             },
             {
@@ -1757,7 +1757,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 579,
+              "line": 582,
               "deprecated": false
             },
             {
@@ -1766,7 +1766,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 584,
+              "line": 587,
               "deprecated": false
             },
             {
@@ -1775,7 +1775,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 589,
+              "line": 592,
               "deprecated": false
             },
             {
@@ -1784,7 +1784,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 626,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -1793,7 +1793,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 630,
+              "line": 633,
               "deprecated": false
             },
             {
@@ -1802,7 +1802,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 634,
+              "line": 637,
               "deprecated": false
             },
             {
@@ -1811,7 +1811,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 638,
+              "line": 641,
               "deprecated": false
             },
             {
@@ -1820,7 +1820,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 642,
+              "line": 645,
               "deprecated": false
             },
             {
@@ -1829,7 +1829,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 646,
+              "line": 649,
               "deprecated": false
             },
             {
@@ -1838,7 +1838,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 654,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -1847,7 +1847,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 658,
+              "line": 661,
               "deprecated": false
             },
             {
@@ -1856,7 +1856,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge",
-              "line": 662,
+              "line": 665,
               "deprecated": false
             }
           ]
@@ -2551,7 +2551,7 @@
         {
           "name": "Preferences",
           "summary": "Blender port of the shared ``preferences`` menu.",
-          "line": 7,
+          "line": 10,
           "bases": [
             "SlotsBlender"
           ],
@@ -2562,7 +2562,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 43,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -2571,7 +2571,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Linear",
-              "line": 51,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -2580,7 +2580,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 59,
+              "line": 112,
               "deprecated": false
             },
             {
@@ -2589,7 +2589,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Time (frame rate)",
-              "line": 65,
+              "line": 118,
               "deprecated": false
             },
             {
@@ -2598,7 +2598,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 70,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -2607,7 +2607,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 77,
+              "line": 130,
               "deprecated": false
             },
             {
@@ -2616,7 +2616,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color Settings → Blender Preferences (Themes).",
-              "line": 90,
+              "line": 143,
               "deprecated": false
             },
             {
@@ -2625,7 +2625,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "App-style / theme selector — mirrors Blender's Preferences > Themes dropdown.",
-              "line": 94,
+              "line": 147,
               "deprecated": false
             },
             {
@@ -2634,7 +2634,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Apply the selected native theme preset (Blender's built-in, the user's own, or our",
-              "line": 107,
+              "line": 160,
               "deprecated": false
             },
             {
@@ -2643,7 +2643,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hotkeys → Blender Preferences (Keymap).",
-              "line": 114,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -2652,7 +2652,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Plug-In Manager → Blender Preferences (Add-ons).",
-              "line": 118,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -2661,7 +2661,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Settings/Preferences → Blender Preferences (Interface).",
-              "line": 122,
+              "line": 175,
               "deprecated": false
             },
             {
@@ -2670,7 +2670,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Macro Manager — native blendertk panel (blendertk.edit_utils.macros.Macros),",
-              "line": 126,
+              "line": 179,
               "deprecated": false
             }
           ]
@@ -2884,7 +2884,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).",
-              "line": 313,
+              "line": 318,
               "deprecated": false
             },
             {
@@ -2893,7 +2893,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 344,
+              "line": 349,
               "deprecated": false
             },
             {
@@ -2902,7 +2902,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Quick Rig — a procedural rig opens its panel (mayatk parity);",
-              "line": 354,
+              "line": 359,
               "deprecated": false
             },
             {
@@ -2911,7 +2911,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity — co-located blendertk panel (keyable per-object ``opacity`` prop driving",
-              "line": 388,
+              "line": 393,
               "deprecated": false
             }
           ]
@@ -2946,7 +2946,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 130,
+              "line": 135,
               "deprecated": false
             },
             {
@@ -2955,7 +2955,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 141,
+              "line": 146,
               "deprecated": false
             },
             {
@@ -2964,7 +2964,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 148,
+              "line": 153,
               "deprecated": false
             },
             {
@@ -2973,7 +2973,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 157,
+              "line": 162,
               "deprecated": false
             },
             {
@@ -2982,7 +2982,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 162,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -2991,7 +2991,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Import",
-              "line": 165,
+              "line": 170,
               "deprecated": false
             },
             {
@@ -3000,7 +3000,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 171,
+              "line": 176,
               "deprecated": false
             },
             {
@@ -3009,7 +3009,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Export",
-              "line": 174,
+              "line": 179,
               "deprecated": false
             },
             {
@@ -3018,7 +3018,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 181,
+              "line": 186,
               "deprecated": false
             },
             {
@@ -3027,7 +3027,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Scene — FBX (+ optional GLB) using the configured options.",
-              "line": 276,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -3036,7 +3036,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 368,
+              "line": 373,
               "deprecated": false
             },
             {
@@ -3045,7 +3045,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 383,
+              "line": 388,
               "deprecated": false
             },
             {
@@ -3054,7 +3054,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 387,
+              "line": 392,
               "deprecated": false
             },
             {
@@ -3063,7 +3063,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 391,
+              "line": 396,
               "deprecated": false
             },
             {
@@ -3072,7 +3072,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Import file",
-              "line": 397,
+              "line": 402,
               "deprecated": false
             },
             {
@@ -3081,7 +3081,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 401,
+              "line": 406,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "SceneSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mesh Converter (FBX -> GLB).",
+              "line": 413,
               "deprecated": false
             },
             {
@@ -3090,7 +3099,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 408,
+              "line": 430,
               "deprecated": false
             },
             {
@@ -3099,7 +3108,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 432,
+              "line": 454,
               "deprecated": false
             },
             {
@@ -3108,7 +3117,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.",
-              "line": 457,
+              "line": 479,
               "deprecated": false
             },
             {
@@ -3117,7 +3126,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Exporter — native blendertk panel (task/check pipeline, FBX or GLB), 1:1 with",
-              "line": 490,
+              "line": 512,
               "deprecated": false
             },
             {
@@ -3126,7 +3135,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend",
-              "line": 497,
+              "line": 519,
               "deprecated": false
             },
             {
@@ -3135,7 +3144,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 503,
+              "line": 525,
               "deprecated": false
             },
             {
@@ -3144,7 +3153,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 514,
+              "line": 536,
               "deprecated": false
             },
             {
@@ -3153,7 +3162,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of",
-              "line": 525,
+              "line": 547,
               "deprecated": false
             }
           ]
@@ -3269,7 +3278,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.",
-              "line": 291,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -3278,7 +3287,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 298,
+              "line": 301,
               "deprecated": false
             },
             {
@@ -3287,7 +3296,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Box (Marquee)",
-              "line": 308,
+              "line": 311,
               "deprecated": false
             },
             {
@@ -3296,7 +3305,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Lasso",
-              "line": 312,
+              "line": 315,
               "deprecated": false
             },
             {
@@ -3305,7 +3314,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Circle (Paint)",
-              "line": 316,
+              "line": 319,
               "deprecated": false
             },
             {
@@ -3314,7 +3323,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability of the selected object(s).",
-              "line": 322,
+              "line": 325,
               "deprecated": false
             },
             {
@@ -3323,7 +3332,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 344,
+              "line": 372,
               "deprecated": false
             },
             {
@@ -3332,7 +3341,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Selection Constraints (one-shot in Blender: expands the current selection by",
-              "line": 347,
+              "line": 375,
               "deprecated": false
             },
             {
@@ -3341,7 +3350,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reorder Selection — hidden: Blender has no ordered *object* selection to feed",
-              "line": 363,
+              "line": 391,
               "deprecated": false
             },
             {
@@ -3350,7 +3359,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Reorder Selection — not applicable in Blender.",
-              "line": 368,
+              "line": 396,
               "deprecated": false
             },
             {
@@ -3359,7 +3368,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type: hierarchical type list.",
-              "line": 382,
+              "line": 410,
               "deprecated": false
             },
             {
@@ -3368,7 +3377,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Select by Type (native bpy predicates via ``btk.Selection``).",
-              "line": 393,
+              "line": 421,
               "deprecated": false
             }
           ]
@@ -4457,7 +4466,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 759,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -4466,7 +4475,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 784,
+              "line": 785,
               "deprecated": false
             },
             {
@@ -4475,7 +4484,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 822,
+              "line": 823,
               "deprecated": false
             },
             {
@@ -4484,7 +4493,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 854,
+              "line": 855,
               "deprecated": false
             },
             {
@@ -4493,7 +4502,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys: delete keys on the selection over a chosen time range.",
-              "line": 893,
+              "line": 894,
               "deprecated": false
             },
             {
@@ -4502,7 +4511,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 911,
+              "line": 912,
               "deprecated": false
             },
             {
@@ -4511,7 +4520,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 929,
+              "line": 932,
               "deprecated": false
             },
             {
@@ -4520,7 +4529,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 946,
+              "line": 949,
               "deprecated": false
             },
             {
@@ -4529,7 +4538,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys: select keys on the selection within a frame range.",
-              "line": 995,
+              "line": 998,
               "deprecated": false
             },
             {
@@ -4538,7 +4547,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1027,
+              "line": 1030,
               "deprecated": false
             },
             {
@@ -4547,7 +4556,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys: scale the selected keys in time about a pivot.",
-              "line": 1209,
+              "line": 1213,
               "deprecated": false
             },
             {
@@ -4556,7 +4565,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1284,
+              "line": 1288,
               "deprecated": false
             },
             {
@@ -4565,7 +4574,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1325,
+              "line": 1329,
               "deprecated": false
             },
             {
@@ -4574,7 +4583,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — option box.",
-              "line": 1404,
+              "line": 1408,
               "deprecated": false
             },
             {
@@ -4583,7 +4592,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render the report to the viewer dialog.",
-              "line": 1460,
+              "line": 1464,
               "deprecated": false
             },
             {
@@ -4592,7 +4601,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents Init",
-              "line": 1508,
+              "line": 1512,
               "deprecated": false
             },
             {
@@ -4601,7 +4610,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents — set stepped tangents on keys.",
-              "line": 1536,
+              "line": 1540,
               "deprecated": false
             },
             {
@@ -4610,7 +4619,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 1560,
+              "line": 1564,
               "deprecated": false
             },
             {
@@ -4619,7 +4628,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys: copy the selected objects' keys for later paste.",
-              "line": 1577,
+              "line": 1581,
               "deprecated": false
             },
             {
@@ -4628,7 +4637,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 1627,
+              "line": 1631,
               "deprecated": false
             },
             {
@@ -4637,7 +4646,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys: paste previously copied keys onto the selection.",
-              "line": 1641,
+              "line": 1645,
               "deprecated": false
             },
             {
@@ -4646,7 +4655,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 1673,
+              "line": 1677,
               "deprecated": false
             },
             {
@@ -4655,7 +4664,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1709,
+              "line": 1713,
               "deprecated": false
             },
             {
@@ -4664,7 +4673,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 1750,
+              "line": 1754,
               "deprecated": false
             },
             {
@@ -4673,7 +4682,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 1754,
+              "line": 1758,
               "deprecated": false
             },
             {
@@ -4682,7 +4691,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 1758,
+              "line": 1762,
               "deprecated": false
             },
             {
@@ -4691,7 +4700,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 1762,
+              "line": 1766,
               "deprecated": false
             }
           ]
@@ -5410,7 +5419,7 @@
               "qualname": "Edit.tb004_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "",
+              "summary": "Init Lock/Unlock Nodes",
               "line": 419,
               "deprecated": false
             },
@@ -5420,7 +5429,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Node Locking",
-              "line": 433,
+              "line": 434,
               "deprecated": false
             },
             {
@@ -5429,7 +5438,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels: open the Channels panel.",
-              "line": 443,
+              "line": 444,
               "deprecated": false
             },
             {
@@ -5438,7 +5447,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).",
-              "line": 447,
+              "line": 448,
               "deprecated": false
             },
             {
@@ -5447,7 +5456,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list.",
-              "line": 468,
+              "line": 469,
               "deprecated": false
             },
             {
@@ -5456,7 +5465,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 534,
+              "line": 535,
               "deprecated": false
             },
             {
@@ -5465,7 +5474,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 608,
+              "line": 609,
               "deprecated": false
             },
             {
@@ -5474,7 +5483,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).",
-              "line": 618,
+              "line": 619,
               "deprecated": false
             },
             {
@@ -5483,7 +5492,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer operations menu.",
-              "line": 668,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -5492,7 +5501,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 672,
+              "line": 673,
               "deprecated": false
             }
           ]
@@ -6074,7 +6083,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 588,
+              "line": 589,
               "deprecated": false
             },
             {
@@ -6083,7 +6092,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 656,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -6092,7 +6101,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 662,
+              "line": 663,
               "deprecated": false
             },
             {
@@ -6101,7 +6110,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 667,
+              "line": 668,
               "deprecated": false
             },
             {
@@ -6110,7 +6119,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set the current combo box text as editable.",
-              "line": 673,
+              "line": 674,
               "deprecated": false
             },
             {
@@ -6119,7 +6128,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 678,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -6128,7 +6137,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 692,
+              "line": 693,
               "deprecated": false
             },
             {
@@ -6137,7 +6146,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 711,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -6146,7 +6155,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 750,
+              "line": 751,
               "deprecated": false
             },
             {
@@ -6155,7 +6164,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 760,
+              "line": 761,
               "deprecated": false
             },
             {
@@ -6164,7 +6173,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 771,
+              "line": 772,
               "deprecated": false
             },
             {
@@ -6173,7 +6182,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 777,
+              "line": 778,
               "deprecated": false
             },
             {
@@ -6182,7 +6191,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 781,
+              "line": 782,
               "deprecated": false
             },
             {
@@ -6191,7 +6200,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 786,
+              "line": 787,
               "deprecated": false
             },
             {
@@ -6200,7 +6209,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 790,
+              "line": 791,
               "deprecated": false
             },
             {
@@ -6209,7 +6218,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 794,
+              "line": 795,
               "deprecated": false
             },
             {
@@ -6218,7 +6227,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 801,
+              "line": 802,
               "deprecated": false
             },
             {
@@ -6227,7 +6236,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 808,
+              "line": 809,
               "deprecated": false
             },
             {
@@ -6236,7 +6245,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 821,
+              "line": 822,
               "deprecated": false
             },
             {
@@ -6245,7 +6254,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 832,
+              "line": 833,
               "deprecated": false
             },
             {
@@ -6254,7 +6263,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 903,
+              "line": 904,
               "deprecated": false
             },
             {
@@ -6263,7 +6272,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 1014,
+              "line": 1015,
               "deprecated": false
             },
             {
@@ -6272,7 +6281,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 1018,
+              "line": 1019,
               "deprecated": false
             },
             {
@@ -6281,7 +6290,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 1022,
+              "line": 1023,
               "deprecated": false
             },
             {
@@ -6290,7 +6299,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 1026,
+              "line": 1027,
               "deprecated": false
             },
             {
@@ -6299,7 +6308,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 1030,
+              "line": 1031,
               "deprecated": false
             },
             {
@@ -6308,7 +6317,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "RealityCapture Workflow",
-              "line": 1034,
+              "line": 1035,
               "deprecated": false
             },
             {
@@ -6317,7 +6326,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Brush Splat Workflow",
-              "line": 1038,
+              "line": 1039,
               "deprecated": false
             }
           ]
@@ -7597,7 +7606,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 400,
+              "line": 402,
               "deprecated": false
             },
             {
@@ -7606,7 +7615,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity",
-              "line": 435,
+              "line": 437,
               "deprecated": false
             }
           ]

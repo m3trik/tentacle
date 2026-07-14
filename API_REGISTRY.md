@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-13_
+_Generated: 2026-07-14_
 
 ## Index
 
@@ -458,7 +458,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
 
-- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L7)** — Blender port of the shared ``preferences`` menu.
+- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L10)** — Blender port of the shared ``preferences`` menu.
   - `Preferences.cmb001_init(self, widget)`
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)`
@@ -527,6 +527,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b005(self)` — Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
   - `SceneSlots.b007(self)` — Import file
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
+  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
   - `SceneSlots.tb001_init(self, widget)`
   - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.
@@ -851,7 +852,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Edit.tb001_init(self, widget)` — Initialize Delete History
   - `Edit.tb001(self, widget)` — Delete History
   - `Edit.tb002(self, widget)` — Delete Selected
-  - `Edit.tb004_init(self, widget)`
+  - `Edit.tb004_init(self, widget)` — Init Lock/Unlock Nodes
   - `Edit.tb004(self, widget)` — Node Locking
   - `Edit.b_channels(self)` — Channels: open the Channels panel.
   - `Edit.b000(self)` — Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).
