@@ -41,15 +41,14 @@ CONTROLS = {
     # blendertk/blendertk/env_utils/scene_exporter/_scene_exporter.py's module docstring for why
     # that design was chosen over Blender's native bl_options={'PRESET'} operator-preset system).
     # No entry needed here anymore -- nothing to ledger.
-    "rizom_bridge_slots": {
-        "cmb000": {"status": "na", "reason": "Lua preset-script picker; the thin Blender bridge has no Lua script-template machinery (one-way send, no preset/param/round-trip)"},
-        # btn_open_scripts / btn_refresh_scripts / btn_clear_log: removed 2026-07-11 — the Blender
-        # rizom bridge now ships all three as header-menu actions (rizom_bridge_slots.py
-        # HEADER_MENU_ITEMS -> open_templates_folder / refresh_templates / clear_log), matching the
-        # Maya panel's own HEADER_MENU_ITEMS buttons by objectName (sweep: RizomBridge 0 triaged).
-        # (refresh_templates rebuilds the combo from an in-memory list rather than re-scanning disk —
-        # a behavior nuance the static sweep can't see; not a presence delta.)
-    },
+    # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
+    # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
+    # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
+    # scripts/*.lua stems mayatk does (optimize/pack/send/unwrap_hard/unwrap_organic, matched by the
+    # sweep's combo-item-list check), backed by the same parameters.PARAMS + version-gating. The
+    # header-menu buttons (btn_open_scripts / btn_refresh_scripts / btn_clear_log / btn_open_uv_editor)
+    # match by objectName. Nothing to ledger — no entry needed here anymore. (Prior to this the entry
+    # marked cmb000 `na` for the thin send-only bridge; that gap is closed.)
     # mayatk file stem is audio_utils/audio_clips/audio_clips_slots.py. Ported 2026-07-03 --
     # see blendertk/blendertk/audio_utils/_audio_utils.py + audio_clips.py's module docstrings
     # for the full "why" (Maya's single-slot Time-Slider + WAV-only playback forced the
