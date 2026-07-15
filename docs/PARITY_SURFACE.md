@@ -190,17 +190,13 @@ Blender-only panels: MayaBridge
   - `_LIST000_COMMANDS[Modify]` 7->1 items; missing=['Lock', 'Unlock', 'Bend', 'Curl', 'Curvature', 'Straighten'] extra=[]
   - `_LIST000_COMMANDS[Surfaces]` 2->1 items; missing=['Insert Isoparm'] extra=[]
 
-#### polygons.py
-**combo item deltas (review)**
-  - `cmb011` 3->3 items; missing=['Intersection'] extra=['Intersect']
-
 #### rendering.py
 **combo item deltas (review)**
   - `cmb050` 15->9 items; missing=['AVI (Uncompressed)', 'MP4 (Compressed)', 'MOV (Animation)', 'MOV (JPEG)', 'MOV (No Compression)', 'PNG Still (Single Frame)', 'IFF Sequence', 'Arnold Sequence', 'AVI + PNG', 'AVI + Arnold', 'All Maya Movie/Sequences'] extra=['MP4 (H.264)', 'MOV (H.264)', 'AVI (FFV1)', 'PNG Still', 'OpenEXR Sequence']
 
 #### rigging.py
 **combo item deltas (review)**
-  - `cmb002` 4->7 items; missing=[] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
+  - `cmb002` 6->7 items; missing=['Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
   - `cmb010` 3->4 items; missing=['Attrs: Auto', 'Attrs: Channel Box'] extra=['Attrs: Translate', 'Attrs: Rotate', 'Attrs: Scale']
 
 #### selection.py
