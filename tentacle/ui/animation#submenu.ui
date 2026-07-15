@@ -87,7 +87,7 @@
    <widget class="MenuButton" name="i016">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>170</x>
       <y>290</y>
       <width>66</width>
       <height>21</height>
@@ -360,7 +360,7 @@ Supports negative values to compress timing.</string>
     <property name="geometry">
      <rect>
       <x>95</x>
-      <y>190</y>
+      <y>195</y>
       <width>111</width>
       <height>19</height>
      </rect>

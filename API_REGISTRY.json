@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-07-14",
+  "generated_at": "2026-07-15",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -1523,7 +1523,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header menu — Utilities (Setup tools live in the submenu Tools list, mirroring Maya).",
-              "line": 93,
+              "line": 91,
               "deprecated": false
             },
             {
@@ -1532,7 +1532,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Materials combo: scene materials with color swatches + option box (Cleanup) + a",
-              "line": 112,
+              "line": 110,
               "deprecated": false
             },
             {
@@ -1541,7 +1541,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Current Material (selection only — assignment is on the b-buttons).",
-              "line": 174,
+              "line": 172,
               "deprecated": false
             },
             {
@@ -1550,7 +1550,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 184,
+              "line": 182,
               "deprecated": false
             },
             {
@@ -1559,7 +1559,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 206,
+              "line": 204,
               "deprecated": false
             },
             {
@@ -1568,7 +1568,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 262,
+              "line": 260,
               "deprecated": false
             },
             {
@@ -1577,7 +1577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the text-view dialog.",
-              "line": 296,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -1586,7 +1586,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: 'Assign: <current>' root + New / Random + scene materials.",
-              "line": 345,
+              "line": 343,
               "deprecated": false
             },
             {
@@ -1595,7 +1595,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Assign list: root assigns the current material;",
-              "line": 365,
+              "line": 363,
               "deprecated": false
             },
             {
@@ -1604,7 +1604,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list (Setup tools with a native Blender op).",
-              "line": 400,
+              "line": 398,
               "deprecated": false
             },
             {
@@ -1613,7 +1613,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 411,
+              "line": 409,
               "deprecated": false
             },
             {
@@ -1622,7 +1622,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get Material: set the combo to the selection's material.",
-              "line": 423,
+              "line": 421,
               "deprecated": false
             },
             {
@@ -1631,7 +1631,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Random",
-              "line": 439,
+              "line": 437,
               "deprecated": false
             },
             {
@@ -1640,7 +1640,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Current",
-              "line": 455,
+              "line": 453,
               "deprecated": false
             },
             {
@@ -1649,7 +1649,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign New Material",
-              "line": 468,
+              "line": 466,
               "deprecated": false
             },
             {
@@ -1658,7 +1658,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scene Textures",
-              "line": 479,
+              "line": 477,
               "deprecated": false
             },
             {
@@ -1667,7 +1667,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Duplicate Materials",
-              "line": 485,
+              "line": 483,
               "deprecated": false
             },
             {
@@ -1676,7 +1676,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Delete All Unused Materials",
-              "line": 496,
+              "line": 494,
               "deprecated": false
             },
             {
@@ -1685,7 +1685,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete the current material.",
-              "line": 503,
+              "line": 501,
               "deprecated": false
             },
             {
@@ -1694,7 +1694,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select Node — select the object(s) using the current material.",
-              "line": 511,
+              "line": 509,
               "deprecated": false
             },
             {
@@ -1703,7 +1703,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename — make the combo editable so the user can type a new name.",
-              "line": 521,
+              "line": 519,
               "deprecated": false
             },
             {
@@ -1712,7 +1712,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 526,
+              "line": 524,
               "deprecated": false
             },
             {
@@ -1721,7 +1721,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers/underscores.",
-              "line": 534,
+              "line": 532,
               "deprecated": false
             },
             {
@@ -1730,7 +1730,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Strip trailing ints/underscores from ALL scene materials (skips on-collision).",
-              "line": 553,
+              "line": 551,
               "deprecated": false
             },
             {
@@ -1739,7 +1739,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 571,
+              "line": 569,
               "deprecated": false
             },
             {
@@ -1748,7 +1748,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
-              "line": 577,
+              "line": 575,
               "deprecated": false
             },
             {
@@ -1757,7 +1757,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 582,
+              "line": 580,
               "deprecated": false
             },
             {
@@ -1766,7 +1766,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 587,
+              "line": 585,
               "deprecated": false
             },
             {
@@ -1775,7 +1775,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 592,
+              "line": 590,
               "deprecated": false
             },
             {
@@ -1784,7 +1784,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 629,
+              "line": 627,
               "deprecated": false
             },
             {
@@ -1793,7 +1793,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 633,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -1802,7 +1802,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 637,
+              "line": 635,
               "deprecated": false
             },
             {
@@ -1811,7 +1811,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 641,
+              "line": 639,
               "deprecated": false
             },
             {
@@ -1820,7 +1820,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 645,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -1829,7 +1829,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 649,
+              "line": 647,
               "deprecated": false
             },
             {
@@ -1838,7 +1838,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 657,
+              "line": 656,
               "deprecated": false
             },
             {
@@ -1847,16 +1847,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 661,
-              "deprecated": false
-            },
-            {
-              "name": "b026",
-              "qualname": "MaterialsSlots.b026",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Unity Bridge",
-              "line": 665,
+              "line": 660,
               "deprecated": false
             }
           ]
@@ -2946,7 +2937,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 135,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -2955,7 +2946,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 146,
+              "line": 145,
               "deprecated": false
             },
             {
@@ -2964,7 +2955,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 153,
+              "line": 152,
               "deprecated": false
             },
             {
@@ -2973,7 +2964,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 162,
+              "line": 161,
               "deprecated": false
             },
             {
@@ -2982,7 +2973,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 167,
+              "line": 166,
               "deprecated": false
             },
             {
@@ -2991,7 +2982,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Import",
-              "line": 170,
+              "line": 169,
               "deprecated": false
             },
             {
@@ -3000,7 +2991,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 176,
+              "line": 175,
               "deprecated": false
             },
             {
@@ -3009,7 +3000,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Export",
-              "line": 179,
+              "line": 178,
               "deprecated": false
             },
             {
@@ -3018,7 +3009,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 186,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -3027,7 +3018,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Scene — FBX (+ optional GLB) using the configured options.",
-              "line": 281,
+              "line": 280,
               "deprecated": false
             },
             {
@@ -3036,7 +3027,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 373,
+              "line": 372,
               "deprecated": false
             },
             {
@@ -3045,7 +3036,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 388,
+              "line": 387,
               "deprecated": false
             },
             {
@@ -3054,7 +3045,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 392,
+              "line": 391,
+              "deprecated": false
+            },
+            {
+              "name": "b016",
+              "qualname": "SceneSlots.b016",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
+              "line": 395,
               "deprecated": false
             },
             {
@@ -3063,7 +3063,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 396,
+              "line": 402,
               "deprecated": false
             },
             {
@@ -3072,7 +3072,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Import file",
-              "line": 402,
+              "line": 408,
               "deprecated": false
             },
             {
@@ -3081,7 +3081,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 406,
+              "line": 412,
               "deprecated": false
             },
             {
@@ -3090,7 +3090,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 413,
+              "line": 419,
               "deprecated": false
             },
             {
@@ -3099,7 +3099,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 430,
+              "line": 436,
               "deprecated": false
             },
             {
@@ -3108,7 +3108,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 454,
+              "line": 460,
               "deprecated": false
             },
             {
@@ -3117,7 +3117,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.",
-              "line": 479,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -3126,7 +3126,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Exporter — native blendertk panel (task/check pipeline, FBX or GLB), 1:1 with",
-              "line": 512,
+              "line": 518,
               "deprecated": false
             },
             {
@@ -3135,7 +3135,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend",
-              "line": 519,
+              "line": 525,
               "deprecated": false
             },
             {
@@ -3144,7 +3144,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 525,
+              "line": 531,
               "deprecated": false
             },
             {
@@ -3153,7 +3153,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 536,
+              "line": 542,
               "deprecated": false
             },
             {
@@ -3162,7 +3162,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of",
-              "line": 547,
+              "line": 553,
               "deprecated": false
             }
           ]

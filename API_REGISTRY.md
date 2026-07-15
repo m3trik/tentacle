@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-14_
+_Generated: 2026-07-15_
 
 ## Index
 
@@ -365,7 +365,6 @@ Shared HUD warning framework (DCC-agnostic).
   - `MaterialsSlots.b025(self)` — Brush Splat Workflow
   - `MaterialsSlots.b019(self)` — Marmoset Bridge
   - `MaterialsSlots.b020(self)` — Substance Bridge
-  - `MaterialsSlots.b026(self)` — Unity Bridge
 
 <a id="slots--blender--normals"></a>
 ### `slots/blender/normals.py`
@@ -524,6 +523,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b011(self)` — Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type
   - `SceneSlots.b001(self)` — Reference Manager (library links — File ▸ Link manager panel).
   - `SceneSlots.b010(self)` — Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).
+  - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
   - `SceneSlots.b005(self)` — Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
   - `SceneSlots.b007(self)` — Import file
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).

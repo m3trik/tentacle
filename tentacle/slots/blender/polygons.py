@@ -282,7 +282,7 @@ class PolygonsSlots(SlotsBlender):
         # boolean; the Blender analogue is keeping the Boolean modifier non-destructive).
         widget.option_box.menu.setTitle("Boolean Operation")
         widget.option_box.menu.add(
-            "QComboBox", addItems=["Difference", "Union", "Intersect"],
+            "QComboBox", addItems=["Difference", "Union", "Intersection"],
             setObjectName="cmb011", setToolTip="Boolean operation (active = base).",
         )
         widget.option_box.menu.add(
@@ -301,7 +301,7 @@ class PolygonsSlots(SlotsBlender):
             self.sb.message_box("Boolean requires 2+ selected meshes (active = base).")
             return
         operation = {
-            "Difference": "DIFFERENCE", "Union": "UNION", "Intersect": "INTERSECT"
+            "Difference": "DIFFERENCE", "Union": "UNION", "Intersection": "INTERSECT"
         }[widget.option_box.menu.cmb011.currentText()]
         btk.boolean_op(objects, operation=operation, apply=not widget.option_box.menu.chk017.isChecked())
 

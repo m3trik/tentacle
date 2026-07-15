@@ -89,12 +89,17 @@ class Rigging(SlotsMaya):
             mel.eval("CreateCluster")  # create cluster
 
     def cmb002_init(self, widget):
-        """Init Quick Rig"""
-        items = ["Tube Rig", "Wheel Rig", "Shadow Rig", "Telescope Rig"]
+        """Init Quick Rig — our procedural rig tools plus Maya's built-in character auto-riggers."""
+        # Procedural rig tools (co-located mayatk panels) + Maya's built-in Quick Rig / HumanIK
+        # character auto-riggers (the Maya analogue of Blender's Rigify items in the twin panel).
+        items = [
+            "Tube Rig", "Wheel Rig", "Shadow Rig", "Telescope Rig",
+            "Quick Rig", "HumanIK",
+        ]
         widget.add(items, header="Quick Rig:")
 
     def cmb002(self, index, widget):
-        """Quick Rig: open a quick-rig tool (tube, wheel, shadow, or telescope rig)."""
+        """Quick Rig: open a procedural rig tool, or Maya's built-in Quick Rig / HumanIK."""
         text = widget.items[index]
         if text == "Tube Rig":
             self.sb.handlers.marking_menu.show("tube_rig")
@@ -104,6 +109,25 @@ class Rigging(SlotsMaya):
             self.sb.handlers.marking_menu.show("shadow_rig")
         elif text == "Telescope Rig":
             self.sb.handlers.marking_menu.show("telescope_rig")
+        elif text == "Quick Rig":
+            # Maya's built-in one-click / step-by-step biped auto-rigger. Opened via its Python
+            # entry point -- the same call Maya's own ``QuickRigEditor`` runtime command makes
+            # (see maya/app/quickRig/quickRigUI.py); avoids depending on the GUI-registered
+            # runtime command name.
+            try:
+                import maya.app.quickRig.quickRigUI as quick_rig
+
+                quick_rig.OpenQuickRigUI()
+            except Exception as e:
+                self.sb.message_box(
+                    f"Could not open the Quick Rig tool.<br><hl>{e}</hl>"
+                )
+        elif text == "HumanIK":
+            # Maya's HumanIK Character Controls (characterization + control rig).
+            try:
+                mel.eval("HIKCharacterControlsTool")
+            except Exception as e:
+                self.sb.message_box(f"Could not open HumanIK.<br><hl>{e}</hl>")
 
     def chk000(self, state, widget):
         """Scale Joint"""

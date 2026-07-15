@@ -15,16 +15,17 @@ class MaterialsSlots(SlotsBlender):
     ``Include Optimization Analysis`` (best-effort via the shared ``ptk.MapOptimizer`` — degrades to
     a per-texture "unavailable" note if Blender's Python lacks Pillow). The only Maya widgets dropped
     are ``Hide/Exclude Default Materials`` (Blender has no auto-created built-in defaults to filter).
-    The Tools submenu lists, grouped by what they act on: native ``blendertk`` panels (Update
-    Materials / Game Shader / Shader Templates / Texture Path Editor / Image to Plane) that work on
-    the live scene; the host-agnostic ``extapps`` panels (Map Converter / Packer / Compositor and
-    the photogrammetry workflows), surfaced exactly as in Maya via ``external_app.launch`` (wired in
-    ``tcl_blender``); and the Marmoset / Substance / Unity **bridges** — native ``blendertk`` panels
-    1:1 with mayatk's (``marmoset_bridge`` / ``substance_bridge`` / ``unity_bridge``), each exporting
-    the Blender selection and handing off to the matching external app directly (no extapps relay).
-    Arnold (mayatk's in-Maya preview-shader bridge) has no Blender rendering equivalent — its panel
-    exists for structural parity (``marking_menu.show("arnold_bridge")``) but every widget is
-    disabled, and it is deliberately not exposed in this menu.
+    The Tools submenu lists, grouped by what they act on (categories + order mirror Maya exactly):
+    native ``blendertk`` panels (Update Materials / Game Shader / Shader Templates / Texture Path
+    Editor / Image to Plane) that work on the live scene; and, under **External**, the host-agnostic
+    ``extapps`` panels (Map Converter / Packer / Compositor and the photogrammetry workflows),
+    surfaced via ``external_app.launch`` (wired in ``tcl_blender``), alongside the Marmoset /
+    Substance **bridges** — native ``blendertk`` panels 1:1 with mayatk's (``marmoset_bridge`` /
+    ``substance_bridge``), each exporting the Blender selection and handing off to the matching
+    external app directly (no extapps relay). Two bridges Maya keeps out of this menu are kept out
+    here too: the **Unity** bridge lives in the **Scene** menu (``scene.py`` b016), and **Arnold**
+    (mayatk's in-Maya preview-shader bridge) has no Blender rendering equivalent — its panel exists
+    for structural parity (``marking_menu.show("arnold_bridge")``) but every widget is disabled.
     """
 
     # Submenu Tools list. Categories group tools by *what they act on* (mirrors Maya):
@@ -70,12 +71,9 @@ class MaterialsSlots(SlotsBlender):
                 "textures (ORM, mask maps, …) across texture sets.",
             ),
         ],
-        "Bridges": [
+        "External": [
             ("Marmoset Bridge", "b019", ""),
             ("Substance Bridge", "b020", ""),
-            ("Unity Bridge", "b026", ""),
-        ],
-        "External": [
             ("Map Compositor", "b022", ""),
             ("Metashape Workflow", "b023", ""),
             ("RealityCapture Workflow", "b024", ""),
@@ -653,7 +651,8 @@ class MaterialsSlots(SlotsBlender):
     # ------------------------------------------------------------------ bridges
     # Native blendertk panels, 1:1 with mayatk's (co-located ``.ui`` + ``*Slots``, discovered by
     # BlenderUiHandler) — each exports the Blender selection and hands off to the external app
-    # directly. Maya objectNames mirrored (Marmoset b019 / Substance b020 / Unity b026).
+    # directly. Maya objectNames mirrored (Marmoset b019 / Substance b020). Unity's bridge is
+    # exposed from the Scene menu (``scene.py`` b016), mirroring Maya.
     def b019(self):
         """Marmoset Bridge"""
         self.sb.handlers.marking_menu.show("marmoset_bridge")
@@ -661,10 +660,6 @@ class MaterialsSlots(SlotsBlender):
     def b020(self):
         """Substance Bridge"""
         self.sb.handlers.marking_menu.show("substance_bridge")
-
-    def b026(self):
-        """Unity Bridge"""
-        self.sb.handlers.marking_menu.show("unity_bridge")
 
 
 # --------------------------------------------------------------------------------------------

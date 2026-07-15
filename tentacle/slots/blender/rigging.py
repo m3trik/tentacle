@@ -348,7 +348,9 @@ class Rigging(SlotsBlender):
 
     def cmb002_init(self, widget):
         # Procedural rigs (mayatk parity — each opens its co-located blendertk panel) +
-        # Rigify character rigging (Blender-native; Maya does this via HumanIK, not Quick Rig).
+        # Rigify character rigging (Blender-native; the Maya twin exposes its own built-in
+        # Quick Rig + HumanIK for the same "auto-rig a character" role — different native tools,
+        # so the item names diverge by design).
         widget.add(
             ["Telescope Rig", "Wheel Rig", "Shadow Rig", "Tube Rig", "Human Meta-Rig",
              "Basic Human Meta-Rig", "Generate Rig"],
