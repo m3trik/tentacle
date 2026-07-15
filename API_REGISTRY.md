@@ -1176,8 +1176,8 @@ Shared HUD warning framework (DCC-agnostic).
   - `Rigging.b020(self)` — Rebind Skin Clusters
   - `Rigging.cmb001_init(self, widget)` — Init Create
   - `Rigging.cmb001(self, index, widget)` — Create: create a rigging utility node — joints, IK handle, lattice, or cluster.
-  - `Rigging.cmb002_init(self, widget)` — Init Quick Rig
-  - `Rigging.cmb002(self, index, widget)` — Quick Rig: open a quick-rig tool (tube, wheel, shadow, or telescope rig).
+  - `Rigging.cmb002_init(self, widget)` — Init Quick Rig — our procedural rig tools plus Maya's built-in character auto-riggers.
+  - `Rigging.cmb002(self, index, widget)` — Quick Rig: open a procedural rig tool, or Maya's built-in Quick Rig / HumanIK.
   - `Rigging.chk000(self, state, widget)` — Scale Joint
   - `Rigging.chk001(self, state, widget)` — Scale IK
   - `Rigging.chk002(self, state, widget)` — Scale IK/FK
