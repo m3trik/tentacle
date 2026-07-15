@@ -517,8 +517,11 @@ HANDLERS = {
         # picker chooses inputs instead. Matched by objectName on both sides -> no ledger row needed.
         "b014": {"status": "na", "reason": "Save to Original Scene -- writes an open Maya autosave back over its original scene file (enabled only when an autosave is open and the original is locatable). Blender's recovery model differs (File > Recover Auto Save reopens the .blend; there is no 'save the autosave back to the original' action), so no 1:1 header entry."},
         "b014_init": {"status": "na", "reason": "see b014 (Save to Original Scene enable-state init)"},
-        "b016": {"status": "relocated", "to": "materials.py:b026",
-                 "reason": "Unity Bridge lives in the materials menu on Blender"},
+        # b016 Unity Bridge: BUILT on both sides 2026-07-14 — the Blender scene header now ships it
+        # (slots/blender/scene.py header_init + def b016) via marking_menu.show("unity_bridge"),
+        # 1:1 with Maya's scene.py b016. It previously lived in the Blender materials menu (b026);
+        # moved here so Marmoset/Substance (materials External) and Unity (Scene) group exactly as
+        # Maya does. Matched by objectName + label on both sides -> no ledger row needed.
     },
     # display.py list000 (ExpandableList) — PARITY_SURFACE.md "combo item deltas (review)" for
     # this file. Audited 2026-07-04: Component ID / Mat Override / Soft Edge Display / UV
@@ -728,7 +731,7 @@ CONTROLS_SLOTS = {
         "b012": {"status": "na", "reason": "see HANDLERS['scene']"},
         # b013 Mesh Converter: BUILT 2026-07-13 — see HANDLERS['scene'] b013 note (present on both sides).
         "b014": {"status": "na", "reason": "see HANDLERS['scene'] (Save to Original Scene)"},
-        "b016": {"status": "relocated", "to": "materials.py:b026", "reason": "see HANDLERS['scene']"},
+        # b016 Unity Bridge: present on both sides now (Scene menu) — see HANDLERS['scene'] b016 note.
         # lbl004/lbl005 ("Open Workspace Root"/"Auto Set Workspace") removed 2026-07-04: stale
         # entries matching no current Maya-only control (already flagged for removal in the
         # archived BLENDER_FEATURE_GAPS.md audit) — and doubly wrong now that main.py's

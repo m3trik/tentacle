@@ -148,7 +148,7 @@ Blender-only panels: MayaBridge
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 6 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
-| scene.py | 0 | 0 | 11 | 0 | 0 | OK |
+| scene.py | 0 | 0 | 9 | 0 | 0 | OK |
 | selection.py | 0 | 0 | 8 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -178,8 +178,6 @@ Blender-only panels: MayaBridge
 
 #### materials.py
 **combo item deltas (review)**
-  - `_TOOLS_ITEMS[Bridges]` 0->3 items; missing=[] extra=['Marmoset Bridge', 'Substance Bridge', 'Unity Bridge']
-  - `_TOOLS_ITEMS[External]` 6->4 items; missing=['Marmoset Bridge', 'Substance Bridge'] extra=[]
   - `_TOOLS_ITEMS[Materials (scene)]` 3->2 items; missing=['Arnold Preview Shader'] extra=[]
 
 #### normals.py

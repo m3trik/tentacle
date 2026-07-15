@@ -72,11 +72,10 @@ class SceneSlots(SlotsBlender):
             "QPushButton", setText="Maya Bridge", setObjectName="b010",
             setToolTip="Send the selected objects to a fresh Maya (export FBX + run a chosen import template).",
         )
-        # Unity Bridge lives in the Materials menu's Bridges group alongside Marmoset /
-        # Substance (all three are bridges, grouped by what they act on) — a native
-        # blendertk panel (env_utils/unity_bridge), 1:1 with mayatk's, exporting the
-        # selection and copying the FBX into a Unity project's Assets/ directly (no
-        # extapps relay). See materials.py b026.
+        widget.menu.add(
+            "QPushButton", setText="Unity Bridge", setObjectName="b016",
+            setToolTip="Send the selected objects to a Unity project (export FBX + copy into Assets/).",
+        )
         widget.menu.add("Separator", setTitle="Manage")
         widget.menu.add(
             "QPushButton", setText="Reference Manager", setObjectName="b001",
@@ -392,6 +391,13 @@ class SceneSlots(SlotsBlender):
     def b010(self):
         """Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge)."""
         self.sb.handlers.marking_menu.show("maya_bridge")
+
+    def b016(self):
+        """Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
+        Native blendertk panel (env_utils/unity_bridge), 1:1 with mayatk's; exposed here in the
+        Scene menu mirroring Maya's scene.py b016 (Marmoset / Substance stay in the Materials
+        menu's External group)."""
+        self.sb.handlers.marking_menu.show("unity_bridge")
 
     def b005(self):
         """Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
