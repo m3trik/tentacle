@@ -28,7 +28,6 @@
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
-| MacroManager | 0 | 0 | 0 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
@@ -207,8 +206,8 @@ Blender-only panels: MayaBridge
 **combo item deltas (review)**
   - `cmb000` 2->2 items; missing=['Reduce (Quadric Error %)'] extra=['Reduce (Collapse %)']
 
-**[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> btk.call_native_menu) — Maya-native-menu Qt clones (QAction harvest — impossible in Blender's OpenGL UI); Blender pops its OWN native menus at the cursor instead (shipped 2026-06-12)
+**[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep PASSES.

@@ -86,10 +86,19 @@ try:
         bpy.ops.mesh.primitive_cube_add(size=size, location=(x, 0, 0))
         return bpy.context.active_object
 
+    # The mirror panel's combos are cmb000 (Pivot) / cmb001 (Merge Mode), matching its .ui —
+    # itself a verbatim copy of mayatk's. This harness read cmb002/cmb003 against an older
+    # surface, so every mirror case died on `NS has no attribute 'cmb000'` before asserting
+    # anything; the pivot indices had drifted too, because the current list inserts "World"
+    # at 2 and pushed Bounding Box (center) 2 -> 3 and (border) 3 -> 4. Exactly the
+    # widget-name drift this file exists to catch, so the names are spelled out per case:
+    #   cmb000 Pivot: 0 Manip | 1 Object | 2 World | 3 BBox (center) | 4 BBox (border)
+    #   cmb001 Merge: 0 OFF   | 1 Combine | 2 Border Edges | 3 Extrude   (engine: index - 1)
+
     # ---- mirror: world pivot, merge OFF -> separate _mirror object
     reset()
     o = cube(x=2.0)
-    ui = NS(cmb002=combo(1), cmb003=combo(0), chk005=chk(False), chk006=chk(False))
+    ui = NS(cmb000=combo(2), cmb001=combo(0), chk005=chk(False), chk006=chk(False))
     slot = make_slot(MirrorSlots, ui, axis="x")
     slot.perform_operation([o])
     check("mirror slot OFF makes a _mirror object",
@@ -99,8 +108,8 @@ try:
     # ---- mirror: border merge welds in-mesh
     reset()
     o = cube(x=2.0)
-    ui = NS(cmb002=combo(3), cmb003=combo(2), chk005=chk(False), chk006=chk(False))
-    slot = make_slot(MirrorSlots, ui, axis="-x")  # border + '-' -> min face
+    ui = NS(cmb000=combo(4), cmb001=combo(2), chk005=chk(False), chk006=chk(False))
+    slot = make_slot(MirrorSlots, ui, axis="-x")  # BBox (border) + '-' -> min face
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
     check("mirror slot border(-x) spans -1..3 welded",
@@ -110,7 +119,7 @@ try:
     # ---- mirror: bbox-center pivot symmetrizes (keeps the +x half by UI convention)
     reset()
     o = cube()
-    ui = NS(cmb002=combo(2), cmb003=combo(0), chk005=chk(False), chk006=chk(False))
+    ui = NS(cmb000=combo(3), cmb001=combo(0), chk005=chk(False), chk006=chk(False))
     slot = make_slot(MirrorSlots, ui, axis="x")
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
@@ -128,7 +137,9 @@ try:
     # ---- cut_on_axis: 2 cuts via stub spinners
     reset()
     o = cube()
-    ui = NS(cmb001=combo(2), s000=spin(2), s001=spin(0.0), chk005=chk(False), chk006=chk(False))
+    # cut_on_axis reads cmb000 (Pivot: 0 manip | 1 object | 2 world | 3 center) — index 2
+    # cuts at the world origin, which is where these cubes sit.
+    ui = NS(cmb000=combo(2), s000=spin(2), s001=spin(0.0), chk005=chk(False), chk006=chk(False))
     slot = make_slot(CutOnAxisSlots, ui, axis="x")
     slot.perform_operation([o])
     check("cut slot 2 cuts -> 14 faces", len(o.data.polygons) == 14, f"f={len(o.data.polygons)}")
@@ -136,7 +147,7 @@ try:
     # ---- cut_on_axis: delete clears the +x half
     reset()
     o = cube()
-    ui = NS(cmb001=combo(2), s000=spin(1), s001=spin(0.0), chk005=chk(True), chk006=chk(False))
+    ui = NS(cmb000=combo(2), s000=spin(1), s001=spin(0.0), chk005=chk(True), chk006=chk(False))
     slot = make_slot(CutOnAxisSlots, ui, axis="x")
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
@@ -151,7 +162,11 @@ try:
         s006=spin(1.0), s007=spin(1.0), s008=spin(1.0),  # scale
         s009=spin(4),                                    # copies (incl. original) -> 3 dups
         s010=spin(0.5), s011=spin(4.0),
-        cmb001=combo(0, "linear"), cmb003=combo(0, "object"), chk001=chk(True),
+        # cmb001 Interpolation / cmb002 Pivot (the .ui's own names; cmb003 does not exist).
+        # Copy-vs-Instance moved from a checkbox to the cmb_inst combo ("copy"/"instance"),
+        # which is what the "instances share data" check below actually needs now.
+        cmb001=combo(0, "linear"), cmb002=combo(0, "object"),
+        cmb_inst=combo(1, "instance"),
     )
     slot = make_slot(DuplicateLinearSlots, ui)
     slot.perform_operation([o])
@@ -174,8 +189,11 @@ try:
         s009=spin(4), s010=spin(0.0), s011=spin(0.0), s012=spin(0.0),
         s013=spin(0.0), s014=spin(360.0), s015=spin(0.5), s016=spin(0.5),
         cmb000=combo(1),                                  # world pivot
-        chk002=chk(False), chk003=chk(False), chk004=chk(True),  # rotate axis -> z
-        chk005=chk(False), chk006=chk(False), chk007=chk(False),
+        chk002=chk(False), chk003=chk(False),             # rotate axis -> z (neither x nor y)
+        chk006=chk(False),                                # keep_original
+        chk007=chk(False),                                # combine
+        chk008=chk(False),                                # suffix
+        cmb_inst=combo(0, "copy"),                        # copy-vs-instance (was a checkbox)
     )
     slot = make_slot(DuplicateRadialSlots, ui)
     slot.perform_operation([o])

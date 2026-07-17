@@ -47,12 +47,12 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="MenuButton" name="i009">
+   <widget class="MenuButton" name="i030">
     <property name="geometry">
      <rect>
       <x>267</x>
       <y>290</y>
-      <width>66</width>
+      <width>81</width>
       <height>21</height>
      </rect>
     </property>
@@ -69,46 +69,18 @@
      </size>
     </property>
     <property name="text">
-     <string>Pose</string>
+     <string>Animation</string>
     </property>
     <property name="target" stdset="0">
-     <string>pose</string>
+     <string>object_animation</string>
     </property>
    </widget>
-   <widget class="MenuButton" name="b022">
-    <property name="geometry">
-     <rect>
-      <x>155</x>
-      <y>260</y>
-      <width>91</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>999</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Constraints</string>
-    </property>
-    <property name="target" stdset="0">
-     <string>constraints</string>
-    </property>
-   </widget>
-   <widget class="MenuButton" name="b021">
+   <widget class="MenuButton" name="i031">
     <property name="geometry">
      <rect>
       <x>180</x>
       <y>290</y>
-      <width>66</width>
+      <width>71</width>
       <height>21</height>
      </rect>
     </property>
@@ -125,10 +97,10 @@
      </size>
     </property>
     <property name="text">
-     <string>IK</string>
+     <string>Rigging</string>
     </property>
     <property name="target" stdset="0">
-     <string>ik</string>
+     <string>rig</string>
     </property>
    </widget>
   </widget>

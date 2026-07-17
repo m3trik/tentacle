@@ -14,11 +14,12 @@ It mirrors maya_menus on every axis:
 * **Each node its own submenu.** A hub file lists self + child MenuButtons; a leaf file holds one
   self-referencing MenuButton. Hover opens ``<target>#submenu``; release resolves the bare target.
 
-**Wrapped, not recreated.** On release the bare target resolves through
+**Wrapped like Maya.** On release the bare target resolves through
 ``BlenderUiHandler.can_resolve`` (membership in :class:`BlenderNativeMenus`) to a native-menu
-*proxy*, whose ``show`` pops Blender's real menu via ``wm.call_menu`` — the Blender analogue of
-Maya harvesting its live ``QAction`` rows. The resolution table lives in **blendertk**
-(``BlenderNativeMenus``), so these MenuButtons carry no tentacle slots — like maya_menus.
+*proxy*, whose ``show`` presents the harvested Qt clone of Blender's menu in a Switchboard
+window (pin header, hides with ``key_show``) — the Blender analogue of Maya harvesting its live
+``QAction`` rows. The resolution table lives in **blendertk** (``BlenderNativeMenus``), so these
+MenuButtons carry no tentacle slots — like maya_menus.
 
 This suite is **offscreen (no bpy)**: it loads the real ``.ui`` files and drives the marking
 menu's real release-resolution methods against a proxy handler built from the real
@@ -50,23 +51,46 @@ except Exception:  # pragma: no cover - environment without a Qt binding / blend
     _QT_OK = False
 
 
-# The full flat tree — file -> [bare node targets it contains]. Startmenu + 5 hubs are branch
+def _can_create_widgets() -> bool:
+    """False under mayapy.standalone / maya -batch, where Maya's non-GUI Qt stub
+    hard-crashes on widget construction (exit 9, no traceback) — the same
+    discriminator test_overlay_safety documents. No maya.cmds = plain Python."""
+    try:
+        import maya.cmds as cmds
+    except ImportError:
+        return True
+    try:
+        return not bool(cmds.about(batch=True))
+    except Exception:
+        return False
+
+
+_QT_OK = _QT_OK and _can_create_widgets()
+
+
+# The full flat tree — file -> [bare node targets it contains]. Startmenu + 7 hubs are branch
 # files (self + children); everything else is a one-button leaf. Mirrors ui/maya_menus' shape
-# (8 top categories, hub clustering, one 3-level branch: Armature -> Pose) with Blender domains.
+# (8 top categories, hub clustering, and the Animation -> Rigging chain mirroring Maya's
+# Key -> Skeleton branch) with Blender domains.
 _BRANCH_FILES = {
-    "blender#startmenu": ["view", "select", "add", "object", "mesh", "curve", "armature", "render"],
+    "blender#startmenu": [
+        "view", "select", "add", "object", "mesh", "curve", "object_animation", "render",
+    ],
     "mesh#submenu": ["mesh", "vertex", "edge", "face", "mesh_uv", "mesh_normals"],
     "curve#submenu": ["curve", "ctrl_points", "segments", "surface"],
-    "armature#submenu": ["armature", "pose"],
+    "object#submenu": ["object", "modifiers", "quick_effects"],
+    "object_animation#submenu": ["object_animation", "rig"],
+    "rig#submenu": ["rig", "armature", "pose", "object_constraints"],
     "pose#submenu": ["pose", "constraints", "ik"],
     "render#submenu": ["render", "window", "help"],
 }
 # Every node that is not a hub gets a one-button leaf file (self-referencing MenuButton).
 _LEAF_NODES = [
-    "view", "select", "add", "object", "vertex", "edge", "face", "mesh_uv", "mesh_normals",
-    "ctrl_points", "segments", "surface", "constraints", "ik", "window", "help",
+    "view", "select", "add", "vertex", "edge", "face", "mesh_uv", "mesh_normals",
+    "ctrl_points", "segments", "surface", "armature", "constraints", "ik",
+    "object_constraints", "modifiers", "quick_effects", "window", "help",
 ]
-_HUB_NODES = ["mesh", "curve", "armature", "pose", "render"]
+_HUB_NODES = ["mesh", "curve", "object", "object_animation", "rig", "pose", "render"]
 
 
 @unittest.skipUnless(_QT_OK, "needs a Qt binding (qtpy/PySide6) + blendertk")
@@ -92,14 +116,14 @@ class BlenderChordMenuStructure(unittest.TestCase):
 
     # ── file-graph shape ────────────────────────────────────────────────
     def test_file_set_is_exactly_the_flat_tree(self):
-        """The blender_menus dir holds exactly startmenu + 5 hubs + 16 leaves — no stray
+        """The blender_menus dir holds exactly startmenu + 7 hubs + 19 leaves — no stray
         (old nested ``blender#...#submenu``) files, none missing."""
         on_disk = {p.stem for p in _BLENDER_UI_DIR.glob("*.ui")}
         expected = {"blender#startmenu"}
         expected |= {f"{h}#submenu" for h in _HUB_NODES}
         expected |= {f"{leaf}#submenu" for leaf in _LEAF_NODES}
         self.assertEqual(on_disk, expected, f"unexpected: {on_disk ^ expected}")
-        self.assertEqual(len(expected), 22)
+        self.assertEqual(len(expected), 27)
 
     def test_filenames_are_flat_like_maya_menus(self):
         """Every submenu file is a flat ``<name>#submenu`` (two segments, no ``blender#`` prefix,

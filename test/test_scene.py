@@ -11,6 +11,7 @@ covers the units with branching logic:
 - _confirm_dense_export   — dense-mesh tangent-export confirmation gate
 """
 import unittest
+from types import SimpleNamespace as NS
 
 try:
     import maya.cmds as cmds
@@ -156,6 +157,82 @@ class TestConfirmDenseExport(unittest.TestCase):
             self.assertTrue(self.inst._confirm_dense_export(True, True))
         finally:
             scene_module.SceneSlots._DENSE_TRI_THRESHOLD = orig
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestList000CategoryRowGuard(unittest.TestCase):
+    """list000 must ignore items with no bound file path.
+
+    Clicking the "Recent Files" category row emits on_item_interacted with a
+    data-less label; the handler used to pass that None straight into
+    ``cmds.file(None, open=True, force=True)`` (the Blender twin already
+    guarded). Pin: no data ⇒ no file call; data ⇒ opened.
+    """
+
+    class _Item:
+        def __init__(self, data):
+            self._data = data
+
+        def item_data(self):
+            return self._data
+
+    def setUp(self):
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+        self.calls = []
+        self._orig_file = cmds.file
+        cmds.file = lambda *a, **kw: self.calls.append((a, kw))
+
+    def tearDown(self):
+        cmds.file = self._orig_file
+
+    def test_category_row_is_a_noop(self):
+        self.inst.list000(self._Item(None))
+        self.assertEqual(self.calls, [])
+
+    def test_file_item_opens(self):
+        self.inst.list000(self._Item("scenes/foo.ma"))
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.calls[0][0], ("scenes/foo.ma",))
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestSceneExporterOnExportList(unittest.TestCase):
+    """Scene Exporter is reachable from the Export list.
+
+    It used to be a header-menu button (b002) with its own slot method; both
+    are gone, so ``_EXPORTERS`` is now the only route to the panel. Pin the
+    entry and its dispatch — a typo'd key would strand the tool with no
+    compile-time error, since list002 looks the label up by text.
+    """
+
+    class _Item:
+        def __init__(self, text):
+            self._text = text
+
+        def item_text(self):
+            return self._text
+
+    def setUp(self):
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+        self.shown = []
+        self.inst.sb = NS(handlers=NS(marking_menu=NS(show=self.shown.append)))
+
+    def test_entry_is_registered(self):
+        cls = scene_module.SceneSlots
+        self.assertIn(cls._SCENE_EXPORTER, cls._EXPORTERS)
+
+    def test_entry_launches_the_panel(self):
+        self.inst.list002(self._Item(scene_module.SceneSlots._SCENE_EXPORTER))
+        self.assertEqual(self.shown, ["scene_exporter"])
+
+    def test_header_no_longer_carries_the_button(self):
+        # b002's removal is what makes the list the only route; a re-added
+        # method would mean the button crept back onto the header menu.
+        self.assertFalse(hasattr(scene_module.SceneSlots, "b002"))
+
+    def test_unknown_label_is_a_noop(self):
+        self.inst.list002(self._Item("Export"))  # the category row
+        self.assertEqual(self.shown, [])
 
 
 if __name__ == "__main__":

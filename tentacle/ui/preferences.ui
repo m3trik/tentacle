@@ -75,7 +75,7 @@
       <item>
        <widget class="QGroupBox" name="parent_app">
         <property name="title">
-         <string>Maya Preferences</string>
+         <string>&lt;app&gt; Preferences</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">

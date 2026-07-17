@@ -12,14 +12,14 @@
   <property name="dockOptions"><set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set></property>
   <widget class="QWidget" name="widget">
    <property name="sizePolicy"><sizepolicy hsizetype="Ignored" vsizetype="Ignored"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>
-   <widget class="MenuButton" name="i007">
+   <widget class="MenuButton" name="b032">
     <property name="geometry">
-     <rect><x>267</x><y>290</y><width>76</width><height>21</height></rect>
+     <rect><x>267</x><y>290</y><width>101</width><height>21</height></rect>
     </property>
     <property name="minimumSize"><size><width>0</width><height>21</height></size></property>
     <property name="maximumSize"><size><width>999</width><height>21</height></size></property>
-    <property name="text"><string>Armature</string></property>
-    <property name="target" stdset="0"><string>armature</string></property>
+    <property name="target"><string>quick_effects</string></property>
+    <property name="text"><string>Quick Effects</string></property>
    </widget>
   </widget>
  </widget>

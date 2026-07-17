@@ -28,15 +28,9 @@ class SceneSlots(SlotsMaya):
             widget.menu.add("Separator", setTitle="Export")
             widget.menu.add(
                 "QPushButton",
-                setToolTip="Export scene assets with environment checks and presets.",
-                setText="Scene Exporter",
-                setObjectName="b002",
-            )
-            widget.menu.add(
-                "QPushButton",
                 setText="Export Scene",
-                setObjectName="tb003",
-                setToolTip="Export the scene to FBX (and optionally GLB) using the configured options.\nOptions live on the submenu's Export button (gear icon).",
+                setObjectName="b018",
+                setToolTip="Export the scene to FBX (and optionally GLB) using the configured options.\nOptions live on the submenu's Export list ▸ Export Scene entry (gear icon).",
             )
             widget.menu.add(
                 "QPushButton",
@@ -183,78 +177,153 @@ class SceneSlots(SlotsMaya):
                 f"Could not open autosave:\n<hl>{ptk.format_path(file, 'file')}</hl>\n\n{e}"
             )
 
-    def cmb003_init(self, widget):
+    # (label -> callable(slot)) for the submenu's Import / Export expandable
+    # lists. Callables take the slots instance so they can reach the FBX
+    # plugin / preset-window helpers and the marking-menu handler.
+    _IMPORTERS = {
+        "Import File": lambda slot: mel.eval("Import"),
+        "Import Options": lambda slot: mel.eval("ImportOptions"),
+        "Import Blender Scene": lambda slot: slot._import_blender_scene(),
+        "FBX Import Presets": lambda slot: slot._eval_fbx_uicallback(
+            'editImportPresetInNewWindow" "fbx'
+        ),
+        "OBJ Import Presets": lambda slot: slot._eval_fbx_uicallback(
+            'editImportPresetInNewWindow" "obj'
+        ),
+    }
+    # The Export list's tool-panel entry — a launcher rather than a one-shot
+    # export, so list002_init adds it separately (last, nearest the trigger row)
+    # with a tooltip. Named so the dict key and that filter can't drift apart.
+    _SCENE_EXPORTER = "Scene Exporter"
+
+    _EXPORTERS = {
+        _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show(
+            "scene_exporter"
+        ),
+        "Export Selection": lambda slot: slot._export_selection(),
+        "Export All": lambda slot: mel.eval("Export"),
+        "Send to Unreal": lambda slot: mel.eval("SendToUnrealSelection"),
+        "Send to Unity": lambda slot: mel.eval("SendToUnitySelection"),
+        "GoZ": lambda slot: mel.eval(
+            'print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";'
+        ),
+        "Send to 3dsMax: As New Scene": lambda slot: mel.eval("SendAsNewScene3dsMax"),
+        "Send to 3dsMax: Update Current": lambda slot: mel.eval(
+            "UpdateCurrentScene3dsMax"
+        ),
+        "Send to 3dsMax: Add to Current": lambda slot: mel.eval(
+            "AddToCurrentScene3dsMax"
+        ),
+        "Export to Offline File": lambda slot: mel.eval("ExportOfflineFileOptions"),
+        "Export Options": lambda slot: mel.eval("ExportSelectionOptions"),
+        "FBX Export Presets": lambda slot: slot._eval_fbx_uicallback(
+            'editExportPresetInNewWindow" "fbx'
+        ),
+        "OBJ Export Presets": lambda slot: slot._eval_fbx_uicallback(
+            'editExportPresetInNewWindow" "obj'
+        ),
+    }
+
+    def _export_selection(self):
+        """Export Selection — ensure fbxmaya is loaded so FBX shows in the type list."""
+        self._ensure_fbx_plugin()
+        mel.eval("ExportSelection")
+
+    def list001_init(self, widget):
         """Initialize Import"""
-        widget.add(
-            [
-                "Import File",
-                "Import Options",
-                "FBX Import Presets",
-                "OBJ Import Presets",
-            ],
-            header="Import",
+        widget.fixed_item_height = 18
+        # Lowest list in the submenu: open downward, covering the root row
+        # (expand_down would hang the sublist below it instead).
+        widget.apply_preset("expand_overlay")
+        root = widget.add(
+            "Import",
+            setToolTip="Import a file or a Blender scene, or open Import / FBX / OBJ preset options.",
+        )
+        root.sublist.add(list(self._IMPORTERS))
+
+    @Signals("on_item_interacted")
+    def list001(self, item):
+        """Import: import a file, or open import / FBX / OBJ preset options."""
+        action = self._IMPORTERS.get(item.item_text())
+        if action:
+            action(self)
+
+    def _import_blender_scene(self):
+        """Import a Blender scene (.blend) via ``mtk.import_blender_scene`` — a
+        headless-Blender FBX round-trip (a fresh ``blender --background`` converts
+        the scene; the FBX is imported and cleaned up; textures FBX can't carry are
+        rebuilt from the manifest sidecar via the GameShader engine). Mirror of the
+        Blender slots' "Import Maya Scene". Blocking: a scene conversion takes
+        seconds (no license checkout — Blender is free), so a wait cursor covers
+        the run. Requires a local Blender install."""
+        src = self.sb.file_dialog(
+            file_types=["*.blend"],
+            title="Import Blender Scene",
+            filter_description="Blender Scenes",
+            allow_multiple=False,
+        )
+        if not src:
+            return
+        app = self.sb.QtWidgets.QApplication
+        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
+        try:
+            imported = mtk.import_blender_scene(src)
+        except Exception as e:
+            self.sb.message_box(f"Blender scene import failed: <hl>{e}</hl>")
+            return
+        finally:
+            app.restoreOverrideCursor()
+        self.sb.message_box(
+            f"Imported <hl>{len(imported)}</hl> object(s) from "
+            f"<hl>{os.path.basename(src)}</hl>."
         )
 
-    def cmb003(self, index, widget):
-        """Import: import a file, or open import / FBX / OBJ preset options."""
-        text = widget.items[index]
-        if text == "Import File":  # Import
-            mel.eval("Import")
-        elif text == "Import Options":  # Import options
-            mel.eval("ImportOptions")
-        elif text == "FBX Import Presets":  # FBX Import Presets
-            self._eval_fbx_uicallback('editImportPresetInNewWindow" "fbx')
-        elif text == "OBJ Import Presets":  # Obj Import Presets
-            self._eval_fbx_uicallback('editImportPresetInNewWindow" "obj')
+    def list002_init(self, widget):
+        """Initialize Export.
 
-    def cmb004_init(self, widget):
-        """Initialize Export"""
-        items = [
-            "Export Selection",
-            "Export All",
-            "Send to Unreal",
-            "Send to Unity",
-            "GoZ",
-            "Send to 3dsMax: As New Scene",
-            "Send to 3dsMax: Update Current",
-            "Send to 3dsMax: Add to Current",
-            "Export to Offline File",
-            "Export Options",
-            "FBX Export Presets",
-            "OBJ Export Presets",
-        ]
-        widget.add(items, header="Export")
+        The list expands upward, so it is populated in reverse: the LAST item
+        added sits nearest the trigger row. The two tools go last — Scene
+        Exporter, then Export Scene (the tb003 PushButton folded in from the old
+        submenu button, option-box gear and all) closest to the cursor — with
+        the one-shot actions that used to live on the Export combobox stacking
+        above them.
+        """
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
+        root = widget.add(
+            "Export",
+            setToolTip="Export the scene or selection (FBX, Send To, presets).",
+        )
+        one_shots = [k for k in self._EXPORTERS if k != self._SCENE_EXPORTER]
+        root.sublist.add(one_shots[::-1])
+        root.sublist.add(
+            self._SCENE_EXPORTER,
+            setToolTip="Export scene assets with environment checks and presets.",
+        )
+        # Registration runs tb003_init (building the option-box menu), wires
+        # clicked -> tb003, and binds self.submenu.tb003 so the header's plain
+        # "Export Scene" entry (b018) can read the shared options.
+        self.add_slot_widget(
+            root.sublist,
+            setObjectName="tb003",
+            setText="Export Scene",
+            setToolTip=(
+                "Export the scene to FBX (and optionally GLB).\n"
+                "Click the gear icon to configure scope, included types, and save location."
+            ),
+        )
 
-    def cmb004(self, index, widget):
-        """Export: export the selection or whole scene (FBX, Send to Unreal, etc.)."""
-        text = widget.items[index]
-        if text == "Export Selection":
-            self._ensure_fbx_plugin()
-            mel.eval("ExportSelection")
-        elif text == "Export All":
-            mel.eval("Export")
-        elif text == "Send to Unreal":
-            mel.eval("SendToUnrealSelection")
-        elif text == "Send to Unity":
-            mel.eval("SendToUnitySelection")
-        elif text == "GoZ":
-            mel.eval(
-                'print("GoZ"); source"C:/Users/Public/Pixologic/GoZApps/Maya/GoZBrushFromMaya.mel"; source "C:/Users/Public/Pixologic/GoZApps/Maya/GoZScript.mel";'
-            )
-        elif text == "Send to 3dsMax: As New Scene":  # Send to 3dsMax: As New Scene
-            mel.eval("SendAsNewScene3dsMax")
-        elif text == "Send to 3dsMax: Update Current":  # Send to 3dsMax: Update Current
-            mel.eval("UpdateCurrentScene3dsMax")
-        elif text == "Send to 3dsMax: Add to Current":  # Send to 3dsMax: Add to Current
-            mel.eval("AddToCurrentScene3dsMax")
-        elif text == "Export to Offline File":  # Export to Offline File
-            mel.eval("ExportOfflineFileOptions")
-        elif text == "Export Options":  # Export options
-            mel.eval("ExportSelectionOptions")
-        elif text == "FBX Export Presets":  # FBX Export Presets
-            self._eval_fbx_uicallback('editExportPresetInNewWindow" "fbx')
-        elif text == "OBJ Export Presets":  # Obj Export Presets
-            self._eval_fbx_uicallback('editExportPresetInNewWindow" "obj')
+    @Signals("on_item_interacted")
+    def list002(self, item):
+        """Export: the one-shot export actions and the Scene Exporter launcher.
+
+        tb003 never arrives here — its option-box wrap swapped it out of the
+        list's item set, so the list no longer consumes its releases and its
+        own clicked signal drives the slot (see ``Slots.add_slot_widget``).
+        """
+        action = self._EXPORTERS.get(item.item_text())
+        if action:
+            action(self)
 
     def list000_init(self, widget):
         """Initialize Recent Files"""
@@ -270,6 +339,8 @@ class SceneSlots(SlotsMaya):
     def list000(self, item):
         """Recent Files"""
         data = item.item_data()
+        if not data:  # the "Recent Files" category row carries no file
+            return
         cmds.file(data, open=True, force=True)
 
     def _on_workspace_changed(self):
@@ -301,10 +372,6 @@ class SceneSlots(SlotsMaya):
     def b001(self):
         """Open Reference Manager"""
         self.sb.handlers.marking_menu.show("reference_manager")
-
-    def b002(self):
-        """Scene Exporter"""
-        self.sb.handlers.marking_menu.show("scene_exporter")
 
     def b010(self):
         """Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge)."""
@@ -420,11 +487,14 @@ class SceneSlots(SlotsMaya):
             # mode they'd only export if explicitly selected, so the
             # "include all" intent doesn't apply — disable them. Skins are
             # intrinsic to the selected mesh, so they stay enabled in both
-            # scopes.
+            # scopes. The button label mirrors the scope so the submenu entry
+            # reads as what it will do (QSettings restore re-fires the signal,
+            # so a persisted scope re-labels on init too).
             def _sync_scope(_idx=None):
                 whole_scene = cmb_scope.currentData() == "all"
                 chk_cameras.setEnabled(whole_scene)
                 chk_lights.setEnabled(whole_scene)
+                widget.setText("Export Scene" if whole_scene else "Export Sel")
 
             cmb_scope.currentIndexChanged.connect(_sync_scope)
             _sync_scope()
@@ -468,9 +538,15 @@ class SceneSlots(SlotsMaya):
     def tb003(self, widget):
         """Export Scene (FBX + optional GLB) using the configured options."""
         # Options always live on the submenu's tb003 (the PushButton with the
-        # option_box gear). The header-menu entry is a plain QPushButton — it
-        # reaches us via the same slot name but has no option_box of its own.
-        opts_widget = self.submenu.tb003
+        # option_box gear, created by list002_init as the Export list's first
+        # entry). The header-menu entry is a plain QPushButton — it reaches us
+        # via the same slot name but has no option_box of its own. If the
+        # Export list hasn't built yet (header clicked before the submenu
+        # initialized), force it now so tb003 + its options exist.
+        opts_widget = getattr(self.submenu, "tb003", None)
+        if opts_widget is None:
+            self.sb.init_slot(self.submenu.list002)
+            opts_widget = self.submenu.tb003
         if not getattr(opts_widget, "is_initialized", False):
             self.tb003_init(opts_widget)
             opts_widget.is_initialized = True
@@ -822,13 +898,11 @@ class SceneSlots(SlotsMaya):
         ptk.FileUtils.atomic_write_text(path, text)
         self.sb.message_box(f"Saved scene metadata to <hl>{os.path.basename(path)}</hl>.")
 
-    def b007(self):
-        """Import file: import a file via Maya's Import dialog."""
-        self.ui.cmb003.call_slot(0)
-
-    def b008(self):
-        """Export Selection"""
-        self.ui.cmb004.call_slot(0)
+    def b018(self):
+        """Export Scene — header-menu launcher for tb003 (the submenu Export
+        list's entry that carries the option box). A distinct objectName
+        because a slot file must not add two widgets named tb003."""
+        self.tb003(None)
 
     def b013(self):
         """Mesh Converter (FBX -> GLB)"""

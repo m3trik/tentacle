@@ -127,14 +127,16 @@ class TestWorkspaceControlsLeftScene(unittest.TestCase):
         cls.mod = ModuleAST(SCENE_PY.read_text(encoding="utf-8"))
 
     def test_old_and_moved_surface_absent(self):
+        # NOTE: list001/list001_init are deliberately NOT in this list — the
+        # objectName was recycled 2026-07-16 for the submenu's Import
+        # expandable list (unrelated to the old Workspace list this test
+        # pins). The workspace move is still pinned by its helper names below.
         for gone in (
             "tb000_init",
             "tb000",
             "lbl004",
             "lbl005",
             "_open_recent_workspace",
-            "list001_init",
-            "list001",
             "_set_workspace_interactive",
             "_auto_set_workspace",
             "_set_workspace_from_path",

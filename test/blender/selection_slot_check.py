@@ -9,7 +9,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 Pins two things end-to-end through the REAL slot class (not just the ``btk.Selection`` engine,
 which ``blendertk/test/test_selection.py`` already covers directly):
 
-1. **cmb003 "Convert To"** — the 15-item combo (mayatk parity: 7→15 of Maya's 20) dispatches
+1. **cmb003 "Convert To"** — the 18-item combo (mayatk parity: 7→18 of Maya's 20) dispatches
    every item without raising against real geometry, and the touching-vs-contained fix ("Faces"
    vs "Contained Faces" from an identical seed) actually differs through the slot dispatch, not
    just the underlying engine call.
@@ -81,7 +81,11 @@ try:
         def add(self, items, header=None):
             self.items = list(items)
 
-    # -- cmb003_init: exactly the 15 expected items, in order --
+    # -- cmb003_init: exactly the 18 expected items, in order --
+    # This list also drives the dispatch loop *by index*, so a stale copy doesn't just fail the
+    # count — it silently drives the WRONG leaves (it lagged behind the UV Shell Border / UV
+    # Perimeter / UV Edge Loop additions, so the "Shell"/"Shell Border" dispatch checks below
+    # were passing against whatever sat at those indices). Keep it in sync with cmb003_init.
     w = _FakeWidget()
     slot.cmb003_init(w)
     EXPECTED_CMB003 = [
@@ -89,10 +93,10 @@ try:
         "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
         "Border Edges",
         "Faces", "Face Path", "Contained Faces", "Face Perimeter",
-        "UV Shell",
+        "UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop",
         "Shell", "Shell Border",
     ]
-    check("cmb003_init adds all 15 expected items in order", w.items == EXPECTED_CMB003, f"{w.items}")
+    check("cmb003_init adds all 18 expected items in order", w.items == EXPECTED_CMB003, f"{w.items}")
 
     # -- cmb003: drive every item through the real dispatch against real geometry --
     reset()
@@ -125,7 +129,15 @@ try:
                             frontier.append(nf)
             for f in block:
                 f.select = True
-        elif label in ("Contained Faces", "Faces", "UV Shell", "Shell", "Shell Border"):
+        elif label == "UV Edge Loop":  # a UV-space edge loop needs an edge seed, not a face
+            bpy.ops.mesh.select_mode(type="EDGE")
+            bm = bmesh.from_edit_mesh(obj.data)
+            interior_e = [e for e in bm.edges if len(e.link_faces) == 2][0]
+            interior_e.select = True
+        elif label in (
+            "Contained Faces", "Faces", "UV Shell", "UV Shell Border", "UV Perimeter",
+            "Shell", "Shell Border",
+        ):
             bpy.ops.mesh.select_mode(type="FACE")
             bm = bmesh.from_edit_mesh(obj.data)
             interior = [f for f in bm.faces if len(f.verts) == 4][0]

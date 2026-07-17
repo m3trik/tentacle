@@ -314,36 +314,20 @@ class Nurbs(SlotsBlender):
             c.data.dimensions = "2D"
             c.data.fill_mode = "BOTH"
 
-    def _enter_curve_edit_mode(self, curve):
-        """Best-effort: activate ``curve`` and switch it into Edit Mode so a subsequently
-        activated curve tool (Pen / Draw — both EDIT_CURVE-only, verified live) is valid for
-        the current context rather than silently failing to resolve."""
-        bpy.context.view_layer.objects.active = curve
-        if curve.mode != "EDIT":
-            try:
-                bpy.ops.object.mode_set(mode="EDIT")
-            except RuntimeError:
-                pass
-
     @btk.undoable
     def _edit_curve_tool(self):
         """Edit Curve Tool (Edit): enter Edit Mode on the selected curve and activate the
         viewport Curve Pen tool (add/insert/move control points interactively) — the closest
-        analogue of Maya's ``CurveEditTool``."""
-        curves = self._selected_curves()
-        if curves:
-            self._enter_curve_edit_mode(curves[0])
-        self.set_viewport_tool("builtin.pen", "Edit Curve Tool")
+        analogue of Maya's ``CurveEditTool``. Pen is EDIT_CURVE-only, so ``edit_type`` puts the
+        curve into component mode first (bare, the tool fails to resolve)."""
+        self.set_viewport_tool("builtin.pen", "Edit Curve Tool", edit_type="CURVE")
 
     @btk.undoable
     def _add_points_tool(self):
         """Add Points Tool (Edit): enter Edit Mode on the selected curve and activate the
         viewport Draw tool (extend a curve by drawing new points) — the closest analogue of
-        Maya's ``AddPointsTool``."""
-        curves = self._selected_curves()
-        if curves:
-            self._enter_curve_edit_mode(curves[0])
-        self.set_viewport_tool("builtin.draw", "Add Points Tool")
+        Maya's ``AddPointsTool``. Draw is EDIT_CURVE-only (see :meth:`_edit_curve_tool`)."""
+        self.set_viewport_tool("builtin.draw", "Add Points Tool", edit_type="CURVE")
 
     @btk.undoable
     def _attach_curves(self):

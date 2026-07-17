@@ -31,14 +31,56 @@ class SlotsBlender(Slots):
         ``bpy.context.active_object`` (which returns ``None`` there)."""
         return btk.active_object()
 
-    def set_viewport_tool(self, tool_id, label=None):
+    def ensure_edit_mode(self, obj_type="MESH", select_mode=None):
+        """Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
+        setting the mesh component mask (``select_mode``: "VERT"/"EDGE"/"FACE"). Returns the
+        object, or None when there is nothing of that type to edit (callers surface their own
+        message — the useful wording differs per tool).
+
+        Prefers the active object, falling back to the first selected object of ``obj_type``
+        and activating it: Maya's component tools act on the *selection*, so a curve tool must
+        still work when a selected curve isn't the active object (``btk.target_weld`` makes the
+        same fall-back for the same reason).
+        """
+        obj = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
+        if not obj or obj.type != obj_type:
+            # ``selected_objects`` reads view_layer.objects — which is what makes the ``active``
+            # assignment below safe: an object sourced from bpy.data could be excluded from the
+            # view layer, and assigning that raises.
+            candidates = [o for o in self.selected_objects() if o.type == obj_type]
+            if not candidates:
+                return None
+            obj = candidates[0]
+            bpy.context.view_layer.objects.active = obj
+        if obj.mode != "EDIT":
+            try:
+                bpy.ops.object.mode_set(mode="EDIT")
+            except RuntimeError:  # hidden / linked object — not editable
+                return None
+        if select_mode:
+            bpy.ops.mesh.select_mode(type=select_mode)
+        return obj
+
+    def set_viewport_tool(self, tool_id, label=None, edit_type=None):
         """Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
         measure / select-styles). ``label`` (a friendly name) shows a passive confirmation
         toast on success — the active-tool change is otherwise easy to miss when triggered
         from the marking menu rather than the toolbar. Returns True when the tool was set.
 
-        Two gotchas when driven from the Qt marking menu rather than the viewport:
+        ``edit_type`` ("MESH" / "CURVE") declares that the tool exists **only** in that object
+        type's Edit Mode; the object is switched into it first (see the mode gotcha below).
 
+        Three gotchas when driven from the Qt marking menu rather than the viewport:
+
+        - Blender resolves a workspace tool by (space_type, *context mode*), so setting an
+          Edit-Mode-only tool while in Object Mode logs "Tool 'builtin.knife' not found for
+          space 'VIEW_3D'" and changes nothing. That is a ``report({'WARNING'})``, **not** an
+          exception — the ``except`` below never sees it, so the tool silently stays put while
+          the success toast still fires. Maya's equivalents enter component mode implicitly, so
+          ``edit_type`` does it here rather than leaking a Blender-internal warning. Verified
+          per-mode availability (Blender 5.1): knife / loop_cut / poly_build are EDIT_MESH-only,
+          pen / draw are EDIT_CURVE-only; measure / annotate / select_* exist in every mode and
+          so pass no ``edit_type``.
         - ``wm.tool_set_by_id`` targets the *active* space's tool, but the active area isn't
           the 3D view here (``context.space_data`` is ``None``), so a bare call silently
           no-ops — it returns success while the tool never changes (the "Multi-Cut does
@@ -51,6 +93,12 @@ class SlotsBlender(Slots):
         ctx = btk.get_view3d_context()
         if not ctx:
             self.sb.message_box("No 3D viewport available — open a 3D view to use this tool.")
+            return False
+        if edit_type and not self.ensure_edit_mode(edit_type):
+            self.sb.message_box(
+                f"<hl>{label or tool_id}</hl> needs an active or selected "
+                f"{edit_type.lower()} object."
+            )
             return False
         # ``get_view3d_context`` may yield ``region=None``; setting a tool doesn't need a region,
         # so drop the None rather than guard on it (which would refuse an otherwise-valid set).

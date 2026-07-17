@@ -106,7 +106,7 @@
    <widget class="MenuButton" name="b011">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>270</x>
       <y>330</y>
       <width>66</width>
       <height>21</height>
@@ -134,7 +134,7 @@
    <widget class="MenuButton" name="b012">
     <property name="geometry">
      <rect>
-      <x>383</x>
+      <x>360</x>
       <y>330</y>
       <width>66</width>
       <height>21</height>
