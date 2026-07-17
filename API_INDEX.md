@@ -11,9 +11,14 @@ _Generated: 2026-07-17_
 - `class HudWarningsMixin`
   - methods: evaluate_warnings, insert_warning_icons, insert_warning_details
 
+### `slots/_mesh_cleanup.py` — Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+- `cleanup_popup_html(header, rows)`
+- `cleanup_console_report(title, lines)`
+- `report_cleanup_failure(message_box, scope, mode_label, exc)`
+
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: mirror_app_state, add_slot_widget
+  - methods: mirror_app_state, add_slot_widget, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
@@ -28,7 +33,7 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/cameras.py`
 - `class Cameras(SlotsBlender)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013, toggle_camera_view
+  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013
 
 ### `slots/blender/crease.py`
 - `class Crease(SlotsBlender)`
@@ -150,7 +155,7 @@ _Generated: 2026-07-17_
 
 ### `slots/maya/cameras.py`
 - `class Cameras(SlotsMaya)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013, toggle_camera_view
+  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013
 
 ### `slots/maya/constrain.py`
 - `class Constrain(SlotsMaya)`

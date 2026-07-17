@@ -61,13 +61,17 @@ class Selection(SlotsBlender):
     def tb000(self, widget):
         """Select Nth"""
         m = widget.option_box.menu
-        if not self.ensure_edit_mode("MESH", "EDGE"):
+        # The path branches run on the user's two picked verts/edges — forcing edge mode
+        # there would rebuild the selection and clear the select history the shortest-path
+        # op reads, so only ring/loop/border (edge-product branches) force "EDGE".
+        needs_edge = m.chk000.isChecked() or m.chk001.isChecked() or m.chk010.isChecked()
+        if not self.ensure_edit_mode("MESH", "EDGE" if needs_edge else None):
             self.sb.message_box("Select Nth requires a mesh.")
             return
         if m.chk000.isChecked():            # Edge Ring
-            bpy.ops.mesh.select_edge_ring_multi()
+            btk.Selection.loop_multi_select(ring=True)
         elif m.chk001.isChecked():          # Edge Loop
-            bpy.ops.mesh.select_edge_loop_multi()
+            btk.Selection.loop_multi_select()
         elif m.chk021.isChecked() or m.chk002.isChecked():   # Loop / Shortest path
             try:
                 bpy.ops.mesh.shortest_path_select()
@@ -77,8 +81,12 @@ class Selection(SlotsBlender):
             bpy.ops.mesh.region_to_loop()
 
         step = m.s003.value()
-        if step > 1:                        # keep every Nth (checker deselect)
+        if step > 1:                        # keep 1 of every `step` (checker deselect)
             try:
+                # Headless-verified (Blender 5.1): select_nth(skip=step-1, nth=1) keeps 1 of
+                # every `step` (12-vert circle, skip=3/nth=1 -> 3 kept) — Maya-parity with
+                # result[::step]. The RNA labels ("Selected"/"Deselected") suggest the
+                # opposite mapping; trust the measurement, not the labels.
                 bpy.ops.mesh.select_nth(skip=step - 1, nth=1)
             except RuntimeError as e:
                 self.sb.message_box(str(e))
@@ -114,7 +122,9 @@ class Selection(SlotsBlender):
             "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="s000",
             set_limits=[0, 9999, 0.0, 3], setValue=0.0,
             setToolTip="The allowed difference in any compared metric (e.g. 4 allows a 4-component "
-            "difference; 0.05 allows that much variance between bounding-box values).",
+            "difference; 0.05 allows that much variance between bounding-box values).\n"
+            "In Edit Mode the value feeds Blender's native select_similar threshold, which is "
+            "normalized 0-1 (larger values are clamped to 1).",
         )
         for name, label, tip, checked in self._SIMILAR_CRITERIA:
             widget.option_box.menu.add(
@@ -133,6 +143,8 @@ class Selection(SlotsBlender):
             try:
                 bpy.ops.mesh.select_similar(
                     type=self._COMPONENT_DEFAULT[mode],
+                    # Native threshold is a normalized 0-1 tolerance (RNA hard range) — the
+                    # component-count tolerances documented for object mode don't apply here.
                     threshold=min(max(m.s000.value(), 0.0), 1.0),
                 )
             except RuntimeError as e:
@@ -251,8 +263,8 @@ class Selection(SlotsBlender):
             "Verts": lambda: bpy.ops.mesh.select_mode(type="VERT"),
             "Vertex Perimeter": lambda: btk.Selection.select_vertex_perimeter(obj),
             "Edges": lambda: btk.Selection.convert_to(obj, "EDGE"),
-            "Edge Loop": lambda: bpy.ops.mesh.select_edge_loop_multi(),
-            "Edge Ring": lambda: bpy.ops.mesh.select_edge_ring_multi(),
+            "Edge Loop": lambda: btk.Selection.loop_multi_select(),
+            "Edge Ring": lambda: btk.Selection.loop_multi_select(ring=True),
             "Contained Edges": lambda: btk.Selection.convert_to(obj, "EDGE", contained=True),
             "Edge Perimeter": lambda: btk.Selection.select_edge_perimeter(obj),
             "Border Edges": lambda: btk.Selection.select_border_edges(obj),
@@ -384,8 +396,8 @@ class Selection(SlotsBlender):
     _CONSTRAINT_OPS = {
         "Angle": lambda: bpy.ops.mesh.faces_select_linked_flat(),
         "Border": lambda: bpy.ops.mesh.region_to_loop(),
-        "Edge Loop": lambda: bpy.ops.mesh.select_edge_loop_multi(),
-        "Edge Ring": lambda: bpy.ops.mesh.select_edge_ring_multi(),
+        "Edge Loop": lambda: btk.Selection.loop_multi_select(),
+        "Edge Ring": lambda: btk.Selection.loop_multi_select(ring=True),
         "Shell": lambda: bpy.ops.mesh.select_linked(),
     }
 

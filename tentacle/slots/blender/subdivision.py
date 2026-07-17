@@ -154,8 +154,15 @@ class Subdivision(SlotsBlender):
 
     @btk.undoable
     def b011(self):
-        """Apply Smooth Preview (live Subdivision-Surface modifier)."""
-        btk.set_subdivision(self.selected_objects(), viewport_levels=1)
+        """Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons
+        (the Maya twin's performSmoothMeshPreviewToPolygon)."""
+        applied = btk.apply_subdivision(self.selected_objects())
+        if not applied:
+            self.sb.message_box("No subdivision preview to apply.")
+            return
+        self.sb.message_box(
+            f"Applied smooth preview on <hl>{len(applied)}</hl> object(s)."
+        )
 
     # ------------------------------------------------------------------ deferred (Maya-specific)
     # (cmb001 Smooth-Proxy / cmb002 option-dialogs exist in no shared .ui — Maya's own handlers

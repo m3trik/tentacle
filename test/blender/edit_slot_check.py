@@ -231,11 +231,14 @@ try:
     def chk(state):
         return NS(isChecked=lambda s=state: s)
 
-    # tb000 reads chk004/005/022/023/025 unconditionally (repair mode + object-duplicate
-    # scope) plus every _DIAGNOSTIC_CRITERIA checkbox (built into `criteria` before the
-    # repair/select branch), even though this repair-mode run never selects by them.
+    def cmb(data):
+        return NS(currentData=lambda d=data: d)
+
+    # tb000 reads cmb_mode/cmb_scope + chk022/023/025 unconditionally (repair mode +
+    # object-duplicate scope) plus every _DIAGNOSTIC_CRITERIA checkbox (built into `criteria`
+    # before the repair/select branch), even though this repair-mode run never selects by them.
     menu = NS(
-        chk004=chk(True), chk005=chk(False),  # Repair ON, All Geometry OFF
+        cmb_mode=cmb("repair"), cmb_scope=cmb("selected"),  # Repair mode, Selected scope
         chk022=chk(False), chk023=chk(False),  # skip the object-duplicate branch
         chk025=chk(False),  # skip the overlapping-faces pass
         chk002=chk(False), chk011=chk(False), chk003=chk(False), chk017=chk(False),
@@ -249,6 +252,43 @@ try:
     # the loose double welds into the corner vert (9 -> 8); nothing loose remains after
     check("tb000 cleanup merges the loose double", len(o.data.vertices) == v0 - 1,
           f"{v0}->{len(o.data.vertices)}")
+
+    # tb000 Select mode must survive bpy.context.window is None (the Qt event-pump state tentacle
+    # drives slots in): the reported RuntimeError was _show_problem_components entering Edit Mode
+    # via object.mode_set, whose poll reads the *window* context. It now runs under
+    # window_context_override (as @_object_mode already did). Repro the window=None state with a
+    # real n-gon so find_problem_geometry has something to flag and reveal.
+    reset()
+    bpy.ops.mesh.primitive_circle_add(vertices=6, fill_type="NGON")  # one 6-gon face
+    o = bpy.context.active_object
+    o.select_set(True); bpy.context.view_layer.objects.active = o
+    sel_menu = NS(
+        cmb_mode=cmb("select"), cmb_scope=cmb("selected"),
+        chk022=chk(False), chk023=chk(False), chk025=chk(False),
+        chk002=chk(True),  # N-Gons — the only active criterion
+        chk011=chk(False), chk003=chk(False), chk017=chk(False),
+        chk010=chk(False), chk013=chk(False), chk014=chk(False), chk015=chk(False),
+        s006=NS(value=lambda: 0.00001), s007=NS(value=lambda: 0.00001),
+        s008=NS(value=lambda: 0.00001),
+    )
+    msgs = []
+    slot.sb = NS(message_box=lambda s, *a, **k: msgs.append(s))
+    try:
+        with bpy.context.temp_override(window=None):  # simulate the Qt event-pump window=None state
+            slot.tb000(NS(option_box=NS(menu=sel_menu)))
+    finally:
+        slot.sb = NS(message_box=lambda *a, **k: None)
+    reported = msgs[-1] if msgs else ""
+    # tb000 wraps its body in try/except now, so a crash would surface as a "failed" popup rather
+    # than an unhandled traceback — assert the SUCCESS summary, and that the reveal reached Edit Mode.
+    check("tb000 Select survives window=None (reports success, not failure)",
+          bool(msgs) and "failed" not in reported.lower() and "Select" in reported,
+          f"msg={reported!r}")
+    check("tb000 Select reveal entered Edit Mode under window=None", o.mode == "EDIT",
+          f"mode={o.mode}")
+    if o.mode != "OBJECT":  # restore for the cases below
+        with bpy.context.temp_override(window=bpy.context.window_manager.windows[0]):
+            bpy.ops.object.mode_set(mode="OBJECT")
 
     # tb002 Delete Selected in FACE mode: middle face of a 3x3 grid -> 8 faces remain.
     # (The old VERT-typed delete removed the face's verts, nuking all 8 neighbors too.)

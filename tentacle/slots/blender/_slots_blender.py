@@ -52,13 +52,17 @@ class SlotsBlender(Slots):
                 return None
             obj = candidates[0]
             bpy.context.view_layer.objects.active = obj
-        if obj.mode != "EDIT":
-            try:
-                bpy.ops.object.mode_set(mode="EDIT")
-            except RuntimeError:  # hidden / linked object — not editable
-                return None
-        if select_mode:
-            bpy.ops.mesh.select_mode(type=select_mode)
+        # window override: ``mode_set``'s poll reads the active object from *screen* context,
+        # which is dead in the Qt-pump state — a valid mesh selection still poll-failed here
+        # (no-op when a window is already active, as everywhere this wrap is used).
+        with btk.window_context_override():
+            if obj.mode != "EDIT":
+                try:
+                    bpy.ops.object.mode_set(mode="EDIT")
+                except RuntimeError:  # hidden / linked object — not editable
+                    return None
+            if select_mode:
+                bpy.ops.mesh.select_mode(type=select_mode)
         return obj
 
     def set_viewport_tool(self, tool_id, label=None, edit_type=None):
@@ -124,13 +128,19 @@ class SlotsBlender(Slots):
 
     def invoke_op(self, op_path, **kwargs):
         """Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
-        message when it is unavailable or rejects the context. Returns True when invoked."""
+        message when it is unavailable or rejects the context. Returns True when invoked.
+
+        Runs under ``btk.window_context_override()``: INVOKE-mode ops (file browsers, popups)
+        need ``context.window`` to attach their dialog to, and every op invoked this way also
+        reads its targets from screen context — both dead in the Qt-pump state, where a bare
+        invoke either errored or silently opened nothing."""
         op = self.resolve_op(op_path)
         if op is None:
             self.sb.message_box(f"Operator <hl>{op_path}</hl> is not available.")
             return False
         try:
-            op("INVOKE_DEFAULT", **kwargs)
+            with btk.window_context_override():
+                op("INVOKE_DEFAULT", **kwargs)
             return True
         except RuntimeError as e:
             self.sb.message_box(str(e))
@@ -145,9 +155,13 @@ class SlotsBlender(Slots):
             self.sb.message_box("Select target mesh(es) with the source mesh active.")
             return False
         try:
-            bpy.ops.object.data_transfer(
-                data_type=data_type, loop_mapping="POLYINTERP_NEAREST", **kwargs
-            )
+            # window override: data_transfer reads its targets (selected_editable_objects +
+            # active) from screen context internally — empty in the Qt-pump state even though
+            # the view-layer precheck above passed, so a bare call transferred nothing.
+            with btk.window_context_override():
+                bpy.ops.object.data_transfer(
+                    data_type=data_type, loop_mapping="POLYINTERP_NEAREST", **kwargs
+                )
             return True
         except RuntimeError as e:
             self.sb.message_box(str(e))

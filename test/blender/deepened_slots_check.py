@@ -591,13 +591,13 @@ try:
     check("scene b001 / lighting b000 open the manager panels",
           shown == ["reference_manager", "hdr_manager"], f"{shown}")
 
-    # ---- scene b004: routes to the Hierarchy Manager panel -----------------------------------
-    # (b004 stopped opening a native Outliner window when the hierarchy_manager panel shipped.)
+    # ---- scene b004: routes to the Hierarchy Sync panel -----------------------------------
+    # (b004 stopped opening a native Outliner window when the hierarchy_sync panel shipped.)
     shown = []
     slot = make_slot(SceneSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
     slot.b004()
-    check("scene b004 opens the hierarchy-manager panel",
-          shown == ["hierarchy_manager"], f"{shown}")
+    check("scene b004 opens the hierarchy-sync panel",
+          shown == ["hierarchy_sync"], f"{shown}")
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
     from tentacle.slots.blender.deformation import Deformation

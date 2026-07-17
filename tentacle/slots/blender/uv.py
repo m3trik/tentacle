@@ -32,26 +32,43 @@ class Uv(SlotsBlender):
         return int(self.ui.cmb003.currentText())
 
     def _uv_op(self, op):
-        """Run a UV/seam operator on the selected meshes in edit mode (all selected), then restore
-        the caller's mode. Returns False (with a message) if there's no mesh selection."""
+        """Run a UV/seam operator on the selected meshes in edit mode (all selected), then
+        restore the caller's active object and mode. Returns False (with a message) if there's
+        no mesh selection."""
         meshes = [o for o in self.selected_objects() if o.type == "MESH"]
         if not meshes:
             self.sb.message_box("UV operation requires a mesh selection.")
             return False
         active = bpy.context.view_layer.objects.active
         prior = getattr(active, "mode", "OBJECT")
-        if prior != "OBJECT":
-            bpy.ops.object.mode_set(mode="OBJECT")
-        bpy.ops.object.select_all(action="DESELECT")
-        for o in meshes:
-            o.select_set(True)
-        bpy.context.view_layer.objects.active = meshes[0]
-        bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.select_all(action="SELECT")
-        try:
-            op()
-        finally:
-            bpy.ops.object.mode_set(mode=prior)
+        # window override: mode_set / mesh.select_all / the uv op itself all poll the active
+        # object from *screen* context — dead in the Qt-pump state (no-op when a window exists).
+        with btk.window_context_override():
+            if prior != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+            # view-layer deselect, not object.select_all: the op polls Object Mode and reads
+            # screen context; select_set is mode-independent and pump-safe.
+            for o in bpy.context.view_layer.objects:
+                o.select_set(False)
+            for o in meshes:
+                o.select_set(True)
+            bpy.context.view_layer.objects.active = meshes[0]
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="SELECT")
+            try:
+                op()
+            finally:
+                # ``prior`` belongs to the ORIGINAL active object — meshes[0] is active here,
+                # so leave Edit Mode first, then re-activate and re-mode the original (if it
+                # still exists). Never let a restore failure mask the op's own result.
+                try:
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                    if active and active.name in bpy.context.view_layer.objects:
+                        bpy.context.view_layer.objects.active = active
+                        if prior != "OBJECT":
+                            bpy.ops.object.mode_set(mode=prior)
+                except (RuntimeError, ReferenceError):
+                    pass  # e.g. the op removed the original active
         return True
 
     def _seam_op(self, clear):
@@ -65,6 +82,26 @@ class Uv(SlotsBlender):
             self.sb.message_box("Select edges in Edit Mode to cut/sew UV seams.")
             return
         bpy.ops.mesh.mark_seam(clear=clear)
+
+    @staticmethod
+    def _selection_fingerprint(objects):
+        """Toggle key for the b029/b030 dual-state toggles: object names PLUS a per-object
+        fingerprint of the Edit-Mode component selection (the vert scope ``btk.pin_uvs`` /
+        ``btk.stack_uv_shells`` act on). Names alone invert the intent when only the
+        component selection changes on the same objects — the second click would "un-do"
+        onto the wrong components; a changed selection now starts a fresh toggle cycle.
+        Object mode contributes a whole-map marker (no component scope)."""
+        import bmesh
+
+        parts = []
+        for o in sorted(objects, key=lambda o: o.name):
+            if o.mode == "EDIT":
+                bm = bmesh.from_edit_mesh(o.data)
+                sel = tuple(v.index for v in bm.verts if v.select)
+                parts.append((o.name, len(sel), hash(sel)))
+            else:
+                parts.append((o.name, -1, 0))  # whole map — no component scope
+        return tuple(parts)
 
     # ------------------------------------------------------------------ UV operators (edit mode)
     # Option-box names are Blender-specific (Maya's UV option boxes carry RizomUV-style packing
@@ -95,19 +132,21 @@ class Uv(SlotsBlender):
             setToolTip="Allow islands to rotate for a tighter pack.",
         )
         # s004 reuses the Maya objectName + label (same target-UDIM-tile option, cross-DCC
-        # rule): pack_islands always packs into the 0-1 square, so the tile is applied as a
-        # post-pack shift rather than a native packBox (no Blender pack-op analogue).
+        # rule): Blender's pack_islands has no target-tile parameter (no packBox analogue) —
+        # and on 4.x+ it defaults udim_source='CLOSEST_UDIM', packing islands into whichever
+        # tile they already occupy, NOT 0-1 — so tb000 reads the tile actually packed into
+        # afterward and moves the map by the delta into this tile.
         m.add(
             "QSpinBox", setPrefix="UDIM: ", setObjectName="s004",
             set_limits=[1001, 1200], setValue=1001,
-            setToolTip="Target UDIM tile (1001-1200). Islands pack into the 0-1 square, then "
-            "shift into this tile (1001 = no shift).",
+            setToolTip="Target UDIM tile (1001-1200). After packing, the map is moved into "
+            "this tile (1001 = the first 0-1 tile).",
         )
 
     @btk.undoable
     def tb000(self, widget):
-        """Pack UVs (optionally equal-texel-density pre-scaled), into the 0-1 square, then
-        shifted into the target UDIM tile."""
+        """Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
+        UDIM tile by the delta from the tile actually packed into."""
         m = widget.option_box.menu
         preserve_3d = m.cmb009.currentData() == 1  # Pre-Scale Mode: 1 = Preserve 3D
 
@@ -119,13 +158,27 @@ class Uv(SlotsBlender):
                 margin=m.s_pack_margin.value(), rotate=m.chk_pack_rotate.isChecked()
             )
 
-        ran = self._uv_op(_pack)
-        if not ran:
+        try:
+            if not self._uv_op(_pack):
+                return
+        except RuntimeError:  # average_islands_scale/pack_islands poll-fail without a UV layer
+            self.sb.message_box("No UVs found on the selection.")
             return
+        # 4.x+ pack_islands defaults udim_source='CLOSEST_UDIM' — islands already in another
+        # tile pack into THAT tile, not 0-1, so a blind fixed shift would land the map in the
+        # wrong tile. Read the tile actually packed into (floor of the achieved min u/v) and
+        # move by the DELTA to the requested one.
         udim = m.s004.value()
         u_tile, v_tile = (udim - 1001) % 10, (udim - 1001) // 10
-        if u_tile or v_tile:
-            btk.move_uvs(self.selected_objects(), du=float(u_tile), dv=float(v_tile))
+        objects = self.selected_objects()  # _uv_op selected exactly the target meshes
+        snapshot = btk.get_uv_coords(objects)
+        if not snapshot:
+            return
+        u_min = min(u for coords in snapshot.values() for u, _ in coords)
+        v_min = min(v for coords in snapshot.values() for _, v in coords)
+        du, dv = u_tile - math.floor(u_min), v_tile - math.floor(v_min)
+        if du or dv:
+            btk.move_uvs(objects, du=float(du), dv=float(dv))
 
     # cmb011 projection method -> the native Blender projection op (Maya's projection-method
     # selector; reuses the Maya objectName, cross-DCC rule). Smart uses the angle/margin below;
@@ -176,7 +229,11 @@ class Uv(SlotsBlender):
                 )
             )
         else:
-            self._uv_op(getattr(bpy.ops.uv, self._PROJECTION_OPS[method]))
+            op = getattr(bpy.ops.uv, self._PROJECTION_OPS[method])
+            # scale_to_bounds: fit the projection into the 0-1 square (the option-box tooltip
+            # promises bounds projection; Maya's smartFit default) — at the default False
+            # these ops project at absolute unit scale.
+            self._uv_op(lambda: op(scale_to_bounds=True))
 
     # method enum -> friendly label (Minimum Stretch only exists on newer Blender; guarded).
     _UNWRAP_METHODS = {"Angle Based": "ANGLE_BASED", "Conformal": "CONFORMAL"}
@@ -234,7 +291,10 @@ class Uv(SlotsBlender):
             if stack_similar:
                 btk.stack_uv_shells(self.selected_objects(), tolerance=tolerance)
 
-        self._uv_op(_run)
+        try:
+            self._uv_op(_run)
+        except RuntimeError:  # uv.* poll failure without a UV layer
+            self.sb.message_box("No UVs found on the selection.")
 
     def tb009_init(self, widget):
         # s016/chk041/chk042 reuse the Maya names + labels for the SAME options. chk040 (Invert
@@ -293,7 +353,12 @@ class Uv(SlotsBlender):
     @btk.undoable
     def b021(self, widget):
         """Unfold and Pack UVs"""
-        self._uv_op(lambda: (bpy.ops.uv.unwrap(method="ANGLE_BASED"), bpy.ops.uv.pack_islands()))
+        try:
+            self._uv_op(
+                lambda: (bpy.ops.uv.unwrap(method="ANGLE_BASED"), bpy.ops.uv.pack_islands())
+            )
+        except RuntimeError:  # uv.* poll failure without a UV layer
+            self.sb.message_box("No UVs found on the selection.")
 
     # ------------------------------------------------------------------ tb007  Cleanup UV Sets
     def tb007_init(self, widget):
@@ -431,15 +496,15 @@ class Uv(SlotsBlender):
         if not objects:
             self.sb.message_box("Nothing selected.")
             return
-        names = sorted(o.name for o in objects)
-        if self._b029_last_selection != names:
+        signature = self._selection_fingerprint(objects)
+        if self._b029_last_selection != signature:
             self._b029_pinned = False  # fresh selection — start with Pin
         self._b029_pinned = not self._b029_pinned
         btk.pin_uvs(
             objects, pin=self._b029_pinned,
             selected_only=any(o.mode == "EDIT" for o in objects),
         )
-        self._b029_last_selection = names
+        self._b029_last_selection = signature
 
     # ------------------------------------------------------------------ tb022  Cut Hard Edges
     def tb022_init(self, widget):
@@ -511,7 +576,7 @@ class Uv(SlotsBlender):
         if not objects:
             self.sb.message_box("<b>Nothing selected.</b>")
             return
-        signature = tuple(sorted(o.name for o in objects))
+        signature = self._selection_fingerprint(objects)
         if getattr(self, "_b030_snapshot", None) and self._b030_signature == signature:
             btk.set_uv_coords(objects, self._b030_snapshot)
             self._b030_snapshot = None

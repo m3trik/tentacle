@@ -698,6 +698,7 @@ CONTROLS_SLOTS = {
         "chk010": {"status": "na", "reason": "Manip Pivot chooses Maya's temporary manipulator pivot vs permanent object pivot; Blender has no separate manipulator pivot — the Blender tb003 stub explicitly messages World-Aligned Pivot not-applicable."},
     },
     "polygons": {
+        "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
         "chk008": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet U-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
         "chk009": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet V-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
     },

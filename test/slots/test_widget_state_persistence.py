@@ -3,7 +3,7 @@
 """End-to-end persistence tests for tentacle slot panels.
 
 Production registry inspection (``HKCU\\Software\\uitk\\shared\\switchboard\\``)
-showed polygons / edit / hierarchy_manager panels saving ONLY
+showed polygons / edit / hierarchy_sync panels saving ONLY
 ``window_geometry`` — no widget-state subkeys — despite users
 interacting with their option_box menu widgets across sessions. The
 existing tentacle test suite uses fake widget stubs and bypasses the
@@ -59,7 +59,7 @@ class _PersistenceBase(unittest.TestCase):
         cls.tcl = TclMaya(parent=None, log_level="WARNING")
         cls.sb = cls.tcl.sb
 
-        from uitk.widgets.mixins.settings_manager import SettingsManager
+        from uitk.managers.settings_manager import SettingsManager
         cls.SettingsManager = SettingsManager
         cls.sb.settings = SettingsManager(
             org=cls.TEST_ORG, app=cls.TEST_APP, namespace="switchboard"
@@ -100,7 +100,7 @@ class _PersistenceBase(unittest.TestCase):
         accesses return the same MainWindow). Re-points settings/state
         at the isolated test store so reads round-trip through our
         cleared QSettings."""
-        from uitk.widgets.mixins.state_manager import StateManager
+        from uitk.managers.state_manager import StateManager
         ui = getattr(self.sb.loaded_ui, ui_name)
         ui.settings = self.sb.settings.branch(ui.objectName())
         ui.state = StateManager(ui.settings)
@@ -266,7 +266,7 @@ class TestPolygonsSessionRoundTrip(_PersistenceBase):
     with a non-empty QSettings store."""
 
     def test_chk008_value_restored_after_state_rebuild(self):
-        from uitk.widgets.mixins.state_manager import StateManager
+        from uitk.managers.state_manager import StateManager
 
         ui = self._load_panel("polygons")
         chk008 = ui.tb007.option_box.menu.chk008

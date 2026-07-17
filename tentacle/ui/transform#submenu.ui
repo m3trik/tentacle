@@ -441,7 +441,7 @@
   <customwidget>
    <class>CheckBox</class>
    <extends>QCheckBox</extends>
-   <header>uitk.widgets.checkbox.CheckBox.h</header>
+   <header>uitk.widgets.checkBox.CheckBox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

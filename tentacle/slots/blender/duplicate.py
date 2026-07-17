@@ -26,6 +26,24 @@ class Duplicate(SlotsBlender):
             return [active] + [o for o in objects if o is not active]
         return objects
 
+    def _ensure_object_mode(self):
+        """Leave Edit Mode before instancing data-block surgery — ``replace_with_instances``
+        / ``uninstance`` reassign ``obj.data``, which Blender rejects on an object in Edit
+        Mode (the marking menu is reachable mid-edit). Returns False when the mode switch
+        fails (message already shown); no-op outside Edit Mode."""
+        active = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
+        if not (active and active.mode == "EDIT"):
+            return True
+        try:
+            # window override: ``mode_set``'s poll reads screen context, dead in the
+            # Qt-pump state (no-op when a window is active — see ensure_edit_mode).
+            with btk.window_context_override():
+                bpy.ops.object.mode_set(mode="OBJECT")
+        except RuntimeError as error:
+            self.sb.message_box(f"Could not exit Edit Mode: {error}")
+            return False
+        return True
+
     def header_init(self, widget):
         widget.menu.add(
             "QPushButton", setText="Mirror", setObjectName="b000",
@@ -70,6 +88,8 @@ class Duplicate(SlotsBlender):
                 "an active source and one or more targets."
             )
             return
+        if not self._ensure_object_mode():
+            return
         btk.replace_with_instances(
             objects,
             freeze_transforms=m.chk000.isChecked(),
@@ -100,7 +120,11 @@ class Duplicate(SlotsBlender):
         if not instances:
             self.sb.message_box("<strong>No instanced objects found</strong>.")
             return
-        bpy.ops.object.select_all(action="DESELECT")
+        # Deselect directly (not bpy.ops.object.select_all) — mode-independent and
+        # Qt-pump-safe; the operator poll-fails in Edit Mode (same fix as blendertk
+        # color_id's select-by-color).
+        for o in bpy.context.view_layer.objects:
+            o.select_set(False)
         selected = []
         for o in instances:
             try:
@@ -250,7 +274,9 @@ class Duplicate(SlotsBlender):
 
         survivors = [o for o in created if _alive(o)]
         if survivors:
-            bpy.ops.object.select_all(action="DESELECT")
+            # Direct deselect — mode-independent and Qt-pump-safe (see tb001).
+            for o in bpy.context.view_layer.objects:
+                o.select_set(False)
             selected = []
             for o in survivors:
                 try:
@@ -273,6 +299,8 @@ class Duplicate(SlotsBlender):
     @btk.undoable
     def b005(self):
         """Uninstance Selected Objects (make their data single-user)."""
+        if not self._ensure_object_mode():
+            return
         btk.uninstance(self.selected_objects())
 
     # ------------------------------------------------------------------ tool panels (blender_menus)

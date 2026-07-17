@@ -18,18 +18,22 @@ class SceneSlots(SlotsBlender):
     Import / Export expandable lists route through Blender's native format operators
     (file dialogs via ``INVOKE_DEFAULT``).
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
-    Scene Exporter and Hierarchy Manager are native blendertk panels, both 1:1 with mayatk's:
+    Scene Exporter and Hierarchy Sync are native blendertk panels, both 1:1 with mayatk's:
     the former (task/check pipeline, FBX or GLB) reached from the Export list — see
     ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. disabled
-    placeholders (hierarchy_manager / smart_bake / data_export subsystems aren't ported yet);
+    placeholders (hierarchy_sync / smart_bake / data_export subsystems aren't ported yet);
     the latter for Diff/Fix (Pull isn't ported yet). Maya's workspace model and command ports
     have no Blender analogue and are deferred.
     """
 
     # (label -> bpy.ops path OR callable(slot)) for the submenu's Import / Export expandable
-    # lists; op paths are resolved at call time so a missing importer add-on degrades to a
-    # message instead of an AttributeError. Callables cover the entries that aren't native
-    # operators — importers with no file browser to invoke, and the Scene Exporter panel.
+    # lists. Rows whose operator isn't registered in this Blender are dropped at list build
+    # time (``resolve_op``) — Collada (wm.collada_import/export) was removed in Blender 5.0,
+    # and a disabled add-on importer would otherwise sit as a permanently dead row. Op paths
+    # are still resolved at call time too, so anything that disappears after the list built
+    # degrades to a message instead of an AttributeError (invoke_op). Callables cover the
+    # entries that aren't native operators — importers with no file browser to invoke, and
+    # the Scene Exporter panel.
     _IMPORTERS = {
         "Import FBX": "import_scene.fbx",
         "Import OBJ": "wm.obj_import",
@@ -91,7 +95,7 @@ class SceneSlots(SlotsBlender):
             setToolTip="Manage linked .blend libraries.",
         )
         widget.menu.add(
-            "QPushButton", setText="Hierarchy Manager", setObjectName="b004",
+            "QPushButton", setText="Hierarchy Sync", setObjectName="b004",
             setToolTip="Diff/repair the scene hierarchy against a reference .blend.",
         )
         widget.menu.add(
@@ -180,9 +184,11 @@ class SceneSlots(SlotsBlender):
         widget.apply_preset("expand_overlay")
         root = widget.add(
             "Import",
-            setToolTip="Import a file (FBX / OBJ / Collada / Maya scene), or append/link from a .blend.",
+            setToolTip="Import a file (FBX / OBJ / Maya scene …), or append/link from a .blend.",
         )
-        root.sublist.add(list(self._IMPORTERS))
+        root.sublist.add(
+            [k for k, v in self._IMPORTERS.items() if callable(v) or self.resolve_op(v)]
+        )
 
     @Signals("on_item_interacted")
     def list001(self, item):
@@ -234,9 +240,12 @@ class SceneSlots(SlotsBlender):
         widget.apply_preset("expand_up")
         root = widget.add(
             "Export",
-            setToolTip="Export the scene or selection (FBX / OBJ / glTF / Collada).",
+            setToolTip="Export the scene or selection (FBX / OBJ / glTF …).",
         )
-        one_shots = [k for k in self._EXPORTERS if k != self._SCENE_EXPORTER]
+        one_shots = [
+            k for k, v in self._EXPORTERS.items()
+            if k != self._SCENE_EXPORTER and (callable(v) or self.resolve_op(v))
+        ]
         root.sublist.add(one_shots[::-1])
         root.sublist.add(
             self._SCENE_EXPORTER,
@@ -369,6 +378,44 @@ class SceneSlots(SlotsBlender):
         cmb_scope.currentIndexChanged.connect(_sync_scope)
         _sync_scope()
 
+    # Triangle count at/above which an export with a mesh-cost-scaling option (tangents)
+    # is slow enough on dense geometry — photogrammetry scans, sculpts — to be worth a
+    # heads-up before the blocking write. Mirrors Maya's tb003 guard. Tunable.
+    _DENSE_TRI_THRESHOLD = 5_000_000
+
+    def _confirm_dense_export(self, selection_only, include_tangents):
+        """Warn before a dense + taxing FBX export; return False if cancelled.
+
+        Minimal port of the Maya twin: returns True (proceed) for the common, non-taxing
+        case so the normal path is untouched — the dialog only appears when the export set
+        is dense AND tangents are on, the combination that turns a quick export into a
+        multi-minute one. Triangles are summed from the base meshes (per mesh:
+        loops − 2·polygons — exact for the pre-modifier data, O(1) per mesh), filling
+        polyEvaluate's role without evaluating modifiers. ``message_box`` returns the
+        clicked button text (or None if dismissed), so anything but "Yes" cancels."""
+        if not include_tangents:
+            return True
+        pool = (
+            self.selected_objects()
+            if selection_only
+            else bpy.context.view_layer.objects
+        )
+        meshes = [o for o in pool if o.type == "MESH"]
+        if not meshes:
+            return True
+        tris = sum(len(o.data.loops) - 2 * len(o.data.polygons) for o in meshes)
+        if tris < self._DENSE_TRI_THRESHOLD:
+            return True
+        choice = self.sb.message_box(
+            f"This export covers <hl>{tris:,}</hl> triangles with "
+            f"<hl>Include Tangents/Binormals</hl> enabled, which can be slow "
+            f"on dense meshes.<br><br>Untick it in the export options for a "
+            f"much faster export.<br><br>Proceed anyway?",
+            "Yes",
+            "No",
+        )
+        return choice == "Yes"
+
     def tb003(self, widget):
         """Export Scene — FBX (+ optional GLB) using the configured options.
 
@@ -399,6 +446,9 @@ class SceneSlots(SlotsBlender):
 
         if selection_only and not self.selected_objects():
             self.sb.message_box("No objects selected.")
+            return
+
+        if not self._confirm_dense_export(selection_only, include_tangents):
             return
 
         fbx_path = self._resolve_export_path(save_mode)
@@ -432,14 +482,18 @@ class SceneSlots(SlotsBlender):
             glb_path = os.path.splitext(fbx_path)[0] + ".glb"
             # Best-effort sidecar: the FBX already succeeded, so never let a missing/disabled
             # glTF add-on (AttributeError) or an export error turn into a traceback — degrade.
+            # window override: the bundled glTF exporter unconditionally calls
+            # ``context.window.cursor_set('WAIT')`` — AttributeError when window is None
+            # (the Qt-pump state); the FBX path above is wrapped inside btk.FbxUtils.
             try:
-                bpy.ops.export_scene.gltf(
-                    filepath=glb_path,
-                    export_format="GLB",
-                    use_selection=selection_only,
-                    export_cameras=include_cameras,
-                    export_lights=include_lights,
-                )
+                with btk.window_context_override():
+                    bpy.ops.export_scene.gltf(
+                        filepath=glb_path,
+                        export_format="GLB",
+                        use_selection=selection_only,
+                        export_cameras=include_cameras,
+                        export_lights=include_lights,
+                    )
                 msg += f"<br>+ GLB: <hl>{ptk.format_path(glb_path, 'file')}</hl>"
             except Exception as e:
                 msg += f"<br><small>(GLB skipped: {e})</small>"
@@ -616,10 +670,10 @@ class SceneSlots(SlotsBlender):
         )
 
     def b004(self):
-        """Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend
-        (native blendertk panel, 1:1 with mayatk's ``hierarchy_manager`` for Diff/Fix; Pull
-        isn't ported yet — see ``blendertk.env_utils.hierarchy_manager`` for why)."""
-        self.sb.handlers.marking_menu.show("hierarchy_manager")
+        """Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
+        (native blendertk panel, 1:1 with mayatk's ``hierarchy_sync`` for Diff/Fix; Pull
+        isn't ported yet — see ``blendertk.env_utils.hierarchy_sync`` for why)."""
+        self.sb.handlers.marking_menu.show("hierarchy_sync")
 
     def b003(self):
         """Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/

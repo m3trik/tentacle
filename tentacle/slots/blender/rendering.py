@@ -16,7 +16,21 @@ class Rendering(SlotsBlender):
 
     # label -> Blender-core render-engine identifier (never a bpy.types.RenderEngine
     # subclass — EEVEE/Workbench are built into Blender itself, not addon-registered).
-    _BUILTIN_ENGINES = [("BLENDER_EEVEE", "EEVEE"), ("BLENDER_WORKBENCH", "Workbench")]
+    # EEVEE's identifier is version-dependent: 4.2-4.4 register it as BLENDER_EEVEE_NEXT,
+    # 4.5+ (and pre-4.2) as BLENDER_EEVEE — and assigning the wrong one raises TypeError
+    # (invalid enum value), so resolve whichever this Blender's engine enum carries.
+    _EEVEE_ID = next(
+        (
+            ident
+            for ident in ("BLENDER_EEVEE", "BLENDER_EEVEE_NEXT")
+            if any(
+                item.identifier == ident
+                for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items
+            )
+        ),
+        "BLENDER_EEVEE",
+    )
+    _BUILTIN_ENGINES = [(_EEVEE_ID, "EEVEE"), ("BLENDER_WORKBENCH", "Workbench")]
 
     @classmethod
     def _render_engines(cls):
@@ -189,7 +203,11 @@ class Rendering(SlotsBlender):
 
         fmt_kwargs, is_movie, is_still = m.cmb050.currentData()
         single_frame = is_still or mode == 2  # PNG Still or Current Frame -> one frame
-        animation = not single_frame
+        # A movie container refuses a still (an FFMPEG WARNING, not an error — the op
+        # "succeeds" having written nothing), so a movie's single frame is captured as a
+        # 1-frame animation (frame_start == frame_end below) instead of write_still.
+        animation = not single_frame or is_movie
+        write_still = single_frame and not is_movie
 
         render = scene.render
         ff, imgs = render.ffmpeg, render.image_settings
@@ -213,6 +231,7 @@ class Rendering(SlotsBlender):
             render.filepath = self._playblast_path(
                 m.t000.text(), int(m.s012.value()), is_movie or is_still
             )
+            out_path = render.filepath  # the finally below restores render.filepath
             btk.configure_render_output(scene, quality=m.cmb016.currentData(), **fmt_kwargs)
             cam = m.cmb041.currentData()
             view_context = cam is None
@@ -224,9 +243,16 @@ class Rendering(SlotsBlender):
                 scene.frame_set(start)
             if view3d_space is not None:
                 view3d_space.overlay.show_overlays = m.chk057.isChecked()
-            bpy.ops.render.opengl(
-                animation=animation, write_still=single_frame, view_context=view_context,
+            # The OpenGL capture reads the viewport it draws from *context* — run it over
+            # the real VIEW_3D area (region may be None — drop it, as set_viewport_tool
+            # does), under a live window (the Qt-pump state has neither).
+            override = (
+                {k: v for k, v in view3d_ctx.items() if v is not None} if view3d_ctx else {}
             )
+            with btk.window_context_override(), bpy.context.temp_override(**override):
+                bpy.ops.render.opengl(
+                    animation=animation, write_still=write_still, view_context=view_context,
+                )
         # ReferenceError: the cmb041 combo (built at init, not refreshed) can hold a camera that
         # was since deleted; TypeError: a missing/empty combo datum.
         except (RuntimeError, TypeError, ReferenceError) as e:
@@ -242,12 +268,14 @@ class Rendering(SlotsBlender):
             ff.format, ff.codec, ff.constant_rate_factor = snap["ffmt"], snap["fcodec"], snap["fcrf"]
             if view3d_space is not None:
                 view3d_space.overlay.show_overlays = snap["overlays"]
+        self.sb.message_box(f"Playblast written to <hl>{out_path}</hl>.")
         if m.chk058.isChecked():
             try:
-                bpy.ops.render.play_rendered_anim()
-            except RuntimeError:
-                pass  # no external player / headless — the file is still written
-        self.sb.message_box(f"Playblast written to <hl>{render.filepath}</hl>.")
+                # window override: the player launch reads its paths from screen context.
+                with btk.window_context_override():
+                    bpy.ops.render.play_rendered_anim()
+            except RuntimeError as e:  # no external player / headless — file still written
+                self.sb.message_box(f"Playblast viewer failed: <hl>{e}</hl>")
 
     @staticmethod
     def _playblast_path(base, padding, single):
@@ -306,9 +334,13 @@ class Rendering(SlotsBlender):
                 bpy.context.scene.camera = cam
             if engine:
                 bpy.context.scene.render.engine = engine
-            bpy.ops.render.render("INVOKE_DEFAULT")
-        # ReferenceError: a camera chosen at init that was since deleted.
-        except (RuntimeError, ReferenceError) as e:
+            # window override: the INVOKE render op needs window/screen context to open
+            # its progress UI (dead in the Qt-pump state).
+            with btk.window_context_override():
+                bpy.ops.render.render("INVOKE_DEFAULT")
+        # ReferenceError: a camera chosen at init that was since deleted. TypeError: an
+        # engine identifier this Blender doesn't register (invalid enum assignment).
+        except (RuntimeError, TypeError, ReferenceError) as e:
             self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ b-slots

@@ -88,12 +88,21 @@ class Editors(SlotsBlender):
             return
         text = item.item_text()
         if text in btk.get_editor_types():
-            btk.open_editor(text)
+            self._open_editor_checked(text)
 
     # ------------------------------------------------------------------ buttons
+    def _open_editor_checked(self, editor):
+        """Open ``editor`` in a new window, surfacing ``btk.open_editor``'s deliberate
+        None-on-failure degrade (its window op poll refused — no usable window,
+        fullscreen screen, headless) as a message instead of a dead click."""
+        if btk.open_editor(editor) is None:
+            self.sb.message_box(
+                f"Could not open <strong>{editor}</strong> — no available window."
+            )
+
     def _open_button(self, name):
         """Open the editor mapped to a button objectName."""
-        btk.open_editor(self._BUTTON_EDITORS[name])
+        self._open_editor_checked(self._BUTTON_EDITORS[name])
 
     def _relabel(self, widget):
         """Per-DCC label override for a substituted button (the shared .ui keeps the Maya

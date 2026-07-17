@@ -199,12 +199,17 @@ class TransformSlots(SlotsBlender):
     # ------------------------------------------------------------------ b001  Match Scale
     @btk.undoable
     def b001(self):
-        """Match Scale (rescale source object(s) to the active/target object)."""
-        source, target = self._selection_source_target()
-        if not source or not target:
-            self.sb.message_box("Match Scale requires 2+ selected objects (active = target).")
+        """Match Scale (rescale the active object to the other selected objects' combined
+        bounds). Maya's b001 scales the FIRST-selected object to the remainder; Blender
+        keeps no object pick order, so its one distinguished object — the active — takes
+        the scaled-object role (one object resized to the rest, not the rest to one)."""
+        others, active = self._selection_source_target()
+        if not others or not active:
+            self.sb.message_box(
+                "Match Scale requires 2+ selected objects (active = the object to rescale)."
+            )
             return
-        btk.match_scale(source, target)
+        btk.match_scale(active, others)
 
     # ------------------------------------------------------------------ cmb002  Align To
     # Combo label -> object.align axis set (centers, relative to the active object).
@@ -228,22 +233,29 @@ class TransformSlots(SlotsBlender):
             self.sb.message_box("Align requires 2+ selected objects (active = target).")
             return
         try:
-            bpy.ops.object.align(
-                align_mode="OPT_2", relative_to="OPT_4", align_axis=axis
-            )
+            # window override: object.align iterates ``context.selected_objects``
+            # internally — empty in the Qt-pump state, and its failure is a WARNING
+            # report (not an exception), so a bare call silently no-opped.
+            with btk.window_context_override():
+                bpy.ops.object.align(
+                    align_mode="OPT_2", relative_to="OPT_4", align_axis=axis
+                )
         except RuntimeError as e:
             self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ tb004  Transform Snap
     def _set_snap(self, **kinds):
         """Apply transform-kind snap flags (``translate``/``rotate``/``scale``) to the scene
-        tool settings; snapping enables on INCREMENT while any kind is on."""
+        tool settings; snapping enables while any kind is on. The element set (WHAT snaps —
+        tb003's Edge/Surface/Make-Live constraints, or the user's own setup) is left as
+        configured and only seeded with INCREMENT when nothing is set: these toggles gate
+        WHICH transforms snap, so forcing INCREMENT here silently clobbered tb003's state."""
         ts = bpy.context.scene.tool_settings
         for kind, state in kinds.items():
             setattr(ts, f"use_snap_{kind}", bool(state))
         enabled = ts.use_snap_translate or ts.use_snap_rotate or ts.use_snap_scale
         ts.use_snap = enabled
-        if enabled:
+        if enabled and not (self._snap_elements() or self._snap_individual()):
             try:
                 ts.snap_elements = {"INCREMENT"}
             except AttributeError:  # 4.x split: snap_elements_base/_individual
@@ -251,15 +263,18 @@ class TransformSlots(SlotsBlender):
 
     def tb004_init(self, widget):
         widget.option_box.menu.setTitle("SNAP")
+        # Seed from the EFFECTIVE state (use_snap AND the kind flag, as tb003_init reads
+        # it): Blender defaults to use_snap=False with use_snap_translate=True, so a bare
+        # kind flag misreports snapping as ON.
         ts = bpy.context.scene.tool_settings
         widget.option_box.menu.add(
             "QCheckBox", setText="Snap Move", setObjectName="chk021",
-            setChecked=ts.use_snap_translate,
+            setChecked=ts.use_snap and ts.use_snap_translate,
             setToolTip="Snap translation to increments (Blender grid-increment snap).",
         )
         widget.option_box.menu.add(
             "QCheckBox", setText="Snap Scale", setObjectName="chk022",
-            setChecked=ts.use_snap_scale,
+            setChecked=ts.use_snap and ts.use_snap_scale,
             setToolTip="Snap scaling to increments.",
         )
 
@@ -277,8 +292,10 @@ class TransformSlots(SlotsBlender):
 
         The scene's tool settings own the flag, so it is mirrored rather than persisted: a
         restored value re-fired chk023 on panel open, rewriting the user's snap settings
-        (``_set_snap`` can force ``snap_elements``) from a stale copy."""
-        snap = bpy.context.scene.tool_settings.use_snap_rotate
+        (``_set_snap`` can force ``snap_elements``) from a stale copy. Mirrors the
+        effective state (use_snap AND the kind flag) — same read as ``tb004_init``."""
+        ts = bpy.context.scene.tool_settings
+        snap = ts.use_snap and ts.use_snap_rotate
         self.mirror_app_state(widget, lambda: widget.setChecked(snap))
 
     def chk023(self, state, widget):

@@ -18,10 +18,9 @@ class Cameras(SlotsBlender):
     def __init__(self, switchboard):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.cameras
-        try:
-            self.sb.handlers.marking_menu.left_mouse_double_click.connect(self.toggle_camera_view)
-        except AttributeError:
-            pass
+        # Double-click gesture + keyable 'toggle_camera_view' command. Shared,
+        # DCC-agnostic wiring on the base slot class (tentacle.slots._slots.Slots).
+        self.register_camera_view_toggle()
 
     @staticmethod
     def _scene_cameras():
@@ -63,15 +62,28 @@ class Cameras(SlotsBlender):
         if parent_text == "Create Camera":
             bpy.ops.object.camera_add()
             cam = self.active_object()  # window-independent (bpy.context.active_object is None from the Qt-pump context)
+            if cam is None or cam.type != "CAMERA":
+                self.sb.message_box("Camera creation failed — the active object is not a camera.")
+                return
             cam.data.lens = float(item.item_data())  # focal length (mm), matches Maya focalLength
 
         elif parent_text == "Select Camera":
             cam = bpy.data.objects.get(text)
             if cam:
-                bpy.ops.object.select_all(action="DESELECT")
+                # Mode-independent deselect: ``object.select_all`` is an Object-Mode op (it
+                # poll-fails in Edit Mode and from the Qt-pump context); a view-layer
+                # ``select_set`` loop is neither mode- nor window-dependent.
+                for o in bpy.context.view_layer.objects:
+                    o.select_set(False)
                 cam.select_set(True)
                 bpy.context.view_layer.objects.active = cam
                 bpy.context.scene.camera = cam  # make it the active (look-through) camera
+                # Actually look through it (Maya twin: cmds.lookThru) — switch the viewport
+                # into camera view, under the same override pattern as the axis views.
+                ctx = btk.get_view3d_context()
+                if ctx and ctx.get("region") and ctx["region"].data:
+                    with bpy.context.temp_override(**ctx):
+                        ctx["region"].data.view_perspective = "CAMERA"
 
         elif parent_text == "Camera Options":
             if text == "Auto Adjust Clipping":
@@ -102,9 +114,16 @@ class Cameras(SlotsBlender):
         if not ctx or not ctx.get("region"):
             self.sb.message_box("No 3D viewport available for view switching.")
             return
-        # Ensure perspective projection (toggle only if currently orthographic).
-        if ctx["region"].data and ctx["region"].data.view_perspective == "ORTHO":
-            with bpy.context.temp_override(**ctx):
+        rv3d = ctx["region"].data
+        if not rv3d:
+            return
+        with bpy.context.temp_override(**ctx):
+            if rv3d.view_perspective == "CAMERA":
+                # Leave camera view (Select Camera / a user camera view would otherwise
+                # dead-end here — view_persportho only toggles PERSP<->ORTHO).
+                rv3d.view_perspective = "PERSP"
+            elif rv3d.view_perspective == "ORTHO":
+                # Ensure perspective projection (toggle only if currently orthographic).
                 bpy.ops.view3d.view_persportho()
 
     def b005(self):
@@ -149,23 +168,6 @@ class Cameras(SlotsBlender):
     def b013(self):
         """Camera: Orbit"""
         self.sb.message_box("Camera tools (dolly/roll/truck/orbit) are not applicable in Blender.")
-
-    # ------------------------------------------------------------------ double-click toggle
-    def toggle_camera_view(self):
-        """Toggle between the last two camera views in history (DCC-agnostic switchboard logic)."""
-        slots = self.sb.get_methods_by_string_pattern(self, "b000-7")
-        history = self.sb.slot_history(slice(-2, None), inc=slots)
-        if not history:
-            return
-        if history[-1].__name__ == self.b004.__name__:
-            if len(history) < 2:
-                return
-            last_non_persp_cam = history[-2]
-            last_non_persp_cam()
-            self.sb.slot_history(add=last_non_persp_cam)
-        else:
-            self.b004()
-            self.sb.slot_history(add=self.b004)
 
 
 # --------------------------------------------------------------------------------------------
