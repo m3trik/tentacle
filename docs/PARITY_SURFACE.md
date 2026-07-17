@@ -24,7 +24,7 @@
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
 | GameShader | 0 | 0 | 0 | 2 | OK |
 | HdrManager | 0 | 0 | 0 | 2 | OK |
-| HierarchyManager | 0 | 0 | 0 | 0 | OK |
+| HierarchySync | 0 | 0 | 0 | 0 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
@@ -77,7 +77,7 @@
   - `open_sourceimages.setText` maya=`'Open Sourceimages Folder'` blender=`'Open HDR Folder'`
   - `spn_samples..ui:enabled` maya=`None` blender=`'false'`
 
-#### HierarchyManager
+#### HierarchySync
 **combo item deltas (review)**
   - `cmb_diff_options` 8->4 items; missing=['Mode: Full Hierarchy Compare', 'Mode: Selected Objects Only', 'Mode: Missing Objects Only', 'Mode: Extra Objects Only'] extra=[]
 
