@@ -362,10 +362,11 @@ class PolygonsSlots(SlotsBlender):
         stays the quick one-shot bridge)."""
         self.sb.handlers.marking_menu.show("bridge")
 
-    @btk.undoable
     def b008(self):
-        """Weld Center (merge selected at center)."""
-        self._edit_op(bpy.ops.mesh.merge, type="CENTER")
+        """Weld Center: interactive target weld merging at the midpoint (mirror of Maya's
+        MergeVertexTool with mergeToCenter=True; the one-shot merge-selected-at-center
+        remains on b009 Collapse)."""
+        self._target_weld(merge_to_center=True)
 
     @btk.undoable
     def b009(self):
@@ -378,8 +379,8 @@ class PolygonsSlots(SlotsBlender):
         self.sb.handlers.marking_menu.show("bevel")
 
     def b012(self):
-        """Multi-Cut Tool (Knife)."""
-        self.set_viewport_tool("builtin.knife", "Multi-Cut")
+        """Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode."""
+        self.set_viewport_tool("builtin.knife", "Multi-Cut", edit_type="MESH")
 
     @btk.undoable
     def b022(self):
@@ -396,8 +397,9 @@ class PolygonsSlots(SlotsBlender):
         self._edit_op(bpy.ops.mesh.poke)
 
     def b047(self):
-        """Insert Edgeloop (Loop Cut tool)."""
-        self.set_viewport_tool("builtin.loop_cut", "Insert Edgeloop")
+        """Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into
+        component mode."""
+        self.set_viewport_tool("builtin.loop_cut", "Insert Edgeloop", edit_type="MESH")
 
     @btk.undoable
     def b051(self):
@@ -405,21 +407,17 @@ class PolygonsSlots(SlotsBlender):
         self._edit_op(bpy.ops.mesh.offset_edge_loops)
 
     def b043(self):
-        """Target Weld (toggle vertex snap + Auto Merge — Blender's equivalent workflow:
-        grab a vert, snap it onto another, and they merge)."""
-        ts = bpy.context.scene.tool_settings
-        state = not (ts.use_snap and ts.use_mesh_automerge)
-        ts.use_snap = state
-        ts.use_mesh_automerge = state
-        if state:
-            try:
-                ts.snap_elements = {"VERTEX"}
-            except AttributeError:  # 4.x split: snap_elements_base/_individual
-                ts.snap_elements_base = {"VERTEX"}
-        self.sb.message_box(
-            f"Target Weld <hl>{'enabled' if state else 'disabled'}</hl> "
-            "(vertex snap + auto-merge)."
-        )
+        """Target Weld: interactively merge one vertex onto another by dragging."""
+        self._target_weld(merge_to_center=False)
+
+    def _target_weld(self, merge_to_center):
+        """Launch blendertk's interactive Target Weld tool (the Blender build of Maya's
+        MergeVertexTool — b043 welds at the target, b008 at the midpoint). The engine
+        handles the Maya-slot activation prep (Edit mode, vertex mask, deselect)."""
+        try:
+            btk.target_weld(merge_to_center=merge_to_center)
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
 
     def _addon_op(self, op_name, label, addon):
         """Run an extension-provided edit-mode operator if its add-on is installed,

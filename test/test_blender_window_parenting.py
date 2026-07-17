@@ -44,7 +44,12 @@ def _real_windows_platform() -> bool:
 
 
 def _can_run() -> bool:
-    """Windows + a real (non-offscreen) Qt platform + an importable tcl_blender."""
+    """Windows + a real (non-offscreen) Qt platform + an importable tcl_blender.
+
+    Also excludes mayapy.standalone / maya -batch: Maya's non-GUI Qt stub
+    hard-crashes on widget construction (exit 9, no traceback) — and these
+    tests need real native HWNDs on top of that. Same discriminator as
+    test_overlay_safety (``cmds.about(batch=True)``)."""
     if sys.platform != "win32" or not _real_windows_platform():
         return False
     try:
@@ -52,7 +57,14 @@ def _can_run() -> bool:
         from tentacle import tcl_blender  # noqa: F401
     except Exception:
         return False
-    return True
+    try:
+        import maya.cmds as cmds
+    except ImportError:
+        return True  # no Maya — plain Python with regular Qt
+    try:
+        return not bool(cmds.about(batch=True))
+    except Exception:
+        return False
 
 
 _SKIP_REASON = "Window-ownership tests need Windows + a real Qt platform (skipped in CI / off-Windows / offscreen)."

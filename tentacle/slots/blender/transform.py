@@ -273,8 +273,13 @@ class TransformSlots(SlotsBlender):
     # are tb004 option-box-only), so it stays a standalone live toggle here rather than being
     # re-built in tb004_init (which would duplicate the objectName). Parity: done-elsewhere.
     def chk023_init(self, widget):
-        """Snap Rotate toggle — reflect the live tool-settings state."""
-        widget.setChecked(bpy.context.scene.tool_settings.use_snap_rotate)
+        """Snap Rotate toggle — reflect the live tool-settings state.
+
+        The scene's tool settings own the flag, so it is mirrored rather than persisted: a
+        restored value re-fired chk023 on panel open, rewriting the user's snap settings
+        (``_set_snap`` can force ``snap_elements``) from a stale copy."""
+        snap = bpy.context.scene.tool_settings.use_snap_rotate
+        self.mirror_app_state(widget, lambda: widget.setChecked(snap))
 
     def chk023(self, state, widget):
         """Snap: Rotate (increment rotation snapping)."""

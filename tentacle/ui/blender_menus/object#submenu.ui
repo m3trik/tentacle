@@ -21,6 +21,24 @@
     <property name="target"><string>object</string></property>
     <property name="text"><string>Object</string></property>
    </widget>
+   <widget class="MenuButton" name="i036">
+    <property name="geometry">
+     <rect><x>180</x><y>260</y><width>81</width><height>21</height></rect>
+    </property>
+    <property name="minimumSize"><size><width>0</width><height>21</height></size></property>
+    <property name="maximumSize"><size><width>999</width><height>21</height></size></property>
+    <property name="target" stdset="0"><string>modifiers</string></property>
+    <property name="text"><string>Modifiers</string></property>
+   </widget>
+   <widget class="MenuButton" name="i037">
+    <property name="geometry">
+     <rect><x>170</x><y>330</y><width>101</width><height>21</height></rect>
+    </property>
+    <property name="minimumSize"><size><width>0</width><height>21</height></size></property>
+    <property name="maximumSize"><size><width>999</width><height>21</height></size></property>
+    <property name="target" stdset="0"><string>quick_effects</string></property>
+    <property name="text"><string>Quick Effects</string></property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>

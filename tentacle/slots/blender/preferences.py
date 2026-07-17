@@ -4,6 +4,7 @@ import os
 import sys
 
 import bpy
+import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -28,6 +29,11 @@ class Preferences(SlotsBlender):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.preferences
         self.submenu = self.sb.loaded_ui.preferences_submenu
+
+        # The preferences .ui pair is shared with every other DCC, so the app name
+        # can't live in Designer — each host writes its own over the `<app>` token.
+        self.ui.parent_app.setTitle("Blender Preferences")
+        self.submenu.b010.setText("Blender Preferences")
 
     def _open_preferences(self, section=None):
         """Open Blender's Preferences editor, optionally on a specific section, and make sure
@@ -94,12 +100,25 @@ class Preferences(SlotsBlender):
 
     # ------------------------------------------------------------------ cmb001  Linear units
     def cmb001_init(self, widget):
-        widget.add(self._LENGTH_UNITS)
+        # The scene owns its units, so mirror them rather than persist a copy: a restored
+        # index re-fired cmb001 on panel open, overwriting the scene's real units with the
+        # last session's pick. Same for cmb002/fps below. (Neither combo passes `header=`,
+        # which is what opts a combo out of restore for free -- see ComboBox.add.)
+        #
+        # Populating happens inside the seed because `add` itself emits currentIndexChanged
+        # (ComboBox.add's own emit, and Qt's on the first item), which on uitk's DEFERRED
+        # init path -- where *_init runs unblocked -- fired cmb001 and wrote index 0's unit
+        # to the scene before the real one was seeded.
         current = bpy.context.scene.unit_settings.length_unit
         labels = list(self._LENGTH_UNITS)
         match = next((lbl for lbl, u in self._LENGTH_UNITS.items() if u == current), None)
-        if match:
-            widget.setCurrentIndex(labels.index(match))
+
+        def seed():
+            widget.add(self._LENGTH_UNITS)
+            if match:
+                widget.setCurrentIndex(labels.index(match))
+
+        self.mirror_app_state(widget, seed)
 
     def cmb001(self, index, widget):
         """Set Working Units: Linear"""
@@ -110,10 +129,14 @@ class Preferences(SlotsBlender):
 
     # ------------------------------------------------------------------ cmb002  Frame rate
     def cmb002_init(self, widget):
-        widget.add({f"{f} fps": f for f in self._FPS_OPTIONS})
         fps = bpy.context.scene.render.fps
-        if fps in self._FPS_OPTIONS:
-            widget.setCurrentIndex(self._FPS_OPTIONS.index(fps))
+
+        def seed():  # populated inside the seed for the reason given in cmb001_init
+            widget.add({f"{f} fps": f for f in self._FPS_OPTIONS})
+            if fps in self._FPS_OPTIONS:
+                widget.setCurrentIndex(self._FPS_OPTIONS.index(fps))
+
+        self.mirror_app_state(widget, seed)
 
     def cmb002(self, index, widget):
         """Set Working Units: Time (frame rate)"""
@@ -177,10 +200,10 @@ class Preferences(SlotsBlender):
         self._open_preferences("INTERFACE")
 
     def b011(self):
-        """Macro Manager — native blendertk panel (blendertk.edit_utils.macros.Macros),
-        1:1 with mayatk's ``macro_manager``: assign a hotkey/category to any macro, filter,
-        save/load binding presets. See ``blendertk.edit_utils.macro_manager_slots``."""
-        self.sb.handlers.marking_menu.show("macro_manager")
+        """Macro Manager — the unified shortcut editor over the blendertk macros
+        (``btk.Macros.show_editor``, 1:1 with mayatk; the bespoke panel was
+        retired)."""
+        btk.Macros.show_editor(parent=self.sb.handlers.marking_menu)
 
 
 # --------------------------------------------------------------------------------------------

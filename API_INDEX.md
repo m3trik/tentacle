@@ -13,10 +13,11 @@ _Generated: 2026-07-17_
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
+  - methods: mirror_app_state, add_slot_widget
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
-  - methods: selected_objects, active_object, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
+  - methods: selected_objects, active_object, ensure_edit_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
 
 ### `slots/blender/animation.py`
 - `class Animation(SlotsBlender)`
@@ -104,11 +105,11 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SlotsBlender)`
-  - methods: header_init, list000_init, list000, cmb002_init, cmb002, cmb003_init, cmb003, cmb004_init, cmb004, tb003_init, tb003, b011, b001, b010, b016, b005, b007, b008, b013, b_cleanup, tb001_init, tb001, b002, b004, b003, b015, b017
+  - methods: header_init, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, tb003, b011, b001, b010, b016, b005, b018, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
 - `class Selection(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, cmb003_init, cmb003, chk004, chk005_init, chk005, chk006, chk007, b001, cmb005_init, cmb005, cmb001_init, cmb001, list000_init, list000
+  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, cmb003_init, cmb003, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, cmb005_init, cmb005, cmb001_init, cmb001, list000_init, list000
 
 ### `slots/blender/settings.py`
 - `class Settings(SlotsBlender)`
@@ -116,11 +117,11 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/subdivision.py`
 - `class Subdivision(SlotsBlender)`
-  - methods: tb000_init, tb000, s000, s001, b000, b001, b005, b008, b011, b028
+  - methods: tb000_init, tb000, s000_init, s001_init, s000, s001, b000, b001, b005, b008, b011, b028
 
 ### `slots/blender/symmetry.py`
 - `class Symmetry(SlotsBlender)`
-  - methods: chk000_init, chk000, chk001, chk002, chk004, chk005_init, chk005
+  - methods: chk000_init, chk001_init, chk002_init, chk000, chk001, chk002, chk004, chk004_init, chk005_init, chk005
 
 ### `slots/blender/transform.py`
 - `class TransformSlots(SlotsBlender)`
@@ -292,7 +293,7 @@ _Generated: 2026-07-17_
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SlotsMaya)`
-  - methods: header_init, cmb002_init, cmb002, cmb003_init, cmb003, cmb004_init, cmb004, list000_init, list000, b001, b002, b010, b016, tb003_init, tb003, b004, b005, b006, b009, tb001_init, tb001, b011, b012, b017, b007, b008, b013, b014_init, b014
+  - methods: header_init, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, tb003, b004, b005, b006, b009, tb001_init, tb001, b011, b012, b017, b018, b013, b014_init, b014
 
 ### `slots/maya/select.py`
 - `class SelectSlots(SlotsMaya)`

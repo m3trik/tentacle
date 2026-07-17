@@ -152,14 +152,24 @@ class Editors(SlotsBlender):
         self._open_button("b008")
 
     def b009(self):
-        """Time & Range (Timeline editor)"""
-        self._open_button("b009")
+        """Time & Range — toggle the Timeline docked along the bottom of the viewport, in place.
+
+        Maya's b009 toggles the Time/Range slider chrome in the main window; the Blender parity
+        is ``btk.toggle_editor`` (close the docked Timeline if shown, else re-dock it as a bottom
+        strip) — never spawning a floating window the way ``open_editor`` would."""
+        btk.toggle_editor(self._BUTTON_EDITORS["b009"])
 
     def b010(self):
-        """Script Output — a dockable native Info Log window skinned with the shared
-        ``uitk.ScriptOutput`` console (syntax-highlighted stdout/stderr/logging mirror),
-        the Blender analogue of mayatk's dockable ScriptConsole. Degrades to the bare
-        native Info Log window off-Windows / without the Qt host. Toggles open/closed."""
+        """Script Output — the shared ``uitk.ScriptOutput`` console (syntax-highlighted
+        stdout/stderr/logging mirror) TRUE-docked into the main window as a native child
+        window via ``btk.QtDock`` (a real docked area that tiles with the viewport and
+        resizes with the area border — no overlay, no floating window), the Blender
+        analogue of mayatk's dockable ScriptConsole. Degrades to the bare docked native
+        Info Log off-Windows / without the Qt host. Toggles docked/undocked; capture runs
+        from startup and persists in the background while undocked, so reopening shows the
+        whole session's output — and the shown state (and strip height) persists across
+        Blender sessions (restored by TclBlender at launch, like Maya's workspaceControl
+        uiScript restore)."""
         from blendertk.env_utils import script_output
 
         script_output.toggle()

@@ -50,39 +50,30 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <widget class="QPushButton" name="b007">
+   <widget class="ExpandableList" name="list001" native="true">
     <property name="geometry">
      <rect>
-      <x>160</x>
-      <y>550</y>
-      <width>71</width>
-      <height>19</height>
+      <x>30</x>
+      <y>480</y>
+      <width>76</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
-      <height>19</height>
+      <width>60</width>
+      <height>0</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Open most recent file.</string>
-    </property>
-    <property name="text">
-     <string>Import</string>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
       <x>145</x>
-      <y>480</y>
+      <y>420</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -103,8 +94,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>520</y>
+      <x>120</x>
+      <y>460</y>
       <width>136</width>
       <height>19</height>
      </rect>
@@ -134,66 +125,31 @@
      </size>
     </property>
    </widget>
-   <widget class="PushButton" name="tb003">
+   <widget class="ExpandableList" name="list002" native="true">
     <property name="geometry">
      <rect>
-      <x>185</x>
-      <y>520</y>
-      <width>66</width>
-      <height>19</height>
+      <x>30</x>
+      <y>460</y>
+      <width>76</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
-      <height>19</height>
+      <width>60</width>
+      <height>0</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Export the scene to FBX (and optionally GLB).
-Click the gear icon to configure scope, included types, and save location.</string>
-    </property>
-    <property name="text">
-     <string>Export</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b002">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>550</y>
-      <width>101</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Scene Exporter</string>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="b004">
     <property name="geometry">
      <rect>
-      <x>5</x>
-      <y>490</y>
-      <width>121</width>
+      <x>120</x>
+      <y>480</y>
+      <width>136</width>
       <height>19</height>
      </rect>
     </property>
@@ -216,8 +172,8 @@ Click the gear icon to configure scope, included types, and save location.</stri
    <widget class="MenuButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>245</x>
-      <y>560</y>
+      <x>265</x>
+      <y>500</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -234,18 +190,18 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>display</string>
-    </property>
     <property name="text">
      <string>Display</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>display</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i022">
     <property name="geometry">
      <rect>
-      <x>335</x>
-      <y>550</y>
+      <x>355</x>
+      <y>500</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -262,18 +218,18 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>preferences</string>
-    </property>
     <property name="text">
      <string>Preferences</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>preferences</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i020">
     <property name="geometry">
      <rect>
       <x>355</x>
-      <y>520</y>
+      <y>460</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -293,18 +249,18 @@ Click the gear icon to configure scope, included types, and save location.</stri
     <property name="cursor">
      <cursorShape>IBeamCursor</cursorShape>
     </property>
-    <property name="target">
-     <string>utilities</string>
-    </property>
     <property name="text">
      <string>Utilities</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>utilities</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i003">
     <property name="geometry">
      <rect>
       <x>265</x>
-      <y>520</y>
+      <y>460</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -321,18 +277,18 @@ Click the gear icon to configure scope, included types, and save location.</stri
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>scene</string>
-    </property>
     <property name="text">
      <string>Scene</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>scene</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b005">
     <property name="geometry">
      <rect>
-      <x>135</x>
-      <y>580</y>
+      <x>175</x>
+      <y>510</y>
       <width>71</width>
       <height>19</height>
      </rect>

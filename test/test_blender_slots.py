@@ -222,5 +222,59 @@ class TestViewportToolUsesOverride(unittest.TestCase):
         )
 
 
+class TestModeGatedViewportTools(unittest.TestCase):
+    """A tool that only exists in a component mode must declare ``edit_type``.
+
+    Blender resolves a workspace tool by (space_type, *context mode*), so activating one of
+    these from Object Mode raises "Tool 'builtin.knife' not found for space 'VIEW_3D'" instead
+    of doing anything. ``edit_type`` makes ``set_viewport_tool`` enter the mode first, the way
+    Maya's counterparts do implicitly. Availability probed against Blender 5.1 by enumerating
+    ``ToolSelectPanelHelper.tools_from_context`` per mode: measure / annotate / select_* exist
+    in every mode and correctly pass no ``edit_type``.
+    """
+
+    _EDIT_ONLY = {
+        "builtin.knife": "MESH",
+        "builtin.loop_cut": "MESH",
+        "builtin.poly_build": "MESH",
+        "builtin.pen": "CURVE",
+        "builtin.draw": "CURVE",
+    }
+
+    def test_edit_mode_only_tools_declare_edit_type(self):
+        offenders = []
+        for f in _slot_files():
+            for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+                if not (
+                    isinstance(node, ast.Call)
+                    and _attr_chain(node.func).endswith("set_viewport_tool")
+                    and node.args
+                    and isinstance(node.args[0], ast.Constant)
+                ):
+                    continue
+                expected = self._EDIT_ONLY.get(node.args[0].value)
+                if not expected:
+                    continue
+                declared = next(
+                    (
+                        kw.value.value
+                        for kw in node.keywords
+                        if kw.arg == "edit_type" and isinstance(kw.value, ast.Constant)
+                    ),
+                    None,
+                )
+                if declared != expected:
+                    offenders.append(
+                        f"{f.name}:{node.lineno} {node.args[0].value} "
+                        f"declares edit_type={declared!r}, expected {expected!r}"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            "Edit-Mode-only viewport tools must pass edit_type so set_viewport_tool enters "
+            f"component mode first (else Blender reports 'not found for space'): {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

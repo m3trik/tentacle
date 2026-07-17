@@ -17,6 +17,11 @@ class Preferences(SlotsMaya):
         self.ui = self.sb.loaded_ui.preferences
         self.submenu = self.sb.loaded_ui.preferences_submenu
 
+        # The preferences .ui pair is shared with every other DCC, so the app name
+        # can't live in Designer — each host writes its own over the `<app>` token.
+        self.ui.parent_app.setTitle("Maya Preferences")
+        self.submenu.b010.setText("Maya Preferences")
+
     def cmb001_init(self, widget):
         """Initializes the combo box with unit options."""
         if not widget.is_initialized:
@@ -32,11 +37,19 @@ class Preferences(SlotsMaya):
             )
             mgr.connect_cleanup(widget, owner=widget)
 
-        items = {i.upper(): i for i in mtk.EnvUtils.SCENE_UNIT_VALUES}
-        widget.add(items)
-        widget.setCurrentIndex(
-            widget.items.index(cmds.currentUnit(q=True, fullName=True, linear=True))
-        )
+        # Working units are scene state — Maya owns the truth, not QSettings
+        # (Slots.mirror_app_state; same sweep as the Blender twin). Populating
+        # happens inside the seed because `add` itself emits currentIndexChanged
+        # (and re-arms restore_state for a headerless combo), which on the
+        # deferred init path would write index 0's unit to the scene before the
+        # real one was seeded.
+        def seed():
+            widget.add({i.upper(): i for i in mtk.EnvUtils.SCENE_UNIT_VALUES})
+            widget.setCurrentIndex(
+                widget.items.index(cmds.currentUnit(q=True, fullName=True, linear=True))
+            )
+
+        self.mirror_app_state(widget, seed)
 
     def cmb001(self, index, widget):
         """Set Working Units: Linear"""
@@ -59,14 +72,17 @@ class Preferences(SlotsMaya):
             )
             mgr.connect_cleanup(widget, owner=widget)
 
-        frame_rates = ptk.VidUtils.FRAME_RATES
-        items = {
-            f"{frame_rates.get(key)} fps {key.upper()}": key for key in frame_rates
-        }
-        widget.add(items)
-        widget.setCurrentIndex(
-            widget.items.index(cmds.currentUnit(q=True, fullName=True, time=True))
-        )
+        # Scene state, populated inside the seed — same reasons as cmb001_init.
+        def seed():
+            frame_rates = ptk.VidUtils.FRAME_RATES
+            widget.add(
+                {f"{frame_rates.get(key)} fps {key.upper()}": key for key in frame_rates}
+            )
+            widget.setCurrentIndex(
+                widget.items.index(cmds.currentUnit(q=True, fullName=True, time=True))
+            )
+
+        self.mirror_app_state(widget, seed)
 
     def cmb002(self, index, widget):
         """Set Working Units: Time"""
@@ -137,8 +153,9 @@ class Preferences(SlotsMaya):
         mel.eval("HotkeyPreferencesWindow")
 
     def b011(self):
-        """Macro Manager"""
-        self.sb.handlers.marking_menu.show("macro_manager")
+        """Macro Manager — the unified shortcut editor over the mayatk macros
+        (``mtk.Macros.show_editor``; the bespoke panel was retired)."""
+        mtk.Macros.show_editor(parent=self.sb.handlers.marking_menu)
 
     def b009(self):
         """Plug-In Manager"""

@@ -106,21 +106,38 @@ try:
     slot.chk004(state=True, widget=None)
     check("non-mesh selection is filtered (no crash)", True)
 
-    # chk000_init reflects the active mesh's current axis on the stub UI
+    # chk000_init reflects the active mesh's current axis.
+    #
+    # Real QCheckBoxes, not NS(setChecked=...) stubs: chk000_init now seeds through
+    # ``Slots.mirror_app_state``, which blocks the widget's signals and clears its
+    # ``restore_state`` — a namespace stub has neither, and a stub that quietly lacks part of
+    # the widget contract is what let the sibling bug ship in the first place. See
+    # ``app_state_mirror_check.py`` for the full mirror/no-toast coverage.
+    from qtpy import QtWidgets
+
+    app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])  # noqa: F841
+
     reset()
     a = add_cube("A")
     a.data.use_mirror_y = True
-    states = {}
 
-    def radio(name):
-        return NS(setChecked=lambda v, n=name: states.__setitem__(n, v))
+    def radio():
+        w = QtWidgets.QCheckBox()
+        w.restore_state = True  # uitk's default (MainWindow.register_widget)
+        return w
 
-    ui = NS(chk000=radio("chk000"), chk001=radio("chk001"), chk002=radio("chk002"))
+    ui = NS(chk000=radio(), chk001=radio(), chk002=radio())
     slot.sb = NS(message_box=lambda *a, **k: None,
                  create_button_groups=lambda *a, **k: None)
     slot.chk000_init(NS(ui=ui))
-    check("chk000_init reflects active mesh (y checked)", states == {"chk001": True},
-          f"states={states}")
+    checked = [n for n in ("chk000", "chk001", "chk002") if getattr(ui, n).isChecked()]
+    check("chk000_init reflects active mesh (y checked)", checked == ["chk001"],
+          f"checked={checked}")
+    check(
+        "chk000_init opts the axis group out of QSettings restore (the DCC owns the flags)",
+        not any(getattr(ui, n).restore_state for n in ("chk000", "chk001", "chk002")),
+        f"restore_state={[getattr(ui, n).restore_state for n in ('chk000','chk001','chk002')]}",
+    )
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

@@ -31,20 +31,6 @@ class Selection(SlotsBlender):
         self.ui = self.sb.loaded_ui.selection
         self.submenu = self.sb.loaded_ui.selection_submenu
 
-    # ------------------------------------------------------------------ helpers
-    @classmethod
-    def _edit_mesh(cls, select_mode=None):
-        """Ensure the active object is a mesh in Edit Mode (optionally setting the component
-        select mode). Returns the object, or None if there is no mesh to act on."""
-        obj = cls.active_object()  # not bpy.context.active_object: None from the Qt-pump context
-        if not obj or obj.type != "MESH":
-            return None
-        if obj.mode != "EDIT":
-            bpy.ops.object.mode_set(mode="EDIT")
-        if select_mode:
-            bpy.ops.mesh.select_mode(type=select_mode)
-        return obj
-
     # ------------------------------------------------------------------ tb000  Select Nth
     def tb000_init(self, widget):
         widget.option_box.menu.add(
@@ -75,7 +61,7 @@ class Selection(SlotsBlender):
     def tb000(self, widget):
         """Select Nth"""
         m = widget.option_box.menu
-        if not self._edit_mesh("EDGE"):
+        if not self.ensure_edit_mode("MESH", "EDGE"):
             self.sb.message_box("Select Nth requires a mesh.")
             return
         if m.chk000.isChecked():            # Edge Ring
@@ -195,7 +181,7 @@ class Selection(SlotsBlender):
 
     def tb002(self, widget):
         """Select Island (connected region; growth stopped at the checked boundaries)."""
-        if not self._edit_mesh():
+        if not self.ensure_edit_mode("MESH"):
             self.sb.message_box("Select Island requires a mesh.")
             return
         m = widget.option_box.menu
@@ -222,7 +208,7 @@ class Selection(SlotsBlender):
     def tb003(self, widget):
         """Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``)."""
         m = widget.option_box.menu
-        obj = self._edit_mesh("EDGE")
+        obj = self.ensure_edit_mode("MESH", "EDGE")
         if not obj:
             self.sb.message_box("Select Edges By Angle requires a mesh.")
             return
@@ -257,7 +243,7 @@ class Selection(SlotsBlender):
     def cmb003(self, index, widget):
         """Convert the current selection to another component type (Maya Convert-To parity)."""
         text = widget.items[index]
-        obj = self._edit_mesh()
+        obj = self.ensure_edit_mode("MESH")
         if not obj:
             self.sb.message_box("Convert requires a mesh in edit mode.")
             return
@@ -291,6 +277,19 @@ class Selection(SlotsBlender):
             self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ chk004  Ignore Backfacing
+    def chk004_init(self, widget):
+        """Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).
+
+        With no 3D viewport there is nothing to mirror, so the box is left at its .ui default
+        rather than seeded: chk004 is the *inverse* of X-ray, and a bare ``not xray`` would
+        read the absent viewport as "no X-ray" and claim Ignore-Backfacing is ON."""
+        areas = btk.get_areas("VIEW_3D")
+        seed = None
+        if areas:
+            xray = areas[0].spaces.active.shading.show_xray
+            seed = lambda: widget.setChecked(not xray)  # noqa: E731
+        self.mirror_app_state(widget, seed)
+
     def chk004(self, state, widget):
         """Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select."""
         for area in btk.get_areas("VIEW_3D"):  # window-independent (context.screen is None from the Qt-pump context)
@@ -299,7 +298,28 @@ class Selection(SlotsBlender):
 
     # ------------------------------------------------------------------ chk005-007  Select Style
     def chk005_init(self, widget):
+        # The active viewport tool is Blender's to own, so these three are never persisted:
+        # a restored "Marquee" fired chk005 on panel open, silently re-setting the tool and
+        # popping set_viewport_tool's "<hl>Box Select</hl> tool active." toast every time the
+        # selection submenu initialized. Maya's counterpart seeds the group from the live
+        # tool (get_selection_tool); Blender resolves the active tool per workspace+mode
+        # rather than from one global context, so nothing is seeded and the group opens
+        # unchecked until the user picks a style.
+        #
+        # Each of the three marks ITSELF rather than chk005_init marking all three: uitk's
+        # immediate init path runs slot-init -> state-init per widget, and chk006 precedes
+        # chk005 in the .ui, so a sibling-marking chk005_init would run too late to stop
+        # chk006 restoring. (The deferred path batches both phases, so it never noticed.)
         self.sb.create_button_groups(widget.ui, "chk005-7")
+        self.mirror_app_state(widget)
+
+    def chk006_init(self, widget):
+        """Select Style: Lasso — mirrors the active tool; see ``chk005_init``."""
+        self.mirror_app_state(widget)
+
+    def chk007_init(self, widget):
+        """Select Style: Circle — mirrors the active tool; see ``chk005_init``."""
+        self.mirror_app_state(widget)
 
     def _set_select_style(self, state, widget):
         if not state:
@@ -370,7 +390,14 @@ class Selection(SlotsBlender):
     }
 
     def cmb005_init(self, widget):
-        widget.add(["OFF", *self._CONSTRAINT_OPS])
+        # One-shot commands, not a persisted setting: restoring a non-OFF index re-fired the
+        # op against whatever the user had selected the moment the submenu opened (and popped
+        # the "require a mesh in Edit Mode" box when they hadn't). Nothing to persist either —
+        # Blender has no constraint left switched on to reflect. Combos populated with a
+        # `header=` opt out of restore for free (ComboBox.add: `restore_state = not
+        # has_header`); this one has no header, so it must say so itself. Populating is the
+        # seed because `add` emits currentIndexChanged (see preferences.cmb001_init).
+        self.mirror_app_state(widget, lambda: widget.add(["OFF", *self._CONSTRAINT_OPS]))
 
     def cmb005(self, index, widget):
         """Selection Constraints (one-shot in Blender: expands the current selection by
@@ -379,7 +406,7 @@ class Selection(SlotsBlender):
         op = self._CONSTRAINT_OPS.get(text)
         if op is None:  # OFF — nothing persistent to disable
             return
-        if not self._edit_mesh("FACE" if text == "Angle" else None):
+        if not self.ensure_edit_mode("MESH", "FACE" if text == "Angle" else None):
             self.sb.message_box("Selection Constraints require a mesh in Edit Mode.")
             return
         try:

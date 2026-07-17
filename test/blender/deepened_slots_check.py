@@ -3,7 +3,7 @@
 Covers the implementations that replaced deferred-message stubs once their Blender primitive
 existed: selection list000 (select-by-type), transform cmb002 (object.align), normals b002 +
 uv b000 (Data-Transfer), uv b003/b004 (texel density), uv b029 (pin toggle), uv tb022 (cut
-hard edges), polygons b043 (target-weld toggle), animation
+hard edges), polygons b043 (interactive target weld), animation
 tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys), transform
 chk024/chk025 (constraints -> snap elements), selection cmb005 (one-shot constraints),
 rigging cmb002 (Rigify quick rig), nurbs b056 (image tracer), the manager-panel routing,
@@ -77,6 +77,10 @@ def spin(v):
     return NS(value=lambda v=v: v)
 
 
+def combo(data):
+    return NS(currentData=lambda d=data: d)
+
+
 try:
     import bpy
     import bmesh
@@ -93,13 +97,15 @@ try:
     reset()
     add_cube("M")
     bpy.ops.object.empty_add(type="PLAIN_AXES")
+    # Labels must be real _SELECTION_CONFIG leaves (what the list actually offers) — the old
+    # flat-type labels ("Mesh"/"Empty") raise ValueError and no-op, passing only vacuously.
     slot = make_slot(Selection)
-    slot.list000(NS(item_text=lambda: "Mesh", sublist=None))
+    slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None))
     sel = [o.name for o in bpy.context.selected_objects]
-    check("selection list000 'Mesh' selects only meshes", sel == ["M"], f"sel={sel}")
-    slot.list000(NS(item_text=lambda: "Empty", sublist=None))
+    check("selection list000 'Polygon Meshes' selects only meshes", sel == ["M"], f"sel={sel}")
+    slot.list000(NS(item_text=lambda: "Locators", sublist=None))
     sel = [o.type for o in bpy.context.selected_objects]
-    check("selection list000 'Empty' selects the empty", sel == ["EMPTY"], f"sel={sel}")
+    check("selection list000 'Locators' selects the empty", sel == ["EMPTY"], f"sel={sel}")
 
     # ---- transform cmb002: align to active --------------------------------------------------
     reset()
@@ -181,15 +187,15 @@ try:
     # (uv cmb002 / tb005 / tb006 / tb008 moved to the blendertk shell_xform panel — the
     # tentacle Uv slot only launches it now; see blendertk/uv_utils/shell_xform.py.)
 
-    # ---- polygons b043: target-weld toggle ----------------------------------------------------
+    # ---- polygons b043: interactive target weld -----------------------------------------------
+    # The tool needs a windowed viewport for its modal loop; headless the slot must register
+    # the operator, refuse cleanly (RuntimeError -> message_box), and not raise.
     ts = bpy.context.scene.tool_settings
-    ts.use_snap = False; ts.use_mesh_automerge = False
     slot = make_slot(PolygonsSlots)
-    slot.b043()
-    on = ts.use_snap and ts.use_mesh_automerge
-    slot.b043()
-    check("polygons b043 toggles snap+automerge on/off",
-          on and not ts.use_snap and not ts.use_mesh_automerge)
+    slot.b043()  # headless has no 3D viewport — must not raise (slot catches + messages)
+    check("polygons b043 target-weld activation is safe headless", True)
+    check("polygons b043 registers the modal operator",
+          hasattr(bpy.types, "BTK_OT_target_weld"))
 
     # ---- transform tb004/chk023: increment snap -----------------------------------------------
     slot = make_slot(TransformSlots)
@@ -243,23 +249,28 @@ try:
     bpy.context.view_layer.objects.active = a
 
     slot = make_slot(Animation)
-    slot.tb002(option_box(s002=spin(15), s003=spin(5)))  # shift keys >= 15 by +5
+    # shift keys >= absolute frame 15 by +5 (chk004 Relative off; selected-objects scope)
+    slot.tb002(option_box(s002=spin(15), s003=spin(5), chk004=chk(False), chk003=chk(True),
+                          cmb036=combo("objects"), chk021=chk(False)))
     check("animation tb002 adjusts spacing", key_times(a) == [10.0, 25.0], f"{key_times(a)}")
 
-    slot.tb004(None)  # transfer active(a) -> b
+    slot.tb004(option_box(chk006=chk(True), chk035=chk(False)))  # transfer active(a) -> b
     check("animation tb004 transfers keys to targets",
           key_times(b) == key_times(a)
           and b.animation_data.action is not a.animation_data.action,
           f"b={key_times(b)}")
 
-    slot.tb005(option_box(chk027=chk(False)))  # add intermediates: 11..24 sampled in
+    # add intermediates: 11..24 sampled in (Percent=100 -> every interior frame)
+    slot.tb005(option_box(s021=spin(-1), s006=spin(-1), s007=spin(100),
+                          chk028=chk(False), chk027=chk(False)))
     check("animation tb005 adds intermediate keys", len(key_times(a)) == 16,
           f"n={len(key_times(a))}")
-    slot.tb005(option_box(chk027=chk(True)))  # remove -> endpoints only
+    slot.tb005(option_box(s021=spin(-1), s006=spin(-1), s007=spin(100),
+                          chk028=chk(False), chk027=chk(True)))  # remove -> endpoints only
     check("animation tb005 remove keeps endpoints", key_times(a) == [10.0, 25.0],
           f"{key_times(a)}")
 
-    slot.tb013(option_box(cmb041=NS(currentText=lambda: "Range"),
+    slot.tb013(option_box(cmb041=combo("range"), chk039=chk(False),
                           s012=spin(20), s013=spin(30)))
     sel = [k.co.x for fc in btk.get_fcurves(a) for k in fc.keyframe_points
            if k.select_control_point]
@@ -267,12 +278,14 @@ try:
 
     for k in [k for fc in btk.get_fcurves(a) for k in fc.keyframe_points]:
         k.select_control_point = True
-    slot.tb007(option_box(chk013=chk(True)))  # align all selected to earliest (10)
+    slot.tb007(option_box(chk013=chk(True), spn000=spin(-1)))  # align selected to earliest (10)
     # co-located keys on one fcurve merge — a single key at the target is the correct result
     check("animation tb007 aligns selected keys (merged at target)",
           key_times(a) == [10.0], f"{key_times(a)}")
 
-    slot.tb008(option_box(chk015=chk(False)))  # key hidden at current frame
+    # key hidden at current frame
+    slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
+                          cmb002=combo("current"), s008=spin(0), chk016=chk(False)))
     vis = [fc.data_path for fc in btk.get_fcurves(a) if fc.data_path.startswith("hide_")]
     check("animation tb008 keys visibility", sorted(vis) == ["hide_render", "hide_viewport"]
           and a.hide_render, f"vis={vis}")
@@ -343,7 +356,7 @@ try:
     b.select_set(True)
     bpy.context.view_layer.objects.active = b
     slot = make_slot(PolygonsSlots)
-    slot.tb009(option_box(s005=spin(0.2)))
+    slot.tb009(option_box(s005=spin(0.2), chk016=chk(True)))
     pos_a = sorted(tuple(round(c, 4) for c in (a.matrix_world @ v.co)) for v in a.data.vertices)
     pos_b = sorted(tuple(round(c, 4) for c in (b.matrix_world @ v.co)) for v in b.data.vertices)
     check("polygons tb009 snaps onto the active mesh", pos_a == pos_b)
@@ -373,22 +386,18 @@ try:
           f"{f0}->{len(bm.faces)}")
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    # ---- display b013 Explode View toggle
+    # ---- display b013/b014: route to the co-located blendertk panels -------------------------
+    # (b013 stopped being an inline toggle when the Exploded View panel shipped; the explode/
+    # un-explode engine round-trip is covered by blendertk/test/test_wedge_snap_explode.py)
     from tentacle.slots.blender.display import DisplaySlots
 
     reset()
-    a = add_cube("A", location=(0.5, 0, 0))
-    b = add_cube("B", location=(-0.5, 0, 0))
-    a.select_set(True)
-    b.select_set(True)
-    locs = {o.name: tuple(o.location) for o in (a, b)}
-    slot = make_slot(DisplaySlots)
+    shown = []
+    slot = make_slot(DisplaySlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
     slot.b013()
-    check("display b013 explodes apart", btk.is_exploded([a, b]))
-    slot.b013()
-    check("display b013 toggles back to the exact locations",
-          all(tuple(o.location) == locs[o.name] for o in (a, b))
-          and not btk.is_exploded([a, b]))
+    slot.b014()
+    check("display b013/b014 open the exploded-view / color-id panels",
+          shown == ["exploded_view", "color_id"], f"{shown}")
 
     # ---- display Template Selected (WIRE + non-render + non-select; re-click releases) --------
     reset()
@@ -463,16 +472,16 @@ try:
     # (uv tb005 Straighten / tb006 Distribute moved to the blendertk shell_xform panel with
     # the rest of the transform cluster — no longer tentacle Uv slot methods.)
 
-    # ---- scene b005 / cameras b007: headless has no window / 3D view -> message, no crash
+    # ---- scene b005: routes to the blendertk Naming panel; cameras b007 fails soft headless --
+    # (b005 stopped driving the native Batch Rename op when the Naming panel shipped.)
     from tentacle.slots.blender.scene import SceneSlots
     from tentacle.slots.blender.cameras import Cameras
 
     reset()
-    msgs = []
-    slot = make_slot(SceneSlots)
-    slot.sb = NS(message_box=msgs.append)
+    shown = []
+    slot = make_slot(SceneSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
     slot.b005()
-    check("scene b005 fails soft without a window", len(msgs) <= 1)
+    check("scene b005 opens the naming panel", shown == ["naming"], f"{shown}")
 
     msgs = []
     slot = make_slot(Cameras)
@@ -582,12 +591,13 @@ try:
     check("scene b001 / lighting b000 open the manager panels",
           shown == ["reference_manager", "hdr_manager"], f"{shown}")
 
-    # ---- scene b004: native Outliner window (headless: no GUI window -> fails soft) ---------
-    msgs = []
-    slot = make_slot(SceneSlots)
-    slot.sb = NS(message_box=msgs.append)
+    # ---- scene b004: routes to the Hierarchy Manager panel -----------------------------------
+    # (b004 stopped opening a native Outliner window when the hierarchy_manager panel shipped.)
+    shown = []
+    slot = make_slot(SceneSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
     slot.b004()
-    check("scene b004 Outliner fails soft headless", len(msgs) <= 1, f"{msgs}")
+    check("scene b004 opens the hierarchy-manager panel",
+          shown == ["hierarchy_manager"], f"{shown}")
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
     from tentacle.slots.blender.deformation import Deformation

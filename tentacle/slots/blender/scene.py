@@ -14,24 +14,37 @@ class SceneSlots(SlotsBlender):
     """Blender port of the shared ``scene`` menu.
 
     Recent files / autosave recovery map onto Blender's own recent-files.txt and temp-dir
-    autosaves (``btk.get_recent_files`` / ``btk.get_recent_autosave``); import/export route
-    through Blender's native format operators (file dialogs via ``INVOKE_DEFAULT``).
+    autosaves (``btk.get_recent_files`` / ``btk.get_recent_autosave``); the submenu's
+    Import / Export expandable lists route through Blender's native format operators
+    (file dialogs via ``INVOKE_DEFAULT``).
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
-    Scene Exporter and Hierarchy Manager are native blendertk panels (Diff/Fix; Pull isn't
-    ported yet). Maya's workspace model and command ports have no Blender analogue and are
-    deferred.
+    Scene Exporter and Hierarchy Manager are native blendertk panels, both 1:1 with mayatk's:
+    the former (task/check pipeline, FBX or GLB) reached from the Export list — see
+    ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. disabled
+    placeholders (hierarchy_manager / smart_bake / data_export subsystems aren't ported yet);
+    the latter for Diff/Fix (Pull isn't ported yet). Maya's workspace model and command ports
+    have no Blender analogue and are deferred.
     """
 
-    # (label -> bpy.ops path) for the import/export combos; resolved at call time so a
-    # missing importer add-on degrades to a message instead of an AttributeError.
+    # (label -> bpy.ops path OR callable(slot)) for the submenu's Import / Export expandable
+    # lists; op paths are resolved at call time so a missing importer add-on degrades to a
+    # message instead of an AttributeError. Callables cover the entries that aren't native
+    # operators — importers with no file browser to invoke, and the Scene Exporter panel.
     _IMPORTERS = {
         "Import FBX": "import_scene.fbx",
         "Import OBJ": "wm.obj_import",
         "Import Collada": "wm.collada_import",
+        "Import Maya Scene": lambda slot: slot._import_maya_scene(),
         "Append from .blend": "wm.append",
         "Link from .blend": "wm.link",
     }
+    # The Export list's tool-panel entry — a launcher rather than a one-shot export, so
+    # list002_init adds it separately (last, nearest the trigger row) with a tooltip.
+    # Named so the dict key and that filter can't drift apart.
+    _SCENE_EXPORTER = "Scene Exporter"
+
     _EXPORTERS = {
+        _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show("scene_exporter"),
         "Export FBX": "export_scene.fbx",
         "Export OBJ": "wm.obj_export",
         "Export glTF": "export_scene.gltf",
@@ -53,12 +66,8 @@ class SceneSlots(SlotsBlender):
         b006 means the unrelated 'Cleanup Unknown')."""
         widget.menu.add("Separator", setTitle="Export")
         widget.menu.add(
-            "QPushButton", setText="Scene Exporter", setObjectName="b002",
-            setToolTip="Batch-export via a configurable task/check pipeline (FBX/GLB).",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton, setText="Export Scene", setObjectName="tb003",
-            setToolTip="Export the whole scene to FBX.",
+            "QPushButton", setText="Export Scene", setObjectName="b018",
+            setToolTip="Export the whole scene to FBX.\nOptions live on the submenu's Export list ▸ Export Scene entry (gear icon).",
         )
         widget.menu.add(
             "QPushButton", setText="Export Selection", setObjectName="b008",
@@ -162,24 +171,103 @@ class SceneSlots(SlotsBlender):
         """Autosave"""
         self._open_file(widget.items[index])
 
-    # ------------------------------------------------------------------ cmb003/cmb004  Import/Export
-    def cmb003_init(self, widget):
-        widget.add(list(self._IMPORTERS), header="Import")
+    # ------------------------------------------------------------------ list001/list002  Import/Export
+    def list001_init(self, widget):
+        """Initialize Import"""
+        widget.fixed_item_height = 18
+        # Lowest list in the submenu: open downward, covering the root row
+        # (expand_down would hang the sublist below it instead).
+        widget.apply_preset("expand_overlay")
+        root = widget.add(
+            "Import",
+            setToolTip="Import a file (FBX / OBJ / Collada / Maya scene), or append/link from a .blend.",
+        )
+        root.sublist.add(list(self._IMPORTERS))
 
-    def cmb003(self, index, widget):
+    @Signals("on_item_interacted")
+    def list001(self, item):
         """Import"""
-        op_path = self._IMPORTERS.get(widget.items[index])
-        if op_path:
-            self.invoke_op(op_path)
+        entry = self._IMPORTERS.get(item.item_text())
+        if callable(entry):
+            entry(self)
+        elif entry:
+            self.invoke_op(entry)
 
-    def cmb004_init(self, widget):
-        widget.add(list(self._EXPORTERS), header="Export")
+    def _import_maya_scene(self):
+        """Import a Maya scene (.ma/.mb) via ``btk.import_maya_scene`` — a headless-Maya
+        FBX round-trip (fresh mayapy converts the scene; the FBX is imported and cleaned
+        up). Blocking: a scene conversion takes tens of seconds (mayapy startup + license
+        checkout), so a wait cursor covers the run. Requires a local Maya install."""
+        src = self.sb.file_dialog(
+            file_types=["*.ma", "*.mb"],
+            title="Import Maya Scene",
+            filter_description="Maya Scenes",
+            allow_multiple=False,
+        )
+        if not src:
+            return
+        app = self.sb.QtWidgets.QApplication
+        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
+        try:
+            imported = btk.import_maya_scene(src)
+        except Exception as e:
+            self.sb.message_box(f"Maya scene import failed: <hl>{e}</hl>")
+            return
+        finally:
+            app.restoreOverrideCursor()
+        self.sb.message_box(
+            f"Imported <hl>{len(imported)}</hl> object(s) from "
+            f"<hl>{os.path.basename(src)}</hl>."
+        )
 
-    def cmb004(self, index, widget):
-        """Export"""
-        op_path = self._EXPORTERS.get(widget.items[index])
-        if op_path:
-            self.invoke_op(op_path)
+    def list002_init(self, widget):
+        """Initialize Export.
+
+        The list expands upward, so it is populated in reverse: the LAST item
+        added sits nearest the trigger row. The two tools go last — Scene
+        Exporter, then Export Scene (the tb003 PushButton folded in from the old
+        submenu button, option-box gear and all) closest to the cursor — with the
+        native one-shot format exporters that used to live on the Export combobox
+        stacking above them.
+        """
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_up")
+        root = widget.add(
+            "Export",
+            setToolTip="Export the scene or selection (FBX / OBJ / glTF / Collada).",
+        )
+        one_shots = [k for k in self._EXPORTERS if k != self._SCENE_EXPORTER]
+        root.sublist.add(one_shots[::-1])
+        root.sublist.add(
+            self._SCENE_EXPORTER,
+            setToolTip="Batch-export via a configurable task/check pipeline (FBX/GLB).",
+        )
+        # Registration runs tb003_init (building the option-box menu), wires
+        # clicked -> tb003, and binds self.submenu.tb003 so the header's plain
+        # "Export Scene" entry (b018) can read the shared options.
+        self.add_slot_widget(
+            root.sublist,
+            setObjectName="tb003",
+            setText="Export Scene",
+            setToolTip=(
+                "Export the scene to FBX (and optionally GLB).\n"
+                "Click the gear icon to configure scope, included types, and save location."
+            ),
+        )
+
+    @Signals("on_item_interacted")
+    def list002(self, item):
+        """Export.
+
+        tb003 never arrives here — its option-box wrap swapped it out of the list's
+        item set, so the list no longer consumes its releases and its own clicked
+        signal drives the slot (see ``Slots.add_slot_widget``).
+        """
+        entry = self._EXPORTERS.get(item.item_text())
+        if callable(entry):
+            entry(self)
+        elif entry:
+            self.invoke_op(entry)
 
     # ------------------------------------------------------------------ tb003  Scene Exporter
     def tb003_init(self, widget):
@@ -269,10 +357,14 @@ class SceneSlots(SlotsBlender):
 
         # Cameras/lights are scene-level: in Selected Only mode they'd only export if
         # explicitly selected, so the "include all" intent doesn't apply — disable them.
+        # The button label mirrors the scope so the submenu entry reads as what it will
+        # do (QSettings restore re-fires the signal, so a persisted scope re-labels on
+        # init too).
         def _sync_scope(_idx=None):
             whole_scene = cmb_scope.currentData() == "all"
             chk_cameras.setEnabled(whole_scene)
             chk_lights.setEnabled(whole_scene)
+            widget.setText("Export Scene" if whole_scene else "Export Sel")
 
         cmb_scope.currentIndexChanged.connect(_sync_scope)
         _sync_scope()
@@ -280,9 +372,14 @@ class SceneSlots(SlotsBlender):
     def tb003(self, widget):
         """Export Scene — FBX (+ optional GLB) using the configured options.
 
-        Options always live on the submenu's tb003 (the PushButton carrying the option-box gear);
-        the header entry is a plain button reaching the same slot, so read options off the submenu."""
-        opts_widget = self.submenu.tb003
+        Options always live on the submenu's tb003 (the PushButton carrying the option-box
+        gear, created by list002_init as the Export list's first entry); the header entry is
+        a plain button reaching the same slot, so read options off the submenu. If the Export
+        list hasn't built yet (header clicked before the submenu initialized), force it."""
+        opts_widget = getattr(self.submenu, "tb003", None)
+        if opts_widget is None:
+            self.sb.init_slot(self.submenu.list002)
+            opts_widget = self.submenu.tb003
         if not getattr(opts_widget, "is_initialized", False):
             self.tb003_init(opts_widget)
             opts_widget.is_initialized = True
@@ -405,9 +502,12 @@ class SceneSlots(SlotsBlender):
         BlenderUiHandler, mirroring Maya's Naming window (replaces the native Batch Rename op)."""
         self.sb.handlers.marking_menu.show("naming")
 
-    def b007(self):
-        """Import file"""
-        self.ui.cmb003.call_slot(0)
+    def b018(self):
+        """Export Scene — header-menu launcher for tb003 (the submenu Export
+        list's entry that carries the option box). A distinct objectName
+        because a slot file must not add two widgets named tb003 (mirrors
+        Maya's b018)."""
+        self.tb003(None)
 
     def b008(self):
         """Export Selection (FBX, selected objects only)."""
@@ -514,13 +614,6 @@ class SceneSlots(SlotsBlender):
         self.sb.text_view_dialog(
             report_html, "Ok", title="Get Scene Info", size=(640, 600), monospace=False
         )
-
-    def b002(self):
-        """Scene Exporter — native blendertk panel (task/check pipeline, FBX or GLB), 1:1 with
-        mayatk's ``scene_exporter``. See ``blendertk.env_utils.scene_exporter`` for which tasks/
-        checks are ported vs. disabled placeholders (hierarchy_manager / smart_bake /
-        data_export subsystems aren't ported yet)."""
-        self.sb.handlers.marking_menu.show("scene_exporter")
 
     def b004(self):
         """Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend

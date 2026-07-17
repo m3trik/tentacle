@@ -521,6 +521,23 @@ HANDLERS = {
         # 1:1 with Maya's scene.py b016. It previously lived in the Blender materials menu (b026);
         # moved here so Marmoset/Substance (materials External) and Unity (Scene) group exactly as
         # Maya does. Matched by objectName + label on both sides -> no ledger row needed.
+        # list001 "Import Maya Scene": Blender-side ADDITION 2026-07-16 (no Maya twin to triage —
+        # Maya opens its own .ma/.mb natively via its list001 "Import File"). The item calls
+        # btk.import_maya_scene (env_utils/maya_bridge/_scene_import.py): a headless
+        # mayapy converts the scene to FBX (pythontk.run_script_to_artifact) and the FBX is
+        # imported + cleaned up. Item-delta is report-only (Blender addition, no Maya-side key).
+        # list001 "Import Blender Scene": Maya-side ADDITION 2026-07-16 (later) — the SYMMETRIC
+        # pull import: mtk.import_blender_scene (env_utils/blender_bridge/_scene_import.py), a
+        # headless `blender --background --factory-startup` FBX round-trip whose manifest sidecar
+        # is rebuilt through the GameShader engine (packed Metallic_Smoothness/MSAO/ORM maps
+        # included; verified live in scene_import_live_e2e.py). The two items intentionally differ
+        # by label — each names the OTHER DCC — so neither side's item-delta pairs; both stay
+        # report-only additions.
+        # 2026-07-16: the Import/Export combos (cmb003/cmb004, scene.ui) became the submenu's
+        # Import/Export ExpandableLists (list001/list002, scene#submenu.ui) on BOTH sides — same
+        # items, same dispatch tables; the submenu's b007 Import button and tb003 Export PushButton
+        # folded into them (tb003 is now list002's first entry, created dynamically with its
+        # option box; the header launcher was renamed b018 so the slot file adds tb003 once).
     },
     # display.py list000 (ExpandableList) — PARITY_SURFACE.md "combo item deltas (review)" for
     # this file. Audited 2026-07-04: Component ID / Mat Override / Soft Edge Display / UV
@@ -903,9 +920,11 @@ PANELS = {
 FILE_COUNTERPARTS = {
     "maya_native_menus": {
         "detect": "MENU_MAPPING",  # auto: maya-only slot stems that are MENU_MAPPING keys
-        "blender_counterpart": "blender.py (blender#startmenu -> btk.call_native_menu)",
-        "reason": "Maya-native-menu Qt clones (QAction harvest — impossible in Blender's "
-                  "OpenGL UI); Blender pops its OWN native menus at the cursor instead "
-                  "(shipped 2026-06-12)",
+        "blender_counterpart": "blender.py (blender#startmenu -> BlenderNativeMenus.get_menu)",
+        "reason": "Maya-native-menu Qt clones (QAction harvest); Blender menus are Python "
+                  "classes, so blendertk harvests each menu's draw() into an equivalent QMenu "
+                  "(menu_harvest) hosted in the same wrapped MainWindow — full pin-header / "
+                  "hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu "
+                  "popup wrap from 2026-06-12)",
     },
 }

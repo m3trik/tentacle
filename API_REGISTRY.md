@@ -124,6 +124,8 @@ Shared HUD warning framework (DCC-agnostic).
 ### `slots/_slots.py`
 
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L6)** — Provides methods that can be triggered by widgets in the ui.
+  - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
+  - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -131,7 +133,8 @@ Shared HUD warning framework (DCC-agnostic).
 - **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L8)** — App specific methods inherited by all other Blender slot classes.
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
   - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
-  - `SlotsBlender.set_viewport_tool(self, tool_id, label=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
+  - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
+  - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
   - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
   - `SlotsBlender.transfer_from_active(self, data_type, **kwargs)` — Run native Data-Transfer from the active mesh to the other selected meshes
@@ -289,8 +292,8 @@ Shared HUD warning framework (DCC-agnostic).
   - `Editors.b007(self)` — UV Editor (substitute for Maya's Status Line toggle)
   - `Editors.b008_init(self, widget)` — Relabel: Shelf → Image Editor.
   - `Editors.b008(self)` — Image Editor (substitute for Maya's Shelf toggle)
-  - `Editors.b009(self)` — Time & Range (Timeline editor)
-  - `Editors.b010(self)` — Script Output — a dockable native Info Log window skinned with the shared
+  - `Editors.b009(self)` — Time & Range — toggle the Timeline docked along the bottom of the viewport, in place.
+  - `Editors.b010(self)` — Script Output — the shared ``uitk.ScriptOutput`` console (syntax-highlighted
   - `Editors.b011(self)` — Command Line (Python Console)
   - `Editors.b012_init(self, widget)` — Relabel: Help Line → Graph Editor.
   - `Editors.b012(self)` — Graph Editor (substitute for Maya's Help Line toggle)
@@ -439,15 +442,15 @@ Shared HUD warning framework (DCC-agnostic).
   - `PolygonsSlots.b003(self)` — Symmetrize
   - `PolygonsSlots.b006(self)` — Bridge (selected edge loops).
   - `PolygonsSlots.b007(self)` — Bridge Interactive — open the Bridge panel (Divisions / Offset + live Preview),
-  - `PolygonsSlots.b008(self)` — Weld Center (merge selected at center).
+  - `PolygonsSlots.b008(self)` — Weld Center: interactive target weld merging at the midpoint (mirror of Maya's
   - `PolygonsSlots.b009(self)` — Collapse Component
   - `PolygonsSlots.b011(self)` — Bevel — open the bevel panel (Width / Segments / Profile + live Preview),
-  - `PolygonsSlots.b012(self)` — Multi-Cut Tool (Knife).
+  - `PolygonsSlots.b012(self)` — Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode.
   - `PolygonsSlots.b022(self)` — Attach (plain join of the selected meshes).
   - `PolygonsSlots.b032(self)` — Poke
-  - `PolygonsSlots.b047(self)` — Insert Edgeloop (Loop Cut tool).
+  - `PolygonsSlots.b047(self)` — Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into
   - `PolygonsSlots.b051(self)` — Offset Edgeloop
-  - `PolygonsSlots.b043(self)` — Target Weld (toggle vertex snap + Auto Merge — Blender's equivalent workflow:
+  - `PolygonsSlots.b043(self)` — Target Weld: interactively merge one vertex onto another by dragging.
   - `PolygonsSlots.b000(self)` — Circularize (LoopTools Circle on the selected edge loop).
   - `PolygonsSlots.b053(self)` — Edit Edge Flow (Set Flow on the selected edge loops).
   - `PolygonsSlots.b034(self)` — Wedge (sweep the selected faces 90° around a selected hinge edge).
@@ -457,7 +460,7 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
 
-- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L10)** — Blender port of the shared ``preferences`` menu.
+- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L11)** — Blender port of the shared ``preferences`` menu.
   - `Preferences.cmb001_init(self, widget)`
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)`
@@ -470,7 +473,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Preferences.b008(self)` — Hotkeys → Blender Preferences (Keymap).
   - `Preferences.b009(self)` — Plug-In Manager → Blender Preferences (Add-ons).
   - `Preferences.b010(self)` — Settings/Preferences → Blender Preferences (Interface).
-  - `Preferences.b011(self)` — Macro Manager — native blendertk panel (blendertk.edit_utils.macros.Macros),
+  - `Preferences.b011(self)` — Macro Manager — the unified shortcut editor over the blendertk macros
 
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
@@ -514,10 +517,10 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.list000(self, item)` — Recent Files
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave (recent temp-dir .blend autosaves, newest first).
   - `SceneSlots.cmb002(self, index, widget)` — Autosave
-  - `SceneSlots.cmb003_init(self, widget)`
-  - `SceneSlots.cmb003(self, index, widget)` — Import
-  - `SceneSlots.cmb004_init(self, widget)`
-  - `SceneSlots.cmb004(self, index, widget)` — Export
+  - `SceneSlots.list001_init(self, widget)` — Initialize Import
+  - `SceneSlots.list001(self, item)` — Import
+  - `SceneSlots.list002_init(self, widget)` — Initialize Export.
+  - `SceneSlots.list002(self, item)` — Export.
   - `SceneSlots.tb003_init(self, widget)` — Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.
   - `SceneSlots.tb003(self, widget)` — Export Scene — FBX (+ optional GLB) using the configured options.
   - `SceneSlots.b011(self)` — Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type
@@ -525,13 +528,12 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b010(self)` — Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).
   - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
   - `SceneSlots.b005(self)` — Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
-  - `SceneSlots.b007(self)` — Import file
+  - `SceneSlots.b018(self)` — Export Scene — header-menu launcher for tb003 (the submenu Export
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
   - `SceneSlots.tb001_init(self, widget)`
   - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.
-  - `SceneSlots.b002(self)` — Scene Exporter — native blendertk panel (task/check pipeline, FBX or GLB), 1:1 with
   - `SceneSlots.b004(self)` — Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
   - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
@@ -551,8 +553,11 @@ Shared HUD warning framework (DCC-agnostic).
   - `Selection.tb003(self, widget)` — Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``).
   - `Selection.cmb003_init(self, widget)`
   - `Selection.cmb003(self, index, widget)` — Convert the current selection to another component type (Maya Convert-To parity).
+  - `Selection.chk004_init(self, widget)` — Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).
   - `Selection.chk004(self, state, widget)` — Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.
   - `Selection.chk005_init(self, widget)`
+  - `Selection.chk006_init(self, widget)` — Select Style: Lasso — mirrors the active tool;
+  - `Selection.chk007_init(self, widget)` — Select Style: Circle — mirrors the active tool;
   - `Selection.chk005(self, state, widget)` — Select Style: Box (Marquee)
   - `Selection.chk006(self, state, widget)` — Select Style: Lasso
   - `Selection.chk007(self, state, widget)` — Select Style: Circle (Paint)
@@ -588,6 +593,8 @@ Shared HUD warning framework (DCC-agnostic).
 - **[`class Subdivision(SlotsBlender)`](tentacle/tentacle/slots/blender/subdivision.py#L7)** — Blender port of the shared ``subdivision`` menu.
   - `Subdivision.tb000_init(self, widget)`
   - `Subdivision.tb000(self, widget)` — Decimate
+  - `Subdivision.s000_init(self, widget)` — Division Level — reflect the active object's live viewport subdivision level.
+  - `Subdivision.s001_init(self, widget)` — Tesselation Level — reflect the active object's live render subdivision level.
   - `Subdivision.s000(self, value, widget)` — Division Level (live Subdivision-Surface viewport level).
   - `Subdivision.s001(self, value, widget)` — Tesselation Level (Subdivision-Surface render level).
   - `Subdivision.b000(self)` — Quadrangulate (tris -> quads).
@@ -595,18 +602,21 @@ Shared HUD warning framework (DCC-agnostic).
   - `Subdivision.b005(self)` — Reduce (decimate to 50%).
   - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
   - `Subdivision.b011(self)` — Apply Smooth Preview (live Subdivision-Surface modifier).
-  - `Subdivision.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool).
+  - `Subdivision.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
 
 <a id="slots--blender--symmetry"></a>
 ### `slots/blender/symmetry.py`
 
-- **[`class Symmetry(SlotsBlender)`](tentacle/tentacle/slots/blender/symmetry.py#L7)** — Blender port of the shared ``symmetry`` menu.
+- **[`class Symmetry(SlotsBlender)`](tentacle/tentacle/slots/blender/symmetry.py#L6)** — Blender port of the shared ``symmetry`` menu.
   - `Symmetry.chk000_init(self, widget)` — Set initial symmetry state from the active mesh.
+  - `Symmetry.chk001_init(self, widget)` — Symmetry Y — mirrors the active mesh;
+  - `Symmetry.chk002_init(self, widget)` — Symmetry Z — mirrors the active mesh;
   - `Symmetry.chk000(self, state, widget)` — Symmetry X
   - `Symmetry.chk001(self, state, widget)` — Symmetry Y
   - `Symmetry.chk002(self, state, widget)` — Symmetry Z
   - `Symmetry.chk004(self, state, widget)` — Symmetry: match by position (Blender mirror flags are always object-space;
-  - `Symmetry.chk005_init(self, widget)` — Set symmetry reference space (position vs topology).
+  - `Symmetry.chk004_init(self, widget)` — Match-by-position — mirrors the active mesh;
+  - `Symmetry.chk005_init(self, widget)` — Set symmetry reference space (position vs topology), mirrored from the active mesh.
   - `Symmetry.chk005(self, state, widget)` — Symmetry: Topo (match mirrored verts by topology instead of position).
 
 <a id="slots--blender--transform"></a>
@@ -1147,7 +1157,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Preferences.cmb003_init(self, widget)` — App-style / color selector — the Maya-side counterpart to the Blender slot's ``cmb003``.
   - `Preferences.cmb003(self, index, widget)` — Apply the selected shipped style (e.g.
   - `Preferences.b008(self)` — Hotkeys: open Maya's native Hotkey Preferences window.
-  - `Preferences.b011(self)` — Macro Manager
+  - `Preferences.b011(self)` — Macro Manager — the unified shortcut editor over the mayatk macros
   - `Preferences.b009(self)` — Plug-In Manager
   - `Preferences.b010(self)` — Settings/Preferences
 
@@ -1200,14 +1210,13 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.header_init(self, widget)` — Initialize Header
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
   - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
-  - `SceneSlots.cmb003_init(self, widget)` — Initialize Import
-  - `SceneSlots.cmb003(self, index, widget)` — Import: import a file, or open import / FBX / OBJ preset options.
-  - `SceneSlots.cmb004_init(self, widget)` — Initialize Export
-  - `SceneSlots.cmb004(self, index, widget)` — Export: export the selection or whole scene (FBX, Send to Unreal, etc.).
+  - `SceneSlots.list001_init(self, widget)` — Initialize Import
+  - `SceneSlots.list001(self, item)` — Import: import a file, or open import / FBX / OBJ preset options.
+  - `SceneSlots.list002_init(self, widget)` — Initialize Export.
+  - `SceneSlots.list002(self, item)` — Export: the one-shot export actions and the Scene Exporter launcher.
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
   - `SceneSlots.b001(self)` — Open Reference Manager
-  - `SceneSlots.b002(self)` — Scene Exporter
   - `SceneSlots.b010(self)` — Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).
   - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).
   - `SceneSlots.tb003_init(self, widget)` — Initialize Export.
@@ -1221,8 +1230,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b011(self)` — Fix Color Spaces
   - `SceneSlots.b012(self)` — Toggle Command Ports
   - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer.
-  - `SceneSlots.b007(self)` — Import file: import a file via Maya's Import dialog.
-  - `SceneSlots.b008(self)` — Export Selection
+  - `SceneSlots.b018(self)` — Export Scene — header-menu launcher for tb003 (the submenu Export
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)
   - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene.
   - `SceneSlots.b014(self)` — Save to Original Scene.
@@ -1431,25 +1439,25 @@ Shared HUD warning framework (DCC-agnostic).
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1385) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1390) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1395) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1400) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1405) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register()`](tentacle/tentacle/tcl_blender.py#L1410) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1415) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L1420) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1425) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1430) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1435) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L833)** — Marking Menu class overridden for use with Blender.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1544) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1549) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1554) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1559) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1564) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register()`](tentacle/tentacle/tcl_blender.py#L1569) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1574) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L1579) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1584) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1589) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1594) — Remove the click tracer.
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L958)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1216)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
-  - `Diagnostics.report()` *(static)* — Return (and print) the live activation state — run in Blender's Python console to see why
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1291)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1354)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+  - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1434)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register()` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

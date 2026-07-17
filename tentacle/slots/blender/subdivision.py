@@ -89,6 +89,27 @@ class Subdivision(SlotsBlender):
             )
 
     # ------------------------------------------------------------------ s000/s001  subsurf levels
+    # A Subdivision-Surface modifier owns these levels, so the spinboxes mirror the active
+    # object rather than persisting their own copy: a restored value re-fired the slot on
+    # panel open, silently re-subdividing whatever happened to be selected (and toasting it).
+    def _init_subsurf_level(self, widget, attr):
+        obj = self.active_object()
+        mod = next(
+            (m for m in getattr(obj, "modifiers", ()) if m.type == "SUBSURF"), None
+        )
+        self.mirror_app_state(
+            widget,
+            (lambda: widget.setValue(getattr(mod, attr))) if mod else None,
+        )
+
+    def s000_init(self, widget):
+        """Division Level — reflect the active object's live viewport subdivision level."""
+        self._init_subsurf_level(widget, "levels")
+
+    def s001_init(self, widget):
+        """Tesselation Level — reflect the active object's live render subdivision level."""
+        self._init_subsurf_level(widget, "render_levels")
+
     @btk.undoable
     def s000(self, value, widget):
         """Division Level (live Subdivision-Surface viewport level)."""
@@ -140,8 +161,9 @@ class Subdivision(SlotsBlender):
     # (cmb001 Smooth-Proxy / cmb002 option-dialogs exist in no shared .ui — Maya's own handlers
     # are unreachable legacy — so no stubs are carried here.)
     def b028(self):
-        """Quad Draw (Blender's retopo equivalent: the Poly Build tool)."""
-        self.set_viewport_tool("builtin.poly_build", "Quad Draw")
+        """Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
+        the mesh is put into component mode."""
+        self.set_viewport_tool("builtin.poly_build", "Quad Draw", edit_type="MESH")
 
 
 # --------------------------------------------------------------------------------------------

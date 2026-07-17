@@ -37,6 +37,91 @@ class Slots(QtCore.QObject):
                 pass  # best-effort; a migration hiccup must never block slot init
 
     @staticmethod
+    def mirror_app_state(widget, seed=None) -> None:
+        """Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
+
+        For a widget whose value **is** app state — the active tool, symmetry flags, snap
+        settings, working units — the DCC owns the truth, not QSettings. Restoring a stored
+        value over the live one is wrong twice: the widget misreports the app, and the
+        restore *re-fires the slot* (``StateManager.apply`` unblocks signals per
+        ``block_signals_on_restore``, which defaults False), so the command runs — and pops
+        its confirmation ``message_box`` — on nothing more than the panel opening.
+
+        ``seed`` runs with signals blocked for the same reason: reading state out of the DCC
+        is not the user editing it. ``init_slot`` blocks only the widget it is initializing,
+        so a ``*_init`` that seeds its *siblings* (a radio group) fires their slots without
+        this. It is a callable rather than a value because only the caller knows what its
+        value means for its widget — an int is an index to a combo but a level to a spinbox,
+        a distinction ``ValueManager.set_value`` resolves text-first and so gets wrong.
+
+        Call from the widget's ``*_init``: slot init (phase 1) runs before state restore
+        (phase 2), which skips the widget entirely once ``restore_state`` is False. Each
+        widget must be marked by its OWN ``*_init``, never by a sibling's — the deferred
+        path batches all of phase 1 before phase 2 and would forgive it, but ``init_slot``
+        runs the two phases per widget, so a sibling's mark can land after this widget has
+        already restored.
+
+        Parameters:
+            widget (QWidget): The widget to mark. Never persisted or restored afterwards.
+            seed (callable, optional): Zero-arg callable applying the live DCC value.
+                Omit for state with no readable analogue — the .ui default stays put.
+        """
+        if seed is not None:
+            was_blocked = widget.blockSignals(True)
+            try:
+                seed()
+            finally:
+                widget.blockSignals(was_blocked)
+        # Marked AFTER the seed, never before: a seed that *populates* re-arms the flag —
+        # ``ComboBox.add`` ends with ``restore_state = not self.has_header``, so a headerless
+        # combo seeded by its own ``add`` would silently opt itself back IN to persistence.
+        widget.restore_state = False
+
+    def add_slot_widget(self, sublist, widget_class=None, **kwargs):
+        """Add a slot-wired widget as an ExpandableList sublist entry.
+
+        ``ExpandableList.add`` accepts real widgets but leaves them inert — nothing
+        wires the objectName to its slot, runs its ``*_init``, or binds ``ui.<name>``.
+        This adds the widget and then registers it with the list's MainWindow (the
+        same path ``Menu.add`` uses for dynamic items), which does all three.
+
+        The add-then-register ORDER is load-bearing, not stylistic: adding reparents
+        the widget into the sublist's layout, and uitk only wraps an option box
+        synchronously while ``parent()`` is set (the
+        ``OptionBoxManager._schedule_wrap_if_needed`` fast path). Registered while
+        unparented, an ``*_init`` that configures an option box would defer its wrap
+        to a retry timer and the gear would be missing from the first paint. With the
+        order kept, the wrap completes inside the ``*_init`` and the entry is fully
+        built by the time this returns — no post-hoc ``option_box.container`` nudge
+        needed (that access is a no-op by then).
+
+        The wrap has a second consequence worth knowing: it replaces the widget with
+        its container in the list's layout, so the widget leaves ``get_items()`` and
+        the list stops consuming its mouse releases — its own ``clicked`` drives its
+        slot, and it never reaches the list's ``on_item_interacted`` handler. A widget
+        with NO option box stays in the item set, where the list consumes the release
+        and ``clicked`` never fires; dispatch those from the list's handler instead.
+
+        Parameters:
+            sublist (ExpandableList): The sublist to add the widget to.
+            widget_class (type, optional): Widget class to instantiate. Defaults to
+                the registered uitk PushButton (menu / option-box capable).
+            **kwargs: Widget attributes (``setObjectName`` names the slot and is
+                required for registration; ``setText``, ``setToolTip``, ...).
+
+        Returns:
+            QWidget: The added, registered widget.
+        """
+        widget_class = widget_class or self.sb.registered_widgets.PushButton
+        widget = widget_class()
+        sublist.add(widget, **kwargs)
+        # The root list is the .ui-declared widget carrying the MainWindow binding;
+        # sublists are reparented to the window and never registered themselves.
+        root_list = getattr(sublist, "root_list", sublist)
+        root_list.ui.register_widget(widget)
+        return widget
+
+    @staticmethod
     def _migrate_legacy_repeat_last(sb) -> None:
         """Fold the retired ``configurable.repeat_last_shortcut`` into the unified
         ``repeat_last_command`` command, then delete the legacy key.

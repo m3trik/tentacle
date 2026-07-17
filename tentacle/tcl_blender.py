@@ -353,11 +353,71 @@ class _NativeWindow:
         except Exception:
             return None
 
+    # --- foreground hand-back ----------------------------------------------------------------
+    # ctypes seams, patched by test_blender_focus_restore.py so the decision logic tests
+    # deterministically without real HWNDs or OS focus.
     @staticmethod
-    def restore_foreground(active_tcl):
+    def _foreground_hwnd():
+        """The current OS foreground window handle (0 when none / off-Windows)."""
+        if sys.platform != "win32":
+            return 0
+        try:
+            import ctypes
+
+            # c_void_p restype: the default c_int would sign-extend a bit-31 handle into a
+            # negative int that never compares equal to Qt's unsigned winId (see set_owner).
+            user32 = ctypes.windll.user32
+            user32.GetForegroundWindow.restype = ctypes.c_void_p
+            return int(user32.GetForegroundWindow() or 0)
+        except Exception:
+            return 0
+
+    @staticmethod
+    def _set_foreground(hwnd):
+        """``SetForegroundWindow(hwnd)`` when it is a live window."""
+        if sys.platform != "win32" or not hwnd:
+            return
+        try:
+            import ctypes
+
+            user32 = ctypes.windll.user32
+            handle = ctypes.c_void_p(int(hwnd))  # c_void_p: don't truncate the handle
+            if user32.IsWindow(handle):
+                user32.SetForegroundWindow(handle)
+        except Exception:
+            pass
+
+    @staticmethod
+    def _qt_widget_for_hwnd(hwnd):
+        """Our top-level QWidget whose already-created native window is ``hwnd``, else ``None``.
+
+        A positive match proves the handle is one of OUR Qt windows — stronger than a PID
+        check: Blender's secondary GHOST windows (Render Result, Preferences) and native
+        dialogs share our PID but never match. Uses ``internalWinId`` (never ``winId``) so a
+        poller-cadence scan can't force native-window creation on lazy top-levels."""
+        if not hwnd:
+            return None
+        app = QtWidgets.QApplication.instance()
+        if app is None:
+            return None
+        for w in app.topLevelWidgets():
+            try:
+                if int(w.internalWinId() or 0) == int(hwnd):
+                    return w
+            except Exception:
+                continue
+        return None
+
+    @classmethod
+    def restore_foreground(cls, active_tcl):
         """Give Blender's GHOST window OS focus back unless a visible tentacle window holds it
         (a pinned tool window the user is typing in keeps focus — Maya parity). ``active_tcl`` is the
-        live menu, excluded from the "some other tentacle window is active" check."""
+        live menu, excluded from the "some other tentacle window is active" check.
+
+        Never steals: when the OS foreground is a real window that is NOT one of our Qt
+        top-levels — the user alt-tabbed to another application, or one of Blender's own
+        secondary GHOST windows / native dialogs has focus — it is left alone. A foreground of
+        0 (its window was just destroyed) restores; that takes focus from nobody."""
         if sys.platform != "win32":
             return
         try:
@@ -365,13 +425,46 @@ class _NativeWindow:
             active = app.activeWindow() if app else None
             if active is not None and active is not active_tcl and active.isVisible():
                 return
-            import ctypes
-
             hwnd = getattr(app, "_blender_native_hwnd", 0)
-            if hwnd and ctypes.windll.user32.IsWindow(hwnd):
-                ctypes.windll.user32.SetForegroundWindow(hwnd)
+            if not hwnd:
+                return
+            fg = cls._foreground_hwnd()
+            if fg == hwnd:
+                return  # GHOST already has it — idempotent no-op
+            if fg and cls._qt_widget_for_hwnd(fg) is None:
+                return  # foreground isn't ours — never steal
+            cls._set_foreground(hwnd)
         except Exception:
             pass
+
+    @classmethod
+    def restore_foreground_if_stranded(cls, active_tcl):
+        """Self-heal "OS foreground stuck on one of our HIDDEN Qt windows"; True when it healed.
+
+        The state a Qt popup leaves behind when it took activation and then hid after the
+        gesture already ended (uitk's ``Menu.hideEvent`` restores focus Qt-side only — it cannot
+        target the foreign GHOST window): the activation key then reaches neither Blender's
+        keymap (GHOST unfocused) nor Qt (hidden windows can't receive shortcuts) until the user
+        clicks the viewport. Live repro: open an option_box, release the key while its dropdown
+        is open, dismiss the dropdown. Every other foreground state — GHOST, a visible tentacle
+        window in use, another application — is deliberately left alone."""
+        if sys.platform != "win32":
+            return False
+        try:
+            app = QtWidgets.QApplication.instance()
+            hwnd = getattr(app, "_blender_native_hwnd", 0) if app else 0
+            if not hwnd:
+                return False
+            fg = cls._foreground_hwnd()
+            if not fg or fg == hwnd:
+                return False
+            w = cls._qt_widget_for_hwnd(fg)
+            if w is None or w.isVisible():
+                return False  # not ours, or ours-and-in-use
+            cls.restore_foreground(active_tcl)
+            return True
+        except Exception:
+            return False
 
 
 class _QtHost:
@@ -700,19 +793,33 @@ class _KeymapBridge:
         of the bridge. Qt only receives the key when a Qt window has OS focus, and Blender's
         keymap only when GHOST has it *and* dispatch isn't eaten, so neither side alone can track
         the key through a real gesture; ``GetAsyncKeyState`` reads the physical key state and is
-        the one signal that is always true. Two duties, polled on the pump cadence:
+        the one signal that is always true. Three duties, polled on the pump cadence:
 
-        **Press (edge, held-button case only).** Measured (held-button probe, 2026-06-12): with ANY
-        mouse button physically held, GHOST dispatches the activation key to NOTHING — not our
-        3D-View item, not Screen render; the pending click/drag, modal op, or popup consumes it. So
-        the keymap bridge alone can never serve Maya's "hold a button, then the key" chords, and a
-        mistaken button press before the key killed activation entirely. On the key's down-edge
-        with a button held (the keymap operator owns the no-button path; ``_activation_key_held``
-        dedups any overlap), drive the same press path with the OS-read button mask —
-        ``QApplication.mouseButtons()`` is blind to GHOST's mouse state. Nothing competes for the
-        key here (the measured eaten-by-Blender state means no render fires alongside).
+        **Press (edge) — the two states GHOST can't serve.** *Held-button chord:* measured
+        (held-button probe, 2026-06-12): with ANY mouse button physically held, GHOST dispatches
+        the activation key to NOTHING — not our 3D-View item, not Screen render; the pending
+        click/drag, modal op, or popup consumes it. So the keymap bridge alone can never serve
+        Maya's "hold a button, then the key" chords, and a mistaken button press before the key
+        killed activation entirely. On the key's down-edge with a button held, drive the same
+        press path with the OS-read button mask — ``QApplication.mouseButtons()`` is blind to
+        GHOST's mouse state. Nothing competes for the key here (the measured eaten-by-Blender
+        state means no render fires alongside). *Plain key over one of OUR Qt windows:* when a
+        tentacle window holds the OS foreground (a pinned tool panel in use — or a stranded
+        hidden window the foreground watchdog hasn't healed yet), GHOST doesn't have focus so
+        the keymap can't fire, and Qt's own shortcut is inert (its owner widget is hidden) —
+        Maya's ``ApplicationShortcut`` covers exactly this state, so the poller does here. The
+        keymap operator owns the GHOST-focused no-button path (mutually exclusive with both
+        cases — no double-press race; ``_activation_key_held`` dedups any residue).
 
-        **Release (level — the watchdog).** The gesture must end when the key is physically up,
+        **Foreground watchdog (level).** :meth:`_NativeWindow.restore_foreground_if_stranded`
+        every tick: a Qt popup that took activation and hid after the gesture ended (an
+        option_box dropdown dismissed after key-up; a standalone panel closed) leaves the OS
+        foreground on a hidden Qt window — uitk restores focus Qt-side only and cannot target
+        the foreign GHOST window — deadening the activation key AND every Blender hotkey until
+        the user clicks the viewport. State-based on purpose (not hide-event-driven): it reads
+        settled OS state on the next tick and heals every strand path, however reached.
+
+        **Release (level).** The gesture must end when the key is physically up,
         but every event-driven release path is conditional: Qt's ``keyReleaseEvent`` needs the
         overlay to have won the focus tussle, and the RELEASE keymap item is region-scoped (cursor
         must still hover the viewport). Miss both and the menu stays open with the mouse grab
@@ -752,25 +859,43 @@ class _KeymapBridge:
                         tcl.mouse_tracking.track()
                     except Exception:
                         pass
+                # Foreground watchdog — heal "foreground stuck on a hidden Qt window" (see
+                # docstring). Cheap in every steady state: GHOST-focused early-outs on a handle
+                # compare; ours-visible / another-app states exit on the top-level scan. Gated
+                # off during a live gesture: menu-page transitions hide a window that may still
+                # hold the foreground for a tick (_do_pending_hide re-raises it), and yanking
+                # focus to GHOST mid-gesture would kill the interaction.
+                if cls.tcl is tcl and not cls.gesture_active:
+                    _NativeWindow.restore_foreground_if_stranded(tcl)
                 down = bool(user32.GetAsyncKeyState(vk) & 0x8000)
                 if down and not state["down"]:
                     held = cls.physical_mouse_buttons()
-                    pid = wintypes.DWORD()
-                    user32.GetWindowThreadProcessId(
-                        user32.GetForegroundWindow(), ctypes.byref(pid)
-                    )
-                    if (
-                        held != QtCore.Qt.NoButton
-                        and cls.tcl is tcl
-                        and not tcl._activation_key_held
-                        and pid.value == os.getpid()  # any of our windows foreground (Maya-parity)
-                    ):
+                    if held != QtCore.Qt.NoButton:
+                        pid = wintypes.DWORD()
+                        user32.GetWindowThreadProcessId(
+                            user32.GetForegroundWindow(), ctypes.byref(pid)
+                        )
+                        # chord: any of our windows foreground (Maya-parity)
+                        fire = pid.value == os.getpid()
+                    else:
+                        # plain key while one of OUR Qt windows holds the OS foreground —
+                        # GHOST doesn't have focus, so the keymap operator can't also fire.
+                        fire = (
+                            _NativeWindow._qt_widget_for_hwnd(
+                                _NativeWindow._foreground_hwnd()
+                            )
+                            is not None
+                        )
+                    if fire and cls.tcl is tcl and not tcl._activation_key_held:
                         try:
-                            cls.drive_press(buttons=held)
+                            if held != QtCore.Qt.NoButton:
+                                cls.drive_press(buttons=held)
+                            else:
+                                cls.drive_press()  # plain press — same entry as the keymap operator
                         except Exception as error:
                             # Always audible (system console) — a silent failure here reads as
                             # "the menu just doesn't work"; then tear down any half-armed state.
-                            print(f"tentacle: held-button activation failed → {error!r}")
+                            print(f"tentacle: poller activation failed → {error!r}")
                             try:
                                 cls.drive_release()
                             except Exception:
@@ -923,6 +1048,19 @@ class TclBlender(MarkingMenu):
             Macros.apply_saved_macros()
         except Exception as error:  # never let a preset issue block launch
             print(f"{__file__}: apply_saved_macros skipped: {error}")
+
+        # Re-open the Script Output console if it was open when the last session ended
+        # (≈ Maya's workspaceControl uiScript restore — Blender has no such hook, so the
+        # host calls it explicitly once the Qt host is up). Also starts the
+        # stdout/stderr/logging capture, so the console's transcript covers the session
+        # even before it's first shown (tentacle_startup.py starts it earlier still,
+        # before `import tentacle`, to catch the greeting banner).
+        try:
+            from blendertk.env_utils import script_output
+
+            script_output.restore()
+        except Exception as error:  # never let console restore block launch
+            print(f"{__file__}: script_output restore skipped: {error}")
 
         # Own the overlay to Blender's GHOST window so the OS keeps it stacked above Blender.
         self._parent_to_blender(self)
@@ -1218,11 +1356,15 @@ class Diagnostics:
     showing the menu."""
 
     @staticmethod
-    def report():
-        """Return (and print) the live activation state — run in Blender's Python console to see why
-        the key isn't showing the menu::
+    def report(emit=True):
+        """Return (and, when ``emit``, print) the live activation state — run in Blender's Python
+        console to see why the key isn't showing the menu::
 
             print(tcl_blender.diagnose())
+
+        ``emit`` defaults on for the interactive :func:`diagnose`; :meth:`BlenderHost.register`
+        passes ``emit=False`` so a routine launch doesn't dump the whole multi-line report to the
+        console every time — it prints only on a PROBLEM/CONFLICT.
 
         The returned string is shown right in the Python Console panel (``print()`` alone would land in
         the hidden *system* console). Reports the live module file (a stale/duplicate ``tentacle`` on
@@ -1284,7 +1426,8 @@ class Diagnostics:
             f"VERDICT             : {verdict}",
         ]
         report = "\n".join(lines)
-        print(report)
+        if emit:
+            print(report)
         return report
 
 
@@ -1314,15 +1457,16 @@ class BlenderHost:
     def register():
         """Blender add-on / startup entry: stand up the host. ``TclBlender`` wires the keymap itself.
 
-        Returns the :meth:`Diagnostics.report` report (so ``tcl_blender.register()`` typed in the
-        Python Console shows the live state right there) and, if anything's wrong, raises a Blender
-        popup — because a user running this from the console can't see ``print()`` output (it goes to
-        the hidden *system* console, not the Python Console panel)."""
+        Silent on success — a routine launch shouldn't announce itself (the greeting banner already
+        confirms the load). Only on a PROBLEM/CONFLICT does it print the full :meth:`Diagnostics.report`
+        AND raise a Blender popup (a console user can't see the hidden system-console ``print`` output).
+        Returns the full report string either way; run :func:`diagnose` for it on demand."""
         import bpy
 
         BlenderHost.launch(key_show=_Config.ACTIVATION_KEY)
-        report = Diagnostics.report()
+        report = Diagnostics.report(emit=False)
         if "PROBLEM" in report or "CONFLICT" in report:
+            print(report)  # something's actually wrong — surface the full diagnostic
             message = report.splitlines()[-1].split(": ", 1)[-1]  # verdict text, minus the "VERDICT :" label
             try:
                 bpy.context.window_manager.popup_menu(
@@ -1360,6 +1504,21 @@ class BlenderHost:
             except Exception:
                 pass
         _KeymapBridge.teardown()
+        # Tear down the Script Output console from the OLD module before reloading: its
+        # draw-handler glue, liveness watchdog, embedded widget, stdout tee and docked
+        # Info Log area would all survive the reload, and the reloaded module's restore()
+        # (in TclBlender.__init__) would then dock a SECOND area. teardown() leaves the
+        # persisted visible-flag untouched, so the post-reload restore() re-opens it
+        # fresh. Guarded via sys.modules — never import during teardown
+        # (tentacle_startup.unregister pattern).
+        so_mod = sys.modules.get("blendertk.env_utils.script_output")
+        if so_mod is not None:
+            try:  # attribute access inside the guard — tolerate blendertk version skew
+                console = so_mod.ScriptConsole._instance
+                if console is not None:
+                    console.teardown()
+            except Exception:
+                pass
         # import_missing=False: refresh only the modules actually loaded in this session —
         # discovery-importing the rest would pull in the OTHER DCCs' slot packages
         # (tentacle.slots.maya imports maya and would raise here).
