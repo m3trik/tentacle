@@ -9,8 +9,8 @@ class Normals(SlotsBlender):
 
     Backed by ``blendertk.edit_utils`` normal/shading helpers (bmesh): soften/harden (smooth vs
     flat shading), set-by-angle (mark sharp edges → Blender split normals follow them), flip, and
-    recalculate; normal transfer rides the native Data-Transfer operator. Per-vertex normal
-    locking (Maya-specific) stays deferred.
+    recalculate; normal transfer rides the native Data-Transfer operator. Normal lock/unlock maps
+    to custom split normals (add = lock, clear = unlock).
     """
 
     def __init__(self, switchboard):
@@ -53,7 +53,11 @@ class Normals(SlotsBlender):
             return
         m = widget.option_box.menu
         if m.chk_unlock_normals.isChecked():
-            btk.clear_custom_split_normals(objects)
+            cleared = btk.clear_custom_split_normals(objects)
+            if cleared:  # silent when nothing was locked — this is a pre-step, not the operation
+                self.sb.message_box(
+                    f"Cleared custom split normals on <hl>{cleared}</hl> mesh(es)."
+                )
         # -1 -> None (disable that bucket), mirroring the Maya slot.
         upper = m.s003.value()
         lower = m.s004.value()
@@ -85,15 +89,26 @@ class Normals(SlotsBlender):
         btk.average_normals(objects, by_uv_shell=widget.option_box.menu.chk003.isChecked())
 
     # ------------------------------------------------------------------ b-slots
+    def _component_scope(self):
+        """True when the active object is in Edit Mode — Maya parity: soften/harden/reverse
+        act on the *selected components* there, not the whole mesh (the engine falls back to
+        whole-object when nothing is component-selected)."""
+        obj = self.active_object()
+        return bool(obj and obj.mode == "EDIT")
+
     @btk.undoable
     def b000(self):
         """Soften Edge Normals (smooth shading)."""
-        btk.set_shading(self.selected_objects(), smooth=True)
+        btk.set_shading(
+            self.selected_objects(), smooth=True, selected_only=self._component_scope()
+        )
 
     @btk.undoable
     def b001(self):
         """Harden Edge Normals (flat shading)."""
-        btk.set_shading(self.selected_objects(), smooth=False)
+        btk.set_shading(
+            self.selected_objects(), smooth=False, selected_only=self._component_scope()
+        )
 
     @btk.undoable
     def b006(self):
@@ -122,7 +137,7 @@ class Normals(SlotsBlender):
         elif mode == "Recalculate Inside":
             btk.recalculate_normals(objects, inside=True)
         else:
-            btk.flip_normals(objects)
+            btk.flip_normals(objects, selected_only=self._component_scope())
 
     # ------------------------------------------------------------------ b002  Transfer Normals
     @btk.undoable
@@ -131,19 +146,26 @@ class Normals(SlotsBlender):
         custom split normals)."""
         self.transfer_from_active("CUSTOM_NORMAL")
 
-    # ------------------------------------------------------------------ b004  Unlock Vertex Normals
+    # ------------------------------------------------------------------ b004  Un/Lock Normals
     @btk.undoable
     def b004(self):
-        """Unlock Vertex Normals — clear custom split normals (the Blender analogue of Maya's
-        unlock). Blender has no per-vertex *lock* operator (locking would mean baking the current
-        normals as custom split normals), so this exposes the unlock half — the half that matters
-        for re-smoothing imported assets."""
-        objects = self.selected_objects()
+        """Toggle lock/unlock vertex normals — Maya parity (m_lock_vertex_normals): report the
+        state the selection is now IN, not the mechanism that got it there. Custom split normals
+        are Blender's lock (locking bakes the current normals; unlocking clears them, which is
+        what frees imported assets to re-smooth). A mixed selection reads as unlocked, so the
+        toggle locks it whole."""
+        # Mesh-filtered, not just non-empty: the engine skips non-meshes, so an empty/light/armature
+        # selection would report a state ("Locked") that nothing was actually put into.
+        objects = [o for o in self.selected_objects() if o.type == "MESH"]
         if not objects:
-            self.sb.message_box("Unlock Vertex Normals requires a selection.")
+            self.sb.message_box("Un/Lock Normals requires a mesh selection.")
             return
-        cleared = btk.clear_custom_split_normals(objects)
-        self.sb.message_box(f"Cleared custom split normals on <hl>{cleared}</hl> mesh(es).")
+        if btk.has_custom_split_normals(objects):
+            btk.clear_custom_split_normals(objects)
+            self.sb.message_box("Normals <hl>Unlocked</hl>.")
+        else:
+            btk.add_custom_split_normals(objects)
+            self.sb.message_box("Normals <hl>Locked</hl>.")
 
 
 # --------------------------------------------------------------------------------------------

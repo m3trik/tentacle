@@ -3,6 +3,11 @@
 import bpy
 import blendertk as btk
 from uitk import Signals
+from tentacle.slots._mesh_cleanup import (
+    cleanup_popup_html,
+    cleanup_console_report,
+    report_cleanup_failure,
+)
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -68,11 +73,15 @@ class Edit(SlotsBlender):
     # the "ARROWS" empty type RigUtils.create_group uses for its offset-group buffer (Blender has
     # no separate invisible-group node like Maya's ``cmds.group(empty=True)`` — an Empty stands in
     # for both). "Set" mirrors ``cmds.sets()`` — a non-visual logical-grouping container — with a
-    # linked, empty Collection (Blender's closest structural analogue).
+    # linked, empty Collection (Blender's closest structural analogue), linked under
+    # ``scene.collection``: ``bpy.context.collection`` is a *screen-context* member that is None
+    # in the Qt-pump state (AttributeError).
     _HELPERS = {
         "Locator": lambda: bpy.ops.object.empty_add(type="PLAIN_AXES"),
         "Null Group": lambda: bpy.ops.object.empty_add(type="ARROWS"),
-        "Set": lambda: bpy.context.collection.children.link(bpy.data.collections.new("set1")),
+        "Set": lambda: bpy.context.scene.collection.children.link(
+            bpy.data.collections.new("set1")
+        ),
     }
 
     # (label -> bpy.ops.object.light_add type) for the Create > Light category. Verified live
@@ -170,18 +179,42 @@ class Edit(SlotsBlender):
         "zero_uv_area": "chk015",
     }
 
+    # (criterion -> human label) for the Select-path feedback (popup + console). Keys mirror
+    # _DIAGNOSTIC_CRITERIA / find_problem_geometry's returned counts.
+    _CRITERION_LABELS = {
+        "ngons": "N-Gons",
+        "concave": "Concave",
+        "nonplanar": "Non-Planar",
+        "nonmanifold": "Non-Manifold edges",
+        "quads": "Quads",
+        "zero_area_faces": "Zero-Area Faces",
+        "zero_length_edges": "Zero-Length Edges",
+        "zero_uv_area": "Zero-UV-Area Faces",
+    }
+
     def tb000_init(self, widget):
         # chk032/chk033: first numbers free in BOTH this file and maya/edit.py — the QSettings
         # store is shared across DCCs, so reusing a Maya name for a different option bleeds state
         # (maya chk025 = Overlapping Faces, chk027 = Toggle Lock/UnLock).
         menu = widget.option_box.menu
         menu.setTitle("Mesh Cleanup")
-        menu.add("QCheckBox", setText="All Geometry", setObjectName="chk005",
-                 setToolTip="Act on every mesh in the scene instead of just the selection.")
-        # Repair (chk004): same meaning as Maya — ON fixes geometry, OFF selects problem geometry.
-        menu.add("QCheckBox", setText="Repair", setObjectName="chk004",
-                 setToolTip="ON: fix the geometry. OFF: just select the problem components so you "
-                 "can inspect them (the topology checks below).")
+        # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Data
+        # values (selected / visible / all) drive _cleanup_pool below; items are identical to the
+        # Maya panel (shared QSettings namespace + parity sweep both key off objectName).
+        cmb = menu.add("QComboBox", setObjectName="cmb_scope",
+                       setToolTip="Which meshes Mesh Cleanup acts on:\n"
+                       "• Selected: only the current selection.\n"
+                       "• Visible: every visible mesh in the scene.\n"
+                       "• All Geometry: every mesh in the scene.")
+        for label, data in [("Selected", "selected"), ("Visible", "visible"), ("All Geometry", "all")]:
+            cmb.addItem(label, data)
+        # Mode (cmb_mode) replaces the old "Repair" checkbox: same two states, now self-labeling.
+        cmb = menu.add("QComboBox", setObjectName="cmb_mode",
+                       setToolTip="What Mesh Cleanup does with the matches:\n"
+                       "• Select (diagnose): just select the problem components so you can inspect them.\n"
+                       "• Repair (fix): fix the geometry in place.")
+        for label, data in [("Select (diagnose)", "select"), ("Repair (fix)", "repair")]:
+            cmb.addItem(label, data)
         menu.add("Separator", setTitle="Repair")
         menu.add("QCheckBox", setText="Merge vertices", setObjectName="chk024", setChecked=False,
                  setToolTip="Merge overlapping vertices (remove doubles).")
@@ -237,65 +270,101 @@ class Edit(SlotsBlender):
 
     @btk.undoable
     def tb000(self, widget):
-        """Mesh Cleanup — Repair (fix) or, with Repair OFF, select the matched problem geometry."""
+        """Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
+
+        Two-channel feedback (see ``tentacle.slots._mesh_cleanup``): a minimal HTML popup summary
+        plus a detailed console breakdown. The whole operational body is wrapped so any bpy
+        ``RuntimeError`` surfaces as a message box instead of an unhandled traceback."""
         m = widget.option_box.menu
-        repair = m.chk004.isChecked()
-        objects = (
-            [o for o in bpy.data.objects if o.type == "MESH"]
-            if m.chk005.isChecked()
-            else [o for o in self.selected_objects() if o.type == "MESH"]
-        )
+        scope = m.cmb_scope.currentData() or "selected"
+        repair = m.cmb_mode.currentData() == "repair"
+        mode_label = "Repair" if repair else "Select"
+        try:
+            self._mesh_cleanup(m, scope, repair, mode_label)
+        except RuntimeError as exc:
+            report_cleanup_failure(self.sb.message_box, scope, mode_label, exc)
+
+    def _cleanup_pool(self, scope):
+        """Mesh objects for the Cleanup ``scope``: 'selected' -> the current selection; 'visible' ->
+        every visible mesh in the active view layer; 'all' -> every mesh in the view layer. Pools
+        from ``view_layer.objects`` (not ``bpy.data.objects``) — the data pool spans the whole file
+        (other scenes, excluded collections, linked libraries: activating one raises, and cleaning
+        linked data errors)."""
+        if scope == "selected":
+            return [o for o in self.selected_objects() if o.type == "MESH"]
+        meshes = [o for o in bpy.context.view_layer.objects if o.type == "MESH"]
+        if scope == "visible":
+            return [o for o in meshes if o.visible_get()]
+        return meshes
+
+    @staticmethod
+    def _geo_counts(objects):
+        """``(total verts, total faces)`` across ``objects`` — before/after feedback for the Repair
+        path. Reads mesh data (accurate in Object Mode, where cleanup runs); guarded so a stray
+        state can't crash the report."""
+        verts = faces = 0
+        for o in objects:
+            data = getattr(o, "data", None)
+            if data is None:
+                continue
+            try:
+                verts += len(data.vertices)
+                faces += len(data.polygons)
+            except (AttributeError, ReferenceError):
+                pass
+        return verts, faces
+
+    def _mesh_cleanup(self, m, scope, repair, mode_label):
+        """Mesh Cleanup body (see :meth:`tb000`) — resolves the scope pool, routes duplicates /
+        select / repair, and reports through both feedback channels."""
+        objects = self._cleanup_pool(scope)
 
         # Object-level duplicates are a distinct domain — handle and return (Maya parity).
         if m.chk022.isChecked():
             retain = self.selected_objects() if m.chk023.isChecked() else None
-            dupes = btk.get_overlapping_duplicates(
-                retain=retain, select=not repair, delete=repair
-            )
+            dupes = btk.get_overlapping_duplicates(retain=retain, select=not repair, delete=repair)
+            n = len(dupes)
             verb = "deleted" if repair else "selected"
-            self.sb.message_box(
-                f"Found <hl>{len(dupes)}</hl> overlapping duplicate object(s)"
-                f"{f' ({verb})' if dupes else ''}."
+            cleanup_console_report(
+                f"{mode_label} · Overlapping Duplicate Objects",
+                [f"scope: {scope}", f"{n} overlapping duplicate object(s) ({verb})"],
             )
+            self.sb.message_box(cleanup_popup_html(
+                f"<hl>Mesh Cleanup — {mode_label}</hl>",
+                [(n, f"overlapping duplicate objects {verb}")],
+            ))
             return
 
         if not objects:
-            self.sb.message_box("Mesh Cleanup requires a mesh selection.")
+            self.sb.message_box(
+                f"<hl>Mesh Cleanup — {mode_label}</hl><br>"
+                f"No mesh found for scope '<hl>{scope}</hl>'.<br>Select a mesh or change Scope."
+            )
             return
-
-        # Overlapping faces — its own select/delete pass (the topology select path below would
-        # clear the selection it makes, so in select mode it stands alone).
-        if m.chk025.isChecked():
-            n = btk.get_overlapping_faces(objects, delete=repair, select=not repair)
-            if not repair:
-                self._show_problem_components(objects, "FACE")
-                self.sb.message_box(f"Found <hl>{n}</hl> overlapping face(s) (selected).")
-                return
-            if n:
-                self.sb.message_box(f"Deleted <hl>{n}</hl> overlapping face(s).")
 
         criteria = {
             name: getattr(m, oname).isChecked()
             for name, oname in self._DIAGNOSTIC_CRITERIA.items()
         }
 
-        if not repair:  # select-only diagnostic path
-            if not any(criteria.values()):
-                self.sb.message_box("Enable a topology check (N-Gons, Concave, …) to select.")
-                return
-            counts = btk.find_problem_geometry(
-                objects, select=True,
-                area_tolerance=m.s006.value(),
-                edge_length_tolerance=m.s007.value(),
-                uv_area_tolerance=m.s008.value(),
-                **criteria,
-            )
-            self._show_problem_components(objects, counts.get("_mode", "VERT"))
-            found = {k: v for k, v in counts.items() if k != "_mode" and v}
-            summary = ", ".join(f"{v} {k}" for k, v in found.items()) or "none"
-            self.sb.message_box(f"Problem geometry selected: <hl>{summary}</hl>.")
+        # Overlapping faces — Repair deletes them; in Select mode the selected dupes are captured
+        # and re-applied after the topology pass below (which rewrites the mesh select flags
+        # wholesale — the union mirrors Maya's additive ``select -add``).
+        overlap_n = 0
+        overlap_faces = {}
+        if m.chk025.isChecked():
+            overlap_n = btk.get_overlapping_faces(objects, delete=repair, select=not repair)
+            if not repair and any(criteria.values()):
+                overlap_faces = {
+                    o: [p.index for p in o.data.polygons if p.select] for o in objects
+                }
+
+        if not repair:
+            self._mesh_cleanup_select(m, scope, objects, criteria, overlap_n, overlap_faces)
             return
 
+        # -------- Repair / fix path
+        before_v, before_f = self._geo_counts(objects)
         btk.clean_geometry(
             objects,
             merge=m.chk024.isChecked(),
@@ -305,31 +374,165 @@ class Edit(SlotsBlender):
             recalculate=m.chk028.isChecked(),
             fill_holes=m.chk029.isChecked(),
         )
+        after_v, after_f = self._geo_counts(objects)
+        removed_v, removed_f = before_v - after_v, before_f - after_f
+        ops = [
+            label
+            for on, label in (
+                (m.chk024.isChecked(), "merge doubles"),
+                (m.chk032.isChecked(), "delete loose"),
+                (m.chk033.isChecked(), "dissolve degenerate"),
+                (m.chk028.isChecked(), "recalc normals"),
+                (m.chk029.isChecked(), "fill holes"),
+            )
+            if on
+        ]
+        cleanup_console_report(
+            "Repair",
+            [
+                f"scope: {scope} · {len(objects)} mesh(es)",
+                f"operations: {', '.join(ops) or 'none'}",
+                f"verts: {before_v} -> {after_v} (removed {removed_v})",
+                f"faces: {before_f} -> {after_f} (removed {removed_f})",
+                *([f"overlapping faces deleted: {overlap_n}"] if m.chk025.isChecked() else []),
+            ],
+        )
+        self.sb.message_box(cleanup_popup_html(
+            f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> mesh(es)",
+            [
+                (removed_v, "verts removed"),
+                (removed_f, "faces removed"),
+                (overlap_n, "overlapping faces deleted"),
+            ],
+        ))
+
+    def _mesh_cleanup_select(self, m, scope, objects, criteria, overlap_n, overlap_faces):
+        """Select / diagnose path: flag the matched problem geometry, reveal it in Edit Mode, and
+        report per-criterion counts through both feedback channels."""
+        if not any(criteria.values()):
+            if not m.chk025.isChecked():
+                self.sb.message_box(
+                    "<hl>Mesh Cleanup — Select</hl><br>"
+                    "Enable a topology check (N-Gons, Concave, …) or Overlapping Faces to select."
+                )
+                return
+            self._show_problem_components(objects, "FACE")
+            cleanup_console_report(
+                "Select · Overlapping Faces",
+                [f"scope: {scope} · {len(objects)} mesh(es)", f"overlapping faces: {overlap_n}"],
+            )
+            self.sb.message_box(cleanup_popup_html(
+                "<hl>Mesh Cleanup — Select</hl>", [(overlap_n, "overlapping faces")]
+            ))
+            return
+
+        counts = btk.find_problem_geometry(
+            objects, select=True,
+            area_tolerance=m.s006.value(),
+            edge_length_tolerance=m.s007.value(),
+            uv_area_tolerance=m.s008.value(),
+            **criteria,
+        )
+        for o, indices in overlap_faces.items():  # union the dupes back in
+            self._reselect_faces(o, indices)
+        self._show_problem_components(objects, counts.get("_mode", "VERT"))
+
+        rows = [
+            (counts.get(k, 0), self._CRITERION_LABELS[k])
+            for k in self._DIAGNOSTIC_CRITERIA
+            if counts.get(k)
+        ]
+        if overlap_n:
+            rows.append((overlap_n, "Overlapping Faces"))
+        total = sum(c for c, _ in rows)
+        cleanup_console_report(
+            "Select",
+            [
+                f"scope: {scope} · {len(objects)} mesh(es)",
+                *[f"{label}: {c}" for c, label in rows],
+                f"total problem components: {total}",
+            ],
+        )
+        self.sb.message_box(cleanup_popup_html(
+            f"<hl>Mesh Cleanup — Select</hl> · <hl>{total}</hl> total", rows
+        ))
 
     @staticmethod
     def _show_problem_components(objects, mode):
-        """Enter Edit Mode on the active mesh and set the component select mode so the
-        flags stamped by ``find_problem_geometry`` are visible."""
-        active = bpy.context.view_layer.objects.active
-        if active not in objects:
-            bpy.context.view_layer.objects.active = objects[0]
-        if bpy.context.view_layer.objects.active.mode != "EDIT":
-            bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.select_mode(type=mode)
+        """Enter Edit Mode on a problem mesh and set the component select mode so the flags stamped
+        by ``find_problem_geometry`` are visible. Defensive: a no-op when there's no mesh to show,
+        and the ``mode_set`` / ``select_mode`` ops run under ``window_context_override`` — they poll
+        their target from the *window* context, which is ``None`` in the Qt event-pump state the
+        slots run in (the "Context missing active object" crash), so the override supplies a window
+        for the poll (the same trap ``tb002`` and the fbx exporter handle). A poll failure is
+        swallowed: the components are already flagged on the mesh data."""
+        meshes = [o for o in objects if o and getattr(o, "type", None) == "MESH"]
+        if not meshes:
+            return
+        active = btk.active_object()
+        if active not in meshes:
+            active = meshes[0]
+            bpy.context.view_layer.objects.active = active
+        with btk.window_context_override():
+            try:
+                if active.mode != "EDIT":
+                    bpy.ops.object.mode_set(mode="EDIT")
+                bpy.ops.mesh.select_mode(type=mode)
+            except RuntimeError:
+                pass
+
+    @staticmethod
+    def _reselect_faces(obj, indices):
+        """Additively re-select faces by index, with the down-flush to verts/edges that keeps
+        them selected across ``mesh.select_mode``'s selection flush — used by tb000 to union
+        the overlapping-face dupes with the topology-diagnostic selection (both engine passes
+        rewrite the select flags wholesale)."""
+        import bmesh
+
+        if not indices:
+            return
+        if obj.mode == "EDIT":  # mesh-data writes wouldn't reach the live edit-bmesh
+            bm = bmesh.from_edit_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+            for i in indices:
+                bm.faces[i].select_set(True)  # select_set flushes down to verts/edges
+            bm.select_flush(True)
+            bmesh.update_edit_mesh(obj.data)
+            return
+        mesh = obj.data
+        for i in indices:
+            p = mesh.polygons[i]
+            p.select = True
+            for vi in p.vertices:
+                mesh.vertices[vi].select = True
+            for li in p.loop_indices:
+                mesh.edges[mesh.loops[li].edge_index].select = True
+        mesh.update()
 
     # ------------------------------------------------------------------ tb002  Delete Selected
     @btk.undoable
     def tb002(self, widget):
         """Delete Selected (objects in object mode, components by select mode in edit mode)."""
         active = bpy.context.view_layer.objects.active
-        if active and active.mode == "EDIT":
-            # Deleting by VERT in edge/face mode would also remove neighboring faces that
-            # share those verts — match the type to the active component select mode.
-            vert, edge, face = bpy.context.tool_settings.mesh_select_mode
-            bpy.ops.mesh.delete(type="FACE" if face else "EDGE" if edge else "VERT")
-            return
-        if self.selected_objects():
-            bpy.ops.object.delete()
+        # window override: mesh.delete / object.delete / mode_set poll their targets from
+        # *screen* context — dead in the Qt-pump state (no-op when a window exists).
+        with btk.window_context_override():
+            if active and active.mode == "EDIT":
+                # Deleting by VERT in edge/face mode would also remove neighboring faces that
+                # share those verts — match the type to the active component select mode.
+                vert, edge, face = bpy.context.tool_settings.mesh_select_mode
+                bpy.ops.mesh.delete(type="FACE" if face else "EDGE" if edge else "VERT")
+                return
+            if active and active.mode != "OBJECT":
+                # SCULPT / WEIGHT_PAINT / etc. fall into this object branch, where
+                # object.delete's poll fails outside Object Mode — switch first.
+                try:
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                except RuntimeError as e:
+                    self.sb.message_box(str(e))
+                    return
+            if self.selected_objects():
+                bpy.ops.object.delete()
 
     # ------------------------------------------------------------------ list000  Create Primitive
     def list000_init(self, widget):
@@ -428,7 +631,10 @@ class Edit(SlotsBlender):
     @btk.undoable
     def _create_control(self, shape, label):
         ctrl = btk.Controls.create(shape, name=label.replace(" ", ""))
-        bpy.ops.object.select_all(action="DESELECT")
+        # view-layer deselect, not object.select_all: the op polls Object Mode and reads
+        # screen context (dead under the Qt pump); select_set is mode-independent.
+        for o in bpy.context.view_layer.objects:
+            o.select_set(False)
         ctrl.select_set(True)
         bpy.context.view_layer.objects.active = ctrl
 
@@ -465,10 +671,17 @@ class Edit(SlotsBlender):
 
     @btk.undoable
     def _convert_selected(self, target):
-        try:
-            bpy.ops.object.convert(target=target)
-        except RuntimeError as e:  # e.g. poll failure outside object mode
-            self.sb.message_box(str(e))
+        # window override: convert's poll reads ``context.active_base`` and its exec reads the
+        # context selection — both *screen*-context members, dead in the Qt-pump state. Force
+        # Object Mode first (same guard list000 uses): convert poll-fails outside it.
+        active = bpy.context.view_layer.objects.active
+        with btk.window_context_override():
+            try:
+                if active and active.mode != "OBJECT":
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                bpy.ops.object.convert(target=target)
+            except RuntimeError as e:  # e.g. a poll failure the guard didn't cover
+                self.sb.message_box(str(e))
 
     @btk.undoable
     def _convert_instance_to_object(self):
@@ -476,7 +689,11 @@ class Edit(SlotsBlender):
         shared-data link a linked duplicate/instance has (Blender's analogue of Maya's
         ``convertInstanceToObject``)."""
         try:
-            bpy.ops.object.make_single_user(object=True, obdata=True)
+            # window override: make_single_user's exec iterates
+            # context.selected_editable_objects (screen context — empty in the Qt-pump
+            # state), silently no-opping bare.
+            with btk.window_context_override():
+                bpy.ops.object.make_single_user(object=True, obdata=True)
         except RuntimeError as e:  # e.g. poll failure outside object mode
             self.sb.message_box(str(e))
 
@@ -575,7 +792,10 @@ class Edit(SlotsBlender):
             self.sb.message_box("Select target mesh(es) with the source (shaded) mesh active.")
             return
         try:
-            bpy.ops.object.material_slot_copy()
+            # window override: material_slot_copy's exec iterates the context selection
+            # (screen context — empty in the Qt-pump state), silently no-opping bare.
+            with btk.window_context_override():
+                bpy.ops.object.material_slot_copy()
         except RuntimeError as e:
             self.sb.message_box(str(e))
             return

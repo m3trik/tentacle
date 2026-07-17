@@ -51,11 +51,17 @@ class Rigging(SlotsBlender):
             arm = arm or scene_arm
             if arm is None:
                 continue
-            for m in arm_mods:  # drop stale modifiers; vertex groups (weights) persist on the mesh
-                mesh.modifiers.remove(m)
-            mod = mesh.modifiers.new(name="Armature", type="ARMATURE")
-            mod.object = arm
-            mod.use_vertex_groups = True
+            if arm_mods:
+                # Re-point in place — remove+append would destroy the modifier-stack order,
+                # per-modifier settings, and layered multi-armature setups. Re-assigning
+                # ``.object`` (same value included) is what triggers the depsgraph rebind;
+                # only a target-less modifier is pointed at the resolved armature.
+                for m in arm_mods:
+                    m.object = m.object or arm
+            else:
+                mod = mesh.modifiers.new(name="Armature", type="ARMATURE")
+                mod.object = arm
+                mod.use_vertex_groups = True
             rebound += 1
         self.sb.message_box(f"Rebound skin on <hl>{rebound}</hl> mesh(es).")
 
@@ -140,7 +146,9 @@ class Rigging(SlotsBlender):
         if anchor_name:  # add an anchor Empty at world origin as an extra Copy-Transforms target
             anchor = bpy.data.objects.new(anchor_name, None)
             anchor.empty_display_type = "PLAIN_AXES"
-            bpy.context.collection.objects.link(anchor)
+            # scene root collection: bpy.context.collection is screen-context (AttributeError
+            # from the Qt pump).
+            bpy.context.scene.collection.objects.link(anchor)
             con = active.constraints.new(type="COPY_TRANSFORMS")
             con.target = anchor
 
@@ -245,7 +253,7 @@ class Rigging(SlotsBlender):
         objects = self.selected_objects()
         m = widget.option_box.menu
         if not objects:
-            bpy.ops.object.empty_add(type="PLAIN_AXES")
+            bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
             return
         scale = m.s001.value()
         grp_suffix, loc_suffix, obj_suffix = m.t002.text(), m.t000.text(), m.t001.text()
@@ -256,6 +264,13 @@ class Rigging(SlotsBlender):
         for o in objects:
             coll = o.users_collection[0] if o.users_collection else bpy.context.scene.collection
             base = self._locator_base_name(o.name, suffixes, strip_digits, strip_suffix)
+            # Both parent-inverses derive from the SOURCE object's matrix_world: the loc/grp
+            # empties are created in this same handler, and a fresh object's ``matrix_world``
+            # reads back IDENTITY until a depsgraph update — inverting *that* left identity
+            # parent-inverses under full-world basis matrices, compounding the transform
+            # (world² / world³) on the next depsgraph eval. Both empties are placed AT
+            # ``o.matrix_world``, so its inverse is exactly theirs.
+            inv = o.matrix_world.inverted_safe()
             loc = bpy.data.objects.new(f"{base}{loc_suffix}", None)
             loc.empty_display_type = "PLAIN_AXES"
             loc.empty_display_size = scale
@@ -268,10 +283,10 @@ class Rigging(SlotsBlender):
             coll.objects.link(grp)
 
             loc.parent = grp
-            loc.matrix_parent_inverse = grp.matrix_world.inverted()
+            loc.matrix_parent_inverse = inv
             # parent geometry to the locator so it follows; keep its world transform
             o.parent = loc
-            o.matrix_parent_inverse = loc.matrix_world.inverted()
+            o.matrix_parent_inverse = inv
             if obj_suffix and not o.name.endswith(obj_suffix):
                 o.name = f"{base}{obj_suffix}"
             o.lock_location = (lock[0],) * 3
@@ -280,13 +295,37 @@ class Rigging(SlotsBlender):
 
     @btk.undoable
     def b003(self):
-        """Remove Locator (delete selected Empties)."""
-        empties = [o for o in self.selected_objects() if o.type == "EMPTY"]
-        if not empties:
+        """Remove Locator — dissolve each selected locator (Empty) the way mayatk's
+        ``remove_locator`` does: unlock the child channels tb003 locked (chk007-9),
+        unparent the children to world *preserving* their transforms (a bare delete pops
+        them back to their raw local matrix), then delete the locator and — when it is left
+        childless — its paired group Empty (tb003's _GRP)."""
+        locators = [o for o in self.selected_objects() if o.type == "EMPTY"]
+        if not locators:
             self.sb.message_box("No Empties selected.")
             return
-        for o in empties:
-            bpy.data.objects.remove(o, do_unlink=True)
+        for loc in locators:
+            for child in list(loc.children):
+                if child in locators:
+                    continue  # a selected empty dies anyway — leave it parented
+                child.lock_location = (False,) * 3
+                child.lock_rotation = (False,) * 3
+                child.lock_scale = (False,) * 3
+                mw = child.matrix_world.copy()
+                child.parent = None
+                child.matrix_world = mw
+        # Paired parent-Empty groups (tb003's _GRP) — collected before the deletes below
+        # invalidate the locators' references.
+        groups = []
+        for loc in locators:
+            grp = loc.parent
+            if grp is not None and grp.type == "EMPTY" and grp not in groups and grp not in locators:
+                groups.append(grp)
+        for loc in locators:
+            bpy.data.objects.remove(loc, do_unlink=True)
+        for grp in groups:
+            if not grp.children:  # mirror Maya: only delete a group left childless
+                bpy.data.objects.remove(grp, do_unlink=True)
 
     # ------------------------------------------------------------------ tb004  Lock/Unlock Attributes
     def tb004_init(self, widget):
@@ -341,8 +380,10 @@ class Rigging(SlotsBlender):
         import addon_utils
 
         try:
-            addon_utils.enable("rigify", default_set=True)
-            return True
+            # ``enable`` returns the add-on module on success and *None* on failure — it
+            # logs the traceback instead of raising, so the return value is the only
+            # reliable failure signal (the except alone never fires for a broken add-on).
+            return addon_utils.enable("rigify", default_set=True) is not None
         except Exception:
             return False
 
@@ -378,17 +419,21 @@ class Rigging(SlotsBlender):
             self.sb.message_box("The Rigify add-on could not be enabled.")
             return
         try:
-            if text == "Human Meta-Rig":
-                bpy.ops.object.armature_human_metarig_add()
-            elif text == "Basic Human Meta-Rig":
-                bpy.ops.object.armature_basic_human_metarig_add()
-            elif text == "Generate Rig":
-                obj = bpy.context.view_layer.objects.active
-                if not obj or obj.type != "ARMATURE":
-                    self.sb.message_box("Generate Rig requires an active meta-rig armature.")
-                    return
-                bpy.ops.pose.rigify_generate()
-        except RuntimeError as e:
+            # window override: the metarig-add / rigify_generate ops read the active object
+            # from *screen* context internally (dead in the Qt-pump state). AttributeError:
+            # the op isn't registered (rigify enabled but its operators absent).
+            with btk.window_context_override():
+                if text == "Human Meta-Rig":
+                    bpy.ops.object.armature_human_metarig_add()
+                elif text == "Basic Human Meta-Rig":
+                    bpy.ops.object.armature_basic_human_metarig_add()
+                elif text == "Generate Rig":
+                    obj = bpy.context.view_layer.objects.active
+                    if not obj or obj.type != "ARMATURE":
+                        self.sb.message_box("Generate Rig requires an active meta-rig armature.")
+                        return
+                    bpy.ops.pose.rigify_generate()
+        except (RuntimeError, AttributeError) as e:
             self.sb.message_box(str(e))
 
     # ------------------------------------------------------------------ deferred

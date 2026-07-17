@@ -85,7 +85,7 @@ class MaterialsSlots(SlotsBlender):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.materials
         self.submenu = self.sb.loaded_ui.materials_submenu
-        self.last_random_material = None
+        self.last_random_material = None  # material NAME (undo-safe — see _resolve_material)
 
     # ------------------------------------------------------------------ header (Utilities)
     def header_init(self, widget):
@@ -162,9 +162,12 @@ class MaterialsSlots(SlotsBlender):
             widget.currentIndexChanged.connect(self.submenu.list000.init_slot)
             widget.on_editing_finished.connect(self.submenu.list000.init_slot)
 
-        materials_dict = btk.get_scene_mats(sort=True, as_dict=True)
-        widget.add(materials_dict, clear=True, restore_index=True)
-        for i, mat in enumerate(widget.items):
+        # Item data is the material NAME, not the Material datablock: a stored reference
+        # goes stale on undo (any later attribute access raises ReferenceError), so every
+        # consumer re-resolves the name against bpy.data at use time (_resolve_material).
+        materials = btk.get_scene_mats(sort=True)
+        widget.add({m.name: m.name for m in materials}, clear=True, restore_index=True)
+        for i, mat in enumerate(materials):
             icon = btk.get_mat_swatch_icon(mat)
             if icon:
                 widget.setItemIcon(i, icon)
@@ -172,11 +175,39 @@ class MaterialsSlots(SlotsBlender):
     def cmb002(self, index, widget):
         """Current Material (selection only — assignment is on the b-buttons)."""
 
+    def _resolve_material(self, name):
+        """The live material datablock for ``name``, or None. Falsy ``name`` (no combo
+        pick) returns None silently — callers surface their own no-selection wording.
+
+        cmb002's item data and ``last_random_material`` hold material NAMES, not Material
+        references: an undo invalidates a stored ``bpy.types.Material`` wrapper and any
+        later use raises ReferenceError. A name re-resolves against ``bpy.data`` at use
+        time; one that no longer resolves means the datablock was undone, deleted, or
+        renamed — message and refresh the list instead of crashing."""
+        if not name:
+            return None
+        mat = bpy.data.materials.get(name)
+        if mat is None:
+            self.sb.message_box(
+                f"Material <hl>{name}</hl> no longer exists (undone, deleted, or "
+                "renamed) — refreshing the material list."
+            )
+            self.ui.cmb002.init_slot()
+        return mat
+
     def _rename_current(self, text):
         """Rename the current material datablock to ``text`` (combo edit-finished)."""
-        mat = self.ui.cmb002.currentData()
-        if mat and text:
-            mat.name = text
+        name = self.ui.cmb002.currentData()
+        if not (name and text):
+            return
+        mat = self._resolve_material(name)
+        if mat is None:
+            return
+        mat.name = text
+        # Re-sync the item data (a NAME — now stale) with the actual result; Blender may
+        # have suffixed ``text`` (.001) on collision, so read the name back off the mat.
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(mat.name)
 
     # ------------------------------------------------------------------ tb000  Select By Material
     def tb000_init(self, widget):
@@ -209,9 +240,12 @@ class MaterialsSlots(SlotsBlender):
         if m.chk007.isChecked():  # get the material from the active selection first
             self.b002(None)
 
-        mat = self.ui.cmb002.currentData()
-        if mat is None:
+        name = self.ui.cmb002.currentData()
+        if not name:
             self.sb.message_box("No material selected in the materials list.")
+            return
+        mat = self._resolve_material(name)
+        if mat is None:
             return
 
         pool = prior if m.cmb_search_scope.currentText() == "Selection Only" else None
@@ -220,34 +254,59 @@ class MaterialsSlots(SlotsBlender):
             self.sb.message_box(f"No objects use <hl>{mat.name}</hl>.")
             return
 
-        # leave any component mode first (mode_set polls on the active object — guard the no-active
-        # and already-object cases so it can't raise)
-        active = bpy.context.view_layer.objects.active
-        if active and active.mode != "OBJECT":
-            bpy.ops.object.mode_set(mode="OBJECT")
-        if not m.chk008.isChecked():
-            bpy.ops.object.select_all(action="DESELECT")
-        for o in users:
+        # find_by_mat_id scans all of bpy.data, so a user can live outside the active view
+        # layer (a multi-scene file / an excluded collection) — select_set and the active
+        # assignment raise RuntimeError there. Select only the in-layer users; the rest
+        # still count as users, they just can't be selected from here.
+        in_layer = [o for o in users if o.name in bpy.context.view_layer.objects]
+        if not in_layer:
+            self.sb.message_box(
+                f"All <hl>{len(users)}</hl> object(s) using <hl>{mat.name}</hl> are "
+                "outside the active view layer — nothing selectable."
+            )
+            return
+
+        # window override: mode_set / select_all poll on the active object from *screen*
+        # context — dead in the Qt-pump state (no-op when a window is already active).
+        with btk.window_context_override():
+            # leave any component mode first (guard the no-active and already-object
+            # cases so mode_set can't raise)
+            active = bpy.context.view_layer.objects.active
+            if active and active.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+            if not m.chk008.isChecked():
+                bpy.ops.object.select_all(action="DESELECT")
+        for o in in_layer:
             o.select_set(True)
-        bpy.context.view_layer.objects.active = users[0]
+        bpy.context.view_layer.objects.active = in_layer[0]
 
         if not m.chk005.isChecked():  # face mode: highlight the material's faces in edit mode
-            self._select_material_faces(users, mat)
+            self._select_material_faces(in_layer, mat)
+        if len(in_layer) < len(users):
+            self.sb.message_box(
+                f"Selected <hl>{len(in_layer)}</hl> of <hl>{len(users)}</hl> object(s) "
+                f"using <hl>{mat.name}</hl> — the rest are outside the active view layer."
+            )
 
-    @staticmethod
-    def _select_material_faces(objects, mat):
+    def _select_material_faces(self, objects, mat):
         """Enter Edit Mode and select the faces assigned to ``mat`` across ``objects``."""
         for obj in objects:
             for i, slot in enumerate(obj.material_slots):
                 if slot.material is mat:
                     obj.active_material_index = i
                     break
-        bpy.ops.object.mode_set(mode="EDIT")
-        bpy.ops.mesh.select_all(action="DESELECT")
-        try:
-            bpy.ops.object.material_slot_select()
-        except RuntimeError:
-            pass
+        # window override: mode_set / select_all / material_slot_select poll on the
+        # active/edit object from *screen* context — dead in the Qt-pump state (no-op
+        # when a window is already active, as everywhere this wrap is used).
+        with btk.window_context_override():
+            bpy.ops.object.mode_set(mode="EDIT")
+            bpy.ops.mesh.select_all(action="DESELECT")
+            try:
+                bpy.ops.object.material_slot_select()
+            except RuntimeError as e:
+                self.sb.message_box(
+                    f"Couldn't select the faces using <hl>{mat.name}</hl>:<br>{e}"
+                )
 
     # ------------------------------------------------------------------ tb001  Get Material Info
     _TB001_SCOPES = (
@@ -302,7 +361,15 @@ class MaterialsSlots(SlotsBlender):
         include_optimization = menu.chk_include_optimization.isChecked()
 
         if scope == "textures":
-            info = btk.get_texture_info()
+            # Honor the option-box material filter: unscoped, get_texture_info reports
+            # every file image in bpy.data; Exclude Unassigned narrows it to the textures
+            # of assigned materials.
+            materials = (
+                [m for m in btk.get_scene_mats() if btk.is_mat_assigned(m)]
+                if exclude_unassigned
+                else None
+            )
+            info = btk.get_texture_info(materials=materials)
             html = btk.format_texture_info_html(info) if info else None
             title = f"Texture Info — {len(info)} texture(s)"
         else:
@@ -313,9 +380,12 @@ class MaterialsSlots(SlotsBlender):
                 optimize_check=include_optimization,
             )
             if scope == "current":
-                mat = self.ui.cmb002.currentData()
-                if not mat:
+                name = self.ui.cmb002.currentData()
+                if not name:
                     self.sb.message_box("<hl>No current material</hl><br>Pick a material first.")
+                    return
+                mat = self._resolve_material(name)
+                if mat is None:
                     return
                 records = btk.get_mat_info(materials=[mat], **kwargs)
                 title = f"Material Info — {mat.name}"
@@ -352,8 +422,8 @@ class MaterialsSlots(SlotsBlender):
                 self.ui.cmb002.is_initialized = True
 
         widget.clear()
-        current = self.ui.cmb002.currentData()
-        root = widget.add(f"Assign: {current.name}" if current else "Assign")
+        current = self.ui.cmb002.currentData()  # a material name (see cmb002_init)
+        root = widget.add(f"Assign: {current}" if current else "Assign")
         root.sublist.add("New")
         root.sublist.add("Random")
         for mat in btk.get_scene_mats(sort=True):
@@ -366,11 +436,11 @@ class MaterialsSlots(SlotsBlender):
         text = item.item_text()
         parent = item.parent_item_text()
         if parent is None:  # root release
-            current = self.ui.cmb002.currentData()
+            current = self.ui.cmb002.currentData()  # a material name (see cmb002_init)
             if not current:
                 self.sb.message_box("<hl>No current material</hl><br>Pick a material first.")
                 return
-            self._assign_named(current.name)
+            self._assign_named(current)
             return
         if text == "New":
             self.b006(item)
@@ -386,9 +456,8 @@ class MaterialsSlots(SlotsBlender):
         if not selection:
             self.sb.message_box("<hl>Nothing selected</hl><br>Select object(s) first.")
             return
-        mat = bpy.data.materials.get(mat_name)
+        mat = self._resolve_material(mat_name)
         if mat is None:
-            self.sb.message_box(f"<hl>No such material</hl><br>{mat_name}")
             return
         btk.assign_mat(selection, mat)
         self.ui.cmb002.setAsCurrent(mat_name)
@@ -442,10 +511,13 @@ class MaterialsSlots(SlotsBlender):
             return
         new_mat = btk.create_mat("random")
         btk.assign_mat(selection, new_mat)
-        last = self.last_random_material
+        # last_random_material is a NAME (a stored Material reference goes stale on undo —
+        # see _resolve_material); a name that no longer resolves just means nothing to
+        # clean up, so resolve quietly rather than via _resolve_material.
+        last = bpy.data.materials.get(self.last_random_material or "")
         if last and last is not new_mat and not btk.is_mat_assigned(last):
             bpy.data.materials.remove(last)
-        self.last_random_material = new_mat
+        self.last_random_material = new_mat.name
         self.ui.cmb002.init_slot()
         self.ui.cmb002.setAsCurrent(new_mat.name)
 
@@ -456,9 +528,12 @@ class MaterialsSlots(SlotsBlender):
         if not selection:
             self.sb.message_box("No renderable object is selected for assignment.")
             return
-        mat = self.ui.cmb002.currentData()
-        if mat is None:
+        name = self.ui.cmb002.currentData()
+        if not name:
             self.sb.message_box("No material selected in the materials list.")
+            return
+        mat = self._resolve_material(name)
+        if mat is None:
             return
         btk.assign_mat(selection, mat)
 
@@ -500,7 +575,7 @@ class MaterialsSlots(SlotsBlender):
     # ------------------------------------------------------------------ context-menu (lbl) slots
     def lbl002(self):
         """Delete the current material."""
-        mat = self.ui.cmb002.currentData()
+        mat = self._resolve_material(self.ui.cmb002.currentData())
         if mat is None:
             return
         bpy.data.materials.remove(mat)
@@ -508,9 +583,12 @@ class MaterialsSlots(SlotsBlender):
 
     def lbl004(self):
         """Select Node — select the object(s) using the current material."""
-        mat = self.ui.cmb002.currentData()
-        if mat is None:
+        name = self.ui.cmb002.currentData()
+        if not name:
             self.sb.message_box("No current material.")
+            return
+        mat = self._resolve_material(name)
+        if mat is None:
             return
         users = btk.select_by_material(mat)
         if not users:
@@ -523,15 +601,18 @@ class MaterialsSlots(SlotsBlender):
 
     def lbl006(self):
         """Open in Editor — graph the current material in the Shader Editor."""
-        mat = self.ui.cmb002.currentData()
-        if mat is None:
+        name = self.ui.cmb002.currentData()
+        if not name:
             self.sb.message_box("No current material.")
+            return
+        mat = self._resolve_material(name)
+        if mat is None:
             return
         btk.graph_materials(mat)
 
     def lbl007(self):
         """Rename the current material by stripping trailing integers/underscores."""
-        mat = self.ui.cmb002.currentData()
+        mat = self._resolve_material(self.ui.cmb002.currentData())
         if mat is None:
             return
         base = ptk.StrUtils.format_suffix(mat.name, strip="_", strip_trailing_ints=True)

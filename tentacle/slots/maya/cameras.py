@@ -14,12 +14,9 @@ class Cameras(SlotsMaya):
         self.sb = switchboard
         self.ui = self.sb.loaded_ui.cameras
 
-        try:
-            self.sb.handlers.marking_menu.left_mouse_double_click.connect(
-                self.toggle_camera_view
-            )
-        except AttributeError:
-            pass
+        # Double-click gesture + keyable 'toggle_camera_view' command. Shared,
+        # DCC-agnostic wiring on the base slot class (tentacle.slots._slots.Slots).
+        self.register_camera_view_toggle()
 
     def list000_init(self, widget):
         """Initialize Camera Options List"""
@@ -178,25 +175,6 @@ class Cameras(SlotsMaya):
         """Camera: Orbit"""
         # 'Orbit' is Maya's Tumble tool.
         cmds.setToolTo("tumbleContext")
-
-    def toggle_camera_view(self):
-        """Toggle between the last two camera views in history."""
-        slots = self.sb.get_methods_by_string_pattern(self, "b000-7")
-        # Get the last two methods from the slot history
-        history = self.sb.slot_history(slice(-2, None), inc=slots)
-        if not history:
-            return
-
-        # If the last method is b004, call the last non-perspective camera
-        if history[-1].__name__ == self.b004.__name__:
-            if len(history) < 2:
-                return
-            last_non_persp_cam = history[-2]
-            last_non_persp_cam()
-            self.sb.slot_history(add=last_non_persp_cam)
-        else:  # Otherwise, call b004
-            self.b004()
-            self.sb.slot_history(add=self.b004)
 
 
 # --------------------------------------------------------------------------------------------

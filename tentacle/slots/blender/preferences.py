@@ -115,8 +115,9 @@ class Preferences(SlotsBlender):
 
         def seed():
             widget.add(self._LENGTH_UNITS)
-            if match:
-                widget.setCurrentIndex(labels.index(match))
+            # No matching label (IMPERIAL/NONE unit system): show no selection (-1)
+            # rather than misreporting item 0 (Millimeter) as the scene's current unit.
+            widget.setCurrentIndex(labels.index(match) if match else -1)
 
         self.mirror_app_state(widget, seed)
 
@@ -129,18 +130,28 @@ class Preferences(SlotsBlender):
 
     # ------------------------------------------------------------------ cmb002  Frame rate
     def cmb002_init(self, widget):
-        fps = bpy.context.scene.render.fps
+        render = bpy.context.scene.render
+        # Effective rate — a 23.98 scene stores fps=24 / fps_base=1.001; raw fps alone
+        # would also misread a scene whose base was left fractional by an import.
+        fps = round(render.fps / render.fps_base)
 
         def seed():  # populated inside the seed for the reason given in cmb001_init
             widget.add({f"{f} fps": f for f in self._FPS_OPTIONS})
-            if fps in self._FPS_OPTIONS:
-                widget.setCurrentIndex(self._FPS_OPTIONS.index(fps))
+            # Nonstandard rate: show no selection (-1) rather than misreporting
+            # item 0 (24 fps) as the scene's current rate.
+            widget.setCurrentIndex(
+                self._FPS_OPTIONS.index(fps) if fps in self._FPS_OPTIONS else -1
+            )
 
         self.mirror_app_state(widget, seed)
 
     def cmb002(self, index, widget):
         """Set Working Units: Time (frame rate)"""
-        bpy.context.scene.render.fps = int(widget.currentData())
+        render = bpy.context.scene.render
+        render.fps = int(widget.currentData())
+        # Clear any fractional-rate divisor — a 23.98 scene (fps=24, fps_base=1.001)
+        # would otherwise become 30/1.001 = 29.97 when the user picks 30.
+        render.fps_base = 1.0
 
     # ------------------------------------------------------------------ s000/s001  Autosave
     def s000_init(self, widget):
@@ -153,7 +164,9 @@ class Preferences(SlotsBlender):
     def s001_init(self, widget):
         if not widget.is_initialized:
             fp = bpy.context.preferences.filepaths
-            widget.setValue(fp.auto_save_time)
+            # 0 = disabled, like the Maya twin (maya/preferences.py s000_init) — showing
+            # the live interval while autosave is off would misreport it as active.
+            widget.setValue(fp.auto_save_time if fp.use_auto_save_temporary_files else 0)
 
             def _update(value):
                 fp.use_auto_save_temporary_files = value > 0
@@ -168,17 +181,25 @@ class Preferences(SlotsBlender):
         self._open_preferences("THEMES")
 
     def cmb003_init(self, widget):
-        """App-style / theme selector — mirrors Blender's Preferences > Themes dropdown. On first
-        init it injects our shipped ``Maya`` theme into Blender's preset dir, then lists the whole
-        native set (built-in + user + ours) exactly like the dropdown would. Reverting to the
+        """App-style / theme selector — mirrors Blender's Preferences > Themes dropdown. It
+        injects our shipped ``Maya`` theme into Blender's preset dir (idempotent), then lists the
+        whole native set (built-in + user + ours) exactly like the dropdown would. Reverting to the
         user's own look is just picking their built-in/own theme back from this same list — no
         bespoke backup entry needed. See ``blendertk.ui_utils.style_setter`` and the Maya-side
         counterpart (``slots/maya/preferences.py`` ``cmb003``)."""
-        if not widget.is_initialized:
-            import blendertk as btk
-
+        # Same self-fire/restore hazard as cmb001/cmb002 above: `add` emits
+        # currentIndexChanged (silently applying the alphabetically-first theme on panel
+        # open), and a restored index re-fires cmb003 with a stale pick. Blender records
+        # no "current preset" (StyleSetter has no getter — applying a theme leaves no
+        # pointer to read back), so the index is left unselected (-1) instead of seeded:
+        # item 0 would misreport as active, and a first theme shown at index 0 could
+        # never be applied by picking it (no index change, no signal).
+        def seed():
             btk.StyleSetter.install()  # inject shipped 'Maya' theme into the native dropdown
             widget.add(btk.StyleSetter.list_templates())  # {display_name: token}
+            widget.setCurrentIndex(-1)
+
+        self.mirror_app_state(widget, seed)
 
     def cmb003(self, index, widget):
         """Apply the selected native theme preset (Blender's built-in, the user's own, or our

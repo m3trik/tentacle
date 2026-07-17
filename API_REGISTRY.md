@@ -8,6 +8,7 @@ _Generated: 2026-07-17_
 
 - [`__init__.py`](#__init__)
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
+- [`slots/_mesh_cleanup.py`](#slots--_mesh_cleanup) — Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
@@ -120,12 +121,23 @@ Shared HUD warning framework (DCC-agnostic).
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
 
+<a id="slots--_mesh_cleanup"></a>
+### `slots/_mesh_cleanup.py`
+
+Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+
+- [`cleanup_popup_html(header, rows)`](tentacle/tentacle/slots/_mesh_cleanup.py#L12) — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
+- [`cleanup_console_report(title, lines)`](tentacle/tentacle/slots/_mesh_cleanup.py#L28) — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
+- [`report_cleanup_failure(message_box, scope, mode_label, exc)`](tentacle/tentacle/slots/_mesh_cleanup.py#L44) — Report a Mesh Cleanup failure through both channels — a detailed console line and a minimal
+
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
 
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L6)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
+  - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
+  - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -212,7 +224,6 @@ Shared HUD warning framework (DCC-agnostic).
   - `Cameras.b011(self)` — Camera: Roll
   - `Cameras.b012(self)` — Camera: Truck
   - `Cameras.b013(self)` — Camera: Orbit
-  - `Cameras.toggle_camera_view(self)` — Toggle between the last two camera views in history (DCC-agnostic switchboard logic).
 
 <a id="slots--blender--crease"></a>
 ### `slots/blender/crease.py`
@@ -258,11 +269,11 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--edit"></a>
 ### `slots/blender/edit.py`
 
-- **[`class Edit(SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L9)** — Blender port of the shared ``edit`` menu.
+- **[`class Edit(SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L14)** — Blender port of the shared ``edit`` menu.
   - `Edit.header_init(self, widget)`
   - `Edit.b_channels(self)` — Channels — open the spreadsheet-style channel editor (btk.Channels panel).
   - `Edit.tb000_init(self, widget)`
-  - `Edit.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, with Repair OFF, select the matched problem geometry.
+  - `Edit.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
   - `Edit.tb002(self, widget)` — Delete Selected (objects in object mode, components by select mode in edit mode).
   - `Edit.list000_init(self, widget)` — Initialize Create Primitives list — 6 categories, mirroring Maya's Polygon/NURBS/
   - `Edit.list000(self, item)` — Create Primitive — branch per category the way Maya's list000 does (Control/Curve/
@@ -303,13 +314,13 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--blender--hud"></a>
 ### `slots/blender/hud.py`
 
-- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L11)**
+- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L19)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L41)**
+- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L49)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
   - `SelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L108)** — Blender HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L167)** — HUD Slots for Blender, providing scene and selection information.
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L116)** — Blender HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L177)** — HUD Slots for Blender, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
@@ -383,7 +394,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Normals.tb010_init(self, widget)`
   - `Normals.tb010(self, widget)` — Reverse Normals
   - `Normals.b002(self)` — Transfer Normals (active mesh → other selected, native Data-Transfer
-  - `Normals.b004(self)` — Unlock Vertex Normals — clear custom split normals (the Blender analogue of Maya's
+  - `Normals.b004(self)` — Toggle lock/unlock vertex normals — Maya parity (m_lock_vertex_normals): report the
 
 <a id="slots--blender--nurbs"></a>
 ### `slots/blender/nurbs.py`
@@ -443,10 +454,10 @@ Shared HUD warning framework (DCC-agnostic).
   - `PolygonsSlots.b006(self)` — Bridge (selected edge loops).
   - `PolygonsSlots.b007(self)` — Bridge Interactive — open the Bridge panel (Divisions / Offset + live Preview),
   - `PolygonsSlots.b008(self)` — Weld Center: interactive target weld merging at the midpoint (mirror of Maya's
-  - `PolygonsSlots.b009(self)` — Collapse Component
+  - `PolygonsSlots.b009(self)` — Collapse Component (Maya-twin split: a face mask collapses per-region
   - `PolygonsSlots.b011(self)` — Bevel — open the bevel panel (Width / Segments / Profile + live Preview),
   - `PolygonsSlots.b012(self)` — Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode.
-  - `PolygonsSlots.b022(self)` — Attach (plain join of the selected meshes).
+  - `PolygonsSlots.b022(self)` — Attach — Maya's Connect-components tool (dR_connectTool;
   - `PolygonsSlots.b032(self)` — Poke
   - `PolygonsSlots.b047(self)` — Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into
   - `PolygonsSlots.b051(self)` — Offset Edgeloop
@@ -501,7 +512,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Rigging.tb001(self, widget)` — Constraint Switch — drive the active object's constraints' influence from a single custom
   - `Rigging.tb003_init(self, widget)`
   - `Rigging.tb003(self, widget)` — Create Locator at Selection — an Empty (locator) at each selected object's origin,
-  - `Rigging.b003(self)` — Remove Locator (delete selected Empties).
+  - `Rigging.b003(self)` — Remove Locator — dissolve each selected locator (Empty) the way mayatk's
   - `Rigging.tb004_init(self, widget)`
   - `Rigging.tb004(self, widget)` — Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).
   - `Rigging.cmb002_init(self, widget)`
@@ -534,7 +545,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
   - `SceneSlots.tb001_init(self, widget)`
   - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.
-  - `SceneSlots.b004(self)` — Hierarchy Manager — diff/repair the scene hierarchy against a reference .blend
+  - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
   - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of
@@ -601,7 +612,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `Subdivision.b001(self)` — Triangulate
   - `Subdivision.b005(self)` — Reduce (decimate to 50%).
   - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
-  - `Subdivision.b011(self)` — Apply Smooth Preview (live Subdivision-Surface modifier).
+  - `Subdivision.b011(self)` — Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons
   - `Subdivision.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
 
 <a id="slots--blender--symmetry"></a>
@@ -632,7 +643,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `TransformSlots.tb002(self, widget)` — Freeze Transformations
   - `TransformSlots.tb005_init(self, widget)`
   - `TransformSlots.tb005(self, widget)` — Move To (align source object(s) to the active/target object).
-  - `TransformSlots.b001(self)` — Match Scale (rescale source object(s) to the active/target object).
+  - `TransformSlots.b001(self)` — Match Scale (rescale the active object to the other selected objects' combined
   - `TransformSlots.cmb002_init(self, widget)`
   - `TransformSlots.cmb002(self, index, widget)` — Align To (object centers onto the active object's, native ``object.align``).
   - `TransformSlots.tb004_init(self, widget)`
@@ -662,7 +673,7 @@ Shared HUD warning framework (DCC-agnostic).
 - **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
   - `Uv.get_map_size(self)` — Get the map size from the combobox as an int.
   - `Uv.tb000_init(self, widget)`
-  - `Uv.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), into the 0-1 square, then
+  - `Uv.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
   - `Uv.tb001_init(self, widget)`
   - `Uv.tb001(self, widget)` — Auto Unwrap (Smart UV Project / Cube / Cylinder / Sphere projection).
   - `Uv.tb004_init(self, widget)`
@@ -774,7 +785,6 @@ Shared HUD warning framework (DCC-agnostic).
   - `Cameras.b011(self)` — Camera: Roll
   - `Cameras.b012(self)` — Camera: Truck
   - `Cameras.b013(self)` — Camera: Orbit
-  - `Cameras.toggle_camera_view(self)` — Toggle between the last two camera views in history.
 
 <a id="slots--maya--constrain"></a>
 ### `slots/maya/constrain.py`
@@ -855,10 +865,10 @@ Shared HUD warning framework (DCC-agnostic).
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
-- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L11)**
+- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L16)**
   - `Edit.header_init(self, widget)` — Initialize header menu
   - `Edit.tb000_init(self, widget)` — Initialize Mesh Cleanup
-  - `Edit.tb000(self, widget)` — Mesh Cleanup
+  - `Edit.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
   - `Edit.tb001_init(self, widget)` — Initialize Delete History
   - `Edit.tb001(self, widget)` — Delete History
   - `Edit.tb002(self, widget)` — Delete Selected
@@ -1221,7 +1231,7 @@ Shared HUD warning framework (DCC-agnostic).
   - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).
   - `SceneSlots.tb003_init(self, widget)` — Initialize Export.
   - `SceneSlots.tb003(self, widget)` — Export Scene (FBX + optional GLB) using the configured options.
-  - `SceneSlots.b004(self)` — Open Hierarchy Manager
+  - `SceneSlots.b004(self)` — Open Hierarchy Sync
   - `SceneSlots.b005(self)` — Open Naming Tool
   - `SceneSlots.b006(self)` — Scene Cleanup
   - `SceneSlots.b009(self)` — Fix OCIO

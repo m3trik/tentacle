@@ -60,7 +60,7 @@ class Nurbs(SlotsBlender):
         )
         m.add(
             "QSpinBox", setPrefix="Sections:", setObjectName="s005",
-            set_limits=[1, 256], setValue=8,
+            set_limits=[2, 256], setValue=8,  # Screw ``steps`` RNA minimum is 2
             setToolTip="Number of revolution segments (Screw steps).",
         )
         m.add(
@@ -209,25 +209,45 @@ class Nurbs(SlotsBlender):
     # into a single Ctrl+Z step, same convention as this file's tb000/tb001/b058) ------------
     def _run_curve_edit_op(self, op, curves):
         """Run a curve-domain Edit-Mode operator (``switch_direction`` / ``cyclic_toggle`` /
-        ``smooth``) against every control point of each of ``curves`` in turn, then restore
-        Object Mode. Maya's MEL curve verbs act directly on the object; Blender's curve-domain
-        ops only poll inside Edit Mode, so each curve is switched into Edit Mode with all its
-        points selected for the call. Returns the number of curves the op ran on."""
-        prior_active = bpy.context.view_layer.objects.active
+        ``smooth``) against every control point of ``curves`` in ONE pass, then restore Object
+        Mode and the prior selection. Maya's MEL curve verbs act directly on the object;
+        Blender's curve-domain ops only poll inside Edit Mode — and since 2.8x
+        ``mode_set(mode="EDIT")`` enters *every selected* same-type object and the curve ops
+        are multi-object aware, so the curves are selected together and the op runs once. A
+        per-curve loop would apply the op N times to every curve (Reverse on two curves =
+        double-reverse = visible no-op; Smooth = N× over-smooth). Returns the number of
+        curves the op ran on."""
+        view_layer = bpy.context.view_layer
+        prior_selection = self.selected_objects()
+        prior_active = view_layer.objects.active
+        for o in prior_selection:  # limit the multi-object Edit-Mode entry to the curves
+            o.select_set(o in curves)
+        for c in curves:
+            c.select_set(True)
+        view_layer.objects.active = curves[0]
         ran = 0
-        for curve in curves:
-            bpy.context.view_layer.objects.active = curve
-            try:
+        try:
+            # window override: ``mode_set``'s poll and the curve op's multi-object gather
+            # both read from *screen* context (dead in the Qt-pump state).
+            with btk.window_context_override():
                 bpy.ops.object.mode_set(mode="EDIT")
                 bpy.ops.curve.select_all(action="SELECT")
                 op()
-                ran += 1
-            except RuntimeError as e:
-                self.sb.message_box(str(e))
-            finally:
-                bpy.ops.object.mode_set(mode="OBJECT")
-        if prior_active is not None:
-            bpy.context.view_layer.objects.active = prior_active
+                ran = len(curves)
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
+        finally:
+            with btk.window_context_override():
+                try:
+                    bpy.ops.object.mode_set(mode="OBJECT")
+                except RuntimeError:
+                    pass  # already in Object Mode (Edit-Mode entry failed)
+            for o in prior_selection:
+                o.select_set(True)
+            for c in curves:
+                c.select_set(c in prior_selection)
+            if prior_active is not None:
+                view_layer.objects.active = prior_active
         return ran
 
     @btk.undoable
@@ -250,8 +270,12 @@ class Nurbs(SlotsBlender):
             mod.use_positive_direction = True
             bpy.context.view_layer.objects.active = curve
             try:
-                bpy.ops.object.modifier_apply(modifier=mod.name)
+                # window override: ``modifier_apply`` resolves its object from *screen*
+                # context internally (dead in the Qt-pump state).
+                with btk.window_context_override():
+                    bpy.ops.object.modifier_apply(modifier=mod.name)
             except RuntimeError as e:
+                curve.modifiers.remove(mod)  # don't leave the failed Shrinkwrap stacked
                 self.sb.message_box(str(e))
 
     @btk.undoable
@@ -265,15 +289,23 @@ class Nurbs(SlotsBlender):
             return
         for o in self.selected_objects():
             o.select_set(False)
+        dups = []
         for m in meshes:
             dup = m.copy()
             dup.data = m.data.copy()
-            for c in m.users_collection or [bpy.context.collection]:
+            # scene root collection: bpy.context.collection is screen-context (dead from
+            # the Qt pump).
+            for c in m.users_collection or [bpy.context.scene.collection]:
                 c.objects.link(dup)
             dup.select_set(True)
-            bpy.context.view_layer.objects.active = dup
+            dups.append(dup)
+        bpy.context.view_layer.objects.active = dups[0]
         try:
-            bpy.ops.object.convert(target="CURVE")
+            # window override: ``convert`` gathers its targets from *screen* context
+            # internally (dead in the Qt-pump state) — bare, it converts nothing and
+            # strands the freshly-linked duplicate meshes.
+            with btk.window_context_override():
+                bpy.ops.object.convert(target="CURVE")
         except RuntimeError as e:
             self.sb.message_box(str(e))
 
@@ -301,18 +333,73 @@ class Nurbs(SlotsBlender):
             return
         self._run_curve_edit_op(bpy.ops.curve.smooth, curves)
 
+    @staticmethod
+    def _curve_points_world(curve):
+        """Every control point of ``curve`` in world space (bezier handles included — a
+        curve with coplanar anchors can still bow out of plane through its handles)."""
+        mw = curve.matrix_world
+        pts = []
+        for spline in curve.data.splines:
+            if spline.type == "BEZIER":
+                for p in spline.bezier_points:
+                    pts.extend((mw @ p.co, mw @ p.handle_left, mw @ p.handle_right))
+            else:
+                pts.extend(mw @ p.co.to_3d() for p in spline.points)
+        return pts
+
+    @staticmethod
+    def _coplanar(points, tol=1e-4):
+        """True when ``points`` (world-space Vectors) all lie on one plane within ``tol``.
+        The plane is anchored at the first point with its normal taken from the
+        best-conditioned point pair (longest cross product); fewer than four points, or
+        collinear points, are trivially planar."""
+        if len(points) < 4:
+            return True
+        origin = points[0]
+        edge = next((p - origin for p in points[1:] if (p - origin).length > tol), None)
+        if edge is None:
+            return True  # all points coincident
+        normal = max((edge.cross(p - origin) for p in points[1:]), key=lambda v: v.length)
+        if normal.length <= tol:
+            return True  # collinear — degenerate but planar (the fill just shows nothing)
+        normal.normalize()
+        return all(abs((p - origin).dot(normal)) <= tol for p in points)
+
     @btk.undoable
     def _planar_fill(self):
         """Planar (Surfaces): fill the selected curve(s) — Blender's ``fill_mode`` is a curve
         data property (2D dimensions required), not an operator (``bpy.ops.curve.fill`` does
-        not exist — verified live), so this sets the property directly."""
+        not exist — verified live), so this sets the property directly. ``dimensions = "2D"``
+        *projects* the curve onto its local XY plane and locks Z, so non-planar curves are
+        checked first and skipped with a message (Maya's ``Planar`` errors on those too)
+        rather than silently flattened."""
         curves = self._selected_curves()
         if not curves:
             self.sb.message_box("Planar requires selected curve(s).")
             return
+        skipped, open_curves = [], []
         for c in curves:
+            if not self._coplanar(self._curve_points_world(c)):
+                skipped.append(c.name)
+                continue
             c.data.dimensions = "2D"
             c.data.fill_mode = "BOTH"
+            # a 2D fill renders faces only on cyclic splines — an open curve fills nothing
+            if not any(s.use_cyclic_u for s in c.data.splines):
+                open_curves.append(c.name)
+        notes = []
+        if skipped:
+            notes.append(
+                f"Skipped non-planar curve(s): <hl>{', '.join(skipped)}</hl> — Planar needs "
+                "the points coplanar (flattening them here would silently reshape the curve)."
+            )
+        if open_curves:
+            notes.append(
+                f"Open curve(s): <hl>{', '.join(open_curves)}</hl> — a fill only shows on "
+                "closed curves; use Open/Close to close them."
+            )
+        if notes:
+            self.sb.message_box("<br>".join(notes))
 
     @btk.undoable
     def _edit_curve_tool(self):
@@ -340,7 +427,10 @@ class Nurbs(SlotsBlender):
             o.select_set(o in curves)
         bpy.context.view_layer.objects.active = curves[0]
         try:
-            bpy.ops.object.join()
+            # window override: ``join`` merges the *screen*-context selection (dead in the
+            # Qt-pump state) — bare, it joins nothing after the selection rewrite above.
+            with btk.window_context_override():
+                bpy.ops.object.join()
         except RuntimeError as e:
             self.sb.message_box(str(e))
 

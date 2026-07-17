@@ -1,6 +1,6 @@
 {
   "label": "hier#1",
-  "ui": "hierarchy_manager",
+  "ui": "hierarchy_sync",
   "widget_count": 36,
   "phases_ms_best": {
     "01_imports": 21.126,

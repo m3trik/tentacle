@@ -96,7 +96,9 @@ class DisplaySlots(SlotsBlender):
         )
 
     def _show_all(self):
-        for o in bpy.data.objects:
+        # view_layer.objects, not bpy.data.objects: hide_set raises for objects outside
+        # the active view layer (excluded collections, other scenes), aborting the loop.
+        for o in bpy.context.view_layer.objects:
             o.hide_set(False)
         return "Show All: <hl>unhidden</hl>"
 
@@ -114,7 +116,9 @@ class DisplaySlots(SlotsBlender):
         inactive mesh is already wire). Blender's per-object analogue of Maya's
         wireframe-on-inactive viewport mode."""
         sel = set(self.selected_objects())
-        inactive = [o for o in bpy.data.objects if o.type == "MESH" and o not in sel]
+        # scene.objects, not bpy.data.objects — property writes are safe data-wide, but
+        # mutating other scenes' objects is wrong (Maya scopes to the current panel/scene).
+        inactive = [o for o in bpy.context.scene.objects if o.type == "MESH" and o not in sel]
         wire = any(o.display_type == "WIRE" for o in inactive)
         for o in inactive:
             o.display_type = "TEXTURED" if wire else "WIRE"
@@ -136,7 +140,7 @@ class DisplaySlots(SlotsBlender):
                 o.hide_render = True
                 o.hide_select = True  # deselects as a side effect in Blender
             return f"Template Selected: <hl>{len(sel)}</hl> object(s) templated"
-        templated = [o for o in bpy.data.objects if o.hide_select and o.display_type == "WIRE"]
+        templated = [o for o in bpy.context.scene.objects if o.hide_select and o.display_type == "WIRE"]
         for o in templated:
             o.hide_select = False
             o.hide_render = False
@@ -184,24 +188,30 @@ class DisplaySlots(SlotsBlender):
     def _soft_edge_display(self):
         """Toggle the viewport sharp-edge overlay (``View3DOverlay.show_edge_sharp``) — the
         Blender analogue of Maya's Soft Edge Display (both are per-viewport edge-shading state,
-        not per-object; confirmed live in Blender 5.1)."""
-        toggled = 0
-        for area in btk.get_areas("VIEW_3D"):
-            ov = area.spaces.active.overlay
-            ov.show_edge_sharp = not ov.show_edge_sharp
-            toggled += 1
-        return f"Soft Edge Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+        not per-object; confirmed live in Blender 5.1). Every ``VIEW_3D`` area is driven to the
+        SAME next state off the first area's state — the split-viewport lockstep convention
+        ``_display_normals`` / ``_mat_override`` use (per-area toggling would let split
+        viewports diverge)."""
+        areas = btk.get_areas("VIEW_3D")
+        if not areas:
+            return "Soft Edge Display: <hl>no 3D viewport</hl>"
+        show = not areas[0].spaces.active.overlay.show_edge_sharp
+        for area in areas:
+            area.spaces.active.overlay.show_edge_sharp = show
+        return f"Soft Edge Display: <hl>{'On' if show else 'Off'}</hl>"
 
     def _component_id(self):
         """Toggle the viewport index-numbers overlay (``View3DOverlay.show_extra_indices``) — the
         Blender analogue of Maya's Component ID Display (both are per-viewport overlay state, not
-        per-object; confirmed live in Blender 5.1)."""
-        toggled = 0
-        for area in btk.get_areas("VIEW_3D"):
-            ov = area.spaces.active.overlay
-            ov.show_extra_indices = not ov.show_extra_indices
-            toggled += 1
-        return f"Component ID Display: <hl>{'toggled' if toggled else 'no 3D viewport'}</hl>"
+        per-object; confirmed live in Blender 5.1). Lockstep across split viewports, same as
+        ``_soft_edge_display``."""
+        areas = btk.get_areas("VIEW_3D")
+        if not areas:
+            return "Component ID Display: <hl>no 3D viewport</hl>"
+        show = not areas[0].spaces.active.overlay.show_extra_indices
+        for area in areas:
+            area.spaces.active.overlay.show_extra_indices = show
+        return f"Component ID Display: <hl>{'On' if show else 'Off'}</hl>"
 
     def _mat_override(self):
         """Toggle the viewport's solid-shading color source between Material and a flat Single
@@ -260,13 +270,13 @@ class DisplaySlots(SlotsBlender):
         )
 
     def _un_xray_all(self):
-        for o in bpy.data.objects:
+        for o in bpy.context.scene.objects:  # scene-scoped, like _wireframe_inactive
             o.show_in_front = False
         return "Xray: <hl>cleared on all objects</hl>"
 
     def _xray_other(self):
         sel = set(self.selected_objects())
-        other = [o for o in bpy.data.objects if o.type == "MESH" and o not in sel]
+        other = [o for o in bpy.context.scene.objects if o.type == "MESH" and o not in sel]
         for o in other:
             o.show_in_front = not o.show_in_front
         return f"Xray Other: <hl>{len(other)}</hl> object(s)"

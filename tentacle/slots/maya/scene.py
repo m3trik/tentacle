@@ -59,9 +59,9 @@ class SceneSlots(SlotsMaya):
             )
             widget.menu.add(
                 "QPushButton",
-                setText="Hierarchy Manager",
+                setText="Hierarchy Sync",
                 setObjectName="b004",
-                setToolTip="Open the hierarchy manager.",
+                setToolTip="Open the hierarchy sync.",
             )
             widget.menu.add(
                 "QPushButton",
@@ -658,8 +658,8 @@ class SceneSlots(SlotsMaya):
             )
 
     def b004(self):
-        """Open Hierarchy Manager"""
-        self.sb.handlers.marking_menu.show("hierarchy_manager")
+        """Open Hierarchy Sync"""
+        self.sb.handlers.marking_menu.show("hierarchy_sync")
 
     def b005(self):
         """Open Naming Tool"""

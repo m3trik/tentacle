@@ -118,9 +118,12 @@ class PolygonsSlots(SlotsBlender):
             self.sb.message_box("Separate requires a mesh selection.")
             return
         m = widget.option_box.menu
-        btk.separate_objects(
-            objects, by_material=m.chk021.isChecked(), rename=m.chk022.isChecked()
-        )
+        try:
+            btk.separate_objects(
+                objects, by_material=m.chk021.isChecked(), rename=m.chk022.isChecked()
+            )
+        except RuntimeError as e:  # residual failures (hidden/linked mesh) — no raw traceback
+            self.sb.message_box(str(e))
 
     def tb003_init(self, widget):
         # chk002 / s004 reuse Maya names for the SAME options.
@@ -143,9 +146,20 @@ class PolygonsSlots(SlotsBlender):
         if not self._edit_op(op):
             return
         offset = m.s004.value()
-        if offset:
+        if offset:  # offset == 0 stays an extrude-in-place (Maya parity)
+            # shrink_fatten needs a VIEW_3D region (poll-fails from the Qt-pump context
+            # where the active area isn't the viewport) — run it under a viewport
+            # override, same pattern as the base ``set_viewport_tool``.
+            ctx = btk.get_view3d_context()
+            if not ctx:
+                self.sb.message_box(
+                    "No 3D viewport available — extruded, but the offset was skipped."
+                )
+                return
+            ctx = {k: v for k, v in ctx.items() if v is not None}
             try:
-                bpy.ops.transform.shrink_fatten(value=offset)
+                with bpy.context.temp_override(**ctx):
+                    bpy.ops.transform.shrink_fatten(value=offset)
             except RuntimeError as e:
                 self.sb.message_box(str(e))
 
@@ -303,7 +317,13 @@ class PolygonsSlots(SlotsBlender):
         operation = {
             "Difference": "DIFFERENCE", "Union": "UNION", "Intersection": "INTERSECT"
         }[widget.option_box.menu.cmb011.currentText()]
-        btk.boolean_op(objects, operation=operation, apply=not widget.option_box.menu.chk017.isChecked())
+        try:
+            btk.boolean_op(
+                objects, operation=operation,
+                apply=not widget.option_box.menu.chk017.isChecked(),
+            )
+        except RuntimeError as e:  # residual failures (non-evaluable operand) — no raw traceback
+            self.sb.message_box(str(e))
 
     def tb009_init(self, widget):
         widget.option_box.menu.setTitle("Snap Closest Verts")
@@ -312,13 +332,9 @@ class PolygonsSlots(SlotsBlender):
             set_limits=[0, 100, 0.05, 3], setValue=10,
             setToolTip="Maximum snap distance — vertices farther than this are ignored.",
         )
-        # chk016 reuses the Maya name for the SAME option — apply (freeze) object transforms
-        # first so the two meshes are compared in a common world space.
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Freeze Transforms", setObjectName="chk016", setChecked=True,
-            setToolTip="Apply (freeze) the objects' transforms before snapping, so the vertex "
-            "match is computed in world space.",
-        )
+        # Maya's "Freeze Transforms" option (chk016) is NOT mirrored: it was a cmds
+        # world-query workaround, and ``btk.snap_closest_verts``'s world math is exact
+        # under any transform — freezing here only zeroed both objects' channels.
 
     @btk.undoable
     def tb009(self, widget):
@@ -331,8 +347,6 @@ class PolygonsSlots(SlotsBlender):
                 "snap target."
             )
             return
-        if widget.option_box.menu.chk016.isChecked():
-            btk.freeze_transforms(objects, location=True, rotation=True, scale=True, store=False)
         source = next(o for o in objects if o is not active)
         moved = btk.snap_closest_verts(
             source, active, tolerance=widget.option_box.menu.s005.value()
@@ -370,8 +384,11 @@ class PolygonsSlots(SlotsBlender):
 
     @btk.undoable
     def b009(self):
-        """Collapse Component"""
-        self._edit_op(bpy.ops.mesh.merge, type="COLLAPSE")
+        """Collapse Component (Maya-twin split: a face mask collapses per-region
+        [PolygonCollapse]; verts/edges merge at one shared CENTER [MergeToCenter] —
+        COLLAPSE alone left disconnected components unmerged)."""
+        _, _, face = bpy.context.tool_settings.mesh_select_mode
+        self._edit_op(bpy.ops.mesh.merge, type="COLLAPSE" if face else "CENTER")
 
     def b011(self):
         """Bevel — open the bevel panel (Width / Segments / Profile + live Preview),
@@ -384,12 +401,34 @@ class PolygonsSlots(SlotsBlender):
 
     @btk.undoable
     def b022(self):
-        """Attach (plain join of the selected meshes)."""
-        objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        if len(objects) < 2:
-            self.sb.message_box("Attach requires 2+ selected meshes.")
+        """Attach — Maya's Connect-components tool (dR_connectTool; the shared tooltip says
+        "Connect vertices edges and polygons"): connect the selected verts/edges with new
+        edges, not an object join."""
+        obj = self.ensure_edit_mode("MESH")
+        if not obj:
+            self.sb.message_box("Attach requires a mesh with components selected in Edit Mode.")
             return
-        btk.combine_objects(objects)
+        import bmesh
+
+        # Headless-verified (Blender 5.1): vert_connect_path works from the interactive
+        # pick-order history but raises "Invalid selection order" without it, and the
+        # vert_connect fallback can FINISH while connecting nothing — so success is judged
+        # by the edge count, not by the ops' return.
+        edges_before = len(bmesh.from_edit_mesh(obj.data).edges)
+        try:
+            with btk.window_context_override():
+                bpy.ops.mesh.vert_connect_path()
+        except RuntimeError:
+            try:  # unordered / cross-face selections that the path op rejects
+                with btk.window_context_override():
+                    bpy.ops.mesh.vert_connect()
+            except RuntimeError:
+                pass
+        if len(bmesh.from_edit_mesh(obj.data).edges) == edges_before:
+            self.sb.message_box(
+                "<strong>Nothing connected.</strong><br>Click two or more vertices on the "
+                "mesh (in order) to connect them across a face."
+            )
 
     @btk.undoable
     def b032(self):

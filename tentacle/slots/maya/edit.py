@@ -5,6 +5,11 @@ import maya.mel as mel
 import mayatk as mtk
 from uitk import Signals
 from uitk.switchboard import Cancelable
+from tentacle.slots._mesh_cleanup import (
+    cleanup_popup_html,
+    cleanup_console_report,
+    report_cleanup_failure,
+)
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -33,18 +38,29 @@ class Edit(SlotsMaya):
     def tb000_init(self, widget):
         """Initialize Mesh Cleanup"""
         widget.option_box.menu.add("Separator", setTitle="General")
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="All Geometry",
-            setObjectName="chk005",
-            setToolTip="Clean All scene geometry.",
+        # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Items
+        # are identical to the Blender panel (shared QSettings namespace + parity sweep both key off
+        # objectName); the data values drive _cleanup_pool below.
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope",
+            setToolTip="Which meshes Mesh Cleanup acts on:\n"
+            "• Selected: only the current selection.\n"
+            "• Visible: every visible mesh in the scene.\n"
+            "• All Geometry: every mesh in the scene.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Repair",
-            setObjectName="chk004",
-            setToolTip="Repair matching geometry. Else, select only.",
+        for label, data in [("Selected", "selected"), ("Visible", "visible"), ("All Geometry", "all")]:
+            cmb.addItem(label, data)
+        # Mode (cmb_mode) replaces the old "Repair" checkbox: same two states, now self-labeling.
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_mode",
+            setToolTip="What Mesh Cleanup does with the matches:\n"
+            "• Select (diagnose): just select the problem geometry so you can inspect it.\n"
+            "• Repair (fix): fix the geometry in place.",
         )
+        for label, data in [("Select (diagnose)", "select"), ("Repair (fix)", "repair")]:
+            cmb.addItem(label, data)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
@@ -198,111 +214,185 @@ class Edit(SlotsMaya):
             lambda state: (
                 self.sb.toggle_multi(
                     widget.menu,
-                    setDisabled="chk002-3,chk005,chk010-21,chk024,s006-8",
+                    setDisabled="chk002-3,cmb_scope,chk010-21,chk024,s006-8",
                     setEnabled="chk023",
                 )
                 if state
                 else self.sb.toggle_multi(
                     widget.menu,
-                    setEnabled="chk002-3,chk005,chk010-21,s006-8",
+                    setEnabled="chk002-3,cmb_scope,chk010-21,s006-8",
                     setDisabled="chk023",
                 )
             )
         )  # disable non-relevant options.
 
+    @staticmethod
+    def _cleanup_pool(scope):
+        """Transform(s) for the Mesh Cleanup ``scope``: 'selected' -> the current selection;
+        'visible' -> every visible mesh; 'all' -> every mesh in the scene. Non-selected scopes
+        resolve mesh shapes (skipping intermediates) back to their transforms — what
+        ``clean_geometry`` / ``polyEvaluate`` operate on."""
+        if scope == "selected":
+            return cmds.ls(sl=1, transforms=1) or []
+        kwargs = {"type": "mesh"}
+        if scope == "visible":
+            kwargs["visible"] = True
+        shapes = [
+            s
+            for s in (cmds.ls(**kwargs) or [])
+            if not cmds.getAttr(f"{s}.intermediateObject")
+        ]
+        transforms = cmds.listRelatives(shapes, parent=True, fullPath=True) or []
+        return list(dict.fromkeys(transforms))  # de-dupe, preserve order
+
+    @staticmethod
+    def _poly_counts(objects):
+        """``(total verts, total faces)`` across ``objects`` via ``polyEvaluate`` — before/after
+        feedback for the Repair path. Guarded: ``polyEvaluate`` returns a non-int string for an
+        empty / incompatible selection, so anything unexpected reports 0."""
+
+        def _count(**kw):
+            try:
+                v = cmds.polyEvaluate(objects, **kw)
+            except (RuntimeError, ValueError):
+                return 0
+            return v if isinstance(v, int) else 0
+
+        return _count(vertex=True), _count(face=True)
+
+    def _cleanup_failed(self, scope, mode_label, exc):
+        """Report a Mesh Cleanup failure through both feedback channels (console + popup)."""
+        report_cleanup_failure(self.sb.message_box, scope, mode_label, exc)
+
     @Cancelable(120)
     def tb000(self, widget):
-        """Mesh Cleanup"""
-        # [0] All selectable meshes
-        allMeshes = int(widget.option_box.menu.chk005.isChecked())
-        repair = widget.option_box.menu.chk004.isChecked()  # repair or select only
-        # [3] check for quads polys
-        quads = int(widget.option_box.menu.chk010.isChecked())
-        mergeVertices = widget.option_box.menu.chk024.isChecked()
-        # [4] check for n-sided polys
-        nsided = int(widget.option_box.menu.chk002.isChecked())
-        # [5] check for concave polys
-        concave = int(widget.option_box.menu.chk011.isChecked())
-        holed = int(
-            widget.option_box.menu.chk012.isChecked()
-        )  # [6] check for holed polys
-        # [7] check for non-planar polys
-        nonplanar = int(widget.option_box.menu.chk003.isChecked())
-        # [8] check for 0 area faces
-        zeroGeom = int(widget.option_box.menu.chk013.isChecked())
-        zeroGeomTol = (
-            widget.option_box.menu.s006.value()
-        )  # [9] tolerance for face areas
-        # [10] check for 0 length edges
-        zeroEdge = int(widget.option_box.menu.chk014.isChecked())
-        zeroEdgeTol = (
-            widget.option_box.menu.s007.value()
-        )  # [11] tolerance for edge length
-        # [12] check for 0 uv face area
-        zeroMap = int(widget.option_box.menu.chk015.isChecked())
-        zeroMapTol = (
-            widget.option_box.menu.s008.value()
-        )  # [13] tolerance for uv face areas
-        # [14] Unshare uvs that are shared across vertices
-        sharedUVs = int(widget.option_box.menu.chk016.isChecked())
-        # [15] check for nonmanifold polys
-        nonmanifold = int(widget.option_box.menu.chk017.isChecked())
-        # [16] check for lamina polys [default -1]
-        # lamina = -int(widget.option_box.menu.chk018.isChecked())
-        invalidComponents = 0  # int(widget.option_box.menu.chk019.isChecked()) #[17] a guess what this arg does. not checked. default is 0.
-        overlappingFaces = widget.option_box.menu.chk025.isChecked()
-        # Find overlapping geometry at object level.
-        overlappingDuplicateObjects = widget.option_box.menu.chk022.isChecked()
-        # Search for duplicates of any selected objects while omitting the initially selected objects.
-        omitSelectedObjects = widget.option_box.menu.chk023.isChecked()
-        delete_history = widget.option_box.menu.chk026.isChecked()
+        """Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
 
-        objects = cmds.ls(sl=1, transforms=1) or []
+        Two-channel feedback (see ``tentacle.slots._mesh_cleanup``): a minimal HTML popup summary
+        plus a detailed console breakdown. Every underlying pass (duplicate search, merge,
+        polyCleanup) is guarded so an error surfaces as a message box, not a traceback."""
+        m = widget.option_box.menu
+        scope = m.cmb_scope.currentData() or "selected"
+        repair = m.cmb_mode.currentData() == "repair"
+        mode_label = "Repair" if repair else "Select"
 
-        if overlappingDuplicateObjects:
-            duplicates = mtk.get_overlapping_duplicates(
-                retain_given_objects=omitSelectedObjects, select=True, verbose=True
-            )
-            self.sb.message_box(
-                f"Found {len(duplicates)} duplicate overlapping objects."
-            )
+        objects = self._cleanup_pool(scope)
+
+        # Object-level duplicates are a distinct domain — handle and return.
+        if m.chk022.isChecked():
+            try:
+                duplicates = mtk.get_overlapping_duplicates(
+                    retain_given_objects=m.chk023.isChecked(), select=True, verbose=True
+                )
+            except (RuntimeError, ValueError) as exc:
+                self._cleanup_failed(scope, mode_label, exc)
+                return
+            n = len(duplicates)
+            verb = "deleted" if repair else "selected"
             if duplicates:
                 cmds.delete(duplicates) if repair else cmds.select(duplicates)
+            cleanup_console_report(
+                f"{mode_label} · Overlapping Duplicate Objects",
+                [f"scope: {scope}", f"{n} overlapping duplicate object(s) ({verb})"],
+            )
+            self.sb.message_box(cleanup_popup_html(
+                f"<hl>Mesh Cleanup — {mode_label}</hl>",
+                [(n, f"overlapping duplicate objects {verb}")],
+            ))
             return
 
-        if mergeVertices:  # Merge vertices on each object.
-            mtk.merge_vertices(objects, tolerance=0.0001)
+        if not objects:
+            self.sb.message_box(
+                f"<hl>Mesh Cleanup — {mode_label}</hl><br>"
+                f"No mesh found for scope '<hl>{scope}</hl>'.<br>Select a mesh or change Scope."
+            )
+            return
 
-        if overlappingFaces:
-            duplicates = mtk.get_overlapping_faces(objects)
-            self.sb.message_box(f"Found {len(duplicates)} duplicate overlapping faces.")
-            if duplicates:
-                cmds.delete(duplicates) if repair else cmds.select(duplicates, add=1)
+        # Overlapping faces: Repair deletes them; Select unions them into the diagnostic selection
+        # after the polyCleanup pass below. Detection is non-destructive either way.
+        overlapping = []
+        if m.chk025.isChecked():
+            try:
+                overlapping = mtk.get_overlapping_faces(objects) or []
+            except (RuntimeError, ValueError) as exc:
+                self._cleanup_failed(scope, mode_label, exc)
+                return
+            if repair and overlapping:
+                cmds.delete(overlapping)
+        overlap_n = len(overlapping)
 
+        # Merge vertices is a repair step (it edits geometry) — skip it in the non-destructive
+        # Select mode rather than mutating the mesh the user only asked to diagnose.
+        if repair and m.chk024.isChecked():
+            try:
+                mtk.merge_vertices(objects, tolerance=0.0001)
+            except (RuntimeError, ValueError) as exc:
+                self._cleanup_failed(scope, mode_label, exc)
+                return
+
+        before_v, before_f = self._poly_counts(objects) if repair else (0, 0)
         try:
-            mtk.Diagnostics.clean_geometry(
+            selected = mtk.Diagnostics.clean_geometry(
                 objects,
-                allMeshes=allMeshes,
                 repair=repair,
-                quads=quads,
-                nsided=nsided,
-                concave=concave,
-                holed=holed,
-                nonplanar=nonplanar,
-                zeroGeom=zeroGeom,
-                zeroGeomTol=zeroGeomTol,
-                zeroEdge=zeroEdge,
-                zeroEdgeTol=zeroEdgeTol,
-                zeroMap=zeroMap,
-                zeroMapTol=zeroMapTol,
-                sharedUVs=sharedUVs,
-                nonmanifold=nonmanifold,
-                invalidComponents=invalidComponents,
-                bakePartialHistory=delete_history,
+                quads=int(m.chk010.isChecked()),
+                nsided=int(m.chk002.isChecked()),
+                concave=int(m.chk011.isChecked()),
+                holed=int(m.chk012.isChecked()),
+                nonplanar=int(m.chk003.isChecked()),
+                zeroGeom=int(m.chk013.isChecked()),
+                zeroGeomTol=m.s006.value(),
+                zeroEdge=int(m.chk014.isChecked()),
+                zeroEdgeTol=m.s007.value(),
+                zeroMap=int(m.chk015.isChecked()),
+                zeroMapTol=m.s008.value(),
+                sharedUVs=int(m.chk016.isChecked()),
+                nonmanifold=int(m.chk017.isChecked()),
+                bakePartialHistory=m.chk026.isChecked(),
             )
         except (ValueError, RuntimeError) as exc:
-            self.sb.message_box(str(exc))
+            self._cleanup_failed(scope, mode_label, exc)
             return
+
+        if repair:
+            after_v, after_f = self._poly_counts(objects)
+            removed_v, removed_f = before_v - after_v, before_f - after_f
+            cleanup_console_report(
+                "Repair",
+                [
+                    f"scope: {scope} · {len(objects)} object(s)",
+                    f"verts: {before_v} -> {after_v} (removed {removed_v})",
+                    f"faces: {before_f} -> {after_f} (removed {removed_f})",
+                    *([f"overlapping faces deleted: {overlap_n}"] if m.chk025.isChecked() else []),
+                ],
+            )
+            self.sb.message_box(cleanup_popup_html(
+                f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> object(s)",
+                [
+                    (removed_v, "verts removed"),
+                    (removed_f, "faces removed"),
+                    (overlap_n, "overlapping faces deleted"),
+                ],
+            ))
+            return
+
+        # Select mode — clean_geometry now leaves the matched components selected and returns them;
+        # union the overlapping faces back in so both diagnostics stay visible.
+        if overlapping:
+            cmds.select(overlapping, add=1)
+        n_selected = len(selected or [])
+        cleanup_console_report(
+            "Select",
+            [
+                f"scope: {scope} · {len(objects)} object(s)",
+                f"problem components selected: {n_selected}",
+                *([f"overlapping faces: {overlap_n}"] if m.chk025.isChecked() else []),
+            ],
+        )
+        self.sb.message_box(cleanup_popup_html(
+            "<hl>Mesh Cleanup — Select</hl>",
+            [(n_selected, "problem components"), (overlap_n, "overlapping faces")],
+        ))
 
     def tb001_init(self, widget):
         """Initialize Delete History"""

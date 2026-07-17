@@ -121,6 +121,81 @@ class Slots(QtCore.QObject):
         root_list.ui.register_widget(widget)
         return widget
 
+    def toggle_camera_view(self):
+        """Toggle between the last two viewport-camera views in slot history.
+
+        DCC-agnostic switchboard logic shared by the Maya and Blender ``Cameras``
+        slots (the only slots that define the ``b000``-``b007`` viewport-camera
+        methods it drives): if the last view was perspective (``b004``) it
+        restores the previous non-perspective view, otherwise it switches to
+        perspective — reading and re-appending the switchboard's ``slot_history``
+        so repeated triggers alternate. A no-op until a camera view has been used
+        (empty history). Lives on the shared base so both DCC cameras slots
+        inherit ONE implementation; wired to its triggers by
+        :meth:`register_camera_view_toggle`.
+        """
+        slots = self.sb.get_methods_by_string_pattern(self, "b000-7")
+        # The last two camera-view slots in history (most recent last).
+        history = self.sb.slot_history(slice(-2, None), inc=slots)
+        if not history:
+            return
+
+        # If the last view was perspective (b004), restore the prior non-persp
+        # view; otherwise switch to perspective.
+        if history[-1].__name__ == self.b004.__name__:
+            if len(history) < 2:
+                return
+            last_non_persp_cam = history[-2]
+            last_non_persp_cam()
+            self.sb.slot_history(add=last_non_persp_cam)
+        else:
+            self.b004()
+            self.sb.slot_history(add=self.b004)
+
+    def register_camera_view_toggle(self):
+        """Wire :meth:`toggle_camera_view` to its triggers. Call once from a
+        cameras slot's ``__init__`` (the only slots defining ``b000``-``b007``).
+
+        Two independent trigger paths, by design:
+
+        * the **double-click gesture** inside the marking menu (the historical
+          default) — connected to the menu's ``left_mouse_double_click`` signal
+          (the marking menu registers itself as ``sb.handlers.marking_menu`` in
+          its ``_setup_registry``); and
+        * a **keyable command** (``toggle_camera_view``) surfaced in the shortcut
+          editor alongside the other marking-menu actions (``marking_menu_show``,
+          ``repeat_last_command``), shipped **unbound** so the double-click stays
+          the default while the user can also assign a key.
+
+        Idempotent per process: the command-presence guard makes a slot rebuild
+        (or a second cameras instance) a no-op, so neither the command nor the
+        double-click connection is duplicated. Degrades to a no-op on a
+        switchboard predating ``register_command`` (older uitk / a test double).
+        """
+        sb = self.sb
+        # Already wired this process (slot rebuild / a second cameras instance).
+        if "toggle_camera_view" in getattr(sb, "_commands", {}):
+            return
+
+        # 1. Double-click gesture — the historical default trigger.
+        marking_menu = getattr(getattr(sb, "handlers", None), "marking_menu", None)
+        if marking_menu is not None:
+            marking_menu.left_mouse_double_click.connect(self.toggle_camera_view)
+
+        # 2. Keyable command — listed and user-bindable in the shortcut editor.
+        register_command = getattr(sb, "register_command", None)
+        if register_command is not None:
+            register_command(
+                "toggle_camera_view",
+                callback=self.toggle_camera_view,
+                label="Toggle Camera View",
+                doc="Toggle between the perspective and last orthographic "
+                "viewport view. Default trigger: double-click inside the "
+                "marking menu.",
+                sequence="",  # unbound: the double-click is the default trigger
+                scope="application",
+            )
+
     @staticmethod
     def _migrate_legacy_repeat_last(sb) -> None:
         """Fold the retired ``configurable.repeat_last_shortcut`` into the unified

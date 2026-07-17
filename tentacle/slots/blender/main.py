@@ -171,7 +171,12 @@ class Main(SlotsBlender):
             self.sb.message_box("No workspace found.")
             return
         self._workspace_store.record(found)
-        self.sb.message_box(f"Workspace set to {os.path.basename(found)}.")
+        # Truthful toast: nothing in Blender is switched here (there is no Maya-style
+        # workspace state to set) — the folder is found and recorded in Recent Workspaces.
+        self.sb.message_box(
+            f"Found workspace <hl>{os.path.basename(found)}</hl> — "
+            "recorded in Recent Workspaces."
+        )
         self.sb.handlers.marking_menu.hide()
 
     def _set_workspace_from_path(self, path):
@@ -182,6 +187,9 @@ class Main(SlotsBlender):
             return
         os.startfile(path)
         self._workspace_store.record(path)  # bump to most-recent
+        self.sb.message_box(
+            f"Opened workspace folder <hl>{os.path.basename(path)}</hl>."
+        )
         self.sb.handlers.marking_menu.hide()
 
 

@@ -79,6 +79,7 @@ class Animation(SlotsBlender):
         )
         for text, data in [("Mode: Absolute", "Absolute"), ("Mode: Relative", "Relative")]:
             cmb.addItem(text, data)
+        cmb.setCurrentIndex(1)  # default Relative (Maya parity — keeps chk010's ±1 a nudge, not a jump to frame ±1)
         cmb001 = m.add(
             "QComboBox", setObjectName="cmb001",
             setToolTip="Snap the resulting frame to a clean number:\n"
@@ -255,8 +256,8 @@ class Animation(SlotsBlender):
     def tb003(self, widget):
         """Stagger Keys (re-time selected objects sequentially)."""
         objects = self.selected_objects()
-        if len(objects) < 2:
-            self.sb.message_box("Stagger Keys requires 2+ selected objects.")
+        if not objects:  # one object is valid — a re-time via the Start Frame override
+            self.sb.message_box("Stagger Keys requires a selection.")
             return
         m = widget.option_box.menu
         start = m.s005.value()
@@ -446,7 +447,7 @@ class Animation(SlotsBlender):
         (mirrors Maya's chk006), instead of snapping every target to the source's literal
         values."""
         objects = self.selected_objects()
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         targets = [o for o in objects if o is not active]
         if not (active and targets):
             self.sb.message_box("Select target object(s) with the source object active.")
@@ -630,13 +631,15 @@ class Animation(SlotsBlender):
             setToolTip="When to key visibility: at the current frame, or relative to each "
             "object's keyed range.",
         )
+        # Maya's cmb002 items first, in Maya's order (cross-DCC QSettings rule: persisted
+        # indices agree); the Blender-only Current Frame mode is appended last.
         for text, data in [
-            ("When: Current Frame", "current"),
             ("When: Range Start", "start"),
             ("When: Range End", "end"),
             ("When: Both Ends", "both"),
             ("When: Before Start", "before_start"),
             ("When: After End", "after_end"),
+            ("When: Current Frame", "current"),
         ]:
             cmb.addItem(text, data)
         m.add(
@@ -741,7 +744,7 @@ class Animation(SlotsBlender):
     def tb012(self, widget):
         """Copy Keys (from the active object; Copy + Paste mode also pastes onto the rest of
         the selection immediately)."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active is None:
             self.sb.message_box("Copy Keys requires an active object.")
             return
@@ -769,10 +772,11 @@ class Animation(SlotsBlender):
         cmb = m.add(
             "QComboBox", setObjectName="cmb039",
             setToolTip="Where to paste the copied keys:\n"
-            "• At Copy Frame: at the frame(s) they were originally captured at (unshifted)\n"
-            "• At Playhead: shifted so the earliest copied key lands on the current frame",
+            "• At Playhead: shifted so the earliest copied key lands on the current frame\n"
+            "• At Copy Frame: at the frame(s) they were originally captured at (unshifted)",
         )
-        for text, data in [("At Copy Frame", "source"), ("At Playhead", "playhead")]:
+        # Item order matches Maya's cmb039 (cross-DCC QSettings rule: persisted indices agree).
+        for text, data in [("At Playhead", "playhead"), ("At Copy Frame", "source")]:
             cmb.addItem(text, data)
 
     @btk.undoable
@@ -1021,7 +1025,11 @@ class Animation(SlotsBlender):
         objects = self.selected_objects() or None
         m = widget.option_box.menu
         untie = m.cmb_tie.currentText() == "Untie"
-        changed = btk.tie_keyframes(objects, untie=untie, absolute=m.chk023.isChecked())
+        # Absolute range = the keyed extent (every curve's genuine first/last keys), so
+        # untie+absolute would delete real animation endpoints — absolute applies only when tying.
+        changed = btk.tie_keyframes(
+            objects, untie=untie, absolute=not untie and m.chk023.isChecked()
+        )
         verb = "Untied" if untie else "Tied"
         self.sb.message_box(f"{verb} <hl>{changed}</hl> bookend key(s).")
 

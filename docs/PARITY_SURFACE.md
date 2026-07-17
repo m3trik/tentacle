@@ -24,7 +24,7 @@
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
 | GameShader | 0 | 0 | 0 | 2 | OK |
 | HdrManager | 0 | 0 | 0 | 2 | OK |
-| HierarchyManager | 0 | 0 | 0 | 1 | OK |
+| HierarchyManager | 0 | 0 | 0 | 0 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
@@ -78,12 +78,8 @@
   - `spn_samples..ui:enabled` maya=`None` blender=`'false'`
 
 #### HierarchyManager
-**property deltas (review)**
-  - `chk_skip_animated.setText` maya=`'Skip Animated Parents'` blender=`'Skip Animated'`
-
 **combo item deltas (review)**
   - `cmb_diff_options` 8->4 items; missing=['Mode: Full Hierarchy Compare', 'Mode: Selected Objects Only', 'Mode: Missing Objects Only', 'Mode: Extra Objects Only'] extra=[]
-  - `cmb_pull_options` 2->1 items; missing=['Mode: Add to Scene', 'Mode: Merge Hierarchies'] extra=['(Pull not yet available)']
 
 #### ImageToPlane
 **property deltas (review)**
@@ -143,7 +139,7 @@ Blender-only panels: MayaBridge
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
 | pivot.py | 0 | 0 | 9 | 0 | 0 | OK |
-| polygons.py | 0 | 0 | 2 | 0 | 0 | OK |
+| polygons.py | 0 | 0 | 3 | 0 | 0 | OK |
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 6 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
@@ -160,7 +156,7 @@ Blender-only panels: MayaBridge
 
 #### animation.py
 **combo item deltas (review)**
-  - `cmb002` 5->6 items; missing=['Start', 'End', 'Both', 'Before Start', 'After End'] extra=['When: Current Frame', 'When: Range Start', 'When: Range End', 'When: Both Ends', 'When: Before Start', 'When: After End']
+  - `cmb002` 5->6 items; missing=['Start', 'End', 'Both', 'Before Start', 'After End'] extra=['When: Range Start', 'When: Range End', 'When: Both Ends', 'When: Before Start', 'When: After End', 'When: Current Frame']
   - `cmb038` 5->4 items; missing=['Mode: Channel Box'] extra=[]
   - `cmb_scope` 2->2 items; missing=['Selected', 'All Scene Objects'] extra=['Scope: Selected', 'Scope: All Scene Objects']
 

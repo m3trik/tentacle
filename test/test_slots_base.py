@@ -22,7 +22,7 @@ import unittest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")  # before any widget is built
 
 from qtpy import QtCore, QtWidgets  # noqa: E402
-from uitk.widgets.mixins.state_manager import StateManager  # noqa: E402
+from uitk.managers.state_manager import StateManager  # noqa: E402
 from tentacle.slots._slots import Slots  # noqa: E402
 
 
@@ -432,6 +432,168 @@ class TestMigrationRunsOnce(unittest.TestCase):
 
         # Must not raise — slot init has to survive a migration hiccup.
         Slots(_BadSb())
+
+
+class _Signal:
+    """Connectable signal double recording its connections."""
+
+    def __init__(self):
+        self.connected = []
+
+    def connect(self, fn):
+        self.connected.append(fn)
+
+
+class _MarkingMenu:
+    """Marking-menu double exposing the double-click signal the wiring uses."""
+
+    def __init__(self):
+        self.left_mouse_double_click = _Signal()
+
+
+class _CmdSb:
+    """Switchboard double with a handlers namespace + command registry."""
+
+    def __init__(self, marking_menu=True):
+        self.handlers = type("Handlers", (), {})()
+        if marking_menu:
+            self.handlers.marking_menu = _MarkingMenu()
+        self._commands = {}
+        self.register_calls = []
+
+    def register_command(self, name, **kwargs):
+        self._commands[name] = kwargs
+        self.register_calls.append((name, kwargs))
+
+
+class _HistorySb:
+    """Switchboard double exposing the two surfaces ``toggle_camera_view`` reads:
+    ``get_methods_by_string_pattern`` (the b000-b007 slot set) and ``slot_history``."""
+
+    def __init__(self, history=None, slots=None):
+        self._history = list(history or [])
+        self._slots = list(slots or [])
+
+    def get_methods_by_string_pattern(self, instance, pattern):
+        return self._slots
+
+    def slot_history(self, index=None, inc=None, add=None):
+        if add is not None:
+            self._history.append(add)
+            return
+        if index is not None:
+            return self._history[index]
+        return list(self._history)
+
+
+class TestToggleCameraView(unittest.TestCase):
+    """``toggle_camera_view`` (base ``Slots``) alternates between perspective
+    (``b004``) and the last non-perspective view in ``slot_history``. DCC-agnostic
+    — pinned here without Maya, on a bare ``Slots`` with stubbed b-methods."""
+
+    def setUp(self):
+        self.instance = Slots.__new__(Slots)
+        self.calls = []
+
+        def _record(name):
+            def _f(*a, **kw):
+                self.calls.append(name)
+
+            _f.__name__ = name
+            return _f
+
+        for name in ("b000", "b001", "b002", "b003", "b004", "b005", "b006", "b007"):
+            setattr(self.instance, name, _record(name))
+
+    def test_empty_history_is_noop(self):
+        self.instance.sb = _HistorySb(history=[], slots=[self.instance.b004])
+        self.instance.toggle_camera_view()
+        self.assertEqual(self.calls, [])
+
+    def test_last_was_non_persp_goes_to_persp(self):
+        self.instance.sb = _HistorySb(
+            history=[self.instance.b000],  # last view = back
+            slots=[self.instance.b000, self.instance.b004],
+        )
+        self.instance.toggle_camera_view()
+        self.assertEqual(self.calls, ["b004"])
+
+    def test_last_was_persp_restores_prior_non_persp(self):
+        self.instance.sb = _HistorySb(
+            history=[self.instance.b000, self.instance.b004],
+            slots=[self.instance.b000, self.instance.b004],
+        )
+        self.instance.toggle_camera_view()
+        self.assertEqual(self.calls, ["b000"])
+
+    def test_last_was_persp_no_prior_is_noop(self):
+        self.instance.sb = _HistorySb(
+            history=[self.instance.b004],
+            slots=[self.instance.b004],
+        )
+        self.instance.toggle_camera_view()
+        self.assertEqual(self.calls, [])
+
+    def test_history_updated_after_toggle_to_persp(self):
+        sb = _HistorySb(
+            history=[self.instance.b000],
+            slots=[self.instance.b000, self.instance.b004],
+        )
+        self.instance.sb = sb
+        self.instance.toggle_camera_view()
+        self.assertEqual(sb._history[-1].__name__, "b004")
+
+
+class TestRegisterCameraViewToggle(unittest.TestCase):
+    """``register_camera_view_toggle`` wires the double-click gesture AND registers
+    the keyable ``toggle_camera_view`` command, once, defensively."""
+
+    @staticmethod
+    def _slot(sb):
+        slot = Slots.__new__(Slots)  # bypass __init__ (no migration side-effects)
+        slot.sb = sb
+        return slot
+
+    def test_connects_double_click_and_registers_unbound_command(self):
+        sb = _CmdSb()
+        slot = self._slot(sb)
+        slot.register_camera_view_toggle()
+
+        # The double-click gesture is connected to the toggle.
+        self.assertEqual(
+            sb.handlers.marking_menu.left_mouse_double_click.connected,
+            [slot.toggle_camera_view],
+        )
+        # The command is registered, unbound, application-scoped, routed to the toggle.
+        self.assertIn("toggle_camera_view", sb._commands)
+        spec = sb._commands["toggle_camera_view"]
+        self.assertEqual(spec["sequence"], "")  # default trigger stays the double-click
+        self.assertEqual(spec["scope"], "application")
+        self.assertEqual(spec["callback"], slot.toggle_camera_view)
+
+    def test_idempotent_across_rebuilds(self):
+        sb = _CmdSb()
+        self._slot(sb).register_camera_view_toggle()
+        # A second cameras instance (slot rebuild) must not re-register or re-connect.
+        self._slot(sb).register_camera_view_toggle()
+
+        self.assertEqual(len(sb.register_calls), 1)
+        self.assertEqual(
+            len(sb.handlers.marking_menu.left_mouse_double_click.connected), 1
+        )
+
+    def test_no_marking_menu_still_registers_command(self):
+        sb = _CmdSb(marking_menu=False)  # e.g. a bare / test switchboard
+        self._slot(sb).register_camera_view_toggle()  # must not raise
+        self.assertIn("toggle_camera_view", sb._commands)
+
+    def test_no_register_command_is_graceful(self):
+        # Older uitk / a switchboard double without the command API.
+        class _BareSb:
+            def __init__(self):
+                self.handlers = type("Handlers", (), {})()
+
+        self._slot(_BareSb()).register_camera_view_toggle()  # no-op, must not raise
 
 
 if __name__ == "__main__":
