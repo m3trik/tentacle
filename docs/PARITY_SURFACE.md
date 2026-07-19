@@ -45,7 +45,7 @@
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
-| TelescopeRig | 0 | 0 | 0 | 0 | OK |
+| TelescopeRig | 0 | 1 | 0 | 0 | open |
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
@@ -114,11 +114,11 @@
   - `b004.class` maya=`'QPushButton'` blender=`'PushButton'`
   - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
 
-**N/A by design (1):** WorkspaceMap (Maya-workspace management tool; no Blender project concept — reframe as a .blend/asset browser only if wanted (plan ruling))
+**N/A by design (1):** WorkspaceMap (Maya workspace-tree browser; Blender now SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18), but the map/browser tree itself stays unported — the Reference Manager combo + main.py Workspace tab cover discovery; port only if wanted)
 
 **[counterpart-set OK]** BlenderBridge <-> MayaBridge — cross-DCC send pair — each package ships the bridge named after its TARGET app
 
-Blender-only panels: MayaBridge
+Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## tentacle marking-menu slots (`slots/maya` <-> `slots/blender`)
 
@@ -129,8 +129,8 @@ Blender-only panels: MayaBridge
 | crease.py | 0 | 0 | 0 | 0 | 0 | OK |
 | deformation.py | 0 | 0 | 0 | 0 | 0 | OK |
 | display.py | 0 | 0 | 0 | 0 | 0 | OK |
-| duplicate.py | 0 | 0 | 0 | 0 | 0 | OK |
-| edit.py | 0 | 0 | 11 | 0 | 0 | OK |
+| duplicate.py | 0 | 0 | 1 | 0 | 0 | OK |
+| edit.py | 0 | 0 | 8 | 0 | 0 | OK |
 | editors.py | 0 | 0 | 0 | 0 | 0 | OK |
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
 | lighting.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -138,10 +138,10 @@ Blender-only panels: MayaBridge
 | materials.py | 0 | 0 | 3 | 0 | 0 | OK |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
-| pivot.py | 0 | 0 | 9 | 0 | 0 | OK |
+| pivot.py | 0 | 0 | 7 | 0 | 0 | OK |
 | polygons.py | 0 | 0 | 3 | 0 | 0 | OK |
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
-| rendering.py | 0 | 0 | 6 | 0 | 0 | OK |
+| rendering.py | 0 | 1 | 4 | 0 | 0 | open |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
 | scene.py | 0 | 0 | 9 | 0 | 0 | OK |
 | selection.py | 0 | 0 | 8 | 0 | 0 | OK |
@@ -171,6 +171,10 @@ Blender-only panels: MayaBridge
   - `_LIST000_ITEMS[View]` 5->4 items; missing=['Show Selected', 'Show Geometry'] extra=['Show All']
   - `_LIST000_ITEMS[Wireframe]` 4->5 items; missing=[] extra=['Shaded Selected']
 
+#### edit.py
+**combo item deltas (review)**
+  - `cmb_lock` 2->2 items; missing=['Unlock Nodes', 'Lock Nodes'] extra=['Unlock Objects', 'Lock Objects']
+
 #### materials.py
 **combo item deltas (review)**
   - `_TOOLS_ITEMS[Materials (scene)]` 3->2 items; missing=['Arnold Preview Shader'] extra=[]
@@ -184,10 +188,6 @@ Blender-only panels: MayaBridge
   - `_LIST000_COMMANDS[Edit]` 12->7 items; missing=['Insert Knot', 'Rebuild', 'Extend (Options)', 'Extend', 'Extend on Surface'] extra=[]
   - `_LIST000_COMMANDS[Modify]` 7->1 items; missing=['Lock', 'Unlock', 'Bend', 'Curl', 'Curvature', 'Straighten'] extra=[]
   - `_LIST000_COMMANDS[Surfaces]` 2->1 items; missing=['Insert Isoparm'] extra=[]
-
-#### rendering.py
-**combo item deltas (review)**
-  - `cmb050` 15->9 items; missing=['AVI (Uncompressed)', 'MP4 (Compressed)', 'MOV (Animation)', 'MOV (JPEG)', 'MOV (No Compression)', 'PNG Still (Single Frame)', 'IFF Sequence', 'Arnold Sequence', 'AVI + PNG', 'AVI + Arnold', 'All Maya Movie/Sequences'] extra=['MP4 (H.264)', 'MOV (H.264)', 'AVI (FFV1)', 'PNG Still', 'OpenEXR Sequence']
 
 #### rigging.py
 **combo item deltas (review)**
@@ -206,4 +206,9 @@ Blender-only panels: MayaBridge
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
-## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Open work (ledgered `pending`)
+
+- **TelescopeRig** `cmb_axis` — .ui widget ComboBox  [pending] Aim Axis combo added to the Maya panel 2026-07-18 with the TelescopeRig engine overhaul (selects the segments' long axis: aim vectors + driven scale channel + off-axis lock set). The blendertk twin's engine still hardcodes its axis handling — port the aim_axis option to its engine, .ui, and slots.
+- **rendering** `chk060` — optbox QCheckBox 'Include Audio'  [pending] Include Audio (2026-07-18 overhaul): Maya muxes the timeline's active sound into MP4/MOV (ffmpeg) and passes it to the native AVI playblast. Blender candidate route: set scene.render.ffmpeg.audio_codec before bpy.ops.render.opengl so VSE/speaker audio muxes into the FFMPEG output — needs a live-Blender check before building.
+
+## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 2 open-work items; 0 stale Maya handlers. Sweep PASSES.

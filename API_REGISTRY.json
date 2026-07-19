@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-07-18",
+  "generated_at": "2026-07-19",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -189,12 +189,21 @@
               "deprecated": false
             },
             {
+              "name": "ensure_object_mode",
+              "qualname": "SlotsBlender.ensure_object_mode",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,",
+              "line": 68,
+              "deprecated": false
+            },
+            {
               "name": "set_viewport_tool",
               "qualname": "SlotsBlender.set_viewport_tool",
               "kind": "method",
               "signature": "(self, tool_id, label=None, edit_type=None)",
               "summary": "Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /",
-              "line": 68,
+              "line": 87,
               "deprecated": false
             },
             {
@@ -203,7 +212,7 @@
               "kind": "staticmethod",
               "signature": "(op_path)",
               "summary": "The ``bpy.ops`` callable at a dotted path (``\"wm.link\"``), or None when the",
-              "line": 123,
+              "line": 142,
               "deprecated": false
             },
             {
@@ -212,7 +221,7 @@
               "kind": "method",
               "signature": "(self, op_path, **kwargs)",
               "summary": "Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a",
-              "line": 129,
+              "line": 148,
               "deprecated": false
             },
             {
@@ -221,7 +230,7 @@
               "kind": "method",
               "signature": "(self, data_type, **kwargs)",
               "summary": "Run native Data-Transfer from the active mesh to the other selected meshes",
-              "line": 149,
+              "line": 168,
               "deprecated": false
             }
           ]
@@ -960,7 +969,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 47,
+              "line": 31,
               "deprecated": false
             },
             {
@@ -969,7 +978,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 66,
+              "line": 50,
               "deprecated": false
             },
             {
@@ -978,7 +987,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Convert to Instances (selected objects share the active object's data).",
-              "line": 81,
+              "line": 65,
               "deprecated": false
             },
             {
@@ -987,7 +996,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 101,
+              "line": 84,
               "deprecated": false
             },
             {
@@ -996,7 +1005,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Instanced Objects",
-              "line": 107,
+              "line": 90,
               "deprecated": false
             },
             {
@@ -1005,7 +1014,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Instance — configure option-box menu.",
-              "line": 139,
+              "line": 122,
               "deprecated": false
             },
             {
@@ -1014,7 +1023,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Instance: find and convert geometrically identical meshes",
-              "line": 249,
+              "line": 232,
               "deprecated": false
             },
             {
@@ -1023,7 +1032,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Uninstance Selected Objects (make their data single-user).",
-              "line": 314,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -1032,7 +1041,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mirror",
-              "line": 321,
+              "line": 304,
               "deprecated": false
             },
             {
@@ -1041,7 +1050,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Linear",
-              "line": 325,
+              "line": 308,
               "deprecated": false
             },
             {
@@ -1050,7 +1059,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Radial",
-              "line": 329,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -1059,7 +1068,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Duplicate Grid",
-              "line": 333,
+              "line": 316,
               "deprecated": false
             }
           ]
@@ -2176,7 +2185,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 28,
+              "line": 29,
               "deprecated": false
             },
             {
@@ -2185,7 +2194,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reset Pivot",
-              "line": 37,
+              "line": 38,
               "deprecated": false
             },
             {
@@ -2194,7 +2203,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 51,
+              "line": 52,
               "deprecated": false
             },
             {
@@ -2203,7 +2212,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Center Pivot",
-              "line": 67,
+              "line": 68,
               "deprecated": false
             },
             {
@@ -2212,7 +2221,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Object",
-              "line": 82,
+              "line": 83,
               "deprecated": false
             },
             {
@@ -2221,7 +2230,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Component",
-              "line": 88,
+              "line": 89,
               "deprecated": false
             },
             {
@@ -2230,7 +2239,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Center Pivot: World",
-              "line": 94,
+              "line": 95,
               "deprecated": false
             },
             {
@@ -2239,7 +2248,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Pivot — move the selected objects' origins onto the **active** object's origin.",
-              "line": 102,
+              "line": 103,
               "deprecated": false
             },
             {
@@ -2248,7 +2257,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 163,
+              "line": 164,
               "deprecated": false
             },
             {
@@ -2257,7 +2266,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its",
-              "line": 175,
+              "line": 176,
               "deprecated": false
             },
             {
@@ -2265,8 +2274,8 @@
               "qualname": "Pivot.b004",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Bake Pivot — freeze each selected object's current rotation and scale into its data,",
-              "line": 196,
+              "summary": "Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected",
+              "line": 197,
               "deprecated": false
             }
           ]
@@ -2292,7 +2301,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 48,
+              "line": 49,
               "deprecated": false
             },
             {
@@ -2301,7 +2310,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 62,
+              "line": 63,
               "deprecated": false
             },
             {
@@ -2310,7 +2319,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Merge Vertices",
-              "line": 77,
+              "line": 78,
               "deprecated": false
             },
             {
@@ -2319,7 +2328,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Merge Vertices: Set Distance — set the merge threshold from two selected verts",
-              "line": 84,
+              "line": 85,
               "deprecated": false
             },
             {
@@ -2328,7 +2337,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 101,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -2337,7 +2346,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Separate (split the mesh into loose parts, or by material).",
-              "line": 114,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -2346,7 +2355,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 128,
+              "line": 129,
               "deprecated": false
             },
             {
@@ -2355,7 +2364,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Extrude (region together or per-face), then offset along normals.",
-              "line": 142,
+              "line": 143,
               "deprecated": false
             },
             {
@@ -2364,7 +2373,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 166,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -2373,7 +2382,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Combine Selected Meshes (optionally one mesh per material / clustered by distance).",
-              "line": 190,
+              "line": 191,
               "deprecated": false
             },
             {
@@ -2382,7 +2391,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 207,
+              "line": 208,
               "deprecated": false
             },
             {
@@ -2391,7 +2400,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Detach (separate selected components into a new object;",
-              "line": 225,
+              "line": 226,
               "deprecated": false
             },
             {
@@ -2400,7 +2409,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 238,
+              "line": 239,
               "deprecated": false
             },
             {
@@ -2409,7 +2418,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Inset Face Region",
-              "line": 259,
+              "line": 260,
               "deprecated": false
             },
             {
@@ -2418,7 +2427,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 269,
+              "line": 270,
               "deprecated": false
             },
             {
@@ -2427,7 +2436,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Divide Facet (subdivide the selected components).",
-              "line": 283,
+              "line": 284,
               "deprecated": false
             },
             {
@@ -2436,7 +2445,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 294,
+              "line": 295,
               "deprecated": false
             },
             {
@@ -2445,7 +2454,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Boolean Operation (active mesh = base, other selected = operands).",
-              "line": 308,
+              "line": 309,
               "deprecated": false
             },
             {
@@ -2454,7 +2463,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 328,
+              "line": 329,
               "deprecated": false
             },
             {
@@ -2463,7 +2472,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Closest Verts (the other selected mesh's verts snap onto the ACTIVE mesh).",
-              "line": 340,
+              "line": 341,
               "deprecated": false
             },
             {
@@ -2472,7 +2481,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fill Holes",
-              "line": 359,
+              "line": 360,
               "deprecated": false
             },
             {
@@ -2481,7 +2490,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Symmetrize",
-              "line": 364,
+              "line": 365,
               "deprecated": false
             },
             {
@@ -2490,7 +2499,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bridge (selected edge loops).",
-              "line": 369,
+              "line": 370,
               "deprecated": false
             },
             {
@@ -2499,7 +2508,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bridge Interactive — open the Bridge panel (Divisions / Offset + live Preview),",
-              "line": 373,
+              "line": 374,
               "deprecated": false
             },
             {
@@ -2508,7 +2517,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Weld Center: interactive target weld merging at the midpoint (mirror of Maya's",
-              "line": 379,
+              "line": 380,
               "deprecated": false
             },
             {
@@ -2517,7 +2526,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Collapse Component (Maya-twin split: a face mask collapses per-region",
-              "line": 386,
+              "line": 387,
               "deprecated": false
             },
             {
@@ -2526,7 +2535,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bevel — open the bevel panel (Width / Segments / Profile + live Preview),",
-              "line": 393,
+              "line": 394,
               "deprecated": false
             },
             {
@@ -2535,7 +2544,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode.",
-              "line": 398,
+              "line": 399,
               "deprecated": false
             },
             {
@@ -2544,7 +2553,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attach — Maya's Connect-components tool (dR_connectTool;",
-              "line": 403,
+              "line": 404,
               "deprecated": false
             },
             {
@@ -2553,7 +2562,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Poke",
-              "line": 434,
+              "line": 435,
               "deprecated": false
             },
             {
@@ -2562,7 +2571,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into",
-              "line": 438,
+              "line": 439,
               "deprecated": false
             },
             {
@@ -2571,7 +2580,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Offset Edgeloop",
-              "line": 444,
+              "line": 445,
               "deprecated": false
             },
             {
@@ -2580,7 +2589,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Target Weld: interactively merge one vertex onto another by dragging.",
-              "line": 448,
+              "line": 449,
               "deprecated": false
             },
             {
@@ -2589,7 +2598,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Circularize (LoopTools Circle on the selected edge loop).",
-              "line": 478,
+              "line": 479,
               "deprecated": false
             },
             {
@@ -2598,7 +2607,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Edit Edge Flow (Set Flow on the selected edge loops).",
-              "line": 483,
+              "line": 484,
               "deprecated": false
             },
             {
@@ -2607,7 +2616,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wedge (sweep the selected faces 90° around a selected hinge edge).",
-              "line": 490,
+              "line": 491,
+              "deprecated": false
+            },
+            {
+              "name": "b038_init",
+              "qualname": "PolygonsSlots.b038_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender",
+              "line": 500,
               "deprecated": false
             },
             {
@@ -2615,8 +2633,8 @@
               "qualname": "PolygonsSlots.b038",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Assign Invisible — Maya invisible faces have no Blender analogue.",
-              "line": 499,
+              "summary": "Assign Invisible — unreachable (b038_init hides the button);",
+              "line": 506,
               "deprecated": false
             },
             {
@@ -2625,7 +2643,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Slide Edge — interactively slide the selected edge loop along the surface, the",
-              "line": 503,
+              "line": 510,
               "deprecated": false
             }
           ]
@@ -5563,7 +5581,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Selected",
-              "line": 540,
+              "line": 541,
               "deprecated": false
             },
             {
@@ -5572,7 +5590,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Nodes",
-              "line": 544,
+              "line": 545,
               "deprecated": false
             },
             {
@@ -5581,7 +5599,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Node Locking",
-              "line": 559,
+              "line": 560,
               "deprecated": false
             },
             {
@@ -5590,7 +5608,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels: open the Channels panel.",
-              "line": 569,
+              "line": 570,
               "deprecated": false
             },
             {
@@ -5599,7 +5617,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).",
-              "line": 573,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -5608,7 +5626,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list.",
-              "line": 594,
+              "line": 595,
               "deprecated": false
             },
             {
@@ -5617,7 +5635,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 660,
+              "line": 661,
               "deprecated": false
             },
             {
@@ -5626,7 +5644,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 734,
+              "line": 735,
               "deprecated": false
             },
             {
@@ -5635,7 +5653,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).",
-              "line": 744,
+              "line": 745,
               "deprecated": false
             },
             {
@@ -5644,7 +5662,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer operations menu.",
-              "line": 794,
+              "line": 795,
               "deprecated": false
             },
             {
@@ -5653,7 +5671,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 798,
+              "line": 799,
               "deprecated": false
             }
           ]

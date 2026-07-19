@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-18_
+_Generated: 2026-07-19_
 
 ## Index
 
@@ -146,6 +146,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
   - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
   - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
+  - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,
   - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
   - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
@@ -426,7 +427,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Pivot.tb002(self, widget)` — Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
   - `Pivot.tb003_init(self, widget)`
   - `Pivot.tb003(self, widget)` — World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its
-  - `Pivot.b004(self)` — Bake Pivot — freeze each selected object's current rotation and scale into its data,
+  - `Pivot.b004(self)` — Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected
 
 <a id="slots--blender--polygons"></a>
 ### `slots/blender/polygons.py`
@@ -468,7 +469,8 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `PolygonsSlots.b000(self)` — Circularize (LoopTools Circle on the selected edge loop).
   - `PolygonsSlots.b053(self)` — Edit Edge Flow (Set Flow on the selected edge loops).
   - `PolygonsSlots.b034(self)` — Wedge (sweep the selected faces 90° around a selected hinge edge).
-  - `PolygonsSlots.b038(self)` — Assign Invisible — Maya invisible faces have no Blender analogue.
+  - `PolygonsSlots.b038_init(self, widget)` — Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender
+  - `PolygonsSlots.b038(self)` — Assign Invisible — unreachable (b038_init hides the button);
   - `PolygonsSlots.b049(self)` — Slide Edge — interactively slide the selected edge loop along the surface, the
 
 <a id="slots--blender--preferences"></a>
