@@ -178,15 +178,16 @@ class _Signal:
     def connect(self, fn):
         self.fns.append(fn)
 
-    def emit(self):
+    def emit(self, *args):
         for fn in list(self.fns):
-            fn()
+            fn(*args)
 
 
 class _Combo:
     def __init__(self):
         self._items = []  # (label, data)
         self._idx = 0
+        self._visible = True
         self.currentIndexChanged = _Signal()
 
     def addItems(self, labels):
@@ -196,9 +197,15 @@ class _Combo:
         label, _ = self._items[i]
         self._items[i] = (label, data)
 
+    def itemData(self, i):
+        try:
+            return self._items[i][1]
+        except IndexError:
+            return None
+
     def setCurrentIndex(self, i):
         self._idx = i
-        self.currentIndexChanged.emit()
+        self.currentIndexChanged.emit(i)
 
     def currentIndex(self):
         return self._idx
@@ -208,6 +215,9 @@ class _Combo:
 
     def currentData(self):
         return self._items[self._idx][1] if self._items else None
+
+    def setVisible(self, v):
+        self._visible = bool(v)
 
     def select(self, data):
         """Test helper: select the item whose itemData == data."""
@@ -221,6 +231,7 @@ class _Check:
     def __init__(self, checked=False):
         self._checked = checked
         self._enabled = True
+        self._visible = True
 
     def isChecked(self):
         return self._checked
@@ -234,6 +245,35 @@ class _Check:
     def isEnabled(self):
         return self._enabled
 
+    def setVisible(self, v):
+        self._visible = bool(v)
+
+
+class _Spin:
+    def __init__(self, value=0):
+        self._value = value
+        self._visible = True
+
+    def value(self):
+        return self._value
+
+    def setValue(self, v):
+        self._value = v
+
+    def setVisible(self, v):
+        self._visible = bool(v)
+
+
+class _Line:
+    def __init__(self, text=""):
+        self._text = text
+
+    def text(self):
+        return self._text
+
+    def setText(self, t):
+        self._text = t
+
 
 class _Menu:
     def setTitle(self, t):
@@ -245,6 +285,10 @@ class _Menu:
             w.addItems(kw.get("addItems", []))
             if "setCurrentIndex" in kw:
                 w._idx = kw["setCurrentIndex"]
+        elif kind == "QSpinBox":
+            w = _Spin(kw.get("setValue", 0))
+        elif kind == "QLineEdit":
+            w = _Line(kw.get("setText", ""))
         else:  # QCheckBox
             w = _Check(kw.get("setChecked", False))
         setattr(self, kw["setObjectName"], w)
@@ -267,6 +311,18 @@ class _SB:
 
     def message_box(self, msg):
         self.messages.append(msg)
+
+    def progress(self, text=""):
+        from contextlib import contextmanager
+
+        @contextmanager
+        def _ctx():
+            yield lambda *a, **k: None
+
+        return _ctx()
+
+    def progress_adapter(self, update):
+        return None
 
 
 class _FakeBridge:
@@ -548,6 +604,186 @@ class TestExportPlayblastGuard(unittest.TestCase):
             any("no animation" in m.lower() for m in inst.sb.messages),
             "guard must not block an animated scene",
         )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestExportPlayblastInit(unittest.TestCase):
+    """tb000_init builds the registry-driven output picker and range wiring."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _init(self):
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        widget = _Widget()
+        inst.tb000_init(widget)
+        return widget.option_box.menu
+
+    def test_output_combo_built_from_target_registry(self):
+        from mayatk.anim_utils.playblast_exporter import PlayblastExporter
+
+        menu = self._init()
+        labels = [label for label, _ in menu.cmb050._items]
+        data = [d for _, d in menu.cmb050._items]
+        for name, label in PlayblastExporter.available_targets():
+            self.assertIn(label, labels)
+            self.assertIn([name], data)
+        # Bundles are appended and expand to registered target names only.
+        for _, bundle in rendering_module.Rendering._TARGET_BUNDLES:
+            self.assertIn(bundle, data)
+            for target in bundle:
+                self.assertIn(target, PlayblastExporter.TARGETS)
+
+    def test_custom_range_spinboxes_toggle(self):
+        menu = self._init()
+        self.assertFalse(menu.s010._visible)
+        self.assertFalse(menu.s011._visible)
+        menu.cmb010.setCurrentIndex(3)  # Custom Range
+        self.assertTrue(menu.s010._visible)
+        self.assertTrue(menu.s011._visible)
+        menu.cmb010.setCurrentIndex(0)
+        self.assertFalse(menu.s010._visible)
+
+    def test_split_output_base(self):
+        import tempfile
+
+        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        tmpdir = tempfile.mkdtemp(prefix="rh_split_")
+        try:
+            # Existing directory -> scene-name fallback.
+            directory, name = inst._split_output_base(tmpdir)
+            self.assertEqual(os.path.normpath(directory), os.path.normpath(tmpdir))
+            self.assertEqual(name, "playblast")  # unsaved scene
+            # Directory + base name; typed extension dropped.
+            directory, name = inst._split_output_base(
+                os.path.join(tmpdir, "myShot.mp4")
+            )
+            self.assertEqual(os.path.normpath(directory), os.path.normpath(tmpdir))
+            self.assertEqual(name, "myShot")
+            # Empty falls back to the default path.
+            directory, name = inst._split_output_base("")
+            self.assertTrue(directory)
+            self.assertTrue(name)
+        finally:
+            import shutil
+
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+class _FakeExporter:
+    """Records constructor + export() kwargs; returns no results."""
+
+    instances = []
+
+    def __init__(self, **kwargs):
+        _FakeExporter.instances.append(self)
+        self.ctor_kwargs = kwargs
+        self.export_kwargs = None
+
+    def export(self, **kwargs):
+        self.export_kwargs = kwargs
+        return []
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestExportPlayblastAction(unittest.TestCase):
+    """tb000 plumbs the option-box state into PlayblastExporter.export."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="anim_cube")[0]
+        cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
+        cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
+        self._orig_exporter = rendering_module.PlayblastExporter
+        _FakeExporter.instances = []
+        _FakeExporter.TARGETS = self._orig_exporter.TARGETS
+        rendering_module.PlayblastExporter = _FakeExporter
+
+    def tearDown(self):
+        rendering_module.PlayblastExporter = self._orig_exporter
+        cmds.file(new=True, force=True)
+
+    def _widget(self, tmpdir):
+        menu = _Menu()
+        menu.t000 = _Line(os.path.join(tmpdir, "shotName"))
+        menu.cmb010 = _Combo()
+        menu.cmb010.addItems(["Playback", "Animation", "Current", "Custom"])
+        for i, mode in enumerate(("playback", "animation", "current", "custom")):
+            menu.cmb010.setItemData(i, {"mode": mode})
+        menu.cmb010._idx = 3  # custom
+        menu.s010 = _Spin(2)
+        menu.s011 = _Spin(8)
+        menu.s012 = _Spin(4)
+        menu.cmb040 = _Combo()
+        menu.cmb040.addItems(["1280 x 720"])
+        menu.cmb040.setItemData(0, (1280, 720))
+        menu.s015 = _Spin(100)
+        menu.cmb016 = _Combo()
+        menu.cmb016.addItems(["Maximum (100)"])
+        menu.cmb016.setItemData(0, 100)
+        menu.cmb041 = _Combo()
+        menu.cmb041.addItems(["Active Viewport"])
+        menu.cmb041.setItemData(0, None)
+        menu.cmb050 = _Combo()
+        menu.cmb050.addItems(["MP4 (H.264)"])
+        menu.cmb050.setItemData(0, ["mp4"])
+        menu.chk056 = _Check(True)
+        menu.chk057 = _Check(True)
+        menu.chk058 = _Check(False)
+        menu.chk060 = _Check(True)
+        widget = _Widget()
+        widget.option_box.menu = menu
+        return widget
+
+    def test_option_box_state_reaches_exporter(self):
+        import tempfile
+
+        tmpdir = tempfile.mkdtemp(prefix="rh_action_")
+        try:
+            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst.sb = _SB()
+            inst.tb000(self._widget(tmpdir))
+
+            self.assertEqual(len(_FakeExporter.instances), 1)
+            exporter = _FakeExporter.instances[0]
+            self.assertEqual(exporter.ctor_kwargs["width"], 1280)
+            self.assertEqual(exporter.ctor_kwargs["height"], 720)
+            self.assertIsNone(exporter.ctor_kwargs["camera"])
+            self.assertTrue(exporter.ctor_kwargs["include_audio"])
+
+            kwargs = exporter.export_kwargs
+            self.assertEqual(kwargs["targets"], ["mp4"])
+            self.assertEqual(kwargs["range_mode"], "custom")
+            self.assertEqual((kwargs["start"], kwargs["end"]), (2, 8))
+            self.assertEqual(kwargs["name"], "shotName")
+            self.assertEqual(
+                os.path.normpath(kwargs["output_dir"]), os.path.normpath(tmpdir)
+            )
+        finally:
+            import shutil
+
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_inverted_custom_range_blocks(self):
+        import tempfile
+
+        tmpdir = tempfile.mkdtemp(prefix="rh_range_")
+        try:
+            widget = self._widget(tmpdir)
+            widget.option_box.menu.s010.setValue(9)
+            widget.option_box.menu.s011.setValue(2)
+            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst.sb = _SB()
+            inst.tb000(widget)
+            self.assertFalse(_FakeExporter.instances, "export must not run")
+            self.assertTrue(inst.sb.messages)
+        finally:
+            import shutil
+
+            shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 if __name__ == "__main__":

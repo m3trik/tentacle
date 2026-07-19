@@ -65,6 +65,25 @@ class SlotsBlender(Slots):
                 bpy.ops.mesh.select_mode(type=select_mode)
         return obj
 
+    def ensure_object_mode(self):
+        """Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,
+        ``transform_apply``, ``origin_set`` etc. either reject or poll-fail on an object in Edit
+        Mode, and the marking menu is reachable mid-edit. Returns False when the mode switch
+        fails (message already shown); no-op when already in Object Mode. The Object-Mode sibling
+        of :meth:`ensure_edit_mode` (promoted from duplicate.py once pivot needed it too)."""
+        active = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
+        if not (active and active.mode != "OBJECT"):
+            return True
+        try:
+            # window override: ``mode_set``'s poll reads screen context, dead in the
+            # Qt-pump state (no-op when a window is active — see ensure_edit_mode).
+            with btk.window_context_override():
+                bpy.ops.object.mode_set(mode="OBJECT")
+        except RuntimeError as error:
+            self.sb.message_box(f"Could not exit to Object Mode: {error}")
+            return False
+        return True
+
     def set_viewport_tool(self, tool_id, label=None, edit_type=None):
         """Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
         measure / select-styles). ``label`` (a friendly name) shows a passive confirmation

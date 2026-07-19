@@ -485,9 +485,36 @@ class Nurbs(SlotsBlender):
             return
         self._run_curve_edit_op(bpy.ops.curve.switch_direction, curves)
 
+    @btk.undoable
     def b030(self):
-        """Extrude — use mesh/curve extrude in Edit Mode (E)."""
-        self.sb.message_box("Use Extrude (E) in Edit Mode.")
+        """Extrude Curve Profile — build a surface from the selected curve(s), the Blender
+        analogue of Maya's NURBS ``Extrude`` (b030 there = ``mel.eval("Extrude")``). Two modes,
+        matching Maya's two extrude styles, chosen by the selection:
+
+          - **2+ curves** → *extrude along path*: the active (last-picked) curve is the path and
+            the first other curve is swept along it as the cross-section, via the path curve's
+            ``bevel_object`` (Blender's built-in profile-sweep — same ``curve``-data idiom as this
+            file's ``b058`` Curve-to-Tube, which sets ``bevel_depth``).
+          - **1 curve** → *extrude at distance*: the profile is extruded straight along its local
+            Z into a ribbon surface (``curve.extrude``).
+
+        Mesh Edit-Mode extrude keeps its own hotkey; this is the curve-surface op the tooltip
+        ("Extrude Curve Profile") names, so it guards on curves and warns rather than punting."""
+        curves = self._selected_curves()
+        if not curves:
+            self.sb.message_box("Extrude requires selected curve(s).")
+            return
+        if len(curves) >= 2:
+            active = self.active_object()
+            path = active if active in curves else curves[-1]
+            profile = next(c for c in curves if c is not path)
+            path.data.bevel_mode = "OBJECT"
+            path.data.bevel_object = profile
+            path.data.use_fill_caps = True
+        else:
+            c = curves[0]
+            c.data.extrude = c.data.extrude or 0.5
+            c.data.use_fill_caps = True
 
     def b056(self):
         """Image Tracer (native wrap: trace the active image-empty to Grease Pencil,

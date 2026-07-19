@@ -396,13 +396,23 @@ class Edit(SlotsMaya):
 
     def tb001_init(self, widget):
         """Initialize Delete History"""
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="For All Objects",
-            setObjectName="chk031",
-            setChecked=True,
-            setToolTip="Delete history on All objects or just those selected.",
+        # Scope (cmb_del_scope) replaces the old dead "For All Objects" checkbox (chk031, which
+        # tb001 never read): a self-labeling three-way scope, mirroring tb000's cmb_scope items.
+        scope = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_del_scope",
+            setToolTip="Which objects to delete history on:\n"
+            "• Selected: only the current selection.\n"
+            "• Visible: every visible mesh in the scene.\n"
+            "• All Geometry: every mesh in the scene.",
         )
+        for label, data in [("Selected", "selected"), ("Visible", "visible"), ("All Geometry", "all")]:
+            scope.addItem(label, data)
+        # Default to the narrowest scope: the old chk031 label advertised
+        # "All Objects" but was never read — the RUNTIME legacy behavior was
+        # selection-first, and history deletion is destructive, so a scene-wide
+        # default would silently widen the wipe for a user with a selection.
+        scope.setCurrentText("Selected")
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete Unused Nodes",
@@ -434,18 +444,22 @@ class Edit(SlotsMaya):
             ),
         )
 
-        # Use cmds for bulk queries (avoids PyMEL object wrapping overhead)
-        sel = cmds.ls(sl=True, objectsOnly=True, long=True)
-        if sel:
-            objects = sel
+        # Resolve the object/shape pool from the scope combobox (cmb_del_scope). Use cmds for
+        # bulk queries (avoids PyMEL object wrapping overhead).
+        scope = widget.option_box.menu.cmb_del_scope.currentData() or "all"
+        if scope == "selected":
+            objects = cmds.ls(sl=True, objectsOnly=True, long=True) or []
             # Batch-extract non-intermediate shapes from all selected at once
+            # (listRelatives returns None for an empty list, so no empty-guard is needed).
             shapes = set(
-                cmds.listRelatives(sel, shapes=True, fullPath=True, noIntermediate=True)
-                or []
+                cmds.listRelatives(objects, shapes=True, fullPath=True, noIntermediate=True) or []
             )
         else:
-            # All non-intermediate mesh shapes in scene
-            all_meshes = cmds.ls(typ="mesh", long=True) or []
+            # Every (visible) non-intermediate mesh shape in the scene
+            ls_kwargs = {"type": "mesh", "long": True}
+            if scope == "visible":
+                ls_kwargs["visible"] = True
+            all_meshes = cmds.ls(**ls_kwargs) or []
             intermediates = set(cmds.ls(intermediateObjects=True, long=True) or [])
             shapes = set(all_meshes) - intermediates
             objects = list(shapes)
@@ -482,9 +496,11 @@ class Edit(SlotsMaya):
                         cmds.delete(existing)
 
             if deformers:
+                # Only report success when something was actually processed —
+                # an empty scope must not claim history was deleted.
                 if objects:
                     cmds.delete(objects, constructionHistory=True)
-                result_msg = "<hl>Delete history</hl>"
+                    result_msg = "<hl>Delete history</hl>"
             else:
                 if shapes:
                     try:
@@ -494,13 +510,33 @@ class Edit(SlotsMaya):
                         print(f"Bake Partial History Failed: {error}")
 
             if optimize:
-                mel.eval("OptimizeScene")
+                # `OptimizeScene` == `cleanUpScene 1` == performCleanUpScene(), which pops a
+                # non-undoable-op OK/Cancel confirmDialog ("Optimize the current scene size?").
+                # performCleanUpScene checks the MAYA_TESTING_CLEANUP env var — Autodesk's own
+                # built-in dialog-suppression hook — and skips the prompt when it is set. Toggle
+                # it around the call (via MEL putenv so MEL's own getenv sees it) and restore the
+                # prior value, so the optimize runs silently as one step of Delete History.
+                mel.eval(
+                    'string $c = `getenv "MAYA_TESTING_CLEANUP"`; '
+                    'putenv "MAYA_TESTING_CLEANUP" "1"; '
+                    "catch(`OptimizeScene`); "
+                    'putenv "MAYA_TESTING_CLEANUP" $c;'
+                )
         finally:
             cmds.refresh(suspend=False)
             cmds.refresh(force=True)
 
         if result_msg:
             self.sb.message_box(result_msg)
+        elif not (objects if deformers else shapes):
+            # The pool the history op actually used (objects for full history,
+            # shapes for the non-deformer bake) was empty. The scene-wide
+            # sub-ops (unused nodes / optimize) may still have run above, so
+            # don't claim nothing was deleted — only the scoped history
+            # deletion had nothing to do.
+            self.sb.message_box(
+                "<hl>Delete history</hl>: no objects in scope."
+            )
 
     def tb002(self, widget):
         """Delete Selected"""

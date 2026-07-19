@@ -17,6 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCENE_PY = ROOT / "tentacle" / "slots" / "maya" / "scene.py"
+SCENE_BLENDER_PY = ROOT / "tentacle" / "slots" / "blender" / "scene.py"
 
 
 class ModuleAST:
@@ -151,6 +152,37 @@ class TestWorkspaceControlsLeftScene(unittest.TestCase):
                 self.mod.has_method("SceneSlots", gone),
                 f"{gone} should no longer be in scene.py (moved to main.py)",
             )
+
+
+class TestSceneWorkspaceFooterBlender(unittest.TestCase):
+    """Blender twin of the Maya footer: same FooterStatusController pattern over
+    ``btk.get_env_info("workspace_dir")``, refreshed on scene open/save via blendertk's
+    ScriptJobManager (Blender has no ``workspaceChanged`` event — a session-pin change
+    shows on the next file event)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = ModuleAST(SCENE_BLENDER_PY.read_text(encoding="utf-8"))
+
+    def test_footer_controller_wired(self):
+        self.assertIn("FooterStatusController", self.mod.imported_names())
+        src = self.mod.method_source("SceneSlots", "_create_footer_controller")
+        self.assertIn('subscribe("SceneOpened"', src)
+        self.assertIn('subscribe("SceneSaved"', src)
+        self.assertIn("connect_cleanup", src)
+        self.assertIn("No workspace set", src)
+
+    def test_ctor_initializes_controller(self):
+        src = self.mod.method_source("SceneSlots", "__init__")
+        self.assertIn("_create_footer_controller", src)
+
+    def test_resolver_reports_workspace_dir(self):
+        src = self.mod.method_source("SceneSlots", "_resolve_workspace_text")
+        self.assertIn('get_env_info("workspace_dir")', src)
+
+    def test_handler_updates_footer(self):
+        src = self.mod.method_source("SceneSlots", "_on_workspace_changed")
+        self.assertIn("_footer_controller.update()", src)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-07-17_
+_Generated: 2026-07-19_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -22,7 +22,7 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
-  - methods: selected_objects, active_object, ensure_edit_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
+  - methods: selected_objects, active_object, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
 
 ### `slots/blender/animation.py`
 - `class Animation(SlotsBlender)`
@@ -53,7 +53,7 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/edit.py`
 - `class Edit(SlotsBlender)`
-  - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000_init, cmb000, tb001, tb004
+  - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000_init, cmb000, tb001_init, tb001, tb004_init, tb004
 
 ### `slots/blender/editors.py`
 - `class Editors(SlotsBlender)`
@@ -90,11 +90,11 @@ _Generated: 2026-07-17_
 
 ### `slots/blender/pivot.py`
 - `class Pivot(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002, tb003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002, tb003_init, tb003, b004
 
 ### `slots/blender/polygons.py`
 - `class PolygonsSlots(SlotsBlender)`
-  - methods: header_init, tb000_init, tb000, b005, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b001, b003, b006, b007, b008, b009, b011, b012, b022, b032, b047, b051, b043, b000, b053, b034, b038, b049
+  - methods: header_init, tb000_init, tb000, b005, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b001, b003, b006, b007, b008, b009, b011, b012, b022, b032, b047, b051, b043, b000, b053, b034, b038_init, b038, b049
 
 ### `slots/blender/preferences.py`
 - `class Preferences(SlotsBlender)`

@@ -84,7 +84,8 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "workspace_recent_projects",  # shared key → history carries over
             "__set_dir__",
             "__auto__",
-            "Current Workspace",  # dir-browser row label
+            "Separator",  # Current Workspace is a titled separator, not a row prefix
+            "Current Workspace",  # separator title above the dir browser
             "valid_values",
             "display_map",
         ):
@@ -113,6 +114,16 @@ class TestMainWorkspaceStructure(unittest.TestCase):
     def test_recent_selection_validates(self):
         src = self.mod.method_source("Main", "_set_workspace_from_path")
         self.assertIn("_is_workspace", src)
+
+    def test_editor_row_opens_native_project_window(self):
+        """The Edit Workspace row opens Maya's native Project Window (blendertk's
+        twin row opens its own workspace_editor panel)."""
+        init = self.mod.method_source("Main", "list000_init")
+        self.assertIn('widget.add("Edit Workspace", data="__editor__")', init)
+        dispatch = self.mod.method_source("Main", "list000")
+        self.assertIn("__editor__", dispatch)
+        src = self.mod.method_source("Main", "_open_workspace_editor")
+        self.assertIn("ProjectWindow", src)
 
 
 class _StubSb:

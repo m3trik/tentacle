@@ -26,23 +26,7 @@ class Duplicate(SlotsBlender):
             return [active] + [o for o in objects if o is not active]
         return objects
 
-    def _ensure_object_mode(self):
-        """Leave Edit Mode before instancing data-block surgery — ``replace_with_instances``
-        / ``uninstance`` reassign ``obj.data``, which Blender rejects on an object in Edit
-        Mode (the marking menu is reachable mid-edit). Returns False when the mode switch
-        fails (message already shown); no-op outside Edit Mode."""
-        active = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
-        if not (active and active.mode == "EDIT"):
-            return True
-        try:
-            # window override: ``mode_set``'s poll reads screen context, dead in the
-            # Qt-pump state (no-op when a window is active — see ensure_edit_mode).
-            with btk.window_context_override():
-                bpy.ops.object.mode_set(mode="OBJECT")
-        except RuntimeError as error:
-            self.sb.message_box(f"Could not exit Edit Mode: {error}")
-            return False
-        return True
+    # _ensure_object_mode was promoted to SlotsBlender.ensure_object_mode (pivot needed it too).
 
     def header_init(self, widget):
         widget.menu.add(
@@ -72,10 +56,10 @@ class Duplicate(SlotsBlender):
             "QCheckBox", setText="Freeze Transforms", setObjectName="chk000",
             setToolTip="Freeze transforms on the object(s) before instancing.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Delete History", setObjectName="chk001", setChecked=True,
-            setToolTip="No-op in Blender (no construction history) — kept for parity with Maya.",
-        )
+        # Maya's chk001 "Delete History" option is not built: construction history doesn't
+        # exist in Blender, so the toggle could never do anything — hide-when-no-equivalent
+        # (the engine's delete_history param stays for signature parity; ledgered in
+        # docs/parity_map.py).
 
     @btk.undoable
     def tb000(self, widget):
@@ -88,13 +72,12 @@ class Duplicate(SlotsBlender):
                 "an active source and one or more targets."
             )
             return
-        if not self._ensure_object_mode():
+        if not self.ensure_object_mode():
             return
         btk.replace_with_instances(
             objects,
             freeze_transforms=m.chk000.isChecked(),
             center_pivot=m.chk002.isChecked(),
-            delete_history=m.chk001.isChecked(),
         )
 
     # ------------------------------------------------------------------ tb001  Select Instanced
@@ -252,7 +235,7 @@ class Duplicate(SlotsBlender):
         whole scene if nothing is selected)."""
         menu = widget.option_box.menu
 
-        created = btk.auto_instance(
+        created, summary = btk.auto_instance(
             None,
             tolerance=menu.s000.value(),
             require_same_material=menu.chk004.isChecked(),
@@ -264,6 +247,7 @@ class Duplicate(SlotsBlender):
             combine_by_material=menu.chk010.isChecked(),
             combine_by_distance=menu.chk011.isChecked(),
             combine_distance_threshold=menu.s001.value(),
+            return_summary=True,
         )
 
         def _alive(o):
@@ -273,6 +257,14 @@ class Duplicate(SlotsBlender):
                 return False
 
         survivors = [o for o in created if _alive(o)]
+
+        # Console breakdown — always printed so "why nothing was instanced"
+        # (too simple / count) is visible in the system console, not just the
+        # message box.
+        report = btk.AutoInstancer.format_summary(summary, len(survivors))
+        print(report)
+        report_html = report.replace("\n", "<br>")
+
         if survivors:
             # Direct deselect — mode-independent and Qt-pump-safe (see tb001).
             for o in bpy.context.view_layer.objects:
@@ -286,8 +278,13 @@ class Duplicate(SlotsBlender):
                     pass  # not in the active view layer / removed
             if selected:
                 bpy.context.view_layer.objects.active = selected[0]
+            self.sb.message_box(report_html)
+        elif summary.get("matched_groups"):
+            # Identical meshes were found, but the strategy instanced none of
+            # them — too simple (combined instead) or flagged individual /
+            # non-static. Spell that out instead of the generic no-match text.
             self.sb.message_box(
-                f"Auto Instance: <hl>{len(survivors)}</hl> object(s) instanced or combined."
+                "<strong>No objects were instanced</strong>.<br>" + report_html
             )
         else:
             self.sb.message_box(
@@ -299,7 +296,7 @@ class Duplicate(SlotsBlender):
     @btk.undoable
     def b005(self):
         """Uninstance Selected Objects (make their data single-user)."""
-        if not self._ensure_object_mode():
+        if not self.ensure_object_mode():
             return
         btk.uninstance(self.selected_objects())
 

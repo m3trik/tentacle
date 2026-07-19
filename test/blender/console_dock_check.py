@@ -27,7 +27,11 @@ order (``begin_capture`` → ``import tentacle`` → host launch → ``restore``
   present;
 * a simulated host reload (``ScriptConsole.teardown()`` — undock/stream-restore, flag
   kept) + NEXT SESSION (fresh instance, saved ``visible=true``) re-opens the console
-  through ``restore()`` — the reload and cross-session persistence paths.
+  through ``restore()`` — the reload and cross-session persistence paths;
+* a SECOND Blender window parked over the console's rect **occludes** it — the embed
+  stacks with its container window only, never above sibling Blender windows
+  (user requirement 2026-07-18; a WS_CHILD guarantees it, an overlay-style owned
+  top-level would violate it and fail this leg).
 
 The persisted flag is sandboxed via ``ScriptConsole._state_dir_override`` so a check run
 never touches the user's real Blender config.
@@ -56,6 +60,9 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     _p = str(MONO / _pkg)
     if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import _input  # noqa: E402  (shared GHOST-window helpers)
+
 os.environ.setdefault("QT_API", "pyside6")
 
 TEMP = os.path.normpath(
@@ -487,13 +494,68 @@ def _cold_restore():
         _ck("cold restore(): new prints reach the restored console",
             "CONSOLE_DOCK_CHECK_POST_RESTORE_MARKER" in text)
 
+        # Z-order leg: park a SECOND Blender window over the (restored, visible)
+        # console — see _zorder_assert. Setup here, assert next tick (the new
+        # window needs a beat to map).
+        child = int(inst2.widget.winId())
+        ghost = int(inst2._dock._hwnd)
+        R["_z_child"], R["_z_ghost"] = child, ghost
+        R["_z_center"] = _screen_center_of(
+            ghost, _child_rect_in_parent_client(child, ghost))
+        with bpy.context.temp_override(
+            window=bpy.context.window_manager.windows[0],
+            screen=bpy.context.window_manager.windows[0].screen,
+        ):
+            bpy.ops.wm.window_new()
+        bpy.app.timers.register(_zorder_assert, first_interval=0.9)
+    except Exception:
+        import traceback
+        R["cold_restore_error"] = traceback.format_exc()
+        _finish()
+    return None
+
+
+def _zorder_assert():
+    """The docked console must stack WITH its host window, never above sibling
+    Blender windows (user requirement 2026-07-18: the overlay must only be above
+    what its container window is above). A true WS_CHILD embed guarantees this at
+    the OS level — this leg pins the contract so an overlay-style implementation
+    (an owned top-level glued over the area, which floats above ALL the owner's
+    windows regardless of focus) can never come back silently. The second window
+    is deliberately left open — the throwaway instance quits right after, and
+    closing secondary windows from a timer is a known crash path."""
+    try:
+        from blendertk.env_utils import script_output as so
+
+        ghost = R.get("_z_ghost")
+        hwnd2 = next((int(h) for h, _t in _input.ghost_windows()
+                      if int(h) != ghost), None)
+        R["_z_hwnd2"] = hwnd2
+        _ck("z-order leg: a second Blender window opened", hwnd2 is not None)
+        if hwnd2:
+            cx, cy = R["_z_center"]
+            # HWND_TOP (0), no activation: purely a z-order placement over the rect.
+            _u.SetWindowPos(ctypes.c_void_p(hwnd2), ctypes.c_void_p(0),
+                            cx - 220, cy - 160, 440, 320, 0x0010)  # SWP_NOACTIVATE
+            _u.WindowFromPoint.restype = ctypes.c_void_p
+            _u.WindowFromPoint.argtypes = [wintypes.POINT]
+            _u.GetAncestor.restype = ctypes.c_void_p
+            at = _u.WindowFromPoint(wintypes.POINT(int(cx), int(cy)))
+            root = int(_u.GetAncestor(ctypes.c_void_p(int(at)), 2) or 0) if at else 0
+            R["z_root_at_console_center"] = root
+            _ck("a second Blender window covering the console rect OCCLUDES it "
+                "(the embed stacks with its container, not above all windows)",
+                root == int(hwnd2),
+                f"root={root} hwnd2={hwnd2} ghost={ghost} "
+                f"child={R.get('_z_child')}")
+
         so.hide()  # final cleanup
         _ck("final hide() undocks the area and persists visible=false",
             len(_main_areas()) == R.get("areas_before", 0)
             and _state().get("visible") is False)
     except Exception:
         import traceback
-        R["cold_restore_error"] = traceback.format_exc()
+        R["zorder_error"] = traceback.format_exc()
     _finish()
     return None
 

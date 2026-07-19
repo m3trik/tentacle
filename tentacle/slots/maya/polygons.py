@@ -439,7 +439,7 @@ class PolygonsSlots(SlotsMaya):
 
         selection = cmds.ls(sl=1, type="transform") or []
         if len(selection) > 1:
-            obj1, obj2 = selection
+            obj1, obj2 = selection[:2]
             mtk.EditUtils.snap_closest_verts(
                 obj1, obj2, tolerance, freezetransforms
             )

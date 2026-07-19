@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-17_
+_Generated: 2026-07-19_
 
 ## Index
 
@@ -146,6 +146,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
   - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
   - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
+  - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,
   - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
   - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
@@ -220,10 +221,10 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Cameras.b005(self)` — Cameras: Front View
   - `Cameras.b006(self)` — Cameras: Bottom View
   - `Cameras.b007(self)` — Cameras: Align View (align the viewport to the active element's normal and frame
-  - `Cameras.b010(self)` — Camera: Dolly — Blender viewport navigation is modal, not a persistent tool.
-  - `Cameras.b011(self)` — Camera: Roll
-  - `Cameras.b012(self)` — Camera: Truck
-  - `Cameras.b013(self)` — Camera: Orbit
+  - `Cameras.b010(self)` — Camera: Dolly — arm the interactive dolly tool (LMB-drag to move the eye in/out).
+  - `Cameras.b011(self)` — Camera: Roll — arm the interactive roll tool (LMB-drag to roll the view about its axis).
+  - `Cameras.b012(self)` — Camera: Truck — arm the interactive track/pan tool (LMB-drag to pan the view).
+  - `Cameras.b013(self)` — Camera: Orbit — arm the interactive tumble tool (LMB-drag to orbit the view).
 
 <a id="slots--blender--crease"></a>
 ### `slots/blender/crease.py`
@@ -282,8 +283,10 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Edit.b000(self)` — Cut On Axis
   - `Edit.cmb000_init(self, widget)` — Initialize the Transfer operations menu.
   - `Edit.cmb000(self, index, widget)` — Transfer — dispatch the selected transfer operation.
-  - `Edit.tb001(self, widget)` — Delete History — Blender has no construction history (modifier stack is non-destructive).
-  - `Edit.tb004(self, widget)` — Node Locking — Maya node locking has no Blender analogue.
+  - `Edit.tb001_init(self, widget)` — Optimize — relabel the shared "Delete History" button (its text lives in the shared
+  - `Edit.tb001(self, widget)` — Optimize — purge orphaned (zero-user) datablocks;
+  - `Edit.tb004_init(self, widget)` — Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock).
+  - `Edit.tb004(self, widget)` — Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make
 
 <a id="slots--blender--editors"></a>
 ### `slots/blender/editors.py`
@@ -407,7 +410,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Nurbs.tb001(self, widget)` — Loft — bridge the selected profile curves / mesh loops into a surface (btk.loft).
   - `Nurbs.list000_init(self, widget)` — Initialize the Nurbs expandable list (categories -> curve actions) — same
   - `Nurbs.list000(self, item)` — Dispatch a Nurbs leaf action (mirrors Maya's list000: no-op on a node that still
-  - `Nurbs.b030(self)` — Extrude — use mesh/curve extrude in Edit Mode (E).
+  - `Nurbs.b030(self)` — Extrude Curve Profile — build a surface from the selected curve(s), the Blender
   - `Nurbs.b056(self)` — Image Tracer (native wrap: trace the active image-empty to Grease Pencil,
 
 <a id="slots--blender--pivot"></a>
@@ -422,8 +425,9 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Pivot.b001(self)` — Center Pivot: Component
   - `Pivot.b002(self, widget)` — Center Pivot: World
   - `Pivot.tb002(self, widget)` — Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
-  - `Pivot.tb003(self, widget)` — World-Aligned Pivot — Maya manipulator-pivot orientation;
-  - `Pivot.b004(self)` — Bake Pivot — Blender object origins are always baked into the transform (no-op).
+  - `Pivot.tb003_init(self, widget)`
+  - `Pivot.tb003(self, widget)` — World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its
+  - `Pivot.b004(self)` — Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected
 
 <a id="slots--blender--polygons"></a>
 ### `slots/blender/polygons.py`
@@ -465,8 +469,9 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `PolygonsSlots.b000(self)` — Circularize (LoopTools Circle on the selected edge loop).
   - `PolygonsSlots.b053(self)` — Edit Edge Flow (Set Flow on the selected edge loops).
   - `PolygonsSlots.b034(self)` — Wedge (sweep the selected faces 90° around a selected hinge edge).
-  - `PolygonsSlots.b038(self)` — Assign Invisible — Maya invisible faces have no Blender analogue.
-  - `PolygonsSlots.b049(self)` — Slide Edge — modal in Blender (GG);
+  - `PolygonsSlots.b038_init(self, widget)` — Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender
+  - `PolygonsSlots.b038(self)` — Assign Invisible — unreachable (b038_init hides the button);
+  - `PolygonsSlots.b049(self)` — Slide Edge — interactively slide the selected edge loop along the surface, the
 
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
@@ -522,7 +527,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
 
-- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L13)** — Blender port of the shared ``scene`` menu.
+- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L15)** — Blender port of the shared ``scene`` menu.
   - `SceneSlots.header_init(self, widget)` — Header menu — mirror of the Maya scene header (portable subset).
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
@@ -1179,7 +1184,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--maya--rendering"></a>
 ### `slots/maya/rendering.py`
 
-- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L16)**
+- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L15)**
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
   - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, Arnold network, IPR, and smart redo.
@@ -1449,25 +1454,25 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1544) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1549) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1554) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1559) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1564) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register()`](tentacle/tentacle/tcl_blender.py#L1569) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1574) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L1579) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1584) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1589) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1594) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L958)** — Marking Menu class overridden for use with Blender.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1613) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1618) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1623) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1628) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1633) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register()`](tentacle/tentacle/tcl_blender.py#L1638) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1643) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L1648) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1653) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1658) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1663) — Remove the click tracer.
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1027)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1354)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1423)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1434)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1503)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register()` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

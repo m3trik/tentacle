@@ -152,7 +152,7 @@ class Duplicate(SlotsMaya):
         whole scene if nothing is selected)."""
         menu = widget.option_box.menu
 
-        created = mtk.auto_instance(
+        created, summary = mtk.auto_instance(
             None,
             tolerance=menu.s000.value(),
             require_same_material=menu.chk004.isChecked(),
@@ -164,13 +164,27 @@ class Duplicate(SlotsMaya):
             combine_by_material=menu.chk010.isChecked(),
             combine_by_distance=menu.chk011.isChecked(),
             combine_distance_threshold=menu.s001.value(),
+            return_summary=True,
         )
 
         survivors = [n for n in created if cmds.objExists(n)]
+
+        # Console breakdown — always logged so "why nothing was instanced"
+        # (too simple / count) is visible in the Script Editor, not just the
+        # message box.
+        report = mtk.AutoInstancer.format_summary(summary, len(survivors))
+        om.MGlobal.displayInfo(report)
+        report_html = report.replace("\n", "<br>")
+
         if survivors:
             cmds.select(survivors, replace=True)
-            om.MGlobal.displayInfo(
-                f"Auto Instance: {len(survivors)} node(s) instanced or combined."
+            self.sb.message_box(report_html)
+        elif summary.get("matched_groups"):
+            # Identical meshes were found, but the strategy instanced none of
+            # them — too simple (combined instead) or flagged individual /
+            # non-static. Spell that out instead of the generic no-match text.
+            self.sb.message_box(
+                "<strong>No objects were instanced</strong>.<br>" + report_html
             )
         else:
             self.sb.message_box(

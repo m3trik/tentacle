@@ -21,8 +21,12 @@ class Edit(SlotsBlender):
     ``bpy.ops.object.empty_add``/``bpy.ops.object.light_add``/``blendertk.Controls``. Convert
     (list001) maps onto ``bpy.ops.object.convert`` plus one non-convert "Instance to Object" entry.
     The Transfer menu (cmb000) rides native Data-Transfer / material slot copy — see the ``cmb000``
-    section below. Maya construction-history and node-locking have no Blender analogue (no
-    construction history, no DG node locking) and stay documented stubs.
+    section below. Maya construction history itself has no Blender analogue (the modifier stack is
+    non-destructive), but Delete History's purge-unused subset (Delete Unused Nodes / Optimize
+    Scene) does map, so ``tb001`` is repurposed as **Optimize** — an orphaned-datablock purge
+    (``bpy.data.orphans_purge``). Node-locking (``tb004``) has no exact Blender twin (no DG node
+    locking), but its intent maps onto ``hide_select`` — ``tb004`` is an Object-Lock toggle that
+    makes objects unselectable to protect them from accidental selection/edits.
     """
 
     # (category -> {label: bpy.ops.mesh operator}) for the Create Primitive list.
@@ -574,13 +578,17 @@ class Edit(SlotsBlender):
             return
 
         active = bpy.context.view_layer.objects.active
-        if active and active.mode != "OBJECT":
-            bpy.ops.object.mode_set(mode="OBJECT")
-
         text = item.item_text()
         parent_text = item.parent_item_text() or ""
 
         try:
+            # Object Mode guard under the window override (mode_set's poll reads screen
+            # context — dead in the Qt-pump state) and inside the try, so a poll failure
+            # surfaces as a message box rather than an unhandled traceback. Same pattern
+            # as _convert_selected.
+            if active and active.mode != "OBJECT":
+                with btk.window_context_override():
+                    bpy.ops.object.mode_set(mode="OBJECT")
             if parent_text == "Control":
                 shape = self._CONTROLS.get(text)
                 if shape:
@@ -824,14 +832,94 @@ class Edit(SlotsBlender):
             f"target{plural}"
         )
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
-    def tb001(self, widget):
-        """Delete History — Blender has no construction history (modifier stack is non-destructive)."""
-        self.sb.message_box("Delete History is not applicable in Blender (no construction history).")
+    # ------------------------------------------------------------------ tb001  Optimize (Purge Unused Data)
+    def tb001_init(self, widget):
+        """Optimize — relabel the shared "Delete History" button (its text lives in the shared
+        ``edit.ui``, so Maya keeps "Delete History" while Blender relabels here) and build the
+        purge option box.
 
+        Maya's Delete History button also runs Delete-Unused-Nodes (``MLdeleteUnused``) + Optimize
+        Scene; that purge-unused subset is the part that translates — construction history itself
+        does not exist in Blender (the modifier stack is non-destructive). The Blender analogue is
+        an orphaned-datablock purge, so ``tb001`` becomes **Optimize**: drop every datablock
+        (meshes, materials, images, …) with zero users."""
+        widget.setText("Optimize")
+        widget.setToolTip(
+            "Purge unused (orphaned) datablocks — meshes, materials, images, etc. with no "
+            "users. Blender's analogue of Maya's Delete Unused Nodes + Optimize Scene."
+        )
+        menu = widget.option_box.menu
+        menu.setTitle("Optimize")
+        # Blender-only options with no Maya twin, so they deliberately do NOT reuse Maya's
+        # chk019/chk030 numbers — the QSettings store is shared across DCCs and a reused number
+        # for a different option bleeds state (see tb000_init's chk032/chk033 note).
+        menu.add("QCheckBox", setText="Recursive", setObjectName="chk_purge_recursive",
+                 setChecked=True,
+                 setToolTip="Also purge datablocks whose only remaining users are themselves "
+                 "being purged (removes whole chains of orphans in one pass).")
+        menu.add("QCheckBox", setText="Include Linked Data", setObjectName="chk_purge_linked",
+                 setChecked=True,
+                 setToolTip="Also purge orphaned datablocks that came from linked libraries, "
+                 "not just local ones.")
+
+    def tb001(self, widget):
+        """Optimize — purge orphaned (zero-user) datablocks; Blender's analogue of Maya's Delete
+        Unused Nodes + Optimize Scene (see :meth:`tb001_init`).
+
+        Uses ``bpy.data.orphans_purge`` (the data API) rather than ``bpy.ops.outliner.orphans_purge``:
+        no Outliner/window context is needed (the op polls one, dead in the Qt-pump state), it pops
+        no dialog, and it returns the number of datablocks removed for the feedback below. Not
+        wrapped ``@btk.undoable`` — like Maya's Optimize Scene this is a non-undoable housekeeping
+        purge, and datablock deletion isn't captured by Blender's undo stack anyway."""
+        m = widget.option_box.menu
+        removed = bpy.data.orphans_purge(
+            do_local_ids=True,
+            do_linked_ids=m.chk_purge_linked.isChecked(),
+            do_recursive=m.chk_purge_recursive.isChecked(),
+        )
+        print(f"# Optimize: purged {removed} orphaned datablock(s).")
+        self.sb.message_box(
+            f"<hl>Optimize</hl><br>Purged <hl>{removed}</hl> orphaned datablock(s)."
+        )
+
+    # ------------------------------------------------------------------ tb004  Object Locking
+    def tb004_init(self, widget):
+        """Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock). Maya's node lock has
+        no exact Blender twin (there's no DG-node locking), but the *intent* — protect objects from
+        accidental change — maps onto ``hide_select`` (make an object unselectable, so it can't be
+        grabbed/transformed/deleted by a stray click or box-select). The button text follows the
+        choice, exactly like the Maya twin."""
+        action = widget.option_box.menu.add(
+            "QComboBox", setObjectName="cmb_lock",
+            setToolTip="Lock: make the selected objects unselectable (protect from accidental "
+            "edits). Unlock: clear it on every object (a locked object can't be selected to "
+            "unlock it individually).",
+        )
+        action.addItems(["Unlock Objects", "Lock Objects"])
+        action.setCurrentText("Unlock Objects")
+        action.currentTextChanged.connect(widget.setText)
+        widget.setText(action.currentText())
+
+    @btk.undoable
     def tb004(self, widget):
-        """Node Locking — Maya node locking has no Blender analogue."""
-        self.sb.message_box("Node Locking is not applicable in Blender.")
+        """Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make
+        objects unselectable) to protect them from accidental selection/edits. Lock acts on the
+        selection; Unlock clears every object in the view layer (a locked object can't be selected
+        to unlock it), matching Maya tb004's selection-or-all scope. ``hide_select`` is a direct
+        property write — no ``window_context_override`` needed (unlike the bpy.ops paths above)."""
+        lock = widget.option_box.menu.cmb_lock.currentText() == "Lock Objects"
+        if lock:
+            targets = self.selected_objects()
+            if not targets:
+                self.sb.message_box("Select object(s) to lock.")
+                return
+        else:
+            # Unlock every object — locked ones are unselectable, so there's nothing to select.
+            targets = list(bpy.context.view_layer.objects)
+        for o in targets:
+            o.hide_select = lock
+        verb = "Locked" if lock else "Unlocked"
+        self.sb.message_box(f"<hl>{verb}</hl> {len(targets)} object(s).")
 
 
 # --------------------------------------------------------------------------------------------

@@ -281,6 +281,15 @@ CONTROLS = {
         # -> btk.graph_materials opens the Shader Editor), matched by objectName against the Maya
         # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
     },
+    "telescope_rig": {
+        "cmb_axis": {
+            "status": "pending",
+            "reason": "Aim Axis combo added to the Maya panel 2026-07-18 with the TelescopeRig "
+            "engine overhaul (selects the segments' long axis: aim vectors + driven scale "
+            "channel + off-axis lock set). The blendertk twin's engine still hardcodes its "
+            "axis handling — port the aim_axis option to its engine, .ui, and slots.",
+        },
+    },
     "tube_rig": {
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
         # (num_joints/num_controls/radius/enable_stretch) built into wgt_options per mode.
@@ -610,12 +619,21 @@ HANDLERS = {
     },
     "animation": {},
     "edit": {
-        "tb001_init": {"status": "na", "reason": "Blender defines tb001 as a documented not-applicable message-box stub (no construction history), so the button is handled (not inert) and its Maya option box (chk019/20/30/31) is intentionally not built — no _init needed."},
-        "tb004_init": {"status": "na", "reason": "Blender defines tb004 as a documented not-applicable message-box stub (Maya node locking has no Blender analogue), so the button is handled and the chk027 option box is intentionally not built — no _init needed."},
+        # tb001_init: removed 2026-07-17 — BUILT. Blender's tb001 is repurposed from the old
+        # not-applicable "Delete History" message-box stub into "Optimize" (bpy.data.orphans_purge),
+        # so it now ships a real tb001_init (runtime relabel + a Recursive/Include-Linked option
+        # box) matching Maya's — no longer intentionally absent, so no ledger entry is needed.
+        # tb004_init: removed 2026-07-17 — BUILT. Blender's tb004 is repurposed from the old
+        # not-applicable stub into an Object-Lock toggle (hide_select = make unselectable, the
+        # intent-analogue of Maya's node lock), so it now ships a real tb004_init building the
+        # cmb_lock Lock/Unlock selector — matching Maya's. No entry needed.
     },
     "pivot": {
         "tb002_init": {"status": "replaced", "to": "tb002 (option-less always-translate transfer)", "reason": "Maya's Transfer Pivot option box (chk005-009 channel/space/bake toggles) is replaced on Blender by an option-less tb002 that always transfers the single origin (translate) — the button itself IS handled (def tb002 exists), only the option-box builder is deliberately absent; tool's 'visible but inert' applies to the empty option box, not the button."},
-        "tb003_init": {"status": "na", "reason": "tb003_init only builds the Manip Pivot option (chk010) for Maya's world-aligned manipulator pivot; Blender tb003 is an explicit not-applicable stub (no separate manip pivot, origin is a point), so no option box should exist — button remains handled by def tb003."},
+        # tb003_init: removed 2026-07-18 — BUILT. Blender's tb003 (World-Aligned Pivot) is no
+        # longer a not-applicable stub: it now ships a real tb003_init building the Manip Pivot
+        # option (chk010) 1:1 with Maya's, and the slot mirrors both halves (manip-on → Global
+        # transform orientation, off → apply-rotation). Matched on both sides, so no entry needed.
     },
     "polygons": {},
     "preferences": {},
@@ -658,16 +676,23 @@ CONTROLS_SLOTS = {
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
     },
+    "duplicate": {
+        "chk001": {"status": "na", "reason": "tb000 Convert-to-Instances option 'Delete History': construction history does not exist in Blender, so the toggle could never change anything — not built per the hide-when-no-equivalent rule (2026-07-18; a visible no-op control is not parity). btk.replace_with_instances keeps its delete_history param for mtk signature parity only."},
+    },
     "edit": {
         "chk012": {"status": "na", "reason": "Maya polyCleanup 'holed polys' checks faces containing holes; Blender BMesh faces cannot hold holes (no holed-face data model) and blender/edit.py documents Holed as not mirrored (no bmesh primitive)."},
         "chk016": {"status": "na", "reason": "Maya-only data model: Maya stores per-vertex-shareable UVs that cleanup can 'unshare'; Blender UVs are always per-loop so shared-across-vertices UVs cannot exist; blender/edit.py documents Shared-UV as not mirrored."},
         "chk018": {"status": "na", "reason": "Maya lamina faces (faces sharing all edges) are structurally impossible in BMesh (duplicate faces over one vert set are rejected); blender/edit.py documents Lamina as not mirrored; near-coincident doubles are covered by chk025 Overlapping Faces."},
-        "chk019": {"status": "na", "reason": "Option of Maya tb001 Delete History (MLdeleteUnused + empty-group purge); Blender tb001 is a documented not-applicable stub (no construction history), so its option box is intentionally not built; a Blender purge-orphans surface would be a separate control if ever wanted."},
-        "chk020": {"status": "na", "reason": "'Delete Deformers' toggles deleting full vs non-deformer construction history (cmds.delete ch=True vs bakePartialHistory); construction history does not exist in Blender (modifier stack is non-destructive) per the documented tb001 stub."},
+        "chk019": {"status": "replaced", "to": "tb001 Optimize (bpy.data.orphans_purge)", "reason": "Maya tb001 Delete History option 'Delete Unused Nodes' (MLdeleteUnused + empty-group purge). Blender's tb001 is repurposed as Optimize, which purges orphaned (zero-user) datablocks — the same 'remove unused nodes' capability, expressed as a button-level purge rather than a per-run checkbox (recursion/linked scope are its own chk_purge_* options)."},
+        "chk020": {"status": "na", "reason": "'Delete Deformers' toggles deleting full vs non-deformer construction history (cmds.delete ch=True vs bakePartialHistory) — the construction-history part of Delete History, which does not exist in Blender (modifier stack is non-destructive). Only the purge-unused subset (chk019/chk030) maps onto the repurposed tb001 Optimize; deformer/history deletion has no analogue."},
         "chk026": {"status": "na", "reason": "tb000 pre-cleanup option 'Delete History' bakes non-deformer construction history (bakePartialHistory) before polyCleanup; Blender has no construction history so the pre-pass is meaningless, per the documented drop in blender/edit.py."},
-        "cmb_lock": {"status": "na", "reason": "Lock/Unlock selector of tb004 Node Locking (cmds.lockNode; was chk027); Blender tb004 is a documented not-applicable stub — Maya node locking (prevent delete/rename of DG nodes) has no Blender analogue."},
-        "chk030": {"status": "na", "reason": "Runs MEL 'OptimizeScene' (Maya scene optimizer) as a tb001 Delete History option; host tool is a documented not-applicable stub on Blender; nearest Blender analogue (outliner.orphans_purge) would be a separate surface if ever surfaced."},
-        "chk031": {"status": "na", "reason": "'For All Objects' scope toggle for tb001 Delete History; rides on the construction-history capability that the Blender slot documents as not applicable, so no Blender surface should exist."},
+        # cmb_lock: now BUILT on both DCCs with the same objectName (tb004 Object Locking) — the
+        # missing-control na entry is obsolete. The only divergence is the combo item labels
+        # ('Unlock/Lock Objects' on Blender vs 'Unlock/Lock Nodes' on Maya — Blender has objects,
+        # not DG nodes), an intentional Blender-idiomatic rename tracked as an accepted item delta.
+        "cmb_lock": {"status": "accepted-delta", "reason": "tb004 Object Locking Lock/Unlock selector — same objectName + capability; combo items read 'Unlock/Lock Objects' (Blender toggles hide_select on objects) vs Maya's 'Unlock/Lock Nodes' (cmds.lockNode on DG nodes)."},
+        "chk030": {"status": "replaced", "to": "tb001 Optimize (bpy.data.orphans_purge)", "reason": "Maya tb001 Delete History option running MEL 'OptimizeScene' (the scene optimizer). Blender's repurposed tb001 Optimize IS the analogue — bpy.data.orphans_purge drops every unused datablock, Blender's counterpart to Optimize Scene's unused-node removal (the construction-history part of the same button stays na — see chk020)."},
+        "cmb_del_scope": {"status": "na", "reason": "Scope selector (Selected / Visible / All Geometry) for Maya's Delete History — replaces the old dead chk031 'For All Objects' checkbox (tb001 never read it). Blender's tb001 Optimize purges orphaned datablocks, which by definition have zero users, so there is no selected-vs-all scope for unused data; the purge is inherently file-wide and needs no scope control."},
     },
     "materials": {
         "b007": {"status": "renamed", "to": "b_shader_editor", "reason": "Hypershade Editor -> 'Shader Editor' header button (btk.open_editor, Blender's Hypershade analogue)"},
@@ -693,9 +718,12 @@ CONTROLS_SLOTS = {
         "chk005": {"status": "replaced", "to": "tb002 always-on translate (btk.transfer_pivot)", "reason": "Translate is Blender's only pivot channel, so the toggle is meaningless; the capability runs unconditionally via btk.transfer_pivot(translate=True) in the option-less Blender tb002."},
         "chk006": {"status": "na", "reason": "Rotate-pivot transfer has no Blender analogue — btk.transfer_pivot accepts rotate= only for signature parity and no-ops (Blender has no separate rotate pivot)."},
         "chk007": {"status": "na", "reason": "Scale-pivot transfer has no Blender analogue — btk.transfer_pivot accepts scale= only for signature parity and no-ops (Blender has no separate scale pivot)."},
-        "chk008": {"status": "na", "reason": "Bake toggle bakes Maya pivot values into the transform node; Blender origins are always baked into the transform (the b004 Bake stub explicitly messages not-applicable)."},
+        "chk008": {"status": "na", "reason": "Transfer-Pivot Bake toggle bakes Maya pivot values into the transform node; Blender's option-less tb002 has no such per-transfer toggle (origins are always baked). The standalone Bake Pivot button (b004) is a real op now — origin_set(ORIGIN_CURSOR), baking the 3D-cursor pivot into the origin — but exposes no option box, so this Transfer-Pivot toggle has no Blender twin."},
         "chk009": {"status": "na", "reason": "World Space toggle is meaningless in Blender's transfer model — btk.transfer_pivot documents world_space as implicit (origin read via matrix_world; 3D-cursor snap is world-space by construction)."},
-        "chk010": {"status": "na", "reason": "Manip Pivot chooses Maya's temporary manipulator pivot vs permanent object pivot; Blender has no separate manipulator pivot — the Blender tb003 stub explicitly messages World-Aligned Pivot not-applicable."},
+        # chk010: removed 2026-07-18 — BUILT. Blender's tb003_init now builds the Manip Pivot
+        # option 1:1 with Maya's (same objectName/label/default), so it matches on both sides.
+        # The behavioral mapping (manip-on → Global orientation, off → apply-rotation) lives in
+        # the slot code, not the widget properties, so there's no surface delta to ledger.
     },
     "polygons": {
         "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
@@ -707,8 +735,11 @@ CONTROLS_SLOTS = {
         "chk001": {"status": "na", "reason": "IPR launches a Maya Render View interactive session via renderer-registered MEL procs (RenderUtils.start_ipr); Blender's interactive render is the rendered-viewport shading state, not a render-op option — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
         "chk002": {"status": "na", "reason": "Smart Redo wraps Maya Render View MEL redoPreviousRender (RenderUtils.redo_previous_render); Blender's render op has no redo-previous concept (Render Result slots are native) — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
         "chk056": {"status": "na", "reason": "Maya playblast offScreen capture-mode flag (avoid viewport-redraw issues); bpy.ops.render.opengl always renders to an offscreen buffer and exposes no such parameter, so the toggle has no Blender surface. Maya control predates the port (2025-11-15 f7547ffe; Blender port 2026-06-12 c6b601c9 carried a documented subset)."},
-        "chk059": {"status": "na", "reason": "clearCache clears Maya's temporary playblast movie-cache files (cmds.playblast clearCache flag); Blender's OpenGL render writes directly to the output filepath with no playblast cache to clear."},
-        "t001": {"status": "replaced", "to": "t000 direct-filepath model", "reason": "Maya's regex only transforms the scene-derived output name used when the base path is a directory; the Blender port takes an explicit base path (t000 defaults to scene.render.filepath) with '#' frame padding via _playblast_path, so filename control needs no scene-name regex stage."},
+        # chk059 (Clear Cache) + t001 (scene-name regex): removed from the Maya panel in the
+        # 2026-07-18 PlayblastExporter overhaul (clearCache became an internal always-on detail;
+        # the regex stage was dropped — type the name in t000 instead), so their na/replaced
+        # entries no longer match any Maya-only control.
+        "chk060": {"status": "pending", "reason": "Include Audio (2026-07-18 overhaul): Maya muxes the timeline's active sound into MP4/MOV (ffmpeg) and passes it to the native AVI playblast. Blender candidate route: set scene.render.ffmpeg.audio_codec before bpy.ops.render.opengl so VSE/speaker audio muxes into the FFMPEG output — needs a live-Blender check before building."},
     },
     "rigging": {
         "chk001": {"status": "na", "reason": "IK radio drives Maya's global ikHandleDisplayScale; Blender has no global IK-handle display-scale — excused in the Blender slot"},
@@ -909,9 +940,18 @@ PANELS = {
     # RenderOpacity fades, VSE audio). Ledgered follow-ups (not sweep gaps): sequencer AUDIO-track display
     # + move-to-shot sequence grouping are deferred; the object-animation timeline is fully wired. The
     # slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
+    # WorkspaceEditorSlots (blendertk-only, the REVERSE direction — no mayatk twin by design,
+    # shipped 2026-07-18): create a shared Maya/Blender project workspace and customize its
+    # file rules (workspace.mel via pythontk.Workspace). Maya needs no twin panel — its native
+    # Project Window IS this editor; the two sides pair at the tentacle layer instead: both
+    # main.py Workspace tabs carry the same "Edit Workspace" row (Maya → mel ProjectWindow,
+    # Blender → marking_menu.show("workspace_editor")), pinned by test_main_workspace*.py.
     "WorkspaceMapSlots": {"status": "na",
-                          "reason": "Maya-workspace management tool; no Blender project concept — "
-                                    "reframe as a .blend/asset browser only if wanted (plan ruling)"},
+                          "reason": "Maya workspace-tree browser; Blender now SHARES the "
+                                    "workspace.mel project model (btk.current_workspace + the "
+                                    "workspace_editor panel, 2026-07-18), but the map/browser "
+                                    "tree itself stays unported — the Reference Manager combo + "
+                                    "main.py Workspace tab cover discovery; port only if wanted"},
 }
 
 # --------------------------------------------------------------------------- file counterpart sets

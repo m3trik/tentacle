@@ -11,8 +11,10 @@ class Cameras(SlotsBlender):
 
     Standard-view switching maps to ``view3d.view_axis`` (viewport ops, run under an explicit
     VIEW_3D override). Camera creation/selection + clip adjustment are object/data ops backed by
-    ``blendertk.cam_utils``. Maya-only bits — per-camera exclusive/hidden visibility, align-to-poly,
-    the persistent dolly/roll/truck/orbit manipulator tools — are deferred.
+    ``blendertk.cam_utils``. Dolly/Roll/Truck/Orbit (``b010``-``b013``) arm interactive Maya-style
+    drag-nav tools — ``btk.navigate_view`` invokes a modal operator that drags the RegionView3D
+    exactly like Maya's tumbleContext/trackContext/dollyContext (and a drag Roll). Per-camera
+    exclusive/hidden visibility has no Blender primitive and is deferred.
     """
 
     def __init__(self, switchboard):
@@ -26,10 +28,20 @@ class Cameras(SlotsBlender):
     def _scene_cameras():
         return [o for o in bpy.data.objects if o.type == "CAMERA"]
 
-    def _set_view_axis(self, view_type):
+    def _view3d_context(self, no_viewport="No 3D viewport available."):
+        """The VIEW_3D override dict (validated to carry a WINDOW region), or ``None`` after
+        messaging — the shared guard for viewport ops run from the Qt pump, where ``bpy.context``
+        has no active VIEW_3D. Callers wrap their ``view3d.*`` ops in
+        ``bpy.context.temp_override(**ctx)`` (see ``_set_view_axis`` / ``b007`` / ``b011``)."""
         ctx = btk.get_view3d_context()
-        if not ctx or not ctx.get("region"):
-            self.sb.message_box("No 3D viewport available for view switching.")
+        if ctx and ctx.get("region"):
+            return ctx
+        self.sb.message_box(no_viewport)
+        return None
+
+    def _set_view_axis(self, view_type):
+        ctx = self._view3d_context("No 3D viewport available for view switching.")
+        if ctx is None:
             return
         with bpy.context.temp_override(**ctx):
             bpy.ops.view3d.view_axis(type=view_type)
@@ -110,9 +122,8 @@ class Cameras(SlotsBlender):
 
     def b004(self):
         """Cameras: Perspective View"""
-        ctx = btk.get_view3d_context()
-        if not ctx or not ctx.get("region"):
-            self.sb.message_box("No 3D viewport available for view switching.")
+        ctx = self._view3d_context("No 3D viewport available for view switching.")
+        if ctx is None:
             return
         rv3d = ctx["region"].data
         if not rv3d:
@@ -134,14 +145,13 @@ class Cameras(SlotsBlender):
         """Cameras: Bottom View"""
         self._set_view_axis("BOTTOM")
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
+    # ------------------------------------------------------------------ b007  Align View
     def b007(self):
         """Cameras: Align View (align the viewport to the active element's normal and frame
         the selection — Blender's Align-View-to-Active, the analogue of Maya's
         align-camera-to-polygon)."""
-        ctx = btk.get_view3d_context()
-        if not ctx or not ctx.get("region"):
-            self.sb.message_box("No 3D viewport available for view switching.")
+        ctx = self._view3d_context("No 3D viewport available for view switching.")
+        if ctx is None:
             return
         if not self.selected_objects():
             self.sb.message_box("Nothing Selected.")
@@ -153,21 +163,33 @@ class Cameras(SlotsBlender):
         except RuntimeError as error:
             self.sb.message_box(str(error))
 
+    # ------------------------------------------------------------------ b010-b013  Nav tools
+    # Maya's Dolly/Truck/Orbit arm interactive drag tools (setToolTo tumbleContext/trackContext/
+    # dollyContext); Roll is a discrete cmds.roll. blendertk rolls our own faithful equivalents —
+    # a modal operator that drags the RegionView3D exactly like Maya — armed here: LMB-drag to
+    # navigate, RMB/Enter to finish, Esc to cancel. btk.navigate_view refuses in --background.
+    def _nav(self, mode):
+        """Arm the interactive viewport-nav tool for ``mode`` (btk.navigate_view)."""
+        try:
+            btk.navigate_view(mode)
+        except RuntimeError as error:
+            self.sb.message_box(str(error))
+
     def b010(self):
-        """Camera: Dolly — Blender viewport navigation is modal, not a persistent tool."""
-        self.sb.message_box("Camera tools (dolly/roll/truck/orbit) are not applicable in Blender.")
+        """Camera: Dolly — arm the interactive dolly tool (LMB-drag to move the eye in/out)."""
+        self._nav("DOLLY")
 
     def b011(self):
-        """Camera: Roll"""
-        self.sb.message_box("Camera tools (dolly/roll/truck/orbit) are not applicable in Blender.")
+        """Camera: Roll — arm the interactive roll tool (LMB-drag to roll the view about its axis)."""
+        self._nav("ROLL")
 
     def b012(self):
-        """Camera: Truck"""
-        self.sb.message_box("Camera tools (dolly/roll/truck/orbit) are not applicable in Blender.")
+        """Camera: Truck — arm the interactive track/pan tool (LMB-drag to pan the view)."""
+        self._nav("TRACK")
 
     def b013(self):
-        """Camera: Orbit"""
-        self.sb.message_box("Camera tools (dolly/roll/truck/orbit) are not applicable in Blender.")
+        """Camera: Orbit — arm the interactive tumble tool (LMB-drag to orbit the view)."""
+        self._nav("ORBIT")
 
 
 # --------------------------------------------------------------------------------------------

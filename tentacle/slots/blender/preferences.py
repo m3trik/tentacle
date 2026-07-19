@@ -39,8 +39,14 @@ class Preferences(SlotsBlender):
         """Open Blender's Preferences editor, optionally on a specific section, and make sure
         the window actually surfaces.
 
-        Two live-verified gotchas (see ``test/blender/userpref_visibility_check.py``):
+        Three live-verified gotchas (see ``test/blender/userpref_visibility_check.py``):
 
+        - ``userpref_show``'s poll reads ``context.window``, which is ``None`` when tentacle
+          drives a slot from its Qt event-pump timer (``userpref_show.poll() failed, context is
+          incorrect``) — so every prefs button dead-ended in the "Could not open" message below.
+          Wrapping in ``btk.window_context_override`` supplies the first open window, exactly as
+          ``btk.open_editor`` does for this same op; it's a harmless no-op when a window is
+          already active.
         - ``bpy.ops.screen.userpref_show`` can succeed *invisibly*: with OS foreground held by
           another process (e.g. the user was last in Maya and clicked straight onto this Qt
           panel), Windows denies GHOST the foreground transfer — the window opens (or is
@@ -56,7 +62,8 @@ class Preferences(SlotsBlender):
             except (TypeError, AttributeError):
                 pass
         try:
-            bpy.ops.screen.userpref_show()
+            with btk.window_context_override():
+                bpy.ops.screen.userpref_show()
         except Exception as error:
             self.sb.message_box(f"Could not open Blender Preferences: {error}")
             return
