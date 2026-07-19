@@ -7,6 +7,8 @@ import bpy
 import pythontk as ptk
 import blendertk as btk
 from uitk import Signals
+from uitk.widgets.footer import FooterStatusController
+from blendertk.core_utils.script_job_manager import ScriptJobManager
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -22,8 +24,9 @@ class SceneSlots(SlotsBlender):
     the former (task/check pipeline, FBX or GLB) reached from the Export list — see
     ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. disabled
     placeholders (hierarchy_sync / smart_bake / data_export subsystems aren't ported yet);
-    the latter for Diff/Fix (Pull isn't ported yet). Maya's workspace model and command ports
-    have no Blender analogue and are deferred.
+    the latter for Diff/Fix (Pull isn't ported yet). The workspace model is shared with Maya
+    (``workspace.mel`` projects via ``btk.current_workspace``; the footer mirrors Maya's
+    workspace status). Maya's command ports have no Blender analogue and are deferred.
     """
 
     # (label -> bpy.ops path OR callable(slot)) for the submenu's Import / Export expandable
@@ -59,6 +62,33 @@ class SceneSlots(SlotsBlender):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.scene
         self.submenu = self.sb.loaded_ui.scene_submenu
+        self._footer_controller = self._create_footer_controller()
+
+    def _on_workspace_changed(self):
+        """Scene open/save handler — refresh the footer's workspace status."""
+        if self._footer_controller:
+            self._footer_controller.update()
+
+    def _create_footer_controller(self):
+        """Workspace-name footer, mirror of Maya's scene footer. Blender has no
+        ``workspaceChanged`` event, so it refreshes on scene open/save (a session-pin
+        change shows on the next file event)."""
+        footer = getattr(self.ui, "footer", None)
+        if not footer:
+            return None
+        mgr = ScriptJobManager.instance()
+        mgr.subscribe("SceneOpened", self._on_workspace_changed, owner=footer)
+        mgr.subscribe("SceneSaved", self._on_workspace_changed, owner=footer)
+        mgr.connect_cleanup(footer, owner=footer)
+        return FooterStatusController(
+            footer=footer,
+            resolver=self._resolve_workspace_text,
+            default_text="No workspace set",
+            truncate_kwargs={"length": 96, "mode": "middle"},
+        )
+
+    def _resolve_workspace_text(self) -> str:
+        return btk.get_env_info("workspace_dir") or ""
 
     def header_init(self, widget):
         """Header menu — mirror of the Maya scene header (portable subset). ``b011`` (Fix Color

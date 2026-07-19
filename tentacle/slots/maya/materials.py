@@ -657,6 +657,8 @@ class MaterialsSlots(SlotsMaya):
     def lbl002(self):
         """Delete Material"""
         mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
+        if not mat:
+            return
         cmds.delete(str(mat))
         self.ui.cmb002.init_slot()  # refresh the materials list comboBox
 
@@ -668,6 +670,8 @@ class MaterialsSlots(SlotsMaya):
     def lbl004(self):
         """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
         mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
+        if not mat:
+            return
         cmds.select(str(mat), replace=True)
         mel.eval(f'showEditorExact("{mat}")')
 

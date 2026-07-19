@@ -1,8 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
-import re
-from typing import Any, Dict, List, Optional
+from typing import List
 
 import maya.cmds as cmds
 import maya.mel as mel
@@ -22,6 +21,13 @@ class Rendering(SlotsMaya):
         # (camera, renderer) of the last render this session — drives Smart Redo.
         self._last_render_key = None
 
+    # Curated multi-output bundles appended after the registry's individual
+    # targets (single-capture planning makes multi-target exports cheap).
+    _TARGET_BUNDLES = [
+        ("MP4 + PNG Sequence", ["mp4", "png_sequence"]),
+        ("MP4 + Arnold Sequence", ["mp4", "arnold"]),
+    ]
+
     def tb000_init(self, widget):
         """Export Playblast Init"""
 
@@ -30,20 +36,14 @@ class Rendering(SlotsMaya):
 
         playback_min = int(cmds.playbackOptions(q=True, minTime=True))
         playback_max = int(cmds.playbackOptions(q=True, maxTime=True))
-        default_path = self._default_playblast_path()
 
         menu.add(
             "QLineEdit",
-            setPlaceholderText="Output base path",
-            setText=default_path,
+            setPlaceholderText="Output directory or base path",
+            setText=self._default_playblast_path(),
             setObjectName="t000",
-            setToolTip="Base filepath (without extension). Variations will append labels and extensions automatically.",
-        )
-        menu.add(
-            "QLineEdit",
-            setPlaceholderText="Scene regex pattern -> replacement (optional)",
-            setObjectName="t001",
-            setToolTip="Optional regex applied to the scene name before building output filenames. Use 'pattern->replacement'.",
+            setToolTip="Output directory, or directory plus base name. A bare directory "
+            "uses the scene name; any typed extension is ignored (each output appends its own).",
         )
         menu.add(
             "QComboBox",
@@ -122,7 +122,8 @@ class Rendering(SlotsMaya):
             setObjectName="cmb016",
             setCurrentIndex=5,
             block_signals_on_restore=False,
-            setToolTip="Image quality preset applied to movie outputs.",
+            setToolTip="Quality applied to movie outputs (native playblast quality; "
+            "encoding rate factor for MP4/MOV).",
         )
 
         camera_items = ["Active Viewport"] + self._camera_transforms()
@@ -137,31 +138,14 @@ class Rendering(SlotsMaya):
 
         menu.add(
             "QComboBox",
-            addItems=[
-                "AVI (Uncompressed)",
-                "MP4 (Compressed)",
-                "MOV (Animation)",
-                "MOV (JPEG)",
-                "MOV (No Compression)",
-                "PNG Sequence",
-                "PNG Still (Single Frame)",
-                "JPEG Sequence",
-                "TIFF Sequence",
-                "TGA Sequence",
-                "IFF Sequence",
-                "Arnold Sequence",
-                "AVI + PNG",
-                "AVI + Arnold",
-                "All Maya Movie/Sequences",
-            ],
             setObjectName="cmb050",
             setCurrentIndex=0,
             setMaxVisibleItems=12,
             block_signals_on_restore=False,
             setToolTip=(
-                "Choose the preset(s) to generate: AVI/MOV movie captures, FFmpeg-compressed MP4, "
-                "individual image sequences (PNG/JPEG/TIFF/TGA/IFF), single-frame PNG stills, and the Arnold renderer. "
-                "Combined presets bundle common outputs so you can trigger multiple formats at once."
+                "Output(s) to generate. MP4/MOV are encoded from a single lossless "
+                "capture via FFmpeg; sequences keep real scene frame numbers; bundles "
+                "produce several outputs from one capture pass."
             ),
         )
         menu.add(
@@ -180,17 +164,18 @@ class Rendering(SlotsMaya):
         )
         menu.add(
             "QCheckBox",
-            setText="Launch Viewer",
+            setText="Open When Done",
             setObjectName="chk058",
             setChecked=False,
-            setToolTip="Open the captured clip in Maya's media viewer when finished.",
+            setToolTip="Open the first finished movie output with its default application.",
         )
         menu.add(
             "QCheckBox",
-            setText="Clear Cache",
-            setObjectName="chk059",
-            setChecked=True,
-            setToolTip="Clear temporary playblast files before exporting.",
+            setText="Include Audio",
+            setObjectName="chk060",
+            setChecked=False,
+            setToolTip="Attach the timeline's active sound to movie outputs "
+            "(muxed into MP4/MOV; native playblast audio for AVI).",
         )
 
         range_combo = menu.cmb010
@@ -241,43 +226,22 @@ class Rendering(SlotsMaya):
             quality_combo.setItemData(index, value)
 
         camera_combo = menu.cmb041
+        camera_combo.restore_by = "text"  # scene-dependent items; index is unstable
         camera_combo.setItemData(0, None)
         for idx, camera_name in enumerate(camera_items[1:], start=1):
             camera_combo.setItemData(idx, camera_name)
 
+        # Output picker is registry-driven: individual targets from the
+        # exporter, then the curated bundles.
         output_combo = menu.cmb050
-        output_map = {
-            0: ["avi"],
-            1: ["mp4"],
-            2: ["mov_animation"],
-            3: ["mov_jpeg"],
-            4: ["mov_uncompressed"],
-            5: ["png_sequence"],
-            6: ["png_still"],
-            7: ["jpg_sequence"],
-            8: ["tiff_sequence"],
-            9: ["tga_sequence"],
-            10: ["iff_sequence"],
-            11: ["arnold_sequence"],
-            12: ["avi", "png_sequence"],
-            13: ["avi", "arnold_sequence"],
-            14: [
-                "avi",
-                "avi_viewport",
-                "mp4",
-                "mov_animation",
-                "mov_jpeg",
-                "mov_uncompressed",
-                "png_sequence",
-                "png_still",
-                "jpg_sequence",
-                "tiff_sequence",
-                "tga_sequence",
-                "iff_sequence",
-            ],
-        }
-        for idx, codes in output_map.items():
-            output_combo.setItemData(idx, codes)
+        output_combo.restore_by = "text"  # registry-driven items; index is unstable
+        entries = [
+            (label, [name]) for name, label in PlayblastExporter.available_targets()
+        ]
+        entries += self._TARGET_BUNDLES
+        output_combo.addItems([label for label, _ in entries])
+        for idx, (_, target_names) in enumerate(entries):
+            output_combo.setItemData(idx, target_names)
 
     @Cancelable(600)
     def tb000(self, widget):
@@ -293,15 +257,8 @@ class Rendering(SlotsMaya):
 
         range_data = menu.cmb010.itemData(menu.cmb010.currentIndex()) or {}
         range_mode = range_data.get("mode", "playback")
-
-        if range_mode == "animation":
-            start_frame = int(cmds.playbackOptions(q=True, animationStartTime=True))
-            end_frame = int(cmds.playbackOptions(q=True, animationEndTime=True))
-        elif range_mode == "current":
-            current = int(cmds.currentTime(query=True))
-            start_frame = current
-            end_frame = current
-        elif range_mode == "custom":
+        start_frame = end_frame = None
+        if range_mode == "custom":
             start_frame = int(menu.s010.value())
             end_frame = int(menu.s011.value())
             if start_frame > end_frame:
@@ -309,254 +266,86 @@ class Rendering(SlotsMaya):
                     "Start frame must be less than or equal to end frame."
                 )
                 return
-        else:
-            start_frame = int(cmds.playbackOptions(q=True, minTime=True))
-            end_frame = int(cmds.playbackOptions(q=True, maxTime=True))
 
-        frame_padding = int(menu.s012.value())
-        percent = int(menu.s015.value())
-        quality = int(menu.cmb016.itemData(menu.cmb016.currentIndex()) or 100)
-
-        output_base = menu.t000.text().strip()
-        scene_name = self._scene_base_name()
-        regex_spec = menu.t001.text().strip()
-        if regex_spec:
-            pattern = None
-            replacement = ""
-            if "->" in regex_spec:
-                parts = regex_spec.split("->", 1)
-                pattern = parts[0].strip()
-                replacement = parts[1]
-            elif "|" in regex_spec:
-                parts = regex_spec.split("|", 1)
-                pattern = parts[0].strip()
-                replacement = parts[1]
-            if pattern:
-                try:
-                    scene_name = re.sub(pattern, replacement, scene_name)
-                except re.error as exc:
-                    self.sb.message_box(f"Invalid regex pattern '{pattern}': {exc}")
-        if not scene_name:
-            scene_name = self._scene_base_name()
-
-        if not output_base:
-            output_base = self._default_playblast_path()
-        output_base = os.path.normpath(
-            os.path.expanduser(os.path.expandvars(output_base))
-        )
-
-        if os.path.isdir(output_base):
-            output_base = os.path.join(output_base, scene_name)
-        elif output_base.endswith(("/", "\\")) or output_base == "":
-            output_base = os.path.join(output_base, scene_name)
-        elif os.path.splitext(output_base)[1]:
-            output_base = os.path.splitext(output_base)[0]
-
-        base_dir = os.path.dirname(output_base)
-        if base_dir and not os.path.exists(base_dir):
-            os.makedirs(base_dir, exist_ok=True)
-
-        camera_combo = menu.cmb041
-        camera_selection = camera_combo.itemData(camera_combo.currentIndex())
-        camera_name = str(camera_selection) if camera_selection else None
-
-        resolution = menu.cmb040.itemData(menu.cmb040.currentIndex())
-        if not resolution:
-            resolution = (1920, 1080)
-
-        base_kwargs = {
-            "clearCache": menu.chk059.isChecked(),
-            "forceOverwrite": True,
-            "viewer": menu.chk058.isChecked(),
-            "offScreen": menu.chk056.isChecked(),
-            "showOrnaments": menu.chk057.isChecked(),
-            "percent": percent,
-            "quality": quality,
-            "widthHeight": resolution,
-        }
-
-        preset_codes = menu.cmb050.itemData(menu.cmb050.currentIndex()) or []
-        if not preset_codes:
-            self.sb.message_box("Select an output preset before running the playblast.")
+        targets = menu.cmb050.itemData(menu.cmb050.currentIndex()) or []
+        if not targets:
+            self.sb.message_box("Select an output before running the playblast.")
             return
 
-        def build_variation(code: str) -> Optional[Dict[str, Any]]:
-            if code == "avi":
-                return {
-                    "label": "avi_uncompressed",
-                    "playblast": {"format": "avi", "compression": "none"},
-                }
-            if code == "mp4":
-                return {
-                    "label": "mp4",
-                    "playblast": {"format": "avi", "compression": "none"},
-                    "post": "mp4",
-                }
-            if code == "mov_animation":
-                return {
-                    "label": "mov_animation",
-                    "playblast": {"format": "qt", "compression": "animation"},
-                }
-            if code == "mov_jpeg":
-                return {
-                    "label": "mov_jpeg",
-                    "playblast": {"format": "qt", "compression": "jpeg"},
-                }
-            if code == "mov_uncompressed":
-                return {
-                    "label": "mov_uncompressed",
-                    "playblast": {"format": "qt", "compression": "none"},
-                }
-            if code == "png_sequence":
-                return {
-                    "label": "png_sequence",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "png",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "png_still":
-                return {
-                    "label": "png_still",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "png",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "jpg_sequence":
-                return {
-                    "label": "jpg_sequence",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "jpg",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "tiff_sequence":
-                return {
-                    "label": "tiff_sequence",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "tif",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "iff_sequence":
-                return {
-                    "label": "iff_sequence",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "iff",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "tga_sequence":
-                return {
-                    "label": "tga_sequence",
-                    "playblast": {
-                        "format": "image",
-                        "compression": "tga",
-                        "framePadding": frame_padding,
-                    },
-                    "make_directory": True,
-                }
-            if code == "arnold_sequence":
-                return {
-                    "label": "arnold_sequence",
-                    "renderer": "arnold",
-                    "framePadding": frame_padding,
-                }
-            if code == "avi_viewport":
-                return {
-                    "label": "avi_viewport",
-                    "playblast": {
-                        "format": "avi",
-                        "compression": "none",
-                        "offScreen": False,
-                    },
-                }
-            return None
+        output_dir, output_name = self._split_output_base(menu.t000.text())
 
-        variations: List[Dict[str, Any]] = []
-        seen_labels = set()
-        for code in preset_codes:
-            variation = build_variation(code)
-            if not variation:
-                continue
-            label = variation.get("label")
-            if label in seen_labels:
-                continue
-            seen_labels.add(label)
-            variations.append(variation)
-
-        if not variations:
-            self.sb.message_box(
-                "No output variations resolved from the selected preset."
-            )
-            return
-
-        cmds.optionVar(
-            intValue=(
-                "tentacleEnableArnoldPlayblast",
-                int(any(variation.get("renderer") == "arnold" for variation in variations)),
-            )
-        )
-
-        cmds.currentTime(start_frame, update=True)
+        resolution = menu.cmb040.itemData(menu.cmb040.currentIndex()) or (1920, 1080)
+        camera_selection = menu.cmb041.itemData(menu.cmb041.currentIndex())
 
         exporter = PlayblastExporter(
-            start_frame=start_frame,
-            end_frame=end_frame,
-            camera_name=camera_name,
+            camera=str(camera_selection) if camera_selection else None,
+            width=resolution[0],
+            height=resolution[1],
+            percent=int(menu.s015.value()),
+            quality=int(menu.cmb016.itemData(menu.cmb016.currentIndex()) or 100),
+            off_screen=menu.chk056.isChecked(),
+            show_ornaments=menu.chk057.isChecked(),
+            frame_padding=int(menu.s012.value()),
+            include_audio=menu.chk060.isChecked(),
         )
 
         with self.sb.progress(text="Working: Export Playblast") as update:
-            results = exporter.export_variations(
-                output_path=output_base,
-                base_kwargs=base_kwargs,
-                scene_name=scene_name,
-                variations=variations,
+            results = exporter.export(
+                output_dir=output_dir,
+                name=output_name,
+                targets=targets,
+                range_mode=range_mode,
+                start=start_frame,
+                end=end_frame,
                 progress_callback=self.sb.progress_adapter(update),
             )
 
-        outputs = []
-        errors = []
+        outputs: List[str] = []
+        errors: List[str] = []
+        movie_outputs: List[str] = []
         for result in results:
-            if result.get("error"):
-                errors.append(result)
-                continue
+            label = PlayblastExporter.TARGETS[result.target].label
+            if not result.ok:
+                errors.append(f"{label}: {result.error}")
+            elif isinstance(result.output, list):
+                outputs.append(f"{label}: {len(result.output)} frame(s)")
+            elif result.output:
+                outputs.append(f"{label}: {result.output}")
+                if result.kind in ("encode", "native"):
+                    movie_outputs.append(result.output)
 
-            output_value = result.get("output")
-            if isinstance(output_value, list):
-                outputs.append(f"{result['label']}: {len(output_value)} frame(s)")
-            elif output_value:
-                outputs.append(f"{result['label']}: {output_value}")
-
-            compressed = result.get("compressed")
-            if compressed:
-                outputs.append(f"{result['label']} mp4: {compressed}")
-
-        if outputs:
-            self.sb.message_box("Playblast export complete:<br>" + "<br>".join(outputs))
+        if menu.chk058.isChecked() and movie_outputs:
+            try:
+                os.startfile(os.path.normpath(movie_outputs[0]))
+            except (OSError, AttributeError):  # AttributeError: non-Windows
+                pass
 
         if errors:
-            error_lines = [
-                f"{entry['label']}: {entry.get('error')}" for entry in errors
-            ]
             self.sb.message_box(
-                "One or more playblast exports failed:<br>" + "<br>".join(error_lines)
+                "One or more playblast exports failed:<br>" + "<br>".join(errors)
             )
         elif outputs:
-            self.sb.message_box("Playblast exports completed successfully.")
+            self.sb.message_box("Playblast export complete:<br>" + "<br>".join(outputs))
         else:
             self.sb.message_box("No playblast outputs were generated.")
+
+    def _split_output_base(self, text: str) -> tuple:
+        """Split the output field into (directory, base name).
+
+        A bare/existing directory (or trailing separator) uses the scene
+        name; a typed extension is dropped (each target appends its own); an
+        empty field falls back to the default playblast path.
+        """
+        raw = (text or "").strip()
+        base = raw or self._default_playblast_path()
+        base = os.path.normpath(os.path.expanduser(os.path.expandvars(base)))
+        if os.path.isdir(base) or raw.endswith(("/", "\\")):
+            return base, self._scene_base_name()
+        directory, name = os.path.split(base)
+        name = os.path.splitext(name)[0] or self._scene_base_name()
+        if not directory:
+            directory = os.path.dirname(self._default_playblast_path())
+        return directory, name
 
     def tb001_init(self, widget):
         """Render: camera, renderer, Arnold network, IPR, and smart redo."""
@@ -692,10 +481,8 @@ class Rendering(SlotsMaya):
 
     @staticmethod
     def _scene_base_name() -> str:
-        scene = cmds.file(query=True, sceneName=True)
-        if scene:
-            return os.path.basename(scene).rsplit(".", 1)[0]
-        return "playblast"
+        # Single source of truth — includes the batch phantom-"untitled" guard.
+        return PlayblastExporter.scene_name()
 
     @staticmethod
     def _camera_transforms() -> List[str]:

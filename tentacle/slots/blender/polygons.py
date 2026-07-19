@@ -16,9 +16,10 @@ class PolygonsSlots(SlotsBlender):
     clustered by distance); boolean routes through ``btk.boolean_op`` (Boolean modifier).
     Circularize / Edit Edge Flow are **extension-backed** (LoopTools / Edit Mesh Tools,
     wrap-if-present via :meth:`_addon_op`); Wedge rides ``btk.wedge`` (bmesh spin about the
-    hinge edge) and Snap Closest Verts rides ``btk.snap_closest_verts`` (KD-tree). Modal
-    Maya tools without a non-modal Blender analogue (slide, invisible faces) are deferred
-    with messages.
+    hinge edge) and Snap Closest Verts rides ``btk.snap_closest_verts`` (KD-tree). Slide Edge
+    launches Blender's modal ``transform.edge_slide`` interactively (b049); only invisible
+    faces (Maya ``polyHole``, b038) has no Blender concept — its button is hidden
+    (``b038_init``) rather than shipped dead.
     """
 
     def __init__(self, switchboard):
@@ -496,13 +497,37 @@ class PolygonsSlots(SlotsBlender):
                 "edge of those faces (the hinge — the active edge wins)."
             )
 
+    def b038_init(self, widget):
+        """Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender
+        concept (Edit-Mode Hide is temporary visibility, not a persistent render-hole flag), so
+        the button is hidden rather than shipped dead (same pattern as selection.py's cmb001)."""
+        widget.setVisible(False)
+
     def b038(self):
-        """Assign Invisible — Maya invisible faces have no Blender analogue."""
+        """Assign Invisible — unreachable (b038_init hides the button); defensive message."""
         self.sb.message_box("Assign Invisible is not applicable in Blender.")
 
     def b049(self):
-        """Slide Edge — modal in Blender (GG); no persistent tool."""
-        self.sb.message_box("Slide Edge is modal in Blender — press GG on an edge selection.")
+        """Slide Edge — interactively slide the selected edge loop along the surface, the
+        Blender analogue of Maya's ``SlideEdgeTool`` (b049 = ``mel.eval("SlideEdgeTool")``).
+        Blender has no persistent slide *tool*, only the modal ``transform.edge_slide``
+        operator, so this puts the mesh into Edit ▸ edge mode and launches that modal
+        interactively under a VIEW_3D override (the same viewport-override idiom tb003's
+        extrude-offset uses) — rather than telling the user to press GG. Not ``@btk.undoable``:
+        the modal pushes its own undo step on confirm."""
+        if not self.ensure_edit_mode("MESH", select_mode="EDGE"):
+            self.sb.message_box("Slide Edge needs an active or selected mesh object.")
+            return
+        ctx = btk.get_view3d_context()
+        if not ctx:
+            self.sb.message_box("No 3D viewport available — open a 3D view to slide edges.")
+            return
+        ctx = {k: v for k, v in ctx.items() if v is not None}
+        try:
+            with bpy.context.temp_override(**ctx):
+                bpy.ops.transform.edge_slide("INVOKE_DEFAULT")
+        except RuntimeError as e:
+            self.sb.message_box(str(e))
 
 
 # --------------------------------------------------------------------------------------------

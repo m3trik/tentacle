@@ -19,11 +19,12 @@ class Main(SlotsMaya):
     def list000_init(self, widget):
         """Initialize the Workspace tab.
 
-        Two root rows: ``Set Workspace`` (click prompts for a project dir; its
-        flyout nests ``Auto Set Workspace`` and a ``Recent Workspaces``
-        sub-flyout) and ``Current Workspace: <name>`` (the row opens the
-        workspace root; its flyout browses the dir tree). Rebuilt on every show
-        (``refresh_on_show``) so the dir tree and recent list stay current.
+        Rows: ``Set Workspace`` (click prompts for a project dir; its flyout
+        nests ``Auto Set Workspace`` and a ``Recent Workspaces`` sub-flyout),
+        ``Edit Workspace`` (Maya's native Project Window), and a ``Current
+        Workspace`` separator with the workspace-name row below it (the row
+        opens the workspace root; its flyout browses the dir tree). Rebuilt on
+        every show (``refresh_on_show``) so the dir tree and recent list stay current.
         """
         widget.clear()
         if not widget.is_initialized:
@@ -64,15 +65,24 @@ class Main(SlotsMaya):
             for v in valid:
                 recent.sublist.add(display[v], data=("__recent__", v))
 
+        # Edit Workspace — Maya's native Project Window (create a project / customize
+        # its file rules; blendertk's twin row opens its workspace_editor panel).
+        widget.add("Edit Workspace", data="__editor__")
+
         # --- the current workspace dir browser ---
+        # A titled separator, then the workspace name on its own row (browses the tree) —
+        # rather than a "Current Workspace: <name>" prefix on the row itself.
         workspace = mtk.get_env_info("workspace")
         workspace_dir = mtk.get_env_info("workspace_dir")
         if workspace and os.path.isdir(workspace):
+            from uitk.widgets.separator import Separator
+
             # Maya returns a forward-slash path; normalize once so every entry's
             # data (root + nested dirs, built via os.path.join) uses native
             # separators and reliably opens in the system file browser.
             workspace = os.path.normpath(workspace)
-            w = widget.add(f"Current Workspace: {workspace_dir}", data=workspace)
+            widget.add(Separator(title="Current Workspace"))
+            w = widget.add(workspace_dir, data=workspace)
             self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)
@@ -115,6 +125,8 @@ class Main(SlotsMaya):
             self._set_workspace_interactive()
         elif data == "__auto__":
             self._auto_set_workspace()
+        elif data == "__editor__":
+            self._open_workspace_editor()
         elif isinstance(data, tuple) and data and data[0] == "__recent__":
             self._set_workspace_from_path(data[1])
         elif data and os.path.isdir(str(data)):
@@ -137,6 +149,12 @@ class Main(SlotsMaya):
             # before storing so a later os.path.basename() on this entry (e.g.
             # reselecting it from Recent Workspaces) doesn't collapse to "".
             self._workspace_store.record(os.path.normpath(workspace))
+        self.sb.handlers.marking_menu.hide()
+
+    def _open_workspace_editor(self):
+        """Edit Workspace — Maya's native Project Window: create a project / customize
+        its file-rule folder structure (blendertk's twin row opens its own panel)."""
+        mel.eval("ProjectWindow")
         self.sb.handlers.marking_menu.hide()
 
     def _auto_set_workspace(self):

@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-07-19_
+_Generated: 2026-07-18_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -53,7 +53,7 @@ _Generated: 2026-07-19_
 
 ### `slots/blender/edit.py`
 - `class Edit(SlotsBlender)`
-  - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000_init, cmb000, tb001, tb004
+  - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000_init, cmb000, tb001_init, tb001, tb004_init, tb004
 
 ### `slots/blender/editors.py`
 - `class Editors(SlotsBlender)`
@@ -90,7 +90,7 @@ _Generated: 2026-07-19_
 
 ### `slots/blender/pivot.py`
 - `class Pivot(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002, tb003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002, tb003_init, tb003, b004
 
 ### `slots/blender/polygons.py`
 - `class PolygonsSlots(SlotsBlender)`

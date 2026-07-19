@@ -11,8 +11,13 @@ class Pivot(SlotsBlender):
     Blender has a single object **origin** (no separate manipulator pivot, no per-channel
     translate/rotate/scale pivots, and origins are always baked into the transform). So the
     Center-Pivot family maps cleanly onto ``blendertk.center_pivot`` (``bpy.ops.object.origin_set``),
-    while the Maya-only concepts — Transfer Pivot's channel granularity, World-Aligned manip
-    pivot, Bake Pivot — are deferred with an honest message.
+    while Transfer Pivot's per-channel (rotate/scale) granularity has no analogue. Both halves
+    of World-Aligned Pivot (tb003) map for full Maya parity: the *temporary manipulator* default
+    onto Blender's Global transform orientation (a gizmo-orientation switch, non-destructive),
+    the *permanent object* option onto baking the object's rotation into its data
+    (``object.transform_apply``). Bake Pivot (b004) bakes Blender's temporary pivot — the 3D
+    cursor — into the origin (``origin_set(ORIGIN_CURSOR)``, geometry unmoved), mirroring Maya's
+    "make the pivot you placed permanent" intent.
     """
 
     def __init__(self, switchboard):
@@ -111,19 +116,105 @@ class Pivot(SlotsBlender):
         ordered = [active] + [o for o in objects if o != active]
         btk.transfer_pivot(ordered, translate=True, select_targets_after_transfer=True)
 
-    # ------------------------------------------------------------------ deferred (Maya-specific)
+    # ------------------------------------------------------------------ apply-rotation helper
+    # transform_apply-able object types: data that can counter-offset the applied rotation so
+    # the geometry stays put. An EMPTY / CAMERA / LIGHT has no such data — excluded rather than
+    # risk the op erroring or losing their orientation outright.
+    # (GP is "GREASEPENCIL" on Blender 4.3+/5.x — the identifier the rest of the package uses.)
+    _APPLYABLE = ("MESH", "CURVE", "SURFACE", "FONT", "GREASEPENCIL", "LATTICE")
 
-    def tb003(self, widget):
-        """World-Aligned Pivot — Maya manipulator-pivot orientation; Blender has no separate
-        manip pivot (the origin is a single point), so this is not applicable."""
-        self.sb.message_box(
-            "World-Aligned Pivot is not applicable in Blender (the origin is a single "
-            "point, with no separate manipulator-pivot orientation)."
+    def _apply_rotation(self, label):
+        """Apply (bake) the selected objects' rotation into their data via
+        ``object.transform_apply``: the geometry doesn't move, but the rotation channel resets
+        so the local axes end up world-aligned — tb003's permanent World-Aligned Pivot.
+
+        Runs under ``btk.window_context_override``: ``transform_apply`` gathers its targets and
+        reads the active object from *screen* context, dead in the Qt-pump state (the same
+        reason ``tb002``'s transfer and the nurbs Attach/Join calls override). Object Mode is
+        ensured first (the op poll-fails in Edit Mode); multi-user data can't be applied and
+        surfaces the operator's own message rather than a raw traceback.
+        """
+        prior_selection = self.selected_objects()
+        objects = [o for o in prior_selection if o.type in self._APPLYABLE]
+        if not objects:
+            self.sb.message_box(
+                f"{label} requires selected object(s) with geometry data "
+                "(mesh / curve / text / lattice)."
+            )
+            return
+        if not self.ensure_object_mode():
+            return
+        view_layer = bpy.context.view_layer
+        prior_active = view_layer.objects.active
+        with btk.window_context_override():
+            # select ONLY the applyable objects (objects is a subset of prior_selection,
+            # so this both selects them and deselects the rest in one pass)
+            for o in prior_selection:
+                o.select_set(o in objects)
+            view_layer.objects.active = objects[0]
+            try:
+                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+            except RuntimeError as e:
+                self.sb.message_box(str(e))
+            for o in prior_selection:  # restore the user's prior selection / active
+                o.select_set(True)
+            if prior_active is not None:
+                view_layer.objects.active = prior_active
+
+    def tb003_init(self, widget):
+        # chk010 reuses Maya's objectName + label + default for the SAME option (the two
+        # halves of Maya's World-Aligned Pivot), so the option persists in the shared namespace.
+        widget.option_box.menu.setTitle("World-Aligned Pivot")
+        widget.option_box.menu.add(
+            "QCheckBox", setText="Manip Pivot", setObjectName="chk010", setChecked=True,
+            setToolTip="On (Maya default): set a temporary world-aligned manipulator orientation "
+            "(Blender's Global transform orientation) — non-destructive. Off: permanently "
+            "world-align the object pivot by baking its rotation into the data.",
         )
 
+    @btk.undoable
+    def tb003(self, widget):
+        """World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its
+        Manip-Pivot option* (``chk010``), so a Maya user's muscle memory carries over:
+
+          - **Manip Pivot on** (Maya's default) — set a *temporary* world-aligned manipulator
+            orientation. Maya reorients the manip gizmo to world; the Blender parity is switching
+            the scene's transform orientation to **Global** (a plain scene-property write, so the
+            move/rotate gizmo now uses world axes exactly as in Maya — and, crucially, it's
+            non-destructive, matching what a Maya user expects from the *default* click).
+          - **Manip Pivot off** — Maya's *permanent object* pivot: apply the object's rotation so
+            its local axes world-align, geometry unmoved (``_apply_rotation``).
+        """
+        if widget.option_box.menu.chk010.isChecked():
+            bpy.context.scene.transform_orientation_slots[0].type = "GLOBAL"
+            self.sb.message_box(
+                "Manipulator orientation set to <hl>Global</hl> (world-aligned)."
+            )
+        else:
+            self._apply_rotation("World-Aligned Pivot")
+
+    @btk.undoable
     def b004(self):
-        """Bake Pivot — Blender object origins are always baked into the transform (no-op)."""
-        self.sb.message_box("Bake Pivot is not applicable in Blender (origins are always baked).")
+        """Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected
+        objects' origins (``origin_set(type="ORIGIN_CURSOR")``, geometry unmoved). The faithful
+        intent-mirror of Maya's ``mtk.bake_pivot`` ("make the pivot you placed permanent"):
+        Maya's repositionable manipulator pivot maps onto the cursor-as-pivot workflow
+        (``pivot_point=CURSOR`` — the same analogy ``tb002``/``btk.transfer_pivot`` ride), so
+        baking it = adopting the cursor as the origin. Maya's *orientation* half doesn't carry —
+        a Blender origin has no orientation of its own (the object's rotation defines the axes;
+        World-Aligned Pivot's permanent option covers world-aligning them). Verified live:
+        non-geometry objects (EMPTY/CAMERA) in the selection are skipped untouched and armatures
+        re-origin correctly, so the selection needs no type filter."""
+        if not self.selected_objects():
+            self.sb.message_box("Bake Pivot requires selected object(s).")
+            return
+        if not self.ensure_object_mode():
+            return
+        with btk.window_context_override():
+            try:
+                bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+            except RuntimeError as e:
+                self.sb.message_box(str(e))
 
 
 # --------------------------------------------------------------------------------------------

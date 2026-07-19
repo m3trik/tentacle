@@ -57,6 +57,8 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "_set_workspace_interactive",
             "_auto_set_workspace",
             "_set_workspace_from_path",
+            "_switch_to_workspace",
+            "_open_workspace_editor",
         ):
             self.assertTrue(
                 self.mod.has_method("Main", name), f"Main must define {name}"
@@ -71,7 +73,8 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "workspace_recent_projects_blender",  # namespaced -- must not collide with Maya's key
             "__set_dir__",
             "__auto__",
-            "Current Workspace",  # dir-browser row label
+            "Separator",  # Current Workspace is a titled separator, not a row prefix
+            "Current Workspace",  # separator title above the dir browser
             "valid_values",
             "display_map",
         ):
@@ -103,9 +106,10 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         for needle in (
             "_set_workspace_interactive",
             "_auto_set_workspace",
+            "_open_workspace_editor",
             "_set_workspace_from_path",
             "__recent__",
-            "os.path.exists",  # dir-browser entries (files + folders, unlike Maya's dirs-only)
+            "os.path.isdir",  # dir-browser entries (folders only, like Maya's tree)
         ):
             self.assertIn(needle, src, f"list000 must handle {needle}")
 
@@ -113,14 +117,37 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         src = self.mod.method_source("Main", "_set_workspace_from_path")
         self.assertIn("_is_workspace", src)
 
-    def test_set_workspace_interactive_branches_on_saved_state(self):
-        """Open (already saved) vs Save As (unsaved) — Blender has no project state
-        independent of the open file, so which native dialog to invoke depends on
-        whether one is already open."""
+    def test_set_workspace_interactive_pins_via_dir_picker(self):
+        """Mirror of Maya's MEL ``SetProject``: a directory picker feeding the session
+        pin — NOT the old Open/Save-As file-dialog workaround, which predates Blender
+        having real workspace state (``btk.set_current_workspace``)."""
         src = self.mod.method_source("Main", "_set_workspace_interactive")
-        self.assertIn("wm.open_mainfile", src)
-        self.assertIn("wm.save_as_mainfile", src)
-        self.assertIn("invoke_op", src)
+        self.assertIn("getExistingDirectory", src)
+        self.assertIn("_switch_to_workspace", src)
+        self.assertNotIn("wm.open_mainfile", src)
+        self.assertNotIn("wm.save_as_mainfile", src)
+
+    def test_switch_pins_records_and_reports(self):
+        """_switch_to_workspace = pin + recent-store bump + toast — the twin of Maya's
+        ``cmds.workspace(path, openWorkspace=True)`` switch."""
+        src = self.mod.method_source("Main", "_switch_to_workspace")
+        self.assertIn("btk.set_current_workspace", src)
+        self.assertIn("_workspace_store.record", src)
+
+    def test_auto_set_resolves_then_pins(self):
+        """Auto Set resolves from the open file (marked root walk-up) and actually
+        switches — no more find-and-record-only toast."""
+        src = self.mod.method_source("Main", "_auto_set_workspace")
+        self.assertIn("btk.current_workspace", src)
+        self.assertIn("_switch_to_workspace", src)
+
+    def test_editor_row_opens_workspace_editor_panel(self):
+        """The Edit Workspace row opens blendertk's workspace_editor panel (Maya's
+        twin row opens the native Project Window)."""
+        init = self.mod.method_source("Main", "list000_init")
+        self.assertIn('widget.add("Edit Workspace", data="__editor__")', init)
+        src = self.mod.method_source("Main", "_open_workspace_editor")
+        self.assertIn('marking_menu.show("workspace_editor")', src)
 
     def test_is_workspace_uses_find_workspaces_primitive(self):
         """DRY: must delegate to btk.find_workspaces, not hand-roll a .blend scan."""

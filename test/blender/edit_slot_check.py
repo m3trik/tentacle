@@ -315,6 +315,41 @@ try:
     check("tb002 object-mode delete removes object", len(bpy.data.objects) == 0,
           f"objects={len(bpy.data.objects)}")
 
+    # tb004 Object Lock — Blender analogue of Maya node lock: toggle hide_select (make
+    # objects unselectable). Lock acts on the selection; Unlock clears every object.
+    def lock_widget(text):
+        return NS(option_box=NS(menu=NS(cmb_lock=NS(currentText=lambda t=text: t))))
+
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    a = bpy.context.active_object
+    bpy.ops.mesh.primitive_cube_add(location=(3, 0, 0))
+    b = bpy.context.active_object
+    bpy.ops.object.select_all(action="DESELECT")
+    a.select_set(True)
+    b.select_set(True)
+    slot.tb004(lock_widget("Lock Objects"))
+    check("tb004 Lock makes the selection unselectable (hide_select) and deselects it",
+          a.hide_select and b.hide_select and not a.select_get(),
+          f"a.hide_select={a.hide_select} b.hide_select={b.hide_select} a.selected={a.select_get()}")
+
+    # a third, unlocked object present: Unlock must clear hide_select on ALL objects (a locked
+    # object can't be selected to unlock it individually).
+    bpy.ops.mesh.primitive_cube_add(location=(6, 0, 0))
+    slot.tb004(lock_widget("Unlock Objects"))
+    check("tb004 Unlock clears hide_select on every object",
+          not any(o.hide_select for o in bpy.data.objects),
+          f"still_locked={[o.name for o in bpy.data.objects if o.hide_select]}")
+
+    # Lock with nothing selected is a guarded no-op (warns, changes nothing).
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    only = bpy.context.active_object
+    bpy.ops.object.select_all(action="DESELECT")
+    slot.tb004(lock_widget("Lock Objects"))
+    check("tb004 Lock with empty selection is a guarded no-op",
+          not only.hide_select, f"hide_select={only.hide_select}")
+
     # cmb000 Transfer: active object = source, other selected object = target (real data
     # copied per data type, driven through the actual combo dispatch, not the bare bpy.ops call).
     transfer_labels = list(Edit._TRANSFER_OPS)

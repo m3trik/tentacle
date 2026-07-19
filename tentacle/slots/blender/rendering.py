@@ -172,8 +172,9 @@ class Rendering(SlotsBlender):
             "unchecked renders the clean geometry only.",
         )
         menu.add(
-            "QCheckBox", setText="Launch Viewer", setObjectName="chk058", setChecked=False,
-            setToolTip="Play the rendered output when the playblast finishes.",
+            "QCheckBox", setText="Open When Done", setObjectName="chk058", setChecked=False,
+            setToolTip="Play the rendered output (Blender's animation player) when the "
+            "playblast finishes.",
         )
 
         # Show the custom start/end only for Custom Range (mirror of the Maya panel).

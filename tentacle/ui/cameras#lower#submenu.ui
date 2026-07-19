@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>478</height>
+    <height>715</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -77,14 +77,14 @@
          <height>19</height>
         </size>
        </property>
-       <property name="target">
-        <string>cameras</string>
-       </property>
-       <property name="filterTags">
-        <string>lower</string>
-       </property>
        <property name="text">
         <string>i000</string>
+       </property>
+       <property name="target" stdset="0">
+        <string>cameras</string>
+       </property>
+       <property name="filterTags" stdset="0">
+        <string>lower</string>
        </property>
       </widget>
       <widget class="ExpandableList" name="list000" native="true">

@@ -204,9 +204,14 @@ class TestTb002AutoInstanceRouting(unittest.TestCase):
         self._original = mtk.auto_instance
         self.captured = []
         self.result = []
+        # Summary the slot now unpacks alongside the result list; tests may
+        # mutate it to exercise the "matched but not instanced" branch.
+        self.summary = mtk.AutoInstancer.default_summary()
 
         def fake_auto_instance(nodes, **kwargs):
             self.captured.append((nodes, kwargs))
+            if kwargs.get("return_summary"):
+                return self.result, self.summary
             return self.result
 
         mtk.auto_instance = fake_auto_instance
@@ -279,6 +284,26 @@ class TestTb002AutoInstanceRouting(unittest.TestCase):
         self.result = []
         self.instance.tb002(self._widget())
         self.assertTrue(self.instance.sb.messages)
+        # No matches → generic no-match copy.
+        body = self.instance.sb.messages[-1][0][0]
+        self.assertIn("No matching geometry found", body)
+
+    def test_matched_but_none_instanced_reports_reason(self):
+        """Matches found but the strategy instanced none (too simple / count)
+        → a distinct message explaining why, not the generic no-match copy."""
+        self.result = []
+        self.summary["matched_groups"] = 2
+        self.summary["simple_groups"] = 2
+        self.summary["details"] = [
+            {"name": "Bolt", "reason": "too_simple", "count": 4, "tris": 12},
+            {"name": "Nut", "reason": "too_simple", "count": 6, "tris": 8},
+        ]
+        self.instance.tb002(self._widget())
+        self.assertTrue(self.instance.sb.messages)
+        body = self.instance.sb.messages[-1][0][0]
+        self.assertNotIn("No matching geometry found", body)
+        self.assertIn("No objects were instanced", body)
+        self.assertIn("too simple", body)
 
 
 if __name__ == "__main__":

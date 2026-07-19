@@ -221,16 +221,27 @@ class _NativeWindow:
     # native menu modes. GUI_INMOVESIZE=0x2, GUI_INMENUMODE=0x4, GUI_SYSTEMMENUMODE=0x8, GUI_POPUPMENUMODE=0x10.
     _NATIVE_MODAL_FLAGS = 0x2 | 0x4 | 0x8 | 0x10
     _modal_probe = None  # lazily built GetGUIThreadInfo probe (Windows only)
+    _modal_last_true = 0.0  # monotonic stamp of the last True probe (any caller refreshes)
 
     @classmethod
-    def native_modal_loop_active(cls):
+    def native_modal_loop_active(cls, cooldown=0.0):
         """True while THIS thread is inside a native modal size/move or menu loop — e.g. the user
         is dragging a Blender window by its title bar. Blender's timers still fire inside that
         loop (WM_TIMER), but pumping Qt from there is destructive: Qt's dispatcher PeekMessages
         the *whole thread queue*, stealing the loop's WM_MOUSEMOVE/WM_LBUTTONUP — the window can't
         be repositioned and the loop never sees the mouse-up (Blender wedges; reproduced by
         ``test/blender/native_drag_check.py``). The pump and the key watcher skip their tick
-        while this is true."""
+        while this is true.
+
+        ``cooldown`` (seconds) adds hysteresis: keep answering True until the probe has read
+        False for that long. The raw flag LIES inside the loop's heavy nested dispatch — a
+        per-monitor DPI transition mid-drag re-enters ``wglSwapBuffers``/wndproc layers where
+        ``GetGUIThreadInfo`` reports no modal loop, a WM_TIMER fires there, and one
+        ``processEvents`` from that context livelocks Blender for good (py-spy stack:
+        ``test/temp_tests/dpi_drag_latched_stack.txt``; repro: ``console_dpi_drag_check``).
+        Since every dangerous nested context sits within ~ms of a True reading, a short
+        cooldown bridges the lie. The pump passes one; instantaneous callers (key watcher —
+        chord menus must resume the instant a native menu closes) leave it 0."""
         if sys.platform != "win32":
             return False
         if cls._modal_probe is None:
@@ -262,9 +273,14 @@ class _NativeWindow:
 
             cls._modal_probe = probe
         try:
-            return cls._modal_probe()
+            active = cls._modal_probe()
         except Exception:
             return False
+        now = time.monotonic()
+        if active:
+            cls._modal_last_true = now
+            return True
+        return bool(cooldown) and (now - cls._modal_last_true) < cooldown
 
     @staticmethod
     def blender_window():
@@ -500,12 +516,33 @@ class _QtHost:
 
     @classmethod
     def start_pump(cls, app, interval=0.01):
-        """Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+        """Deliver Qt's POSTED events from Blender's timer loop so the Qt UI stays live (idempotent).
 
         The pump carries a generation token on the QApplication: after :meth:`BlenderHost.reload` the
         module is re-executed (resetting ``_pump_registered``), so the reloaded module registers a
         fresh pump and stamps a new token — the superseded pump sees the mismatch on its next tick and
         unregisters itself (no double-pumping, no stale-closure leak).
+
+        **Why ``sendPostedEvents`` and NEVER ``processEvents``** (2026-07-18, py-spy-proven): on a
+        shared GUI thread, GHOST's own message loop already dispatches every thread window's native
+        messages — Qt input, Qt paints (WM_PAINT), Qt timers (the dispatcher's internal message
+        window) all arrive that way, the standard plugin-embed contract. The ONLY thing Qt cannot get
+        by itself is delivery of its posted (queued) ``QEvent``s — which is exactly what
+        ``sendPostedEvents`` flushes, dispatching NO native messages. ``processEvents`` instead
+        PeekMessage-drains the WHOLE thread queue, i.e. it dispatches BLENDER's queued messages from
+        a bpy-timer context: on a heavy wndproc cascade (a per-monitor DPI transition mid-drag, a
+        Win11 snap-release) that re-enters Blender's half-finished draw — captured stacks tower
+        ``processEvents -> DispatchMessage -> GHOST wndproc -> wglSwapBuffers -> nested dispatch ->
+        WM_TIMER -> pump`` several layers deep until the innermost dispatch never returns. Every bpy
+        timer then stops forever while the window still answers ``WM_NULL``, so the OS never even
+        flags Not Responding. Deterministic repros: ``test/blender/console_frame_resize_check.py``
+        (snap legs) and ``console_dpi_drag_check.py`` (cross-DPI drag); a WM_TIMER can arrive inside
+        the nest with ``GUI_INMOVESIZE`` reading False and any cooldown already starved out, so no
+        gate on ``processEvents`` closes the hole — not dispatching native messages at all does.
+
+        The modal-loop gate (with a 0.5 s cooldown bridging the probe's nested-context lies) and a
+        re-entrancy latch are kept as cheap belts: posted-event handlers can run arbitrary Python,
+        and skipping a tick during a drag costs nothing.
         """
         import bpy
 
@@ -513,14 +550,21 @@ class _QtHost:
             return
         token = object()
         app._tentacle_pump_token = token
+        pumping = {"now": False}  # re-entrancy latch (closure state, fresh per generation)
 
         def _pump():
             if getattr(app, "_tentacle_pump_token", None) is not token:
                 return None  # superseded by a reloaded module's pump — unregister
-            # Never pump Qt inside a native modal size/move loop (window drag) — see
-            # _NativeWindow.native_modal_loop_active. Qt pauses for the drag's duration; nothing is lost.
-            if not _NativeWindow.native_modal_loop_active():
-                app.processEvents()
+            if pumping["now"] or _NativeWindow.native_modal_loop_active(cooldown=0.5):
+                return interval
+            pumping["now"] = True
+            try:
+                QtCore.QCoreApplication.sendPostedEvents()
+                # deleteLater() garbage: posted at a loop level no plain flush matches,
+                # so it must be requested explicitly — the plugin-embed idiom.
+                QtCore.QCoreApplication.sendPostedEvents(None, QtCore.QEvent.DeferredDelete)
+            finally:
+                pumping["now"] = False
             return interval
 
         # persistent — non-persistent timers are dropped on File ▸ New/Open, which would
@@ -561,6 +605,15 @@ class _KeymapBridge:
         "ESCAPE": "ESC", "RETURN": "RET", "ENTER": "RET",
         "CONTROL": "LEFT_CTRL", "ALT": "LEFT_ALT", "SHIFT": "LEFT_SHIFT",
         "PAGEUP": "PAGE_UP", "PAGEDOWN": "PAGE_DOWN", "DELETE": "DEL",
+        # Number row — Qt names them by digit, Blender's enum by word.
+        "1": "ONE", "2": "TWO", "3": "THREE", "4": "FOUR", "5": "FIVE",
+        "6": "SIX", "7": "SEVEN", "8": "EIGHT", "9": "NINE", "0": "ZERO",
+        # Arrow keys — Blender suffixes ``_ARROW``.
+        "LEFT": "LEFT_ARROW", "RIGHT": "RIGHT_ARROW", "UP": "UP_ARROW", "DOWN": "DOWN_ARROW",
+        # Punctuation whose Qt name diverges from Blender's enum identifier.
+        "SEMICOLON": "SEMI_COLON", "BRACKETLEFT": "LEFT_BRACKET",
+        "BRACKETRIGHT": "RIGHT_BRACKET", "BACKSLASH": "BACK_SLASH",
+        "QUOTELEFT": "ACCENT_GRAVE",
     }
 
     # Windows virtual-key → Qt button for the held-button poller (VK order: L=0x01, R=0x02, M=0x04).
@@ -779,6 +832,22 @@ class _KeymapBridge:
         cls.uninstall_keymap()  # re-launch safe
         kc = bpy.context.window_manager.keyconfigs.addon
         if not (kc and key_type):
+            return
+        # Guard against a key_type that Blender's keymap ``type`` enum doesn't accept (a
+        # number/arrow/punctuation activation key with no _BLENDER_KEY_ALIASES entry). Left
+        # unguarded, keymap_items.new() raises TypeError, and the broad except at the call site
+        # (TclBlender.__init__) would silently skip the WHOLE bridge — poller included. Diagnose
+        # the specific offending key and return cleanly so install_poller still runs.
+        valid_types = {
+            item.identifier
+            for item in bpy.types.KeyMapItem.bl_rna.properties["type"].enum_items
+        }
+        if key_type not in valid_types:
+            print(
+                f"{__file__}: activation key '{_Config.ACTIVATION_KEY}' maps to Blender keymap "
+                f"type '{key_type}', which is not a valid keymap type — the 3D-View bridge was "
+                "not installed. Pick a different TENTACLE_KEY, or bind it via Preferences ▸ Keymap."
+            )
             return
         km = kc.keymaps.new(name="3D View", space_type="VIEW_3D")
         for value, phase in (("PRESS", "press"), ("RELEASE", "release")):

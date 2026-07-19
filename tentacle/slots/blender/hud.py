@@ -30,7 +30,7 @@ class StatusMixin:
                 hud.insertText(
                     f'Symmetry Axis: <font style="color: Yellow;">{axes}</font>'
                 )
-        # Workspace (the saved .blend's directory)
+        # Workspace (current-workspace resolver: pin → workspace.mel root → the .blend's dir)
         workspace = btk.get_env_info("workspace_dir")
         if workspace:
             hud.insertText(
