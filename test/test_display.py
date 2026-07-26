@@ -122,6 +122,63 @@ class TestXrayChain(unittest.TestCase):
         self.assertTrue(self._xray(self.cube_b))
         self.assertTrue(self._xray(self.cube_c))
 
+    def test_b005_mixed_selection_unifies_on(self):
+        """A mesh that lost its xray among xray'd others: ONE press turns all on.
+
+        Regression: topology ops (polyUnite/Separate/boolean/duplicate/reload)
+        silently drop the xRay flag. The old per-object blind invert then
+        toggled the still-on meshes OFF while turning the lost one on,
+        forcing a second press. The toggle must unify: any-off -> all on.
+        """
+        cmds.displaySurface(self.cube_a, xRay=True)
+        cmds.select([self.cube_a, self.cube_b])
+
+        self.instance.b005()
+
+        self.assertTrue(self._xray(self.cube_a))
+        self.assertTrue(self._xray(self.cube_b))
+
+    def test_b005_operates_on_group_selection(self):
+        """displaySurface query returns None on a group — the old code
+        silently skipped it, making the button a no-op on group selections."""
+        cmds.group(self.cube_a, self.cube_b, name="xr_grp")
+        cmds.select("xr_grp")
+
+        self.instance.b005()
+
+        self.assertTrue(self._xray(self.cube_a))
+        self.assertTrue(self._xray(self.cube_b))
+        self.assertFalse(self._xray(self.cube_c))
+
+    def test_b005_component_selection(self):
+        """Component-mode selection (faces) must resolve to the owning mesh
+        (the old ls(transforms=True) filter dropped components -> no-op)."""
+        cmds.select(f"{self.cube_a}.f[0]")
+
+        self.instance.b005()
+
+        self.assertTrue(self._xray(self.cube_a))
+        self.assertFalse(self._xray(self.cube_b))
+
+    def test_b007_mixed_others_unify_on(self):
+        """Xray Other with mixed non-selected states: one press -> all on."""
+        cmds.displaySurface(self.cube_b, xRay=True)
+        cmds.select(self.cube_a)
+
+        self.instance.b007()
+
+        self.assertFalse(self._xray(self.cube_a))
+        self.assertTrue(self._xray(self.cube_b))
+        self.assertTrue(self._xray(self.cube_c))
+
+    def test_list_xray_selected_reports_resulting_state(self):
+        """The list wrapper rides b005's (state, count) return."""
+        cmds.select(self.cube_a)
+        self.assertIn("On", self.instance._list_xray_selected())
+        self.assertIn("Off", self.instance._list_xray_selected())
+        cmds.select(clear=True)
+        self.assertIn("nothing selected", self.instance._list_xray_selected())
+
     def test_b007_with_nothing_selected_toggles_everything(self):
         """When selection is empty, all meshes are "other" → all get toggled."""
         cmds.select(clear=True)

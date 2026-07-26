@@ -71,6 +71,7 @@ Output: ``test/temp_tests/console_frame_resize_<mode>.json`` (written incrementa
 freeze leaves the last completed leg on disk). Throwaway instance; steals foreground +
 mouse for ~60 s. Windows-only.
 """
+
 import sys
 import os
 import time
@@ -121,10 +122,14 @@ _ctx = {"pump": 0, "paints": 0}
 
 class _GTI(ctypes.Structure):
     _fields_ = [
-        ("cbSize", wintypes.DWORD), ("flags", wintypes.DWORD),
-        ("hwndActive", wintypes.HWND), ("hwndFocus", wintypes.HWND),
-        ("hwndCapture", wintypes.HWND), ("hwndMenuOwner", wintypes.HWND),
-        ("hwndMoveSize", wintypes.HWND), ("hwndCaret", wintypes.HWND),
+        ("cbSize", wintypes.DWORD),
+        ("flags", wintypes.DWORD),
+        ("hwndActive", wintypes.HWND),
+        ("hwndFocus", wintypes.HWND),
+        ("hwndCapture", wintypes.HWND),
+        ("hwndMenuOwner", wintypes.HWND),
+        ("hwndMoveSize", wintypes.HWND),
+        ("hwndCaret", wintypes.HWND),
         ("rcCaret", wintypes.RECT),
     ]
 
@@ -157,16 +162,28 @@ def _child_rect_in_parent_client(child, parent):
     _u.GetWindowRect(ctypes.c_void_p(int(child)), ctypes.byref(rect))
     pt = wintypes.POINT(0, 0)
     _u.ClientToScreen(ctypes.c_void_p(int(parent)), ctypes.byref(pt))
-    return [rect.left - pt.x, rect.top - pt.y,
-            rect.right - rect.left, rect.bottom - rect.top]
+    return [
+        rect.left - pt.x,
+        rect.top - pt.y,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+    ]
 
 
 def _answers_wm_null(hwnd):
     res = ctypes.c_size_t()
     SMTO_ABORTIFHUNG = 0x0002
-    return bool(_u.SendMessageTimeoutW(
-        ctypes.c_void_p(int(hwnd)), 0, 0, 0, SMTO_ABORTIFHUNG, 1000,
-        ctypes.byref(res)))
+    return bool(
+        _u.SendMessageTimeoutW(
+            ctypes.c_void_p(int(hwnd)),
+            0,
+            0,
+            0,
+            SMTO_ABORTIFHUNG,
+            1000,
+            ctypes.byref(res),
+        )
+    )
 
 
 def _window_dpi(hwnd):
@@ -180,8 +197,9 @@ def _nc_hit(hwnd, x, y):
     """The window's own WM_NCHITTEST verdict for screen point (x, y), or None."""
     res = ctypes.c_size_t()
     lparam = ((int(y) & 0xFFFF) << 16) | (int(x) & 0xFFFF)
-    if _u.SendMessageTimeoutW(ctypes.c_void_p(int(hwnd)), 0x0084, 0, lparam,
-                              0x0002, 1000, ctypes.byref(res)):
+    if _u.SendMessageTimeoutW(
+        ctypes.c_void_p(int(hwnd)), 0x0084, 0, lparam, 0x0002, 1000, ctypes.byref(res)
+    ):
         return int(res.value)
     return None
 
@@ -228,9 +246,14 @@ def _normalize_same_monitor(hwnd, relocate=True):
     FRAME_MONITOR knob and just re-sizes in place (used after a crossdrag prehistory,
     which already put the window where it belongs BY DRAGGING).
     """
+
     class _MONITORINFO(ctypes.Structure):
-        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
-                    ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+        _fields_ = [
+            ("cbSize", wintypes.DWORD),
+            ("rcMonitor", wintypes.RECT),
+            ("rcWork", wintypes.RECT),
+            ("dwFlags", wintypes.DWORD),
+        ]
 
     MONITOR_DEFAULTTONEAREST = 2
     mon = _u.MonitorFromWindow(ctypes.c_void_p(int(hwnd)), MONITOR_DEFAULTTONEAREST)
@@ -250,14 +273,16 @@ def _normalize_same_monitor(hwnd, relocate=True):
         other = _other_monitor_work(mon)
         if other is None:
             R.setdefault("problems", []).append(
-                "monitor=other requested but only one monitor present")
+                "monitor=other requested but only one monitor present"
+            )
         else:
             work = monitor = other  # work area is close enough for placement
     x, y = work.left + 40, work.top + 40
     w = min(1200, work.right - work.left - 240)
     h = min(800, work.bottom - work.top - 200)
-    _u.SetWindowPos(ctypes.c_void_p(int(hwnd)), None, x, y, w, h,
-                    SWP_NOZORDER | SWP_NOACTIVATE)
+    _u.SetWindowPos(
+        ctypes.c_void_p(int(hwnd)), None, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE
+    )
     time.sleep(1.0)  # let any WM_DPICHANGED from a cross-monitor relocation settle
     # Snap zones hang off the MONITOR edge, not the work-area edge — with a top
     # taskbar, work.top sits ~30 px below the true screen edge and a drag stopping
@@ -268,13 +293,23 @@ def _normalize_same_monitor(hwnd, relocate=True):
 
 def _other_monitor_work(current_mon):
     """The work area of the first monitor that is NOT ``current_mon`` (None if single)."""
+
     class _MONITORINFO(ctypes.Structure):
-        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
-                    ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+        _fields_ = [
+            ("cbSize", wintypes.DWORD),
+            ("rcMonitor", wintypes.RECT),
+            ("rcWork", wintypes.RECT),
+            ("dwFlags", wintypes.DWORD),
+        ]
 
     handles = []
-    proc_t = ctypes.WINFUNCTYPE(wintypes.BOOL, ctypes.c_void_p, ctypes.c_void_p,
-                                ctypes.POINTER(wintypes.RECT), ctypes.c_void_p)
+    proc_t = ctypes.WINFUNCTYPE(
+        wintypes.BOOL,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(wintypes.RECT),
+        ctypes.c_void_p,
+    )
 
     @proc_t
     def _collect(hmon, _hdc, _rect, _lparam):
@@ -296,8 +331,9 @@ def _other_monitor_work(current_mon):
 def _other_work_now():
     """[l, t, r, b] work area of the monitor the window is NOT on right now."""
     MONITOR_DEFAULTTONEAREST = 2
-    mon = _u.MonitorFromWindow(ctypes.c_void_p(int(_ctx["hwnd"])),
-                               MONITOR_DEFAULTTONEAREST)
+    mon = _u.MonitorFromWindow(
+        ctypes.c_void_p(int(_ctx["hwnd"])), MONITOR_DEFAULTTONEAREST
+    )
     work = _other_monitor_work(mon)
     return [work.left, work.top, work.right, work.bottom] if work is not None else None
 
@@ -310,8 +346,13 @@ def _tick():
 
 def _snapshot(label):
     """Full embed forensics — must run on the GUI thread (bpy + Qt reads)."""
-    snap = {"label": label, "ticks": R["ticks"], "pump": _ctx["pump"],
-            "suspends": R["suspends"], "resumes": R["resumes"]}
+    snap = {
+        "label": label,
+        "ticks": R["ticks"],
+        "pump": _ctx["pump"],
+        "suspends": R["suspends"],
+        "resumes": R["resumes"],
+    }
     if MODE == "noconsole":
         return snap
     from blendertk.env_utils import script_output as so
@@ -324,7 +365,9 @@ def _snapshot(label):
         area=dock._area is not None,
         widget=dock._widget is not None,
         foreign=dock._foreign is not None,
-        suspended=getattr(dock, "_suspended", False),  # guard-era attr; gone post-revert
+        suspended=getattr(
+            dock, "_suspended", False
+        ),  # guard-era attr; gone post-revert
         visible_flag=inst._visible,
         paints=_ctx["paints"],
     )
@@ -345,7 +388,9 @@ def _snapshot(label):
     if region is not None:
         snap["region_rect"] = BlenderWindow.region_client_rect(_ctx["hwnd"], region)
     snap["edge_pad"] = dock._edge_pad
-    if widget is not None:  # arm the paint canary: next snapshot's count proves delivery
+    if (
+        widget is not None
+    ):  # arm the paint canary: next snapshot's count proves delivery
         _paint_target(widget).update()
     return snap
 
@@ -451,7 +496,9 @@ def _frame_drag(x, y, segments):
             tick = R["ticks"]
             if tick != last_tick:
                 last_tick, last_change = tick, time.time()
-            elif time.time() - last_change > 3.0:  # in-loop ticks run ~3x slow; 3 s = dead
+            elif (
+                time.time() - last_change > 3.0
+            ):  # in-loop ticks run ~3x slow; 3 s = dead
                 out["frozen_during"] = True
                 break
         time.sleep(0.15)
@@ -493,8 +540,11 @@ def _run_gesture(name, grab, delta, expect):
     frozen = leg["frozen_during"] or not leg["alive_after"]
     if frozen:
         leg["post"] = None
-        _problem(name, "FROZE (bpy ticks stalled; wm_null=%s hung_api=%s)"
-                 % (leg["wm_null"], leg["hung_api"]))
+        _problem(
+            name,
+            "FROZE (bpy ticks stalled; wm_null=%s hung_api=%s)"
+            % (leg["wm_null"], leg["hung_api"]),
+        )
         _write()
         return False
     leg["post"] = _ask("snapshot", f"{name}:post")
@@ -512,8 +562,12 @@ def _evaluate(name, leg, expect):
         _problem(name, "native size/move loop never engaged (drag missed the frame)")
         return
     b, a = leg["rect_before"], leg["rect_after"]
-    got = {"w": (a[2] - a[0]) - (b[2] - b[0]), "h": (a[3] - a[1]) - (b[3] - b[1]),
-           "x": a[0] - b[0], "y": a[1] - b[1]}
+    got = {
+        "w": (a[2] - a[0]) - (b[2] - b[0]),
+        "h": (a[3] - a[1]) - (b[3] - b[1]),
+        "x": a[0] - b[0],
+        "y": a[1] - b[1],
+    }
     leg["delta"] = got
     if callable(expect):
         expect(name, leg)
@@ -530,37 +584,57 @@ def _evaluate(name, leg, expect):
     if post.get("suspended"):
         _problem(name, "still suspended after the loop ended (resume never ran)")
     if post.get("suspends", 0) != post.get("resumes", 0):
-        _problem(name, "suspend/resume unbalanced: %s/%s"
-                 % (post.get("suspends"), post.get("resumes")))
+        _problem(
+            name,
+            "suspend/resume unbalanced: %s/%s"
+            % (post.get("suspends"), post.get("resumes")),
+        )
     if MODE == "noguard" and post.get("suspends", 0):
         _problem(name, "guard suspended despite the probe being patched off")
     if not (post.get("area") and post.get("widget")):
-        _problem(name, "dock detached (area=%s widget=%s) — the blank-strip symptom"
-                 % (post.get("area"), post.get("widget")))
+        _problem(
+            name,
+            "dock detached (area=%s widget=%s) — the blank-strip symptom"
+            % (post.get("area"), post.get("widget")),
+        )
         return
     if not post.get("child"):
         _problem(name, "widget has no native window after the gesture")
         return
     if post.get("child_parent") != int(_ctx["hwnd"]):
-        _problem(name, "child no longer parented to the GHOST window (parent=%s)"
-                 % post.get("child_parent"))
+        _problem(
+            name,
+            "child no longer parented to the GHOST window (parent=%s)"
+            % post.get("child_parent"),
+        )
     if not post.get("child_visible") or not post.get("qt_visible"):
-        _problem(name, "console hidden after the gesture (native=%s qt=%s) — blank strip"
-                 % (post.get("child_visible"), post.get("qt_visible")))
+        _problem(
+            name,
+            "console hidden after the gesture (native=%s qt=%s) — blank strip"
+            % (post.get("child_visible"), post.get("qt_visible")),
+        )
     region, child = post.get("region_rect"), post.get("child_rect")
     if region and child:
         pad = int(post.get("edge_pad") or 3)
-        drift = max(abs(child[0] - region[0]), abs(child[2] - region[2]),
-                    abs((child[1] + child[3]) - (region[1] + region[3])),
-                    abs(child[1] - (region[1] + pad)) - pad)  # top may sit 0..2*pad down
+        drift = max(
+            abs(child[0] - region[0]),
+            abs(child[2] - region[2]),
+            abs((child[1] + child[3]) - (region[1] + region[3])),
+            abs(child[1] - (region[1] + pad)) - pad,
+        )  # top may sit 0..2*pad down
         if drift > 4:
-            _problem(name, f"child rect {child} drifted from region {region} (pad={pad})")
+            _problem(
+                name, f"child rect {child} drifted from region {region} (pad={pad})"
+            )
     elif not region:
         _problem(name, "no content region after the gesture")
     if pre and pre.get("paints") is not None and post.get("paints") is not None:
         if post["paints"] <= pre["paints"]:
-            _problem(name, "paint canary flat (%s -> %s) — console not repainting"
-                     % (pre["paints"], post["paints"]))
+            _problem(
+                name,
+                "paint canary flat (%s -> %s) — console not repainting"
+                % (pre["paints"], post["paints"]),
+            )
     if pre and post.get("pump", 0) <= pre.get("pump", 0):
         _problem(name, "Qt pump canary flat — processEvents no longer running")
     if post.get("text_marker") is False:
@@ -579,27 +653,33 @@ def _input_main():
         R["foreground"] = _input.force_foreground(hwnd, allow_minimize=False)
         R["work_area"] = _normalize_same_monitor(hwnd)
         time.sleep(0.8)
-        R["poll_ok_baseline"] = _ask("poll_ok")  # tells product breakage from context artifact
+        R["poll_ok_baseline"] = _ask(
+            "poll_ok"
+        )  # tells product breakage from context artifact
 
         HTCAPTION, HTRIGHT, HTBOTTOM = 2, 11, 15
         mid_x = lambda r: (r[0] + r[2]) // 2
 
         def _bottom(r):
-            return _find_grab(hwnd, HTBOTTOM,
-                              [(mid_x(r), y) for y in range(r[3] - 12, r[3] + 10)])
+            return _find_grab(
+                hwnd, HTBOTTOM, [(mid_x(r), y) for y in range(r[3] - 12, r[3] + 10)]
+            )
 
         def _right(r):
-            return _find_grab(hwnd, HTRIGHT,
-                              [(x, (r[1] + r[3]) // 2)
-                               for x in range(r[2] - 12, r[2] + 10)])
+            return _find_grab(
+                hwnd,
+                HTRIGHT,
+                [(x, (r[1] + r[3]) // 2) for x in range(r[2] - 12, r[2] + 10)],
+            )
 
         def _caption(r):
             # Quarter-width, not center: after a snap-maximize Win11 parks its
             # snap-layouts flyout at the caption's top-center, eating a press there
             # (measured: the follow-up drag never engaged the move loop).
             quarter_x = r[0] + (r[2] - r[0]) // 4
-            return _find_grab(hwnd, HTCAPTION,
-                              [(quarter_x, y) for y in range(r[1] + 2, r[1] + 44, 2)])
+            return _find_grab(
+                hwnd, HTCAPTION, [(quarter_x, y) for y in range(r[1] + 2, r[1] + 44, 2)]
+            )
 
         def _storm(_rect, _gx, _gy):
             """Fast zigzag: 3 grow/shrink cycles in one hold, ~8 ms per step."""
@@ -628,7 +708,8 @@ def _input_main():
             leg["zoomed_after"] = bool(_u.IsZoomed(ctypes.c_void_p(int(hwnd))))
             if not leg["zoomed_after"]:
                 R.setdefault("inconclusive", []).append(
-                    f"{name}: drag-to-top did not snap-maximize (snap off / missed)")
+                    f"{name}: drag-to-top did not snap-maximize (snap off / missed)"
+                )
 
         def _check_snap_left(name, leg):
             """A DWM edge-snap engaged: the window sits at the monitor's left edge
@@ -639,17 +720,21 @@ def _input_main():
             mon = R.get("monitor_area") or R.get("work_area")
             a, d = leg["rect_after"], leg.get("delta") or {}
             leg["snapped"] = bool(
-                mon and abs(a[0] - mon[0]) <= 10
-                and (d.get("w", 0) <= -100 or d.get("h", 0) <= -100))
+                mon
+                and abs(a[0] - mon[0]) <= 10
+                and (d.get("w", 0) <= -100 or d.get("h", 0) <= -100)
+            )
             if not leg["snapped"]:
                 R.setdefault("inconclusive", []).append(
-                    f"{name}: drag-to-left did not snap (rect={a} monitor={mon})")
+                    f"{name}: drag-to-left did not snap (rect={a} monitor={mon})"
+                )
 
         def _check_restored(name, leg):
             leg["zoomed_after"] = bool(_u.IsZoomed(ctypes.c_void_p(int(hwnd))))
             if leg["zoomed_after"]:
                 R.setdefault("inconclusive", []).append(
-                    f"{name}: drag did not restore the maximized window")
+                    f"{name}: drag did not restore the maximized window"
+                )
 
         battery = [
             ("resize_bottom_grow", _bottom, (0, 100), {"h": 90}),
@@ -690,8 +775,9 @@ def _input_main():
                 break  # frozen — nothing further can run
         # Drag-restore only exists when the snap leg actually maximized.
         if not frozen and battery and _u.IsZoomed(ctypes.c_void_p(int(hwnd))):
-            frozen = not _run_gesture("move_drag_restore", _caption,
-                                      (0, 140), _check_restored)
+            frozen = not _run_gesture(
+                "move_drag_restore", _caption, (0, 140), _check_restored
+            )
         if not frozen and battery:
             time.sleep(1.5)  # settle, then the paint canary armed above must have fired
             R["final"] = _ask("snapshot", "final")
@@ -702,8 +788,9 @@ def _input_main():
                 _problem("final", "screen.area_move poll broken after the battery")
             final = R["final"]
             if MODE != "noconsole" and final and final.get("paints") is not None:
-                last = next((g["post"] for g in reversed(R["gestures"])
-                             if g.get("post")), None)
+                last = next(
+                    (g["post"] for g in reversed(R["gestures"]) if g.get("post")), None
+                )
                 if last and final["paints"] <= last.get("paints", 0):
                     _problem("final", "paint canary flat over the settle window")
         _u.SetCursorPos(*cursor_restore)
@@ -729,7 +816,7 @@ def _go():
         shutil.rmtree(SANDBOX, ignore_errors=True)
         os.makedirs(SANDBOX, exist_ok=True)
         so.ScriptConsole._state_dir_override = SANDBOX
-        so.begin_capture()
+        so.ScriptConsole.begin_capture()
 
         from tentacle import tcl_blender as tb
 
@@ -742,7 +829,7 @@ def _go():
         R["qt"] = app is not None
 
         if MODE != "noconsole":
-            inst = so.show()
+            inst = so.ScriptConsole.show()
             R["dock_supported"] = so.QtDock.supported()
             if not R["dock_supported"] or inst.widget is None:
                 R["verdict"] = "INCONCLUSIVE"

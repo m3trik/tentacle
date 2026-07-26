@@ -26,6 +26,8 @@ class Rigging(SlotsBlender):
     # ------------------------------------------------------------------ header  b020 Rebind Skin
     def header_init(self, widget):
         # b020 reuses the Maya header objectName/label (Rebind Skin Clusters).
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton", setText="Rebind Skin Clusters", setObjectName="b020",
             setToolTip="Refresh the Armature modifier binding on the selected mesh(es), preserving "

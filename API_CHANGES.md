@@ -2,4 +2,7 @@
 
 _Diff vs prior baseline. Generated 2026-07-26._
 
-No public API changes since last refresh.
+## Added (2)
+
+- `slots/blender/selection.py::Selection.tb004(self, widget)`
+- `slots/maya/selection.py::Selection.tb004(self, widget)`

@@ -9,9 +9,11 @@ AST-based like every other Blender slot test (``test_materials_blender.py``,
 (no offline ``bpy`` stub in this repo). ``Main._is_workspace``/``btk.find_workspaces`` are
 pure ``os``-path logic already covered behaviorally in blendertk's own test suite
 (``test_reference_manager.py``); this file pins the *wiring* — that Blender's ``list000``
-mirrors Maya's Set Workspace / Auto Set Workspace / Recent Workspaces / Current Workspace
-structure at the behavior level, per ``main.py``'s module docstring.
+mirrors Maya's Set Workspace / Auto Set Workspace / Recent Workspaces structure at the
+behavior level (including the folder-icon differentiator on the dir-browser rows), per
+``main.py``'s module docstring.
 """
+
 import ast
 import unittest
 from pathlib import Path
@@ -66,19 +68,33 @@ class TestMainWorkspaceStructure(unittest.TestCase):
 
     def test_list000_builds_store_and_actions(self):
         """list000_init must build the store, add the editing actions, render the
-        store's recent values, and label the dir-browser row."""
+        store's recent values, and icon the dir-browser row."""
         init = self.mod.method_source("Main", "list000_init")
         for needle in (
             "RecentValuesStore",
             "workspace_recent_projects_blender",  # namespaced -- must not collide with Maya's key
             "__set_dir__",
             "__auto__",
-            "Separator",  # Current Workspace is a titled separator, not a row prefix
-            "Current Workspace",  # separator title above the dir browser
+            'set_label_icon(w, "folder_filled")',  # dir-browser root row gets a folder icon
             "valid_values",
             "display_map",
         ):
             self.assertIn(needle, init, f"list000_init must reference {needle}")
+
+    def test_no_separator_between_actions_and_browser(self):
+        """The old titled separator is gone — the folder icon on the dir rows is the
+        differentiator now, so no Separator widget should be constructed or imported."""
+        init = self.mod.method_source("Main", "list000_init")
+        self.assertNotIn("Separator(", init, "no Separator widget should be added")
+        self.assertNotIn("widgets.separator", init, "no Separator import should remain")
+
+    def test_dir_browser_rows_get_folder_icon(self):
+        """Every dir-browser row (root + each nested folder) is marked with the
+        folder icon so it reads as a directory, not an action — parity with Maya."""
+        init = self.mod.method_source("Main", "list000_init")
+        self.assertIn('set_label_icon(w, "folder_filled")', init)
+        populate = self.mod.method_source("Main", "_populate_dir_contents")
+        self.assertIn('set_label_icon(item, "folder_filled")', populate)
 
     def test_auto_and_recents_nest_under_set_workspace(self):
         """Auto Set + Recent Workspaces live in the Set Workspace flyout, not at

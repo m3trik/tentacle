@@ -147,13 +147,19 @@ class Edit(SlotsBlender):
         self.submenu = self.sb.loaded_ui.edit_submenu
 
     def header_init(self, widget):
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
-            "QPushButton", setText="Channels", setObjectName="b_channels",
+            "QPushButton",
+            setText="Channels",
+            setObjectName="b_channels",
             setToolTip="Open the Channels panel — inspect / edit / lock / key the selected "
             "object's transform channels and custom properties (mirror of Maya's Channels).",
         )
         widget.menu.add(
-            "QPushButton", setText="Cut On Axis", setObjectName="b000",
+            "QPushButton",
+            setText="Cut On Axis",
+            setObjectName="b000",
             setToolTip="Cut selected objects on an axis.",
         )
 
@@ -205,72 +211,181 @@ class Edit(SlotsBlender):
         # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Data
         # values (selected / visible / all) drive _cleanup_pool below; items are identical to the
         # Maya panel (shared QSettings namespace + parity sweep both key off objectName).
-        cmb = menu.add("QComboBox", setObjectName="cmb_scope",
-                       setToolTip="Which meshes Mesh Cleanup acts on:\n"
-                       "• Selected: only the current selection.\n"
-                       "• Visible: every visible mesh in the scene.\n"
-                       "• All Geometry: every mesh in the scene.")
-        for label, data in [("Selected", "selected"), ("Visible", "visible"), ("All Geometry", "all")]:
+        cmb = menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope",
+            setToolTip="Which meshes Mesh Cleanup acts on:\n"
+            "• Selected: only the current selection.\n"
+            "• Visible: every visible mesh in the scene.\n"
+            "• All Geometry: every mesh in the scene.",
+        )
+        for label, data in [
+            ("Selected", "selected"),
+            ("Visible", "visible"),
+            ("All Geometry", "all"),
+        ]:
             cmb.addItem(label, data)
         # Mode (cmb_mode) replaces the old "Repair" checkbox: same two states, now self-labeling.
-        cmb = menu.add("QComboBox", setObjectName="cmb_mode",
-                       setToolTip="What Mesh Cleanup does with the matches:\n"
-                       "• Select (diagnose): just select the problem components so you can inspect them.\n"
-                       "• Repair (fix): fix the geometry in place.")
-        for label, data in [("Select (diagnose)", "select"), ("Repair (fix)", "repair")]:
+        cmb = menu.add(
+            "QComboBox",
+            setObjectName="cmb_mode",
+            setToolTip="What Mesh Cleanup does with the matches:\n"
+            "• Select (diagnose): just select the problem components so you can inspect them.\n"
+            "• Repair (fix): fix the geometry in place.",
+        )
+        for label, data in [
+            ("Select (diagnose)", "select"),
+            ("Repair (fix)", "repair"),
+        ]:
             cmb.addItem(label, data)
         menu.add("Separator", setTitle="Repair")
-        menu.add("QCheckBox", setText="Merge vertices", setObjectName="chk024", setChecked=False,
-                 setToolTip="Merge overlapping vertices (remove doubles).")
-        menu.add("QDoubleSpinBox", setPrefix="Merge Distance: ", setObjectName="s000",
-                 set_limits=[0, 1, 0.0001, 4], setValue=0.0001, set_fixed_height=20,
-                 setToolTip="Distance under which vertices are merged / treated as degenerate.")
-        menu.add("QCheckBox", setText="Delete Loose", setObjectName="chk032", setChecked=True,
-                 setToolTip="Remove loose (wire) edges and unconnected vertices.")
-        menu.add("QCheckBox", setText="Dissolve Degenerate", setObjectName="chk033", setChecked=True,
-                 setToolTip="Dissolve zero-area faces / zero-length edges.")
-        menu.add("QCheckBox", setText="Recalculate Normals", setObjectName="chk028", setChecked=True,
-                 setToolTip="Make face normals consistent (outward).")
-        menu.add("QCheckBox", setText="Fill Holes", setObjectName="chk029",
-                 setToolTip="Fill open boundary holes.")
+        menu.add(
+            "QCheckBox",
+            setText="Merge vertices",
+            setObjectName="chk024",
+            setChecked=False,
+            setToolTip="Merge overlapping vertices (remove doubles).",
+        )
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Merge Distance: ",
+            setObjectName="s000",
+            set_limits=[0, 1, 0.0001, 4],
+            setValue=0.0001,
+            set_fixed_height=20,
+            setToolTip="Distance under which vertices are merged / treated as degenerate.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Delete Loose",
+            setObjectName="chk032",
+            setChecked=True,
+            setToolTip="Remove loose (wire) edges and unconnected vertices.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Dissolve Degenerate",
+            setObjectName="chk033",
+            setChecked=True,
+            setToolTip="Dissolve zero-area faces / zero-length edges.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Recalculate Normals",
+            setObjectName="chk028",
+            setChecked=True,
+            setToolTip="Make face normals consistent (outward).",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Fill Holes",
+            setObjectName="chk029",
+            setToolTip="Fill open boundary holes.",
+        )
         menu.add("Separator", setTitle="Topology (select / diagnose)")
-        menu.add("QCheckBox", setText="N-Gons", setObjectName="chk002", setChecked=True,
-                 setToolTip="Find faces with more than 4 sides.")
-        menu.add("QCheckBox", setText="Concave", setObjectName="chk011",
-                 setToolTip="Find non-convex faces.")
-        menu.add("QCheckBox", setText="Non-Planar", setObjectName="chk003",
-                 setToolTip="Find faces whose vertices don't lie in a single plane.")
-        menu.add("QCheckBox", setText="Non-Manifold Geometry", setObjectName="chk017", setChecked=True,
-                 setToolTip="Find edges bordering anything other than 2 faces.")
-        menu.add("QCheckBox", setText="Quads", setObjectName="chk010",
-                 setToolTip="Find faces with exactly 4 sides.")
-        menu.add("QCheckBox", setText="Zero Face Area", setObjectName="chk013", setChecked=True,
-                 setToolTip="Find faces whose area is at or below the tolerance below (degenerate).")
-        menu.add("QDoubleSpinBox", setPrefix="Face Area Tolerance:   ", setObjectName="s006",
-                 set_limits=[0, 10, 0.00001, 6], setValue=0.000010, set_fixed_height=20,
-                 setToolTip="Faces at or below this area count as zero-area.")
-        menu.add("QCheckBox", setText="Zero Length Edges", setObjectName="chk014", setChecked=True,
-                 setToolTip="Find edges at or below the length tolerance below (degenerate).")
-        menu.add("QDoubleSpinBox", setPrefix="Edge Length Tolerance: ", setObjectName="s007",
-                 set_limits=[0, 10, 0.00001, 6], setValue=0.000010, set_fixed_height=20,
-                 setToolTip="Edges at or below this length count as zero-length.")
+        menu.add(
+            "QCheckBox",
+            setText="N-Gons",
+            setObjectName="chk002",
+            setChecked=True,
+            setToolTip="Find faces with more than 4 sides.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Concave",
+            setObjectName="chk011",
+            setToolTip="Find non-convex faces.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Non-Planar",
+            setObjectName="chk003",
+            setToolTip="Find faces whose vertices don't lie in a single plane.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Non-Manifold Geometry",
+            setObjectName="chk017",
+            setChecked=True,
+            setToolTip="Find edges bordering anything other than 2 faces.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Quads",
+            setObjectName="chk010",
+            setToolTip="Find faces with exactly 4 sides.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Zero Face Area",
+            setObjectName="chk013",
+            setChecked=True,
+            setToolTip="Find faces whose area is at or below the tolerance below (degenerate).",
+        )
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Face Area Tolerance:   ",
+            setObjectName="s006",
+            set_limits=[0, 10, 0.00001, 6],
+            setValue=0.000010,
+            set_fixed_height=20,
+            setToolTip="Faces at or below this area count as zero-area.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Zero Length Edges",
+            setObjectName="chk014",
+            setChecked=True,
+            setToolTip="Find edges at or below the length tolerance below (degenerate).",
+        )
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="Edge Length Tolerance: ",
+            setObjectName="s007",
+            set_limits=[0, 10, 0.00001, 6],
+            setValue=0.000010,
+            set_fixed_height=20,
+            setToolTip="Edges at or below this length count as zero-length.",
+        )
         menu.add("Separator", setTitle="UVs")
-        menu.add("QCheckBox", setText="Zero UV Face Area", setObjectName="chk015",
-                 setToolTip="Find faces whose area in the active UV map is at or below the tolerance "
-                 "below (select-only; no automatic repair).")
-        menu.add("QDoubleSpinBox", setPrefix="UV Face Area Tolerance:", setObjectName="s008",
-                 set_limits=[0, 10, 0.00001, 6], setValue=0.000010, set_fixed_height=20,
-                 setToolTip="Faces at or below this UV area count as zero-UV-area.")
+        menu.add(
+            "QCheckBox",
+            setText="Zero UV Face Area",
+            setObjectName="chk015",
+            setToolTip="Find faces whose area in the active UV map is at or below the tolerance "
+            "below (select-only; no automatic repair).",
+        )
+        menu.add(
+            "QDoubleSpinBox",
+            setPrefix="UV Face Area Tolerance:",
+            setObjectName="s008",
+            set_limits=[0, 10, 0.00001, 6],
+            setValue=0.000010,
+            set_fixed_height=20,
+            setToolTip="Faces at or below this UV area count as zero-UV-area.",
+        )
         menu.add("Separator", setTitle="Overlapping (select / delete)")
-        menu.add("QCheckBox", setText="Overlapping Faces", setObjectName="chk025",
-                 setToolTip="Find faces coincident with another (doubled geometry). "
-                 "Repair ON deletes them; OFF selects them.")
-        menu.add("QCheckBox", setText="Overlapping Duplicate Objects", setObjectName="chk022",
-                 setToolTip="Find duplicate mesh OBJECTS overlapping in world space. "
-                 "Repair ON deletes them; OFF selects them.")
-        menu.add("QCheckBox", setText="Omit Selected Objects", setObjectName="chk023",
-                 setToolTip="With Overlapping Duplicate Objects: find duplicates OF the selected "
-                 "objects while keeping the selected ones.")
+        menu.add(
+            "QCheckBox",
+            setText="Overlapping Faces",
+            setObjectName="chk025",
+            setToolTip="Find faces coincident with another (doubled geometry). "
+            "Repair ON deletes them; OFF selects them.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Overlapping Duplicate Objects",
+            setObjectName="chk022",
+            setToolTip="Find duplicate mesh OBJECTS overlapping in world space. "
+            "Repair ON deletes them; OFF selects them.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Omit Selected Objects",
+            setObjectName="chk023",
+            setToolTip="With Overlapping Duplicate Objects: find duplicates OF the selected "
+            "objects while keeping the selected ones.",
+        )
 
     @btk.undoable
     def tb000(self, widget):
@@ -326,17 +441,21 @@ class Edit(SlotsBlender):
         # Object-level duplicates are a distinct domain — handle and return (Maya parity).
         if m.chk022.isChecked():
             retain = self.selected_objects() if m.chk023.isChecked() else None
-            dupes = btk.get_overlapping_duplicates(retain=retain, select=not repair, delete=repair)
+            dupes = btk.get_overlapping_duplicates(
+                retain=retain, select=not repair, delete=repair
+            )
             n = len(dupes)
             verb = "deleted" if repair else "selected"
             cleanup_console_report(
                 f"{mode_label} · Overlapping Duplicate Objects",
                 [f"scope: {scope}", f"{n} overlapping duplicate object(s) ({verb})"],
             )
-            self.sb.message_box(cleanup_popup_html(
-                f"<hl>Mesh Cleanup — {mode_label}</hl>",
-                [(n, f"overlapping duplicate objects {verb}")],
-            ))
+            self.sb.message_box(
+                cleanup_popup_html(
+                    f"<hl>Mesh Cleanup — {mode_label}</hl>",
+                    [(n, f"overlapping duplicate objects {verb}")],
+                )
+            )
             return
 
         if not objects:
@@ -357,14 +476,18 @@ class Edit(SlotsBlender):
         overlap_n = 0
         overlap_faces = {}
         if m.chk025.isChecked():
-            overlap_n = btk.get_overlapping_faces(objects, delete=repair, select=not repair)
+            overlap_n = btk.get_overlapping_faces(
+                objects, delete=repair, select=not repair
+            )
             if not repair and any(criteria.values()):
                 overlap_faces = {
                     o: [p.index for p in o.data.polygons if p.select] for o in objects
                 }
 
         if not repair:
-            self._mesh_cleanup_select(m, scope, objects, criteria, overlap_n, overlap_faces)
+            self._mesh_cleanup_select(
+                m, scope, objects, criteria, overlap_n, overlap_faces
+            )
             return
 
         # -------- Repair / fix path
@@ -398,19 +521,27 @@ class Edit(SlotsBlender):
                 f"operations: {', '.join(ops) or 'none'}",
                 f"verts: {before_v} -> {after_v} (removed {removed_v})",
                 f"faces: {before_f} -> {after_f} (removed {removed_f})",
-                *([f"overlapping faces deleted: {overlap_n}"] if m.chk025.isChecked() else []),
+                *(
+                    [f"overlapping faces deleted: {overlap_n}"]
+                    if m.chk025.isChecked()
+                    else []
+                ),
             ],
         )
-        self.sb.message_box(cleanup_popup_html(
-            f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> mesh(es)",
-            [
-                (removed_v, "verts removed"),
-                (removed_f, "faces removed"),
-                (overlap_n, "overlapping faces deleted"),
-            ],
-        ))
+        self.sb.message_box(
+            cleanup_popup_html(
+                f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> mesh(es)",
+                [
+                    (removed_v, "verts removed"),
+                    (removed_f, "faces removed"),
+                    (overlap_n, "overlapping faces deleted"),
+                ],
+            )
+        )
 
-    def _mesh_cleanup_select(self, m, scope, objects, criteria, overlap_n, overlap_faces):
+    def _mesh_cleanup_select(
+        self, m, scope, objects, criteria, overlap_n, overlap_faces
+    ):
         """Select / diagnose path: flag the matched problem geometry, reveal it in Edit Mode, and
         report per-criterion counts through both feedback channels."""
         if not any(criteria.values()):
@@ -423,15 +554,21 @@ class Edit(SlotsBlender):
             self._show_problem_components(objects, "FACE")
             cleanup_console_report(
                 "Select · Overlapping Faces",
-                [f"scope: {scope} · {len(objects)} mesh(es)", f"overlapping faces: {overlap_n}"],
+                [
+                    f"scope: {scope} · {len(objects)} mesh(es)",
+                    f"overlapping faces: {overlap_n}",
+                ],
             )
-            self.sb.message_box(cleanup_popup_html(
-                "<hl>Mesh Cleanup — Select</hl>", [(overlap_n, "overlapping faces")]
-            ))
+            self.sb.message_box(
+                cleanup_popup_html(
+                    "<hl>Mesh Cleanup — Select</hl>", [(overlap_n, "overlapping faces")]
+                )
+            )
             return
 
-        counts = btk.find_problem_geometry(
-            objects, select=True,
+        counts = btk.Diagnostics.find_problem_geometry(
+            objects,
+            select=True,
             area_tolerance=m.s006.value(),
             edge_length_tolerance=m.s007.value(),
             uv_area_tolerance=m.s008.value(),
@@ -457,9 +594,11 @@ class Edit(SlotsBlender):
                 f"total problem components: {total}",
             ],
         )
-        self.sb.message_box(cleanup_popup_html(
-            f"<hl>Mesh Cleanup — Select</hl> · <hl>{total}</hl> total", rows
-        ))
+        self.sb.message_box(
+            cleanup_popup_html(
+                f"<hl>Mesh Cleanup — Select</hl> · <hl>{total}</hl> total", rows
+            )
+        )
 
     @staticmethod
     def _show_problem_components(objects, mode):
@@ -613,7 +752,9 @@ class Edit(SlotsBlender):
                 op_name = self._PRIMITIVES.get(parent_text, {}).get(text)
                 if op_name:
                     self._create_primitive(op_name)
-        except RuntimeError as e:  # e.g. a poll failure the Object Mode guard above didn't cover
+        except (
+            RuntimeError
+        ) as e:  # e.g. a poll failure the Object Mode guard above didn't cover
             self.sb.message_box(str(e))
 
     @btk.undoable
@@ -760,7 +901,9 @@ class Edit(SlotsBlender):
         domain (point vs. face-corner) so both painted-per-vertex and painted-per-corner sets
         transfer correctly (part of Maya's Attribute Values)."""
         active = bpy.context.view_layer.objects.active
-        data_type = self._color_attribute_data_type(active) if active else "COLOR_VERTEX"
+        data_type = (
+            self._color_attribute_data_type(active) if active else "COLOR_VERTEX"
+        )
         if self.transfer_from_active(
             data_type,
             vert_mapping="NEAREST",
@@ -797,7 +940,9 @@ class Edit(SlotsBlender):
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
         active = bpy.context.view_layer.objects.active
         if active not in objects or len(objects) < 2:
-            self.sb.message_box("Select target mesh(es) with the source (shaded) mesh active.")
+            self.sb.message_box(
+                "Select target mesh(es) with the source (shaded) mesh active."
+            )
             return
         try:
             # window override: material_slot_copy's exec iterates the context selection
@@ -816,14 +961,18 @@ class Edit(SlotsBlender):
         attribute yet (matches ``geometry.color_attribute_add``'s own default)."""
         attrs = getattr(getattr(obj, "data", None), "color_attributes", None)
         active = attrs.active_color if attrs else None
-        return "COLOR_CORNER" if active and active.domain == "CORNER" else "COLOR_VERTEX"
+        return (
+            "COLOR_CORNER" if active and active.domain == "CORNER" else "COLOR_VERTEX"
+        )
 
     def _report_transfer(self, label):
         """Message-box + console summary shared by every Transfer op (mirrors Maya's
         ``_run_transfer`` feedback: quick popup + full source/target breakdown on the console)."""
         active = bpy.context.view_layer.objects.active
         targets = [
-            o.name for o in self.selected_objects() if o is not active and o.type == "MESH"
+            o.name
+            for o in self.selected_objects()
+            if o is not active and o.type == "MESH"
         ]
         print(f"# Transfer '{label}': source=<{active.name}> target(s)={targets}")
         plural = "" if len(targets) == 1 else "s"
@@ -853,14 +1002,22 @@ class Edit(SlotsBlender):
         # Blender-only options with no Maya twin, so they deliberately do NOT reuse Maya's
         # chk019/chk030 numbers — the QSettings store is shared across DCCs and a reused number
         # for a different option bleeds state (see tb000_init's chk032/chk033 note).
-        menu.add("QCheckBox", setText="Recursive", setObjectName="chk_purge_recursive",
-                 setChecked=True,
-                 setToolTip="Also purge datablocks whose only remaining users are themselves "
-                 "being purged (removes whole chains of orphans in one pass).")
-        menu.add("QCheckBox", setText="Include Linked Data", setObjectName="chk_purge_linked",
-                 setChecked=True,
-                 setToolTip="Also purge orphaned datablocks that came from linked libraries, "
-                 "not just local ones.")
+        menu.add(
+            "QCheckBox",
+            setText="Recursive",
+            setObjectName="chk_purge_recursive",
+            setChecked=True,
+            setToolTip="Also purge datablocks whose only remaining users are themselves "
+            "being purged (removes whole chains of orphans in one pass).",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Include Linked Data",
+            setObjectName="chk_purge_linked",
+            setChecked=True,
+            setToolTip="Also purge orphaned datablocks that came from linked libraries, "
+            "not just local ones.",
+        )
 
     def tb001(self, widget):
         """Optimize — purge orphaned (zero-user) datablocks; Blender's analogue of Maya's Delete
@@ -890,7 +1047,8 @@ class Edit(SlotsBlender):
         grabbed/transformed/deleted by a stray click or box-select). The button text follows the
         choice, exactly like the Maya twin."""
         action = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_lock",
+            "QComboBox",
+            setObjectName="cmb_lock",
             setToolTip="Lock: make the selected objects unselectable (protect from accidental "
             "edits). Unlock: clear it on every object (a locked object can't be selected to "
             "unlock it individually).",

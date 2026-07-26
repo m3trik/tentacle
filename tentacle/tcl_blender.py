@@ -51,6 +51,7 @@ see Preferences ▸ Keymap; the activation key is configurable).
 
 See ``tentacle/docs/archive/BLENDER_PORT_PLAN.md``.
 """
+
 import os
 import sys
 import time
@@ -74,7 +75,9 @@ class _Config:
     """
 
     MONOREPO = os.environ.get("TENTACLE_MONOREPO", r"o:\Cloud\Code\_scripts")
-    QT_DEPS = os.environ.get("TENTACLE_QT_DEPS")  # optional pre-staged Qt folder (skips on-demand)
+    QT_DEPS = os.environ.get(
+        "TENTACLE_QT_DEPS"
+    )  # optional pre-staged Qt folder (skips on-demand)
     ACTIVATION_KEY = os.environ.get("TENTACLE_KEY", "F12")
     DEBUG = False  # set True to log each activation (helps confirm the keymap is firing live)
 
@@ -134,7 +137,12 @@ class _QtBootstrap:
             return bpy.utils.user_resource("SCRIPTS", path="modules", create=True)
         except Exception:
             base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
-            return os.path.join(base, "tentacle", "qt_deps", f"py{sys.version_info[0]}{sys.version_info[1]}")
+            return os.path.join(
+                base,
+                "tentacle",
+                "qt_deps",
+                f"py{sys.version_info[0]}{sys.version_info[1]}",
+            )
 
     @staticmethod
     def blender_python_exe():
@@ -154,10 +162,15 @@ class _QtBootstrap:
         on-demand install) — gated on actually running inside Blender so a bare interpreter never gets
         an unsolicited download.
         """
-        if cls.qt_importable():  # Maya (bundled) and any already-provisioned interpreter stop here.
+        if (
+            cls.qt_importable()
+        ):  # Maya (bundled) and any already-provisioned interpreter stop here.
             return
         install_dir = cls.qt_install_dir()
-        for target in (_Config.QT_DEPS, install_dir):  # reuse a pre-staged / previously-installed dir
+        for target in (
+            _Config.QT_DEPS,
+            install_dir,
+        ):  # reuse a pre-staged / previously-installed dir
             if target and os.path.isdir(target) and target not in sys.path:
                 sys.path.insert(0, target)
         if cls.qt_importable():
@@ -166,12 +179,16 @@ class _QtBootstrap:
             import bpy  # noqa: F401 — only auto-install inside Blender, never a bare interpreter
         except Exception:
             return
-        if not install_dir:  # user_resource can return "" if the path can't be resolved/created
+        if (
+            not install_dir
+        ):  # user_resource can return "" if the path can't be resolved/created
             return
         import subprocess
 
         py = cls.blender_python_exe()
-        print(f"tentacle: Blender has no Qt — installing PySide6 + qtpy into {install_dir} (first launch only)…")
+        print(
+            f"tentacle: Blender has no Qt — installing PySide6 + qtpy into {install_dir} (first launch only)…"
+        )
         try:
             os.makedirs(install_dir, exist_ok=True)
             subprocess.run([py, "-m", "ensurepip", "--upgrade"], check=False)
@@ -221,7 +238,9 @@ class _NativeWindow:
     # native menu modes. GUI_INMOVESIZE=0x2, GUI_INMENUMODE=0x4, GUI_SYSTEMMENUMODE=0x8, GUI_POPUPMENUMODE=0x10.
     _NATIVE_MODAL_FLAGS = 0x2 | 0x4 | 0x8 | 0x10
     _modal_probe = None  # lazily built GetGUIThreadInfo probe (Windows only)
-    _modal_last_true = 0.0  # monotonic stamp of the last True probe (any caller refreshes)
+    _modal_last_true = (
+        0.0  # monotonic stamp of the last True probe (any caller refreshes)
+    )
 
     @classmethod
     def native_modal_loop_active(cls, cooldown=0.0):
@@ -267,7 +286,9 @@ class _NativeWindow:
             info.cbSize = ctypes.sizeof(_GUITHREADINFO)
 
             def probe():
-                if user32.GetGUIThreadInfo(kernel32.GetCurrentThreadId(), ctypes.byref(info)):
+                if user32.GetGUIThreadInfo(
+                    kernel32.GetCurrentThreadId(), ctypes.byref(info)
+                ):
                     return bool(info.flags & cls._NATIVE_MODAL_FLAGS)
                 return False
 
@@ -299,7 +320,9 @@ class _NativeWindow:
                 import ctypes
 
                 # Re-enumerate if the cached handle went stale (GHOST window re-created).
-                if ctypes.windll.user32.IsWindow(getattr(app, "_blender_native_hwnd", 0)):
+                if ctypes.windll.user32.IsWindow(
+                    getattr(app, "_blender_native_hwnd", 0)
+                ):
                     return cached
             except Exception:
                 return cached
@@ -356,15 +379,23 @@ class _NativeWindow:
             import ctypes
 
             user32 = ctypes.windll.user32
-            if not user32.IsWindow(ctypes.c_void_p(int(owner_hwnd))):  # c_void_p: don't truncate the handle
+            if not user32.IsWindow(
+                ctypes.c_void_p(int(owner_hwnd))
+            ):  # c_void_p: don't truncate the handle
                 return None
             # Force native restypes so the 64-bit handle isn't truncated to a 32-bit c_int.
             user32.SetWindowLongPtrW.restype = ctypes.c_void_p
-            user32.SetWindowLongPtrW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+            user32.SetWindowLongPtrW.argtypes = [
+                ctypes.c_void_p,
+                ctypes.c_int,
+                ctypes.c_void_p,
+            ]
             user32.GetWindowLongPtrW.restype = ctypes.c_void_p
             user32.GetWindowLongPtrW.argtypes = [ctypes.c_void_p, ctypes.c_int]
             hwnd = ctypes.c_void_p(int(widget.winId()))  # forces native-window creation
-            user32.SetWindowLongPtrW(hwnd, cls._GWLP_HWNDPARENT, ctypes.c_void_p(int(owner_hwnd)))
+            user32.SetWindowLongPtrW(
+                hwnd, cls._GWLP_HWNDPARENT, ctypes.c_void_p(int(owner_hwnd))
+            )
             return user32.GetWindowLongPtrW(hwnd, cls._GWLP_HWNDPARENT)
         except Exception:
             return None
@@ -550,7 +581,9 @@ class _QtHost:
             return
         token = object()
         app._tentacle_pump_token = token
-        pumping = {"now": False}  # re-entrancy latch (closure state, fresh per generation)
+        pumping = {
+            "now": False
+        }  # re-entrancy latch (closure state, fresh per generation)
 
         def _pump():
             if getattr(app, "_tentacle_pump_token", None) is not token:
@@ -562,7 +595,9 @@ class _QtHost:
                 QtCore.QCoreApplication.sendPostedEvents()
                 # deleteLater() garbage: posted at a loop level no plain flush matches,
                 # so it must be requested explicitly — the plugin-embed idiom.
-                QtCore.QCoreApplication.sendPostedEvents(None, QtCore.QEvent.DeferredDelete)
+                QtCore.QCoreApplication.sendPostedEvents(
+                    None, QtCore.QEvent.DeferredDelete
+                )
             finally:
                 pumping["now"] = False
             return interval
@@ -593,7 +628,9 @@ class _KeymapBridge:
 
     tcl = None  # the live TclBlender the operator drives (one Qt host per Blender process)
     keymaps = []  # (keymap, keymap_item) pairs we added, for clean removal
-    poller = None  # live poll callback (held-button activation fallback), for clean removal
+    poller = (
+        None  # live poll callback (held-button activation fallback), for clean removal
+    )
     gesture_active = False  # a bridge-initiated press is awaiting its key-up (≈ GlobalShortcut pairing)
     chord_active = False  # the live gesture is a button-held chord (the grab path) — drives hover pump
 
@@ -601,18 +638,39 @@ class _KeymapBridge:
     # upper-casing (``F12``→``F12``, ``A``→``A``, ``SPACE``→``SPACE``); these are the ones that don't —
     # notably the Windows/Cmd/Super key, which Qt calls ``Meta``/``Super_L`` and Blender calls ``OSKEY``.
     _BLENDER_KEY_ALIASES = {
-        "META": "OSKEY", "SUPER_L": "OSKEY", "SUPER_R": "OSKEY",
-        "ESCAPE": "ESC", "RETURN": "RET", "ENTER": "RET",
-        "CONTROL": "LEFT_CTRL", "ALT": "LEFT_ALT", "SHIFT": "LEFT_SHIFT",
-        "PAGEUP": "PAGE_UP", "PAGEDOWN": "PAGE_DOWN", "DELETE": "DEL",
+        "META": "OSKEY",
+        "SUPER_L": "OSKEY",
+        "SUPER_R": "OSKEY",
+        "ESCAPE": "ESC",
+        "RETURN": "RET",
+        "ENTER": "RET",
+        "CONTROL": "LEFT_CTRL",
+        "ALT": "LEFT_ALT",
+        "SHIFT": "LEFT_SHIFT",
+        "PAGEUP": "PAGE_UP",
+        "PAGEDOWN": "PAGE_DOWN",
+        "DELETE": "DEL",
         # Number row — Qt names them by digit, Blender's enum by word.
-        "1": "ONE", "2": "TWO", "3": "THREE", "4": "FOUR", "5": "FIVE",
-        "6": "SIX", "7": "SEVEN", "8": "EIGHT", "9": "NINE", "0": "ZERO",
+        "1": "ONE",
+        "2": "TWO",
+        "3": "THREE",
+        "4": "FOUR",
+        "5": "FIVE",
+        "6": "SIX",
+        "7": "SEVEN",
+        "8": "EIGHT",
+        "9": "NINE",
+        "0": "ZERO",
         # Arrow keys — Blender suffixes ``_ARROW``.
-        "LEFT": "LEFT_ARROW", "RIGHT": "RIGHT_ARROW", "UP": "UP_ARROW", "DOWN": "DOWN_ARROW",
+        "LEFT": "LEFT_ARROW",
+        "RIGHT": "RIGHT_ARROW",
+        "UP": "UP_ARROW",
+        "DOWN": "DOWN_ARROW",
         # Punctuation whose Qt name diverges from Blender's enum identifier.
-        "SEMICOLON": "SEMI_COLON", "BRACKETLEFT": "LEFT_BRACKET",
-        "BRACKETRIGHT": "RIGHT_BRACKET", "BACKSLASH": "BACK_SLASH",
+        "SEMICOLON": "SEMI_COLON",
+        "BRACKETLEFT": "LEFT_BRACKET",
+        "BRACKETRIGHT": "RIGHT_BRACKET",
+        "BACKSLASH": "BACK_SLASH",
         "QUOTELEFT": "ACCENT_GRAVE",
     }
 
@@ -644,7 +702,12 @@ class _KeymapBridge:
         """Windows virtual-key code for a Qt key name (``'Key_F12'`` → ``0x7B``); None if unmapped
         (the poller is then simply skipped — the keymap bridge still covers the no-button path)."""
         name = (key_show or "").replace("Key_", "")
-        if len(name) > 1 and name[0].upper() == "F" and name[1:].isdigit() and 1 <= int(name[1:]) <= 24:
+        if (
+            len(name) > 1
+            and name[0].upper() == "F"
+            and name[1:].isdigit()
+            and 1 <= int(name[1:]) <= 24
+        ):
             return 0x70 + int(name[1:]) - 1  # VK_F1..VK_F24
         if len(name) == 1:
             import ctypes
@@ -709,7 +772,9 @@ class _KeymapBridge:
                 # Key-up: complete/hide the gesture and release the mouse grab.
                 if self.phase == "release":
                     if _KeymapBridge.tcl is None:
-                        return {"CANCELLED"}  # inactive → consume nothing (symmetry with the press branch)
+                        return {
+                            "CANCELLED"
+                        }  # inactive → consume nothing (symmetry with the press branch)
                     try:
                         _KeymapBridge.drive_release()
                     except Exception as error:
@@ -723,13 +788,17 @@ class _KeymapBridge:
                 # (print goes to the hidden system console, never the Python Console panel).
                 if _KeymapBridge.tcl is None:
                     if _Config.DEBUG:
-                        self.report({"WARNING"}, "Tentacle: key fired but no live menu → render")
+                        self.report(
+                            {"WARNING"}, "Tentacle: key fired but no live menu → render"
+                        )
                     return {"CANCELLED"}
                 if _Config.DEBUG:
                     self.report({"INFO"}, "Tentacle: key fired → marking menu")
                 try:
                     _KeymapBridge.drive_press()
-                except Exception as error:  # surface in the status bar, never crash Blender
+                except (
+                    Exception
+                ) as error:  # surface in the status bar, never crash Blender
                     self.report({"ERROR"}, f"Tentacle: {error}")
                     if _Config.DEBUG:
                         print(f"tentacle: activation press failed → {error!r}")
@@ -763,7 +832,9 @@ class _KeymapBridge:
         Shared by the keymap operator (no-button path — GHOST never dispatches the key while a
         button is held) and the held-button key poller, which passes the physically-held button
         mask so the ``F12|LeftButton``-style chord bindings resolve."""
-        cls.gesture_active = True  # pair every press with a guaranteed release on physical key-up
+        cls.gesture_active = (
+            True  # pair every press with a guaranteed release on physical key-up
+        )
         # A button held at activation is a chord (the grab path). Record it so the poller pumps
         # MouseTracking during the gesture — GHOST doesn't deliver MouseMove to the grabbed Qt
         # overlay, so the menu's own event-driven hover tracking never fires (see install_poller).
@@ -851,7 +922,9 @@ class _KeymapBridge:
             return
         km = kc.keymaps.new(name="3D View", space_type="VIEW_3D")
         for value, phase in (("PRESS", "press"), ("RELEASE", "release")):
-            kmi = km.keymap_items.new("tentacle.show_marking_menu", type=key_type, value=value)
+            kmi = km.keymap_items.new(
+                "tentacle.show_marking_menu", type=key_type, value=value
+            )
             kmi.properties.phase = phase
             cls.keymaps.append((km, kmi))
 
@@ -914,7 +987,9 @@ class _KeymapBridge:
 
         def _poll():
             try:
-                if _NativeWindow.native_modal_loop_active():  # never act inside a native size/move loop
+                if (
+                    _NativeWindow.native_modal_loop_active()
+                ):  # never act inside a native size/move loop
                     return 0.02
                 # Pump the menu's hover tracking during a chord. GHOST owns the mouse and doesn't
                 # deliver MouseMove to the grabbed Qt overlay, so MouseTracking's event-driven
@@ -990,7 +1065,9 @@ class _KeymapBridge:
                     print(f"tentacle: key-watcher tick failed → {error!r}")
             return 0.02
 
-        bpy.app.timers.register(_poll, persistent=True)  # persistent: survive File ▸ New/Open
+        bpy.app.timers.register(
+            _poll, persistent=True
+        )  # persistent: survive File ▸ New/Open
         cls.poller = _poll
 
     @classmethod
@@ -1011,7 +1088,9 @@ class _KeymapBridge:
         """Remove the keymap items and unregister the bridge operator (for add-on unregister)."""
         import bpy
 
-        cls.tcl = None  # the next launch() builds a fresh instance (with a fresh keymap)
+        cls.tcl = (
+            None  # the next launch() builds a fresh instance (with a fresh keymap)
+        )
         cls.gesture_active = False
         cls.uninstall_poller()
         cls.uninstall_keymap()
@@ -1078,7 +1157,9 @@ class TclBlender(MarkingMenu):
             # blender#startmenu target resolves like any other page; a
             # host-synthesized target would simply be skipped.
             preload=True,
-            context_tags={"blender"},  # `requires` widget filtering (Phase-5 visibility)
+            context_tags={
+                "blender"
+            },  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
 
@@ -1099,7 +1180,9 @@ class TclBlender(MarkingMenu):
         # The poller covers what the keymap can't: GHOST eats the key while a mouse button
         # is held (see _KeymapBridge.install_poller).
         try:
-            _KeymapBridge.install_keymap(self, _KeymapBridge.qt_key_to_blender_type(key_show))
+            _KeymapBridge.install_keymap(
+                self, _KeymapBridge.qt_key_to_blender_type(key_show)
+            )
             _KeymapBridge.install_poller(self, key_show)
         except Exception as error:
             print(f"{__file__}: Blender keymap bridge skipped: {error}")
@@ -1127,7 +1210,7 @@ class TclBlender(MarkingMenu):
         try:
             from blendertk.env_utils import script_output
 
-            script_output.restore()
+            script_output.ScriptConsole.restore()
         except Exception as error:  # never let console restore block launch
             print(f"{__file__}: script_output restore skipped: {error}")
 
@@ -1158,7 +1241,9 @@ class TclBlender(MarkingMenu):
         is set explicitly via :meth:`_NativeWindow.set_owner`. Best-effort: a no-op off-Windows or
         before the GHOST handle is enumerable."""
         try:
-            native = _NativeWindow.blender_window()  # also caches app._blender_native_hwnd
+            native = (
+                _NativeWindow.blender_window()
+            )  # also caches app._blender_native_hwnd
             if native is None or widget is None:
                 return
             widget.winId()  # force native-window creation so windowHandle() exists
@@ -1167,7 +1252,9 @@ class TclBlender(MarkingMenu):
                 handle.setTransientParent(native)
             # Foreign transient parents don't set the OS owner — do it directly (Windows).
             app = QtWidgets.QApplication.instance()
-            _NativeWindow.set_owner(widget, getattr(app, "_blender_native_hwnd", 0) if app else 0)
+            _NativeWindow.set_owner(
+                widget, getattr(app, "_blender_native_hwnd", 0) if app else 0
+            )
         except Exception as error:
             # Best-effort z-order nicety; DEBUG-gated so a persistent failure can't spam the console
             # (this runs per tool-window open via _show_window, not just once at construction).
@@ -1188,7 +1275,11 @@ class TclBlender(MarkingMenu):
         # need to reveal their nav buttons. Without this the regions never appear and the chord
         # submenus "don't launch". Falls back to Qt off-Windows / when nothing is physically held.
         physical = _KeymapBridge.physical_mouse_buttons()
-        return physical if physical != QtCore.Qt.NoButton else super()._host_mouse_buttons()
+        return (
+            physical
+            if physical != QtCore.Qt.NoButton
+            else super()._host_mouse_buttons()
+        )
 
     def showEvent(self, event):
         # Re-assert the GHOST ownership on every show: construction can run before the native
@@ -1206,7 +1297,10 @@ class TclBlender(MarkingMenu):
         # non-existent ``self.key_undo``; it never fired because TclBlender was never launched.)
         if not event.isAutoRepeat():
             modifiers = QtWidgets.QApplication.instance().keyboardModifiers()
-            if event.key() == QtCore.Qt.Key_Z and modifiers == QtCore.Qt.ControlModifier:
+            if (
+                event.key() == QtCore.Qt.Key_Z
+                and modifiers == QtCore.Qt.ControlModifier
+            ):
                 try:
                     import bpy
 
@@ -1298,8 +1392,12 @@ class _ClickDebugger:
         # prior enable that was never disabled before a module reload — otherwise we
         # wrap an already-traced function (double logging) and disable() would restore
         # to the stale trace, leaving logging on after "off".
-        orig_call = getattr(SlotWrapper.__call__, "_slot_trace_orig", SlotWrapper.__call__)
-        orig_invoke = getattr(SlotWrapper._invoke, "_slot_trace_orig", SlotWrapper._invoke)
+        orig_call = getattr(
+            SlotWrapper.__call__, "_slot_trace_orig", SlotWrapper.__call__
+        )
+        orig_invoke = getattr(
+            SlotWrapper._invoke, "_slot_trace_orig", SlotWrapper._invoke
+        )
 
         def _name(self):
             try:
@@ -1313,7 +1411,9 @@ class _ClickDebugger:
                 ui = getattr(self.widget, "ui", None)
                 uin = ui.objectName() if ui is not None else "?"
                 deb = getattr(self.widget, "debounce", 0) or 0
-                cls._write(f"{time.time():.3f} SLOT_CALL widget={_name(self)} ui={uin} debounce={deb}")
+                cls._write(
+                    f"{time.time():.3f} SLOT_CALL widget={_name(self)} ui={uin} debounce={deb}"
+                )
             except Exception:
                 pass
             return orig_call(self, *args, **kwargs)
@@ -1323,7 +1423,9 @@ class _ClickDebugger:
             try:
                 return orig_invoke(self, *args, **kwargs)
             except BaseException as e:
-                cls._write(f"{time.time():.3f} SLOT_RAISED widget={_name(self)} err={e!r}")
+                cls._write(
+                    f"{time.time():.3f} SLOT_RAISED widget={_name(self)} err={e!r}"
+                )
                 raise
 
         traced_call._slot_trace_orig = orig_call
@@ -1360,7 +1462,11 @@ class _ClickDebugger:
             if name:
                 try:
                     app = QtWidgets.QApplication.instance()
-                    gpos = event.globalPosition().toPoint() if hasattr(event, "globalPosition") else event.globalPos()
+                    gpos = (
+                        event.globalPosition().toPoint()
+                        if hasattr(event, "globalPosition")
+                        else event.globalPos()
+                    )
                     at = QtWidgets.QApplication.widgetAt(gpos)
                     grab = QtWidgets.QWidget.mouseGrabber()
                     active = app.activeWindow() if app else None
@@ -1393,14 +1499,18 @@ class _ClickDebugger:
         :meth:`disable` removes it."""
         if cls._fh is None:
             cls._fh = open(cls.path, "a", buffering=1, encoding="utf-8")
-        cls._write(f"\n===== click-debug enabled pid={os.getpid()} t={time.time():.3f} =====")
+        cls._write(
+            f"\n===== click-debug enabled pid={os.getpid()} t={time.time():.3f} ====="
+        )
         app = _QtHost.ensure_qapp()
         if cls._filter is None:
             cls._filter = cls.Filter()
             app.installEventFilter(cls._filter)
         cls._install_slot_trace()  # also trace whether each click's slot actually runs
-        print(f"tentacle: click debugging ON\n  {cls.path}\n"
-              "Reproduce the multi-click, then disable_click_debug().")
+        print(
+            f"tentacle: click debugging ON\n  {cls.path}\n"
+            "Reproduce the multi-click, then disable_click_debug()."
+        )
         return cls.path
 
     @classmethod
@@ -1454,7 +1564,12 @@ class Diagnostics:
         # viewport is a real conflict the clean factory session can't show, so it must be checked too).
         # Dedup by name, not id(): ``active`` often aliases ``user``/``default`` but Blender hands back a
         # fresh Python wrapper each access (distinct id), so id()-dedup would double-list its rivals.
-        for kc in (wm.keyconfigs.addon, wm.keyconfigs.user, wm.keyconfigs.active, wm.keyconfigs.default):
+        for kc in (
+            wm.keyconfigs.addon,
+            wm.keyconfigs.user,
+            wm.keyconfigs.active,
+            wm.keyconfigs.default,
+        ):
             if kc is None or kc.name in seen:
                 continue
             seen.add(kc.name)
@@ -1462,26 +1577,35 @@ class Diagnostics:
             # focus — modified combos coexist and the global Screen render shortcut is evaluated after us.
             rivals += [
                 f"{kc.name}:{kmi.idname}"
-                for km in kc.keymaps if km.name == "3D View"
+                for km in kc.keymaps
+                if km.name == "3D View"
                 for kmi in km.keymap_items
-                if kmi.active and kmi.type in our_keys and _KeymapBridge._is_bare_press(kmi)
+                if kmi.active
+                and kmi.type in our_keys
+                and _KeymapBridge._is_bare_press(kmi)
                 and kmi.idname != "tentacle.show_marking_menu"
             ]
 
         if not (operator_ok and our_active):
-            verdict = ("PROBLEM: activation key not installed — call tcl_blender.register(). If you "
-                       "just did, a stale/duplicate tentacle is on sys.path — check 'module file' above.")
+            verdict = (
+                "PROBLEM: activation key not installed — call tcl_blender.register(). If you "
+                "just did, a stale/duplicate tentacle is on sys.path — check 'module file' above."
+            )
         elif _KeymapBridge.tcl is None:
             verdict = "PROBLEM: no live menu wired — call tcl_blender.register() (it runs launch())."
         elif rivals:
-            verdict = (f"CONFLICT: another 3D View binding {rivals} shares the key and may win — "
-                       "disable it, or set TENTACLE_KEY to a different key.")
+            verdict = (
+                f"CONFLICT: another 3D View binding {rivals} shares the key and may win — "
+                "disable it, or set TENTACLE_KEY to a different key."
+            )
         else:
             key = next(iter(our_keys), _Config.ACTIVATION_KEY)
-            verdict = (f"LIKELY WORKING: '{key}' is bound in the 3D View keymap. Hover the 3D viewport "
-                       "and press it. If render still opens, set tcl_blender._Config.DEBUG=True — each "
-                       "fire then shows 'Tentacle: key fired' in the status bar (print() output is in the "
-                       "hidden system console: Window > Toggle System Console).")
+            verdict = (
+                f"LIKELY WORKING: '{key}' is bound in the 3D View keymap. Hover the 3D viewport "
+                "and press it. If render still opens, set tcl_blender._Config.DEBUG=True — each "
+                "fire then shows 'Tentacle: key fired' in the status bar (print() output is in the "
+                "hidden system console: Window > Toggle System Console)."
+            )
 
         lines = [
             "=== tentacle Blender activation ===",
@@ -1518,7 +1642,9 @@ class BlenderHost:
         app = _QtHost.ensure_qapp()
         _QtHost.ensure_widget(app)
         _QtHost.start_pump(app)
-        if _KeymapBridge.tcl is not None:  # set by install_keymap during TclBlender.__init__
+        if (
+            _KeymapBridge.tcl is not None
+        ):  # set by install_keymap during TclBlender.__init__
             return _KeymapBridge.tcl
         return TclBlender(**kwargs)
 
@@ -1536,11 +1662,14 @@ class BlenderHost:
         report = Diagnostics.report(emit=False)
         if "PROBLEM" in report or "CONFLICT" in report:
             print(report)  # something's actually wrong — surface the full diagnostic
-            message = report.splitlines()[-1].split(": ", 1)[-1]  # verdict text, minus the "VERDICT :" label
+            message = report.splitlines()[-1].split(": ", 1)[
+                -1
+            ]  # verdict text, minus the "VERDICT :" label
             try:
                 bpy.context.window_manager.popup_menu(
                     lambda menu, _ctx: menu.layout.label(text=message[:200]),
-                    title="Tentacle activation", icon="ERROR",
+                    title="Tentacle activation",
+                    icon="ERROR",
                 )
             except Exception:
                 pass

@@ -103,9 +103,8 @@ class Normals(SlotsMaya):
             angle (int): polySoftEdge angle — 180 fully softens, 0 fully hardens.
         """
         selection = cmds.ls(sl=True) or []
-        # Map components to their respective objects. The dict key is a leaf
-        # name that can collide across the scene, so resolve the unambiguous
-        # object path from the path-qualified components instead.
+        # Group components per object; resolve long paths from the components
+        # for the soft-edge display update.
         components_dict = mtk.Components.map_components_to_objects(selection)
         for components in components_dict.values():
             cmds.polySoftEdge(components, angle=angle)

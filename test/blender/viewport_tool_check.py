@@ -20,7 +20,7 @@ implicitly. Checks, each from **Object Mode** (the state that reproduced it):
    tool is present in the live tool list (the lookup that emits the warning when it fails).
 3. **Curve tools** (Edit Curve / Add Points) do the same for EDIT_CURVE.
 4. **The selection fall-back** — a tool works when its object is selected but *not* active
-   (Maya's component tools act on the selection; ``btk.target_weld`` falls back the same way).
+   (Maya's component tools act on the selection; ``btk.TargetWeld.activate`` falls back the same way).
 5. **A friendly message**, not a Blender-internal error, when there is nothing of the type.
 6. **Mode-agnostic tools** (Measure) still work with no ``edit_type`` and do NOT force a mode.
 
@@ -32,6 +32,7 @@ The gate under test is still fully pinned: resolving the tool for the mode is th
 emits the warning, and it runs before ``setup()``. The active-tool id is additionally asserted
 outside ``--background``, so a GUI-hosted run pins the real activation too.
 """
+
 import sys
 import os
 import traceback
@@ -50,7 +51,9 @@ lines = []
 
 
 def check(name, cond, detail=""):
-    lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
+    lines.append(
+        f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}"
+    )
 
 
 def make_slot(cls):
@@ -91,7 +94,9 @@ def active_tool(context_mode):
     """idname of the workspace tool currently active for ``context_mode``, or ''."""
     import bpy
 
-    tool = bpy.context.workspace.tools.from_space_view3d_mode(context_mode, create=False)
+    tool = bpy.context.workspace.tools.from_space_view3d_mode(
+        context_mode, create=False
+    )
     return getattr(tool, "idname", "") or ""
 
 
@@ -126,7 +131,10 @@ def tool_landed(context_mode, tool_id):
     if not tool_available(context_mode, tool_id):
         return False, f"{tool_id} not found for space VIEW_3D in mode {context_mode}"
     if not bpy.app.background and active_tool(context_mode) != tool_id:
-        return False, f"active tool is {active_tool(context_mode)!r}, expected {tool_id!r}"
+        return (
+            False,
+            f"active tool is {active_tool(context_mode)!r}, expected {tool_id!r}",
+        )
     return True, ""
 
 
@@ -219,7 +227,9 @@ def main():
     slot.b012()
     check(
         "Multi-Cut with no mesh reports a friendly message",
-        slot.toasts and "mesh object" in slot.toasts[-1] and "not found for space" not in slot.toasts[-1],
+        slot.toasts
+        and "mesh object" in slot.toasts[-1]
+        and "not found for space" not in slot.toasts[-1],
         f"toasts={slot.toasts}",
     )
 

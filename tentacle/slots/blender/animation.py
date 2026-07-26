@@ -29,6 +29,8 @@ class Animation(SlotsBlender):
         Tangents tool stays omitted rather than shown as a dead entry. Reused objectNames carry
         the Maya label verbatim (cross-DCC QSettings rule)."""
         Btn = self.sb.registered_widgets.PushButton
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add("Separator", setTitle="Sequencing")
         widget.menu.add(
             "QPushButton", setText="Shot Manifest", setObjectName="b004",

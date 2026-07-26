@@ -16,7 +16,7 @@
 | ColorId | 0 | 0 | 0 | 1 | OK |
 | Curtain | 0 | 0 | 0 | 0 | OK |
 | CurveToTube | 0 | 0 | 0 | 0 | OK |
-| CutOnAxis | 0 | 0 | 0 | 0 | OK |
+| CutOnAxis | 0 | 4 | 0 | 0 | open |
 | DuplicateGrid | 0 | 0 | 0 | 0 | OK |
 | DuplicateLinear | 0 | 0 | 0 | 0 | OK |
 | DuplicateRadial | 0 | 0 | 0 | 0 | OK |
@@ -32,7 +32,7 @@
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
-| ReferenceManager | 0 | 0 | 15 | 1 | OK |
+| ReferenceManager | 0 | 0 | 11 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | SceneExporter | 0 | 0 | 0 | 0 | OK |
@@ -89,10 +89,6 @@
 **property deltas (review)**
   - `chk007.setText` maya=`'Locators Only'` blender=`'Empties Only'`
 
-#### ReferenceManager
-**property deltas (review)**
-  - `btn_save_scene.setText` maya=`'Save To Workspace'` blender=`'Save Scene…'`
-
 #### SmartBake
 **property deltas (review)**
   - `b000.class` maya=`'PushButton'` blender=`'QPushButton'`
@@ -138,8 +134,8 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | materials.py | 0 | 0 | 3 | 0 | 0 | OK |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
-| pivot.py | 0 | 0 | 7 | 0 | 0 | OK |
-| polygons.py | 0 | 0 | 3 | 0 | 0 | OK |
+| pivot.py | 0 | 1 | 7 | 0 | 0 | open |
+| polygons.py | 0 | 2 | 3 | 0 | 0 | open |
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 1 | 4 | 0 | 0 | open |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
@@ -150,7 +146,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 12 | 0 | 0 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 0 | 11 | 0 | 0 | OK |
+| uv.py | 0 | 4 | 11 | 0 | 0 | open |
 
 ### Slot deltas
 
@@ -208,7 +204,18 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
+- **CutOnAxis** `cmb001` — .ui widget ComboBox  [pending] Interpolation-mode combo (linear / ease_in / ease_out / weighted / smooth_step) added to Maya's Cut on Axis panel alongside the weighted-spacing fields: mtk.cut_on_axis now distributes the cut planes with non-linear spacing (weight_bias / weight_curve) instead of only even spacing, and toggle_weight_ui enables the weight fields per mode. Blender's cut_on_axis engine does even spacing only -- porting means adding the same spacing distribution to the btk engine plus the cmb001/s002/s003/s004 widgets to its .ui + slot. Needs a live-Blender check before building.
+- **CutOnAxis** `s002` — .ui widget DoubleSpinBox  [pending] Cut-plane Spacing field (pairs with cmb001's interpolation modes) -- part of the same weighted-spacing port tracked on cmb001.
+- **CutOnAxis** `s003` — .ui widget DoubleSpinBox  [pending] Weight Bias field for the 'weighted' interpolation mode (0..1) -- part of the same weighted-spacing port tracked on cmb001.
+- **CutOnAxis** `s004` — .ui widget DoubleSpinBox  [pending] Weight Curve field (non-linear distribution strength) -- part of the same weighted-spacing port tracked on cmb001.
 - **TelescopeRig** `cmb_axis` — .ui widget ComboBox  [pending] Aim Axis combo added to the Maya panel 2026-07-18 with the TelescopeRig engine overhaul (selects the segments' long axis: aim vectors + driven scale channel + off-axis lock set). The blendertk twin's engine still hardcodes its axis handling — port the aim_axis option to its engine, .ui, and slots.
+- **pivot** `cmb000` — optbox QComboBox None  [pending] Transfer-Pivot Mirror axis combo (None / X / Y / Z), 2026-07-25: Maya's tb002 gained mirror= (mtk.transfer_pivot reflects the transferred pivot across the world axis-plane through the origin — position negated, orientation conjugated — for a mirrored copy of the source). Portable to Blender at the *position* level: reflect the source origin (cursor.location) across the chosen world axis before ORIGIN_CURSOR snap. Blocked on Blender's tb002 currently being option-less (no option box builder) — adding this combo means introducing a tb002_init on the Blender slot; needs a live-Blender check before building (rotate/scale mirror stays N/A, single-point origin).
+- **polygons** `chk023` — optbox QCheckBox 'Uninstance'  [pending] Uninstance-before-Combine safety toggle (2026-07-25, default ON): Maya's tb004 Combine gained chk023 -> mtk.EditUtils.combine_objects(uninstance=), which breaks instance links first so combining doesn't silently delete sibling instances that share the shape but aren't in the selection. Blender's join (bpy.ops.object.join) merges the selected meshes into the active without deleting non-selected linked duplicates, so the sibling-loss hazard may not exist (cf. uv chk016 'instance dedupe is inherent in Blender') -- confirm before deciding na vs. a make_single_user pass. Needs a live-Blender check.
+- **polygons** `chk024` — optbox QCheckBox 'Uninstance'  [pending] Uninstance-before-Separate safety toggle (2026-07-25, default ON): Maya's tb002 Separate gained chk024 -> mtk.separate_objects(uninstance=), which breaks instance links first so separating instanced geometry doesn't silently delete siblings that share the shape. Blender's mesh.separate edits the active mesh datablock, which linked duplicates share, so a make_single_user pass is the likely analogue -- unlike Combine this one probably IS needed. Needs a live-Blender check before building.
 - **rendering** `chk060` — optbox QCheckBox 'Include Audio'  [pending] Include Audio (2026-07-18 overhaul): Maya muxes the timeline's active sound into MP4/MOV (ffmpeg) and passes it to the native AVI playblast. Blender candidate route: set scene.render.ffmpeg.audio_codec before bpy.ops.render.opengl so VSE/speaker audio muxes into the FFMPEG output — needs a live-Blender check before building.
+- **uv** `cmb014` — optbox QComboBox None  [pending] Transfer UVs Scope combo (Selection Order / Similar in Selection / Similar in Scene) -- open work tracked on HANDLERS['uv']['b000_init'] (port the option box + btk similarity fan-out together).
+- **uv** `cmb015` — optbox QComboBox None  [pending] Pack UVs Tile Coverage combo (Full / Half U / Half V / Quarter, 2026-07-25): Maya shrinks u3dLayout's fractional -packBox from the tile's bottom-left. Blender pack_islands has no target-box parameter -- portable as a post-pack bmesh UV scale about the tile corner ((u,v) *= coverage), same math the rizom bridge's pack.lua uses for its UV_AREA token. Port alongside the tile handling tb000 already does.
+- **uv** `d000` — optbox QDoubleSpinBox None  [pending] Transfer UVs similarity threshold (pairs with cmb014's Similar scopes) -- open work tracked on HANDLERS['uv']['b000_init'].
+- **uv** `b000_init` — [pending] Transfer UVs scope option box (2026-07-25): Maya's b000 gained cmb014 (Scope: Selection Order / Similar in Selection / Similar in Scene) + d000 (similarity threshold), backed by mtk.transfer_uvs_to_similar (fan one source out to duplicate meshes matched by bbox volume + vertex count; true instances skipped -- shared shape). Blender's b000 is a native Data-Transfer from the active mesh with no option box yet. Portable: linked duplicates (Alt+D) share the datablock like Maya instances (skip), real copies (Shift+D) are the candidates -- add the same scope combo + threshold, similarity-match in btk, reuse the existing data_transfer path. Needs a live-Blender check before building.
 
-## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 2 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.

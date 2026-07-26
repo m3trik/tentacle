@@ -127,6 +127,19 @@ class Pivot(SlotsMaya):
             setChecked=True,
             setToolTip="Whether to use world space for transformations.",
         )
+        cmb000 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip="Transfer a mirror of the pivot, reflected across the chosen "
+            "world axis-plane through the origin (for a mirrored copy of the source).",
+        )
+        for text, data in [
+            ("Mirror: None", ""),
+            ("Mirror: X", "x"),
+            ("Mirror: Y", "y"),
+            ("Mirror: Z", "z"),
+        ]:
+            cmb000.addItem(text, data)
 
     def tb002(self, widget):
         """Transfer Pivot"""
@@ -135,6 +148,7 @@ class Pivot(SlotsMaya):
         scale = widget.option_box.menu.chk007.isChecked()
         bake = widget.option_box.menu.chk008.isChecked()
         world_space = widget.option_box.menu.chk009.isChecked()
+        mirror = widget.option_box.menu.cmb000.currentData()
 
         mtk.transfer_pivot(
             cmds.ls(sl=True) or [],
@@ -143,6 +157,7 @@ class Pivot(SlotsMaya):
             scale=scale,
             bake=bake,
             world_space=world_space,
+            mirror=mirror,
             select_targets_after_transfer=True,
         )
 

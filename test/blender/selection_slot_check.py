@@ -257,6 +257,69 @@ try:
     check("b001 re-enables selectability from an empty selection (the reported bug)", on_ok,
           f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in slot.selected_objects()]}")
 
+    # -- tb004 Select-by-Type settings: _by_type_scope_objects pools per the scope combo.
+    #    Notably pins that the Selected scope reads via selected_objects() (view_layer),
+    #    not bpy.context.selected_objects, which is [] in the Qt event-pump state. --
+    class _ScopeMenu:
+        def __init__(self, scope, mode="replace"):
+            self.cmb_bytype_scope = NS(currentData=lambda: scope)
+            self.cmb_bytype_mode = NS(currentData=lambda: mode)
+
+    def set_scope(scope, mode="replace"):
+        # tb004's settings menu is the button's own MenuMixin menu now (no
+        # option box), so the scope/mode reads go through ``.menu``.
+        slot.submenu = NS(tb004=NS(menu=_ScopeMenu(scope, mode)))
+
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    c_sel = bpy.context.active_object
+    bpy.ops.mesh.primitive_cube_add(location=(3, 0, 0))
+    c_hidden = bpy.context.active_object
+    bpy.ops.mesh.primitive_cube_add(location=(6, 0, 0))
+    c_plain = bpy.context.active_object
+    c_hidden.hide_set(True)
+    bpy.ops.object.select_all(action="DESELECT")
+    c_sel.select_set(True)
+
+    set_scope("selected")
+    pool = slot._by_type_scope_objects()
+    check("tb004 Selected scope pools exactly the selection", pool == [c_sel],
+          f"{[o.name for o in pool]}")
+
+    set_scope("visible")
+    pool = set(slot._by_type_scope_objects())
+    check("tb004 Visible scope excludes the hidden object",
+          c_hidden not in pool and {c_sel, c_plain} <= pool, f"{[o.name for o in pool]}")
+
+    set_scope(None)  # unset combo → "all"
+    pool = set(slot._by_type_scope_objects())
+    check("tb004 All scope pools every object", pool == {c_sel, c_hidden, c_plain},
+          f"{[o.name for o in pool]}")
+
+    # -- tb004 mode: Add / Remove flow end-to-end through list000's real dispatch --
+    class _Leaf:
+        sublist = None
+
+        def objectName(self):  # a real leaf row is an unnamed list item
+            return ""
+
+        def item_text(self):
+            return "Polygon Meshes"
+
+    set_scope("all", mode="add")
+    slot.list000(_Leaf())  # c_sel already selected; adds the other cubes.
+    # Blender natively refuses selection on hidden objects (select_set doesn't
+    # stick on c_hidden), so Add grows to the 2 selectable matches, not 3.
+    n_after_add = len(slot.selected_objects())
+    check("tb004 Mode: Add grows the selection to every selectable match", n_after_add == 2,
+          f"got {n_after_add}")
+
+    set_scope("all", mode="remove")
+    slot.list000(_Leaf())
+    n_after_remove = len(slot.selected_objects())
+    check("tb004 Mode: Remove deselects the matches", n_after_remove == 0,
+          f"got {n_after_remove}")
+
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")
     lines.append(traceback.format_exc())

@@ -69,6 +69,12 @@ CONTROLS = {
         "chk_key_all": {"status": "na", "reason": "queues every loaded track to be keyed sequentially end-to-end -- exists only to work around Maya's single-slot Time Slider needing one composite; the VSE already plays any number of simultaneous strips, so there is no slot-contention problem this solves. Revisit as a genuine 'auto-lay-out clips end to end' convenience if ever requested -- would be portable (compose with move_clip/AudioUtils.list_clips), just out of this port's add/remove/trim/query/sync scope."},
         "spn_stagger": {"status": "na", "reason": "the extra-frames spacing knob for chk_key_all's queue -- no Blender counterpart for the same reason (see chk_key_all)."},
         "btn_cleanup_unused": {"status": "na", "reason": "deletes tracks that were registered (a file_map entry) but never keyed -- Maya's two-phase register-then-key workflow allows that unplaced state. A VSE strip is always both registered and placed the moment add_clip creates it, so there is no unused/unkeyed state to clean up."},
+        # cmb000/tb001 browse + carrier-select + sync actions folded from standalone option-box
+        # icons into their existing dropdown menus (2026-07-25). Maya keeps its 'Tracks'/carrier
+        # terminology; Blender uses VSE 'Clips'/Sequencer terms for the same behavior.
+        "btn_add_tracks": {"status": "renamed", "to": "btn_add_clips", "reason": "'Add Tracks…' browse row on the cmb000 'Tracks' menu; Blender's 'Add Clips…' folds the same audio-file picker into its 'Clips' menu (VSE strips are 'clips', not carrier-node tracks)."},
+        "btn_select_carrier": {"status": "renamed", "to": "btn_reveal_sequencer", "reason": "'Select Carrier Node' selects Maya's data_internal carrier in the viewport; the VSE analogue reveals/selects the strip in the Sequencer editor ('Reveal In Sequencer'). Same 'find the underlying object' action, folded into the tb001 menu on both sides."},
+        "btn_sync_audio": {"status": "renamed", "to": "btn_sync_range", "reason": "'Sync Audio to Timeline' rebuilds Maya's composite WAV/DG nodes from the track map; the VSE has no composite, so its sync ('Sync Scene Range') reconciles the scene frame range to the loaded clips. Both are the tb001 refresh/sync action folded from an icon into the menu."},
     },
     # mayatk file stem is anim_utils/smart_bake/smart_bake_slots.py. Ported 2026-07-04 -- see
     # blendertk/blendertk/anim_utils/smart_bake/_smart_bake.py + smart_bake_slots.py's module
@@ -102,35 +108,40 @@ CONTROLS = {
     },
     "reference_manager": {
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
-        "btn_unlink_import_all": {
-            "status": "renamed", "to": "btn_make_local_all",
-            "reason": "Blender 'make local'",
-        },
-        "btn_unreference_all": {"status": "renamed", "to": "btn_remove_all", "reason": "remove"},
+        # btn_unlink_import_all / btn_unreference_all: the Blender buttons were renamed to
+        # Maya's exact labels + objectNames (2026-07-20), so both header operations now match
+        # name-for-name and need no ledger entry.
+        # Context menu flattened 2026-07-25 to a 1:1 mirror of Maya's flat list (Open / Rename /
+        # Delete / Reference-Unreference / Unlink-and-Import / Open File Location). Both panels now
+        # carry these row_* / btn_* twins name-for-name; the Blender-only extras (Append / Reload /
+        # Relocate / Remove / per-ref Display submenu) were dropped for parity.
         "btn_unlink_import": {
-            "status": "replaced", "to": "row_make_local",
-            "reason": "row action -> 'Make Local' (make_library_local)",
+            "status": "renamed", "to": "row_unlink_import",
+            "reason": "context menu ('Unlink and Import' — make a linked ref local, OR import a foreign scene; folds in the old 'Import (convert)')",
         },
         "btn_toggle_reference": {
-            "status": "replaced", "to": "link icon + Link/Append",
-            "reason": "reference toggle -> link icon + 'Link'/'Append'",
+            "status": "renamed", "to": "row_toggle_reference",
+            "reason": "context menu ('Reference / Unreference' toggle)",
         },
+        "b000": {"status": "renamed", "to": "btn_set_dir", "reason": "root option box ('Set Directory…' — the directory browse folded from a standalone folder icon into the option menu)"},
         "b001": {"status": "renamed", "to": "btn_set_current_ws", "reason": "root option box"},
         "b006": {"status": "renamed", "to": "btn_open_dir", "reason": "root option box"},
         "btn_open_scene": {"status": "renamed", "to": "row_open", "reason": "context menu"},
         "btn_rename_scene": {"status": "renamed", "to": "row_rename", "reason": "context menu"},
         "btn_delete_scene": {"status": "renamed", "to": "row_delete", "reason": "context menu"},
         "btn_open_file_location": {"status": "renamed", "to": "row_location", "reason": "context menu"},
-        "chk_hide_binary": {
-            "status": "na",
-            "reason": ".mb is Maya-only; .blend1 backups already excluded by find_blend_files",
-        },
-        "chk000": {"status": "renamed", "to": "chk_recursive", "reason": "Recursive lives in the header menu"},
+        # Cross-DCC import (task 3): each panel lists the OTHER DCC's scenes and imports them via the
+        # existing headless converter (import_blender_scene / import_maya_scene). The separate
+        # 'Import (convert)' item (btn_import_scene / row_import) was removed 2026-07-25 and folded
+        # into 'Unlink and Import' on BOTH panels, so neither control exists any more — no entry.
+        # chk_hide_binary retired 2026-07-20: both panels now carry the same Include Types row
+        # (chk_include_ma / _mb / _fbx / _blend), so hiding .mb is just unchecking "mb" — the
+        # control exists on BOTH sides under identical objectNames and needs no ledger entry.
+        "chk000": {"status": "renamed", "to": "chk_recursive", "reason": "Recursive Search lives on the Root Directory option box (same control/placement/default as Maya)"},
         "chk003": {
             "status": "na",
             "reason": "ignore-empty-workspaces is moot; find_workspaces never returns empty dirs",
         },
-        "txt_subfolder_structure": {"status": "renamed", "to": "txt_subfolder", "reason": "shorter name"},
     },
     "channels_slots": {
         # add_action (txt000 filter ON/OFF toggle) ported 2026-07-03 — mirrors mayatk
@@ -353,6 +364,14 @@ CONTROLS = {
     # slot builds chk008 (identical .ui) and wires suffix=self.ui.chk008.isChecked() into
     # duplicate_radial(..., suffix=…) -> Naming.append_location_based_suffix. Fully built on
     # both sides (sweep sees no delta); the old "intentionally dropped" na was stale.
+    "cut_on_axis": {
+        # Weighted-spacing UI added to Maya's Cut on Axis panel 2026-07-25 (cmb001 + s002/s003/s004,
+        # driven by the new toggle_weight_ui handler; mirrors DuplicateLinearSlots' interpolation UI).
+        "cmb001": {"status": "pending", "reason": "Interpolation-mode combo (linear / ease_in / ease_out / weighted / smooth_step) added to Maya's Cut on Axis panel alongside the weighted-spacing fields: mtk.cut_on_axis now distributes the cut planes with non-linear spacing (weight_bias / weight_curve) instead of only even spacing, and toggle_weight_ui enables the weight fields per mode. Blender's cut_on_axis engine does even spacing only -- porting means adding the same spacing distribution to the btk engine plus the cmb001/s002/s003/s004 widgets to its .ui + slot. Needs a live-Blender check before building."},
+        "s002": {"status": "pending", "reason": "Cut-plane Spacing field (pairs with cmb001's interpolation modes) -- part of the same weighted-spacing port tracked on cmb001."},
+        "s003": {"status": "pending", "reason": "Weight Bias field for the 'weighted' interpolation mode (0..1) -- part of the same weighted-spacing port tracked on cmb001."},
+        "s004": {"status": "pending", "reason": "Weight Curve field (non-linear distribution strength) -- part of the same weighted-spacing port tracked on cmb001."},
+    },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
         # removed 2026-07-08 -- all three ship in Blender under the IDENTICAL objectName (verified
@@ -642,6 +661,7 @@ HANDLERS = {
     },
     "subdivision": {},
     "uv": {
+        "b000_init": {"status": "pending", "reason": "Transfer UVs scope option box (2026-07-25): Maya's b000 gained cmb014 (Scope: Selection Order / Similar in Selection / Similar in Scene) + d000 (similarity threshold), backed by mtk.transfer_uvs_to_similar (fan one source out to duplicate meshes matched by bbox volume + vertex count; true instances skipped -- shared shape). Blender's b000 is a native Data-Transfer from the active mesh with no option box yet. Portable: linked duplicates (Alt+D) share the datablock like Maya instances (skip), real copies (Shift+D) are the candidates -- add the same scope combo + threshold, similarity-match in btk, reuse the existing data_transfer path. Needs a live-Blender check before building."},
     },
 }
 
@@ -720,6 +740,7 @@ CONTROLS_SLOTS = {
         "chk007": {"status": "na", "reason": "Scale-pivot transfer has no Blender analogue — btk.transfer_pivot accepts scale= only for signature parity and no-ops (Blender has no separate scale pivot)."},
         "chk008": {"status": "na", "reason": "Transfer-Pivot Bake toggle bakes Maya pivot values into the transform node; Blender's option-less tb002 has no such per-transfer toggle (origins are always baked). The standalone Bake Pivot button (b004) is a real op now — origin_set(ORIGIN_CURSOR), baking the 3D-cursor pivot into the origin — but exposes no option box, so this Transfer-Pivot toggle has no Blender twin."},
         "chk009": {"status": "na", "reason": "World Space toggle is meaningless in Blender's transfer model — btk.transfer_pivot documents world_space as implicit (origin read via matrix_world; 3D-cursor snap is world-space by construction)."},
+        "cmb000": {"status": "pending", "reason": "Transfer-Pivot Mirror axis combo (None / X / Y / Z), 2026-07-25: Maya's tb002 gained mirror= (mtk.transfer_pivot reflects the transferred pivot across the world axis-plane through the origin — position negated, orientation conjugated — for a mirrored copy of the source). Portable to Blender at the *position* level: reflect the source origin (cursor.location) across the chosen world axis before ORIGIN_CURSOR snap. Blocked on Blender's tb002 currently being option-less (no option box builder) — adding this combo means introducing a tb002_init on the Blender slot; needs a live-Blender check before building (rotate/scale mirror stays N/A, single-point origin)."},
         # chk010: removed 2026-07-18 — BUILT. Blender's tb003_init now builds the Manip Pivot
         # option 1:1 with Maya's (same objectName/label/default), so it matches on both sides.
         # The behavioral mapping (manip-on → Global orientation, off → apply-rotation) lives in
@@ -729,6 +750,8 @@ CONTROLS_SLOTS = {
         "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
         "chk008": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet U-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
         "chk009": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet V-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
+        "chk023": {"status": "pending", "reason": "Uninstance-before-Combine safety toggle (2026-07-25, default ON): Maya's tb004 Combine gained chk023 -> mtk.EditUtils.combine_objects(uninstance=), which breaks instance links first so combining doesn't silently delete sibling instances that share the shape but aren't in the selection. Blender's join (bpy.ops.object.join) merges the selected meshes into the active without deleting non-selected linked duplicates, so the sibling-loss hazard may not exist (cf. uv chk016 'instance dedupe is inherent in Blender') -- confirm before deciding na vs. a make_single_user pass. Needs a live-Blender check."},
+        "chk024": {"status": "pending", "reason": "Uninstance-before-Separate safety toggle (2026-07-25, default ON): Maya's tb002 Separate gained chk024 -> mtk.separate_objects(uninstance=), which breaks instance links first so separating instanced geometry doesn't silently delete siblings that share the shape. Blender's mesh.separate edits the active mesh datablock, which linked duplicates share, so a make_single_user pass is the likely analogue -- unlike Combine this one probably IS needed. Needs a live-Blender check before building."},
     },
     "rendering": {
         "chk000": {"status": "na", "reason": "Arnold preview-network attach (mtk.ArnoldBridge / aiStandardSurface) is Arnold/Maya-only; Blender tb001 docstring documents the drop. Added to Maya 2026-06-21 (9cc22169), same commit as the Blender tb001 port."},
@@ -763,6 +786,9 @@ CONTROLS_SLOTS = {
         "s013": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search maximum (opt-in gate for the search); covered by pack_islands' boolean rotate model (chk_pack_rotate) which has no min/max range."},
         "s014": {"status": "na", "reason": "u3dLayout -mutations is an Unfold3D-engine optimization-pass count; pack_islands has no iteration parameter, and the module docstring documents u3dLayout packing params as deferred Maya-only depth with no Blender analogue."},
         "uv_editor": {"status": "renamed", "to": "b031", "reason": "Maya's header button is a convenience duplicate that just calls b031; Blender header_init documents 'Open UV Editor is already on b031' (shared uv#submenu.ui button, btk.open_editor) and drops the duplicate."},
+        "cmb014": {"status": "pending", "reason": "Transfer UVs Scope combo (Selection Order / Similar in Selection / Similar in Scene) -- open work tracked on HANDLERS['uv']['b000_init'] (port the option box + btk similarity fan-out together)."},
+        "d000": {"status": "pending", "reason": "Transfer UVs similarity threshold (pairs with cmb014's Similar scopes) -- open work tracked on HANDLERS['uv']['b000_init']."},
+        "cmb015": {"status": "pending", "reason": "Pack UVs Tile Coverage combo (Full / Half U / Half V / Quarter, 2026-07-25): Maya shrinks u3dLayout's fractional -packBox from the tile's bottom-left. Blender pack_islands has no target-box parameter -- portable as a post-pack bmesh UV scale about the tile corner ((u,v) *= coverage), same math the rizom bridge's pack.lua uses for its UV_AREA token. Port alongside the tile handling tb000 already does."},
     },
     "selection": {
         "chk003": {"status": "replaced", "to": "_ISLAND_DELIMIT model",

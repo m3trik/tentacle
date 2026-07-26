@@ -316,7 +316,7 @@ class Editors(SlotsMaya):
         """Script Output"""
         from mayatk.env_utils import script_output
 
-        script_output.toggle(
+        script_output.ScriptConsole.toggle(
             dock=("TimeSlider", "top"), tab_position="right", height=50
         )
 

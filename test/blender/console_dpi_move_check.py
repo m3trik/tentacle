@@ -28,6 +28,7 @@ PASS = no hang at any step + console re-glued after returning to the primary mon
 Output: test/temp_tests/console_dpi_move_out.json. Requires >=2 monitors (else N/A).
 Steals foreground + moves the window — throwaway instance only. Windows-only.
 """
+
 import sys
 import os
 import time
@@ -73,18 +74,28 @@ def _monitors():
     mons = []
 
     class MONITORINFO(ctypes.Structure):
-        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
-                    ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+        _fields_ = [
+            ("cbSize", wintypes.DWORD),
+            ("rcMonitor", wintypes.RECT),
+            ("rcWork", wintypes.RECT),
+            ("dwFlags", wintypes.DWORD),
+        ]
 
-    @ctypes.WINFUNCTYPE(wintypes.BOOL, ctypes.c_void_p, ctypes.c_void_p,
-                        ctypes.POINTER(wintypes.RECT), wintypes.LPARAM)
+    @ctypes.WINFUNCTYPE(
+        wintypes.BOOL,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(wintypes.RECT),
+        wintypes.LPARAM,
+    )
     def _enum(hmon, _hdc, _rect, _l):
         info = MONITORINFO()
         info.cbSize = ctypes.sizeof(MONITORINFO)
         if _u.GetMonitorInfoW(ctypes.c_void_p(hmon), ctypes.byref(info)):
             work = info.rcWork
-            mons.append((work.left, work.top, work.right, work.bottom,
-                         bool(info.dwFlags & 1)))  # MONITORINFOF_PRIMARY
+            mons.append(
+                (work.left, work.top, work.right, work.bottom, bool(info.dwFlags & 1))
+            )  # MONITORINFOF_PRIMARY
         return True
 
     _u.EnumDisplayMonitors(None, None, _enum, 0)
@@ -112,11 +123,17 @@ def _probe(hwnd, label):
     hung = bool(_u.IsHungAppWindow(handle))
     result = ctypes.c_size_t()
     _u.SendMessageTimeoutW.restype = ctypes.c_void_p
-    ok = bool(_u.SendMessageTimeoutW(handle, 0, 0, 0, SMTO_ABORTIFHUNG, 3000,
-                                     ctypes.byref(result)))
+    ok = bool(
+        _u.SendMessageTimeoutW(
+            handle, 0, 0, 0, SMTO_ABORTIFHUNG, 3000, ctypes.byref(result)
+        )
+    )
     entry = {
-        "step": label, "is_hung": hung, "wm_null_ok": ok,
-        "rect": _rect(hwnd), "dpi": _dpi_for_window(hwnd),
+        "step": label,
+        "is_hung": hung,
+        "wm_null_ok": ok,
+        "rect": _rect(hwnd),
+        "dpi": _dpi_for_window(hwnd),
         "gui_ticks": _ctx.get("ticks"),
     }
     R["steps"].append(entry)
@@ -130,12 +147,20 @@ def _sequence(hwnd, mon2, leg):
     the post-mortem matters more than cleanup on a wedged instance."""
     x2, y2 = mon2[0] + 60, mon2[1] + 60
     steps = (
-        ("moved_to_mon2", lambda: _u.SetWindowPos(
-            ctypes.c_void_p(int(hwnd)), None, x2, y2, 1200, 800, 0x0004 | 0x0010)),
+        (
+            "moved_to_mon2",
+            lambda: _u.SetWindowPos(
+                ctypes.c_void_p(int(hwnd)), None, x2, y2, 1200, 800, 0x0004 | 0x0010
+            ),
+        ),
         ("maximized_on_mon2", lambda: _u.ShowWindow(ctypes.c_void_p(int(hwnd)), 3)),
         ("restored_on_mon2", lambda: _u.ShowWindow(ctypes.c_void_p(int(hwnd)), 9)),
-        ("moved_back_primary", lambda: _u.SetWindowPos(
-            ctypes.c_void_p(int(hwnd)), None, 60, 60, 1200, 800, 0x0004 | 0x0010)),
+        (
+            "moved_back_primary",
+            lambda: _u.SetWindowPos(
+                ctypes.c_void_p(int(hwnd)), None, 60, 60, 1200, 800, 0x0004 | 0x0010
+            ),
+        ),
         ("maximized_on_primary", lambda: _u.ShowWindow(ctypes.c_void_p(int(hwnd)), 3)),
         ("restored_on_primary", lambda: _u.ShowWindow(ctypes.c_void_p(int(hwnd)), 9)),
     )
@@ -157,8 +182,11 @@ def _input_main():
 
         _probe(hwnd, "baseline")
         ok_a = _sequence(hwnd, mon2, "legA")
-        _ck("control: cross-monitor move + maximize with NO console survives", ok_a,
-            R.get("legA_hung_at", ""))
+        _ck(
+            "control: cross-monitor move + maximize with NO console survives",
+            ok_a,
+            R.get("legA_hung_at", ""),
+        )
         if not ok_a:
             _ctx["input_done"] = True
             return
@@ -173,8 +201,11 @@ def _input_main():
             return
 
         ok_b = _sequence(hwnd, mon2, "legB")
-        _ck("console docked: cross-monitor move + maximize survives (no hang)", ok_b,
-            f"hung_at={R.get('legB_hung_at')}")
+        _ck(
+            "console docked: cross-monitor move + maximize survives (no hang)",
+            ok_b,
+            f"hung_at={R.get('legB_hung_at')}",
+        )
         if ok_b:
             _ctx["req"] = "glue_check"
             deadline = time.time() + 10
@@ -203,7 +234,7 @@ def _gui_tick():
             shutil.rmtree(SANDBOX, ignore_errors=True)
             os.makedirs(SANDBOX, exist_ok=True)
             so.ScriptConsole._state_dir_override = SANDBOX
-            inst = so.show()
+            inst = so.ScriptConsole.show()
             dock = inst._dock
             if MODE in ("noglue", "noboth") and dock._draw_handle is not None:
                 dock._space_cls.draw_handler_remove(dock._draw_handle, "WINDOW")
@@ -214,8 +245,10 @@ def _gui_tick():
                 R["bisect"] = R.get("bisect", "") + " focus-follow-stopped"
 
             def _confirm():
-                _ck("console docked for leg B",
-                    inst.widget is not None and inst._dock.docked)
+                _ck(
+                    "console docked for leg B",
+                    inst.widget is not None and inst._dock.docked,
+                )
                 _write()
                 _ctx["console_ready"] = True
                 return None
@@ -244,17 +277,29 @@ def _gui_tick():
             _u.GetWindowRect(ctypes.c_void_p(child), ctypes.byref(rect))
             pt = wintypes.POINT(0, 0)
             _u.ClientToScreen(ctypes.c_void_p(_ctx["hwnd"]), ctypes.byref(pt))
-            actual = [rect.left - pt.x, rect.top - pt.y,
-                      rect.right - rect.left, rect.bottom - rect.top]
-            base = (BlenderWindow.region_client_rect(_ctx["hwnd"], region)
-                    if region else None)
+            actual = [
+                rect.left - pt.x,
+                rect.top - pt.y,
+                rect.right - rect.left,
+                rect.bottom - rect.top,
+            ]
+            base = (
+                BlenderWindow.region_client_rect(_ctx["hwnd"], region)
+                if region
+                else None
+            )
             pad = inst._dock._edge_pad
-            expected = ([base[0], base[1] + pad, base[2], base[3] - pad]
-                        if base else None)
-            delta = (max(abs(a - e) for a, e in zip(actual, expected))
-                     if expected else 9999)
-            _ck("console re-glued after the round trip (<=2px)", delta <= 2,
-                f"delta={delta} actual={actual} expected={expected}")
+            expected = (
+                [base[0], base[1] + pad, base[2], base[3] - pad] if base else None
+            )
+            delta = (
+                max(abs(a - e) for a, e in zip(actual, expected)) if expected else 9999
+            )
+            _ck(
+                "console re-glued after the round trip (<=2px)",
+                delta <= 2,
+                f"delta={delta} actual={actual} expected={expected}",
+            )
         except Exception:
             import traceback
 
@@ -293,8 +338,9 @@ def _go():
             _ck("GHOST window resolved", False)
             _finish()
             return None
-        _u.SetWindowPos(ctypes.c_void_p(int(hwnd)), None, 60, 60, 1200, 800,
-                        0x0004 | 0x0010)
+        _u.SetWindowPos(
+            ctypes.c_void_p(int(hwnd)), None, 60, 60, 1200, 800, 0x0004 | 0x0010
+        )
         _ctx.update(hwnd=int(hwnd), mon2=second)
         _write()
         threading.Thread(target=_input_main, daemon=True).start()
@@ -310,8 +356,9 @@ def _go():
 def _finish():
     import shutil
 
-    R["verdict"] = ("PASS" if R["checks"] and all(c["pass"] for c in R["checks"])
-                    else "FAIL")
+    R["verdict"] = (
+        "PASS" if R["checks"] and all(c["pass"] for c in R["checks"]) else "FAIL"
+    )
     _write()
     shutil.rmtree(SANDBOX, ignore_errors=True)
     print("console_dpi_move verdict:", R["verdict"])

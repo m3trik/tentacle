@@ -8,9 +8,10 @@ from mayatk.core_utils.script_job_manager import ScriptJobManager
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle.slots.preferences_theme_mixin import PreferencesThemeMixin
 
 
-class Preferences(SlotsMaya):
+class Preferences(PreferencesThemeMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

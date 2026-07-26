@@ -3,7 +3,7 @@
 import os
 
 import blendertk as btk
-from uitk import Signals, RecentValuesStore
+from uitk import Signals, RecentValuesStore, IconManager
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
@@ -21,9 +21,10 @@ class Main(SlotsBlender):
     its flyout nests ``Auto Set Workspace`` (resolve from the open file and pin it) and a
     ``Recent Workspaces`` sub-flyout (persisted, jump back in one click). ``Edit
     Workspace`` opens the blendertk panel that creates a workspace / customizes its file
-    rules (Maya's row opens the native Project Window). Under a ``Current Workspace``
-    separator the workspace name browses the directory tree: sub-folders (expandable), each
-    opening in the system browser on click — folders only, like Maya's tree.
+    rules (Maya's row opens the native Project Window). The workspace-name row then browses
+    the directory tree: sub-folders (expandable), each opening in the system browser on
+    click — folders only, like Maya's tree. The dir-browser rows carry a folder icon that
+    sets them apart from the action rows above.
     """
 
     def __init__(self, switchboard):
@@ -35,10 +36,11 @@ class Main(SlotsBlender):
 
         Root rows mirror Maya's: ``Set Workspace`` (click prompts for the project dir and
         pins it; its flyout nests ``Auto Set Workspace`` and a ``Recent Workspaces``
-        sub-flyout), ``Edit Workspace`` (create / customize a workspace's file rules), and
-        a ``Current Workspace`` separator with the workspace-name row below it (the row
-        opens the workspace root; its flyout browses the dir tree). Rebuilt on every show
-        (``refresh_on_show``) so the dir tree and recent list stay current.
+        sub-flyout), ``Edit Workspace`` (create / customize a workspace's file rules), then
+        the workspace-name row (the row opens the workspace root; its flyout browses the dir
+        tree). The dir-browser rows carry a folder icon that sets them apart from the action
+        rows above. Rebuilt on every show (``refresh_on_show``) so the dir tree and recent
+        list stay current.
         """
         widget.clear()
         if not widget.is_initialized:
@@ -86,15 +88,15 @@ class Main(SlotsBlender):
         widget.add("Edit Workspace", data="__editor__")
 
         # --- the current workspace dir browser ---
-        # A titled separator, then the workspace name on its own row (browses the tree) —
-        # rather than a "Current Workspace: <name>" prefix on the row itself.
+        # The workspace name on its own row (browses the tree). A folder icon
+        # on this row and every nested dir marks them as directories, setting
+        # the browser apart from the action rows above (no "Current Workspace"
+        # separator — the icon is the differentiator now).
         workspace = btk.get_env_info("workspace")
         workspace_dir = btk.get_env_info("workspace_dir")
         if workspace and os.path.isdir(workspace):
-            from uitk.widgets.separator import Separator
-
-            widget.add(Separator(title="Current Workspace"))
             w = widget.add(workspace_dir, data=workspace)
+            IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_contents(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)
@@ -105,7 +107,8 @@ class Main(SlotsBlender):
         system browser."""
         try:
             dirs = sorted(
-                e for e in os.listdir(path)
+                e
+                for e in os.listdir(path)
                 if not e.startswith(".") and os.path.isdir(os.path.join(path, e))
             )
         except OSError:
@@ -114,6 +117,7 @@ class Main(SlotsBlender):
         for name in dirs:
             full = os.path.join(path, name)
             item = sublist.add(name, data=full)
+            IconManager.set_label_icon(item, "folder_filled")
             if max_depth > 1:
                 self._populate_dir_contents(item.sublist, full, max_depth - 1)
 

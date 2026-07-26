@@ -91,5 +91,10 @@ class TestAssignListUndoableConvention(unittest.TestCase):
                 self.assertIn(["btk", "undoable"], decorators)
 
 
+# The inline rename affix field is the shared MaterialsRenameAffixMixin; its
+# runtime logic and the both-DCC mix-in / _rename_current-returns-a-value parity
+# checks live in test_materials_rename_affix_mixin.py.
+
+
 if __name__ == "__main__":
     unittest.main()

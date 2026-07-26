@@ -22,6 +22,8 @@ class Edit(SlotsMaya):
 
     def header_init(self, widget):
         """Initialize header menu"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Channels",
@@ -516,12 +518,14 @@ class Edit(SlotsMaya):
                 # built-in dialog-suppression hook — and skips the prompt when it is set. Toggle
                 # it around the call (via MEL putenv so MEL's own getenv sees it) and restore the
                 # prior value, so the optimize runs silently as one step of Delete History.
-                mel.eval(
-                    'string $c = `getenv "MAYA_TESTING_CLEANUP"`; '
-                    'putenv "MAYA_TESTING_CLEANUP" "1"; '
-                    "catch(`OptimizeScene`); "
-                    'putenv "MAYA_TESTING_CLEANUP" $c;'
-                )
+                prior = mel.eval('getenv "MAYA_TESTING_CLEANUP"')
+                mel.eval('putenv "MAYA_TESTING_CLEANUP" "1"')
+                try:
+                    mel.eval("OptimizeScene")
+                except RuntimeError as error:
+                    print(f"Optimize Scene failed: {error}")
+                finally:
+                    mel.eval(f'putenv "MAYA_TESTING_CLEANUP" "{prior}"')
         finally:
             cmds.refresh(suspend=False)
             cmds.refresh(force=True)

@@ -12,6 +12,8 @@ class Duplicate(SlotsMaya):
 
     def header_init(self, widget):
         """ """
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Mirror",
@@ -202,10 +204,10 @@ class Duplicate(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Freeze Transforms",
+            setText="Freeze Translate",
             setObjectName="chk000",
             setChecked=False,
-            setToolTip="Freeze transforms on the object(s) before instancing.",
+            setToolTip="Freeze (zero) the translation values before instancing.\nRotation and scale are intentionally left unfrozen so each instance\ncan keep its own orientation and size relative to the shared shape.",
         )
         widget.option_box.menu.add(
             "QCheckBox",

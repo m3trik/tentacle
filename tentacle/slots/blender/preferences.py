@@ -6,9 +6,10 @@ import sys
 import bpy
 import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle.slots.preferences_theme_mixin import PreferencesThemeMixin
 
 
-class Preferences(SlotsBlender):
+class Preferences(PreferencesThemeMixin, SlotsBlender):
     """Blender port of the shared ``preferences`` menu.
 
     Working units (length) and frame rate map onto ``scene.unit_settings`` / ``scene.render.fps``;

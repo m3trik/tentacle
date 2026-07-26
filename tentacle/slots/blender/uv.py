@@ -15,8 +15,9 @@ class Uv(SlotsBlender):
     work headless). Data-level UV work (pin/stack/texel density/UV-set cleanup) is backed by
     ``blendertk.uv_utils`` (bmesh — headless); move/transform/mirror/straighten/distribute live in
     the blendertk ``shell_xform`` panel (launched via b033); UV transfer rides the native
-    Data-Transfer operator; RizomUV is a one-way bridge. The deferred Maya-only depth is in the
-    parity overrides (RizomUV/u3dLayout packing params + the unwrap_cylinder crease algorithm).
+    Data-Transfer operator; RizomUV rides the blendertk bridge panel (round-trip presets + one-way
+    send). The deferred Maya-only depth is in the parity overrides (u3dLayout packing params + the
+    unwrap_cylinder crease algorithm).
     """
 
     def __init__(self, switchboard):
@@ -104,7 +105,7 @@ class Uv(SlotsBlender):
         return tuple(parts)
 
     # ------------------------------------------------------------------ UV operators (edit mode)
-    # Option-box names are Blender-specific (Maya's UV option boxes carry RizomUV-style packing
+    # Option-box names are Blender-specific (Maya's UV option boxes carry u3dLayout packing
     # params with no Blender analogue): they expose the native operator's own parameters.
     def tb000_init(self, widget):
         m = widget.option_box.menu
@@ -428,6 +429,8 @@ class Uv(SlotsBlender):
         """Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
         cross-DCC QSettings rule). Open UV Editor is already on ``b031``; Shell Xform is the
         ``More..`` button in the Transform group (``b033``)."""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton", setText="Create UV Snapshot", setObjectName="uv_snapshot",
             setToolTip="Export the active mesh's UV layout to an image (native Export UV Layout) "
@@ -435,8 +438,7 @@ class Uv(SlotsBlender):
         )
         widget.menu.add(
             "QPushButton", setText="RizomUV Bridge", setObjectName="btn_rizom_bridge",
-            setToolTip="Export the selected meshes and open them in a fresh RizomUV session "
-            "(one-way send via a Lua load-script).",
+            setToolTip="Round-trip selected meshes through RizomUV using a Lua preset.",
             clicked=lambda: self.b032(),
         )
 
@@ -595,8 +597,8 @@ class Uv(SlotsBlender):
 
     # ------------------------------------------------------------------ deferred (Maya / UV-editor)
     def b032(self):
-        """RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
-        Lua load-script). Mirrors Maya's b032 → ``marking_menu.show("rizom_bridge")``."""
+        """RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).
+        Mirrors Maya's b032 → ``marking_menu.show("rizom_bridge")``."""
         self.sb.handlers.marking_menu.show("rizom_bridge")
 
     def b033(self):

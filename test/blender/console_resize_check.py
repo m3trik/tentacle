@@ -63,6 +63,7 @@ Run against a *fresh* GUI Blender (never an existing session)::
 Output: ``test/temp_tests/console_resize_out.json``. Steals foreground + moves the real
 mouse — throwaway instance only. Windows-only.
 """
+
 import sys
 import os
 import time
@@ -74,7 +75,9 @@ from pathlib import Path
 
 import bpy
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # Blender --python doesn't
+sys.path.insert(
+    0, os.path.dirname(os.path.abspath(__file__))
+)  # Blender --python doesn't
 import _input  # noqa: E402  (shared Win32 helpers for these harnesses)
 
 MONO = Path(__file__).resolve().parents[3]
@@ -203,7 +206,9 @@ def _drag_edge(hwnd, edge, step, leg):
             x, y, dx, dy = right - 4, (top + bottom) // 2, abs(step), 0
         tid = _u.GetWindowThreadProcessId(ctypes.c_void_p(int(hwnd)), None)
         loop_seen = False
-        for attempt in range(2):  # a first grab can flake right after a foreground change
+        for attempt in range(
+            2
+        ):  # a first grab can flake right after a foreground change
             _u.SetCursorPos(x, y)
             time.sleep(0.3)
             _u.mouse_event(_input.BTN["L"][0], 0, 0, 0, 0)
@@ -269,7 +274,9 @@ def _drag_splitter(hwnd, cx, border_y, console_cy, leg, dwell=True):
         _u.SetCursorPos(cx, border_y)
         time.sleep(0.15)
         R[leg + "_window_at_border"] = _window_at(cx, border_y)
-        R[leg + "_focus_at_press"] = _gui_focus(tid)  # did the poll flip it back already?
+        R[leg + "_focus_at_press"] = _gui_focus(
+            tid
+        )  # did the poll flip it back already?
         _u.mouse_event(_input.BTN["L"][0], 0, 0, 0, 0)
         time.sleep(0.15)
         R[leg + "_capture_at_press"] = _gui_capture(tid)
@@ -402,7 +409,7 @@ def _go():
         shutil.rmtree(SANDBOX, ignore_errors=True)
         os.makedirs(SANDBOX, exist_ok=True)
         so.ScriptConsole._state_dir_override = SANDBOX
-        so.begin_capture()  # production order — also gives the console a real transcript
+        so.ScriptConsole.begin_capture()  # production order — also gives the console a real transcript
         for i in range(200):  # realistic document for the re-layout cost during resize
             print(f"console_resize_check filler line {i}: " + "x" * 60)
 
@@ -425,12 +432,16 @@ def _go():
             _u.ShowWindow(ctypes.c_void_p(_ctx["hwnd"]), _input.SW_RESTORE)
         sw, sh = _u.GetSystemMetrics(0), _u.GetSystemMetrics(1)
         w, h = min(1200, sw - 200), min(800, sh - 200)
-        _u.SetWindowPos(ctypes.c_void_p(_ctx["hwnd"]), None, 60, 60, w, h,
-                        0x0004 | 0x0010)  # SWP_NOZORDER | SWP_NOACTIVATE
+        _u.SetWindowPos(
+            ctypes.c_void_p(_ctx["hwnd"]), None, 60, 60, w, h, 0x0004 | 0x0010
+        )  # SWP_NOZORDER | SWP_NOACTIVATE
         rect = _rect(_ctx["hwnd"])
         R["normalized_rect"] = rect
-        _ck("window normalized to an on-screen rect (borders grabbable)",
-            rect[2] <= sw and rect[3] <= sh, f"rect={rect} screen=({sw},{sh})")
+        _ck(
+            "window normalized to an on-screen rect (borders grabbable)",
+            rect[2] <= sw and rect[3] <= sh,
+            f"rect={rect} screen=({sw},{sh})",
+        )
 
         _start_liveness()
         _write_json()
@@ -451,32 +462,46 @@ def _go():
 
 def _after_leg_a():
     _leg_report("legA")
-    _ck("control: the drag actually entered the native modal size loop",
-        R.get("legA_loop_seen") is True)
-    _ck("control: bottom-border resize with NO console completes (modal loop exits)",
-        _ctx.get("legA_wedged") is False)
-    _ck("control: window height actually changed", _resized("legA", "height"),
-        f"before={_ctx.get('legA_rect_before')} after={_ctx.get('legA_rect_after')}")
+    _ck(
+        "control: the drag actually entered the native modal size loop",
+        R.get("legA_loop_seen") is True,
+    )
+    _ck(
+        "control: bottom-border resize with NO console completes (modal loop exits)",
+        _ctx.get("legA_wedged") is False,
+    )
+    _ck(
+        "control: window height actually changed",
+        _resized("legA", "height"),
+        f"before={_ctx.get('legA_rect_before')} after={_ctx.get('legA_rect_after')}",
+    )
     _write_json()
 
     # --- dock the console, instrument the in-loop actors -----------------------------
     from blendertk.env_utils import script_output as so
     from blendertk.ui_utils.blender_window import BlenderWindow
 
-    inst = so.show()
-    _ck("console docked for the resize legs", inst.widget is not None and inst._dock.docked)
+    inst = so.ScriptConsole.show()
+    _ck(
+        "console docked for the resize legs",
+        inst.widget is not None and inst._dock.docked,
+    )
 
     dock = inst._dock
     orig_position = dock._position
+
     def _counting_position(region, _orig=orig_position):
         _ctx["position_calls"] = _ctx.get("position_calls", 0) + 1
         return _orig(region)
+
     dock._position = _counting_position
 
     orig_focus = BlenderWindow.set_keyboard_focus
+
     def _counting_focus(hwnd, _orig=orig_focus):
         _ctx["focus_sets"] = _ctx.get("focus_sets", 0) + 1
         return _orig(hwnd)
+
     BlenderWindow.set_keyboard_focus = staticmethod(_counting_focus)
 
     if MODE in ("noglue", "noboth") and dock._draw_handle is not None:
@@ -497,15 +522,25 @@ def _after_leg_a():
 
 def _after_leg_b():
     _leg_report("legB")
-    _ck("console docked: the drag actually entered the native modal size loop",
-        R.get("legB_loop_seen") is True)
-    _ck("console docked: bottom-border resize completes (modal loop exits, no wedge)",
+    _ck(
+        "console docked: the drag actually entered the native modal size loop",
+        R.get("legB_loop_seen") is True,
+    )
+    _ck(
+        "console docked: bottom-border resize completes (modal loop exits, no wedge)",
         _ctx.get("legB_wedged") is False,
-        f"esc_recovered={R.get('legB_esc_recovered')}")
-    _ck("console docked: window height actually changed", _resized("legB", "height"),
-        f"before={_ctx.get('legB_rect_before')} after={_ctx.get('legB_rect_after')}")
-    _ck("bpy timers kept ticking through the docked resize (no stall > 2s)",
-        _ctx["max_gap"] < 2.0, f"max_gap={_ctx['max_gap']:.3f}s")
+        f"esc_recovered={R.get('legB_esc_recovered')}",
+    )
+    _ck(
+        "console docked: window height actually changed",
+        _resized("legB", "height"),
+        f"before={_ctx.get('legB_rect_before')} after={_ctx.get('legB_rect_after')}",
+    )
+    _ck(
+        "bpy timers kept ticking through the docked resize (no stall > 2s)",
+        _ctx["max_gap"] < 2.0,
+        f"max_gap={_ctx['max_gap']:.3f}s",
+    )
     _write_json()
 
     # --- Leg C: width change → full document re-layout in the embedded child --------
@@ -518,13 +553,20 @@ def _after_leg_b():
 
 def _after_leg_c():
     _leg_report("legC")
-    _ck("console docked: the drag actually entered the native modal size loop",
-        R.get("legC_loop_seen") is True)
-    _ck("console docked: right-border resize completes (modal loop exits, no wedge)",
+    _ck(
+        "console docked: the drag actually entered the native modal size loop",
+        R.get("legC_loop_seen") is True,
+    )
+    _ck(
+        "console docked: right-border resize completes (modal loop exits, no wedge)",
         _ctx.get("legC_wedged") is False,
-        f"esc_recovered={R.get('legC_esc_recovered')}")
-    _ck("console docked: window width actually changed", _resized("legC", "width"),
-        f"before={_ctx.get('legC_rect_before')} after={_ctx.get('legC_rect_after')}")
+        f"esc_recovered={R.get('legC_esc_recovered')}",
+    )
+    _ck(
+        "console docked: window width actually changed",
+        _resized("legC", "width"),
+        f"before={_ctx.get('legC_rect_before')} after={_ctx.get('legC_rect_after')}",
+    )
 
     _glue_check("after the window-border drags")
     _write_json()
@@ -532,13 +574,15 @@ def _after_leg_c():
     # --- Legs D0/D: area-splitter drag (Blender modal op — the UNGATED resize path).
     # D0 = control, no prior hover; D = hover the console first (focus-follow hands the
     # child the keys — what always precedes a real user's grab of the console border).
-    _start_splitter_leg("legD0", dwell=False,
-                        next_cb=lambda: _after_splitter_leg("legD0", _start_leg_d))
+    _start_splitter_leg(
+        "legD0", dwell=False, next_cb=lambda: _after_splitter_leg("legD0", _start_leg_d)
+    )
 
 
 def _start_leg_d():
-    _start_splitter_leg("legD", dwell=True,
-                        next_cb=lambda: _after_splitter_leg("legD", _start_leg_f))
+    _start_splitter_leg(
+        "legD", dwell=True, next_cb=lambda: _after_splitter_leg("legD", _start_leg_f)
+    )
 
 
 def _start_leg_f():
@@ -562,8 +606,11 @@ def _start_leg_f():
                 res = bpy.ops.screen.area_move(x=ex, y=ey, delta=delta)
             results[str(delta)] = (str(res), int(area.height))
         R["legF"] = {"h0": h0, "results": results}
-        _ck("programmatic screen.area_move moves the console strip's edge",
-            any(h != h0 for _res, h in results.values()), str(R["legF"]))
+        _ck(
+            "programmatic screen.area_move moves the console strip's edge",
+            any(h != h0 for _res, h in results.values()),
+            str(R["legF"]),
+        )
 
         # Control: the same programmatic move on a NATIVE edge (outliner/properties) —
         # discriminates "area_move exec is quirky" from "the docked strip's edge is dead".
@@ -575,17 +622,25 @@ def _start_leg_f():
             with bpy.context.temp_override(window=win, screen=win.screen, area=lower):
                 res = bpy.ops.screen.area_move(x=edge_cx, y=ey, delta=30)
             R["legF2"] = {
-                "pair": f"{upper.type} over {lower.type}", "h0": lh0,
-                "res": str(res), "h1": int(lower.height),
+                "pair": f"{upper.type} over {lower.type}",
+                "h0": lh0,
+                "res": str(res),
+                "h1": int(lower.height),
             }
-            _ck("programmatic screen.area_move moves a NATIVE edge (control)",
-                int(lower.height) != lh0, str(R["legF2"]))
+            _ck(
+                "programmatic screen.area_move moves a NATIVE edge (control)",
+                int(lower.height) != lh0,
+                str(R["legF2"]),
+            )
     except Exception:
         import traceback
 
         R["legF_error"] = traceback.format_exc()
-        _ck("programmatic screen.area_move moves the console strip's edge", False,
-            "raised — see legF_error")
+        _ck(
+            "programmatic screen.area_move moves the console strip's edge",
+            False,
+            "raised — see legF_error",
+        )
     _write_json()
     _start_leg_g()
 
@@ -603,8 +658,9 @@ def _horizontal_edge_pair(win, exclude_ptr):
             # Adjacent areas are separated by the ~3px border band itself.
             if 0 <= int(upper.y) - (int(lower.y) + int(lower.height)) <= 6:
                 x0 = max(int(upper.x), int(lower.x))
-                x1 = min(int(upper.x) + int(upper.width),
-                         int(lower.x) + int(lower.width))
+                x1 = min(
+                    int(upper.x) + int(upper.width), int(lower.x) + int(lower.width)
+                )
                 if x1 - x0 > 60:
                     return upper, lower, (x0 + x1) // 2
     return None
@@ -656,12 +712,17 @@ def _after_edge_drag(leg, area_getter, label, next_cb):
         h = -1
     moved = abs(h - _ctx.get(leg + "_h_before", 0))
     hung = R.get(leg + "_hung", {})
-    _ck(f"{label}: Blender is not hung after the drag",
-        hung.get("is_hung") is False and hung.get("wm_null_ok") is True, str(hung))
-    _ck(f"{label}: the edge TRACKED the real drag (net ~48px)",
+    _ck(
+        f"{label}: Blender is not hung after the drag",
+        hung.get("is_hung") is False and hung.get("wm_null_ok") is True,
+        str(hung),
+    )
+    _ck(
+        f"{label}: the edge TRACKED the real drag (net ~48px)",
         20 <= moved <= 80,
         f"h {_ctx.get(leg + '_h_before')} -> {h}; "
-        f"heights_during={R.get(leg + '_heights_during')}")
+        f"heights_during={R.get(leg + '_heights_during')}",
+    )
     _write_json()
     next_cb()
 
@@ -679,8 +740,11 @@ def _start_leg_g():
         console_ptr = 0
     pair = _horizontal_edge_pair(win, console_ptr)
     if pair is None:
-        _ck("an unrelated horizontal area edge exists to control-drag", False,
-            str(R.get("areas_layout")))
+        _ck(
+            "an unrelated horizontal area edge exists to control-drag",
+            False,
+            str(R.get("areas_layout")),
+        )
         _write_json()
         _start_leg_h()
         return
@@ -695,10 +759,12 @@ def _start_leg_g():
         return None
 
     _start_edge_drag(
-        "legG", _getter, edge_cx,
+        "legG",
+        _getter,
+        edge_cx,
         lambda: _after_edge_drag(
-            "legG", _getter,
-            f"unrelated edge ({R['legG_pair']})", _start_leg_h),
+            "legG", _getter, f"unrelated edge ({R['legG_pair']})", _start_leg_h
+        ),
     )
 
 
@@ -708,7 +774,7 @@ def _start_leg_h():
     import blendertk as btk
     from blendertk.env_utils import script_output as so
 
-    so.hide()
+    so.ScriptConsole.hide()
     win = bpy.context.window_manager.windows[0]
     bare = btk.dock_editor("Info Log", edge_size=150, window=win)
     if bare is None:
@@ -726,9 +792,12 @@ def _start_leg_h():
         return None
 
     _start_edge_drag(
-        "legH", _getter, int(bare.x) + int(bare.width) // 2,
+        "legH",
+        _getter,
+        int(bare.x) + int(bare.width) // 2,
         lambda: _after_edge_drag(
-            "legH", _getter, "bare docked strip (no Qt child)", _close_bare_then_e),
+            "legH", _getter, "bare docked strip (no Qt child)", _close_bare_then_e
+        ),
     )
 
 
@@ -740,12 +809,14 @@ def _close_bare_then_e():
         btk.close_area(_ctx["legH_win"], _ctx["legH_area"])
     except Exception:
         pass
-    inst = so.show()  # console back for the maximize/restore leg
+    inst = so.ScriptConsole.show()  # console back for the maximize/restore leg
 
     def _redock_check():  # deferred: a re-typed area rebuilds its regions on next draw
-        _ck("console re-docked after the bare-strip control leg (hide -> show cycle)",
+        _ck(
+            "console re-docked after the bare-strip control leg (hide -> show cycle)",
             inst.widget is not None and inst._dock.docked,
-            f"widget={inst.widget is not None} docked={inst._dock.docked}")
+            f"widget={inst.widget is not None} docked={inst._dock.docked}",
+        )
         _write_json()
         _start_leg_e()
         return None
@@ -814,16 +885,24 @@ def _after_splitter_leg(leg, next_cb):
     grew = area_h - _ctx.get(leg + "_area_h_before", 0)
     hung = R.get(leg + "_hung", {})
     label = "no prior hover" if leg == "legD0" else "console hovered first"
-    _ck(f"splitter drag ({label}): Blender is not hung afterward",
-        hung.get("is_hung") is False and hung.get("wm_null_ok") is True, str(hung))
-    _ck(f"splitter drag ({label}): the console strip's border TRACKED the drag (net +48px)",
+    _ck(
+        f"splitter drag ({label}): Blender is not hung afterward",
+        hung.get("is_hung") is False and hung.get("wm_null_ok") is True,
+        str(hung),
+    )
+    _ck(
+        f"splitter drag ({label}): the console strip's border TRACKED the drag (net +48px)",
         20 <= grew <= 80,
         f"height {_ctx.get(leg + '_area_h_before')} -> {area_h} (net {grew}); "
         f"heights_during={R.get(leg + '_heights_during')} "
         f"focus_at_grab={R.get(leg + '_focus_at_grab')} child={R.get(leg + '_child')} "
-        f"focus_after={R.get(leg + '_focus_after')}")
-    _ck(f"splitter drag ({label}): bpy timers kept ticking (no stall > 2s)",
-        _ctx["max_gap"] < 2.0, f"max_gap={_ctx['max_gap']:.3f}s")
+        f"focus_after={R.get(leg + '_focus_after')}",
+    )
+    _ck(
+        f"splitter drag ({label}): bpy timers kept ticking (no stall > 2s)",
+        _ctx["max_gap"] < 2.0,
+        f"max_gap={_ctx['max_gap']:.3f}s",
+    )
     _glue_check(f"after the splitter drag ({label})")
     _write_json()
     next_cb()
@@ -860,18 +939,27 @@ def _after_leg_e():
     _leg_report("legE")
     hung_max = R.get("legE_hung_max", {})
     hung_restore = R.get("legE_hung_restore", {})
-    _ck("maximize with console docked: not hung",
+    _ck(
+        "maximize with console docked: not hung",
         hung_max.get("is_hung") is False and hung_max.get("wm_null_ok") is True,
-        str(hung_max))
-    _ck("restore with console docked: not hung",
+        str(hung_max),
+    )
+    _ck(
+        "restore with console docked: not hung",
         hung_restore.get("is_hung") is False and hung_restore.get("wm_null_ok") is True,
-        str(hung_restore))
+        str(hung_restore),
+    )
     rect_max, rect_rest = R.get("legE_rect_max"), R.get("legE_rect_restored")
-    _ck("maximize/restore actually changed the window rect",
+    _ck(
+        "maximize/restore actually changed the window rect",
         bool(rect_max and rect_rest and tuple(rect_max) != tuple(rect_rest)),
-        f"max={rect_max} restored={rect_rest}")
-    _ck("bpy timers kept ticking through maximize/restore (no stall > 2s)",
-        _ctx["max_gap"] < 2.0, f"max_gap={_ctx['max_gap']:.3f}s")
+        f"max={rect_max} restored={rect_rest}",
+    )
+    _ck(
+        "bpy timers kept ticking through maximize/restore (no stall > 2s)",
+        _ctx["max_gap"] < 2.0,
+        f"max_gap={_ctx['max_gap']:.3f}s",
+    )
     _glue_check("after maximize/restore")
     _finish()
 
@@ -894,26 +982,40 @@ def _glue_check(label):
         _u.GetWindowRect(ctypes.c_void_p(child), ctypes.byref(rect))
         pt = wintypes.POINT(0, 0)
         _u.ClientToScreen(ctypes.c_void_p(_ctx["hwnd"]), ctypes.byref(pt))
-        actual = [rect.left - pt.x, rect.top - pt.y,
-                  rect.right - rect.left, rect.bottom - rect.top]
-        base = BlenderWindow.region_client_rect(_ctx["hwnd"], region) if region else None
+        actual = [
+            rect.left - pt.x,
+            rect.top - pt.y,
+            rect.right - rect.left,
+            rect.bottom - rect.top,
+        ]
+        base = (
+            BlenderWindow.region_client_rect(_ctx["hwnd"], region) if region else None
+        )
         pad = dock._edge_pad
         expected = [base[0], base[1] + pad, base[2], base[3] - pad] if base else None
-        delta = (max(abs(a - e) for a, e in zip(actual, expected))
-                 if expected else 9999)
-        _ck(f"console re-glued to its region {label} (<=2px)",
-            delta <= 2, f"delta={delta} actual={actual} expected={expected}")
+        delta = max(abs(a - e) for a, e in zip(actual, expected)) if expected else 9999
+        _ck(
+            f"console re-glued to its region {label} (<=2px)",
+            delta <= 2,
+            f"delta={delta} actual={actual} expected={expected}",
+        )
     except Exception:
         import traceback
 
         R["glue_error_" + label] = traceback.format_exc()
-        _ck(f"console re-glued to its region {label} (<=2px)", False, "glue check raised")
+        _ck(
+            f"console re-glued to its region {label} (<=2px)",
+            False,
+            "glue check raised",
+        )
 
 
 def _finish():
     import shutil
 
-    R["verdict"] = "PASS" if R["checks"] and all(c["pass"] for c in R["checks"]) else "FAIL"
+    R["verdict"] = (
+        "PASS" if R["checks"] and all(c["pass"] for c in R["checks"]) else "FAIL"
+    )
     R["final_ticks"] = _ctx.get("ticks")
     R["max_tick_gap"] = round(_ctx.get("max_gap", 0.0), 3)
     _write_json()

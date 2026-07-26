@@ -43,6 +43,8 @@ class UvSlots(SlotsMaya):
 
     def header_init(self, widget):
         """Initialize UV Menu Header"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Create UV Snapshot",
@@ -74,6 +76,7 @@ class UvSlots(SlotsMaya):
         - Rotate Step/Min/Max: Packing-time rotation search (active when Max > Min)
         - Mutations: Optimization passes (higher = better pack, slower)
         - UDIM: Target UDIM tile space for the packed UVs
+        - Tile Coverage: Fraction of the target tile to pack into
         - Skip Instances: Pack one representative per instance group
 
         Rotate Step is auto-disabled when Rotate Max <= Rotate Min (no range
@@ -175,6 +178,26 @@ class UvSlots(SlotsMaya):
             "1001 = First tile (0-1, 0-1 UV space)\n"
             "1002 = Second tile (1-2, 0-1 UV space), etc.",
         )
+        # Fractional-tile packing: u3dLayout's -packBox accepts fractional
+        # extents, so packing into half / a quarter of the target tile is
+        # a plain box shrink (anchored at the tile's bottom-left corner).
+        cmb015 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb015",
+            setToolTip=(
+                "Fraction of the target UDIM tile to pack into,\n"
+                "anchored at the tile's bottom-left corner.\n"
+                "Use to reserve the rest of the tile for other shells."
+            ),
+        )
+        for text, data in [
+            ("Tile Coverage: Full", (1.0, 1.0)),
+            ("Tile Coverage: Half (U)", (0.5, 1.0)),
+            ("Tile Coverage: Half (V)", (1.0, 0.5)),
+            ("Tile Coverage: Quarter", (0.5, 0.5)),
+        ]:
+            cmb015.addItem(text, data)
+        cmb015.setCurrentIndex(0)
         # Instances share a single shape + UV set, so packing every instance is
         # redundant and forces the packer to reserve tile space for each
         # identical copy (lowering density). When on, only one representative
@@ -191,7 +214,6 @@ class UvSlots(SlotsMaya):
                 "them. Ignored for component (face/UV) selections."
             ),
         )
-
         # Gate: Rotate Step is meaningless when Rotate Max <= Rotate Min.
         menu = widget.option_box.menu
 
@@ -234,47 +256,84 @@ class UvSlots(SlotsMaya):
         return by_mesh
 
     def _warn_and_select_non_manifold(self, objects):
-        """Select the non-manifold vertices on *objects* (vertex mode) and explain.
+        """Select the non-manifold vertices (or UVs) on *objects* and explain.
 
         Backs the 'Warn + Select' strategy and the fallback when a repair can't
-        make the mesh unfoldable.
+        make the mesh unfoldable. Unfold rejects non-manifold *UVs* with the
+        same error as bad geometry, so when no vertices are flagged the UV scan
+        is what locates the problem.
         """
         verts = [v for vs in self._non_manifold_vertices(objects).values() for v in vs]
+        uvs = [
+            uv
+            for us in mtk.Diagnostics.find_non_manifold_uvs(objects).values()
+            for uv in us
+        ]
         if verts:
             cmds.selectMode(component=True)
             cmds.selectType(vertex=True)
             cmds.select(verts, replace=True)
-        n = len(verts)
-        selected = (
-            f"<b>{n}</b> problem {'vertex' if n == 1 else 'vertices'} "
-            "selected in vertex mode.<br><br>"
-            if verts
-            else ""
-        )
+        elif uvs:
+            cmds.selectMode(component=True)
+            cmds.selectType(polymeshUV=True)
+            cmds.select(uvs, replace=True)
+        if verts or not uvs:
+            kind = "geometry"
+            n = len(verts)
+            selected = (
+                f"<b>{n}</b> problem {'vertex' if n == 1 else 'vertices'} "
+                "selected in vertex mode.<br><br>"
+                if verts
+                else ""
+            )
+            cause = (
+                "Unfold can't flatten a mesh with <b>non-manifold vertices</b> — "
+                "points where the surface branches or folds back on itself.<br><br>"
+            )
+            manual = "• run <b>Mesh &gt; Cleanup</b> / <b>Merge</b> doubled verts manually.<br><br>"
+        else:
+            kind = "UVs"
+            n = len(uvs)
+            selected = (
+                f"<b>{n}</b> problem {'UV' if n == 1 else 'UVs'} selected in UV mode.<br><br>"
+            )
+            cause = (
+                "Unfold can't flatten a mesh with <b>non-manifold UVs</b> — "
+                "corrupt UV topology (usually from an import) that Maya's own "
+                "tools can't author.<br><br>"
+            )
+            manual = "• delete the UVs on the affected faces and re-project them manually.<br><br>"
         self.sb.message_box(
-            "<b>⚠ Unfold stopped — non-manifold geometry</b><br><br>"
-            "Unfold can't flatten a mesh with <b>non-manifold vertices</b> — "
-            "points where the surface branches or folds back on itself.<br><br>"
+            f"<b>⚠ Unfold stopped — non-manifold {kind}</b><br><br>"
+            f"{cause}"
             f"{selected}"
             "<b>To fix:</b><br>"
             "• Set the Unfold option to <b>Repair + Retry</b> to auto-clean, or<br>"
-            "• run <b>Mesh &gt; Cleanup</b> / <b>Merge</b> doubled verts manually.<br><br>"
+            f"{manual}"
             "<i>Then run Unfold again.</i>"
         )
 
     def _repair_non_manifold(self, objects):
-        """Auto-repair non-manifold geometry on *objects* (Mesh Cleanup).
+        """Auto-repair non-manifold geometry and UVs on *objects*.
 
-        Logs a per-mesh breakdown to the console and returns a summary
-        ``{"total", "fixed", "remaining"}`` of non-manifold vertices, so the
-        caller can briefly mention the repair in its result message.
+        Geometry goes through Mesh Cleanup; non-manifold *UVs* (which block
+        Unfold with the same error but which Cleanup can't touch) are repaired
+        by re-mapping the affected faces. Logs a per-mesh breakdown to the
+        console and returns a summary ``{"total", "fixed", "remaining"}`` of
+        non-manifold components, so the caller can briefly mention the repair
+        in its result message.
         """
-        before = self._non_manifold_vertices(objects)
-        total = sum(len(v) for v in before.values())
+        before_verts = self._non_manifold_vertices(objects)
+        before_uvs = mtk.Diagnostics.find_non_manifold_uvs(objects)
+        total = sum(len(v) for v in before_verts.values()) + sum(
+            len(v) for v in before_uvs.values()
+        )
 
         print("# Unfold: auto-repairing non-manifold geometry #")
-        for shape, verts in before.items():
+        for shape, verts in before_verts.items():
             print(f"#   {shape}: {len(verts)} non-manifold vertex(es) #")
+        for shape, uvs in before_uvs.items():
+            print(f"#   {shape}: {len(uvs)} non-manifold UV(s) #")
 
         try:
             mtk.Diagnostics.clean_geometry(objects, repair=True, nonmanifold=True)
@@ -282,10 +341,19 @@ class UvSlots(SlotsMaya):
             # Cleanup itself failed — the retry will fall back to Warn + Select.
             print(f"# Unfold: cleanup failed: {exc} #")
 
-        remaining = sum(len(v) for v in self._non_manifold_vertices(objects).values())
+        # Unconditional: it re-scans internally (no-op on clean meshes), and the
+        # pre-scan above can't see UV corruption the Cleanup pass just exposed.
+        try:
+            mtk.Diagnostics.repair_non_manifold_uvs(objects)
+        except (RuntimeError, ValueError) as exc:
+            print(f"# Unfold: UV repair failed: {exc} #")
+
+        remaining = sum(
+            len(v) for v in self._non_manifold_vertices(objects).values()
+        ) + sum(len(v) for v in mtk.Diagnostics.find_non_manifold_uvs(objects).values())
         fixed = total - remaining
         print(
-            f"# Unfold: repaired {fixed} non-manifold vertex(es), {remaining} remaining #"
+            f"# Unfold: repaired {fixed} non-manifold component(s), {remaining} remaining #"
         )
         return {"total": total, "fixed": fixed, "remaining": remaining}
 
@@ -315,6 +383,8 @@ class UvSlots(SlotsMaya):
             mutations (int): s014 spinbox (Maya -mutations). Optimization passes;
                 only emitted when > 1.
             UDIM (int): Target UDIM tile number (s004), e.g., 1001
+            coverage (tuple): cmb015. (u, v) fraction of the target tile the
+                pack fills, anchored bottom-left (fractional -packBox).
             skip_instances (bool): chk016. When on (default), pack one
                 representative per instance group instead of every instance.
                 Object-level selection only; ignored for component selections.
@@ -370,13 +440,17 @@ class UvSlots(SlotsMaya):
             self.sb.message_box("<b>No UVs found on selection.</b>")
             return
 
+        # Fractional tile coverage shrinks the pack box from the tile's
+        # bottom-left corner; u3dLayout accepts fractional -packBox extents.
+        cov_u, cov_v = widget.option_box.menu.cmb015.currentData()
+
         pack_kwargs = dict(
             resolution=map_size,
             shellSpacing=shellPadding,
             tileMargin=tilePadding,
             preScaleMode=scale,
             preRotateMode=rotate,
-            packBox=[u_tile, u_tile + 1, v_tile, v_tile + 1],
+            packBox=[u_tile, u_tile + cov_u, v_tile, v_tile + cov_v],
             multiObject=True,  # -m off causes all shells to stack at the tile center
         )
         # Rotate flags only when the user opts in (max > min). Maya's stock dialog
@@ -641,8 +715,9 @@ class UvSlots(SlotsMaya):
             setToolTip=(
                 "What to do when non-manifold geometry blocks Unfold:\n"
                 "Warn + Select: stop, select the offending vertices, and explain.\n"
-                "Repair + Retry: auto-clean the non-manifold geometry (Mesh Cleanup)\n"
-                "first, then unfold. The repair is noted in the result and the console."
+                "Repair + Retry: auto-clean the non-manifold geometry (Mesh Cleanup;\n"
+                "non-manifold UVs are re-mapped) first, then unfold. The repair is\n"
+                "noted in the result and the console."
             ),
         )
         for text, data in [
@@ -730,7 +805,7 @@ class UvSlots(SlotsMaya):
         if repair_summary:
             fixed = repair_summary["fixed"]
             detail = (
-                f" — <b>{fixed}</b> {'vertex' if fixed == 1 else 'vertices'} fixed"
+                f" — <b>{fixed}</b> {'component' if fixed == 1 else 'components'} fixed"
                 if fixed
                 else ""
             )
@@ -933,18 +1008,92 @@ class UvSlots(SlotsMaya):
         """Texel Density — passive input; read by Get/Set Texel Density (b003/b004).
         Nothing to do on change."""
 
+    def b000_init(self, widget):
+        """Initialize Transfer UVs option box — scope + similarity tolerance."""
+        widget.option_box.menu.setTitle("Transfer UVs")
+        cmb014 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb014",
+            setToolTip=(
+                "Where to find the transfer targets. The first-selected object "
+                "is always the source.\n"
+                "Selection Order: transfer to each additionally selected object "
+                "in selection order.\n"
+                "Similar in Selection: transfer to the selected objects that are "
+                "geometrically similar to the source (duplicates).\n"
+                "Similar in Scene: transfer to every geometrically similar mesh "
+                "in the scene.\n\n"
+                "True instances of the source are skipped in the Similar scopes: "
+                "instances share one shape, so their UVs already match the source."
+            ),
+        )
+        for text, data in [
+            ("Scope: Selection Order", "order"),
+            ("Scope: Similar in Selection", "selection"),
+            ("Scope: Similar in Scene", "scene"),
+        ]:
+            cmb014.addItem(text, data)
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setObjectName="d000",
+            setPrefix="Similarity: ",
+            setValue=0.9,
+            setMinimum=0.0,
+            setMaximum=1.0,
+            setSingleStep=0.05,
+            setToolTip=(
+                "Minimum similarity score (0-1, from bounding-box volume + "
+                "vertex count) a mesh must reach to receive UVs.\n"
+                "Used only by the Similar scopes."
+            ),
+        )
+
     @mtk.undoable
     def b000(self, widget):
         """Transfer UV's"""
+        scope = widget.option_box.menu.cmb014.currentData() or "order"
+        tolerance = widget.option_box.menu.d000.value()
         ordered = cmds.ls(orderedSelection=1, flatten=1) or []
-        if len(ordered) < 2:
-            return self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires the selection of at least two polygon objects."
-            )
-        frm, *to = ordered
 
-        for t in to:
-            mtk.transfer_uvs(frm, t)
+        if scope == "order":
+            if len(ordered) < 2:
+                return self.sb.message_box(
+                    "<b>Nothing selected.</b><br>The operation requires the selection of at least two polygon objects."
+                )
+            frm, *to = ordered
+            for t in to:
+                mtk.transfer_uvs(frm, t)
+            return
+
+        # Similar scopes: first-selected is the source; targets are found by
+        # geometric similarity within the chosen pool.
+        if not ordered:
+            return self.sb.message_box(
+                "<b>Nothing selected.</b><br>Select the source object first"
+                + (", then the candidate objects." if scope == "selection" else ".")
+            )
+        if scope == "selection" and len(ordered) < 2:
+            return self.sb.message_box(
+                "<b>Insufficient selection.</b><br>Select the source object, then the candidate objects."
+            )
+        candidates = ordered[1:] if scope == "selection" else None
+        try:
+            targets = mtk.transfer_uvs_to_similar(
+                ordered[0], candidates, tolerance=tolerance
+            )
+        except ValueError as e:
+            return self.sb.message_box(f"<b>Transfer UVs:</b><br>{e}")
+
+        if targets:
+            self.sb.message_box(
+                f"Transferred UVs to <b>{len(targets)}</b> similar object(s)."
+            )
+        else:
+            self.sb.message_box(
+                "<b>No similar objects found.</b><br>Lower the similarity "
+                "threshold, or note that true instances already share the "
+                "source's UVs."
+            )
 
     def b003(self):
         """Get texel density."""

@@ -29,6 +29,8 @@ class Duplicate(SlotsBlender):
     # _ensure_object_mode was promoted to SlotsBlender.ensure_object_mode (pivot needed it too).
 
     def header_init(self, widget):
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton", setText="Mirror", setObjectName="b000",
             setToolTip="Open the mirror window.",
@@ -53,8 +55,8 @@ class Duplicate(SlotsBlender):
             setToolTip="Center the pivot on the object(s) before instancing.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Freeze Transforms", setObjectName="chk000",
-            setToolTip="Freeze transforms on the object(s) before instancing.",
+            "QCheckBox", setText="Freeze Translate", setObjectName="chk000",
+            setToolTip="Freeze (zero) the translation values before instancing.\nRotation and scale are intentionally left unfrozen so each instance\ncan keep its own orientation and size relative to the shared shape.",
         )
         # Maya's chk001 "Delete History" option is not built: construction history doesn't
         # exist in Blender, so the toggle could never do anything — hide-when-no-equivalent
