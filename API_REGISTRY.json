@@ -263,12 +263,21 @@
               "deprecated": false
             },
             {
+              "name": "effective_fps",
+              "qualname": "SlotsBlender.effective_fps",
+              "kind": "staticmethod",
+              "signature": "() -> float",
+              "summary": "The scene frame rate as the user understands it — ``fps / fps_base`` — shared by all",
+              "line": 35,
+              "deprecated": false
+            },
+            {
               "name": "ensure_edit_mode",
               "qualname": "SlotsBlender.ensure_edit_mode",
               "kind": "method",
               "signature": "(self, obj_type='MESH', select_mode=None)",
               "summary": "Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally",
-              "line": 34,
+              "line": 45,
               "deprecated": false
             },
             {
@@ -277,7 +286,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,",
-              "line": 70,
+              "line": 81,
               "deprecated": false
             },
             {
@@ -286,7 +295,7 @@
               "kind": "method",
               "signature": "(self, tool_id, label=None, edit_type=None)",
               "summary": "Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /",
-              "line": 91,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -295,7 +304,7 @@
               "kind": "staticmethod",
               "signature": "(op_path)",
               "summary": "The ``bpy.ops`` callable at a dotted path (``\"wm.link\"``), or None when the",
-              "line": 148,
+              "line": 159,
               "deprecated": false
             },
             {
@@ -304,7 +313,7 @@
               "kind": "method",
               "signature": "(self, op_path, **kwargs)",
               "summary": "Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a",
-              "line": 154,
+              "line": 165,
               "deprecated": false
             },
             {
@@ -313,7 +322,7 @@
               "kind": "method",
               "signature": "(self, data_type, **kwargs)",
               "summary": "Run native Data-Transfer from the active mesh to the other selected meshes",
-              "line": 174,
+              "line": 185,
               "deprecated": false
             }
           ]
@@ -1543,7 +1552,7 @@
               "kind": "method",
               "signature": "(self, hud) -> None",
               "summary": "",
-              "line": 20,
+              "line": 12,
               "deprecated": false
             }
           ]
@@ -1551,7 +1560,7 @@
         {
           "name": "SelectionMixin",
           "summary": "",
-          "line": 49,
+          "line": 41,
           "bases": [],
           "members": [
             {
@@ -1560,7 +1569,7 @@
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 71,
+              "line": 63,
               "deprecated": false
             },
             {
@@ -1569,7 +1578,7 @@
               "kind": "method",
               "signature": "(self, hud, active) -> None",
               "summary": "Selected/total component counts for the mesh being edited (cheap:",
-              "line": 98,
+              "line": 90,
               "deprecated": false
             }
           ]
@@ -1577,7 +1586,7 @@
         {
           "name": "WarningsMixin",
           "summary": "Blender HUD warnings — the framework lives in the shared",
-          "line": 116,
+          "line": 108,
           "bases": [
             "HudWarningsMixin"
           ],
@@ -1586,7 +1595,7 @@
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Blender, providing scene and selection information.",
-          "line": 177,
+          "line": 169,
           "bases": [
             "SlotsBlender",
             "StatusMixin",
@@ -1600,7 +1609,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 188,
+              "line": 180,
               "deprecated": false
             },
             {
@@ -1609,7 +1618,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 208,
+              "line": 200,
               "deprecated": false
             }
           ]
@@ -2773,7 +2782,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Set Working Units: Time (frame rate)",
-              "line": 156,
+              "line": 155,
               "deprecated": false
             },
             {
@@ -2782,7 +2791,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 165,
+              "line": 164,
               "deprecated": false
             },
             {
@@ -2791,7 +2800,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 172,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -2800,7 +2809,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color Settings → Blender Preferences (Themes).",
-              "line": 187,
+              "line": 186,
               "deprecated": false
             },
             {
@@ -2809,7 +2818,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "App-style / theme selector — mirrors Blender's Preferences > Themes dropdown.",
-              "line": 191,
+              "line": 190,
               "deprecated": false
             },
             {
@@ -2818,7 +2827,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Apply the selected native theme preset (Blender's built-in, the user's own, or our",
-              "line": 212,
+              "line": 211,
               "deprecated": false
             },
             {
@@ -2827,7 +2836,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hotkeys → Blender Preferences (Keymap).",
-              "line": 219,
+              "line": 218,
               "deprecated": false
             },
             {
@@ -2836,7 +2845,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Plug-In Manager → Blender Preferences (Add-ons).",
-              "line": 223,
+              "line": 222,
               "deprecated": false
             },
             {
@@ -2845,7 +2854,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Settings/Preferences → Blender Preferences (Interface).",
-              "line": 227,
+              "line": 226,
               "deprecated": false
             },
             {
@@ -2854,7 +2863,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Macro Manager — the unified shortcut editor over the blendertk macros",
-              "line": 231,
+              "line": 230,
               "deprecated": false
             }
           ]

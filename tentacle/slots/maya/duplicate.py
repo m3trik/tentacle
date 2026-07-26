@@ -154,7 +154,7 @@ class Duplicate(SlotsMaya):
         whole scene if nothing is selected)."""
         menu = widget.option_box.menu
 
-        created, summary = mtk.auto_instance(
+        created, summary = mtk.AutoInstancer.run_once(
             None,
             tolerance=menu.s000.value(),
             require_same_material=menu.chk004.isChecked(),

@@ -138,10 +138,9 @@ class Preferences(PreferencesMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ cmb002  Frame rate
     def cmb002_init(self, widget):
-        render = bpy.context.scene.render
-        # Effective rate — a 23.98 scene stores fps=24 / fps_base=1.001; raw fps alone
-        # would also misread a scene whose base was left fractional by an import.
-        fps = round(render.fps / render.fps_base)
+        # Effective rate (fps / fps_base) — see SlotsBlender.effective_fps for the
+        # fractional-NTSC rationale; shared with the HUD's frame-rate rows.
+        fps = round(self.effective_fps())
 
         def seed():  # populated inside the seed for the reason given in cmb001_init
             widget.add({f"{f} fps": f for f in self._FPS_OPTIONS})

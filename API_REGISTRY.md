@@ -167,6 +167,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L8)** — App specific methods inherited by all other Blender slot classes.
   - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
   - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
+  - `SlotsBlender.effective_fps() -> float` *(static)* — The scene frame rate as the user understands it — ``fps / fps_base`` — shared by all
   - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
   - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,
   - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
@@ -341,11 +342,11 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 - **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L11)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L49)**
+- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L41)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
   - `SelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L116)** — Blender HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L177)** — HUD Slots for Blender, providing scene and selection information.
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L108)** — Blender HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L169)** — HUD Slots for Blender, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 

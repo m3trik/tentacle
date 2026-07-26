@@ -29,7 +29,7 @@ _Generated: 2026-07-26_
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
-  - methods: selected_objects, active_object, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
+  - methods: selected_objects, active_object, effective_fps, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
 
 ### `slots/blender/animation.py`
 - `class Animation(SlotsBlender)`
