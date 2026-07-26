@@ -55,7 +55,9 @@ class TclMaya(MarkingMenu):
         for _editor_name in ("shortcut", "global_shortcuts"):
             self.sb.editors.add_post_build_hook(
                 _editor_name,
-                lambda editor: editor.add_collision_checker(mtk.maya_collision_checker),
+                lambda editor: editor.add_collision_checker(
+                    mtk.HotkeyCollisions.maya_collision_checker
+                ),
             )
 
         # Apply the user's active macro preset on launch so its hotkeys are live

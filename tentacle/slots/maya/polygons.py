@@ -16,6 +16,8 @@ class PolygonsSlots(SlotsMaya):
 
     def header_init(self, widget):
         """Initialize Header"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Bridge Interactive",
@@ -100,6 +102,18 @@ class PolygonsSlots(SlotsMaya):
                 "the grouped path uses its own letter/number scheme."
             ),
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Uninstance",
+            setObjectName="chk024",
+            setChecked=True,
+            setToolTip=(
+                "Break instance links before separating. Separating instanced "
+                "geometry is destructive — it can silently delete sibling "
+                "instances that share the shape. On by default to keep those "
+                "siblings safe."
+            ),
+        )
 
         # Rename is redundant whenever By Material drives the grouped naming.
         chk_by_material = widget.option_box.menu.chk021
@@ -112,12 +126,14 @@ class PolygonsSlots(SlotsMaya):
         """Separate: split a combined mesh into its disconnected shells (optionally per material)."""
         separate_by_material = widget.option_box.menu.chk021.isChecked()
         rename = widget.option_box.menu.chk022.isChecked()
+        uninstance = widget.option_box.menu.chk024.isChecked()
 
         separated = mtk.separate_objects(
             by_material=separate_by_material,
             group_by_material=separate_by_material,
             center_pivots=True,
             rename=rename,
+            uninstance=uninstance,
         )
         if separated:
             cmds.select(separated)
@@ -192,6 +208,18 @@ class PolygonsSlots(SlotsMaya):
             setValue=10000.0,
             setToolTip="Maximum distance between objects to be considered in the same cluster.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Uninstance",
+            setObjectName="chk023",
+            setChecked=True,
+            setToolTip=(
+                "Break instance links before combining. Combining instanced "
+                "geometry is destructive — it can silently delete sibling "
+                "instances that share the shape but aren't in the selection. "
+                "On by default to keep those siblings safe."
+            ),
+        )
 
         # Connect signals
         chk_cluster = widget.option_box.menu.chk004
@@ -205,6 +233,7 @@ class PolygonsSlots(SlotsMaya):
         group_by_material = widget.option_box.menu.chk003.isChecked()
         cluster_by_distance = widget.option_box.menu.chk004.isChecked()
         threshold = widget.option_box.menu.s003.value()
+        uninstance = widget.option_box.menu.chk023.isChecked()
 
         selection = cmds.ls(sl=True) or []
         if not selection:
@@ -217,6 +246,7 @@ class PolygonsSlots(SlotsMaya):
             group_by_material=group_by_material,
             cluster_by_distance=cluster_by_distance,
             threshold=threshold,
+            uninstance=uninstance,
         )
 
     def tb005_init(self, widget):

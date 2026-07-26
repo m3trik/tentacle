@@ -61,7 +61,18 @@ class TestPopulateDirSublist(unittest.TestCase):
         # Bypass __init__ which needs a switchboard.
         self.instance = main_module.Main.__new__(main_module.Main)
 
+        # _populate_dir_sublist decorates every row via
+        # IconManager.set_label_icon — a real-QLabel operation (reads/writes
+        # Qt properties, renders a pixmap) that can't run against the fakes.
+        # Record the calls instead; the walker logic stays fully exercised.
+        self._orig_set_label_icon = main_module.IconManager.set_label_icon
+        self.icon_calls = []
+        main_module.IconManager.set_label_icon = (
+            lambda item, name, *a, **k: self.icon_calls.append((item, name))
+        )
+
     def tearDown(self):
+        main_module.IconManager.set_label_icon = self._orig_set_label_icon
         import shutil
         shutil.rmtree(self.root, ignore_errors=True)
 
@@ -70,6 +81,11 @@ class TestPopulateDirSublist(unittest.TestCase):
         self.instance._populate_dir_sublist(sublist, self.root, max_depth=1)
         labels = sorted(i.label for i in sublist.items)
         self.assertEqual(labels, ["visible_a", "visible_b"])
+        # Every dir row carries the filled-folder icon (the dir/action
+        # differentiator since the Separator was dropped).
+        iconed = [item for item, _ in self.icon_calls]
+        self.assertTrue(all(i in iconed for i in sublist.items))
+        self.assertTrue(all(n == "folder_filled" for _, n in self.icon_calls))
 
     def test_skips_hidden_directories(self):
         sublist = _FakeSublist()

@@ -247,10 +247,11 @@ class TestSoftenHarden(unittest.TestCase):
     def test_b000_handles_name_collision(self):
         """Two objects sharing a leaf name must not crash b000.
 
-        map_components_to_objects keys by leaf name, so a duplicate short
-        name (``pCube1`` under different parents) made the old
-        ``polyOptions(obj)`` raise ``More than one object matches name``.
-        The slot now resolves the unambiguous path from the components.
+        Historically map_components_to_objects keyed by leaf name, so a
+        duplicate short name (``pCube1`` under different parents) made the
+        old ``polyOptions(obj)`` raise ``More than one object matches name``.
+        Keys are unambiguous now; the slot additionally resolves long paths
+        from the components. Kept as the slot-level regression guard.
         """
         cmds.group(cmds.polyCube(name="pCube1")[0], name="grp1")
         cmds.group(cmds.polyCube(name="pCube1")[0], name="grp2")

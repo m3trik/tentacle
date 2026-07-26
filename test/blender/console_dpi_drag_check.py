@@ -54,6 +54,7 @@ Run against a *fresh* GUI Blender (never an existing session)::
 Output: test/temp_tests/console_dpi_drag_out.json. Requires >=2 monitors (else N/A).
 Steals foreground + the real mouse; throwaway instance only. Windows-only.
 """
+
 import sys
 import os
 import time
@@ -98,10 +99,14 @@ def _ck(name, cond, extra=""):
 
 class _GUITHREADINFO(ctypes.Structure):
     _fields_ = [
-        ("cbSize", wintypes.DWORD), ("flags", wintypes.DWORD),
-        ("hwndActive", wintypes.HWND), ("hwndFocus", wintypes.HWND),
-        ("hwndCapture", wintypes.HWND), ("hwndMenuOwner", wintypes.HWND),
-        ("hwndMoveSize", wintypes.HWND), ("hwndCaret", wintypes.HWND),
+        ("cbSize", wintypes.DWORD),
+        ("flags", wintypes.DWORD),
+        ("hwndActive", wintypes.HWND),
+        ("hwndFocus", wintypes.HWND),
+        ("hwndCapture", wintypes.HWND),
+        ("hwndMenuOwner", wintypes.HWND),
+        ("hwndMoveSize", wintypes.HWND),
+        ("hwndCaret", wintypes.HWND),
         ("rcCaret", wintypes.RECT),
     ]
 
@@ -118,18 +123,28 @@ def _monitors():
     mons = []
 
     class MONITORINFO(ctypes.Structure):
-        _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", wintypes.RECT),
-                    ("rcWork", wintypes.RECT), ("dwFlags", wintypes.DWORD)]
+        _fields_ = [
+            ("cbSize", wintypes.DWORD),
+            ("rcMonitor", wintypes.RECT),
+            ("rcWork", wintypes.RECT),
+            ("dwFlags", wintypes.DWORD),
+        ]
 
-    @ctypes.WINFUNCTYPE(wintypes.BOOL, ctypes.c_void_p, ctypes.c_void_p,
-                        ctypes.POINTER(wintypes.RECT), wintypes.LPARAM)
+    @ctypes.WINFUNCTYPE(
+        wintypes.BOOL,
+        ctypes.c_void_p,
+        ctypes.c_void_p,
+        ctypes.POINTER(wintypes.RECT),
+        wintypes.LPARAM,
+    )
     def _enum(hmon, _hdc, _rect, _l):
         info = MONITORINFO()
         info.cbSize = ctypes.sizeof(MONITORINFO)
         if _u.GetMonitorInfoW(ctypes.c_void_p(hmon), ctypes.byref(info)):
             work = info.rcWork
-            mons.append((work.left, work.top, work.right, work.bottom,
-                         bool(info.dwFlags & 1)))
+            mons.append(
+                (work.left, work.top, work.right, work.bottom, bool(info.dwFlags & 1))
+            )
         return True
 
     _u.EnumDisplayMonitors(None, None, _enum, 0)
@@ -156,12 +171,21 @@ def _probe(hwnd, label):
     hung = bool(_u.IsHungAppWindow(handle))
     result = ctypes.c_size_t()
     _u.SendMessageTimeoutW.restype = ctypes.c_void_p
-    ok = bool(_u.SendMessageTimeoutW(handle, 0, 0, 0, SMTO_ABORTIFHUNG, 3000,
-                                     ctypes.byref(result)))
-    R["steps"].append({
-        "step": label, "os_hung": hung, "wm_null_ok": ok, "rect": _rect(hwnd),
-        "dpi": _dpi(hwnd), "gui_ticks": _ctx.get("ticks"),
-    })
+    ok = bool(
+        _u.SendMessageTimeoutW(
+            handle, 0, 0, 0, SMTO_ABORTIFHUNG, 3000, ctypes.byref(result)
+        )
+    )
+    R["steps"].append(
+        {
+            "step": label,
+            "os_hung": hung,
+            "wm_null_ok": ok,
+            "rect": _rect(hwnd),
+            "dpi": _dpi(hwnd),
+            "gui_ticks": _ctx.get("ticks"),
+        }
+    )
     _write()
     return not hung and ok
 
@@ -275,8 +299,9 @@ def _sequence(hwnd, tid, mon2, primary, leg):
     the DPI boundary into mon2's top snap zone -> snap-maximize -> drag back down to
     the primary. OS probes + tick-liveness after each stage; False at first death."""
     handle = ctypes.c_void_p(int(hwnd))
-    _u.SetWindowPos(handle, None, primary[0] + 60, primary[1] + 60, 1200, 800,
-                    0x0004 | 0x0010)
+    _u.SetWindowPos(
+        handle, None, primary[0] + 60, primary[1] + 60, 1200, 800, 0x0004 | 0x0010
+    )
     time.sleep(0.4)
     _u.ShowWindow(handle, 3)  # SW_MAXIMIZE — the drag must auto-restore mid-loop
     time.sleep(0.8)
@@ -284,11 +309,21 @@ def _sequence(hwnd, tid, mon2, primary, leg):
     _probe(hwnd, f"{leg}:start_primary_maximized")
 
     stages = (
-        ("drag_snap_to_mon2_top", lambda: _title_drag_snap_top(
-            hwnd, tid, mon2, leg, "drag_snap")),
-        ("drag_back_primary", lambda: _title_drag_to(
-            hwnd, tid, (primary[0] + primary[2]) // 2,
-            (primary[1] + primary[3]) // 2, leg, "drag_back_primary")),
+        (
+            "drag_snap_to_mon2_top",
+            lambda: _title_drag_snap_top(hwnd, tid, mon2, leg, "drag_snap"),
+        ),
+        (
+            "drag_back_primary",
+            lambda: _title_drag_to(
+                hwnd,
+                tid,
+                (primary[0] + primary[2]) // 2,
+                (primary[1] + primary[3]) // 2,
+                leg,
+                "drag_back_primary",
+            ),
+        ),
     )
     for label, action in stages:
         action()
@@ -314,8 +349,11 @@ def _input_main():
         if not only_b:
             # --- Leg A0: factory Blender, NO tentacle -------------------------------
             ok = _sequence(hwnd, tid, mon2, primary, "legA0")
-            _ck("factory Blender (no tentacle): cross-DPI drag round trip survives",
-                ok, f"died_at={R.get('legA0_timer_loop_died_at')}")
+            _ck(
+                "factory Blender (no tentacle): cross-DPI drag round trip survives",
+                ok,
+                f"died_at={R.get('legA0_timer_loop_died_at')}",
+            )
             if not ok:
                 _ctx["input_done"] = True
                 return
@@ -327,8 +365,11 @@ def _input_main():
         if not only_b:
             # --- Leg A: tentacle (Qt pump + marking menu), no console ---------------
             ok = _sequence(hwnd, tid, mon2, primary, "legA")
-            _ck("tentacle (no console): cross-DPI drag round trip survives", ok,
-                f"died_at={R.get('legA_timer_loop_died_at')}")
+            _ck(
+                "tentacle (no console): cross-DPI drag round trip survives",
+                ok,
+                f"died_at={R.get('legA_timer_loop_died_at')}",
+            )
             if not ok:
                 _ctx["input_done"] = True
                 return
@@ -339,8 +380,11 @@ def _input_main():
             for i in range(repeats):  # Qt host present, NO console docked
                 leg = "legQ" if repeats == 1 else f"legQ{i + 1}"
                 ok = _sequence(hwnd, tid, mon2, primary, leg)
-                _ck(f"Qt host, no console: cross-DPI drag survives ({leg})", ok,
-                    f"died_at={R.get(leg + '_timer_loop_died_at')}")
+                _ck(
+                    f"Qt host, no console: cross-DPI drag survives ({leg})",
+                    ok,
+                    f"died_at={R.get(leg + '_timer_loop_died_at')}",
+                )
                 if not ok:
                     break
             _ctx["input_done"] = True
@@ -352,8 +396,11 @@ def _input_main():
         for i in range(repeats):
             leg = "legB" if repeats == 1 else f"legB{i + 1}"
             ok = _sequence(hwnd, tid, mon2, primary, leg)
-            _ck(f"console docked: cross-DPI drag round trip survives ({leg})", ok,
-                f"died_at={R.get(leg + '_timer_loop_died_at')}")
+            _ck(
+                f"console docked: cross-DPI drag round trip survives ({leg})",
+                ok,
+                f"died_at={R.get(leg + '_timer_loop_died_at')}",
+            )
             if not ok:
                 break
     except Exception:
@@ -412,7 +459,8 @@ def _gui_tick():
                     # re-enters Blender's half-finished paint state.
                     if nosend and _u.InSendMessage():
                         _ctx["pump_skipped_insend"] = (
-                            _ctx.get("pump_skipped_insend", 0) + 1)
+                            _ctx.get("pump_skipped_insend", 0) + 1
+                        )
                         return 0.01
                     # enter/exit stamps: if the loop dies with enter > exit, the
                     # freeze IS a processEvents call that never returned.
@@ -449,7 +497,7 @@ def _gui_tick():
             shutil.rmtree(SANDBOX, ignore_errors=True)
             os.makedirs(SANDBOX, exist_ok=True)
             so.ScriptConsole._state_dir_override = SANDBOX
-            inst = so.show()
+            inst = so.ScriptConsole.show()
             dock = inst._dock
 
             # Guard telemetry — 2026-07-16..18 only. The modal guard was REVERTED (its
@@ -552,8 +600,9 @@ def _go():
 def _finish():
     import shutil
 
-    R["verdict"] = ("PASS" if R["checks"] and all(c["pass"] for c in R["checks"])
-                    else "FAIL")
+    R["verdict"] = (
+        "PASS" if R["checks"] and all(c["pass"] for c in R["checks"]) else "FAIL"
+    )
     _write()
     shutil.rmtree(SANDBOX, ignore_errors=True)
     print("console_dpi_drag verdict:", R["verdict"])

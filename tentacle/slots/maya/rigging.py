@@ -14,6 +14,8 @@ class Rigging(SlotsMaya):
 
     def header_init(self, widget):
         """Init Rigging Header"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Rebind Skin Clusters",

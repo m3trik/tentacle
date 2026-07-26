@@ -2,7 +2,7 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
-from uitk import Signals
+from uitk import Signals, IconManager
 import mayatk as mtk
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
@@ -26,6 +26,22 @@ class Selection(SlotsMaya):
             w = root.sublist.add(category)
             w.sublist.add(sorted(types))
 
+        # Settings entry (added last so it sits nearest the trigger row —
+        # the list expands upward): a slot-wired button with a settings-gear
+        # prefix icon (set in tb004_init) and no option box, so it stays a
+        # plain list row. Its click is dispatched from list000 to open the
+        # scope / mode menu the leaf actions read.
+        self.add_slot_widget(
+            root.sublist,
+            setObjectName="tb004",
+            setText="Settings",
+            setToolTip=(
+                "Select by Type settings.\n"
+                "Set the scope the type filters draw from, and whether matches\n"
+                "replace, add to, or remove from the existing selection."
+            ),
+        )
+
     @Signals("on_item_interacted")
     def list000(self, item):
         """Select by Type"""
@@ -34,18 +50,114 @@ class Selection(SlotsMaya):
         if getattr(item, "sublist", None) and item.sublist.get_items():
             return
 
+        # The Settings row opens its scope/mode menu instead of acting as a
+        # type filter. Two dispatch paths reach it, mutually exclusively: here
+        # (plain event flow — the list consumes the release, so the button's
+        # own clicked never fires) and its clicked (the marking menu fires a
+        # menu-hosted leaf's clicked at release — it never routes a widget with
+        # a clicked signal through on_item_interacted). Both delegate to tb004
+        # so the menu opens exactly once in either context.
+        if item.objectName() == "tb004":
+            self.tb004(item)
+            return
+
         selection_type = item.item_text()
-        objects = cmds.ls() or []
+        objects = self._by_type_scope_objects()
+        if not objects:
+            self.sb.message_box("Select by Type: no objects in the current scope.")
+            return
+        mode = self._by_type_mode()
 
         try:
-            result = mtk.Selection.select_by_type(
-                selection_type, objects, mode="replace"
-            )
-            print(f"Selected {len(result)} objects of type: {selection_type}")
+            result = mtk.Selection.select_by_type(selection_type, objects, mode=mode)
+            verb = {"add": "Added", "remove": "Removed"}.get(mode, "Selected")
+            print(f"{verb} {len(result)} objects of type: {selection_type}")
         except ValueError:
             pass
         except Exception as e:
             self.sb.message_box(f"Error selecting by type '{selection_type}': {e}")
+
+    def tb004_init(self, widget):
+        """Select by Type settings menu.
+
+        The row shows a settings-gear prefix icon and opens this menu on click
+        (dispatched from ``list000``). The menu is the button's own MenuMixin
+        menu — no option box (the gear would be redundant with the row click)
+        and no apply button (the combos take effect the moment a leaf action
+        reads them; MenuMixin menus default ``add_apply_button=False``).
+
+        Self-labeling combos (the ``cmb_del_scope`` precedent — two radio
+        groups in one menu would need manual QButtonGroup separation).
+        """
+        IconManager.set_icon(widget, "settings")
+        # Reproduce the prior option-box popup's config minus the apply button
+        # (the sole change asked for): the row's own click opens it (dispatched
+        # from list000), so no auto-trigger; the MenuMixin base defaults would
+        # otherwise drop the header/defaults button and flip hide-on-leave.
+        widget.configure_menu(
+            trigger_button="none",
+            add_header=True,
+            add_apply_button=False,
+            add_defaults_button=True,
+            hide_on_leave=True,
+            match_parent_width=False,
+        )
+        menu = widget.menu
+        menu.setTitle("Select By Type")
+        scope = menu.add(
+            "QComboBox",
+            setObjectName="cmb_bytype_scope",
+            setToolTip="The pool of objects the type filters draw from:\n"
+            "• All Objects: every object in the scene.\n"
+            "• Selected: the current selection only.\n"
+            "• Visible: visible objects only.",
+        )
+        for label, data in [
+            ("Scope: All Objects", "all"),
+            ("Scope: Selected", "selected"),
+            ("Scope: Visible", "visible"),
+        ]:
+            scope.addItem(label, data)
+        mode = menu.add(
+            "QComboBox",
+            setObjectName="cmb_bytype_mode",
+            setToolTip="How the matches combine with the existing selection:\n"
+            "• Replace: select only the matches.\n"
+            "• Add: add the matches to the current selection.\n"
+            "• Remove: deselect the matches.",
+        )
+        for label, data in [
+            ("Mode: Replace", "replace"),
+            ("Mode: Add", "add"),
+            ("Mode: Remove", "remove"),
+        ]:
+            mode.addItem(label, data)
+
+    def tb004(self, widget):
+        """Select by Type settings: open the scope/mode menu.
+
+        Wired to the button's ``clicked`` (register_widget), so the marking
+        menu — which fires a menu-hosted leaf's ``clicked`` at release-dispatch
+        (``MarkingMenu._handle_widget_action``) — opens it; ``list000`` also
+        calls this for the plain event-flow path. The two paths never both fire
+        for one interaction.
+        """
+        widget.menu.show_as_popup(anchor_widget=widget, position="cursorPos")
+
+    def _by_type_scope_objects(self):
+        """The object pool Select by Type filters from, per the tb004 scope."""
+        menu = self.submenu.tb004.menu
+        scope = menu.cmb_bytype_scope.currentData() or "all"
+        if scope == "selected":
+            return cmds.ls(selection=True) or []
+        if scope == "visible":
+            return cmds.ls(visible=True) or []
+        return cmds.ls() or []
+
+    def _by_type_mode(self):
+        """The selection mode Select by Type applies, per the tb004 setting."""
+        menu = self.submenu.tb004.menu
+        return menu.cmb_bytype_mode.currentData() or "replace"
 
     def cmb001_init(self, widget):
         """Reorder Selection Init"""
@@ -354,7 +466,7 @@ class Selection(SlotsMaya):
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
-            set_limits=[0, 9999, 0.0, 3],
+            set_limits=[0, 9999, 0.1, 3],
             setValue=0.0,
             setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
         )
@@ -414,7 +526,7 @@ class Selection(SlotsMaya):
             "QCheckBox",
             setText="Bounding Box",
             setObjectName="chk019",
-            setToolTip="The object's bounding box in 3d space.\nCannot be used with the topological flags.",
+            setToolTip="The object's bounding box in 3d space.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -422,14 +534,6 @@ class Selection(SlotsMaya):
             setObjectName="chk020",
             setToolTip="Include the original selected object(s) in the final selection.",
         )
-        widget.option_box.menu.chk018.stateChanged.connect(
-            lambda state: (
-                self.sb.toggle_multi(widget.menu, setDisabled="chk011-18")
-                if state
-                else self.sb.toggle_multi(widget.menu, setEnabled="chk011-18")
-            )
-        )
-
     def tb001(self, widget):
         """Select Similar"""
         tolerance = widget.option_box.menu.s000.value()  # tolerance

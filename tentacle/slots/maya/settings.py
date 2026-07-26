@@ -21,6 +21,8 @@ class Settings(SlotsMaya):
     def header_init(self, widget):
         """Initialize header"""
         if not widget.is_initialized:
+            # Every entry is a one-shot action — dismiss the menu once one is triggered.
+            widget.menu.hide_on_trigger = True
             widget.menu.add(
                 self.sb.registered_widgets.Separator,
                 setTitle="Package",

@@ -9,9 +9,9 @@
 | Layer | What it measures | Result |
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 223, Blender 225 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
-| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (376/443) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 14 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **44 present** pairs (of Maya's 46), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 11 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **51%** (805/1590 names); 1 modules absent: render_utils |
+| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **84%** (380/451) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 14 hollow handlers |
+| **3. Tool panels** | co-located `*Slots` tools | **44 present** pairs (of Maya's 46), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 10 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **51%** (828/1614 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 51% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -26,20 +26,20 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | anim_utils | 297 | 243 | 214 | 72% |
 | audio_utils | 66 | 24 | 9 | 14% |
 | cam_utils | 6 | 2 | 1 | 17% |
-| core_utils | 152 | 68 | 49 | 32% |
+| core_utils | 154 | 68 | 49 | 32% |
 | display_utils | 32 | 24 | 15 | 47% |
-| edit_utils | 153 | 150 | 107 | 70% |
-| env_utils | 316 | 206 | 129 | 41% |
+| edit_utils | 155 | 151 | 107 | 69% |
+| env_utils | 324 | 211 | 139 | 43% |
 | light_utils | 57 | 43 | 34 | 60% |
-| mat_utils | 218 | 183 | 157 | 72% |
+| mat_utils | 227 | 193 | 167 | 74% |
 | node_utils | 128 | 52 | 44 | 34% |
 | nurbs_utils | 25 | 20 | 15 | 60% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
 | rig_utils | 107 | 79 | 40 | 37% |
 | ui_utils | 63 | 67 | 23 | 37% |
-| uv_utils | 62 | 65 | 46 | 74% |
+| uv_utils | 66 | 68 | 49 | 74% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1590** | **1131** | **805** | **51%** |
+| **TOTAL (unique)** | **1614** | **1148** | **828** | **51%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -57,50 +57,50 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
-| GameShader | 4→4 | 3→1 | 8→8 | 1818→234 | 13% | 100% | clean |
-| ArnoldBridge | 0→0 | 6→0 | 4→4 | 729→133 | 18% | 100% | clean |
-| TubeRig | 0→0 | 5→1 | 16→16 | 3350→846 | 25% | 100% | clean |
-| ReferenceManager | 2→2 | 34→35 | 4→4 | 3006→1071 | 36% | 100% | clean |
-| ShaderTemplates | 0→0 | 6→5 | 5→5 | 787→283 | 36% | 100% | clean |
-| MatUpdater | 0→0 | 15→12 | 2→2 | 1048→397 | 38% | 100% | clean |
-| SceneExporter | 3→3 | 16→14 | 6→6 | 1329→532 | 40% | 100% | clean |
-| CurveToTube | 0→0 | 3→3 | 11→11 | 842→342 | 41% | 100% | clean |
-| TelescopeRig | 0→0 | 0→0 | 3→2 | 637→276 | 43% | 67% | 1 open |
-| ExplodedView | 0→0 | 0→1 | 4→4 | 303→134 | 44% | 100% | clean |
-| Snap | 3→3 | 6→6 | 3→3 | 413→193 | 47% | 100% | clean |
-| Channels | 2→3 | 34→22 | 4→4 | 3186→1581 | 50% | 100% | clean |
-| AudioClips | 5→3 ⚠ | 15→5 | 2→6 | 803→414 | 52% | 300% | clean |
-| TexturePathEditor | 7→5 ⚠ | 26→21 | 1→1 | 1896→1005 | 53% | 100% | clean |
-| DuplicateRadial | 0→0 | 1→1 | 12→12 | 497→266 | 54% | 100% | clean |
-| ShotSequencer | 1→1 | 15→12 | 2→2 | 3053→1690 | 55% | 100% | clean |
-| DuplicateGrid | 0→0 | 1→1 | 8→8 | 390→233 | 60% | 100% | clean |
-| HdrManager | 2→2 | 13→12 | 4→4 | 1705→1092 | 64% | 100% | clean |
-| ImageTracer | 1→1 | 2→2 | 7→7 | 534→354 | 66% | 100% | clean |
-| LightmapBaker | 2→2 | 3→3 | 8→8 | 1818→1201 | 66% | 100% | clean |
-| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3107→2084 | 67% | 100% | clean |
-| CutOnAxis | 0→0 | 0→0 | 10→10 | 161→120 | 75% | 100% | clean |
-| ShadowRig | 0→0 | 2→1 | 9→9 | 1393→1086 | 78% | 100% | clean |
-| ColorId | 0→0 | 1→0 | 8→8 | 552→460 | 83% | 100% | clean |
-| RizomBridge | 0→0 | 0→0 | 2→2 | 286→236 | 83% | 100% | clean |
-| WheelRig | 1→1 | 2→2 | 7→7 | 678→560 | 83% | 100% | clean |
-| ShellXform | 6→6 | 11→11 | 23→23 | 418→355 | 85% | 100% | clean |
+| GameShader | 4→4 | 3→1 | 8→8 | 1970→237 | 12% | 100% | clean |
+| ArnoldBridge | 0→0 | 6→0 | 4→4 | 739→134 | 18% | 100% | clean |
+| TubeRig | 0→0 | 5→1 | 16→16 | 3371→1030 | 31% | 100% | clean |
+| ShaderTemplates | 0→0 | 6→5 | 5→5 | 785→287 | 37% | 100% | clean |
+| MatUpdater | 0→0 | 15→12 | 2→2 | 1052→405 | 38% | 100% | clean |
+| SceneExporter | 3→3 | 16→14 | 6→6 | 1322→535 | 40% | 100% | clean |
+| CurveToTube | 0→0 | 4→3 | 11→11 | 869→385 | 44% | 100% | clean |
+| ExplodedView | 0→0 | 0→1 | 4→4 | 306→137 | 45% | 100% | clean |
+| TelescopeRig | 0→0 | 0→0 | 3→2 | 647→295 | 46% | 67% | 1 open |
+| Snap | 3→3 | 6→6 | 3→3 | 426→204 | 48% | 100% | clean |
+| ReferenceManager | 2→2 | 34→31 | 4→4 | 3331→1654 | 50% | 100% | clean |
+| CutOnAxis | 0→0 | 1→0 | 11→10 | 235→124 | 53% | 91% | 4 open |
+| AudioClips | 5→3 ⚠ | 15→5 | 2→6 | 811→446 | 55% | 300% | clean |
+| Channels | 2→3 | 34→22 | 4→4 | 3197→1759 | 55% | 100% | clean |
+| DuplicateRadial | 0→0 | 1→1 | 12→12 | 504→283 | 56% | 100% | clean |
+| TexturePathEditor | 7→5 ⚠ | 26→21 | 1→1 | 1913→1066 | 56% | 100% | clean |
+| DuplicateGrid | 0→0 | 1→1 | 7→7 | 440→268 | 61% | 100% | clean |
+| ShotSequencer | 1→1 | 15→12 | 2→2 | 3076→1888 | 61% | 100% | clean |
+| HdrManager | 2→2 | 13→12 | 4→4 | 1728→1109 | 64% | 100% | clean |
+| LightmapBaker | 2→2 | 3→3 | 8→8 | 1850→1254 | 68% | 100% | clean |
+| ImageTracer | 1→1 | 2→2 | 7→7 | 535→373 | 70% | 100% | clean |
+| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3102→2382 | 77% | 100% | clean |
+| RizomBridge | 0→0 | 0→0 | 2→2 | 344→273 | 79% | 100% | clean |
+| ShadowRig | 0→0 | 2→1 | 9→9 | 1413→1176 | 83% | 100% | clean |
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 192→167 | 87% | 100% | clean |
-| Calculator | 0→0 | 0→0 | 4→4 | 276→248 | 90% | 100% | clean |
-| SubstanceBridge | 0→0 | 0→0 | 2→2 | 222→199 | 90% | 100% | clean |
-| Curtain | 0→0 | 1→1 | 13→13 | 870→802 | 92% | 100% | clean |
+| WheelRig | 1→1 | 2→2 | 7→7 | 711→620 | 87% | 100% | clean |
+| ColorId | 0→0 | 1→0 | 8→8 | 557→490 | 88% | 100% | clean |
+| SubstanceBridge | 0→0 | 0→0 | 2→2 | 228→205 | 90% | 100% | clean |
+| Curtain | 0→0 | 1→1 | 13→13 | 882→814 | 92% | 100% | clean |
+| ShellXform | 6→6 | 11→11 | 23→23 | 424→389 | 92% | 100% | clean |
 | UnityBridge | 1→1 | 1→1 | 2→2 | 321→295 | 92% | 100% | clean |
-| BlendshapeAnimator | 10→10 | 13→12 | 15→15 | 873→827 | 95% | 100% | clean |
-| Bridge | 0→0 | 0→0 | 5→5 | 262→254 | 97% | 100% | clean |
-| DuplicateLinear | 0→0 | 3→3 | 7→7 | 334→332 | 99% | 100% | clean |
-| ShotManifest | 2→2 | 7→7 | 5→5 | 2006→1988 | 99% | 100% | clean |
-| Shots | 4→4 | 5→5 | 14→14 | 944→950 | 101% | 100% | clean |
-| DynamicPipe | 0→0 | 0→1 | 1→1 | 199→211 | 106% | 100% | clean |
-| SmartBake | 0→0 | 4→3 | 12→10 | 288→305 | 106% | 83% | clean |
-| ImageToPlane | 3→3 | 1→1 | 8→8 | 230→250 | 109% | 100% | clean |
-| Naming | 13→13 | 26→26 | 6→6 | 469→525 | 112% | 100% | clean |
-| Mirror | 0→0 | 0→0 | 10→10 | 207→239 | 115% | 100% | clean |
-| RenderOpacity | 3→3 | 6→6 | 4→4 | 354→409 | 116% | 100% | clean |
-| Bevel | 0→0 | 0→0 | 3→3 | 139→162 | 117% | 100% | clean |
+| Bevel | 0→0 | 0→0 | 3→3 | 175→165 | 94% | 100% | clean |
+| Bridge | 0→0 | 0→0 | 5→5 | 269→257 | 96% | 100% | clean |
+| Calculator | 0→0 | 0→0 | 4→4 | 285→273 | 96% | 100% | clean |
+| BlendshapeAnimator | 10→10 | 13→12 | 15→15 | 901→875 | 97% | 100% | clean |
+| ShotManifest | 2→2 | 7→7 | 5→5 | 2020→2001 | 99% | 100% | clean |
+| Shots | 4→4 | 5→5 | 14→14 | 957→963 | 101% | 100% | clean |
+| DuplicateLinear | 0→0 | 3→3 | 7→7 | 339→347 | 102% | 100% | clean |
+| SmartBake | 0→0 | 4→3 | 12→10 | 292→310 | 106% | 83% | clean |
+| DynamicPipe | 0→0 | 0→1 | 1→1 | 197→214 | 109% | 100% | clean |
+| ImageToPlane | 3→3 | 1→1 | 8→8 | 231→252 | 109% | 100% | clean |
+| Naming | 13→13 | 26→26 | 6→6 | 481→534 | 111% | 100% | clean |
+| Mirror | 0→0 | 0→0 | 10→10 | 213→246 | 115% | 100% | clean |
+| RenderOpacity | 3→3 | 6→6 | 4→4 | 359→413 | 115% | 100% | clean |
 
 ### Open panel ports (0) — tracked in parity_map
 
@@ -126,30 +126,30 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | cameras | 8→6 | 75% | 0→0 |  |
 | crease | 3→3 | 100% | 2→2 |  |
 | deformation | 0→0 | — | 0→0 |  |
-| display | 5→3 | 60% | 0→0 | 1 |
+| display | 3→3 | 100% | 0→0 | 1 |
 | duplicate | 18→17 | 94% | 6→6 |  |
 | edit | 35→33 | 94% | 6→6 | 1 |
 | editors | 2→2 | 100% | 0→0 |  |
 | hud | 0→0 | — | 0→0 |  |
 | lighting | 0→0 | — | 0→0 |  |
-| main | 9→9 | 100% | 0→0 |  |
-| materials | 29→27 | 93% | 6→6 | 1 |
+| main | 8→8 | 100% | 0→0 |  |
+| materials | 28→26 | 93% | 5→5 | 1 |
 | normals | 6→6 | 100% | 6→6 |  |
 | nurbs | 22→11 | 50% | 4→4 | 3 |
-| pivot | 11→5 | 45% | 11→9 ⚠ |  |
-| polygons | 22→22 | 100% | 19→19 | 1 |
+| pivot | 12→5 | 42% | 11→9 ⚠ |  |
+| polygons | 24→22 | 92% | 19→19 | 1 |
 | preferences | 3→3 | 100% | 0→0 |  |
 | rendering | 21→15 | 71% | 4→4 |  |
 | rigging | 21→18 | 86% | 12→8 ⚠ | 2 |
 | scene | 34→37 | 109% | 4→4 | 1 |
-| selection | 30→16 | 53% | 11→8 ⚠ | 2 |
+| selection | 32→18 | 56% | 11→8 ⚠ | 2 |
 | settings | 4→4 | 100% | 0→0 | 2 |
 | subdivision | 8→10 | 125% | 2→2 |  |
 | symmetry | 0→0 | — | 0→0 |  |
-| transform | 29→20 | 69% | 15→12 ⚠ |  |
+| transform | 33→24 | 73% | 17→14 ⚠ |  |
 | utilities | 0→0 | — | 0→0 |  |
-| uv | 33→28 | 85% | 12→12 |  |
-| **TOTAL** | **443→376** | **85%** | | **14** |
+| uv | 36→28 | 78% | 14→12 ⚠ |  |
+| **TOTAL** | **451→380** | **84%** | | **14** |
 
 ---
 

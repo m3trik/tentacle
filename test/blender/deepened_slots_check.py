@@ -100,10 +100,10 @@ try:
     # Labels must be real _SELECTION_CONFIG leaves (what the list actually offers) — the old
     # flat-type labels ("Mesh"/"Empty") raise ValueError and no-op, passing only vacuously.
     slot = make_slot(Selection)
-    slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None))
+    slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None, objectName=lambda: ""))
     sel = [o.name for o in bpy.context.selected_objects]
     check("selection list000 'Polygon Meshes' selects only meshes", sel == ["M"], f"sel={sel}")
-    slot.list000(NS(item_text=lambda: "Locators", sublist=None))
+    slot.list000(NS(item_text=lambda: "Locators", sublist=None, objectName=lambda: ""))
     sel = [o.type for o in bpy.context.selected_objects]
     check("selection list000 'Locators' selects the empty", sel == ["EMPTY"], f"sel={sel}")
 

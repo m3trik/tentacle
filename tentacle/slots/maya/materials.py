@@ -7,9 +7,10 @@ import pythontk as ptk
 from uitk import Signals
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle.slots._materials import MaterialsMixin
 
 
-class MaterialsSlots(SlotsMaya):
+class MaterialsSlots(MaterialsMixin, SlotsMaya):
     # Submenu Tools list — categories group tools by *what they act on* so the
     # similarly-named texture tools stop reading as interchangeable:
     #   "Materials (scene)"  — mutate the live shading network.
@@ -87,6 +88,8 @@ class MaterialsSlots(SlotsMaya):
 
     def header_init(self, widget):
         """Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools list)."""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
             "QPushButton",
@@ -290,13 +293,12 @@ class MaterialsSlots(SlotsMaya):
                 setObjectName="b015",
                 setToolTip="Delete all unused materials.",
             )
+            # Every Edit / View entry is a one-shot action — dismiss the
+            # context menu once one is triggered.
+            widget.menu.hide_on_trigger = True
             widget.menu.add("Separator", setTitle="Edit")
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Rename",
-                setObjectName="lbl005",
-                setToolTip="Rename the current material.",
-            )
+            # "Rename" label + prefix/suffix affix option box (shared, DCC-agnostic).
+            self._add_rename_control(widget.menu)
             lbl007 = widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Rename (strip trailing ints & _)",
@@ -359,9 +361,7 @@ class MaterialsSlots(SlotsMaya):
                 setToolTip="Open the material in the hypershade editor.",
             )
             # Rename the material after editing has finished.
-            widget.on_editing_finished.connect(
-                lambda text: cmds.rename(str(widget.currentData()), text)
-            )
+            widget.on_editing_finished.connect(self._rename_current)
             # Initialize the widget every time before the popup is shown.
             widget.before_popup_shown.connect(widget.init_slot)
             # Refresh the submenu Assign list when the current material changes.
@@ -457,6 +457,37 @@ class MaterialsSlots(SlotsMaya):
             "conflicts": conflicts,
             "failed": failed,
         }
+
+    def _rename_current(self, text):
+        """Rename the current material to ``text`` (combo edit-finished).
+
+        Re-populates cmb002 afterward so the item text AND data reflect the
+        actual result — Maya may adjust the requested name (invalid characters,
+        collisions) — then restores the selection on the renamed material.
+
+        Returns the resulting (possibly Maya-adjusted) name on success, or None
+        when nothing was renamed (no material, empty/unchanged name, or a
+        failed ``cmds.rename``). Callers that aren't the ``on_editing_finished``
+        signal (e.g. the affix field) use this to react to the outcome.
+        """
+        mat = self.ui.cmb002.currentData()
+        if not (mat and text):
+            return None
+        old_name = str(mat)
+        if text == old_name:
+            return None
+        try:
+            new_name = cmds.rename(old_name, text)
+        except Exception as e:
+            self.sb.message_box(f"<hl>Rename failed</hl><br>{old_name}: {e}")
+            # The combo item already carries the typed name (the edit-commit
+            # happens widget-side, before this handler runs) — re-sync it
+            # with the scene so a failed rename isn't displayed as done.
+            self.ui.cmb002.init_slot()
+            return None
+        self.ui.cmb002.init_slot()
+        self.ui.cmb002.setAsCurrent(new_name)
+        return new_name
 
     def _refresh_after_rename(self, current_old, renamed):
         """Refresh the materials combo and restore selection on the current mat."""
@@ -674,11 +705,6 @@ class MaterialsSlots(SlotsMaya):
             return
         cmds.select(str(mat), replace=True)
         mel.eval(f'showEditorExact("{mat}")')
-
-    def lbl005(self):
-        """Set the current combo box text as editable."""
-        self.ui.cmb002.setEditable(True)
-        self.ui.cmb002.option_box.menu.hide()
 
     def lbl006(self):
         """Open material in editor"""

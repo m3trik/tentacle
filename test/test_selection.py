@@ -58,7 +58,9 @@ class _FakeOptionBox:
 
 class _FakeWidget:
     def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
+        # tb004's settings menu is now the button's own MenuMixin menu
+        # (no option box), so the scope/mode reads go through ``.menu``.
+        self.menu = menu
 
 
 class _RecordedSb:
@@ -193,6 +195,125 @@ class TestSelectionToolStatic(unittest.TestCase):
         # Maya 2025 startup default is 'selectSuperContext'. Just assert string
         # (or None on failure path).
         self.assertTrue(result is None or isinstance(result, str))
+
+
+class _FakeCombo:
+    """Simulates a data-carrying settings combo (cmb_bytype_scope / _mode)."""
+
+    def __init__(self, data):
+        self._data = data
+
+    def currentData(self):
+        return self._data
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestByTypeScopeAndMode(unittest.TestCase):
+    """tb004's scope/mode combos → the pool list000 filters from and the
+    selection mode it applies.
+
+    Pins the currentData → ls-flag / mode-kwarg dispatch so a relabeled
+    combo can't silently fall back to the All-Objects / Replace defaults."""
+
+    def _instance_with(self, scope="all", mode="replace"):
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+
+        menu = _FakeOptionMenu()
+        menu.cmb_bytype_scope = _FakeCombo(scope)
+        menu.cmb_bytype_mode = _FakeCombo(mode)
+
+        class _Submenu:
+            tb004 = _FakeWidget(menu)
+
+        instance.submenu = _Submenu()
+        return instance
+
+    def test_selected_scope_uses_selection(self):
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="scope_sel_probe")[0]
+        cmds.select(cube)
+        inst = self._instance_with(scope="selected")
+        self.assertEqual(inst._by_type_scope_objects(), [cube])
+
+    def test_visible_scope_excludes_hidden(self):
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="scope_vis_probe")[0]
+        cmds.setAttr(f"{cube}.visibility", 0)
+        inst = self._instance_with(scope="visible")
+        self.assertNotIn(cube, inst._by_type_scope_objects())
+
+    def test_default_scope_is_all(self):
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="scope_all_probe")[0]
+        cmds.select(clear=True)
+        inst = self._instance_with(scope=None)  # unset combo → "all"
+        self.assertIn(cube, inst._by_type_scope_objects())
+
+    def test_settings_row_opens_menu_not_type_select(self):
+        """The tb004 Settings row dispatches to its scope/mode menu (via
+        ``tb004``), never to ``select_by_type`` — regression for the reported
+        'settings menu does not open' after the option box was removed."""
+        import mayatk as mtk
+
+        inst = self._instance_with()
+        opened = {}
+
+        class _Menu:
+            def show_as_popup(self, **kwargs):
+                opened.update(kwargs)
+
+        class _SettingsRow:
+            sublist = None
+            menu = _Menu()
+
+            def objectName(self):
+                return "tb004"
+
+            def item_text(self):
+                return "Settings"
+
+        ran_select = {"v": False}
+        original = mtk.Selection.select_by_type
+        mtk.Selection.select_by_type = (
+            lambda *a, **k: ran_select.__setitem__("v", True) or []
+        )
+        try:
+            inst.list000(_SettingsRow())
+        finally:
+            mtk.Selection.select_by_type = original
+
+        self.assertTrue(opened, "the Settings row did not open its menu")
+        self.assertFalse(
+            ran_select["v"], "the Settings row wrongly ran select_by_type"
+        )
+
+    def test_mode_passes_through_to_select_by_type(self):
+        import mayatk as mtk
+
+        cmds.file(new=True, force=True)
+        inst = self._instance_with(scope="all", mode="add")
+
+        class _Leaf:
+            sublist = None
+
+            def objectName(self):  # a real leaf row is an unnamed list item
+                return ""
+
+            def item_text(self):
+                return "Cameras"
+
+        captured = {}
+        original = mtk.Selection.select_by_type
+        mtk.Selection.select_by_type = (
+            lambda st, objs, mode: captured.update(mode=mode) or []
+        )
+        try:
+            inst.list000(_Leaf())
+        finally:
+            mtk.Selection.select_by_type = original
+
+        self.assertEqual(captured.get("mode"), "add")
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

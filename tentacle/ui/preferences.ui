@@ -208,6 +208,62 @@
              </widget>
             </item>
             <item>
+             <widget class="ComboBox" name="cmb004">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Theme for the radial marking-menu pages (startmenu / submenu).</string>
+              </property>
+              <property name="maxCount">
+               <number>999</number>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ComboBox" name="cmb005">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Theme for standalone tool windows launched from the marking menu.</string>
+              </property>
+              <property name="maxCount">
+               <number>999</number>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="b001">
               <property name="minimumSize">
                <size>

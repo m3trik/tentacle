@@ -23,20 +23,20 @@ class Editors(SlotsBlender):
     # so no button can dead-end. The five buttons whose Maya editor has no Blender analogue
     # carry a substitute editor and are relabeled to it (see ``_RELABELED``).
     _BUTTON_EDITORS = {
-        "b000": "Properties",       # Maya "Attributes" -> Properties editor
+        "b000": "Properties",  # Maya "Attributes" -> Properties editor
         "b001": "Outliner",
-        "b002": "Properties",       # Maya "Tool" -> tool settings live in Properties
-        "b003": "Outliner",         # Maya "Layers" -> collections live in the Outliner
-        "b004": "Properties",       # Maya "Channels" -> object data lives in Properties
-        "b005": "Shader Editor",    # Maya "Node Editor"
-        "b006": "Geometry Nodes",   # was "Dependency Graph" (no Blender analogue)
-        "b007": "UV Editor",        # was "Status Line" (no Blender analogue)
-        "b008": "Image Editor",     # was "Shelf" (no Blender analogue)
-        "b009": "Timeline",         # Maya "Time & Range"
-        "b010": "Info Log",         # Maya "Script Output"
-        "b011": "Python Console",   # Maya "Command Line"
-        "b012": "Graph Editor",     # was "Help Line" (no Blender analogue)
-        "b013": "Text Editor",      # was "Tool Box" (no Blender analogue)
+        "b002": "Properties",  # Maya "Tool" -> tool settings live in Properties
+        "b003": "Outliner",  # Maya "Layers" -> collections live in the Outliner
+        "b004": "Properties",  # Maya "Channels" -> object data lives in Properties
+        "b005": "Shader Editor",  # Maya "Node Editor"
+        "b006": "Geometry Nodes",  # was "Dependency Graph" (no Blender analogue)
+        "b007": "UV Editor",  # was "Status Line" (no Blender analogue)
+        "b008": "Image Editor",  # was "Shelf" (no Blender analogue)
+        "b009": "Timeline",  # Maya "Time & Range"
+        "b010": "Info Log",  # Maya "Script Output"
+        "b011": "Python Console",  # Maya "Command Line"
+        "b012": "Graph Editor",  # was "Help Line" (no Blender analogue)
+        "b013": "Text Editor",  # was "Tool Box" (no Blender analogue)
     }
     # Buttons relabeled per-DCC (their Maya editor has no Blender analogue): show + open the
     # substitute editor instead of the Maya name. The shared .ui keeps the Maya text for Maya.
@@ -46,18 +46,33 @@ class Editors(SlotsBlender):
     # real editor set; filtered against btk.get_editor_types() at init so none can dead-end.
     _EDITORS = {
         "General Editors": [
-            "Outliner", "Properties", "Preferences", "Spreadsheet", "Text Editor",
-            "Python Console", "Info Log", "File Browser", "Asset Browser",
+            "Outliner",
+            "Properties",
+            "Preferences",
+            "Spreadsheet",
+            "Text Editor",
+            "Python Console",
+            "Info Log",
+            "File Browser",
+            "Asset Browser",
             "3D Viewport",
         ],
         "Modeling Editors": [
-            "UV Editor", "Image Editor",
+            "UV Editor",
+            "Image Editor",
         ],
         "Animation Editors": [
-            "Timeline", "Dope Sheet", "Graph Editor", "Drivers", "NLA Editor",
+            "Timeline",
+            "Dope Sheet",
+            "Graph Editor",
+            "Drivers",
+            "NLA Editor",
         ],
         "Rendering Editors": [
-            "Shader Editor", "Compositor", "Geometry Nodes", "Video Sequencer",
+            "Shader Editor",
+            "Compositor",
+            "Geometry Nodes",
+            "Video Sequencer",
             "Movie Clip Editor",
         ],
     }
@@ -181,7 +196,7 @@ class Editors(SlotsBlender):
         uiScript restore)."""
         from blendertk.env_utils import script_output
 
-        script_output.toggle()
+        script_output.ScriptConsole.toggle()
 
     def b011(self):
         """Command Line (Python Console)"""

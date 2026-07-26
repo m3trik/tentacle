@@ -49,13 +49,19 @@ class PolygonsSlots(SlotsBlender):
     def header_init(self, widget):
         # b007 / b011 reuse the Maya header objectNames (Bridge Interactive / Bevel) — the same
         # two quick-access tools, also present as static buttons in polygons#component#submenu.ui.
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
-            "QPushButton", setText="Bridge Interactive", setObjectName="b007",
+            "QPushButton",
+            setText="Bridge Interactive",
+            setObjectName="b007",
             setToolTip="Bridge the selected edge loops (adjust cuts / twist / smoothness in the "
             "operator redo panel — Blender's interactive-bridge idiom).",
         )
         widget.menu.add(
-            "QPushButton", setText="Bevel", setObjectName="b011",
+            "QPushButton",
+            setText="Bevel",
+            setObjectName="b011",
             setToolTip="Open the bevel window.",
         )
 
@@ -63,13 +69,18 @@ class PolygonsSlots(SlotsBlender):
     def tb000_init(self, widget):
         widget.option_box.menu.setTitle("Merge Vertices")
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Distance: ", setObjectName="s002",
-            set_limits=[0, 10, 0.0001, 4], setValue=0.0001,
+            "QDoubleSpinBox",
+            setPrefix="Distance: ",
+            setObjectName="s002",
+            set_limits=[0, 10, 0.0001, 4],
+            setValue=0.0001,
             setToolTip="Vertices within this distance are merged.",
         )
         # b005 reuses the Maya name/label (Set Distance) — cross-DCC rule.
         widget.option_box.menu.add(
-            "QPushButton", setText="Set Distance", setObjectName="b005",
+            "QPushButton",
+            setText="Set Distance",
+            setObjectName="b005",
             setToolTip="Set the merge distance from two selected vertices (their gap, +0.1% so a "
             "merge would collapse them).\nWith any other selection, reset to the default.",
         )
@@ -97,17 +108,23 @@ class PolygonsSlots(SlotsBlender):
             spinbox.setValue(ptk.distance_between_points(*coords) * 1.001)
         else:
             spinbox.setValue(0.0001)  # default
-            self.sb.message_box("Select exactly two vertices in Edit Mode to set the distance.")
+            self.sb.message_box(
+                "Select exactly two vertices in Edit Mode to set the distance."
+            )
 
     def tb002_init(self, widget):
         # chk021 / chk022 reuse the Maya names for the SAME options (By Material / Rename).
         widget.option_box.menu.setTitle("Separate")
         widget.option_box.menu.add(
-            "QCheckBox", setText="By Material", setObjectName="chk021",
+            "QCheckBox",
+            setText="By Material",
+            setObjectName="chk021",
             setToolTip="Split by material assignment (else by loose connected parts).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Rename", setObjectName="chk022",
+            "QCheckBox",
+            setText="Rename",
+            setObjectName="chk022",
             setToolTip="Rename the resulting parts after the source object (<name>, <name>_part01 …).",
         )
 
@@ -123,19 +140,27 @@ class PolygonsSlots(SlotsBlender):
             btk.separate_objects(
                 objects, by_material=m.chk021.isChecked(), rename=m.chk022.isChecked()
             )
-        except RuntimeError as e:  # residual failures (hidden/linked mesh) — no raw traceback
+        except (
+            RuntimeError
+        ) as e:  # residual failures (hidden/linked mesh) — no raw traceback
             self.sb.message_box(str(e))
 
     def tb003_init(self, widget):
         # chk002 / s004 reuse Maya names for the SAME options.
         widget.option_box.menu.setTitle("Extrude")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Keep Faces Together", setObjectName="chk002", setChecked=True,
+            "QCheckBox",
+            setText="Keep Faces Together",
+            setObjectName="chk002",
+            setChecked=True,
             setToolTip="Extrude the region as one (off = extrude each face individually).",
         )
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Offset: ", setObjectName="s004",
-            set_limits=[-100, 100, 0.01, 3], setValue=0.0,
+            "QDoubleSpinBox",
+            setPrefix="Offset: ",
+            setObjectName="s004",
+            set_limits=[-100, 100, 0.01, 3],
+            setValue=0.0,
             setToolTip="Push the extruded geometry along its normals by this amount.",
         )
 
@@ -143,7 +168,11 @@ class PolygonsSlots(SlotsBlender):
     def tb003(self, widget):
         """Extrude (region together or per-face), then offset along normals."""
         m = widget.option_box.menu
-        op = bpy.ops.mesh.extrude_region if m.chk002.isChecked() else bpy.ops.mesh.extrude_faces_move
+        op = (
+            bpy.ops.mesh.extrude_region
+            if m.chk002.isChecked()
+            else bpy.ops.mesh.extrude_faces_move
+        )
         if not self._edit_op(op):
             return
         offset = m.s004.value()
@@ -168,17 +197,24 @@ class PolygonsSlots(SlotsBlender):
         # chk003 / chk004 / s003 reuse the Maya names for the SAME options.
         widget.option_box.menu.setTitle("Combine")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Group by Material", setObjectName="chk003",
+            "QCheckBox",
+            setText="Group by Material",
+            setObjectName="chk003",
             setToolTip="Join into one mesh per material assignment instead of a single mesh.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Cluster by Distance", setObjectName="chk004",
+            "QCheckBox",
+            setText="Cluster by Distance",
+            setObjectName="chk004",
             setToolTip="Further split each material group by spatial proximity — objects farther "
             "apart than the threshold stay in separate meshes.",
         )
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Threshold: ", setObjectName="s003",
-            set_limits=[0, 100000, 1, 2], setValue=10000.0,
+            "QDoubleSpinBox",
+            setPrefix="Threshold: ",
+            setObjectName="s003",
+            set_limits=[0, 100000, 1, 2],
+            setValue=10000.0,
             setToolTip="Maximum distance between objects to be considered part of the same cluster.",
         )
         # Threshold only matters while clustering (mirror of the Maya panel).
@@ -209,16 +245,24 @@ class PolygonsSlots(SlotsBlender):
         # chk014 / chk015 / chk020 reuse the Maya names for the SAME options.
         widget.option_box.menu.setTitle("Detach")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Duplicate", setObjectName="chk014", setChecked=True,
+            "QCheckBox",
+            setText="Duplicate",
+            setObjectName="chk014",
+            setChecked=True,
             setToolTip="Leave the original faces in place and detach a COPY of the selection.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Separate Extracted Faces", setObjectName="chk015", setChecked=True,
+            "QCheckBox",
+            setText="Separate Extracted Faces",
+            setObjectName="chk015",
+            setChecked=True,
             setToolTip="Move the detached faces into a NEW object (off = split them off in place, "
             "staying within the same mesh).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Separate Each Face", setObjectName="chk020",
+            "QCheckBox",
+            setText="Separate Each Face",
+            setObjectName="chk020",
             setToolTip="Each detached face becomes its own separate object.",
         )
 
@@ -241,18 +285,26 @@ class PolygonsSlots(SlotsBlender):
         # Blender's inset thickness.
         widget.option_box.menu.setTitle("Inset Face Region")
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Offset: ", setObjectName="s001",
-            set_limits=[0, 100, 0.01, 3], setValue=0.1,
+            "QDoubleSpinBox",
+            setPrefix="Offset: ",
+            setObjectName="s001",
+            set_limits=[0, 100, 0.01, 3],
+            setValue=0.1,
             setToolTip="Inset offset (thickness).",
         )
         # chk018 / s010: Blender-only options (free in maya/polygons.py — no state bleed).
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Depth: ", setObjectName="s010",
-            set_limits=[-100, 100, 0.01, 3], setValue=0.0,
+            "QDoubleSpinBox",
+            setPrefix="Depth: ",
+            setObjectName="s010",
+            set_limits=[-100, 100, 0.01, 3],
+            setValue=0.0,
             setToolTip="Raise/lower the inset region along its normal.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Individual Faces", setObjectName="chk018",
+            "QCheckBox",
+            setText="Individual Faces",
+            setObjectName="chk018",
             setToolTip="Inset each selected face separately (else as one region).",
         )
 
@@ -271,12 +323,17 @@ class PolygonsSlots(SlotsBlender):
         # chk010 reuses the Maya name for the SAME option ("Tris").
         widget.option_box.menu.setTitle("Divide Facet")
         widget.option_box.menu.add(
-            "QSpinBox", setPrefix="Cuts: ", setObjectName="s009",
-            set_limits=[1, 10], setValue=1,
+            "QSpinBox",
+            setPrefix="Cuts: ",
+            setObjectName="s009",
+            set_limits=[1, 10],
+            setValue=1,
             setToolTip="Number of subdivision cuts.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Tris", setObjectName="chk010",
+            "QCheckBox",
+            setText="Tris",
+            setObjectName="chk010",
             setToolTip="Triangulate the result.",
         )
 
@@ -297,11 +354,15 @@ class PolygonsSlots(SlotsBlender):
         # boolean; the Blender analogue is keeping the Boolean modifier non-destructive).
         widget.option_box.menu.setTitle("Boolean Operation")
         widget.option_box.menu.add(
-            "QComboBox", addItems=["Difference", "Union", "Intersection"],
-            setObjectName="cmb011", setToolTip="Boolean operation (active = base).",
+            "QComboBox",
+            addItems=["Difference", "Union", "Intersection"],
+            setObjectName="cmb011",
+            setToolTip="Boolean operation (active = base).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Interactive", setObjectName="chk017",
+            "QCheckBox",
+            setText="Interactive",
+            setObjectName="chk017",
             setToolTip="Keep the Boolean modifier live (non-destructive) instead of baking it.",
         )
 
@@ -316,21 +377,29 @@ class PolygonsSlots(SlotsBlender):
             self.sb.message_box("Boolean requires 2+ selected meshes (active = base).")
             return
         operation = {
-            "Difference": "DIFFERENCE", "Union": "UNION", "Intersection": "INTERSECT"
+            "Difference": "DIFFERENCE",
+            "Union": "UNION",
+            "Intersection": "INTERSECT",
         }[widget.option_box.menu.cmb011.currentText()]
         try:
             btk.boolean_op(
-                objects, operation=operation,
+                objects,
+                operation=operation,
                 apply=not widget.option_box.menu.chk017.isChecked(),
             )
-        except RuntimeError as e:  # residual failures (non-evaluable operand) — no raw traceback
+        except (
+            RuntimeError
+        ) as e:  # residual failures (non-evaluable operand) — no raw traceback
             self.sb.message_box(str(e))
 
     def tb009_init(self, widget):
         widget.option_box.menu.setTitle("Snap Closest Verts")
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="s005",
-            set_limits=[0, 100, 0.05, 3], setValue=10,
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s005",
+            set_limits=[0, 100, 0.05, 3],
+            setValue=10,
             setToolTip="Maximum snap distance — vertices farther than this are ignored.",
         )
         # Maya's "Freeze Transforms" option (chk016) is NOT mirrored: it was a cmds
@@ -407,7 +476,9 @@ class PolygonsSlots(SlotsBlender):
         edges, not an object join."""
         obj = self.ensure_edit_mode("MESH")
         if not obj:
-            self.sb.message_box("Attach requires a mesh with components selected in Edit Mode.")
+            self.sb.message_box(
+                "Attach requires a mesh with components selected in Edit Mode."
+            )
             return
         import bmesh
 
@@ -455,7 +526,7 @@ class PolygonsSlots(SlotsBlender):
         MergeVertexTool — b043 welds at the target, b008 at the midpoint). The engine
         handles the Maya-slot activation prep (Edit mode, vertex mask, deselect)."""
         try:
-            btk.target_weld(merge_to_center=merge_to_center)
+            btk.TargetWeld.activate(merge_to_center=merge_to_center)
         except RuntimeError as e:
             self.sb.message_box(str(e))
 
@@ -483,7 +554,9 @@ class PolygonsSlots(SlotsBlender):
     @btk.undoable
     def b053(self):
         """Edit Edge Flow (Set Flow on the selected edge loops)."""
-        self._addon_op("set_edge_flow", "Edit Edge Flow", "Edit Mesh Tools (or Loop Flow)")
+        self._addon_op(
+            "set_edge_flow", "Edit Edge Flow", "Edit Mesh Tools (or Loop Flow)"
+        )
 
     # ------------------------------------------------------------------ deferred (modal / no analogue)
 
@@ -520,7 +593,9 @@ class PolygonsSlots(SlotsBlender):
             return
         ctx = btk.get_view3d_context()
         if not ctx:
-            self.sb.message_box("No 3D viewport available — open a 3D view to slide edges.")
+            self.sb.message_box(
+                "No 3D viewport available — open a 3D view to slide edges."
+            )
             return
         ctx = {k: v for k, v in ctx.items() if v is not None}
         try:

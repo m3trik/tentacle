@@ -46,6 +46,31 @@ class _RecordedSb:
         self.messages.append((args, kwargs))
 
 
+class _FakeB000Widget:
+    """b000's option-box surface: Scope combo (cmb014) + Similarity (d000)."""
+
+    class _Combo:
+        def __init__(self, data):
+            self._data = data
+
+        def currentData(self):
+            return self._data
+
+    class _Spin:
+        def __init__(self, value):
+            self._value = value
+
+        def value(self):
+            return self._value
+
+    def __init__(self, scope="order", tolerance=0.9):
+        menu = _FakeUi()
+        menu.cmb014 = self._Combo(scope)
+        menu.d000 = self._Spin(tolerance)
+        self.option_box = _FakeUi()
+        self.option_box.menu = menu
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestGetMapSize(unittest.TestCase):
     """get_map_size casts cmb003 text to int. Used throughout the file
@@ -102,14 +127,14 @@ class TestB000TransferUVsGate(unittest.TestCase):
 
     def test_no_selection_warns_and_skips(self):
         cmds.select(clear=True)
-        self.instance.b000(widget=None)
+        self.instance.b000(widget=_FakeB000Widget())
         self.assertEqual(self.captured, [])
         self.assertTrue(self.instance.sb.messages)
 
     def test_one_object_warns_and_skips(self):
         a = cmds.polyCube(name="uv_b000_one")[0]
         cmds.select(a)
-        self.instance.b000(widget=None)
+        self.instance.b000(widget=_FakeB000Widget())
         self.assertEqual(self.captured, [])
         self.assertTrue(self.instance.sb.messages)
 
@@ -118,7 +143,7 @@ class TestB000TransferUVsGate(unittest.TestCase):
         b = cmds.polyCube(name="uv_b000_b")[0]
         cmds.select([a, b])
 
-        self.instance.b000(widget=None)
+        self.instance.b000(widget=_FakeB000Widget())
 
         # frm=a, to=[b] → one transfer call
         self.assertEqual(len(self.captured), 1)
@@ -131,7 +156,7 @@ class TestB000TransferUVsGate(unittest.TestCase):
         c = cmds.polyCube(name="uv_b000_c3")[0]
         cmds.select([a, b, c])
 
-        self.instance.b000(widget=None)
+        self.instance.b000(widget=_FakeB000Widget())
 
         # frm=a, to=[b, c] → two transfer calls
         self.assertEqual(len(self.captured), 2)
@@ -647,3 +672,4 @@ class TestTb004ObjectModeGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

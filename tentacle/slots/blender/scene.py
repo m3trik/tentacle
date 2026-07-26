@@ -98,6 +98,8 @@ class SceneSlots(SlotsBlender):
         Toggle Command Ports) are omitted — see the parity overrides. Reused objectNames carry the
         Maya label verbatim (cross-DCC QSettings rule); ``b_cleanup`` is Blender-specific (Maya's
         b006 means the unrelated 'Cleanup Unknown')."""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add("Separator", setTitle="Export")
         widget.menu.add(
             "QPushButton", setText="Export Scene", setObjectName="b018",

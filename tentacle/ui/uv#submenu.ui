@@ -77,11 +77,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>uv</string>
-    </property>
     <property name="text">
      <string>UV</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>uv</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b021">
@@ -90,7 +90,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>295</x>
       <y>250</y>
       <width>101</width>
       <height>19</height>
@@ -318,8 +318,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>250</y>
+      <x>415</x>
+      <y>230</y>
       <width>106</width>
       <height>19</height>
      </rect>
@@ -349,8 +349,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>230</y>
+      <x>415</x>
+      <y>250</y>
       <width>106</width>
       <height>19</height>
      </rect>

@@ -99,18 +99,50 @@ def _ui_widget_names(ui_path: Path) -> list[str]:
     return found
 
 
-def _slot_methods(py_path: Path) -> set[str]:
-    """Return the set of method names defined on any class in the slot file."""
+def _shared_mixin_paths(tree: ast.Module) -> dict[str, Path]:
+    """``{imported name: file}`` for bases pulled from ``tentacle.slots.*``.
+
+    Shared, DCC-agnostic mixins (e.g. ``PreferencesMixin``, which supplies
+    the window-theme combos to every DCC's ``Preferences``) define slots the
+    module itself doesn't — resolving them keeps those from reading as ghosts.
+    """
+    mapping: dict[str, Path] = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ImportFrom) or not node.module:
+            continue
+        if not node.module.startswith("tentacle.slots"):
+            continue
+        base_dir = ROOT.joinpath(*node.module.split("."))
+        for alias in node.names:
+            path = base_dir.with_suffix(".py")
+            if path.exists():
+                mapping[alias.asname or alias.name] = path
+    return mapping
+
+
+def _slot_methods(py_path: Path, _seen: set[Path] = None) -> set[str]:
+    """Method names on any class in the slot file, plus those inherited from
+    shared ``tentacle.slots`` mixins listed as bases."""
+    _seen = _seen if _seen is not None else set()
+    if py_path in _seen:
+        return set()
+    _seen.add(py_path)
+
     try:
         tree = ast.parse(py_path.read_text(encoding="utf-8"))
     except (SyntaxError, OSError):
         return set()
 
+    mixins = _shared_mixin_paths(tree)
     methods: set[str] = set()
     for cls in (n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)):
         for stmt in cls.body:
             if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 methods.add(stmt.name)
+        for base in cls.bases:
+            path = mixins.get(base.id) if isinstance(base, ast.Name) else None
+            if path is not None:
+                methods |= _slot_methods(path, _seen)
     return methods
 
 

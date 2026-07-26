@@ -16,6 +16,8 @@ class Animation(SlotsMaya):
 
     def header_init(self, widget):
         """Header Init"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add("Separator", setTitle="Sequencing")
         widget.menu.add(
             "QPushButton",

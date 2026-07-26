@@ -262,12 +262,15 @@ class DisplaySlots(SlotsBlender):
 
     def _xray_selected(self):
         sel = self.selected_objects()
+        if not sel:
+            return "Xray Selected: <hl>nothing selected</hl>"
+        # Uniform toggle (mirrors Maya b005): if ANY selected object is not
+        # x-rayed, turn ALL on — a blind per-object invert desyncs mixed
+        # selections when an object lost its flag (e.g. rebuilt geometry).
+        target = not all(o.show_in_front for o in sel)
         for o in sel:
-            o.show_in_front = not o.show_in_front
-        return (
-            f"Xray Selected: <hl>{len(sel)}</hl> toggled"
-            if sel else "Xray Selected: <hl>nothing selected</hl>"
-        )
+            o.show_in_front = target
+        return f"Xray Selected ({len(sel)}): <hl>{'On' if target else 'Off'}</hl>"
 
     def _un_xray_all(self):
         for o in bpy.context.scene.objects:  # scene-scoped, like _wireframe_inactive
@@ -277,9 +280,13 @@ class DisplaySlots(SlotsBlender):
     def _xray_other(self):
         sel = set(self.selected_objects())
         other = [o for o in bpy.context.scene.objects if o.type == "MESH" and o not in sel]
+        if not other:
+            return "Xray Other: <hl>nothing to toggle</hl>"
+        # Uniform toggle (mirrors Maya b007).
+        target = not all(o.show_in_front for o in other)
         for o in other:
-            o.show_in_front = not o.show_in_front
-        return f"Xray Other: <hl>{len(other)}</hl> object(s)"
+            o.show_in_front = target
+        return f"Xray Other ({len(other)}): <hl>{'On' if target else 'Off'}</hl>"
 
     def b013(self):
         """Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /

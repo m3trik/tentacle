@@ -1,8 +1,9 @@
 # tentacle — API Changes
 
-_Diff vs prior baseline. Generated 2026-07-19._
+_Diff vs prior baseline. Generated 2026-07-26._
 
-## Added (2)
+## Signature changed (1)
 
-- `slots/blender/_slots_blender.py::SlotsBlender.ensure_object_mode(self)`
-- `slots/blender/polygons.py::PolygonsSlots.b038_init(self, widget)`
+- `slots/_edit.py::EditMixin.report_cleanup_failure`
+  - was: `(cls, message_box, scope, mode_label, exc)`
+  - now: `(self, scope, mode_label, exc)`

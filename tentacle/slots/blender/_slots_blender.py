@@ -39,10 +39,12 @@ class SlotsBlender(Slots):
 
         Prefers the active object, falling back to the first selected object of ``obj_type``
         and activating it: Maya's component tools act on the *selection*, so a curve tool must
-        still work when a selected curve isn't the active object (``btk.target_weld`` makes the
-        same fall-back for the same reason).
+        still work when a selected curve isn't the active object (``btk.TargetWeld.activate``
+        makes the same fall-back for the same reason).
         """
-        obj = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
+        obj = (
+            self.active_object()
+        )  # not bpy.context.active_object: None from the Qt-pump context
         if not obj or obj.type != obj_type:
             # ``selected_objects`` reads view_layer.objects — which is what makes the ``active``
             # assignment below safe: an object sourced from bpy.data could be excluded from the
@@ -71,7 +73,9 @@ class SlotsBlender(Slots):
         Mode, and the marking menu is reachable mid-edit. Returns False when the mode switch
         fails (message already shown); no-op when already in Object Mode. The Object-Mode sibling
         of :meth:`ensure_edit_mode` (promoted from duplicate.py once pivot needed it too)."""
-        active = self.active_object()  # not bpy.context.active_object: None from the Qt-pump context
+        active = (
+            self.active_object()
+        )  # not bpy.context.active_object: None from the Qt-pump context
         if not (active and active.mode != "OBJECT"):
             return True
         try:
@@ -115,7 +119,9 @@ class SlotsBlender(Slots):
         """
         ctx = btk.get_view3d_context()
         if not ctx:
-            self.sb.message_box("No 3D viewport available — open a 3D view to use this tool.")
+            self.sb.message_box(
+                "No 3D viewport available — open a 3D view to use this tool."
+            )
             return False
         if edit_type and not self.ensure_edit_mode(edit_type):
             self.sb.message_box(

@@ -5,9 +5,10 @@ import pythontk as ptk
 import blendertk as btk
 from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle.slots._materials import MaterialsMixin
 
 
-class MaterialsSlots(SlotsBlender):
+class MaterialsSlots(MaterialsMixin, SlotsBlender):
     """Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
     ``blendertk.MatUtils`` (materials on ``obj.material_slots`` / ``bpy.data.materials``; textures
     are ``TEX_IMAGE`` nodes — no shading engines / file nodes). The material/texture **info report**
@@ -90,6 +91,8 @@ class MaterialsSlots(SlotsBlender):
     # ------------------------------------------------------------------ header (Utilities)
     def header_init(self, widget):
         """Header menu — Utilities (Setup tools live in the submenu Tools list, mirroring Maya)."""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add("Separator", setTitle="Utilities")
         widget.menu.add(
             "QPushButton", setText="Reload Scene Textures", setObjectName="b013",
@@ -128,12 +131,12 @@ class MaterialsSlots(SlotsBlender):
                 setToolTip="Delete materials assigned to no object (fake-user materials are kept).",
             )
 
-            # Right-click context menu — Edit / View.
+            # Right-click context menu — Edit / View. Every entry is a
+            # one-shot action — dismiss the menu once one is triggered.
+            widget.menu.hide_on_trigger = True
             widget.menu.add("Separator", setTitle="Edit")
-            widget.menu.add(
-                self.sb.registered_widgets.Label, setText="Rename", setObjectName="lbl005",
-                setToolTip="Rename the current material (makes the combo editable).",
-            )
+            # "Rename" label + prefix/suffix affix option box (shared, DCC-agnostic).
+            self._add_rename_control(widget.menu)
             lbl007 = widget.menu.add(
                 self.sb.registered_widgets.Label, setText="Rename (strip trailing ints & _)",
                 setObjectName="lbl007",
@@ -196,18 +199,29 @@ class MaterialsSlots(SlotsBlender):
         return mat
 
     def _rename_current(self, text):
-        """Rename the current material datablock to ``text`` (combo edit-finished)."""
+        """Rename the current material datablock to ``text`` (combo edit-finished).
+
+        Returns the resulting (possibly Blender-suffixed) name on success, or
+        None when nothing was renamed (no material, empty/unchanged name, or an
+        unresolvable material). Callers that aren't the ``on_editing_finished``
+        signal (e.g. the affix field) use this to react to the outcome.
+        """
         name = self.ui.cmb002.currentData()
         if not (name and text):
-            return
+            return None
         mat = self._resolve_material(name)
         if mat is None:
-            return
+            # The combo item already carries the typed name (the edit-commit
+            # happens widget-side, before this handler runs) — re-sync it
+            # with the scene so a failed rename isn't displayed as done.
+            self.ui.cmb002.init_slot()
+            return None
         mat.name = text
         # Re-sync the item data (a NAME — now stale) with the actual result; Blender may
         # have suffixed ``text`` (.001) on collision, so read the name back off the mat.
         self.ui.cmb002.init_slot()
         self.ui.cmb002.setAsCurrent(mat.name)
+        return mat.name
 
     # ------------------------------------------------------------------ tb000  Select By Material
     def tb000_init(self, widget):
@@ -593,11 +607,6 @@ class MaterialsSlots(SlotsBlender):
         users = btk.select_by_material(mat)
         if not users:
             self.sb.message_box(f"No objects use <hl>{mat.name}</hl>.")
-
-    def lbl005(self):
-        """Rename — make the combo editable so the user can type a new name."""
-        self.ui.cmb002.setEditable(True)
-        self.ui.cmb002.option_box.menu.hide()
 
     def lbl006(self):
         """Open in Editor — graph the current material in the Shader Editor."""

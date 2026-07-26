@@ -105,7 +105,8 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Any recent autosaves will appear here.</string>
+            <string>Any recent autosaves will appear here.
+Searches the current workspace's autosave folder — use Set Workspace (Workspace tab) first, or its autosaves won't be found.</string>
            </property>
            <property name="maxVisibleItems">
             <number>40</number>

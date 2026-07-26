@@ -2,13 +2,15 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-07-19_
+_Generated: 2026-07-26_
 
 ## Index
 
 - [`__init__.py`](#__init__)
+- [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
-- [`slots/_mesh_cleanup.py`](#slots--_mesh_cleanup) — Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+- [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
+- [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
@@ -111,6 +113,16 @@ _Generated: 2026-07-19_
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L26) — Format a string using preset variables.
 
+<a id="slots--_edit"></a>
+### `slots/_edit.py`
+
+Shared, DCC-agnostic behavior for the ``edit`` panel.
+
+- **[`class EditMixin`](tentacle/tentacle/slots/_edit.py#L16)** — DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).
+  - `EditMixin.cleanup_popup_html(header, rows)` *(static)* — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
+  - `EditMixin.cleanup_console_report(title, lines)` *(static)* — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
+  - `EditMixin.report_cleanup_failure(self, scope, mode_label, exc)` — Report a Mesh Cleanup failure through both channels — a detailed console line and a
+
 <a id="slots--_hud_warnings"></a>
 ### `slots/_hud_warnings.py`
 
@@ -121,14 +133,24 @@ Shared HUD warning framework (DCC-agnostic).
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
 
-<a id="slots--_mesh_cleanup"></a>
-### `slots/_mesh_cleanup.py`
+<a id="slots--_materials"></a>
+### `slots/_materials.py`
 
-Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- [`cleanup_popup_html(header, rows)`](tentacle/tentacle/slots/_mesh_cleanup.py#L12) — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
-- [`cleanup_console_report(title, lines)`](tentacle/tentacle/slots/_mesh_cleanup.py#L28) — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
-- [`report_cleanup_failure(message_box, scope, mode_label, exc)`](tentacle/tentacle/slots/_mesh_cleanup.py#L44) — Report a Mesh Cleanup failure through both channels — a detailed console line and a minimal
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L28)** — DCC-agnostic ``materials`` slot behavior.
+  - `MaterialsMixin.lbl005(self)` — Rename the current material.
+
+<a id="slots--_preferences"></a>
+### `slots/_preferences.py`
+
+Shared, DCC-agnostic behavior for the ``preferences`` panel.
+
+- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L18)** — DCC-agnostic ``preferences`` slot behavior.
+  - `PreferencesMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
+  - `PreferencesMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
+  - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
+  - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -270,7 +292,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--edit"></a>
 ### `slots/blender/edit.py`
 
-- **[`class Edit(SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L14)** — Blender port of the shared ``edit`` menu.
+- **[`class Edit(EditMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L10)** — Blender port of the shared ``edit`` menu.
   - `Edit.header_init(self, widget)`
   - `Edit.b_channels(self)` — Channels — open the spreadsheet-style channel editor (btk.Channels panel).
   - `Edit.tb000_init(self, widget)`
@@ -344,7 +366,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--materials"></a>
 ### `slots/blender/materials.py`
 
-- **[`class MaterialsSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L10)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
+- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L11)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
   - `MaterialsSlots.header_init(self, widget)` — Header menu — Utilities (Setup tools live in the submenu Tools list, mirroring Maya).
   - `MaterialsSlots.cmb002_init(self, widget)` — Materials combo: scene materials with color swatches + option box (Cleanup) + a
   - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
@@ -365,7 +387,6 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `MaterialsSlots.b015(self, widget=None)` — Delete All Unused Materials
   - `MaterialsSlots.lbl002(self)` — Delete the current material.
   - `MaterialsSlots.lbl004(self)` — Select Node — select the object(s) using the current material.
-  - `MaterialsSlots.lbl005(self)` — Rename — make the combo editable so the user can type a new name.
   - `MaterialsSlots.lbl006(self)` — Open in Editor — graph the current material in the Shader Editor.
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers/underscores.
   - `MaterialsSlots.lbl007_global(self)` — Strip trailing ints/underscores from ALL scene materials (skips on-collision).
@@ -476,7 +497,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
 
-- **[`class Preferences(SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L11)** — Blender port of the shared ``preferences`` menu.
+- **[`class Preferences(PreferencesMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L12)** — Blender port of the shared ``preferences`` menu.
   - `Preferences.cmb001_init(self, widget)`
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)`
@@ -583,6 +604,8 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Selection.cmb001_init(self, widget)` — Reorder Selection — hidden: Blender has no ordered *object* selection to feed
   - `Selection.cmb001(self, index, widget)` — Reorder Selection — not applicable in Blender.
   - `Selection.list000_init(self, widget)` — Select by Type: hierarchical type list.
+  - `Selection.tb004_init(self, widget)` — Select by Type settings menu (mirror of the Maya slot's tb004).
+  - `Selection.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
   - `Selection.list000(self, item)` — Select by Type (native bpy predicates via ``btk.Selection``).
 
 <a id="slots--blender--settings"></a>
@@ -657,7 +680,8 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `TransformSlots.chk023(self, state, widget)` — Snap: Rotate (increment rotation snapping).
   - `TransformSlots.tb001_init(self, widget)`
   - `TransformSlots.tb001(self, widget)` — Scale Connected Edges (each connected set of selected edges scales about its
-  - `TransformSlots.b002(self)` — Un-Freeze Transforms (restore the channels stamped by Freeze;
+  - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box).
+  - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms (restore the channels stamped by Freeze;
   - `TransformSlots.tb003_init(self, widget)` — Constraints Init (mirrors the Maya option box;
   - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge (snap-to-edge during move).
   - `TransformSlots.chk025(self, state, widget)` — Transform Constraints: Surface (snap-to-face during move).
@@ -702,7 +726,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Uv.tb022(self, widget)` — Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
   - `Uv.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
   - `Uv.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
-  - `Uv.b032(self)` — RizomUV Bridge — co-located blendertk panel (export selection → launch RizomUV with a
+  - `Uv.b032(self)` — RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).
   - `Uv.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
   - `Uv.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `Uv.s003(self, value, widget)` — Texel Density — passive input;
@@ -837,9 +861,9 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `DisplaySlots.b002(self)` — Hide Selected
   - `DisplaySlots.b003(self)` — Show Selected
   - `DisplaySlots.b004(self)` — Show Geometry
-  - `DisplaySlots.b005(self)` — Xray Selected
+  - `DisplaySlots.b005(self)` — Xray Selected.
   - `DisplaySlots.b006(self)` — Un-Xray All
-  - `DisplaySlots.b007(self)` — Xray Other
+  - `DisplaySlots.b007(self)` — Xray Other (uniform toggle across all non-selected shapes)
   - `DisplaySlots.b009(self)` — Toggle Material Override
   - `DisplaySlots.b011(self)` — Toggle Component ID Display
   - `DisplaySlots.b012(self)` — Wireframe Non Active (Wireframe All But The Selected Item)
@@ -870,7 +894,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
-- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L16)**
+- **[`class Edit(EditMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L12)**
   - `Edit.header_init(self, widget)` — Initialize header menu
   - `Edit.tb000_init(self, widget)` — Initialize Mesh Cleanup
   - `Edit.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
@@ -985,7 +1009,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L12)**
+- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
   - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools li…
   - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
   - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
@@ -999,7 +1023,6 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `MaterialsSlots.lbl002(self)` — Delete Material
   - `MaterialsSlots.b015(self, widget)` — Delete Unused Materials
   - `MaterialsSlots.lbl004(self)` — Select and Show Attributes: Show Material Attributes in the Attribute Editor.
-  - `MaterialsSlots.lbl005(self)` — Set the current combo box text as editable.
   - `MaterialsSlots.lbl006(self)` — Open material in editor
   - `MaterialsSlots.b002(self, widget)` — Get Material: Change the index to match the current material selection.
   - `MaterialsSlots.b004(self, widget)` — Assign Random
@@ -1161,7 +1184,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--maya--preferences"></a>
 ### `slots/maya/preferences.py`
 
-- **[`class Preferences(SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L13)**
+- **[`class Preferences(PreferencesMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L14)**
   - `Preferences.cmb001_init(self, widget)` — Initializes the combo box with unit options.
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)` — Initializes the combo box with frame rate options.
@@ -1261,6 +1284,8 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 - **[`class Selection(SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L10)**
   - `Selection.list000_init(self, widget)` — Select by Type: Hierarchical type list.
   - `Selection.list000(self, item)` — Select by Type
+  - `Selection.tb004_init(self, widget)` — Select by Type settings menu.
+  - `Selection.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
   - `Selection.cmb001_init(self, widget)` — Reorder Selection Init
   - `Selection.cmb001(self, index, widget)` — Reorder Selection
   - `Selection.cmb003_init(self, widget)`
@@ -1393,7 +1418,8 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `TransformSlots.s023(self, value, widget)` — Transform Tool Snap Settings: Spinboxes
   - `TransformSlots.b_snap_ts(self)` — Snap Toolset
   - `TransformSlots.b001(self)` — Match Scale: scale the selected object(s) to match the first-selected object's size.
-  - `TransformSlots.b002(self)` — Un-Freeze Transforms
+  - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init
+  - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms
   - `TransformSlots.setTransformSnap(self, ctx, state)` — Set the transform tool's move, rotate, and scale snap states.
 
 <a id="slots--maya--utilities"></a>
@@ -1423,6 +1449,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `UvSlots.tb009(self, widget)` — Cut Cylinder
   - `UvSlots.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `UvSlots.s003(self, value, widget)` — Texel Density — passive input;
+  - `UvSlots.b000_init(self, widget)` — Initialize Transfer UVs option box — scope + similarity tolerance.
   - `UvSlots.b000(self, widget)` — Transfer UV's
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density
@@ -1454,25 +1481,25 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1613) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1618) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1623) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1628) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1633) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register()`](tentacle/tentacle/tcl_blender.py#L1638) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1643) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L1648) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1653) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1658) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1663) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1027)** — Marking Menu class overridden for use with Blender.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1742) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1747) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1752) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1757) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1762) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register()`](tentacle/tentacle/tcl_blender.py#L1767) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1772) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L1777) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1782) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1787) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1792) — Remove the click tracer.
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1106)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1423)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1533)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1503)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1627)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register()` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

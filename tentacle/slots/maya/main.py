@@ -5,7 +5,7 @@ import os
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals, RecentValuesStore
+from uitk import Signals, RecentValuesStore, IconManager
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
@@ -21,10 +21,11 @@ class Main(SlotsMaya):
 
         Rows: ``Set Workspace`` (click prompts for a project dir; its flyout
         nests ``Auto Set Workspace`` and a ``Recent Workspaces`` sub-flyout),
-        ``Edit Workspace`` (Maya's native Project Window), and a ``Current
-        Workspace`` separator with the workspace-name row below it (the row
-        opens the workspace root; its flyout browses the dir tree). Rebuilt on
-        every show (``refresh_on_show``) so the dir tree and recent list stay current.
+        ``Edit Workspace`` (Maya's native Project Window), then the
+        workspace-name row (the row opens the workspace root; its flyout
+        browses the dir tree). The dir-browser rows carry a folder icon that
+        sets them apart from the action rows above. Rebuilt on every show
+        (``refresh_on_show``) so the dir tree and recent list stay current.
         """
         widget.clear()
         if not widget.is_initialized:
@@ -70,19 +71,19 @@ class Main(SlotsMaya):
         widget.add("Edit Workspace", data="__editor__")
 
         # --- the current workspace dir browser ---
-        # A titled separator, then the workspace name on its own row (browses the tree) —
-        # rather than a "Current Workspace: <name>" prefix on the row itself.
+        # The workspace name on its own row (browses the tree). A folder icon
+        # on this row and every nested dir marks them as directories, setting
+        # the browser apart from the action rows above (no "Current Workspace"
+        # separator — the icon is the differentiator now).
         workspace = mtk.get_env_info("workspace")
         workspace_dir = mtk.get_env_info("workspace_dir")
         if workspace and os.path.isdir(workspace):
-            from uitk.widgets.separator import Separator
-
             # Maya returns a forward-slash path; normalize once so every entry's
             # data (root + nested dirs, built via os.path.join) uses native
             # separators and reliably opens in the system file browser.
             workspace = os.path.normpath(workspace)
-            widget.add(Separator(title="Current Workspace"))
             w = widget.add(workspace_dir, data=workspace)
+            IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)
@@ -101,6 +102,7 @@ class Main(SlotsMaya):
         for d in dirs:
             full_path = os.path.join(path, d)
             item = sublist.add(d, data=full_path)
+            IconManager.set_label_icon(item, "folder_filled")
             if max_depth > 1:
                 try:
                     has_subdirs = any(

@@ -18,6 +18,8 @@ class TransformSlots(SlotsMaya):
 
     def header_init(self, widget):
         """Header Init"""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
             "QPushButton",
             setText="Fix Non-Orthogonal Axes",
@@ -511,9 +513,70 @@ class TransformSlots(SlotsMaya):
 
         mtk.match_scale(frm, to)
 
-    def b002(self):
+    def b002_init(self, widget):
+        """Un-Freeze Transforms Init"""
+        widget.option_box.menu.setTitle("Un-Freeze Transforms")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk_unfreeze_t",
+            setChecked=True,
+            setToolTip="Restore the stored translation values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rotate",
+            setObjectName="chk_unfreeze_r",
+            setChecked=True,
+            setToolTip="Restore the stored rotation values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk_unfreeze_s",
+            setChecked=True,
+            setToolTip="Restore the stored scale values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Unfreeze Children",
+            setObjectName="chk_unfreeze_children",
+            setToolTip="Also restore all descendant transform nodes.\nMirrors the Freeze Transforms > Freeze Children option.",
+        )
+
+    def b002(self, widget):
         """Un-Freeze Transforms"""
-        mtk.restore_transforms(cmds.ls(sl=True) or [])
+        objects = cmds.ls(sl=True) or []
+        if not objects:
+            self.sb.message_box("Please select at least one object.")
+            return
+
+        menu = widget.option_box.menu
+        channels = [
+            channel
+            for channel, chk in (
+                ("translate", menu.chk_unfreeze_t),
+                ("rotate", menu.chk_unfreeze_r),
+                ("scale", menu.chk_unfreeze_s),
+            )
+            if chk.isChecked()
+        ]
+        if not channels:
+            self.sb.message_box(
+                "Please enable at least one channel (Translate, Rotate, or Scale)."
+            )
+            return
+
+        restored = mtk.restore_transforms(
+            objects,
+            channels=channels,
+            traverse=menu.chk_unfreeze_children.isChecked(),
+        )
+        if not restored:
+            self.sb.message_box(
+                "<strong>Nothing restored</strong>.<br>None of the selected objects have "
+                "stored freeze data (it is stamped by Freeze Transforms &gt; Store Transforms)."
+            )
 
     def setTransformSnap(self, ctx, state):
         """Set the transform tool's move, rotate, and scale snap states.

@@ -10,7 +10,7 @@ class TransformSlots(SlotsBlender):
 
     The object-transform ops (drop-to-grid, freeze/un-freeze, move-to, match-scale,
     scale-connected-edges) are backed by ``blendertk.xform_utils`` (mirrors ``mtk.*``); the header
-    adds Fix Non-Orthogonal Axes (``btk.fix_non_orthogonal_axes``) + a master Snap toggle. Align-To
+    adds Fix Non-Orthogonal Axes (``btk.Diagnostics.fix_non_orthogonal_axes``) + a master Snap toggle. Align-To
     rides native ``object.align``; Transform Snap maps onto the scene tool-settings increment snap
     (``use_snap_translate/rotate/scale``) — the per-transform toggles, not Maya's numeric increment
     values (grid-driven in Blender). Make-Live maps onto face-projection snapping (tb003 Constrain
@@ -29,13 +29,19 @@ class TransformSlots(SlotsBlender):
         / grid mesh-snapping), served from blendertk by the BlenderUiHandler. Transform-increment
         snapping (Blender's other 'snap' sense) is configured in the Transform Snap / Constraints
         option boxes (tb003/tb004), which carry their own objectNames."""
+        # Every entry is a one-shot action — dismiss the menu once one is triggered.
+        widget.menu.hide_on_trigger = True
         widget.menu.add(
-            "QPushButton", setText="Fix Non-Orthogonal Axes", setObjectName="fix_non_ortho_axes",
+            "QPushButton",
+            setText="Fix Non-Orthogonal Axes",
+            setObjectName="fix_non_ortho_axes",
             setToolTip="Bake out non-orthogonal (sheared) axes on the selected objects "
             "(shear breaks FBX export).",
         )
         widget.menu.add(
-            "QPushButton", setText="Snap", setObjectName="b_snap_ts",
+            "QPushButton",
+            setText="Snap",
+            setObjectName="b_snap_ts",
             setToolTip="Open the Snap panel — snap vertices to a surface, the closest vertex, or "
             "the world grid.",
         )
@@ -50,9 +56,11 @@ class TransformSlots(SlotsBlender):
         if not objects:
             self.sb.message_box("Fix Non-Orthogonal Axes requires a selection.")
             return
-        fixed = btk.fix_non_orthogonal_axes(objects)
+        fixed = btk.Diagnostics.fix_non_orthogonal_axes(objects)
         if fixed:
-            self.sb.message_box(f"Fixed non-orthogonal axes on <hl>{len(fixed)}</hl> object(s).")
+            self.sb.message_box(
+                f"Fixed non-orthogonal axes on <hl>{len(fixed)}</hl> object(s)."
+            )
         else:
             self.sb.message_box("No non-orthogonal (sheared) axes found.")
 
@@ -66,19 +74,30 @@ class TransformSlots(SlotsBlender):
     # ------------------------------------------------------------------ tb000  Drop To Grid
     def tb000_init(self, widget):
         widget.option_box.menu.add(
-            "QComboBox", addItems=["Min", "Mid", "Max"], setObjectName="cmb004",
+            "QComboBox",
+            addItems=["Min", "Mid", "Max"],
+            setObjectName="cmb004",
             setToolTip="Which bounding-box point to drop onto the grid (Z=0).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Move to Origin", setObjectName="chk014", setChecked=True,
+            "QCheckBox",
+            setText="Move to Origin",
+            setObjectName="chk014",
+            setChecked=True,
             setToolTip="Move to the world origin (0,0,0) first.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Center Pivot", setObjectName="chk016", setChecked=True,
+            "QCheckBox",
+            setText="Center Pivot",
+            setObjectName="chk016",
+            setChecked=True,
             setToolTip="Re-center the object origin on its bounding box.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Freeze Transforms", setObjectName="chk017", setChecked=True,
+            "QCheckBox",
+            setText="Freeze Transforms",
+            setObjectName="chk017",
+            setChecked=True,
             setToolTip="Apply (bake) the transform after dropping.",
         )
 
@@ -91,8 +110,10 @@ class TransformSlots(SlotsBlender):
             self.sb.message_box("Drop To Grid requires a selection.")
             return
         btk.drop_to_grid(
-            objects, align=m.cmb004.currentText(),
-            origin=m.chk014.isChecked(), center_pivot=m.chk016.isChecked(),
+            objects,
+            align=m.cmb004.currentText(),
+            origin=m.chk014.isChecked(),
+            center_pivot=m.chk016.isChecked(),
         )
         if m.chk017.isChecked():
             btk.freeze_transforms(objects, location=True, rotation=False, scale=False)
@@ -108,31 +129,45 @@ class TransformSlots(SlotsBlender):
     def tb002_init(self, widget):
         widget.option_box.menu.setTitle("Freeze Transforms")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Translate", setObjectName="chk032", setChecked=True,
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk032",
+            setChecked=True,
             setToolTip="Bake translation -> 0,0,0.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Rotate", setObjectName="chk033",
+            "QCheckBox",
+            setText="Rotate",
+            setObjectName="chk033",
             setToolTip="Bake rotation -> 0,0,0.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Scale", setObjectName="chk034", setChecked=True,
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk034",
+            setChecked=True,
             setToolTip="Bake scale -> 1,1,1.",
         )
         widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_center_pivot",
+            "QComboBox",
+            setObjectName="cmb_center_pivot",
             addItems=["Center Pivot: None", "Center Pivot: Mesh", "Center Pivot: All"],
             setCurrentIndex=0,
             setToolTip="After freezing, re-center the object origin on its bounding box.\n"
             "• None: leave the origin\n• Mesh: mesh objects only\n• All: all geometry objects",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Freeze Children", setObjectName="chk039",
+            "QCheckBox",
+            setText="Freeze Children",
+            setObjectName="chk039",
             setToolTip="Also apply the transform to every descendant object (recursive), "
             "not just the selection.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Store Transforms", setObjectName="chk037", setChecked=True,
+            "QCheckBox",
+            setText="Store Transforms",
+            setObjectName="chk037",
+            setChecked=True,
             setToolTip="Stamp the pre-freeze channels so Un-Freeze Transforms can restore them.",
         )
 
@@ -144,13 +179,19 @@ class TransformSlots(SlotsBlender):
         if not objects:
             self.sb.message_box("Freeze Transforms requires a selection.")
             return
-        if m.chk039.isChecked():  # Freeze Children: extend to all descendants (deduped, order-kept)
-            objects = list(dict.fromkeys(
-                objects + [c for o in objects for c in o.children_recursive]
-            ))
+        if (
+            m.chk039.isChecked()
+        ):  # Freeze Children: extend to all descendants (deduped, order-kept)
+            objects = list(
+                dict.fromkeys(
+                    objects + [c for o in objects for c in o.children_recursive]
+                )
+            )
         btk.freeze_transforms(
-            objects, location=m.chk032.isChecked(),
-            rotation=m.chk033.isChecked(), scale=m.chk034.isChecked(),
+            objects,
+            location=m.chk032.isChecked(),
+            rotation=m.chk033.isChecked(),
+            scale=m.chk034.isChecked(),
             store=m.chk037.isChecked(),
         )
         # Center pivot runs AFTER freeze: freeze (location) sends the origin to world 0, then
@@ -158,8 +199,13 @@ class TransformSlots(SlotsBlender):
         pivot_mode = m.cmb_center_pivot.currentIndex()  # 0 None, 1 Mesh, 2 All
         if pivot_mode:
             targets = [
-                o for o in objects
-                if (o.type == "MESH" if pivot_mode == 1 else o.type in self._CENTER_PIVOT_GEO)
+                o
+                for o in objects
+                if (
+                    o.type == "MESH"
+                    if pivot_mode == 1
+                    else o.type in self._CENTER_PIVOT_GEO
+                )
             ]
             if targets:
                 btk.center_pivot(targets, mode="object")
@@ -168,16 +214,23 @@ class TransformSlots(SlotsBlender):
     def tb005_init(self, widget):
         widget.option_box.menu.setTitle("Move To")
         widget.option_box.menu.add(
-            "QComboBox", addItems=btk.XformUtils.get_pivot_options(), setObjectName="cmb005",
+            "QComboBox",
+            addItems=btk.XformUtils.get_pivot_options(),
+            setObjectName="cmb005",
             setToolTip="Target pivot to align the source object(s) to.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Move All To Last", setObjectName="chk036", setChecked=True,
+            "QCheckBox",
+            setText="Move All To Last",
+            setObjectName="chk036",
+            setChecked=True,
             setToolTip="Checked: all selected objects move to the active object.\n"
             "Unchecked: the active object moves to the other selected objects' bounding box.",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Match Scale", setObjectName="chk_match_scale",
+            "QCheckBox",
+            setText="Match Scale",
+            setObjectName="chk_match_scale",
             setToolTip="Also rescale the moved object(s) to the target's bounding-box size.",
         )
 
@@ -188,10 +241,14 @@ class TransformSlots(SlotsBlender):
         pivot = m.cmb005.currentText() or "center"
         others, active = self._selection_source_target()
         if not others or not active:
-            self.sb.message_box("Move To requires 2+ selected objects (active = target).")
+            self.sb.message_box(
+                "Move To requires 2+ selected objects (active = target)."
+            )
             return
         # Move All To Last: others -> active. Unchecked: active -> the others' combined bbox.
-        source, target = (others, active) if m.chk036.isChecked() else ([active], others)
+        source, target = (
+            (others, active) if m.chk036.isChecked() else ([active], others)
+        )
         if m.chk_match_scale.isChecked():
             btk.match_scale(source, target)
         btk.move_to(source, target, pivot=pivot)
@@ -268,12 +325,16 @@ class TransformSlots(SlotsBlender):
         # kind flag misreports snapping as ON.
         ts = bpy.context.scene.tool_settings
         widget.option_box.menu.add(
-            "QCheckBox", setText="Snap Move", setObjectName="chk021",
+            "QCheckBox",
+            setText="Snap Move",
+            setObjectName="chk021",
             setChecked=ts.use_snap and ts.use_snap_translate,
             setToolTip="Snap translation to increments (Blender grid-increment snap).",
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Snap Scale", setObjectName="chk022",
+            "QCheckBox",
+            setText="Snap Scale",
+            setObjectName="chk022",
             setChecked=ts.use_snap and ts.use_snap_scale,
             setToolTip="Snap scaling to increments.",
         )
@@ -326,15 +387,65 @@ class TransformSlots(SlotsBlender):
             )
 
     # ------------------------------------------------------------------ b002  Un-Freeze Transforms
+    def b002_init(self, widget):
+        """Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box)."""
+        widget.option_box.menu.setTitle("Un-Freeze Transforms")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Translate",
+            setObjectName="chk_unfreeze_t",
+            setChecked=True,
+            setToolTip="Restore the stored translation values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rotate",
+            setObjectName="chk_unfreeze_r",
+            setChecked=True,
+            setToolTip="Restore the stored rotation values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Scale",
+            setObjectName="chk_unfreeze_s",
+            setChecked=True,
+            setToolTip="Restore the stored scale values.",
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Unfreeze Children",
+            setObjectName="chk_unfreeze_children",
+            setToolTip="Also restore all descendant objects.\nMirrors the Freeze Transforms > Freeze Children option.",
+        )
+
     @btk.undoable
-    def b002(self):
+    def b002(self, widget):
         """Un-Freeze Transforms (restore the channels stamped by Freeze; the object's
         world position is preserved)."""
         objects = self.selected_objects()
         if not objects:
             self.sb.message_box("Un-Freeze Transforms requires a selection.")
             return
-        restored = btk.restore_transforms(objects)
+        menu = widget.option_box.menu
+        channels = [
+            channel
+            for channel, chk in (
+                ("translate", menu.chk_unfreeze_t),
+                ("rotate", menu.chk_unfreeze_r),
+                ("scale", menu.chk_unfreeze_s),
+            )
+            if chk.isChecked()
+        ]
+        if not channels:
+            self.sb.message_box(
+                "Please enable at least one channel (Translate, Rotate, or Scale)."
+            )
+            return
+        restored = btk.restore_transforms(
+            objects,
+            channels=channels,
+            traverse=menu.chk_unfreeze_children.isChecked(),
+        )
         if not restored:
             self.sb.message_box(
                 "<strong>Nothing to restore.</strong><br>No selected object carries "
@@ -366,7 +477,9 @@ class TransformSlots(SlotsBlender):
         try:
             return set(ts.snap_elements_individual)
         except AttributeError:  # pre-4.0 combined property
-            return {e for e in ts.snap_elements if e in ("FACE_NEAREST", "FACE_PROJECT")}
+            return {
+                e for e in ts.snap_elements if e in ("FACE_NEAREST", "FACE_PROJECT")
+            }
 
     def _set_constraint_snap(self, element, state):
         """Apply/clear an element constraint (``EDGE``/``FACE``) via the scene snap

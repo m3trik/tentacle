@@ -190,6 +190,151 @@ class TestCmb003StyleSelector(unittest.TestCase):
         self.assertEqual(calls, ["Blender"])
 
 
+class _StubMarkingMenu:
+    """The two hosted-theme properties ``PreferencesMixin`` drives."""
+
+    def __init__(self):
+        self.menu_theme = "dark"
+        self.window_theme = "dark"
+
+
+class TestPreferencesMixin(unittest.TestCase):
+    """cmb004 / cmb005 expose uitk's two previously hard-pinned window themes.
+
+    DCC-agnostic by construction — the mixin only touches
+    ``sb.handlers.marking_menu`` and ``uitk.StyleSheet`` — so this runs without
+    Maya or Blender, and covers the slots both DCCs inherit.
+
+    Uses the REAL uitk ComboBox: the mixin's contract is a label→token map
+    written with ``add()`` and read back with ``currentData()``/
+    ``setCurrentText()``, and only the real widget pins that round-trip
+    (``items`` hold data tokens, not the display labels).
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            from uitk.widgets.comboBox import ComboBox  # noqa: F401
+        except ImportError as error:
+            raise unittest.SkipTest(f"uitk unavailable: {error}")
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        import types
+
+        from tentacle.slots._preferences import PreferencesMixin
+
+        self.menu = _StubMarkingMenu()
+        self.slots = PreferencesMixin()
+        self.slots.sb = types.SimpleNamespace(
+            handlers=types.SimpleNamespace(marking_menu=self.menu)
+        )
+
+    def _combo(self):
+        from uitk.widgets.comboBox import ComboBox
+
+        widget = ComboBox()
+        widget.is_initialized = False
+        return widget
+
+    def test_labels_are_titled_tokens(self):
+        """Hyphenated tokens get a readable label but keep their token data."""
+        self.assertEqual(
+            self.slots._theme_items().get("High Contrast"), "high-contrast"
+        )
+
+    def test_items_cover_every_registered_theme(self):
+        from uitk.themes.style_sheet import StyleSheet
+
+        self.assertEqual(
+            sorted(self.slots._theme_items().values()), sorted(StyleSheet.themes)
+        )
+
+    def test_cmb004_init_selects_the_live_menu_theme(self):
+        self.menu.menu_theme = "high-contrast"
+        widget = self._combo()
+        self.slots.cmb004_init(widget)
+        self.assertEqual(widget.currentData(), "high-contrast")
+
+    def test_cmb005_init_selects_the_live_window_theme(self):
+        self.menu.window_theme = "light"
+        widget = self._combo()
+        self.slots.cmb005_init(widget)
+        self.assertEqual(widget.currentData(), "light")
+
+    def test_cmb004_writes_menu_theme_only(self):
+        widget = self._combo()
+        self.slots.cmb004_init(widget)
+        widget.setCurrentText("Light")
+        self.slots.cmb004(widget.currentIndex(), widget)
+        self.assertEqual(self.menu.menu_theme, "light")
+        self.assertEqual(self.menu.window_theme, "dark")
+
+    def test_cmb005_writes_window_theme_only(self):
+        widget = self._combo()
+        self.slots.cmb005_init(widget)
+        widget.setCurrentText("High Contrast")
+        self.slots.cmb005(widget.currentIndex(), widget)
+        self.assertEqual(self.menu.window_theme, "high-contrast")
+        self.assertEqual(self.menu.menu_theme, "dark")
+
+    def test_cmb004_ignores_header_row_selection(self):
+        """A change fired while the header row is current (currentData()==None)
+        must be a no-op, not a crash. The combos carry a header, so the live
+        menu's change signal can fire with no real item selected."""
+        widget = self._combo()
+        self.slots.cmb004_init(widget)
+        widget.setCurrentIndex(-1)
+        self.assertIsNone(widget.currentData())
+        self.slots.cmb004(widget.currentIndex(), widget)  # must not raise
+        self.assertEqual(self.menu.menu_theme, "dark")
+
+    def test_cmb005_ignores_header_row_selection(self):
+        widget = self._combo()
+        self.slots.cmb005_init(widget)
+        widget.setCurrentIndex(-1)
+        self.assertIsNone(widget.currentData())
+        self.slots.cmb005(widget.currentIndex(), widget)  # must not raise
+        self.assertEqual(self.menu.window_theme, "dark")
+
+    def test_init_repopulates_only_once(self):
+        """``*_init`` runs on every panel show; only the first fills the list."""
+        widget = self._combo()
+        self.slots.cmb004_init(widget)
+        count = widget.count()
+        widget.is_initialized = True
+        self.menu.menu_theme = "light"
+        self.slots.cmb004_init(widget)
+        self.assertEqual(widget.count(), count)
+        self.assertEqual(widget.currentData(), "light")
+
+
+class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
+    """Both DCCs' ``Preferences`` must list ``PreferencesMixin`` as a base.
+
+    Read via AST so neither DCC needs to be importable — dropping the mixin from
+    one host silently removes its two theme combos from that panel.
+    """
+
+    def _bases(self, dcc):
+        tree = ast.parse((SLOTS_DIR / dcc / "preferences.py").read_text(encoding="utf-8"))
+        cls = next(
+            c
+            for c in ast.walk(tree)
+            if isinstance(c, ast.ClassDef) and c.name == "Preferences"
+        )
+        return [b.id for b in cls.bases if isinstance(b, ast.Name)]
+
+    def test_mixin_is_first_base_in_every_dcc(self):
+        for dcc in ("maya", "blender"):
+            with self.subTest(dcc=dcc):
+                bases = self._bases(dcc)
+                self.assertIn("PreferencesMixin", bases)
+                # Ahead of the SlotsX base so its slots aren't shadowed, and so
+                # super().__init__ still reaches the DCC base unchanged.
+                self.assertEqual(bases[0], "PreferencesMixin")
+
+
 def _init_label_writes(dcc):
     """{target: label} for the ``setTitle``/``setText`` string-literal calls in this
     DCC's ``Preferences.__init__`` — e.g. ``{"ui.parent_app.setTitle": "Maya Preferences"}``.

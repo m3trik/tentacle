@@ -174,6 +174,66 @@ class TestTb003WorldAlignedPivot(unittest.TestCase):
         self.assertIn("object", self.instance.sb.messages[0])
 
 
+class _FakeCombo:
+    def __init__(self, data):
+        self._data = data
+
+    def currentData(self):
+        return self._data
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb002TransferPivot(unittest.TestCase):
+    """tb002 forwards its option-box state (incl. the Mirror combo) to mtk.transfer_pivot."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        import mayatk as mtk
+
+        self._original = mtk.transfer_pivot
+        self.captured = []
+
+        def fake_transfer(objects, **kwargs):
+            self.captured.append((tuple(objects), kwargs))
+
+        mtk.transfer_pivot = fake_transfer
+
+    def tearDown(self):
+        import mayatk as mtk
+
+        mtk.transfer_pivot = self._original
+        cmds.file(new=True, force=True)
+
+    def _widget(self, mirror=""):
+        menu = _FakeMenu(
+            chk005=True, chk006=True, chk007=True, chk008=False, chk009=True
+        )
+        menu.cmb000 = _FakeCombo(mirror)
+        return _FakeWidget(menu)
+
+    def test_mirror_axis_forwarded(self):
+        """The selected Mirror axis is forwarded as mirror= to transfer_pivot."""
+        cube = cmds.polyCube(name="pv_src")[0]
+        cmds.select(cube)
+        self.instance.tb002(self._widget(mirror="x"))
+
+        self.assertEqual(len(self.captured), 1)
+        _, kwargs = self.captured[0]
+        self.assertEqual(kwargs["mirror"], "x")
+        self.assertTrue(kwargs["translate"])
+
+    def test_mirror_none_forwards_empty(self):
+        """Mirror: None forwards an empty string (unmirrored transfer)."""
+        cube = cmds.polyCube(name="pv_src2")[0]
+        cmds.select(cube)
+        self.instance.tb002(self._widget(mirror=""))
+
+        self.assertEqual(len(self.captured), 1)
+        _, kwargs = self.captured[0]
+        self.assertEqual(kwargs["mirror"], "")
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestB004BakePivot(unittest.TestCase):
     """b004 (Bake Pivot) delegates to mtk.bake_pivot with the current selection."""
