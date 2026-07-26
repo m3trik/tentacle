@@ -8,15 +8,15 @@ from tentacle.slots._hud_warnings import HudWarningsMixin
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
-def _effective_fps() -> float:
-    """The scene frame rate as the user understands it — ``fps / fps_base``. A fractional
-    NTSC-style scene stores fps=24, fps_base=1.001 (23.98 fps); reading raw ``fps`` alone
-    misreports it as 24."""
-    render = bpy.context.scene.render
-    return render.fps / render.fps_base
-
-
 class StatusMixin:
+    @staticmethod
+    def _effective_fps() -> float:
+        """The scene frame rate as the user understands it — ``fps / fps_base``. A fractional
+        NTSC-style scene stores fps=24, fps_base=1.001 (23.98 fps); reading raw ``fps`` alone
+        misreports it as 24."""
+        render = bpy.context.scene.render
+        return render.fps / render.fps_base
+
     def insert_scene_status(self, hud) -> None:
         # Symmetry status (per-mesh mirror flags on the active mesh)
         active = bpy.context.view_layer.objects.active
@@ -42,7 +42,7 @@ class StatusMixin:
         hud.insertText(f'Units: <font style="color: Yellow;">{units}</font>')
         # Frame rate (effective — see _effective_fps)
         hud.insertText(
-            f'Frame Rate: <font style="color: Yellow;">{round(_effective_fps(), 2):g} fps</font>'
+            f'Frame Rate: <font style="color: Yellow;">{round(self._effective_fps(), 2):g} fps</font>'
         )
 
 
@@ -129,9 +129,9 @@ class WarningsMixin(HudWarningsMixin):
             "label": "FPS",
             # Effective rate (fps / fps_base) — a 23.98 scene (fps=24, base=1.001) is
             # NOT the default and must not be flagged/reported as 24.
-            "check": lambda self: _effective_fps() == self._DEFAULT_FPS,
+            "check": lambda self: self._effective_fps() == self._DEFAULT_FPS,
             "describe": lambda self: (
-                f'Frame Rate: <font style="color: Orange;">{round(_effective_fps(), 2):g} fps</font> '
+                f'Frame Rate: <font style="color: Orange;">{round(self._effective_fps(), 2):g} fps</font> '
                 "matches Blender's default &mdash; verify this is intentional."
             ),
         },

@@ -111,7 +111,7 @@
         {
           "name": "MaterialsMixin",
           "summary": "DCC-agnostic ``materials`` slot behavior.",
-          "line": 28,
+          "line": 29,
           "bases": [],
           "members": [
             {
@@ -120,7 +120,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material.",
-              "line": 151,
+              "line": 152,
               "deprecated": false
             }
           ]
@@ -1534,7 +1534,7 @@
         {
           "name": "StatusMixin",
           "summary": "",
-          "line": 19,
+          "line": 11,
           "bases": [],
           "members": [
             {

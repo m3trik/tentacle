@@ -138,7 +138,7 @@ Shared HUD warning framework (DCC-agnostic).
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L28)** — DCC-agnostic ``materials`` slot behavior.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L29)** — DCC-agnostic ``materials`` slot behavior.
   - `MaterialsMixin.lbl005(self)` — Rename the current material.
 
 <a id="slots--_preferences"></a>
@@ -339,7 +339,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--blender--hud"></a>
 ### `slots/blender/hud.py`
 
-- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L19)**
+- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L11)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
 - **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L49)**
   - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
