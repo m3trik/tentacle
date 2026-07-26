@@ -89,30 +89,30 @@ class MaterialsMixin:
 
     @staticmethod
     def _join_affix(name, affix, mode):
-        """Join *affix* onto *name* per *mode*.
+        """Join *affix* onto *name* per *mode*, via ``ptk.StrUtils.apply_affix``.
 
-        Returns the new name, or ``None`` when the input can't yield one:
-        an Auto affix with an underscore on both edges or neither (no side to
-        infer), or a Prefix/Suffix affix that is only underscores.
+        Returns the new name, or ``None`` when the input can't yield one: an Auto
+        affix with an underscore on both edges or neither (no side to infer), or a
+        Prefix/Suffix affix that is only underscores.
 
-        - **Prefix** / **Suffix**: the text's edge underscores are stripped and a
-          single underscore separator is inserted (``metal`` and ``metal_`` both
-          give ``metal_<name>``).
-        - **Auto**: the underscore edge is the separator and encodes the side —
-          leading ``_`` appends (suffix), trailing ``_`` prepends (prefix).
+        Auto resolves the side from the underscore edge (leading ``_`` → suffix,
+        trailing ``_`` → prefix). The actual join — a single ``_`` separator,
+        idempotent, no dangling underscores — is pythontk's ``apply_affix``
+        primitive; this method is only the UI's mode + rejection policy over it
+        (edge underscores are stripped from the token, so ``metal`` and ``metal_``
+        both give ``metal_<name>``).
         """
-        if mode in ("Prefix", "Suffix"):
-            token = affix.strip("_")
-            if not token:
+        if mode == "Auto":
+            leading, trailing = affix.startswith("_"), affix.endswith("_")
+            if leading == trailing:  # both edges or neither → can't infer a side
                 return None
-            return f"{token}_{name}" if mode == "Prefix" else f"{name}_{token}"
-
-        # Auto: the underscore edge picks the side.
-        leading = affix.startswith("_")
-        trailing = affix.endswith("_")
-        if leading == trailing:  # both edges or neither → can't infer a side
+            mode = "Suffix" if leading else "Prefix"
+        token = affix.strip("_")
+        if not token:
             return None
-        return name + affix if leading else affix + name
+        if mode == "Prefix":
+            return ptk.StrUtils.apply_affix(name, prefix=f"{token}_")
+        return ptk.StrUtils.apply_affix(name, suffix=f"_{token}")
 
     def _apply_rename_affix(self):
         """Apply the affix field to the current material using the selected mode.
