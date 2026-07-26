@@ -237,7 +237,7 @@ class Duplicate(SlotsBlender):
         whole scene if nothing is selected)."""
         menu = widget.option_box.menu
 
-        created, summary = btk.auto_instance(
+        created, summary = btk.AutoInstancer.run_once(
             None,
             tolerance=menu.s000.value(),
             require_same_material=menu.chk004.isChecked(),

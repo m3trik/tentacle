@@ -31,6 +31,17 @@ class SlotsBlender(Slots):
         ``bpy.context.active_object`` (which returns ``None`` there)."""
         return btk.active_object()
 
+    @staticmethod
+    def effective_fps() -> float:
+        """The scene frame rate as the user understands it — ``fps / fps_base`` — shared by all
+        Blender slots (the HUD status/warning rows and the Preferences frame-rate combo).
+
+        A fractional NTSC-style scene stores ``fps=24, fps_base=1.001`` (23.98 fps); reading raw
+        ``fps`` alone misreports it as 24, and also misreads a scene whose base was left fractional
+        by an import."""
+        render = bpy.context.scene.render
+        return render.fps / render.fps_base
+
     def ensure_edit_mode(self, obj_type="MESH", select_mode=None):
         """Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
         setting the mesh component mask (``select_mode``: "VERT"/"EDGE"/"FACE"). Returns the

@@ -232,7 +232,7 @@ class SceneSlots(SlotsBlender):
             self.invoke_op(entry)
 
     def _import_maya_scene(self):
-        """Import a Maya scene (.ma/.mb) via ``btk.import_maya_scene`` — a headless-Maya
+        """Import a Maya scene (.ma/.mb) via ``btk.MayaSceneImport`` — a headless-Maya
         FBX round-trip (fresh mayapy converts the scene; the FBX is imported and cleaned
         up). Blocking: a scene conversion takes tens of seconds (mayapy startup + license
         checkout), so a wait cursor covers the run. Requires a local Maya install."""
@@ -247,7 +247,7 @@ class SceneSlots(SlotsBlender):
         app = self.sb.QtWidgets.QApplication
         app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            imported = btk.import_maya_scene(src)
+            imported = btk.MayaSceneImport().import_scene(src)
         except Exception as e:
             self.sb.message_box(f"Maya scene import failed: <hl>{e}</hl>")
             return

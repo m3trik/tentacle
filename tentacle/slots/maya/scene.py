@@ -251,7 +251,7 @@ class SceneSlots(SlotsMaya):
             action(self)
 
     def _import_blender_scene(self):
-        """Import a Blender scene (.blend) via ``mtk.import_blender_scene`` — a
+        """Import a Blender scene (.blend) via ``mtk.BlenderSceneImport`` — a
         headless-Blender FBX round-trip (a fresh ``blender --background`` converts
         the scene; the FBX is imported and cleaned up; textures FBX can't carry are
         rebuilt from the manifest sidecar via the GameShader engine). Mirror of the
@@ -269,7 +269,7 @@ class SceneSlots(SlotsMaya):
         app = self.sb.QtWidgets.QApplication
         app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            imported = mtk.import_blender_scene(src)
+            imported = mtk.BlenderSceneImport().import_scene(src)
         except Exception as e:
             self.sb.message_box(f"Blender scene import failed: <hl>{e}</hl>")
             return
