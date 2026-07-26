@@ -7,7 +7,7 @@
 | panel | untriaged | pending | triaged OK | prop deltas | status |
 |:--|--:|--:|--:|--:|:--|
 | ArnoldBridge | 0 | 0 | 4 | 0 | OK |
-| AudioClips | 0 | 0 | 12 | 3 | OK |
+| AudioClips | 0 | 0 | 15 | 3 | OK |
 | Bevel | 0 | 0 | 0 | 0 | OK |
 | BlendshapeAnimator | 0 | 0 | 1 | 0 | OK |
 | Bridge | 0 | 0 | 0 | 0 | OK |
@@ -32,7 +32,7 @@
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
-| ReferenceManager | 0 | 0 | 11 | 0 | OK |
+| ReferenceManager | 0 | 0 | 12 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | SceneExporter | 0 | 0 | 0 | 0 | OK |
