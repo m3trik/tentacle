@@ -7,7 +7,7 @@ auto-discovery. Run against a *fresh* Blender (never an existing session)::
     blender --background --factory-startup --python tentacle/test/blender/materials_rename_affix_check.py
 
 Confirms end-to-end, against real ``bpy`` + real widgets, that the shared
-``MaterialsRenameAffixMixin`` renames a material when the apply path is triggered — isolating
+``MaterialsMixin`` renames a material when the apply path is triggered — isolating
 "the affix doesn't apply" as a *trigger* problem (headless Enter/click delivery), not a bug in
 ``_apply_rename_affix`` / ``_join_affix`` / the Blender ``_rename_current`` hook:
 

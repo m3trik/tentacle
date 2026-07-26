@@ -191,14 +191,14 @@ class TestCmb003StyleSelector(unittest.TestCase):
 
 
 class _StubMarkingMenu:
-    """The two hosted-theme properties ``PreferencesThemeMixin`` drives."""
+    """The two hosted-theme properties ``PreferencesMixin`` drives."""
 
     def __init__(self):
         self.menu_theme = "dark"
         self.window_theme = "dark"
 
 
-class TestPreferencesThemeMixin(unittest.TestCase):
+class TestPreferencesMixin(unittest.TestCase):
     """cmb004 / cmb005 expose uitk's two previously hard-pinned window themes.
 
     DCC-agnostic by construction — the mixin only touches
@@ -222,10 +222,10 @@ class TestPreferencesThemeMixin(unittest.TestCase):
     def setUp(self):
         import types
 
-        from tentacle.slots.preferences_theme_mixin import PreferencesThemeMixin
+        from tentacle.slots._preferences import PreferencesMixin
 
         self.menu = _StubMarkingMenu()
-        self.slots = PreferencesThemeMixin()
+        self.slots = PreferencesMixin()
         self.slots.sb = types.SimpleNamespace(
             handlers=types.SimpleNamespace(marking_menu=self.menu)
         )
@@ -310,7 +310,7 @@ class TestPreferencesThemeMixin(unittest.TestCase):
 
 
 class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
-    """Both DCCs' ``Preferences`` must list ``PreferencesThemeMixin`` as a base.
+    """Both DCCs' ``Preferences`` must list ``PreferencesMixin`` as a base.
 
     Read via AST so neither DCC needs to be importable — dropping the mixin from
     one host silently removes its two theme combos from that panel.
@@ -329,10 +329,10 @@ class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
         for dcc in ("maya", "blender"):
             with self.subTest(dcc=dcc):
                 bases = self._bases(dcc)
-                self.assertIn("PreferencesThemeMixin", bases)
+                self.assertIn("PreferencesMixin", bases)
                 # Ahead of the SlotsX base so its slots aren't shadowed, and so
                 # super().__init__ still reaches the DCC base unchanged.
-                self.assertEqual(bases[0], "PreferencesThemeMixin")
+                self.assertEqual(bases[0], "PreferencesMixin")
 
 
 def _init_label_writes(dcc):

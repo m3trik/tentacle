@@ -15,6 +15,7 @@
 ## Architecture
 
 - `tentacle/slots/<dcc>/*.py` — DCC-specific slot handlers (e.g. `slots/maya/rendering.py`).
+- **Behavior shared by a panel's Maya + Blender forks** → ONE underscore-prefixed mixin module per panel: `slots/_<panel>.py` defining a single `<Panel>Mixin` **class** (a plain mixin, NOT a `Slots{Maya,Blender}` subclass). Concrete slot: `class <Panel>Slots(<Panel>Mixin, SlotsDcc)`. Grow the panel's existing mixin — never drop loose per-feature helper modules or module-level `def`s into `slots/` (that's the pre-encapsulation regression). The `_` prefix keeps it out of slot/UI discovery (concrete panels live in `slots/<dcc>/` and pair with a `.ui`). Exemplar: [`slots/_hud_warnings.py`](tentacle/slots/_hud_warnings.py).
 - `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu. `tcl_blender.py` is a full Blender integration (drives `slots/blender` + the `blendertk` engine); `tcl_max.py` is a thin wrapper.
 - **UI**: Qt via [uitk](../uitk/CLAUDE.md). Widget naming: `tb###`, `b###`, `list###`, etc.
 

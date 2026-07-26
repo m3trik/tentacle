@@ -3,15 +3,11 @@
 import bpy
 import blendertk as btk
 from uitk import Signals
-from tentacle.slots._mesh_cleanup import (
-    cleanup_popup_html,
-    cleanup_console_report,
-    report_cleanup_failure,
-)
+from tentacle.slots._edit import EditMixin
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
-class Edit(SlotsBlender):
+class Edit(EditMixin, SlotsBlender):
     """Blender port of the shared ``edit`` menu.
 
     Mesh Cleanup is backed by ``blendertk.edit_utils.clean_geometry`` (bmesh merge/degenerate/loose/
@@ -391,7 +387,7 @@ class Edit(SlotsBlender):
     def tb000(self, widget):
         """Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
 
-        Two-channel feedback (see ``tentacle.slots._mesh_cleanup``): a minimal HTML popup summary
+        Two-channel feedback (see ``tentacle.slots._edit``): a minimal HTML popup summary
         plus a detailed console breakdown. The whole operational body is wrapped so any bpy
         ``RuntimeError`` surfaces as a message box instead of an unhandled traceback."""
         m = widget.option_box.menu
@@ -401,7 +397,7 @@ class Edit(SlotsBlender):
         try:
             self._mesh_cleanup(m, scope, repair, mode_label)
         except RuntimeError as exc:
-            report_cleanup_failure(self.sb.message_box, scope, mode_label, exc)
+            self.report_cleanup_failure(scope, mode_label, exc)
 
     def _cleanup_pool(self, scope):
         """Mesh objects for the Cleanup ``scope``: 'selected' -> the current selection; 'visible' ->
@@ -446,12 +442,12 @@ class Edit(SlotsBlender):
             )
             n = len(dupes)
             verb = "deleted" if repair else "selected"
-            cleanup_console_report(
+            self.cleanup_console_report(
                 f"{mode_label} · Overlapping Duplicate Objects",
                 [f"scope: {scope}", f"{n} overlapping duplicate object(s) ({verb})"],
             )
             self.sb.message_box(
-                cleanup_popup_html(
+                self.cleanup_popup_html(
                     f"<hl>Mesh Cleanup — {mode_label}</hl>",
                     [(n, f"overlapping duplicate objects {verb}")],
                 )
@@ -514,7 +510,7 @@ class Edit(SlotsBlender):
             )
             if on
         ]
-        cleanup_console_report(
+        self.cleanup_console_report(
             "Repair",
             [
                 f"scope: {scope} · {len(objects)} mesh(es)",
@@ -529,7 +525,7 @@ class Edit(SlotsBlender):
             ],
         )
         self.sb.message_box(
-            cleanup_popup_html(
+            self.cleanup_popup_html(
                 f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> mesh(es)",
                 [
                     (removed_v, "verts removed"),
@@ -552,7 +548,7 @@ class Edit(SlotsBlender):
                 )
                 return
             self._show_problem_components(objects, "FACE")
-            cleanup_console_report(
+            self.cleanup_console_report(
                 "Select · Overlapping Faces",
                 [
                     f"scope: {scope} · {len(objects)} mesh(es)",
@@ -560,7 +556,7 @@ class Edit(SlotsBlender):
                 ],
             )
             self.sb.message_box(
-                cleanup_popup_html(
+                self.cleanup_popup_html(
                     "<hl>Mesh Cleanup — Select</hl>", [(overlap_n, "overlapping faces")]
                 )
             )
@@ -586,7 +582,7 @@ class Edit(SlotsBlender):
         if overlap_n:
             rows.append((overlap_n, "Overlapping Faces"))
         total = sum(c for c, _ in rows)
-        cleanup_console_report(
+        self.cleanup_console_report(
             "Select",
             [
                 f"scope: {scope} · {len(objects)} mesh(es)",
@@ -595,7 +591,7 @@ class Edit(SlotsBlender):
             ],
         )
         self.sb.message_box(
-            cleanup_popup_html(
+            self.cleanup_popup_html(
                 f"<hl>Mesh Cleanup — Select</hl> · <hl>{total}</hl> total", rows
             )
         )

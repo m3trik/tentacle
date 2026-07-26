@@ -1,18 +1,25 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Marking-menu + standalone window theme selectors (DCC-agnostic).
+"""Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
-Exposes the two previously hard-pinned uitk window themes so the user can pick
-light / dark / high-contrast per window style. Both selectors read and write the
-live MarkingMenu theme properties, which persist per host and re-theme any
-already-open windows. Shared by every DCC's Preferences slot — the logic is pure
-uitk, so nothing is DCC-specific to fork.
+The per-panel home for logic the Maya and Blender ``Preferences`` forks share (mixed in
+ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
+new module per feature — see the convention in ``tentacle/CLAUDE.md``.
+
+Currently: the marking-menu + standalone-window theme selectors. Exposes the two
+previously hard-pinned uitk window themes so the user can pick light / dark / high-contrast
+per window style. Both selectors read and write the live MarkingMenu theme properties, which
+persist per host and re-theme any already-open windows. The logic is pure uitk, so nothing
+is DCC-specific to fork.
 """
 from uitk.themes.style_sheet import StyleSheet
 
 
-class PreferencesThemeMixin:
-    """``cmb004`` / ``cmb005`` — themes for the two uitk hosted window styles."""
+class PreferencesMixin:
+    """DCC-agnostic ``preferences`` slot behavior.
+
+    ``cmb004`` / ``cmb005`` — themes for the two uitk hosted window styles.
+    """
 
     @staticmethod
     def _theme_label(token: str) -> str:

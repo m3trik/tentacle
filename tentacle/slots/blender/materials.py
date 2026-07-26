@@ -5,10 +5,10 @@ import pythontk as ptk
 import blendertk as btk
 from uitk import Signals
 from tentacle.slots.blender._slots_blender import SlotsBlender
-from tentacle.slots.materials_rename_affix_mixin import MaterialsRenameAffixMixin
+from tentacle.slots._materials import MaterialsMixin
 
 
-class MaterialsSlots(MaterialsRenameAffixMixin, SlotsBlender):
+class MaterialsSlots(MaterialsMixin, SlotsBlender):
     """Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
     ``blendertk.MatUtils`` (materials on ``obj.material_slots`` / ``bpy.data.materials``; textures
     are ``TEX_IMAGE`` nodes — no shading engines / file nodes). The material/texture **info report**

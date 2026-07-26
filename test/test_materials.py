@@ -159,8 +159,8 @@ class TestStripMaterialNames(unittest.TestCase):
         self.assertEqual(result["failed"], [])
 
 
-# The shared rename-affix logic (_apply_rename_affix) lives in
-# tentacle/slots/materials_rename_affix_mixin.py and is tested DCC-agnostically
+# The shared rename-affix logic (_apply_rename_affix) lives on MaterialsMixin in
+# tentacle/slots/_materials.py and is tested DCC-agnostically
 # in test_materials_rename_affix_mixin.py (which also AST-checks that this slot
 # mixes it in and that _rename_current returns a value).
 

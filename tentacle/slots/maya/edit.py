@@ -5,15 +5,11 @@ import maya.mel as mel
 import mayatk as mtk
 from uitk import Signals
 from uitk.switchboard import Cancelable
-from tentacle.slots._mesh_cleanup import (
-    cleanup_popup_html,
-    cleanup_console_report,
-    report_cleanup_failure,
-)
+from tentacle.slots._edit import EditMixin
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
-class Edit(SlotsMaya):
+class Edit(EditMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -262,15 +258,11 @@ class Edit(SlotsMaya):
 
         return _count(vertex=True), _count(face=True)
 
-    def _cleanup_failed(self, scope, mode_label, exc):
-        """Report a Mesh Cleanup failure through both feedback channels (console + popup)."""
-        report_cleanup_failure(self.sb.message_box, scope, mode_label, exc)
-
     @Cancelable(120)
     def tb000(self, widget):
         """Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
 
-        Two-channel feedback (see ``tentacle.slots._mesh_cleanup``): a minimal HTML popup summary
+        Two-channel feedback (see ``tentacle.slots._edit``): a minimal HTML popup summary
         plus a detailed console breakdown. Every underlying pass (duplicate search, merge,
         polyCleanup) is guarded so an error surfaces as a message box, not a traceback."""
         m = widget.option_box.menu
@@ -287,17 +279,17 @@ class Edit(SlotsMaya):
                     retain_given_objects=m.chk023.isChecked(), select=True, verbose=True
                 )
             except (RuntimeError, ValueError) as exc:
-                self._cleanup_failed(scope, mode_label, exc)
+                self.report_cleanup_failure(scope, mode_label, exc)
                 return
             n = len(duplicates)
             verb = "deleted" if repair else "selected"
             if duplicates:
                 cmds.delete(duplicates) if repair else cmds.select(duplicates)
-            cleanup_console_report(
+            self.cleanup_console_report(
                 f"{mode_label} · Overlapping Duplicate Objects",
                 [f"scope: {scope}", f"{n} overlapping duplicate object(s) ({verb})"],
             )
-            self.sb.message_box(cleanup_popup_html(
+            self.sb.message_box(self.cleanup_popup_html(
                 f"<hl>Mesh Cleanup — {mode_label}</hl>",
                 [(n, f"overlapping duplicate objects {verb}")],
             ))
@@ -317,7 +309,7 @@ class Edit(SlotsMaya):
             try:
                 overlapping = mtk.get_overlapping_faces(objects) or []
             except (RuntimeError, ValueError) as exc:
-                self._cleanup_failed(scope, mode_label, exc)
+                self.report_cleanup_failure(scope, mode_label, exc)
                 return
             if repair and overlapping:
                 cmds.delete(overlapping)
@@ -329,7 +321,7 @@ class Edit(SlotsMaya):
             try:
                 mtk.merge_vertices(objects, tolerance=0.0001)
             except (RuntimeError, ValueError) as exc:
-                self._cleanup_failed(scope, mode_label, exc)
+                self.report_cleanup_failure(scope, mode_label, exc)
                 return
 
         before_v, before_f = self._poly_counts(objects) if repair else (0, 0)
@@ -353,13 +345,13 @@ class Edit(SlotsMaya):
                 bakePartialHistory=m.chk026.isChecked(),
             )
         except (ValueError, RuntimeError) as exc:
-            self._cleanup_failed(scope, mode_label, exc)
+            self.report_cleanup_failure(scope, mode_label, exc)
             return
 
         if repair:
             after_v, after_f = self._poly_counts(objects)
             removed_v, removed_f = before_v - after_v, before_f - after_f
-            cleanup_console_report(
+            self.cleanup_console_report(
                 "Repair",
                 [
                     f"scope: {scope} · {len(objects)} object(s)",
@@ -368,7 +360,7 @@ class Edit(SlotsMaya):
                     *([f"overlapping faces deleted: {overlap_n}"] if m.chk025.isChecked() else []),
                 ],
             )
-            self.sb.message_box(cleanup_popup_html(
+            self.sb.message_box(self.cleanup_popup_html(
                 f"<hl>Mesh Cleanup — Repair</hl> · <hl>{len(objects)}</hl> object(s)",
                 [
                     (removed_v, "verts removed"),
@@ -383,7 +375,7 @@ class Edit(SlotsMaya):
         if overlapping:
             cmds.select(overlapping, add=1)
         n_selected = len(selected or [])
-        cleanup_console_report(
+        self.cleanup_console_report(
             "Select",
             [
                 f"scope: {scope} · {len(objects)} object(s)",
@@ -391,7 +383,7 @@ class Edit(SlotsMaya):
                 *([f"overlapping faces: {overlap_n}"] if m.chk025.isChecked() else []),
             ],
         )
-        self.sb.message_box(cleanup_popup_html(
+        self.sb.message_box(self.cleanup_popup_html(
             "<hl>Mesh Cleanup — Select</hl>",
             [(n_selected, "problem components"), (overlap_n, "overlapping faces")],
         ))

@@ -2,11 +2,12 @@
 # coding=utf-8
 """Tests for the shared material-rename affix feature (DCC-agnostic).
 
-``tentacle/slots/materials_rename_affix_mixin.py`` holds the prefix/suffix affix
-option box mixed into both DCC Materials slots' "Rename" label. The mixin imports
-nothing DCC-specific, so the join/validation logic (``_join_affix``) and the apply
-handler (``_apply_rename_affix``) are exercised directly here (no ``maya.cmds`` /
-``bpy`` needed — this runs everywhere). The per-DCC slots only supply the
+``tentacle/slots/_materials.py`` holds ``MaterialsMixin`` — the shared, DCC-agnostic
+``materials`` slot behavior, including the prefix/suffix affix option box mixed into both
+DCC Materials slots' "Rename" label. The mixin imports nothing DCC-specific, so the
+join/validation logic (``_join_affix``) and the apply handler (``_apply_rename_affix``)
+are exercised directly here (no ``maya.cmds`` / ``bpy`` needed — this runs everywhere).
+The per-DCC slots only supply the
 ``_rename_current`` hook; two AST checks pin that both actually mix the shared
 class in, route ``cmb002_init`` through it, and return a value from
 ``_rename_current`` (the mixin clears the field only on a truthy result).
@@ -20,9 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tentacle.slots.materials_rename_affix_mixin import (  # noqa: E402
-    MaterialsRenameAffixMixin,
-)
+from tentacle.slots._materials import MaterialsMixin  # noqa: E402
 
 MAYA_FILE = ROOT / "tentacle" / "slots" / "maya" / "materials.py"
 BLENDER_FILE = ROOT / "tentacle" / "slots" / "blender" / "materials.py"
@@ -57,7 +56,7 @@ class _FakeCombo:
         self.editable = value
 
 
-class _Host(MaterialsRenameAffixMixin):
+class _Host(MaterialsMixin):
     """Minimal host wiring the mixin's collaborators without any DCC."""
 
     def __init__(self, current="mat", rename_result="renamed", affix="", mode="Auto"):
@@ -79,7 +78,7 @@ class _Host(MaterialsRenameAffixMixin):
 class TestJoinAffix(unittest.TestCase):
     """The pure join primitive: mode + underscore-edge convention."""
 
-    join = staticmethod(MaterialsRenameAffixMixin._join_affix)
+    join = staticmethod(MaterialsMixin._join_affix)
 
     def test_auto_leading_underscore_is_suffix(self):
         self.assertEqual(self.join("mat", "_lod0", "Auto"), "mat_lod0")
@@ -215,9 +214,9 @@ class TestSlotsMixInTheSharedClass(unittest.TestCase):
                 self.assertIsNotNone(cls, f"MaterialsSlots not found in {path.name}")
                 base_names = {b.id for b in cls.bases if isinstance(b, ast.Name)}
                 self.assertIn(
-                    "MaterialsRenameAffixMixin",
+                    "MaterialsMixin",
                     base_names,
-                    f"{path.name} MaterialsSlots must mix in MaterialsRenameAffixMixin.",
+                    f"{path.name} MaterialsSlots must mix in MaterialsMixin.",
                 )
                 init = self._method(cls, "cmb002_init")
                 self.assertIsNotNone(init, f"cmb002_init not found in {path.name}")

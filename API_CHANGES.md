@@ -2,7 +2,8 @@
 
 _Diff vs prior baseline. Generated 2026-07-26._
 
-## Added (2)
+## Signature changed (1)
 
-- `slots/blender/selection.py::Selection.tb004(self, widget)`
-- `slots/maya/selection.py::Selection.tb004(self, widget)`
+- `slots/_edit.py::EditMixin.report_cleanup_failure`
+  - was: `(cls, message_box, scope, mode_label, exc)`
+  - now: `(self, scope, mode_label, exc)`

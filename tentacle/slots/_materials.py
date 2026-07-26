@@ -1,10 +1,15 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnostic).
+"""Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-The "Rename" label (``lbl005``) in the materials combo's (``cmb002``) right-click
-context menu carries an **option box** (gear) whose dropdown — built with no apply
-button, so the field's Enter key is the commit — holds two controls:
+The per-panel home for logic the Maya and Blender ``MaterialsSlots`` forks share (mixed in
+ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
+new module per feature — see the convention in ``tentacle/CLAUDE.md``.
+
+Currently: the prefix/suffix affix option box on the materials-combo "Rename" label.
+The "Rename" label (``lbl005``) in the materials combo's (``cmb002``) right-click context
+menu carries an **option box** (gear) whose dropdown — built with no apply button, so the
+field's Enter key is the commit — holds two controls:
 
 - ``cmb_rename_mode``: how the affix text joins the material name —
   **Auto** (the underscore edge picks the side: ``_lod0`` -> ``mat_lod0``,
@@ -12,17 +17,20 @@ button, so the field's Enter key is the commit — holds two controls:
   or **Suffix** (append: ``lod0`` -> ``mat_lod0``).
 - ``txt000``: the affix text; press Enter to apply.
 
-Shared by every DCC's Materials slot — the option-box build, the join/validation
-(:meth:`_join_affix`), and the ``lbl005`` handler are identical. Only the rename
-itself forks, delegated to each slot's ``_rename_current(text)`` hook (Maya
-``cmds.rename`` / Blender datablock assignment), which must return the resulting
-name on success or a falsy value on failure so the field is cleared only when the
-rename actually happened.
+The option-box build, the join/validation (:meth:`_join_affix`), and the ``lbl005`` handler
+are identical across DCCs. Only the rename itself forks, delegated to each slot's
+``_rename_current(text)`` hook (Maya ``cmds.rename`` / Blender datablock assignment), which
+must return the resulting name on success or a falsy value on failure so the field is
+cleared only when the rename actually happened.
 """
+import pythontk as ptk
 
 
-class MaterialsRenameAffixMixin:
-    """``cmb002`` "Rename" label (``lbl005``) + its prefix/suffix affix option box."""
+class MaterialsMixin:
+    """DCC-agnostic ``materials`` slot behavior.
+
+    ``cmb002`` "Rename" label (``lbl005``) + its prefix/suffix affix option box.
+    """
 
     #: Affix modes offered by ``cmb_rename_mode`` (index 0 is the default).
     _RENAME_MODES = ("Auto", "Prefix", "Suffix")

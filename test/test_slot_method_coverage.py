@@ -102,7 +102,7 @@ def _ui_widget_names(ui_path: Path) -> list[str]:
 def _shared_mixin_paths(tree: ast.Module) -> dict[str, Path]:
     """``{imported name: file}`` for bases pulled from ``tentacle.slots.*``.
 
-    Shared, DCC-agnostic mixins (e.g. ``PreferencesThemeMixin``, which supplies
+    Shared, DCC-agnostic mixins (e.g. ``PreferencesMixin``, which supplies
     the window-theme combos to every DCC's ``Preferences``) define slots the
     module itself doesn't — resolving them keeps those from reading as ghosts.
     """

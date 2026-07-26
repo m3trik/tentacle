@@ -7,10 +7,10 @@ import pythontk as ptk
 from uitk import Signals
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
-from tentacle.slots.materials_rename_affix_mixin import MaterialsRenameAffixMixin
+from tentacle.slots._materials import MaterialsMixin
 
 
-class MaterialsSlots(MaterialsRenameAffixMixin, SlotsMaya):
+class MaterialsSlots(MaterialsMixin, SlotsMaya):
     # Submenu Tools list — categories group tools by *what they act on* so the
     # similarly-named texture tools stop reading as interchangeable:
     #   "Materials (scene)"  — mutate the live shading network.

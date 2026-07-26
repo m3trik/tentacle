@@ -7,8 +7,10 @@ _Generated: 2026-07-26_
 ## Index
 
 - [`__init__.py`](#__init__)
+- [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
-- [`slots/_mesh_cleanup.py`](#slots--_mesh_cleanup) — Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+- [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
+- [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
@@ -39,7 +41,6 @@ _Generated: 2026-07-26_
 - [`slots/blender/transform.py`](#slots--blender--transform)
 - [`slots/blender/utilities.py`](#slots--blender--utilities)
 - [`slots/blender/uv.py`](#slots--blender--uv)
-- [`slots/materials_rename_affix_mixin.py`](#slots--materials_rename_affix_mixin) — Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnostic).
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
@@ -101,7 +102,6 @@ _Generated: 2026-07-26_
 - [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
-- [`slots/preferences_theme_mixin.py`](#slots--preferences_theme_mixin) — Marking-menu + standalone window theme selectors (DCC-agnostic).
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
 - [`tcl_maya.py`](#tcl_maya)
@@ -113,6 +113,16 @@ _Generated: 2026-07-26_
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L26) — Format a string using preset variables.
 
+<a id="slots--_edit"></a>
+### `slots/_edit.py`
+
+Shared, DCC-agnostic behavior for the ``edit`` panel.
+
+- **[`class EditMixin`](tentacle/tentacle/slots/_edit.py#L16)** — DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).
+  - `EditMixin.cleanup_popup_html(header, rows)` *(static)* — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
+  - `EditMixin.cleanup_console_report(title, lines)` *(static)* — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
+  - `EditMixin.report_cleanup_failure(self, scope, mode_label, exc)` — Report a Mesh Cleanup failure through both channels — a detailed console line and a
+
 <a id="slots--_hud_warnings"></a>
 ### `slots/_hud_warnings.py`
 
@@ -123,14 +133,24 @@ Shared HUD warning framework (DCC-agnostic).
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
 
-<a id="slots--_mesh_cleanup"></a>
-### `slots/_mesh_cleanup.py`
+<a id="slots--_materials"></a>
+### `slots/_materials.py`
 
-Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
+Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- [`cleanup_popup_html(header, rows)`](tentacle/tentacle/slots/_mesh_cleanup.py#L12) — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
-- [`cleanup_console_report(title, lines)`](tentacle/tentacle/slots/_mesh_cleanup.py#L28) — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
-- [`report_cleanup_failure(message_box, scope, mode_label, exc)`](tentacle/tentacle/slots/_mesh_cleanup.py#L44) — Report a Mesh Cleanup failure through both channels — a detailed console line and a minimal
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L28)** — DCC-agnostic ``materials`` slot behavior.
+  - `MaterialsMixin.lbl005(self)` — Rename the current material.
+
+<a id="slots--_preferences"></a>
+### `slots/_preferences.py`
+
+Shared, DCC-agnostic behavior for the ``preferences`` panel.
+
+- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L18)** — DCC-agnostic ``preferences`` slot behavior.
+  - `PreferencesMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
+  - `PreferencesMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
+  - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
+  - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -272,7 +292,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--edit"></a>
 ### `slots/blender/edit.py`
 
-- **[`class Edit(SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L14)** — Blender port of the shared ``edit`` menu.
+- **[`class Edit(EditMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L10)** — Blender port of the shared ``edit`` menu.
   - `Edit.header_init(self, widget)`
   - `Edit.b_channels(self)` — Channels — open the spreadsheet-style channel editor (btk.Channels panel).
   - `Edit.tb000_init(self, widget)`
@@ -346,7 +366,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--materials"></a>
 ### `slots/blender/materials.py`
 
-- **[`class MaterialsSlots(MaterialsRenameAffixMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L11)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
+- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L11)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
   - `MaterialsSlots.header_init(self, widget)` — Header menu — Utilities (Setup tools live in the submenu Tools list, mirroring Maya).
   - `MaterialsSlots.cmb002_init(self, widget)` — Materials combo: scene materials with color swatches + option box (Cleanup) + a
   - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
@@ -477,7 +497,7 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
 <a id="slots--blender--preferences"></a>
 ### `slots/blender/preferences.py`
 
-- **[`class Preferences(PreferencesThemeMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L12)** — Blender port of the shared ``preferences`` menu.
+- **[`class Preferences(PreferencesMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L12)** — Blender port of the shared ``preferences`` menu.
   - `Preferences.cmb001_init(self, widget)`
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)`
@@ -711,14 +731,6 @@ Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
   - `Uv.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `Uv.s003(self, value, widget)` — Texel Density — passive input;
 
-<a id="slots--materials_rename_affix_mixin"></a>
-### `slots/materials_rename_affix_mixin.py`
-
-Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnostic).
-
-- **[`class MaterialsRenameAffixMixin`](tentacle/tentacle/slots/materials_rename_affix_mixin.py#L24)** — ``cmb002`` "Rename" label (``lbl005``) + its prefix/suffix affix option box.
-  - `MaterialsRenameAffixMixin.lbl005(self)` — Rename the current material.
-
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
 
@@ -882,7 +894,7 @@ Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnost
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
-- **[`class Edit(SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L16)**
+- **[`class Edit(EditMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L12)**
   - `Edit.header_init(self, widget)` — Initialize header menu
   - `Edit.tb000_init(self, widget)` — Initialize Mesh Cleanup
   - `Edit.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
@@ -997,7 +1009,7 @@ Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnost
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(MaterialsRenameAffixMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
+- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
   - `MaterialsSlots.header_init(self, widget)` — Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools li…
   - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
   - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
@@ -1172,7 +1184,7 @@ Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnost
 <a id="slots--maya--preferences"></a>
 ### `slots/maya/preferences.py`
 
-- **[`class Preferences(PreferencesThemeMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L14)**
+- **[`class Preferences(PreferencesMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L14)**
   - `Preferences.cmb001_init(self, widget)` — Initializes the combo box with unit options.
   - `Preferences.cmb001(self, index, widget)` — Set Working Units: Linear
   - `Preferences.cmb002_init(self, widget)` — Initializes the combo box with frame rate options.
@@ -1463,17 +1475,6 @@ Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnost
 ### `slots/maya/windows.py`
 
 - **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L9)**
-
-<a id="slots--preferences_theme_mixin"></a>
-### `slots/preferences_theme_mixin.py`
-
-Marking-menu + standalone window theme selectors (DCC-agnostic).
-
-- **[`class PreferencesThemeMixin`](tentacle/tentacle/slots/preferences_theme_mixin.py#L14)** — ``cmb004`` / ``cmb005`` — themes for the two uitk hosted window styles.
-  - `PreferencesThemeMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
-  - `PreferencesThemeMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
-  - `PreferencesThemeMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
-  - `PreferencesThemeMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
 
 <a id="tcl_blender"></a>
 ### `tcl_blender.py`

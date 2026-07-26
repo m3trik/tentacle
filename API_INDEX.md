@@ -7,14 +7,21 @@ _Generated: 2026-07-26_
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
 
+### `slots/_edit.py` — Shared, DCC-agnostic behavior for the ``edit`` panel.
+- `class EditMixin`
+  - methods: cleanup_popup_html, cleanup_console_report, report_cleanup_failure
+
 ### `slots/_hud_warnings.py` — Shared HUD warning framework (DCC-agnostic).
 - `class HudWarningsMixin`
   - methods: evaluate_warnings, insert_warning_icons, insert_warning_details
 
-### `slots/_mesh_cleanup.py` — Shared user-feedback formatting for the Mesh Cleanup tool (``edit.tb000``).
-- `cleanup_popup_html(header, rows)`
-- `cleanup_console_report(title, lines)`
-- `report_cleanup_failure(message_box, scope, mode_label, exc)`
+### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
+- `class MaterialsMixin`
+  - methods: lbl005
+
+### `slots/_preferences.py` — Shared, DCC-agnostic behavior for the ``preferences`` panel.
+- `class PreferencesMixin`
+  - methods: cmb004_init, cmb004, cmb005_init, cmb005
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
@@ -52,7 +59,7 @@ _Generated: 2026-07-26_
   - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b005, b000, b006, b007, b008
 
 ### `slots/blender/edit.py`
-- `class Edit(SlotsBlender)`
+- `class Edit(EditMixin, SlotsBlender)`
   - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000_init, cmb000, tb001_init, tb001, tb004_init, tb004
 
 ### `slots/blender/editors.py`
@@ -77,7 +84,7 @@ _Generated: 2026-07-26_
   - methods: list000_init, list000
 
 ### `slots/blender/materials.py`
-- `class MaterialsSlots(MaterialsRenameAffixMixin, SlotsBlender)`
+- `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
   - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b005, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/normals.py`
@@ -97,7 +104,7 @@ _Generated: 2026-07-26_
   - methods: header_init, tb000_init, tb000, b005, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b001, b003, b006, b007, b008, b009, b011, b012, b022, b032, b047, b051, b043, b000, b053, b034, b038_init, b038, b049
 
 ### `slots/blender/preferences.py`
-- `class Preferences(PreferencesThemeMixin, SlotsBlender)`
+- `class Preferences(PreferencesMixin, SlotsBlender)`
   - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010, b011
 
 ### `slots/blender/rendering.py`
@@ -139,10 +146,6 @@ _Generated: 2026-07-26_
 ### `slots/blender/uv.py`
 - `class Uv(SlotsBlender)`
   - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030_init, b030, b032, b033, cmb003, s003
-
-### `slots/materials_rename_affix_mixin.py` — Prefix/suffix affix option box on the materials-combo "Rename" label (DCC-agnostic).
-- `class MaterialsRenameAffixMixin`
-  - methods: lbl005
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -190,7 +193,7 @@ _Generated: 2026-07-26_
   - methods: header_init, tb002_init, tb002, tb000_init, tb000, tb001_init, tb001, b000, b005, b006, b007, b008
 
 ### `slots/maya/edit.py`
-- `class Edit(SlotsMaya)`
+- `class Edit(EditMixin, SlotsMaya)`
   - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002, tb004_init, tb004, b_channels, b000, list000_init, list000, list001_init, list001, cmb000_init, cmb000
 
 ### `slots/maya/edit_mesh.py`
@@ -242,7 +245,7 @@ _Generated: 2026-07-26_
 - `class MashSlots(SlotsMaya)`
 
 ### `slots/maya/materials.py`
-- `class MaterialsSlots(MaterialsRenameAffixMixin, SlotsMaya)`
+- `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
   - methods: header_init, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, lbl002, b015, lbl004, lbl006, b002, b004, b005, b006, b008, b009, b026, b010, b011, b013, b014, b016, b018, tb001_init, tb001, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
@@ -286,7 +289,7 @@ _Generated: 2026-07-26_
   - methods: header_init, chk008, chk009, chk010, tb000_init, tb000, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b000, b001, b003, b005, b006, b007, b008, b009, b011, b012, b022, b032, b034, b038, b043, b047, b049, b051, b053
 
 ### `slots/maya/preferences.py`
-- `class Preferences(PreferencesThemeMixin, SlotsMaya)`
+- `class Preferences(PreferencesMixin, SlotsMaya)`
   - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b011, b009, b010
 
 ### `slots/maya/render.py`
@@ -358,10 +361,6 @@ _Generated: 2026-07-26_
 
 ### `slots/maya/windows.py`
 - `class WindowsSlots(SlotsMaya)`
-
-### `slots/preferences_theme_mixin.py` — Marking-menu + standalone window theme selectors (DCC-agnostic).
-- `class PreferencesThemeMixin`
-  - methods: cmb004_init, cmb004, cmb005_init, cmb005
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`
