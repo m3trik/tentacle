@@ -26,7 +26,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | anim_utils | 297 | 243 | 214 | 72% |
 | audio_utils | 66 | 24 | 9 | 14% |
 | cam_utils | 6 | 13 | 1 | 17% |
-| core_utils | 155 | 70 | 51 | 33% |
+| core_utils | 155 | 71 | 51 | 33% |
 | display_utils | 32 | 24 | 15 | 47% |
 | edit_utils | 157 | 161 | 109 | 69% |
 | env_utils | 323 | 211 | 139 | 43% |
@@ -39,7 +39,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 63 | 67 | 23 | 37% |
 | uv_utils | 75 | 76 | 56 | 75% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1642** | **1198** | **857** | **52%** |
+| **TOTAL (unique)** | **1642** | **1199** | **857** | **52%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -87,7 +87,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | SubstanceBridge | 0→0 | 0→0 | 2→2 | 228→205 | 90% | 100% | clean |
 | Curtain | 0→0 | 1→1 | 13→13 | 880→812 | 92% | 100% | clean |
 | ShellXform | 7→7 | 12→12 | 24→24 | 515→476 | 92% | 100% | clean |
-| UnityBridge | 1→1 | 1→1 | 2→2 | 321→295 | 92% | 100% | clean |
+| UnityBridge | 1→1 | 1→1 | 2→2 | 329→303 | 92% | 100% | clean |
 | Bevel | 0→0 | 0→0 | 3→3 | 174→163 | 94% | 100% | clean |
 | Bridge | 0→0 | 0→0 | 5→5 | 268→255 | 95% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 283→271 | 96% | 100% | clean |
