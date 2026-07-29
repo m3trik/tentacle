@@ -176,6 +176,15 @@ class Rendering(SlotsBlender):
             setToolTip="Play the rendered output (Blender's animation player) when the "
             "playblast finishes.",
         )
+        menu.add(
+            "QCheckBox", setText="Include Audio", setObjectName="chk060", setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Include Audio",
+                body="Mux the scene's audio — VSE strips and speakers — into "
+                "movie output as an FFMPEG AAC track.",
+                notes=["Ignored for image sequences and stills."],
+            ),
+        )
 
         # Show the custom start/end only for Custom Range (mirror of the Maya panel).
         def update_range_widgets(index):
@@ -224,6 +233,7 @@ class Rendering(SlotsBlender):
             "media": imgs.media_type if has_media_type else None,
             "fmt": imgs.file_format, "q": imgs.quality,
             "ffmt": ff.format, "fcodec": ff.codec, "fcrf": ff.constant_rate_factor,
+            "faudio": ff.audio_codec,
             "overlays": view3d_space.overlay.show_overlays if view3d_space else None,
         }
         try:
@@ -234,6 +244,8 @@ class Rendering(SlotsBlender):
             )
             out_path = render.filepath  # the finally below restores render.filepath
             btk.configure_render_output(scene, quality=m.cmb016.currentData(), **fmt_kwargs)
+            if is_movie:  # Include Audio — mux scene audio into the FFMPEG container
+                ff.audio_codec = "AAC" if m.chk060.isChecked() else "NONE"
             cam = m.cmb041.currentData()
             view_context = cam is None
             if cam is not None:
@@ -267,6 +279,7 @@ class Rendering(SlotsBlender):
                 imgs.media_type = snap["media"]
             imgs.file_format, imgs.quality = snap["fmt"], snap["q"]
             ff.format, ff.codec, ff.constant_rate_factor = snap["ffmt"], snap["fcodec"], snap["fcrf"]
+            ff.audio_codec = snap["faudio"]
             if view3d_space is not None:
                 view3d_space.overlay.show_overlays = snap["overlays"]
         self.sb.message_box(f"Playblast written to <hl>{out_path}</hl>.")

@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-07-26_
+_Generated: 2026-07-29_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -23,9 +23,16 @@ _Generated: 2026-07-26_
 - `class PreferencesMixin`
   - methods: cmb004_init, cmb004, cmb005_init, cmb005
 
+### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
+- `class SceneMixin`
+  - methods: tb002_init, tb002
+
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
   - methods: mirror_app_state, add_slot_widget, toggle_camera_view, register_camera_view_toggle
+
+### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
+- `class UvMixin`
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
@@ -85,7 +92,7 @@ _Generated: 2026-07-26_
 
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
-  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b005, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
+  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b005, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/normals.py`
 - `class Normals(SlotsBlender)`
@@ -97,7 +104,7 @@ _Generated: 2026-07-26_
 
 ### `slots/blender/pivot.py`
 - `class Pivot(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002, tb003_init, tb003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002_init, tb002, tb003_init, tb003, b004
 
 ### `slots/blender/polygons.py`
 - `class PolygonsSlots(SlotsBlender)`
@@ -116,7 +123,7 @@ _Generated: 2026-07-26_
   - methods: header_init, b020, cmb001_init, cmb001, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, cmb002_init, cmb002, b004
 
 ### `slots/blender/scene.py`
-- `class SceneSlots(SlotsBlender)`
+- `class SceneSlots(SceneMixin, SlotsBlender)`
   - methods: header_init, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, tb003, b011, b001, b010, b016, b005, b018, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
@@ -137,15 +144,15 @@ _Generated: 2026-07-26_
 
 ### `slots/blender/transform.py`
 - `class TransformSlots(SlotsBlender)`
-  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, chk023_init, chk023, tb001_init, tb001, b002_init, b002, tb003_init, chk024, chk025, chk026
+  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, s023, chk023_init, chk023, tb001_init, tb001, b002_init, b002, tb003_init, chk024, chk025, chk026
 
 ### `slots/blender/utilities.py`
 - `class Utilities(SlotsBlender)`
   - methods: b000, b001, b002, b003
 
 ### `slots/blender/uv.py`
-- `class Uv(SlotsBlender)`
-  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030_init, b030, b032, b033, cmb003, s003
+- `class Uv(UvMixin, SlotsBlender)`
+  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000_init, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030_init, b030, b032, b033, cmb003, s003
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -246,7 +253,7 @@ _Generated: 2026-07-26_
 
 ### `slots/maya/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
-  - methods: header_init, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, lbl002, b015, lbl004, lbl006, b002, b004, b005, b006, b008, b009, b026, b010, b011, b013, b014, b016, b018, tb001_init, tb001, b021, b019, b020, b022, b023, b024, b025
+  - methods: header_init, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, lbl002, b015, lbl004, lbl006, b002, b004, b005, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
 - `class MeshSlots(SlotsMaya)`
@@ -304,7 +311,7 @@ _Generated: 2026-07-26_
   - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, b004
 
 ### `slots/maya/scene.py`
-- `class SceneSlots(SlotsMaya)`
+- `class SceneSlots(SceneMixin, SlotsMaya)`
   - methods: header_init, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, tb003, b004, b005, b006, b009, tb001_init, tb001, b011, b012, b017, b018, b013, b014_init, b014
 
 ### `slots/maya/select.py`
@@ -353,7 +360,7 @@ _Generated: 2026-07-26_
   - methods: b000, b001, b002, b003
 
 ### `slots/maya/uv.py`
-- `class UvSlots(SlotsMaya)`
+- `class UvSlots(UvMixin, SlotsMaya)`
   - methods: get_map_size, header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, cmb003, s003, b000_init, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030_init, b030, b031, b032, b033
 
 ### `slots/maya/visualize.py`

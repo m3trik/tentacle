@@ -5,19 +5,22 @@ import math
 import bpy
 import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle.slots._uv import UvMixin
 
 
-class Uv(SlotsBlender):
+class Uv(UvMixin, SlotsBlender):
     """Blender port of the shared ``uv`` menu.
 
-    Core UV operators (unwrap, the cmb011 Smart/Cube/Cylinder/Sphere projections, pack, seam,
+    Core UV operators (unwrap, the cmb011 Standard projection, pack, seam,
     angle-band hard-edge cut) run as ``bpy.ops.uv.*`` in edit mode via :meth:`_uv_op` (verified to
-    work headless). Data-level UV work (pin/stack/texel density/UV-set cleanup) is backed by
-    ``blendertk.uv_utils`` (bmesh — headless); move/transform/mirror/straighten/distribute live in
-    the blendertk ``shell_xform`` panel (launched via b033); UV transfer rides the native
-    Data-Transfer operator; RizomUV rides the blendertk bridge panel (round-trip presets + one-way
-    send). The deferred Maya-only depth is in the parity overrides (u3dLayout packing params + the
-    unwrap_cylinder crease algorithm).
+    work headless). Auto Unwrap's Hard Surface / Organic modes instead round-trip the mesh through
+    an external unwrapping engine via ``btk.UvUtils.auto_unwrap`` (shared dispatch in
+    :class:`~tentacle.slots._uv.UvMixin`). Data-level UV work (pin/stack/texel density/UV-set
+    cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless);
+    move/transform/mirror/straighten/distribute live in the blendertk ``shell_xform`` panel
+    (launched via b033); UV transfer rides the native Data-Transfer operator; RizomUV rides the
+    blendertk bridge panel (round-trip presets + one-way send). The deferred Maya-only depth is in
+    the parity overrides (u3dLayout packing params + the unwrap_cylinder crease algorithm).
     """
 
     def __init__(self, switchboard):
@@ -115,10 +118,16 @@ class Uv(SlotsBlender):
         # packing; "Preserve UV" skips it and keeps each shell's current relative proportions.
         cmb009 = m.add(
             "QComboBox", setObjectName="cmb009",
-            setToolTip="How shells are scaled before packing.\n"
-            "Preserve UV: keep each shell's current relative UV proportions.\n"
-            "Preserve 3D: rescale every shell to equal texel density "
-            "(bpy.ops.uv.average_islands_scale).",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Pre-Scale Mode",
+                body="How shells are sized relative to each other before packing.",
+                bullets=[
+                    "<b>Preserve UV</b> — keep each shell's current UV size "
+                    "relative to the others.",
+                    "<b>Preserve 3D</b> — rescale so every shell carries the same "
+                    "texel density (<code>uv.average_islands_scale</code>).",
+                ],
+            ),
         )
         for text, data in (("Pre-Scale: Preserve UV", 0), ("Pre-Scale: Preserve 3D", 1)):
             cmb009.addItem(text, data)
@@ -126,11 +135,17 @@ class Uv(SlotsBlender):
         m.add(
             "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_pack_margin",
             set_limits=[0, 1, 0.001, 3], setValue=0.001,
-            setToolTip="Spacing left between packed islands.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Margin",
+                body="Spacing left between packed islands, in UV units.",
+            ),
         )
         m.add(
             "QCheckBox", setText="Rotate Islands", setObjectName="chk_pack_rotate", setChecked=True,
-            setToolTip="Allow islands to rotate for a tighter pack.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate Islands",
+                body="Let the packer re-orient an island wherever that packs tighter.",
+            ),
         )
         # s004 reuses the Maya objectName + label (same target-UDIM-tile option, cross-DCC
         # rule): Blender's pack_islands has no target-tile parameter (no packBox analogue) —
@@ -140,14 +155,44 @@ class Uv(SlotsBlender):
         m.add(
             "QSpinBox", setPrefix="UDIM: ", setObjectName="s004",
             set_limits=[1001, 1200], setValue=1001,
-            setToolTip="Target UDIM tile (1001-1200). After packing, the map is moved into "
-            "this tile (1001 = the first 0-1 tile).",
+            setToolTip=self.sb.tooltip.fmt(
+                title="UDIM",
+                body="The tile the shells end up in (1001–1200). "
+                "<b>1001</b> is the first 0–1 tile.",
+                notes=[
+                    "Blender's packer has no target-tile parameter, so the map is "
+                    "moved into this tile after the pack.",
+                ],
+            ),
         )
+        # cmb015 reuses the Maya objectName + labels (same tile-coverage option, cross-DCC
+        # rule): pack_islands has no packBox analogue, so coverage is a post-pack whole-map
+        # scale about the target tile's bottom-left corner (same math as Maya's fractional
+        # -packBox / the rizom bridge's UV_AREA token).
+        cmb015 = m.add(
+            "QComboBox",
+            setObjectName="cmb015",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Tile Coverage",
+                body="Which fraction of the target UDIM tile to pack into, "
+                "anchored at the tile's bottom-left corner. Use it to reserve "
+                "the rest of the tile for other shells.",
+            ),
+        )
+        for text, data in [
+            ("Tile Coverage: Full", (1.0, 1.0)),
+            ("Tile Coverage: Half (U)", (0.5, 1.0)),
+            ("Tile Coverage: Half (V)", (1.0, 0.5)),
+            ("Tile Coverage: Quarter", (0.5, 0.5)),
+        ]:
+            cmb015.addItem(text, data)
+        cmb015.setCurrentIndex(0)
 
     @btk.undoable
     def tb000(self, widget):
         """Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
-        UDIM tile by the delta from the tile actually packed into."""
+        UDIM tile by the delta from the tile actually packed into — and shrunk to the chosen
+        tile coverage about the tile's bottom-left corner."""
         m = widget.option_box.menu
         preserve_3d = m.cmb009.currentData() == 1  # Pre-Scale Mode: 1 = Preserve 3D
 
@@ -180,61 +225,94 @@ class Uv(SlotsBlender):
         du, dv = u_tile - math.floor(u_min), v_tile - math.floor(v_min)
         if du or dv:
             btk.move_uvs(objects, du=float(du), dv=float(dv))
-
-    # cmb011 projection method -> the native Blender projection op (Maya's projection-method
-    # selector; reuses the Maya objectName, cross-DCC rule). Smart uses the angle/margin below;
-    # Cube/Cylinder/Sphere project from the object bounds (no per-mode options, like Maya gates).
-    _PROJECTION_OPS = {
-        "Cube": "cube_project", "Cylinder": "cylinder_project", "Sphere": "sphere_project",
-    }
-    _PROJECTIONS = ("Smart", *_PROJECTION_OPS)  # Smart needs args; the rest map 1:1 to an op
+        cu, cv = m.cmb015.currentData()  # Tile Coverage — shrink about the tile corner
+        if cu != 1.0 or cv != 1.0:
+            btk.scale_uvs(objects, su=cu, sv=cv, pivot=(float(u_tile), float(v_tile)))
 
     def tb001_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Auto Unwrap")
-        m.add(
-            "QComboBox", addItems=list(self._PROJECTIONS), setObjectName="cmb011",
-            setToolTip="Projection method used to generate UVs (Blender native projections).\n"
-            "Smart: best-fit from multiple planar projections.\n"
-            "Cube / Cylinder / Sphere: project from the object's bounds.",
+        # Item data is the key consumed by tb001 -- "standard" for Blender's own
+        # Smart UV Project, else a UvUtils.auto_unwrap method name. Labels match
+        # the Maya panel's exactly (cross-DCC parity).
+        cmb011 = m.add("QComboBox", setObjectName="cmb011",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Unwrap Method",
+                body="Which algorithm generates the UVs.",
+                bullets=[
+                    "<b>Standard</b> — Blender's Smart UV Project: the best fit "
+                    "from several planar projections.",
+                    "<b>Hard Surface</b> — Ministry of Flat, an external unwrapper "
+                    "that classifies topology and places seams the way an artist "
+                    "would. Best for mechanical / architectural models.",
+                    "<b>Organic</b> — Boundary First Flattening, an external "
+                    "unwrapper using conformal flattening with automatic cone "
+                    "singularities. Best for sculpted, scanned and character models.",
+                ],
+                notes=[
+                    "Angle Limit and Island Margin below apply to "
+                    "<b>Standard</b> only.",
+                ],
+            ),
         )
+        for text, data in [
+            ("Standard", "standard"),
+            ("Hard Surface (Ministry of Flat)", "hard"),
+            ("Organic (BFF)", "organic"),
+        ]:
+            cmb011.addItem(text, data)
+        cmb011.setCurrentIndex(0)  # Standard — needs no external engine
         m.add(
             "QSpinBox", setPrefix="Angle Limit: ", setObjectName="s_smart_angle",
             set_limits=[1, 89], setValue=66,
-            setToolTip="Lower = more islands (Smart UV Project angle limit, degrees). Smart only.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Angle Limit",
+                body="Smart UV Project's projection angle limit, in degrees. "
+                "Lower values cut more islands.",
+                notes=["<b>Standard</b> method only."],
+            ),
         )
         m.add(
             "QDoubleSpinBox", setPrefix="Island Margin: ", setObjectName="s_smart_margin",
             set_limits=[0, 1, 0.001, 3], setValue=0.0,
-            setToolTip="Spacing between the generated islands. Smart only.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Island Margin",
+                body="Spacing left between the generated islands, in UV units.",
+                notes=["<b>Standard</b> method only."],
+            ),
         )
 
-        def _sync():  # Smart-only params disable for the single-shape projections
-            smart = m.cmb011.currentText() == "Smart"
-            m.s_smart_angle.setEnabled(smart)
-            m.s_smart_margin.setEnabled(smart)
+        def _sync():  # Smart-project params disable for the engine modes
+            standard = m.cmb011.currentData() == "standard"
+            m.s_smart_angle.setEnabled(standard)
+            m.s_smart_margin.setEnabled(standard)
 
         m.cmb011.currentIndexChanged.connect(_sync)
         _sync()
 
     @btk.undoable
     def tb001(self, widget):
-        """Auto Unwrap (Smart UV Project / Cube / Cylinder / Sphere projection)."""
+        """Auto Unwrap (Smart UV Project, or an external unwrapping engine)."""
         m = widget.option_box.menu
-        method = m.cmb011.currentText()
-        if method == "Smart":
-            self._uv_op(
-                lambda: bpy.ops.uv.smart_project(
-                    angle_limit=math.radians(m.s_smart_angle.value()),
-                    island_margin=m.s_smart_margin.value(),
+        mode = m.cmb011.currentData()
+
+        if mode in self.AUTO_UNWRAP_ENGINE_MODES:
+            objects = [o for o in self.selected_objects() if o.type == "MESH"]
+            if not objects:
+                self.sb.message_box(
+                    "<b>Nothing selected.</b><br>The operation requires at least "
+                    "one selected mesh."
                 )
+                return
+            # Not via _uv_op: auto_unwrap manages its own object-mode context.
+            return self._run_auto_unwrap(btk, objects, mode, self.get_map_size())
+
+        self._uv_op(
+            lambda: bpy.ops.uv.smart_project(
+                angle_limit=math.radians(m.s_smart_angle.value()),
+                island_margin=m.s_smart_margin.value(),
             )
-        else:
-            op = getattr(bpy.ops.uv, self._PROJECTION_OPS[method])
-            # scale_to_bounds: fit the projection into the 0-1 square (the option-box tooltip
-            # promises bounds projection; Maya's smartFit default) — at the default False
-            # these ops project at absolute unit scale.
-            self._uv_op(lambda: op(scale_to_bounds=True))
+        )
 
     # method enum -> friendly label (Minimum Stretch only exists on newer Blender; guarded).
     _UNWRAP_METHODS = {"Angle Based": "ANGLE_BASED", "Conformal": "CONFORMAL"}
@@ -457,11 +535,95 @@ class Uv(SlotsBlender):
 
     # ------------------------------------------------------------------ b000  Transfer UVs
     @btk.undoable
-    def b000(self, widget):
-        """Transfer UVs (active mesh → other selected, native Data-Transfer)."""
-        self.transfer_from_active(
-            "UV", layers_select_src="ACTIVE", layers_select_dst="ACTIVE"
+    def b000_init(self, widget):
+        """Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;
+        'instances' here = linked duplicates, which share the datablock and are skipped)."""
+        widget.option_box.menu.setTitle("Transfer UVs")
+        cmb014 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb014",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Scope",
+                body="Where the transfer targets come from. The <b>active</b> "
+                "object is always the source.",
+                bullets=[
+                    "<b>Selection Order</b> — transfer to each additionally "
+                    "selected object.",
+                    "<b>Similar in Selection</b> — transfer to the selected "
+                    "objects that are geometrically similar to the source.",
+                    "<b>Similar in Scene</b> — transfer to every geometrically "
+                    "similar mesh in the scene.",
+                ],
+                notes=[
+                    "The Similar scopes skip linked duplicates of the source: "
+                    "they share one mesh datablock, so their UVs already match.",
+                ],
+            ),
         )
+        for text, data in [
+            ("Scope: Selection Order", "order"),
+            ("Scope: Similar in Selection", "selection"),
+            ("Scope: Similar in Scene", "scene"),
+        ]:
+            cmb014.addItem(text, data)
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setObjectName="d000",
+            setPrefix="Similarity: ",
+            setValue=0.9,
+            setMinimum=0.0,
+            setMaximum=1.0,
+            setSingleStep=0.05,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Similarity",
+                body="The minimum score (0–1) a mesh must reach to receive UVs, "
+                "scored on bounding-box volume and vertex count.",
+                notes=["Used by the <b>Similar</b> scopes only."],
+            ),
+        )
+
+    @btk.undoable
+    def b000(self, widget):
+        """Transfer UVs — from the active mesh, to the other selected meshes (Selection
+        Order, native Data-Transfer) or to geometrically similar meshes
+        (``btk.transfer_uvs_to_similar`` fan-out)."""
+        scope = widget.option_box.menu.cmb014.currentData() or "order"
+        tolerance = widget.option_box.menu.d000.value()
+        if scope == "order":
+            self.transfer_from_active(
+                "UV", layers_select_src="ACTIVE", layers_select_dst="ACTIVE"
+            )
+            return
+
+        active = self.active_object()
+        if active is None or active.type != "MESH":
+            self.sb.message_box(
+                "<b>Nothing selected.</b><br>Make the source mesh active"
+                + (", with the candidate objects selected." if scope == "selection" else ".")
+            )
+            return
+        candidates = None
+        if scope == "selection":
+            candidates = [o for o in self.selected_objects() if o != active]
+            if not candidates:
+                self.sb.message_box(
+                    "<b>Insufficient selection.</b><br>Select the candidate objects "
+                    "with the source mesh active."
+                )
+                return
+        try:
+            targets = btk.transfer_uvs_to_similar(
+                active, candidates, tolerance=tolerance
+            )
+        except ValueError as e:
+            self.sb.message_box(f"<b>Transfer UVs:</b><br>{e}")
+            return
+        if targets:
+            self.sb.message_box(
+                f"Transferred UVs to <hl>{len(targets)}</hl> similar mesh(es)."
+            )
+        else:
+            self.sb.message_box("No similar meshes found within the tolerance.")
 
     # ------------------------------------------------------------------ b003/b004  Texel density
     def b003(self):

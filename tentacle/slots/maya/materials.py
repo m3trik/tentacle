@@ -44,6 +44,15 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
                 "Create a parallel aiStandardSurface so materials preview "
                 "correctly under Arnold in Maya.",
             ),
+            (
+                "Emissive Groups",
+                "b027",
+                "Author named face groups whose emissive regions a game "
+                "engine can toggle or dim independently, sharing one all-on "
+                "emissive map. Bakes membership into a vertex color set "
+                "(rides the FBX) or an _EMask texture, and publishes the "
+                "manifest Unity's EmissiveGroupController reads.",
+            ),
         ],
         "Texture Maps (files)": [
             (
@@ -813,6 +822,10 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview; not an
         external-app bridge — renamed from 'Arnold Bridge' to avoid that confusion)."""
         self.sb.handlers.marking_menu.show("arnold_bridge")
+
+    def b027(self, widget):
+        """Emissive Groups"""
+        self.sb.handlers.marking_menu.show("emissive_groups")
 
     def b010(self, widget):
         """Texture Path Editor"""

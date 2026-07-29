@@ -14,6 +14,13 @@ Three execution modes:
    Initializes maya.standalone in-process. The overlay widget test still
    skips here because mayapy.standalone's Qt is a non-GUI stub.
 
+   KNOWN BROKEN (2026-07-28): this mode native-crashes partway through the
+   run — exit 0xC0000409 (STATUS_STACK_BUFFER_OVERRUN), the same signature
+   mayatk quarantines modules for via its GUI_REQUIRED registry, raised by
+   Qt-widget tests hosted on the standalone Qt stub. Fixing it properly
+   needs the same per-module deferral registry mayatk carries. Until then
+   use mode 3; mode 2 cannot complete, and never stamps the badge.
+
 3. Real Maya GUI (canonical "everything passes" run):
        python run_tests.py --in-maya
    Uses mayatk.MayaConnection to launch a FRESH Maya instance, dispatches
@@ -35,7 +42,6 @@ Other flags:
 import argparse
 import datetime
 import io
-import os
 import re
 import sys
 import textwrap
@@ -221,39 +227,22 @@ class DetailedTestResult(unittest.TextTestResult):
         elif self.dots: self.stream.write("s"); self.stream.flush()
 
 def update_readme_badge(passed: int, failed: int, readme_path: Path) -> bool:
-    if not readme_path.exists():
-        print(f"README not found at {readme_path}")
-        return False
-    
+    """Stamp the test badge via the ecosystem SSoT (``ptk.StatusBadge``).
+
+    ``passed`` is individual test cases with skips excluded — the same unit
+    every sibling package reports. See m3trik/docs/TEST_BADGE_STANDARD.md.
+    """
+    from pythontk.core_utils.status_badge import StatusBadge
+
     try:
-        content = readme_path.read_text(encoding="utf-8")
-        if failed == 0:
-            color = "brightgreen"; status = f"{passed} passed"
-        elif passed == 0:
-            color = "red"; status = f"{failed} failed"
-        else:
-            color = "orange"; status = f"{passed} passed, {failed} failed"
-
-        # Link target computed relative to the README's location (this runner
+        # Link target is resolved against the README's own location (this runner
         # writes both README.md -> test/ and docs/README.md -> ../test/).
-        test_dir = Path(__file__).resolve().parent
-        link_target = Path(os.path.relpath(test_dir, readme_path.parent)).as_posix() + "/"
-        new_badge = f"[![Tests](https://img.shields.io/badge/Tests-{status.replace(' ', '%20').replace(',', '')}-{color}.svg)]({link_target})"
-        tests_badge_pattern = r"\[!\[Tests\]\(https://img\.shields\.io/badge/Tests-[^\)]+\)\]\([^\)]+\)"
-
-        if re.search(tests_badge_pattern, content):
-            new_content = re.sub(tests_badge_pattern, new_badge, content)
-        else:
-            python_badge_pattern = r"(\[!\[Python\]\(https://img\.shields\.io/badge/Python-[^\)]+\)\]\([^\)]+\))"
-            match = re.search(python_badge_pattern, content)
-            if match:
-                insert_pos = match.end()
-                new_content = content[:insert_pos] + "\n" + new_badge + content[insert_pos:]
-            else:
-                new_content = new_badge + "\n" + content
-
-        readme_path.write_text(new_content, encoding="utf-8")
-        print(f"\nREADME badge updated: {status}")
+        if not StatusBadge.update_test_badge(
+            readme_path, passed, failed, test_dir=Path(__file__).resolve().parent
+        ):
+            print(f"README badge not updated (missing or unwritable): {readme_path}")
+            return False
+        print(f"\nREADME badge updated: {StatusBadge.test_status(passed, failed)[0]}")
         return True
     except Exception as e:
         print(f"Failed to update badge: {e}")
@@ -552,13 +541,16 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                             if mp and mf and me:
                                 p = int(mp.group(1))
                                 f_ = int(mf.group(1)) + int(me.group(1))
+                                # Every front door that exists, not just the
+                                # first: a repo keeping both a landing README
+                                # and a packaged docs/README must not show two
+                                # different counts.
                                 for cand in (
                                     root_dir / "docs" / "README.md",
                                     root_dir / "README.md",
                                 ):
                                     if cand.exists():
                                         update_readme_badge(p, f_, cand)
-                                        break
 
                     return 0 if str(passed_flag).strip().lower() == "true" else 1
             except Exception:
@@ -667,13 +659,20 @@ def main():
     runner = TestRunner(test_dir, verbosity=verbosity, include_slots=args.include_slots)
     result = runner.run(log_to_file=args.log)
 
+    # ONLY --in-maya stamps, and it does so from its own path -- so nothing here
+    # ever does. A plain run has no Maya at all (~344 of 541 tests skip);
+    # publishing its count silently replaced a canonical "534 passed, 2 failed"
+    # badge with a green "197 passed" -- a 63% understatement AND two real
+    # failures hidden. --include-slots is fuller but still NOT the full suite:
+    # mayapy.standalone's Qt is a non-GUI stub, so the marking-menu and overlay
+    # widget tests skip there too, and stamping it would clobber the canonical
+    # count with a smaller one -- the same bug in a quieter costume.
     if not args.no_badge:
-        # Check standard locations for README
-        possible_readmes = [root_dir / "docs" / "README.md", root_dir / "README.md"]
-        for p in possible_readmes:
-            if p.exists():
-                update_readme_badge(result.passed, result.failures + result.errors, p)
-                break
+        print(
+            "\nSkipping README badge: only --in-maya runs the whole suite, and a "
+            "partial count must not replace a full one. "
+            "See m3trik/docs/TEST_BADGE_STANDARD.md"
+        )
 
     sys.exit(0 if result.success else 1)
 

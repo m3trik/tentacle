@@ -16,11 +16,12 @@
 | ColorId | 0 | 0 | 0 | 1 | OK |
 | Curtain | 0 | 0 | 0 | 0 | OK |
 | CurveToTube | 0 | 0 | 0 | 0 | OK |
-| CutOnAxis | 0 | 4 | 0 | 0 | open |
+| CutOnAxis | 0 | 0 | 0 | 0 | OK |
 | DuplicateGrid | 0 | 0 | 0 | 0 | OK |
 | DuplicateLinear | 0 | 0 | 0 | 0 | OK |
 | DuplicateRadial | 0 | 0 | 0 | 0 | OK |
 | DynamicPipe | 0 | 0 | 0 | 0 | OK |
+| EmissiveGroups | 0 | 0 | 0 | 0 | OK |
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
 | GameShader | 0 | 0 | 0 | 2 | OK |
 | HdrManager | 0 | 0 | 0 | 2 | OK |
@@ -45,7 +46,7 @@
 | SmartBake | 0 | 0 | 5 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
-| TelescopeRig | 0 | 1 | 0 | 0 | open |
+| TelescopeRig | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 0 | 4 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
@@ -134,19 +135,19 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | materials.py | 0 | 0 | 3 | 0 | 0 | OK |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
-| pivot.py | 0 | 1 | 7 | 0 | 0 | open |
-| polygons.py | 0 | 2 | 3 | 0 | 0 | open |
+| pivot.py | 0 | 0 | 6 | 0 | 0 | OK |
+| polygons.py | 0 | 0 | 3 | 0 | 0 | OK |
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
-| rendering.py | 0 | 1 | 4 | 0 | 0 | open |
+| rendering.py | 0 | 0 | 4 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
 | scene.py | 0 | 0 | 9 | 0 | 0 | OK |
-| selection.py | 0 | 0 | 8 | 0 | 0 | OK |
+| selection.py | 0 | 0 | 7 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
-| transform.py | 0 | 0 | 12 | 0 | 0 | OK |
+| transform.py | 0 | 0 | 10 | 0 | 1 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 4 | 11 | 0 | 0 | open |
+| uv.py | 3 | 0 | 13 | 0 | 0 | **GAP** |
 
 ### Slot deltas
 
@@ -156,14 +157,10 @@ Blender-only panels: MayaBridge, WorkspaceEditor
   - `cmb038` 5->4 items; missing=['Mode: Channel Box'] extra=[]
   - `cmb_scope` 2->2 items; missing=['Selected', 'All Scene Objects'] extra=['Scope: Selected', 'Scope: All Scene Objects']
 
-#### cameras.py
-**combo item deltas (review)**
-  - `list000` 11->5 items; missing=['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive', 'Remove from Hidden', 'Remove All for Camera', 'Remove All'] extra=[]
-
 #### display.py
 **combo item deltas (review)**
   - `_LIST000_ITEMS[Normals]` 2->2 items; missing=['Display Normal'] extra=['Display Normals']
-  - `_LIST000_ITEMS[UV]` 4->1 items; missing=['Display UV Border', 'Checkered', 'Borders'] extra=[]
+  - `_LIST000_ITEMS[UV]` 4->2 items; missing=['Display UV Border', 'Borders'] extra=[]
   - `_LIST000_ITEMS[View]` 5->4 items; missing=['Show Selected', 'Show Geometry'] extra=['Show All']
   - `_LIST000_ITEMS[Wireframe]` 4->5 items; missing=[] extra=['Shaded Selected']
 
@@ -173,16 +170,12 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 #### materials.py
 **combo item deltas (review)**
-  - `_TOOLS_ITEMS[Materials (scene)]` 3->2 items; missing=['Arnold Preview Shader'] extra=[]
-
-#### normals.py
-**combo item deltas (review)**
-  - `cmb000` 5->3 items; missing=['Reverse', 'Propagate', 'Conform', 'Reverse and Extract', 'Reverse and Propagate'] extra=['Flip', 'Recalculate Outside', 'Recalculate Inside']
+  - `_TOOLS_ITEMS[Materials (scene)]` 4->3 items; missing=['Arnold Preview Shader'] extra=[]
 
 #### nurbs.py
 **combo item deltas (review)**
-  - `_LIST000_COMMANDS[Edit]` 12->7 items; missing=['Insert Knot', 'Rebuild', 'Extend (Options)', 'Extend', 'Extend on Surface'] extra=[]
-  - `_LIST000_COMMANDS[Modify]` 7->1 items; missing=['Lock', 'Unlock', 'Bend', 'Curl', 'Curvature', 'Straighten'] extra=[]
+  - `_LIST000_COMMANDS[Edit]` 12->9 items; missing=['Insert Knot', 'Extend (Options)', 'Extend on Surface'] extra=[]
+  - `_LIST000_COMMANDS[Modify]` 7->5 items; missing=['Lock', 'Unlock'] extra=[]
   - `_LIST000_COMMANDS[Surfaces]` 2->1 items; missing=['Insert Isoparm'] extra=[]
 
 #### rigging.py
@@ -198,24 +191,18 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 **combo item deltas (review)**
   - `cmb000` 2->2 items; missing=['Reduce (Quadric Error %)'] extra=['Reduce (Collapse %)']
 
+#### transform.py
+**default/property deltas (review — a flipped default changes first-use behavior)**
+  - `s023.setValue` maya=`0` blender=`None`
+
+#### uv.py
+**UNTRIAGED**
+  - `chk043` (control) — optbox QCheckBox 'Brute Force (xatlas)'
+  - `chk044` (control) — optbox QCheckBox 'Rotate Shells (xatlas)'
+  - `cmb019` (control) — optbox QComboBox None
+
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
-## Open work (ledgered `pending`)
-
-- **CutOnAxis** `cmb001` — .ui widget ComboBox  [pending] Interpolation-mode combo (linear / ease_in / ease_out / weighted / smooth_step) added to Maya's Cut on Axis panel alongside the weighted-spacing fields: mtk.cut_on_axis now distributes the cut planes with non-linear spacing (weight_bias / weight_curve) instead of only even spacing, and toggle_weight_ui enables the weight fields per mode. Blender's cut_on_axis engine does even spacing only -- porting means adding the same spacing distribution to the btk engine plus the cmb001/s002/s003/s004 widgets to its .ui + slot. Needs a live-Blender check before building.
-- **CutOnAxis** `s002` — .ui widget DoubleSpinBox  [pending] Cut-plane Spacing field (pairs with cmb001's interpolation modes) -- part of the same weighted-spacing port tracked on cmb001.
-- **CutOnAxis** `s003` — .ui widget DoubleSpinBox  [pending] Weight Bias field for the 'weighted' interpolation mode (0..1) -- part of the same weighted-spacing port tracked on cmb001.
-- **CutOnAxis** `s004` — .ui widget DoubleSpinBox  [pending] Weight Curve field (non-linear distribution strength) -- part of the same weighted-spacing port tracked on cmb001.
-- **TelescopeRig** `cmb_axis` — .ui widget ComboBox  [pending] Aim Axis combo added to the Maya panel 2026-07-18 with the TelescopeRig engine overhaul (selects the segments' long axis: aim vectors + driven scale channel + off-axis lock set). The blendertk twin's engine still hardcodes its axis handling — port the aim_axis option to its engine, .ui, and slots.
-- **pivot** `cmb000` — optbox QComboBox None  [pending] Transfer-Pivot Mirror axis combo (None / X / Y / Z), 2026-07-25: Maya's tb002 gained mirror= (mtk.transfer_pivot reflects the transferred pivot across the world axis-plane through the origin — position negated, orientation conjugated — for a mirrored copy of the source). Portable to Blender at the *position* level: reflect the source origin (cursor.location) across the chosen world axis before ORIGIN_CURSOR snap. Blocked on Blender's tb002 currently being option-less (no option box builder) — adding this combo means introducing a tb002_init on the Blender slot; needs a live-Blender check before building (rotate/scale mirror stays N/A, single-point origin).
-- **polygons** `chk023` — optbox QCheckBox 'Uninstance'  [pending] Uninstance-before-Combine safety toggle (2026-07-25, default ON): Maya's tb004 Combine gained chk023 -> mtk.EditUtils.combine_objects(uninstance=), which breaks instance links first so combining doesn't silently delete sibling instances that share the shape but aren't in the selection. Blender's join (bpy.ops.object.join) merges the selected meshes into the active without deleting non-selected linked duplicates, so the sibling-loss hazard may not exist (cf. uv chk016 'instance dedupe is inherent in Blender') -- confirm before deciding na vs. a make_single_user pass. Needs a live-Blender check.
-- **polygons** `chk024` — optbox QCheckBox 'Uninstance'  [pending] Uninstance-before-Separate safety toggle (2026-07-25, default ON): Maya's tb002 Separate gained chk024 -> mtk.separate_objects(uninstance=), which breaks instance links first so separating instanced geometry doesn't silently delete siblings that share the shape. Blender's mesh.separate edits the active mesh datablock, which linked duplicates share, so a make_single_user pass is the likely analogue -- unlike Combine this one probably IS needed. Needs a live-Blender check before building.
-- **rendering** `chk060` — optbox QCheckBox 'Include Audio'  [pending] Include Audio (2026-07-18 overhaul): Maya muxes the timeline's active sound into MP4/MOV (ffmpeg) and passes it to the native AVI playblast. Blender candidate route: set scene.render.ffmpeg.audio_codec before bpy.ops.render.opengl so VSE/speaker audio muxes into the FFMPEG output — needs a live-Blender check before building.
-- **uv** `cmb014` — optbox QComboBox None  [pending] Transfer UVs Scope combo (Selection Order / Similar in Selection / Similar in Scene) -- open work tracked on HANDLERS['uv']['b000_init'] (port the option box + btk similarity fan-out together).
-- **uv** `cmb015` — optbox QComboBox None  [pending] Pack UVs Tile Coverage combo (Full / Half U / Half V / Quarter, 2026-07-25): Maya shrinks u3dLayout's fractional -packBox from the tile's bottom-left. Blender pack_islands has no target-box parameter -- portable as a post-pack bmesh UV scale about the tile corner ((u,v) *= coverage), same math the rizom bridge's pack.lua uses for its UV_AREA token. Port alongside the tile handling tb000 already does.
-- **uv** `d000` — optbox QDoubleSpinBox None  [pending] Transfer UVs similarity threshold (pairs with cmb014's Similar scopes) -- open work tracked on HANDLERS['uv']['b000_init'].
-- **uv** `b000_init` — [pending] Transfer UVs scope option box (2026-07-25): Maya's b000 gained cmb014 (Scope: Selection Order / Similar in Selection / Similar in Scene) + d000 (similarity threshold), backed by mtk.transfer_uvs_to_similar (fan one source out to duplicate meshes matched by bbox volume + vertex count; true instances skipped -- shared shape). Blender's b000 is a native Data-Transfer from the active mesh with no option box yet. Portable: linked duplicates (Alt+D) share the datablock like Maya instances (skip), real copies (Shift+D) are the candidates -- add the same scope combo + threshold, similarity-match in btk, reuse the existing data_transfer path. Needs a live-Blender check before building.
-
-## Totals: 44 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep FAILS (untriaged deltas).

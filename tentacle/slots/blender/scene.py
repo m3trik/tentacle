@@ -9,10 +9,11 @@ import blendertk as btk
 from uitk import Signals
 from uitk.widgets.footer import FooterStatusController
 from blendertk.core_utils.script_job_manager import ScriptJobManager
+from tentacle.slots._scene import SceneMixin
 from tentacle.slots.blender._slots_blender import SlotsBlender
 
 
-class SceneSlots(SlotsBlender):
+class SceneSlots(SceneMixin, SlotsBlender):
     """Blender port of the shared ``scene`` menu.
 
     Recent files / autosave recovery map onto Blender's own recent-files.txt and temp-dir
@@ -154,6 +155,22 @@ class SceneSlots(SlotsBlender):
             setToolTip="Set data textures (normal / roughness / metallic / height …) to "
             "'Non-Color' and color maps to 'sRGB', by map type — so PBR shading isn't gamma-wrong.",
         )
+        widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Fix Non-Orthogonal Axes", setObjectName="tb002",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Fix Non-Orthogonal Axes",
+                body="Fix the objects behind FBX's <i>Non-orthogonal matrix "
+                "support</i> warning — axes that aren't perpendicular don't "
+                "survive import / export.",
+                notes=[
+                    "In Blender the skew is always inherited: an object under a "
+                    "non-uniformly scaled, rotated parent evaluates to "
+                    "non-perpendicular world axes.",
+                    "Scope and a report-only dry run are set in the option box.",
+                ],
+            ),
+        )
         widget.menu.add("Separator", setTitle="Diagnostics")
         widget.menu.add(
             self.sb.registered_widgets.PushButton, setText="Get Scene Info", setObjectName="tb001",
@@ -166,6 +183,24 @@ class SceneSlots(SlotsBlender):
             "(data_internal + data_export) as JSON — shot metadata, audio manifests, etc.\n"
             "Use Save in the viewer to write it to a .json file.",
         )
+
+    # ------------------------------------------------------- SceneMixin hooks
+    NON_ORTHOGONAL_FIX_EFFECT = (
+        "Fixing bakes the sheared world transform back into an orthogonal "
+        "Loc/Rot/Scale via 'clear parent &amp; keep transform' — the object "
+        "stays exactly where it is, but is un-parented in the process (a "
+        "Blender object has no shear of its own to freeze). Objects without "
+        "drivers, animation or constraints are untouched beyond that."
+    )
+
+    def _diagnostics(self):
+        return btk.Diagnostics
+
+    def _scene_objects(self):
+        return list(bpy.context.scene.objects)
+
+    def _selected_objects(self):
+        return list(self.selected_objects())
 
     def _open_file(self, filepath):
         try:

@@ -137,16 +137,16 @@ class Nurbs(SlotsBlender):
     #             same reuse-a-modifier idiom as this file's own Revolve/tb000).
     #   Modify:   Lock / Unlock Curve Length have no Blender concept (a control point has no
     #             independent "locked arc length" constraint to toggle) — excused. Bend / Curl /
-    #             Curvature / Straighten are parametric deformations Maya drives from its own
-    #             option-box magnitude; Blender's nearest analogues (Simple Deform / lattice) are
-    #             persistent modifiers needing that same kind of dedicated option UI as this
-    #             file's tb000/tb001, not a parameterless one-click list action — excused
-    #             (reviewer's call, same as the auditor flagged).
+    #             Curvature / Straighten are the rolled ``btk.NurbsUtils`` CV-deformation family
+    #             (2026-07-28): pure control-point math, replacing the earlier excusal — the
+    #             probed SIMPLE_DEFORM route was refuted (fixed-axis no-op trap), CV math has
+    #             no such trap.
     #   Surfaces: Insert Isoparm is a parametric NURBS-surface-only concept — excused.
-    #   Edit:     Insert Knot / Rebuild are parametric NURBS-curve re-parameterization — excused.
-    #             Extend (Options) / Extend / Extend on Surface are tolerance-based parametric
-    #             curve extension; no Blender op extends a curve by a tolerance/surface target —
-    #             excused.
+    #   Edit:     Insert Knot is parametric knot-vector re-parameterization (the knot vector
+    #             isn't exposed to Python — verified) — excused. Rebuild / Extend ride the same
+    #             rolled family (uniform arc-length CV redistribution / end-tangent extension).
+    #             Extend (Options) / Extend on Surface stay excused (tolerance-/surface-
+    #             constrained parametric extension has no CV-level equivalent).
     _LIST000_COMMANDS = {
         "Create": [
             ("Project", "_project_curve_on_mesh"),
@@ -154,7 +154,11 @@ class Nurbs(SlotsBlender):
             ("Duplicate", "_duplicate_curves"),
         ],
         "Modify": [
+            ("Bend", "_bend_curves"),
+            ("Curl", "_curl_curves"),
+            ("Curvature", "_scale_curvature"),
             ("Smooth", "_smooth_curve"),
+            ("Straighten", "_straighten_curves"),
         ],
         "Surfaces": [
             ("Planar", "_planar_fill"),
@@ -166,7 +170,9 @@ class Nurbs(SlotsBlender):
             ("Cut", "_cut_curve"),
             ("Open/Close", "_toggle_open_close"),
             ("Add Points Tool", "_add_points_tool"),
+            ("Rebuild", "_rebuild_curves"),
             ("Reverse", "_reverse_curve"),
+            ("Extend", "_extend_curves"),
         ],
     }
 
@@ -332,6 +338,54 @@ class Nurbs(SlotsBlender):
             self.sb.message_box("Smooth requires selected curve(s).")
             return
         self._run_curve_edit_op(bpy.ops.curve.smooth, curves)
+
+    def _deform_curves(self, label, fn, **kwargs):
+        """Shared driver for the rolled CV-deformation leaves (``btk.NurbsUtils`` family) —
+        POLY/NURBS splines only (Bézier's handle model needs its own authoring pass)."""
+        curves = self._selected_curves()
+        if not curves:
+            self.sb.message_box(f"{label} requires selected curve(s).")
+            return
+        eligible = [
+            c for c in curves
+            if any(sp.type in ("POLY", "NURBS") for sp in c.data.splines)
+        ]
+        if not eligible:
+            self.sb.message_box(
+                f"{label} works on POLY/NURBS splines (Bézier is not supported)."
+            )
+            return
+        fn(eligible, **kwargs)
+
+    @btk.undoable
+    def _bend_curves(self):
+        """Bend (Modify): arc the curve — progressive CV rotation about its start."""
+        self._deform_curves("Bend", btk.NurbsUtils.bend_curve, angle=45.0)
+
+    @btk.undoable
+    def _curl_curves(self):
+        """Curl (Modify): accelerating CV rotation — the far end spirals in."""
+        self._deform_curves("Curl", btk.NurbsUtils.curl_curve, angle=270.0)
+
+    @btk.undoable
+    def _scale_curvature(self):
+        """Curvature (Modify): exaggerate the curve's bow (×1.5 deviation from the chord)."""
+        self._deform_curves("Curvature", btk.NurbsUtils.scale_curvature, factor=1.5)
+
+    @btk.undoable
+    def _straighten_curves(self):
+        """Straighten (Modify): pull CVs onto the start→end line, preserving arc length."""
+        self._deform_curves("Straighten", btk.NurbsUtils.straighten_curve)
+
+    @btk.undoable
+    def _rebuild_curves(self):
+        """Rebuild (Edit): redistribute CVs uniformly by arc length (8 spans)."""
+        self._deform_curves("Rebuild", btk.NurbsUtils.rebuild_curve, spans=8)
+
+    @btk.undoable
+    def _extend_curves(self):
+        """Extend (Edit): continue each spline's end tangent by one unit."""
+        self._deform_curves("Extend", btk.NurbsUtils.extend_curve, distance=1.0)
 
     @staticmethod
     def _curve_points_world(curve):

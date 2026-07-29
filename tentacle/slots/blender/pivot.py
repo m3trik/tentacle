@@ -100,13 +100,42 @@ class Pivot(SlotsBlender):
 
     # ------------------------------------------------------------------ tb002  Transfer Pivot
     @btk.undoable
+    def tb002_init(self, widget):
+        """Transfer Pivot options — the Mirror combo only. Maya's box additionally carries
+        Translate/Rotate/Scale/Bake/World-Space toggles; on Blender the transfer IS the
+        translate channel of a single always-baked world-space origin, so those five are
+        ledgered ``na`` (a toggle that can only disable the whole op is a no-op control)."""
+        widget.option_box.menu.setTitle("Transfer Pivot")
+        cmb000 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb000",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Mirror",
+                body="Reflect the transferred pivot across the chosen world "
+                "axis-plane through the origin.",
+                notes=[
+                    "Use it when the target is a mirrored copy of the source.",
+                    "<b>None</b> transfers the pivot unreflected.",
+                ],
+            ),
+        )
+        for text, data in [
+            ("Mirror: None", ""),
+            ("Mirror: X", "x"),
+            ("Mirror: Y", "y"),
+            ("Mirror: Z", "z"),
+        ]:
+            cmb000.addItem(text, data)
+
     def tb002(self, widget):
         """Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
 
         Blender has a single object origin (a point), so only Maya's translate-pivot maps: the
         active object is the source and every other selected object's origin moves onto it without
         moving geometry (``btk.transfer_pivot`` — 3D-cursor → ORIGIN_CURSOR). Maya's rotate/scale
-        pivot channels and Bake have no Blender analogue (a single, always-baked origin)."""
+        pivot channels and Bake have no Blender analogue (a single, always-baked origin). The
+        Mirror option reflects the transferred origin across the chosen world axis-plane
+        (position-level mirror of mtk's; orientation stays N/A)."""
         objects = self.selected_objects()
         active = bpy.context.view_layer.objects.active
         if active is None or len(objects) < 2:
@@ -114,7 +143,12 @@ class Pivot(SlotsBlender):
             return
         # Order active-first so it's the source (mtk convention is source = objects[0]).
         ordered = [active] + [o for o in objects if o != active]
-        btk.transfer_pivot(ordered, translate=True, select_targets_after_transfer=True)
+        btk.transfer_pivot(
+            ordered,
+            translate=True,
+            mirror=widget.option_box.menu.cmb000.currentData(),
+            select_targets_after_transfer=True,
+        )
 
     # ------------------------------------------------------------------ apply-rotation helper
     # transform_apply-able object types: data that can counter-offset the applied rotation so
@@ -167,9 +201,16 @@ class Pivot(SlotsBlender):
         widget.option_box.menu.setTitle("World-Aligned Pivot")
         widget.option_box.menu.add(
             "QCheckBox", setText="Manip Pivot", setObjectName="chk010", setChecked=True,
-            setToolTip="On (Maya default): set a temporary world-aligned manipulator orientation "
-            "(Blender's Global transform orientation) — non-destructive. Off: permanently "
-            "world-align the object pivot by baking its rotation into the data.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Manip Pivot",
+                body="Set a temporary world-aligned manipulator orientation "
+                "(Blender's <b>Global</b> transform orientation). "
+                "Non-destructive; on by default, matching Maya.",
+                notes=[
+                    "Off: the object pivot is permanently world-aligned by baking "
+                    "its rotation into the data. Requires Object Mode.",
+                ],
+            ),
         )
 
     @btk.undoable

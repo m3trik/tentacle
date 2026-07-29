@@ -174,10 +174,20 @@ class TestB005CutUVsRouting(unittest.TestCase):
         self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
         self.instance.sb = _RecordedSb()
 
-        # Capture polyMapCut calls.
+        # Capture polyMapCut calls. Accept **kwargs like the real command (and
+        # like the polyMapSew fake below): the edge branch routes through
+        # ``mtk.UvUtils.cut_uv_edges``, which passes ``constructionHistory=`` —
+        # a positional-only fake turned an upstream signature change into a
+        # TypeError *inside* the slot, which reads as a slot regression.
         self._original = cmds.polyMapCut
         self.captured = []
-        cmds.polyMapCut = lambda edges: self.captured.append(edges)
+        self.captured_kwargs = []
+
+        def _fake_cut(*args, **kwargs):
+            self.captured.append(args[0] if args else None)
+            self.captured_kwargs.append(kwargs)
+
+        cmds.polyMapCut = _fake_cut
 
     def tearDown(self):
         cmds.polyMapCut = self._original
@@ -194,6 +204,12 @@ class TestB005CutUVsRouting(unittest.TestCase):
         cmds.select(f"{cube}.e[0:3]")
         self.instance.b005()
         self.assertGreater(len(self.captured), 0)
+        # The edge branch goes through cut_uv_edges, which keeps construction
+        # history — pin the kwarg so a silent upstream drop is caught here.
+        self.assertTrue(
+            all(k.get("constructionHistory") for k in self.captured_kwargs),
+            f"expected constructionHistory=True on every cut; got {self.captured_kwargs}",
+        )
 
     def test_transform_selection_cuts_all_mesh_edges(self):
         """When a transform is selected (no edge components), Cut UVs targets all edges."""
@@ -658,6 +674,346 @@ class TestTb004ObjectModeGuard(unittest.TestCase):
         )
         self.assertEqual(len(self.unfold_calls), 1)
         self.assertFalse(self.instance.sb.messages)
+
+
+class _FakeTb001Widget:
+    """tb001's option-box surface: mode combo (cmb011) + scale mode (cmb012)."""
+
+    class _Combo:
+        def __init__(self, data):
+            self._data = data
+
+        def currentData(self):
+            return self._data
+
+    def __init__(self, mode="standard", scale_mode=1):
+        menu = _FakeUi()
+        menu.cmb011 = self._Combo(mode)
+        menu.cmb012 = self._Combo(scale_mode)
+        self.option_box = _FakeUi()
+        self.option_box.menu = menu
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb001AutoUnwrapDispatch(unittest.TestCase):
+    """tb001 routes the engine modes to UvUtils.auto_unwrap and reports failures."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.ui = _FakeUi()
+        self.instance.ui.cmb003 = _FakeCmb("2048")
+
+        self.calls = []
+        self._original = mtk.UvUtils.auto_unwrap
+
+        def fake_auto_unwrap(objects, method=None, map_size=None, **kwargs):
+            self.calls.append((objects, method, map_size))
+            return mock.Mock(engine="mof", succeeded=list(objects), failed=[])
+
+        mtk.UvUtils.auto_unwrap = staticmethod(fake_auto_unwrap)
+
+    def tearDown(self):
+        mtk.UvUtils.auto_unwrap = self._original
+        cmds.file(new=True, force=True)
+
+    def test_hard_mode_calls_the_engine_with_selection_and_map_size(self):
+        cube = cmds.polyCube(name="tb001_hard")[0]
+        cmds.select(cube)
+        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
+        self.assertEqual(len(self.calls), 1)
+        objects, method, map_size = self.calls[0]
+        self.assertEqual(method, "hard")
+        self.assertEqual(map_size, 2048)
+        self.assertIn(cube, objects)
+
+    def test_organic_mode_selects_the_organic_method(self):
+        cmds.select(cmds.polyCube(name="tb001_organic")[0])
+        self.instance.tb001(widget=_FakeTb001Widget(mode="organic"))
+        self.assertEqual(self.calls[0][1], "organic")
+
+    def test_standard_mode_does_not_call_the_engine(self):
+        cmds.select(cmds.polyCube(name="tb001_standard")[0])
+        self.instance.tb001(widget=_FakeTb001Widget(mode="standard"))
+        self.assertEqual(self.calls, [])
+
+    def test_missing_engine_is_reported_not_raised(self):
+        def boom(*args, **kwargs):
+            raise FileNotFoundError("not installed: https://example/download")
+
+        mtk.UvUtils.auto_unwrap = staticmethod(boom)
+        cmds.select(cmds.polyCube(name="tb001_missing")[0])
+        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
+        self.assertTrue(self.instance.sb.messages)
+        self.assertIn("https://", str(self.instance.sb.messages[0]))
+
+    def test_no_selection_warns(self):
+        cmds.select(clear=True)
+        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
+        self.assertEqual(self.calls, [])
+        self.assertTrue(self.instance.sb.messages)
+
+
+class TestUvSlotSurface(unittest.TestCase):
+    """Source-level pins — run in CI, where no DCC is importable.
+
+    The Auto Unwrap option box was trimmed to three modes on 2026-07-28 and the
+    Cut Cylinder algorithm picker was replaced by per-mesh detection; these keep
+    the removed widgets from creeping back and keep both DCCs' labels identical
+    (the parity sweep matches combo items by text).
+    """
+
+    ENGINE_LABELS = ("Hard Surface (Ministry of Flat)", "Organic (BFF)")
+    REMOVED = ("cmb016", "cmb017", "chk000")
+
+    def _source(self, dcc):
+        import os
+
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "tentacle", "slots", dcc, "uv.py",
+        )
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    def test_engine_labels_match_across_dccs(self):
+        for dcc in ("maya", "blender"):
+            source = self._source(dcc)
+            for label in self.ENGINE_LABELS:
+                self.assertIn(label, source, f"{dcc} is missing {label!r}")
+
+    def test_removed_widgets_are_gone(self):
+        source = self._source("maya")
+        for name in self.REMOVED:
+            self.assertNotIn(name, source, f"{name} should have been removed")
+
+    def test_both_slots_mix_in_the_shared_uv_behavior(self):
+        for dcc in ("maya", "blender"):
+            self.assertIn("UvMixin", self._source(dcc), f"{dcc} lost UvMixin")
+
+    def test_engine_modes_route_through_the_shared_helper(self):
+        for dcc in ("maya", "blender"):
+            self.assertIn("_run_auto_unwrap", self._source(dcc))
+
+
+class _FakeTb000Widget:
+    """tb000's option-box surface with the same defaults as tb000_init."""
+
+    class _Combo:
+        def __init__(self, data):
+            self._data = data
+
+        def currentData(self):
+            return self._data
+
+    class _Spin:
+        def __init__(self, value):
+            self._value = value
+
+        def value(self):
+            return self._value
+
+    class _Check:
+        def __init__(self, checked):
+            self._checked = checked
+
+        def isChecked(self):
+            return self._checked
+
+    def __init__(self, **overrides):
+        defaults = dict(
+            cmb019=self._Combo("standard"),  # Method: Standard (u3dLayout)
+            cmb009=self._Combo(1),  # Pre-Scale: Preserve 3D
+            cmb010=self._Combo(0),  # Pre-Rotate: Off
+            s004=self._Spin(1001),  # UDIM
+            s011=self._Spin(90),  # Rotate Step
+            s012=self._Spin(0),  # Rotate Min
+            s013=self._Spin(0),  # Rotate Max (0 = search disabled)
+            s014=self._Spin(1),  # Mutations
+            cmb015=self._Combo((1.0, 1.0)),  # Tile Coverage: Full
+            cmb018=self._Combo(2),  # Scale Mode: Fill (uniform)
+            s019=self._Spin(1),  # Tiles U
+            s020=self._Spin(1),  # Tiles V
+            chk016=self._Check(True),  # Skip Instances
+            chk043=self._Check(False),  # Brute Force (xatlas)
+            chk044=self._Check(True),  # Rotate Shells (xatlas)
+        )
+        defaults.update(overrides)
+        menu = _FakeUi()
+        for name, control in defaults.items():
+            setattr(menu, name, control)
+        self.option_box = _FakeUi()
+        self.option_box.menu = menu
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb000Pack(unittest.TestCase):
+    """tb000 (Pack UVs) — u3dLayout parameter plumbing, pinned against
+    behavior verified live in Maya 2025 (probe session 2026-07-28):
+
+    - packBox is [umin, umax, vmin, vmax]; the UDIM spinbox anchors it.
+    - layoutScaleMode omitted == Uniform; 1 keeps shell scale exactly.
+    - tileU/tileV distribute shells across a grid anchored at the pack box.
+    - A single-mesh batch failure reports directly — no redundant probe pass.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cmds.loadPlugin("Unfold3D", quiet=True)
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.ui = _FakeUi()
+        self.instance.ui.cmb003 = _FakeCmb("1024")
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    @staticmethod
+    def _bbox2d(obj):
+        return cmds.polyEvaluate(obj, boundingBox2d=True)
+
+    def _message_text(self):
+        return " ".join(str(args) for args, _ in self.instance.sb.messages)
+
+    def test_default_pack_fills_target_tile(self):
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        b = cmds.polyCube(name="packB", ch=False)[0]
+        cmds.select(a, b)
+
+        self.instance.tb000(widget=_FakeTb000Widget())
+
+        for obj in (a, b):
+            (u0, u1), (v0, v1) = self._bbox2d(obj)
+            self.assertGreaterEqual(min(u0, v0), 0.0)
+            self.assertLessEqual(max(u1, v1), 1.0)
+        self.assertIn("UV Pack Complete", self._message_text())
+
+    def test_udim_anchor_offsets_pack_box(self):
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.select(a)
+
+        self.instance.tb000(widget=_FakeTb000Widget(s004=_FakeTb000Widget._Spin(1002)))
+
+        (u0, u1), _ = self._bbox2d(a)
+        self.assertGreaterEqual(u0, 1.0)
+        self.assertLessEqual(u1, 2.0)
+
+    def test_scale_mode_off_preserves_shell_scale(self):
+        a = cmds.polyPlane(name="packA", sx=1, sy=1, ch=False)[0]
+        uvs = cmds.polyListComponentConversion(a, fromFace=True, toUV=True)
+        cmds.polyEditUV(uvs, pivotU=0.0, pivotV=0.0, scaleU=0.3, scaleV=0.3)
+        cmds.select(a)
+
+        widget = _FakeTb000Widget(
+            cmb009=_FakeTb000Widget._Combo(0),  # Preserve UV
+            cmb018=_FakeTb000Widget._Combo(1),  # Scale Mode: Off
+        )
+        self.instance.tb000(widget=widget)
+
+        (u0, u1), (v0, v1) = self._bbox2d(a)
+        self.assertAlmostEqual(u1 - u0, 0.3, places=3)
+        self.assertAlmostEqual(v1 - v0, 0.3, places=3)
+
+    def test_tile_grid_spans_udims_and_reports_range(self):
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        b = cmds.polyCube(name="packB", ch=False)[0]
+        cmds.select(a, b)
+
+        self.instance.tb000(widget=_FakeTb000Widget(s019=_FakeTb000Widget._Spin(2)))
+
+        u_maxes = [self._bbox2d(obj)[0][1] for obj in (a, b)]
+        u_mins = [self._bbox2d(obj)[0][0] for obj in (a, b)]
+        self.assertGreater(max(u_maxes), 1.0, "grid should reach the second tile")
+        self.assertLess(min(u_mins), 1.0, "grid should still use the first tile")
+        self.assertIn("1001-1002", self._message_text())
+
+    def test_tile_grid_clamps_to_udim_row_end(self):
+        """UDIM 1010 sits at the row end (u=9): Tiles U 2 would pack past
+        u=10, outside UDIM addressing, so it clamps to 1 and says so."""
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.select(a)
+
+        widget = _FakeTb000Widget(
+            s004=_FakeTb000Widget._Spin(1010),
+            s019=_FakeTb000Widget._Spin(2),
+        )
+        self.instance.tb000(widget=widget)
+
+        (u0, u1), _ = self._bbox2d(a)
+        self.assertGreaterEqual(u0, 9.0)
+        self.assertLessEqual(u1, 10.0)
+        text = self._message_text()
+        self.assertIn("Target UDIM:</b> 1010", text)
+        self.assertIn("clamped", text)
+
+    def test_single_mesh_failure_reports_without_probe_pass(self):
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.select(a)
+
+        calls = []
+
+        def boom(*args, **kwargs):
+            calls.append((args, kwargs))
+            raise RuntimeError("u3dLayout: non-manifold vertices")
+
+        with mock.patch.object(uv_module.cmds, "u3dLayout", side_effect=boom):
+            self.instance.tb000(widget=_FakeTb000Widget())
+
+        self.assertEqual(len(calls), 1, "single mesh must not be re-probed")
+        text = self._message_text()
+        self.assertIn("Skipped: 1", text)
+        self.assertIn("non-manifold", text)
+
+    def test_xatlas_method_packs_into_target_tile(self):
+        """Method: xatlas dispatches to mtk.UvUtils.pack_uvs and honors the
+        UDIM anchor + coverage; u3dLayout is never called."""
+        import pythontk as ptk
+
+        if not ptk.UvPack.available():
+            self.skipTest("xatlas not installed in this interpreter")
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        b = cmds.polyCube(name="packB", ch=False)[0]
+        cmds.select(a, b)
+
+        widget = _FakeTb000Widget(
+            cmb019=_FakeTb000Widget._Combo("xatlas"),
+            s004=_FakeTb000Widget._Spin(1002),
+        )
+        with mock.patch.object(
+            uv_module.cmds, "u3dLayout", side_effect=AssertionError("native packer ran")
+        ):
+            self.instance.tb000(widget=widget)
+
+        for obj in (a, b):
+            (u0, u1), (v0, v1) = self._bbox2d(obj)
+            self.assertGreaterEqual(u0, 1.0)
+            self.assertLessEqual(u1, 2.0)
+            self.assertGreaterEqual(v0, 0.0)
+            self.assertLessEqual(v1, 1.0)
+        self.assertIn("UV Pack Complete", self._message_text())
+
+    def test_xatlas_missing_engine_reports_install_note(self):
+        """A missing engine must message (with the install command) and leave
+        the scene untouched — not raise out of the slot."""
+        a = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.select(a)
+        before = self._bbox2d(a)
+
+        widget = _FakeTb000Widget(cmb019=_FakeTb000Widget._Combo("xatlas"))
+        with mock.patch.object(
+            mtk.UvUtils,
+            "pack_uvs",
+            side_effect=RuntimeError("pip install --user xatlas"),
+        ):
+            self.instance.tb000(widget=widget)
+
+        self.assertEqual(self._bbox2d(a), before)
+        text = self._message_text()
+        self.assertIn("pip install", text)
 
 
 # TestCmb002Dispatch (+ its _FakeItemsWidget/_FakeAddWidget helpers) removed 2026-07-12:

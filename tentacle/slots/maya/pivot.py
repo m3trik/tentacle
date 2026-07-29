@@ -20,14 +20,24 @@ class Pivot(SlotsMaya):
             setText="Reset Pivot Position",
             setObjectName="chk000",
             setChecked=True,
-            setToolTip="",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Reset Pivot Position",
+                body="Move the manipulator pivot back to the object's own pivot "
+                "point, discarding any temporary offset "
+                "(<code>manipPivotReset</code>).",
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Reset Pivot Orientation",
             setObjectName="chk001",
             setChecked=True,
-            setToolTip="",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Reset Pivot Orientation",
+                body="Return the manipulator to the object's own orientation, "
+                "discarding any temporary re-orientation "
+                "(<code>manipPivotReset</code>).",
+            ),
         )
 
     def tb000(self, widget):
@@ -130,8 +140,15 @@ class Pivot(SlotsMaya):
         cmb000 = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb000",
-            setToolTip="Transfer a mirror of the pivot, reflected across the chosen "
-            "world axis-plane through the origin (for a mirrored copy of the source).",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Mirror",
+                body="Reflect the transferred pivot across the chosen world "
+                "axis-plane through the origin.",
+                notes=[
+                    "Use it when the target is a mirrored copy of the source.",
+                    "<b>None</b> transfers the pivot unreflected.",
+                ],
+            ),
         )
         for text, data in [
             ("Mirror: None", ""),
@@ -169,11 +186,20 @@ class Pivot(SlotsMaya):
             setText="Manip Pivot",
             setObjectName="chk010",
             setChecked=True,
-            setToolTip="Set temporary manipulator pivot. If unchecked, sets permanent object pivot.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Manip Pivot",
+                body="Set a temporary manipulator pivot.",
+                notes=[
+                    "Off: the permanent object pivot is set instead.",
+                    "Works on a component selection too — the pivot lands on the "
+                    "selected components' bounding-box center, and the selection "
+                    "is left in component mode.",
+                ],
+            ),
         )
 
     def tb003(self, widget):
-        """World-Aligned Pivot"""
+        """World-Aligned Pivot: world-align the pivot of the selected objects or components."""
         manip_pivot = widget.option_box.menu.chk010.isChecked()
 
         # Set pivot

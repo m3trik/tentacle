@@ -6,15 +6,10 @@ import mayatk as mtk
 
 # From this package:
 from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle.slots._uv import UvMixin
 
 
-class UvSlots(SlotsMaya):
-    # Auto Unwrap modes driven by Maya's polyProjection (single-shape
-    # projection). These are exactly the modes that expose the Smart Fit
-    # option, so tb001_init's gate and tb001's dispatch share this set.
-    # Each key, title-cased, is also the polyProjection -type value.
-    _PROJECTION_UNWRAP_MODES = ("planar", "cylindrical", "spherical")
-
+class UvSlots(UvMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -71,33 +66,121 @@ class UvSlots(SlotsMaya):
         """Initialize UV packing tool interface.
 
         Sets up the UV packing options menu with controls for:
-        - Pre-Scale Mode: How shells are scaled before packing
+        - Method: Which packer runs — Maya's u3dLayout, or the optional
+          external xatlas engine (pip-installable; the slot reports the
+          install command when it's missing)
+        - Brute Force / Rotate Shells: xatlas-only quality/orientation toggles
+        - Pre-Scale Mode: How shells are scaled before packing (both methods)
         - Pre-Rotate Mode: One-shot shell orientation before packing
         - Rotate Step/Min/Max: Packing-time rotation search (active when Max > Min)
         - Mutations: Optimization passes (higher = better pack, slower)
-        - UDIM: Target UDIM tile space for the packed UVs
-        - Tile Coverage: Fraction of the target tile to pack into
-        - Skip Instances: Pack one representative per instance group
+        - UDIM: Target UDIM tile space for the packed UVs (both methods)
+        - Tile Coverage: Fraction of the target tile to pack into (both methods)
+        - Scale Mode: Post-pack scale-to-fit (fill / keep density / stretch)
+        - Tiles U/V: Distribute shells across a grid of UDIM tiles
+        - Skip Instances: Pack one representative per instance group (both)
 
-        Rotate Step is auto-disabled when Rotate Max <= Rotate Min (no range
-        to step through).
+        Gates (mirroring tb001's per-mode pattern): the u3dLayout-only
+        controls disable under xatlas and vice versa; Rotate Step is
+        auto-disabled when Rotate Max <= Rotate Min (no range to step
+        through); Tile Coverage disables while a tile grid is active — the
+        pack uses Full then (grid cells are copies of the pack region).
 
         Parameters:
             widget: The parent widget to add menu items to
         """
         widget.option_box.menu.setTitle("Pack UVs")
+        # Method selector. Item data is the dispatch key consumed by tb000 --
+        # "standard" for Maya's u3dLayout, "xatlas" for the external engine
+        # (mtk.UvUtils.pack_uvs -> ptk.UvPack; same optional-engine pattern
+        # as Auto Unwrap's cmb011).
+        cmb019 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb019",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Pack Method",
+                body="Which packing engine runs.",
+                bullets=[
+                    "<b>Standard</b> — Maya's <code>u3dLayout</code> (Unfold3D). "
+                    "Drives the full option set below.",
+                    "<b>xatlas</b> — open-source external engine "
+                    "(<code>pip install xatlas</code>). Scale-searches the "
+                    "shells to fill the target region edge-to-edge; adds shell "
+                    "rotation and a brute-force placement search.",
+                ],
+                notes=["Options that apply to only one method disable for the other."],
+            ),
+        )
+        for text, data in [
+            ("Method: Standard (u3dLayout)", "standard"),
+            ("Method: xatlas", "xatlas"),
+        ]:
+            cmb019.addItem(text, data)
+        cmb019.setCurrentIndex(0)  # Standard — needs no external engine
+        # xatlas-only toggles (grouped with the method that owns them).
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rotate Shells (xatlas)",
+            setObjectName="chk044",
+            setChecked=True,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate Shells (xatlas)",
+                body="Let xatlas re-orient shells wherever that packs tighter.",
+                bullets=[
+                    "<b>On</b> — 90° steps, plus an arbitrary-angle turn onto "
+                    "each shell's own axis where that helps. Which of the two "
+                    "wins depends on the mesh, so both are tried and the "
+                    "tighter result is kept.",
+                    "<b>Off</b> — shells keep their orientation exactly.",
+                ],
+                notes=[
+                    "The xatlas counterpart of the Rotate Min / Max search below.",
+                    "Like u3dLayout, the engine may still mirror shells "
+                    "regardless of this setting.",
+                ],
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Brute Force (xatlas)",
+            setObjectName="chk043",
+            setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Brute Force (xatlas)",
+                body="Exhaustive placement search — xatlas' main density lever. "
+                "It competes with normal placement rather than replacing it, so "
+                "turning it on can only hold or improve the result.",
+                rows=[
+                    ("Density", "cube 0.62 → 0.64; 4 hard-surface meshes 0.63 → 0.67"),
+                    ("Cost", "2–15× slower (0.8s → 11s on 4 organic meshes at 1024); "
+                     "grows steeply with shell count"),
+                ],
+                notes=[
+                    "Measured at 1024 into a full tile; Standard packs the same "
+                    "cube to 0.65.",
+                    "A cube cut into 6 equal squares cannot exceed 0.67 in a "
+                    "square tile no matter the packer — low fill there is the "
+                    "shape of the shells, not the engine.",
+                ],
+            ),
+        )
         # Pre-Scale Mode. Empirically, u3dLayout has only two distinct -preScaleMode
-        # behaviors in Maya 2025: omitted/0 keeps input UV proportions; any non-zero
-        # value rescales shells by 3D area. Stock Maya's "Preserve UV" UI option
-        # actually emits -scl 3, which empirically behaves as Preserve 3D — so don't
-        # expose the broken intermediate values.
+        # behaviors in Maya 2025 (re-verified: values 1-4 give identical results):
+        # omitted/0 keeps input UV proportions; any non-zero value rescales shells
+        # by 3D area. Stock Maya's "Preserve UV" UI option actually emits -scl 3,
+        # which behaves as Preserve 3D — so don't expose the broken intermediates.
         cmb009 = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb009",
-            setToolTip=(
-                "Maya u3dLayout -preScaleMode (only two distinct behaviors).\n"
-                "Preserve UV: keep each shell's input UV proportions relative to the others.\n"
-                "Preserve 3D: rescale shells uniformly so 3D surface area governs UV area."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Pre-Scale Mode",
+                body="How shells are sized relative to each other before packing.",
+                bullets=[
+                    "<b>Preserve UV</b> — keep each shell's current UV size "
+                    "relative to the others.",
+                    "<b>Preserve 3D</b> — rescale so UV area follows 3D surface "
+                    "area, giving every packed shell the same texel density.",
+                ],
             ),
         )
         for text, data in [
@@ -113,9 +196,14 @@ class UvSlots(SlotsMaya):
         cmb010 = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb010",
-            setToolTip=(
-                "Maya u3dLayout -preRotateMode. One-shot pre-orient before packing.\n"
-                "Axis modes (X/Y/Z to V) use the underlying 3D mesh orientation."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Pre-Rotate Mode",
+                body="One-shot re-orient applied to every shell before packing "
+                "(<code>u3dLayout -preRotateMode</code>).",
+                notes=[
+                    "The axis modes (X / Y / Z to V) orient by the underlying "
+                    "3D mesh, not by the shell's UV bounds.",
+                ],
             ),
         )
         for text, data in [
@@ -129,44 +217,74 @@ class UvSlots(SlotsMaya):
             cmb010.addItem(text, data)
         cmb010.setCurrentIndex(0)  # Off (matches prior default of 0)
         # Packing-time rotation search: active when Rotate Max > Rotate Min.
-        # Independent of Pre-Rotate Mode.
+        # Independent of Pre-Rotate Mode. Verified: the search only re-orients
+        # a shell when that tightens the pack (single shells stay put), and a
+        # degenerate equal Min/Max range breaks packing — the > gate below
+        # keeps that range from ever being emitted.
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Rotate Step: ",
             setObjectName="s011",
             set_limits=[1, 360],
             setValue=90,
-            setToolTip="Increment (degrees) between rotations tested during packing.\n"
-            "Active only when Rotate Max > Rotate Min. Smaller steps cost more time.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate Step",
+                body="Increment, in degrees, between the shell orientations tried "
+                "while packing.",
+                bullets=[
+                    "<b>90</b> — keeps every shell axis-aligned.",
+                    "<b>Smaller</b> — tries more orientations, at more cost.",
+                ],
+                notes=["Active only while Rotate Max &gt; Rotate Min."],
+            ),
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Rotate Min: ",
             setObjectName="s012",
-            set_limits=[0, 359],
+            set_limits=[0, 360],
             setValue=0,
-            setToolTip="Minimum rotation (degrees) for packing-time rotation search.\n"
-            "Rotation only activates when Rotate Max > Rotate Min.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate Min",
+                body="Lower bound, in degrees, of the packing-time rotation search.",
+                notes=["The search only runs while Rotate Max &gt; Rotate Min."],
+            ),
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Rotate Max: ",
             setObjectName="s013",
-            set_limits=[0, 359],
+            set_limits=[0, 360],
             setValue=0,
-            setToolTip="Maximum rotation (degrees) for packing-time rotation search.\n"
-            "Defaults to 0 (rotation disabled). Set above Rotate Min to opt in;\n"
-            "180 covers all unique orientations.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate Max",
+                body="Upper bound, in degrees, of the packing-time rotation search. "
+                "<b>0</b> (the default) disables rotation — raise it above Rotate "
+                "Min to opt in.",
+                notes=[
+                    "A shell is only re-oriented where that tightens the pack.",
+                    "0–180 with a 90° step is the usual choice.",
+                    "Measurably helps fractional Tile Coverage regions — a "
+                    "half-tile box packed 0.55 → 0.71 fill on test content.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Mutations: ",
             setObjectName="s014",
-            set_limits=[1, 64],
+            set_limits=[1, 50],
             setValue=1,
-            setToolTip="Maya u3dLayout -mutations. Number of optimization passes.\n"
-            "Higher values produce tighter packs at the cost of CPU time.\n"
-            "Stock Maya only emits this flag when > 1.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Mutations",
+                body="How many packing attempts to iterate on "
+                "(<code>u3dLayout -mutations</code>). Higher values pack tighter "
+                "at the cost of CPU time.",
+                notes=[
+                    "Maya's own dialog allows 1–50.",
+                    "The flag is only emitted above 1.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QSpinBox",
@@ -174,9 +292,15 @@ class UvSlots(SlotsMaya):
             setObjectName="s004",
             set_limits=[1001, 1200],
             setValue=1001,
-            setToolTip="Set the desired UDIM tile space (1001-1200).\n"
-            "1001 = First tile (0-1, 0-1 UV space)\n"
-            "1002 = Second tile (1-2, 0-1 UV space), etc.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="UDIM",
+                body="The tile the shells are packed into (1001–1200).",
+                rows=[
+                    ("1001", "first tile — UV 0–1, 0–1"),
+                    ("1002", "second tile — UV 1–2, 0–1"),
+                    ("1011", "start of the next row — UV 0–1, 1–2"),
+                ],
+            ),
         )
         # Fractional-tile packing: u3dLayout's -packBox accepts fractional
         # extents, so packing into half / a quarter of the target tile is
@@ -184,10 +308,12 @@ class UvSlots(SlotsMaya):
         cmb015 = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb015",
-            setToolTip=(
-                "Fraction of the target UDIM tile to pack into,\n"
-                "anchored at the tile's bottom-left corner.\n"
-                "Use to reserve the rest of the tile for other shells."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Tile Coverage",
+                body="Which fraction of the target UDIM tile to pack into, "
+                "anchored at the tile's bottom-left corner. Use it to reserve "
+                "the rest of the tile for other shells.",
+                notes=["Locked to Full while a Tiles U / V grid is active."],
             ),
         )
         for text, data in [
@@ -198,6 +324,74 @@ class UvSlots(SlotsMaya):
         ]:
             cmb015.addItem(text, data)
         cmb015.setCurrentIndex(0)
+        # Post-pack scale-to-fit (u3dLayout -layoutScaleMode). Verified: flag
+        # omitted behaves as Uniform (2); 1 disables the fit — shells keep
+        # their exact input UV scale and overflow spills into the neighboring
+        # tile instead of overlapping; 3 scales U/V independently to fill.
+        cmb018 = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb018",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Scale Mode",
+                body="How shells are scaled to the pack region once they are placed.",
+                bullets=[
+                    "<b>Fill (uniform)</b> — scale all shells together to fill "
+                    "the region. Maya's default.",
+                    "<b>Off (keep density)</b> — shells keep their exact UV scale. "
+                    "Anything that doesn't fit spills into the neighboring tile "
+                    "rather than overlapping.",
+                    "<b>Stretch (non-uniform)</b> — scale U and V independently "
+                    "to fill the region. Distorts.",
+                ],
+                notes=[
+                    "Pair <b>Off</b> with <b>Pre-Scale: Preserve UV</b> to re-arrange "
+                    "shells without touching texel density.",
+                ],
+            ),
+        )
+        for text, data in [
+            ("Scale Mode: Fill (uniform)", 2),
+            ("Scale Mode: Off (keep density)", 1),
+            ("Scale Mode: Stretch (non-uniform)", 3),
+        ]:
+            cmb018.addItem(text, data)
+        cmb018.setCurrentIndex(0)
+        # Multi-tile distribution (u3dLayout -tileU/-tileV). Verified: the grid
+        # anchors at the pack box and extends right/up in box-sized cells, so
+        # it composes with the UDIM spinbox — but fractional Tile Coverage
+        # would make the cells sub-tile sized, so the gate below locks
+        # coverage to Full while a grid is active.
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Tiles U: ",
+            setObjectName="s019",
+            set_limits=[1, 10],
+            setValue=1,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Tiles U",
+                body="Spread the shells across a grid this many UDIM tiles wide. "
+                "<b>1</b> (the default) packs into the single target tile.",
+                rows=[("UDIM 1001, Tiles 2 × 2", "fills 1001–1002 and 1011–1012")],
+                notes=[
+                    "The grid anchors at the target UDIM and extends right / up.",
+                    "Clamped so it never runs past the end of the UDIM row "
+                    "(a row is 10 tiles wide) — the completion message says when.",
+                ],
+            ),
+        )
+        widget.option_box.menu.add(
+            "QSpinBox",
+            setPrefix="Tiles V: ",
+            setObjectName="s020",
+            set_limits=[1, 10],
+            setValue=1,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Tiles V",
+                body="Spread the shells across a grid this many UDIM tiles tall. "
+                "<b>1</b> (the default) packs into the single target tile.",
+                notes=["See <b>Tiles U</b> for how the grid is anchored."],
+            ),
+        )
         # Instances share a single shape + UV set, so packing every instance is
         # redundant and forces the packer to reserve tile space for each
         # identical copy (lowering density). When on, only one representative
@@ -207,22 +401,88 @@ class UvSlots(SlotsMaya):
             setText="Skip Instances",
             setObjectName="chk016",
             setChecked=True,
-            setToolTip=(
-                "Pack only one transform per instance group.\n"
-                "Instances share one shape and UV set, so packing every instance\n"
-                "is redundant and wastes tile space; the result applies to all of\n"
-                "them. Ignored for component (face/UV) selections."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Skip Instances",
+                body="Pack one representative transform per instance group.",
+                notes=[
+                    "Instances share a single shape and UV set, so packing every "
+                    "copy just reserves tile space for identical shells — the "
+                    "result already applies to all of them.",
+                    "Ignored for component (face / UV) selections.",
+                ],
             ),
         )
-        # Gate: Rotate Step is meaningless when Rotate Max <= Rotate Min.
+        # Gates. Per-method: the u3dLayout-only controls disable under xatlas
+        # (pre-rotate, rotation search, mutations, scale mode, tile grid) and
+        # the xatlas toggles disable under Standard; Pre-Scale, UDIM, Tile
+        # Coverage and Skip Instances apply to both. Within Standard: Rotate
+        # Step is meaningless when Rotate Max <= Rotate Min, and Tile Coverage
+        # disables while a tile grid is active — the slot packs Full then
+        # (grid cells are copies of the pack region; a fractional region would
+        # carve sub-tile cells instead of real UDIM tiles). Disable-only:
+        # resetting a combo would destroy the user's persisted choice.
         menu = widget.option_box.menu
 
-        def _sync_rotate_step():
-            menu.s011.setEnabled(menu.s013.value() > menu.s012.value())
+        def _sync_gates():
+            standard = menu.cmb019.currentData() == "standard"
+            menu.chk043.setEnabled(not standard)
+            menu.chk044.setEnabled(not standard)
+            menu.cmb010.setEnabled(standard)
+            menu.s011.setEnabled(standard and menu.s013.value() > menu.s012.value())
+            menu.s012.setEnabled(standard)
+            menu.s013.setEnabled(standard)
+            menu.s014.setEnabled(standard)
+            menu.cmb018.setEnabled(standard)
+            menu.s019.setEnabled(standard)
+            menu.s020.setEnabled(standard)
+            grid = standard and (menu.s019.value() > 1 or menu.s020.value() > 1)
+            menu.cmb015.setEnabled(not grid)
 
-        menu.s012.valueChanged.connect(_sync_rotate_step)
-        menu.s013.valueChanged.connect(_sync_rotate_step)
-        _sync_rotate_step()
+        menu.cmb019.currentIndexChanged.connect(_sync_gates)
+        menu.s012.valueChanged.connect(_sync_gates)
+        menu.s013.valueChanged.connect(_sync_gates)
+        menu.s019.valueChanged.connect(_sync_gates)
+        menu.s020.valueChanged.connect(_sync_gates)
+        _sync_gates()
+
+    def _pack_u3d(self, all_uvs, meshes, pack_kwargs, successful, failed) -> None:
+        """Native u3dLayout pack with per-mesh failure isolation.
+
+        Batches all meshes into one call; on failure with several meshes,
+        probes each to isolate the bad one(s) and re-packs the survivors
+        together so they share the tile. A single mesh reports its failure
+        directly — a probe pass would just re-run the same failing call.
+        Appends to *successful* / *failed* in place.
+        """
+        try:
+            cmds.u3dLayout(all_uvs, **pack_kwargs)
+            successful.extend(str(m) for m in meshes)
+            return
+        except RuntimeError as batch_error:
+            if len(meshes) == 1:
+                failed.append((str(meshes[0]), self._classify_u3d_error(batch_error)))
+                return
+
+        good = []
+        for mesh in meshes:
+            uvs = cmds.polyListComponentConversion(mesh, fromFace=True, toUV=True) or []
+            if not uvs:
+                continue
+            try:
+                cmds.u3dLayout(uvs, **pack_kwargs)
+                good.extend(uvs)
+                successful.append(str(mesh))
+            except RuntimeError as mesh_error:
+                failed.append((str(mesh), self._classify_u3d_error(mesh_error)))
+        if good:
+            try:
+                cmds.u3dLayout(good, **pack_kwargs)
+            except RuntimeError as combine_error:
+                # Survivors packed individually (each filling the tile);
+                # combine failed, so leave them as-is and surface the cause.
+                failed.append(
+                    ("<combined re-pack>", self._classify_u3d_error(combine_error))
+                )
 
     @staticmethod
     def _classify_u3d_error(error) -> str:
@@ -367,13 +627,21 @@ class UvSlots(SlotsMaya):
         1. Gets UV packing parameters from UI controls
         2. Calculates appropriate padding based on texture resolution
         3. Packs UVs from all selected meshes together into the target UDIM tile
-           (falls back to per-mesh probing if the batched call fails, isolates
-           the offending mesh, and re-packs the survivors together)
+           (if the batched call fails with several meshes, probes each to
+           isolate the offending one and re-packs the survivors together;
+           a single mesh reports its failure directly)
 
         Parameters:
             widget: The widget containing the menu controls with packing options
 
         UI Parameters used:
+            method (str): cmb019. "standard" — Maya u3dLayout (default) —
+                or "xatlas" — the optional external engine, dispatched to
+                mtk.UvUtils.pack_uvs. Under xatlas, Pre-Scale, UDIM, Tile
+                Coverage and Skip Instances still apply; the u3dLayout-only
+                options are gated off, and chk043 (Brute Force) / chk044
+                (Rotate Shells) apply instead. A missing engine surfaces as
+                a message box carrying the pip install command.
             scale (int): Pre-scale mode from cmb009 (Maya -preScaleMode)
                 - 0: Preserve UV (no rescaling), 1: Preserve 3D (uniform by 3D area)
             rotate (int): Pre-rotate mode from cmb010 (Maya -preRotateMode)
@@ -385,6 +653,14 @@ class UvSlots(SlotsMaya):
             UDIM (int): Target UDIM tile number (s004), e.g., 1001
             coverage (tuple): cmb015. (u, v) fraction of the target tile the
                 pack fills, anchored bottom-left (fractional -packBox).
+            scale_mode (int): cmb018 (Maya -layoutScaleMode). 2: uniform
+                scale-to-fill (command default; flag omitted), 1: no scaling
+                (keep texel density; overflow spills to the next tile),
+                3: non-uniform stretch-to-fill. Only emitted when != 2.
+            tiles_u/tiles_v (int): s019/s020 (Maya -tileU/-tileV). When either
+                > 1, shells distribute across a grid of UDIM tiles anchored at
+                the target tile, extending right/up. Coverage is forced Full,
+                and Tiles U is clamped so the grid stays inside the UDIM row.
             skip_instances (bool): chk016. When on (default), pack one
                 representative per instance group instead of every instance.
                 Object-level selection only; ignored for component selections.
@@ -396,17 +672,35 @@ class UvSlots(SlotsMaya):
             - The completion message reports the resulting texel density
               (px/unit) for the packed meshes, plus the map size and target UDIM
         """
-        scale = widget.option_box.menu.cmb009.currentData()
-        rotate = widget.option_box.menu.cmb010.currentData()
-        UDIM = widget.option_box.menu.s004.value()
-        rotate_step = widget.option_box.menu.s011.value()
-        rotate_min = widget.option_box.menu.s012.value()
-        rotate_max = widget.option_box.menu.s013.value()
-        mutations = widget.option_box.menu.s014.value()
+        menu = widget.option_box.menu
+        method = menu.cmb019.currentData()
+        scale = menu.cmb009.currentData()
+        rotate = menu.cmb010.currentData()
+        UDIM = menu.s004.value()
+        rotate_step = menu.s011.value()
+        rotate_min = menu.s012.value()
+        rotate_max = menu.s013.value()
+        mutations = menu.s014.value()
+        scale_mode = menu.cmb018.currentData()
+        tiles_u = menu.s019.value()
+        tiles_v = menu.s020.value()
         map_size = self.get_map_size()
+        # The tile grid is u3dLayout-only (gated in the UI; force here too so
+        # a persisted spinbox value can't leak into the engine path).
+        if method != "standard":
+            tiles_u = tiles_v = 1
 
-        # UDIM = 1001 + u + 10*v   (u: 0-9, v: 0+); packBox is [umin, umax, vmin, vmax]
-        u_tile, v_tile = (UDIM - 1001) % 10, (UDIM - 1001) // 10
+        # packBox is [umin, umax, vmin, vmax], anchored at the UDIM's tile corner.
+        u_tile, v_tile = mtk.udim_to_tile(UDIM)
+        # A UDIM row is 10 tiles wide and u wraps to the next row at 10 — the
+        # tile at u=10 is NOT the next UDIM — so shells packed past the row
+        # end would be unaddressable by any UDIM texture. Clamp the grid to
+        # the columns remaining from the anchor and say so in the summary.
+        tiles_u_requested = tiles_u
+        tiles_u = min(tiles_u, 10 - u_tile)
+        # Gutters (verified): -shellSpacing is per-shell padding in UV units —
+        # adjacent shells land 2x spacing apart — and it rescales with the
+        # post-pack fit; -tileMargin is an absolute inset from the region edges.
         shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
@@ -421,9 +715,7 @@ class UvSlots(SlotsMaya):
         # redundant and forces the packer to reserve tile space for each
         # identical copy. Keep one transform per instance group (object-level
         # selection only — component selections are packed exactly as given).
-        if widget.option_box.menu.chk016.isChecked() and not any(
-            "." in str(s) for s in selection
-        ):
+        if menu.chk016.isChecked() and not any("." in str(s) for s in selection):
             selection = mtk.NodeUtils.filter_duplicate_instances(selection)
 
         # Get unique meshes from selection (handles both object and component selection)
@@ -442,7 +734,10 @@ class UvSlots(SlotsMaya):
 
         # Fractional tile coverage shrinks the pack box from the tile's
         # bottom-left corner; u3dLayout accepts fractional -packBox extents.
-        cov_u, cov_v = widget.option_box.menu.cmb015.currentData()
+        # A tile grid repurposes the box as its cell template (verified), so
+        # coverage is forced Full then — the UI gate mirrors this.
+        grid = tiles_u > 1 or tiles_v > 1
+        cov_u, cov_v = (1.0, 1.0) if grid else menu.cmb015.currentData()
 
         pack_kwargs = dict(
             resolution=map_size,
@@ -463,42 +758,44 @@ class UvSlots(SlotsMaya):
             pack_kwargs["rotateMax"] = rotate_max
         if mutations > 1:
             pack_kwargs["mutations"] = mutations
+        # Omitted -layoutScaleMode == Uniform (verified), so only emit overrides.
+        if scale_mode != 2:
+            pack_kwargs["layoutScaleMode"] = scale_mode
+        if grid:
+            pack_kwargs["tileU"] = tiles_u
+            pack_kwargs["tileV"] = tiles_v
 
         successful = []
         failed = []
         cmds.undoInfo(openChunk=True, chunkName="UV Pack")
         cmds.refresh(suspend=True)
         try:
-            try:
-                # Single batched pack — all meshes share the target tile together.
-                cmds.u3dLayout(all_uvs, **pack_kwargs)
-                successful = [str(m) for m in meshes]
-            except RuntimeError:
-                # Batch failed: probe each mesh to isolate the bad one(s),
-                # then re-pack the survivors together so they share the tile.
-                good = []
-                for mesh in meshes:
-                    uvs = (
-                        cmds.polyListComponentConversion(
-                            mesh, fromFace=True, toUV=True
-                        )
-                        or []
+            if method == "xatlas":
+                # External engine path: mtk.UvUtils.pack_uvs owns the whole
+                # round-trip (density pre-pass, xatlas, per-shell undoable
+                # write-back, per-mesh failure isolation). The engine check
+                # runs before the scene is touched, so a missing package
+                # surfaces as a message with the pip command, same pattern as
+                # Auto Unwrap's engines.
+                try:
+                    result = mtk.UvUtils.pack_uvs(
+                        meshes,
+                        map_size=map_size,
+                        udim=UDIM,
+                        coverage=(cov_u, cov_v),
+                        rotate=menu.chk044.isChecked(),
+                        brute_force=menu.chk043.isChecked(),
+                        preserve_3d=scale == 1,  # cmb009: Preserve 3D
                     )
-                    if not uvs:
-                        continue
-                    try:
-                        cmds.u3dLayout(uvs, **pack_kwargs)
-                        good.extend(uvs)
-                        successful.append(str(mesh))
-                    except RuntimeError as me:
-                        failed.append((str(mesh), self._classify_u3d_error(me)))
-                if good:
-                    try:
-                        cmds.u3dLayout(good, **pack_kwargs)
-                    except RuntimeError as ce:
-                        # Survivors packed individually (each filling the tile);
-                        # combine failed, so leave them as-is and surface the cause.
-                        failed.append(("<combined re-pack>", self._classify_u3d_error(ce)))
+                    successful = list(result.succeeded)
+                    failed = list(result.failed)
+                except (RuntimeError, ValueError) as engine_error:
+                    self.sb.message_box(
+                        f"<b>xatlas pack unavailable.</b><br><br>{engine_error}"
+                    )
+                    return
+            else:
+                self._pack_u3d(all_uvs, meshes, pack_kwargs, successful, failed)
         finally:
             cmds.refresh(suspend=False)
             cmds.undoInfo(closeChunk=True)
@@ -515,11 +812,22 @@ class UvSlots(SlotsMaya):
                 print(f"# Texel density unavailable: {error}")
 
         # Shared, easy-to-scan stats block appended to both summaries.
+        if grid:
+            # Grid extends right/up from the anchor tile (UDIM + 10 per V row).
+            last_udim = UDIM + (tiles_u - 1) + 10 * (tiles_v - 1)
+            target = f"<b>Target UDIMs:</b> {UDIM}-{last_udim} ({tiles_u} × {tiles_v})"
+        else:
+            target = f"<b>Target UDIM:</b> {UDIM}"
         stats = (
             (f"<b>Texel Density:</b> {density:,.1f} px/unit<br>" if density else "")
             + f"<b>Map Size:</b> {map_size} × {map_size} px<br>"
-            + f"<b>Target UDIM:</b> {UDIM}"
+            + target
         )
+        if tiles_u < tiles_u_requested:
+            stats += (
+                f"<br><i>Tiles U clamped to {tiles_u} — the grid can't extend "
+                f"past the end of the UDIM row.</i>"
+            )
 
         # Report summary
         if failed:
@@ -544,12 +852,10 @@ class UvSlots(SlotsMaya):
     def tb001_init(self, widget):
         """Initialize Auto Unwrap.
 
-        A single mode combobox (cmb011) selects the projection method, and the
-        per-mode option controls beneath it auto-enable only for the modes they
-        actually affect:
-            - Scale Mode (cmb012) → Standard only (polyAutoProjection -scaleMode)
-            - Smart Fit  (chk000) → Planar / Cylindrical / Spherical only
-        Seam Only and Normal-Based expose no options, so both controls disable.
+        The mode combobox (cmb011) picks which algorithm generates the UVs:
+        Maya's own auto projection, or one of two external unwrapping engines
+        chosen by the kind of model. Scale Mode (cmb012) applies to Standard
+        only, so it disables for the engine modes.
 
         Parameters:
             widget: The parent widget to add menu items to
@@ -557,41 +863,51 @@ class UvSlots(SlotsMaya):
         menu = widget.option_box.menu
         menu.setTitle("Auto Unwrap")
 
-        # Mode selector. Modes are mutually exclusive, so a combobox replaces the
-        # former cluster of radio buttons. Item data is a lowercase mode key
-        # consumed by tb001.
+        # Mode selector. Item data is the key consumed by tb001 -- "standard"
+        # for Maya's own projection, else a UvUtils.auto_unwrap method name.
         cmb011 = menu.add(
             "QComboBox",
             setObjectName="cmb011",
-            setToolTip=(
-                "Projection method used to generate UVs.\n"
-                "Standard: best-fit from multiple simultaneous planar projections.\n"
-                "Seam Only: cut auto-detected seams without re-laying out UVs.\n"
-                "Planar / Cylindrical / Spherical: project from a single shape.\n"
-                "Normal-Based: planar projection along the averaged face normal."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Unwrap Method",
+                body="Which algorithm generates the UVs.",
+                bullets=[
+                    "<b>Standard</b> — Maya's auto projection: the best fit from "
+                    "several simultaneous planar projections.",
+                    "<b>Hard Surface</b> — Ministry of Flat, an external unwrapper "
+                    "that classifies topology and places seams the way an artist "
+                    "would. Best for mechanical / architectural models.",
+                    "<b>Organic</b> — Boundary First Flattening, an external "
+                    "unwrapper using conformal flattening with automatic cone "
+                    "singularities. Best for sculpted, scanned and character models.",
+                ],
+                notes=["Scale Mode below applies to <b>Standard</b> only."],
             ),
         )
         for text, data in [
             ("Standard", "standard"),
-            ("Seam Only", "seam"),
-            ("Planar", "planar"),
-            ("Cylindrical", "cylindrical"),
-            ("Spherical", "spherical"),
-            ("Normal-Based", "normal"),
+            ("Hard Surface (Ministry of Flat)", "hard"),
+            ("Organic (BFF)", "organic"),
         ]:
             cmb011.addItem(text, data)
-        cmb011.setCurrentIndex(0)  # Standard (matches prior default)
+        cmb011.setCurrentIndex(0)  # Standard — needs no external engine
 
         # Scale Mode (Standard only). Explicit data values fix the old tristate
         # checkbox, whose isChecked() collapsed to a bool and could never emit 2.
         cmb012 = menu.add(
             "QComboBox",
             setObjectName="cmb012",
-            setToolTip=(
-                "Maya polyAutoProjection -scaleMode (Standard only).\n"
-                "None: keep the projected scale.\n"
-                "Uniform: scale uniformly to fit the unit square.\n"
-                "Stretch: non-proportional scale to fill the unit square."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Scale Mode",
+                body="How the projected shells are scaled afterwards "
+                "(<code>polyAutoProjection -scaleMode</code>).",
+                bullets=[
+                    "<b>None</b> — keep the projected scale.",
+                    "<b>Uniform</b> — scale uniformly to fit the unit square.",
+                    "<b>Stretch to Square</b> — scale U and V independently to "
+                    "fill the unit square. Distorts.",
+                ],
+                notes=["<b>Standard</b> method only."],
             ),
         )
         for text, data in [
@@ -602,22 +918,9 @@ class UvSlots(SlotsMaya):
             cmb012.addItem(text, data)
         cmb012.setCurrentIndex(1)  # Uniform (matches prior default of scaleMode=1)
 
-        # Smart Fit (Planar / Cylindrical / Spherical only). Defaults on to
-        # preserve the previous hardcoded polyProjection(smartFit=1) behavior.
-        menu.add(
-            "QCheckBox",
-            setText="Smart Fit",
-            setObjectName="chk000",
-            setChecked=True,
-            setToolTip="Best-fit the projection manipulator to the selection.\n"
-            "Applies to Planar / Cylindrical / Spherical only.",
-        )
-
         # Gate: enable only the options relevant to the selected mode.
         def _sync_options():
-            mode = cmb011.currentData()
-            menu.cmb012.setEnabled(mode == "standard")
-            menu.chk000.setEnabled(mode in self._PROJECTION_UNWRAP_MODES)
+            menu.cmb012.setEnabled(cmb011.currentData() == "standard")
 
         cmb011.currentIndexChanged.connect(_sync_options)
         _sync_options()
@@ -627,8 +930,6 @@ class UvSlots(SlotsMaya):
         """Auto Unwrap: automatically unwrap UVs for the selected objects."""
         menu = widget.option_box.menu
         mode = menu.cmb011.currentData()
-        scale_mode = menu.cmb012.currentData()
-        smart_fit = menu.chk000.isChecked()
 
         selection = cmds.ls(sl=True) or []
         if not selection:
@@ -637,42 +938,40 @@ class UvSlots(SlotsMaya):
             )
             return
 
+        if mode in self.AUTO_UNWRAP_ENGINE_MODES:
+            # The engine handles its own per-object loop and error reporting.
+            return self._run_auto_unwrap(mtk, selection, mode, self.get_map_size())
+
+        scale_mode = menu.cmb012.currentData()
         result = None
+        failed = []
         for obj in selection:
             try:
-                if mode == "seam":
-                    result = cmds.u3dAutoSeam(obj, s=0, p=1)
-
-                elif mode in self._PROJECTION_UNWRAP_MODES:
-                    # Mode key doubles as the polyProjection -type value once titled.
-                    obj_faces = mtk.Components.get_components(obj, "f")
-                    result = cmds.polyProjection(
-                        obj_faces,
-                        type=mode.capitalize(),
-                        insertBeforeDeformers=1,
-                        smartFit=1 if smart_fit else 0,
-                    )
-
-                elif mode == "normal":
-                    mel.eval(f'texNormalProjection 1 1 "{obj}"')  # Normal-Based unwrap
-
-                else:  # standard
-                    result = cmds.polyAutoProjection(
-                        obj,
-                        layoutMethod=0,
-                        optimize=1,
-                        insertBeforeDeformers=1,
-                        scaleMode=scale_mode,  # 0 none, 1 uniform, 2 stretch to square
-                        createNewMap=False,  # Create a new UV set, as opposed to editing the current one, or the one given by the -uvSetName flag.
-                        projectBothDirections=0,  # If "on" : projections are mirrored on directly opposite faces. If "off" : projections are not mirrored on opposite faces.
-                        layout=2,  # 0 UV pieces are set to no layout. 1 UV pieces are aligned along the U axis. 2 UV pieces are moved in a square shape.
-                        planes=6,  # intermediate projections used. Valid numbers are 4, 5, 6, 8, and 12
-                        percentageSpace=0.2,  # percentage of the texture area which is added around each UV piece.
-                        worldSpace=0,
-                    )  # 1=world reference. 0=object reference.
-
+                result = cmds.polyAutoProjection(
+                    obj,
+                    layoutMethod=0,
+                    optimize=1,
+                    insertBeforeDeformers=1,
+                    scaleMode=scale_mode,  # 0 none, 1 uniform, 2 stretch to square
+                    createNewMap=False,  # Create a new UV set, as opposed to editing the current one, or the one given by the -uvSetName flag.
+                    projectBothDirections=0,  # If "on" : projections are mirrored on directly opposite faces. If "off" : projections are not mirrored on opposite faces.
+                    layout=2,  # 0 UV pieces are set to no layout. 1 UV pieces are aligned along the U axis. 2 UV pieces are moved in a square shape.
+                    planes=6,  # intermediate projections used. Valid numbers are 4, 5, 6, 8, and 12
+                    percentageSpace=0.2,  # percentage of the texture area which is added around each UV piece.
+                    worldSpace=0,
+                )  # 1=world reference. 0=object reference.
             except Exception as error:
-                print(error)
+                failed.append((obj, str(error)))
+
+        if failed:
+            failed_list = "<br>".join(
+                f"• <b>{name}</b>: {reason}" for name, reason in failed
+            )
+            self.sb.message_box(
+                f"<b>Auto Unwrap</b><br><br>"
+                f"✗ Failed: {len(failed)} of {len(selection)} mesh(es)<br><br>"
+                f"{failed_list}"
+            )
 
         if len(selection) == 1:
             return result
@@ -928,9 +1227,12 @@ class UvSlots(SlotsMaya):
         Cuts the hard creases (cap rims + step rings) plus one lengthwise seam
         on cylinder / tube / turned meshes, then optionally unfolds so each
         smooth section lays out as a clean strip and each flat step / cap as its
-        own shell. *Crease Angle* sets how sharp a bend must be to start a new
-        shell; *Invert Seam* moves the lengthwise seam to the opposite side;
-        *Unfold* flattens the cut sections (off = cut seams only).
+        own shell. The seam strategy is detected per mesh — a straight revolved
+        axis for upright cylinders and turned columns, surface topology for
+        bent / swept tubes and toruses — so there's nothing to choose.
+        *Crease Angle* sets how sharp a bend must be to start a new shell;
+        *Invert Seam* moves the lengthwise seam to the opposite side; *Unfold*
+        flattens the cut sections (off = cut seams only).
         """
         menu = widget.option_box.menu
         menu.setTitle("Cut Cylinder")
@@ -1014,17 +1316,22 @@ class UvSlots(SlotsMaya):
         cmb014 = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb014",
-            setToolTip=(
-                "Where to find the transfer targets. The first-selected object "
-                "is always the source.\n"
-                "Selection Order: transfer to each additionally selected object "
-                "in selection order.\n"
-                "Similar in Selection: transfer to the selected objects that are "
-                "geometrically similar to the source (duplicates).\n"
-                "Similar in Scene: transfer to every geometrically similar mesh "
-                "in the scene.\n\n"
-                "True instances of the source are skipped in the Similar scopes: "
-                "instances share one shape, so their UVs already match the source."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Scope",
+                body="Where the transfer targets come from. The "
+                "<b>first-selected</b> object is always the source.",
+                bullets=[
+                    "<b>Selection Order</b> — transfer to each additionally "
+                    "selected object, in selection order.",
+                    "<b>Similar in Selection</b> — transfer to the selected "
+                    "objects that are geometrically similar to the source.",
+                    "<b>Similar in Scene</b> — transfer to every geometrically "
+                    "similar mesh in the scene.",
+                ],
+                notes=[
+                    "The Similar scopes skip true instances of the source: "
+                    "instances share one shape, so their UVs already match.",
+                ],
             ),
         )
         for text, data in [
@@ -1041,10 +1348,11 @@ class UvSlots(SlotsMaya):
             setMinimum=0.0,
             setMaximum=1.0,
             setSingleStep=0.05,
-            setToolTip=(
-                "Minimum similarity score (0-1, from bounding-box volume + "
-                "vertex count) a mesh must reach to receive UVs.\n"
-                "Used only by the Similar scopes."
+            setToolTip=self.sb.tooltip.fmt(
+                title="Similarity",
+                body="The minimum score (0–1) a mesh must reach to receive UVs, "
+                "scored on bounding-box volume and vertex count.",
+                notes=["Used by the <b>Similar</b> scopes only."],
             ),
         )
 
@@ -1108,6 +1416,7 @@ class UvSlots(SlotsMaya):
 
         mtk.set_texel_density(cmds.ls(sl=True) or [], density, map_size)
 
+    @mtk.undoable
     def b005(self):
         """Cut UVs: split the UV shell along the selected edges."""
         selection = cmds.ls(sl=True) or []
@@ -1118,24 +1427,28 @@ class UvSlots(SlotsMaya):
             return
 
         if selected_edges:
-            # Map the selected edges to their respective objects
-            edges_by_object = mtk.Components.map_components_to_objects(selected_edges)
-            # Iterate through the objects and perform the cut operation on their edges
-            for obj_name, edges in edges_by_object.items():
-                cmds.polyMapCut(edges)
+            # cut_uv_edges groups per object (polyMapCut refuses multi-object lists).
+            mtk.UvUtils.cut_uv_edges(selected_edges)
             # Re-select the edges after the operation
             cmds.select(selected_edges)
         else:
-            # If no edges are selected, check for selected objects that are mesh transforms
-            for obj in selection:
-                if cmds.objectType(obj) == "transform":
-                    shapes = cmds.listRelatives(
-                        obj, shapes=True, noIntermediate=True
-                    ) or []
-                    for shape in shapes:
-                        if cmds.objectType(shape) == "mesh":
-                            # Cut the UVs along all edges of the mesh
-                            cmds.polyMapCut(f"{shape}.e[*]")
+            # No edges selected — cut along all edges of each selected mesh.
+            # Resolve shapes with a type filter and full paths (same rationale
+            # as b011): a short shape name is ambiguous when two transforms
+            # share a leaf name, and objectType then raises.
+            transforms = cmds.ls(selection, type="transform") or []
+            shapes = (
+                cmds.listRelatives(
+                    transforms,
+                    shapes=True,
+                    noIntermediate=True,
+                    type="mesh",
+                    fullPath=True,
+                )
+                or []
+            )
+            for shape in shapes:
+                cmds.polyMapCut(f"{shape}.e[*]")
 
     @mtk.undoable
     def b011(self):
@@ -1214,17 +1527,19 @@ class UvSlots(SlotsMaya):
             return
 
         # Hard edges (always on) — cut along edges within the angle range.
+        # cut_uv_edges groups per object: polyMapCut refuses a component list
+        # spanning multiple objects.
         hard_edges = mtk.Components.get_edges_by_normal_angle(
             objects, low_angle=angle_low, high_angle=angle_high
         )
         if hard_edges:
-            cmds.polyMapCut(hard_edges)
+            mtk.UvUtils.cut_uv_edges(hard_edges)
 
         # Optional: cut along existing UV shell border edges.
         if include_uv_borders:
             border_edges = mtk.UvUtils.get_uv_shell_border_edges(objects)
             if border_edges:
-                cmds.polyMapCut(border_edges)
+                mtk.UvUtils.cut_uv_edges(border_edges)
 
         # Optional: auto-detected seams via Unfold3D.
         if include_auto_seams:

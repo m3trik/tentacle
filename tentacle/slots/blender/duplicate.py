@@ -56,8 +56,54 @@ class Duplicate(SlotsBlender):
         )
         widget.option_box.menu.add(
             "QCheckBox", setText="Freeze Translate", setObjectName="chk000",
-            setToolTip="Freeze (zero) the translation values before instancing.\nRotation and scale are intentionally left unfrozen so each instance\ncan keep its own orientation and size relative to the shared shape.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Freeze Translate",
+                body="Zero the translation values before instancing.",
+                notes=[
+                    "Rotation and scale are deliberately left unfrozen so each "
+                    "instance can keep its own orientation and size relative to "
+                    "the shared shape.",
+                ],
+            ),
         )
+        chk_retain = widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Retain Relative Scale",
+            setObjectName="chk012",
+            setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Retain Relative Scale",
+                body="Keep each object at its current apparent size: the instance "
+                "is uniformly scaled until its world-space bounding box matches "
+                "the object it replaced.",
+                notes=[
+                    "Use it when identical shapes differ in size at the geometry "
+                    "level (frozen / baked scale), where the transform's own scale "
+                    "values don't reflect what you see.",
+                ],
+            ),
+        )
+        chk_per_axis = widget.option_box.menu.add(
+            "QCheckBox",
+            setText="   Non-Uniform (Per Axis)",
+            setObjectName="chk013",
+            setChecked=False,
+            setEnabled=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Non-Uniform (Per Axis)",
+                body="Fit each axis independently instead of uniformly. Instances "
+                "carry their own scale values, so a non-uniform result is legal.",
+                notes=[
+                    "Matched in the object's local frame, so it holds under "
+                    "any rotation.",
+                    "An axis with no size on either side (flat vs. solid) has no "
+                    "ratio to match and is left alone.",
+                    "Off is safer: a per-axis fit reaches the target's box by "
+                    "stretching the shared shape whenever the proportions differ.",
+                ],
+            ),
+        )
+        chk_retain.toggled.connect(chk_per_axis.setEnabled)
         # Maya's chk001 "Delete History" option is not built: construction history doesn't
         # exist in Blender, so the toggle could never do anything — hide-when-no-equivalent
         # (the engine's delete_history param stays for signature parity; ledgered in
@@ -80,6 +126,8 @@ class Duplicate(SlotsBlender):
             objects,
             freeze_transforms=m.chk000.isChecked(),
             center_pivot=m.chk002.isChecked(),
+            retain_bbox_scale=m.chk012.isChecked(),
+            retain_bbox_per_axis=m.chk013.isChecked(),
         )
 
     # ------------------------------------------------------------------ tb001  Select Instanced
