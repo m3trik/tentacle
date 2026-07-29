@@ -47,7 +47,7 @@
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
-| TexturePathEditor | 0 | 0 | 0 | 4 | OK |
+| TexturePathEditor | 0 | 0 | 1 | 4 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 0 | OK |
@@ -132,7 +132,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
 | lighting.py | 0 | 0 | 0 | 0 | 0 | OK |
 | main.py | 0 | 0 | 0 | 0 | 0 | OK |
-| materials.py | 0 | 0 | 3 | 0 | 0 | OK |
+| materials.py | 0 | 0 | 4 | 0 | 0 | OK |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
 | pivot.py | 0 | 0 | 6 | 0 | 0 | OK |
