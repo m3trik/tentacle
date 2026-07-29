@@ -10,10 +10,11 @@ import mayatk as mtk
 from uitk import Signals
 from uitk.widgets.footer import FooterStatusController
 from mayatk.core_utils.script_job_manager import ScriptJobManager
+from tentacle.slots._scene import SceneMixin
 from tentacle.slots.maya._slots_maya import SlotsMaya
 
 
-class SceneSlots(SlotsMaya):
+class SceneSlots(SceneMixin, SlotsMaya):
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
@@ -97,6 +98,25 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b011",
                 setToolTip="Fix missing color space errors on file texture nodes.\nAuto-detects sRGB vs Raw based on texture type.",
             )
+            widget.menu.add(
+                self.sb.registered_widgets.PushButton,
+                setText="Fix Non-Orthogonal Axes",
+                setObjectName="tb002",
+                setToolTip=self.sb.tooltip.fmt(
+                    title="Fix Non-Orthogonal Axes",
+                    body="Fix the objects behind FBX's <i>Non-orthogonal matrix "
+                    "support</i> warning — axes that aren't perpendicular don't "
+                    "survive import / export.",
+                    bullets=[
+                        "Shear on the object itself.",
+                        "Shear inherited from a non-uniformly scaled, rotated "
+                        "parent — which reads as zero shear on the object.",
+                    ],
+                    notes=[
+                        "Scope and a report-only dry run are set in the option box.",
+                    ],
+                ),
+            )
             widget.menu.add("Separator", setTitle="Diagnostics")
             widget.menu.add(
                 self.sb.registered_widgets.PushButton,
@@ -125,6 +145,29 @@ class SceneSlots(SlotsMaya):
                 setObjectName="b012",
                 setToolTip="Toggle Maya command ports on/off (MEL :7001, Python :7002).\nUsed for external editor connections.",
             )
+
+    # ------------------------------------------------------- SceneMixin hooks
+    NON_ORTHOGONAL_FIX_EFFECT = (
+        "Fixing freezes each object's rotate/scale, baking the shear into its "
+        "shape — the object stays where it is and looks identical. Translate "
+        "channels and their connections (constraints, animation) are never "
+        "touched."
+    )
+
+    def _diagnostics(self):
+        return mtk.Diagnostics
+
+    def _scene_objects(self):
+        return cmds.ls(transforms=True, long=True) or []
+
+    def _selected_objects(self):
+        # objectsOnly resolves component selections (faces/verts/edges) to
+        # their shapes; list_transforms walks shapes up to the owning
+        # transforms — so a component selection checks the object it's on
+        # instead of silently checking nothing.
+        return mtk.NodeUtils.list_transforms(
+            cmds.ls(selection=True, objectsOnly=True, long=True) or []
+        )
 
     def _ensure_fbx_plugin(self):
         """Load fbxmaya if not already loaded. Returns True on success."""

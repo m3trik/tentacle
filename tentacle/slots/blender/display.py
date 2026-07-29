@@ -15,8 +15,9 @@ class DisplaySlots(SlotsBlender):
     toggles that ARE Blender's per-viewport analogues of Maya's modelEditor / textureWindow editor
     settings (component-ID, material-override, UV-editor displays are themselves viewport/editor
     state in Maya too, not per-object — see each handler's docstring for the confirmed-live
-    mapping). Only items with no verified Blender surface at all are omitted (UV Border/Checkered/
-    Borders — see the UV category comment below). Explode View is a toggle backed by
+    mapping). Only items with no verified Blender surface at all are omitted (UV Border/Borders —
+    see the UV category comment below; Checkered is rolled via a generated ``UV_GRID`` image
+    since no overlay property exists). Explode View is a toggle backed by
     ``btk.explode_view`` (bbox-driven separation with exact restore); Color ID opens the
     co-located swatch-palette panel.
     """
@@ -41,11 +42,14 @@ class DisplaySlots(SlotsBlender):
             ("Un-Xray All", "_un_xray_all"),
             ("Xray Other", "_xray_other"),
         ],
-        # Border/Checkered/Borders dropped — verified live (Blender 5.1) that neither a UV-editor
-        # checker-background overlay nor a mesh/UV border-edge-highlight overlay (with adjustable
-        # width) exists on SpaceUVEditor/View3DOverlay; see parity_map.py HANDLERS['display'] for
-        # the per-item rationale. Distortion maps directly to SpaceUVEditor.show_stretch.
+        # Border/Borders dropped — verified live (Blender 5.1) that no mesh/UV
+        # border-edge-highlight overlay (with adjustable width) exists on SpaceUVEditor/
+        # View3DOverlay; see parity_map.py HANDLERS['display'] for the per-item rationale.
+        # Checkered is rolled: no overlay property exists either, so the checker is a generated
+        # UV_GRID image swapped into the editor (see _uv_checkered). Distortion maps directly
+        # to SpaceUVEditor.show_stretch.
         "UV": [
+            ("Checkered", "_uv_checkered"),
             ("Distortion", "_uv_distortion"),
         ],
         "Normals": [
@@ -233,6 +237,35 @@ class DisplaySlots(SlotsBlender):
         for a in areas:
             a.spaces.active.shading.color_type = new_type
         return f"Material Override: <hl>{'On' if turn_on else 'Off'}</hl>"
+
+    _UV_CHECKER_NAME = "uv_checker_grid"
+
+    def _uv_checkered(self):
+        """Toggle a checker pattern in the UV editor — Maya's ``textureWindow
+        displayCheckered`` analogue. Blender has no checker-overlay property (verified live,
+        5.1: the only ``check*`` RNA is unrelated theme/brush state), so the checker is a
+        generated ``UV_GRID`` image datablock swapped into every open ``IMAGE_EDITOR``; the
+        first editor's previous image is stashed on the scene and restored on toggle-off
+        (editors are kept in lockstep, same reasoning as ``_uv_distortion``)."""
+        areas = btk.get_areas("IMAGE_EDITOR")
+        if not areas:
+            return "UV Checkered: <hl>no UV editor open</hl>"
+        scene = bpy.context.scene
+        sp0 = areas[0].spaces.active
+        turn_on = not (sp0.image and sp0.image.name == self._UV_CHECKER_NAME)
+        if turn_on:
+            img = bpy.data.images.get(self._UV_CHECKER_NAME)
+            if img is None:
+                img = bpy.data.images.new(self._UV_CHECKER_NAME, 1024, 1024)
+                img.generated_type = "UV_GRID"
+            scene["_uv_checker_prev"] = sp0.image.name if sp0.image else ""
+            for a in areas:
+                a.spaces.active.image = img
+        else:
+            prev = bpy.data.images.get(scene.get("_uv_checker_prev") or "")
+            for a in areas:
+                a.spaces.active.image = prev
+        return f"UV Checkered: <hl>{'On' if turn_on else 'Off'}</hl>"
 
     def _uv_distortion(self):
         """Cycle the UV Editor's stretch (distortion) overlay: Off -> Angle -> Area -> Off

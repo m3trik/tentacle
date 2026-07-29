@@ -207,8 +207,54 @@ class Duplicate(SlotsMaya):
             setText="Freeze Translate",
             setObjectName="chk000",
             setChecked=False,
-            setToolTip="Freeze (zero) the translation values before instancing.\nRotation and scale are intentionally left unfrozen so each instance\ncan keep its own orientation and size relative to the shared shape.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Freeze Translate",
+                body="Zero the translation values before instancing.",
+                notes=[
+                    "Rotation and scale are deliberately left unfrozen so each "
+                    "instance can keep its own orientation and size relative to "
+                    "the shared shape.",
+                ],
+            ),
         )
+        chk_retain = widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Retain Relative Scale",
+            setObjectName="chk012",
+            setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Retain Relative Scale",
+                body="Keep each object at its current apparent size: the instance "
+                "is uniformly scaled until its world-space bounding box matches "
+                "the object it replaced.",
+                notes=[
+                    "Use it when identical shapes differ in size at the geometry "
+                    "level (frozen / baked scale), where the transform's own scale "
+                    "values don't reflect what you see.",
+                ],
+            ),
+        )
+        chk_per_axis = widget.option_box.menu.add(
+            "QCheckBox",
+            setText="   Non-Uniform (Per Axis)",
+            setObjectName="chk013",
+            setChecked=False,
+            setEnabled=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Non-Uniform (Per Axis)",
+                body="Fit each axis independently instead of uniformly. Instances "
+                "carry their own scale values, so a non-uniform result is legal.",
+                notes=[
+                    "Matched in the object's local frame, so it holds under "
+                    "any rotation.",
+                    "An axis with no size on either side (flat vs. solid) has no "
+                    "ratio to match and is left alone.",
+                    "Off is safer: a per-axis fit reaches the target's box by "
+                    "stretching the shared shape whenever the proportions differ.",
+                ],
+            ),
+        )
+        chk_retain.toggled.connect(chk_per_axis.setEnabled)
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Delete History",
@@ -222,6 +268,8 @@ class Duplicate(SlotsMaya):
         freeze_transforms = widget.option_box.menu.chk000.isChecked()
         center_pivot = widget.option_box.menu.chk002.isChecked()
         delete_history = widget.option_box.menu.chk001.isChecked()
+        retain_bbox_scale = widget.option_box.menu.chk012.isChecked()
+        retain_bbox_per_axis = widget.option_box.menu.chk013.isChecked()
 
         # Get the list of selected transform nodes in the order they were selected
         selection = cmds.ls(orderedSelection=True, transforms=True) or []
@@ -242,6 +290,8 @@ class Duplicate(SlotsMaya):
             freeze_transforms=freeze_transforms,
             center_pivot=center_pivot,
             delete_history=delete_history,
+            retain_bbox_scale=retain_bbox_scale,
+            retain_bbox_per_axis=retain_bbox_per_axis,
         )
 
     def tb001_init(self, widget):
@@ -256,12 +306,13 @@ class Duplicate(SlotsMaya):
     def tb001(self, widget):
         """Select Instanced Objects"""
         all_instanced = widget.option_box.menu.chk003.isChecked()
+        selection = []
 
         if all_instanced:
             # Select all instanced objects in the scene
             instances = mtk.get_instances(objects=None)
         else:
-            # Select instances of the selected objects only
+            # Select instances of the selected objects, plus the selected object(s) themselves
             selection = cmds.ls(sl=1) or []
             if not selection:
                 self.sb.message_box(
@@ -271,7 +322,7 @@ class Duplicate(SlotsMaya):
             instances = mtk.get_instances(selection)
 
         if instances:
-            cmds.select(instances)
+            cmds.select(selection + instances)
         else:
             self.sb.message_box("<strong>No instanced objects found</strong>.")
 

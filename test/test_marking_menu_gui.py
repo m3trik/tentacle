@@ -145,6 +145,21 @@ class MarkingMenuGuiTest(unittest.TestCase):
         self._process()
 
     def _activate(self, buttons: int = 0, modifiers: int = 0):
+        # Re-park the cursor HERE, not just in setUp. The menu centers on the
+        # live pointer with no on-screen clamp (nav windows opt out so the flick
+        # stays pinned to the gesture origin), so wherever the pointer sits when
+        # _sync_menu_to_state runs is where the menu lands. Any gap between
+        # parking and using it is a window for the pointer to move — a stray
+        # nudge on a shared desktop, or the machine's own pointer settling —
+        # and a menu opened near a monitor edge then legitimately clips.
+        # Measured: a run that parked in setUp opened cameras#startmenu centred
+        # at (924,-191) instead of the parked centre, and failed by 109px.
+        from qtpy import QtGui
+
+        sx, sy, sw, sh = self.screen_geom
+        QtGui.QCursor.setPos(sx + sw // 2, sy + sh // 2)
+        self._process(2)
+
         try:
             self.mm._sync_menu_to_state(buttons=buttons, modifiers=modifiers)
         except Exception as e:
@@ -181,39 +196,94 @@ class MarkingMenuGuiTest(unittest.TestCase):
     def _hover_button(self, button) -> None:
         """Move cursor onto button and dispatch the enterEvent path.
 
-        ``_perform_transition`` aborts silently if the cursor isn't over
-        the target — moving the cursor first is required for the timer
-        to fire the submenu reveal.
+        The reveal is gated on the LIVE pointer: ``_perform_transition`` fires
+        ~8ms after the enter and silently aborts unless ``QCursor.pos()`` is
+        still within 5px of the trigger widget. A single warp-then-dispatch is
+        therefore only as reliable as the pointer staying put for those 8ms —
+        and on a desktop that is in use it doesn't. Measured signature of the
+        abort: the submenu sits at its unpositioned default with
+        ``pending_transition``/``in_transition`` both False.
+
+        So re-establish the precondition and retry, rather than warping once
+        and hoping. Each attempt re-reads the button's position (a transition
+        repositions menus under the cursor), re-warps, dispatches, and waits for
+        the reveal. A genuine product failure still fails — every attempt does.
         """
         from qtpy import QtCore, QtGui
 
-        center = button.mapToGlobal(button.rect().center())
-        QtGui.QCursor.setPos(center)
-        self._process(2)
+        target = button.submenu_name() if hasattr(button, "submenu_name") else None
 
-        enter_event = QtGui.QEnterEvent(
-            QtCore.QPointF(button.rect().center()),
-            QtCore.QPointF(button.rect().center()),
-            QtCore.QPointF(center),
-        )
-        self.mm.child_enterEvent(button, enter_event)
-        self._process(5)
-        # 8ms transition timer + a margin
-        self._wait(80)
+        def _revealed() -> bool:
+            if target is None:
+                return True
+            ui = self._find_loaded_ui(target)
+            return ui is not None and ui.isVisible()
+
+        for _ in range(4):
+            # Re-read then warp: keep the gap between parking the pointer and
+            # the guard reading it as small as possible.
+            center = button.mapToGlobal(button.rect().center())
+            QtGui.QCursor.setPos(center)
+            self._process(2)
+
+            enter_event = QtGui.QEnterEvent(
+                QtCore.QPointF(button.rect().center()),
+                QtCore.QPointF(button.rect().center()),
+                QtCore.QPointF(center),
+            )
+            self.mm.child_enterEvent(button, enter_event)
+            self._process(5)
+
+            # 8ms debounce + 16ms flag clear — poll rather than guess an
+            # interval, so a busy host doesn't read as a missing reveal.
+            for _ in range(6):
+                self._wait(40)
+                if _revealed():
+                    return
+
+    def _cursor_str(self) -> str:
+        from qtpy import QtGui
+
+        p = QtGui.QCursor.pos()
+        return f"({p.x()},{p.y()})"
 
     # ── assertions ──────────────────────────────────────────────────
 
     def _assert_visible(self, name: str):
         ui = self._find_loaded_ui(name)
         self.assertIsNotNone(ui, f"UI not loaded: {name!r}")
-        self.assertTrue(
-            ui.isVisible(),
-            f"{ui.objectName()} not visible "
-            f"(geom=({ui.x()},{ui.y()},{ui.width()},{ui.height()}))",
-        )
+        # Built on failure only — assertTrue's message argument is evaluated
+        # eagerly, and this one walks the switchboard on every passing call.
+        # Report the transition state too: a loaded-and-positioned but hidden
+        # submenu means the reveal was scheduled and then cancelled (a stray
+        # leaveEvent debounce), which reads nothing like "not visible" on its
+        # own — that ambiguity is what made this class of failure expensive to
+        # diagnose.
+        if not ui.isVisible():
+            cur = self.mm.sb.current_ui
+            self.fail(
+                f"{ui.objectName()} not visible "
+                f"(geom=({ui.x()},{ui.y()},{ui.width()},{ui.height()}); "
+                f"current_ui={cur.objectName() if cur is not None else None}; "
+                f"pending_transition={self.mm._pending_transition_ui is not None}; "
+                f"in_transition={self.mm._in_transition}; "
+                f"cursor={self._cursor_str()})"
+            )
         return ui
 
     def _assert_on_screen(self, ui):
+        """Assert the menu is fully within its screen.
+
+        This holds *because the test controls the anchor* — ``_activate`` parks
+        the pointer at the screen centre immediately before the menu opens, and
+        a 640x600 menu centred there fits any of our displays. It is NOT a
+        guarantee the product makes in general: nav windows deliberately opt out
+        of the on-screen clamp (``ensure_on_screen=False``) so the directional
+        flick stays pinned to the gesture origin, which means a menu invoked
+        near a monitor edge legitimately clips. If this assertion fails, suspect
+        the anchor drifted before the menu opened — do NOT "fix" it by clamping
+        the nav windows; that re-breaks the gesture.
+        """
         from qtpy import QtCore, QtWidgets
 
         # Use GLOBAL geometry: the menu UI is a child of the MarkingMenu, so
@@ -223,9 +293,11 @@ class MarkingMenuGuiTest(unittest.TestCase):
 
         # Check against the screen the menu actually opened on, not the host
         # window's screen. On multi-monitor the menu opens on the cursor's
-        # screen (which need not match parent.screen()), and QCursor.setPos to
-        # a secondary monitor isn't always honored — so pinning the assertion
-        # to parent.screen() made it depend on the physical monitor layout.
+        # screen (which need not match parent.screen()) — so pinning the
+        # assertion to parent.screen() made it depend on the physical monitor
+        # layout. (The warp itself lands exactly, including on a secondary
+        # monitor with a negative origin — measured. Don't re-diagnose a
+        # flaky reveal as an unhonored setPos; see _hover_button.)
         center = QtCore.QPoint(x + w // 2, y + h // 2)
         screen = (
             QtWidgets.QApplication.screenAt(center)

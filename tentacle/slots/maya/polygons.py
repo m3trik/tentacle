@@ -260,17 +260,32 @@ class PolygonsSlots(SlotsMaya):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Separate Extracted Faces",
+            setText="Extract To New Object",
             setObjectName="chk015",
             setChecked=True,
-            setToolTip="Separate the extracted faces into new objects.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Extract To New Object",
+                body="Move the extracted faces into a <b>new</b> object.",
+                notes=[
+                    "Off: the faces are chipped off in place and stay within "
+                    "the source mesh.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Separate Each Face",
+            setText="One Object Per Face",
             setObjectName="chk020",
             setChecked=False,
-            setToolTip="If checked, each detached face becomes a separate object.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="One Object Per Face",
+                body="Break the extraction apart face by face instead of keeping "
+                "it as one connected shell.",
+                notes=[
+                    "With <b>Extract To New Object</b> off, the faces are still "
+                    "chipped apart individually inside the source mesh.",
+                ],
+            ),
         )
 
     def tb005(self, widget):

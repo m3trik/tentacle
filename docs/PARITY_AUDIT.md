@@ -9,11 +9,11 @@
 | Layer | What it measures | Result |
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 223, Blender 225 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
-| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **84%** (380/451) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 13 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **44 present** pairs (of Maya's 46), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 10 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **51%** (828/1613 names); 1 modules absent: render_utils |
+| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **87%** (395/456) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
+| **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (853/1636 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 51% with 1 module(s) absent (render_utils); 0 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 52% with 1 module(s) absent (render_utils); 0 panel ports open.
 
 ---
 
@@ -25,21 +25,21 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 |:--|--:|--:|--:|--:|
 | anim_utils | 297 | 243 | 214 | 72% |
 | audio_utils | 66 | 24 | 9 | 14% |
-| cam_utils | 6 | 2 | 1 | 17% |
-| core_utils | 154 | 68 | 49 | 32% |
+| cam_utils | 6 | 13 | 1 | 17% |
+| core_utils | 155 | 70 | 51 | 33% |
 | display_utils | 32 | 24 | 15 | 47% |
-| edit_utils | 155 | 151 | 107 | 69% |
+| edit_utils | 157 | 161 | 109 | 69% |
 | env_utils | 323 | 211 | 139 | 43% |
 | light_utils | 57 | 43 | 34 | 60% |
-| mat_utils | 227 | 193 | 167 | 74% |
+| mat_utils | 246 | 214 | 186 | 76% |
 | node_utils | 128 | 52 | 44 | 34% |
-| nurbs_utils | 25 | 20 | 15 | 60% |
+| nurbs_utils | 25 | 26 | 15 | 60% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
 | rig_utils | 107 | 79 | 40 | 37% |
 | ui_utils | 63 | 67 | 23 | 37% |
-| uv_utils | 66 | 68 | 49 | 74% |
+| uv_utils | 69 | 72 | 52 | 75% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1613** | **1148** | **828** | **51%** |
+| **TOTAL (unique)** | **1636** | **1194** | **853** | **52%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -51,7 +51,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (44) — worst first by logic
+### Present pairs (45) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
@@ -62,12 +62,11 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | TubeRig | 0→0 | 5→1 | 16→16 | 3371→1030 | 31% | 100% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 785→287 | 37% | 100% | clean |
 | MatUpdater | 0→0 | 15→12 | 2→2 | 1052→405 | 38% | 100% | clean |
-| SceneExporter | 3→3 | 16→14 | 6→6 | 1322→535 | 40% | 100% | clean |
+| SceneExporter | 3→3 | 16→14 | 6→6 | 1327→535 | 40% | 100% | clean |
 | CurveToTube | 0→0 | 4→3 | 11→11 | 869→385 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 306→137 | 45% | 100% | clean |
-| TelescopeRig | 0→0 | 0→0 | 3→2 | 647→295 | 46% | 67% | 1 open |
 | Snap | 3→3 | 6→6 | 3→3 | 426→204 | 48% | 100% | clean |
-| CutOnAxis | 0→0 | 1→0 | 11→10 | 235→124 | 53% | 91% | 4 open |
+| TelescopeRig | 0→0 | 0→0 | 3→3 | 647→331 | 51% | 100% | clean |
 | ReferenceManager | 2→2 | 35→32 | 4→4 | 3625→1917 | 53% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3197→1759 | 55% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 18→8 | 2→6 | 823→460 | 56% | 300% | clean |
@@ -78,6 +77,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | HdrManager | 2→2 | 13→12 | 4→4 | 1728→1109 | 64% | 100% | clean |
 | LightmapBaker | 2→2 | 3→3 | 8→8 | 1850→1254 | 68% | 100% | clean |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 535→373 | 70% | 100% | clean |
+| CutOnAxis | 0→0 | 1→1 | 11→11 | 235→170 | 72% | 100% | clean |
 | HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3102→2382 | 77% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 351→287 | 82% | 100% | clean |
 | ShadowRig | 0→0 | 2→1 | 9→9 | 1413→1176 | 83% | 100% | clean |
@@ -95,12 +95,13 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | ShotManifest | 2→2 | 7→7 | 5→5 | 2020→2001 | 99% | 100% | clean |
 | Shots | 4→4 | 5→5 | 14→14 | 957→963 | 101% | 100% | clean |
 | DuplicateLinear | 0→0 | 3→3 | 7→7 | 339→347 | 102% | 100% | clean |
-| SmartBake | 0→0 | 4→3 | 12→10 | 292→310 | 106% | 83% | clean |
+| SmartBake | 0→0 | 4→3 | 12→10 | 292→312 | 107% | 83% | clean |
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 197→214 | 109% | 100% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 231→252 | 109% | 100% | clean |
+| Mirror | 0→0 | 0→0 | 10→10 | 272→302 | 111% | 100% | clean |
 | Naming | 13→13 | 26→26 | 6→6 | 481→534 | 111% | 100% | clean |
-| Mirror | 0→0 | 0→0 | 10→10 | 213→246 | 115% | 100% | clean |
 | RenderOpacity | 3→3 | 6→6 | 4→4 | 359→413 | 115% | 100% | clean |
+| EmissiveGroups | 2→2 | 15→14 | 7→7 | 1182→1377 | 116% | 100% | clean |
 
 ### Open panel ports (0) — tracked in parity_map
 
@@ -116,40 +117,40 @@ Blender-only panels (no mayatk counterpart): MayaBridge, WorkspaceEditor.
 
 ## Layer 2 — Shared-menu slot depth
 
-The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-controls + menu items).
+The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-controls + menu items). *Hollow* = parity theater: a **visible** control whose handler only pops a message box. A guard clause (`if not selection: message_box(...); return`) on a handler that then does work is not hollow, and neither is a control correctly retired via `<name>_init → setVisible(False)` — that is the documented treatment for a no-Blender-equivalent control.
 
 > ⚠️ **This per-domain % is an UPPER BOUND on the gap, NOT the gap — confirm by reading the slot pair before acting.** It is wrong in two directions, both proven by spot-checks: (1) it **undercounts loop-built controls** — `selection` builds all 10 Select-Similar criteria in one `for` loop (counts as 1, not 10), so its real faithfulness is ~90%, not the 53% shown; (2) it **can't tell legitimate Blender divergence from a gap** — `pivot`'s 36% is *entirely* Blender's single baked-origin model (no per-channel/​manip pivot), i.e. already faithful with nothing to fix. Treat a low number as "read this slot," never as "this much is missing."
 
 | domain | controls M→B | depth | option boxes M→B | hollow (B) |
 |:--|:--:|--:|:--:|--:|
 | animation | 90→81 | 90% | 44→40 ⚠ |  |
-| cameras | 8→6 | 75% | 0→0 |  |
+| cameras | 8→8 | 100% | 0→0 |  |
 | crease | 3→3 | 100% | 2→2 |  |
 | deformation | 0→0 | — | 0→0 |  |
-| display | 3→3 | 100% | 0→0 | 1 |
-| duplicate | 18→17 | 94% | 6→6 |  |
+| display | 3→3 | 100% | 0→0 |  |
+| duplicate | 20→19 | 95% | 6→6 |  |
 | edit | 35→33 | 94% | 6→6 |  |
 | editors | 2→2 | 100% | 0→0 |  |
 | hud | 0→0 | — | 0→0 |  |
 | lighting | 0→0 | — | 0→0 |  |
 | main | 8→8 | 100% | 0→0 |  |
-| materials | 28→26 | 93% | 5→5 | 1 |
+| materials | 28→26 | 93% | 5→5 |  |
 | normals | 6→6 | 100% | 6→6 |  |
-| nurbs | 22→11 | 50% | 4→4 | 3 |
-| pivot | 12→5 | 42% | 11→9 ⚠ |  |
-| polygons | 24→22 | 92% | 19→19 | 1 |
+| nurbs | 22→11 | 50% | 4→4 |  |
+| pivot | 12→6 | 50% | 11→11 |  |
+| polygons | 24→24 | 100% | 19→19 |  |
 | preferences | 3→3 | 100% | 0→0 |  |
-| rendering | 21→15 | 71% | 4→4 |  |
-| rigging | 21→18 | 86% | 12→8 ⚠ | 2 |
-| scene | 34→37 | 109% | 4→4 | 1 |
-| selection | 32→18 | 56% | 11→8 ⚠ | 2 |
-| settings | 4→4 | 100% | 0→0 | 2 |
+| rendering | 21→16 | 76% | 4→4 |  |
+| rigging | 21→18 | 86% | 12→8 ⚠ |  |
+| scene | 35→38 | 109% | 4→4 |  |
+| selection | 32→20 | 62% | 11→10 ⚠ |  |
+| settings | 4→4 | 100% | 0→0 |  |
 | subdivision | 8→10 | 125% | 2→2 |  |
 | symmetry | 0→0 | — | 0→0 |  |
-| transform | 33→24 | 73% | 17→14 ⚠ |  |
+| transform | 33→25 | 76% | 17→15 ⚠ |  |
 | utilities | 0→0 | — | 0→0 |  |
-| uv | 36→28 | 78% | 14→12 ⚠ |  |
-| **TOTAL** | **451→380** | **84%** | | **13** |
+| uv | 38→31 | 82% | 14→14 |  |
+| **TOTAL** | **456→395** | **87%** | | **0** |
 
 ---
 

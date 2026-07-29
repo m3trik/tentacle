@@ -1214,6 +1214,17 @@ class TclBlender(MarkingMenu):
         except Exception as error:  # never let console restore block launch
             print(f"{__file__}: script_output restore skipped: {error}")
 
+        # Arm the ordered-selection tracker from launch so click order is already
+        # recorded when an order-consuming tool (Reorder Selection, ordered transfers)
+        # first asks for it — enable() is idempotent and its handler no-ops until the
+        # selection actually changes.
+        try:
+            from blendertk.edit_utils.selection import SelectionOrder
+
+            SelectionOrder.enable()
+        except Exception as error:  # never let the tracker block launch
+            print(f"{__file__}: SelectionOrder enable skipped: {error}")
+
         # Own the overlay to Blender's GHOST window so the OS keeps it stacked above Blender.
         self._parent_to_blender(self)
 

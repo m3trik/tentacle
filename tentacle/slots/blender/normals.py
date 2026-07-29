@@ -117,26 +117,43 @@ class Normals(SlotsBlender):
 
     # ------------------------------------------------------------------ tb010  Reverse Normals
     def tb010_init(self, widget):
+        """Maya's five ``polyNormal`` modes, 1:1 (same items, same default index) — the
+        Recalculate Outside/Inside items the Blender combo used to carry instead live on in
+        Conform's engine (recalc is how consistency is built). Propagate/Conform/Extract are
+        ``btk.EditUtils`` shell-walk primitives (no native ``bpy.ops`` covers them)."""
         if not widget.is_initialized:
             widget.option_box.menu.setTitle("Reverse Normals")
             widget.option_box.menu.add(
-                "QComboBox", setObjectName="cmb000",
-                addItems=["Flip", "Recalculate Outside", "Recalculate Inside"],
+                "QComboBox",
+                setObjectName="cmb000",
+                addItems=[
+                    "Reverse",
+                    "Propagate",
+                    "Conform",
+                    "Reverse and Extract",
+                    "Reverse and Propagate",
+                ],
+                setCurrentIndex=3,
                 setToolTip="Normal operation mode.",
             )
 
     @btk.undoable
     def tb010(self, widget):
-        """Reverse Normals"""
+        """Reverse Normals (Maya polyNormal modes: Reverse / Propagate / Conform /
+        Reverse and Extract / Reverse and Propagate)."""
         objects = self.selected_objects()
         if not objects:
             return
-        mode = widget.option_box.menu.cmb000.currentText()
-        if mode == "Recalculate Outside":
-            btk.recalculate_normals(objects, inside=False)
-        elif mode == "Recalculate Inside":
-            btk.recalculate_normals(objects, inside=True)
-        else:
+        mode = widget.option_box.menu.cmb000.currentIndex()
+        if mode == 1:  # Propagate — shell adopts the selected faces' orientation
+            btk.propagate_normals(objects)
+        elif mode == 2:  # Conform — object-wide consistency, original majority wins
+            btk.conform_normals(objects)
+        elif mode == 3:  # Reverse and Extract — reversed duplicates of the selected faces
+            btk.extract_reversed_faces(objects)
+        elif mode == 4:  # Reverse and Propagate — shell flips to the reversed seed
+            btk.propagate_normals(objects, reverse=True)
+        else:  # Reverse
             btk.flip_normals(objects, selected_only=self._component_scope())
 
     # ------------------------------------------------------------------ b002  Transfer Normals

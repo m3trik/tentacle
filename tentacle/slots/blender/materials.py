@@ -54,6 +54,16 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 "b009",
                 "Build a game-shader material network from texture maps.",
             ),
+            (
+                "Emissive Groups",
+                "b027",
+                "Author named face groups whose emissive regions a game "
+                "engine can toggle or dim independently, sharing one all-on "
+                "emissive map. Bakes membership into a vertex color "
+                "attribute (rides the FBX) or an _EMask texture, and "
+                "publishes the manifest Unity's EmissiveGroupController "
+                "reads.",
+            ),
         ],
         "Texture Maps (files)": [
             (
@@ -671,6 +681,11 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         """Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR
         texture set; classify + wire each map). Mirrors Maya's b009."""
         self.sb.handlers.marking_menu.show("game_shader")
+
+    def b027(self):
+        """Emissive Groups — co-located blendertk panel (named face groups a game engine gates at
+        runtime off one all-on emissive map). Mirrors Maya's b027."""
+        self.sb.handlers.marking_menu.show("emissive_groups")
 
     def b011(self):
         """Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /

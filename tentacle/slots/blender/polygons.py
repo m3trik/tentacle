@@ -127,6 +127,22 @@ class PolygonsSlots(SlotsBlender):
             setObjectName="chk022",
             setToolTip="Rename the resulting parts after the source object (<name>, <name>_part01 …).",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Uninstance",
+            setObjectName="chk024",
+            setChecked=True,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Uninstance",
+                body="Break instance links — make the mesh single-user — before "
+                "separating. On by default, because leaving it off loses data.",
+                notes=[
+                    "<code>mesh.separate</code> edits the shared datablock in "
+                    "place, so separating a linked duplicate silently deletes the "
+                    "separated faces from every sibling.",
+                ],
+            ),
+        )
 
     @btk.undoable
     def tb002(self, widget):
@@ -138,7 +154,10 @@ class PolygonsSlots(SlotsBlender):
         m = widget.option_box.menu
         try:
             btk.separate_objects(
-                objects, by_material=m.chk021.isChecked(), rename=m.chk022.isChecked()
+                objects,
+                by_material=m.chk021.isChecked(),
+                rename=m.chk022.isChecked(),
+                uninstance=m.chk024.isChecked(),
             )
         except (
             RuntimeError
@@ -217,6 +236,22 @@ class PolygonsSlots(SlotsBlender):
             setValue=10000.0,
             setToolTip="Maximum distance between objects to be considered part of the same cluster.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Uninstance",
+            setObjectName="chk023",
+            setChecked=True,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Uninstance",
+                body="Break instance links — make the mesh single-user — before "
+                "combining. On by default, because leaving it off loses data.",
+                notes=[
+                    "<code>object.join</code> builds the result in the active "
+                    "object's shared datablock, so a linked duplicate silently "
+                    "mutates into the combined geometry.",
+                ],
+            ),
+        )
         # Threshold only matters while clustering (mirror of the Maya panel).
         chk_cluster = widget.option_box.menu.chk004
         spin = widget.option_box.menu.s003
@@ -237,6 +272,7 @@ class PolygonsSlots(SlotsBlender):
                 group_by_material=m.chk003.isChecked(),
                 cluster_by_distance=m.chk004.isChecked(),
                 threshold=m.s003.value(),
+                uninstance=m.chk023.isChecked(),
             )
         except RuntimeError as e:
             self.sb.message_box(str(e))
@@ -253,17 +289,31 @@ class PolygonsSlots(SlotsBlender):
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Separate Extracted Faces",
+            setText="Extract To New Object",
             setObjectName="chk015",
             setChecked=True,
-            setToolTip="Move the detached faces into a NEW object (off = split them off in place, "
-            "staying within the same mesh).",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Extract To New Object",
+                body="Move the extracted faces into a <b>new</b> object.",
+                notes=[
+                    "Off: the faces are split off in place and stay within "
+                    "the source mesh.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Separate Each Face",
+            setText="One Object Per Face",
             setObjectName="chk020",
-            setToolTip="Each detached face becomes its own separate object.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="One Object Per Face",
+                body="Break the extraction apart face by face instead of keeping "
+                "it as one connected shell.",
+                notes=[
+                    "With <b>Extract To New Object</b> off, the faces are still "
+                    "split apart individually inside the source mesh.",
+                ],
+            ),
         )
 
     @btk.undoable

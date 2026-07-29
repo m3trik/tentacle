@@ -15,8 +15,9 @@ class Selection(SlotsBlender):
     mayatk's ``Selection._SELECTION_CONFIG`` category breadth (Animation/Dynamics/Geometry/
     Hierarchy/Scene/UV), built from Object-level bpy primitives instead of Maya's string-node type
     lookups; the dR_ selection constraints become one-shot selection expansion (no modal
-    analogue). Reorder Selection is closed as not-applicable (no ordered object selection in
-    Blender).
+    analogue). Reorder Selection rides the rolled ``btk.SelectionOrder`` tracker +
+    ``btk.reorder_objects`` (Blender records no object click order natively; the tracker
+    maintains one).
     """
 
     # Maya "Marquee/Lasso/Paint" select styles -> Blender's box/lasso/circle select tools.
@@ -426,18 +427,68 @@ class Selection(SlotsBlender):
         except RuntimeError as e:
             self.sb.message_box(str(e))
 
-    # ------------------------------------------------------------------ closed (not applicable)
+    # ------------------------------------------------------------------ cmb001  Reorder Selection
     def cmb001_init(self, widget):
-        """Reorder Selection — hidden: Blender has no ordered *object* selection to feed
-        (operators receive an unordered set; ``select_history`` is component-only)."""
-        widget.setVisible(False)
+        """Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
+        records no object click order natively; the tracker maintains one, and reorder
+        writes the sorted order into it for order-consuming tools)."""
+        widget.option_box.menu.setTitle("Reorder Selection")
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Reverse Order",
+            setObjectName="chk009",
+            setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Reverse Order",
+                body="Sort descending — reverse the order the chosen method produces.",
+            ),
+        )
+        items = [
+            "Name",
+            "Hierarchy",
+            "X Position",
+            "Y Position",
+            "Z Position",
+            "Distance from Origin",
+            "Volume",
+            "Vertex Count",
+            "Random",
+            "Creation Time",
+        ]
+        widget.add(items, header="Reorder By:")
 
     def cmb001(self, index, widget):
-        """Reorder Selection — not applicable in Blender."""
-        self.sb.message_box(
-            "Reorder Selection is not applicable in Blender — operators act on an "
-            "unordered selection set."
-        )
+        """Reorder Selection (sort via ``btk.reorder_objects``, record the order on
+        ``btk.SelectionOrder`` — Blender reselection alone can't carry order)."""
+        reverse = widget.option_box.menu.chk009.isChecked()
+        method_map = {
+            "Name": "name",
+            "Hierarchy": "hierarchy",
+            "X Position": "x",
+            "Y Position": "y",
+            "Z Position": "z",
+            "Distance from Origin": "distance",
+            "Volume": "volume",
+            "Vertex Count": "vertex_count",
+            "Random": "random",
+            "Creation Time": "creation_time",
+        }
+        selected_option = widget.items[index]
+        method = method_map.get(selected_option, "name")
+
+        objects = self.selected_objects()
+        if not objects:
+            self.sb.message_box("No objects selected to reorder.")
+            return
+        reordered = btk.reorder_objects(objects, method=method, reverse=reverse)
+        if reordered:
+            btk.SelectionOrder.set_order(reordered)
+            # Make the last-in-order object active (Blender's own "newest pick" convention).
+            bpy.context.view_layer.objects.active = reordered[-1]
+            self.sb.message_box(
+                f"Reordered <hl>{len(reordered)}</hl> object(s) by {selected_option}"
+                f"{' (reversed)' if reverse else ''}."
+            )
 
     # ------------------------------------------------------------------ list000  Select by Type
     # Category breadth mirrors mayatk's Selection._SELECTION_CONFIG 1:1 (same category + leaf

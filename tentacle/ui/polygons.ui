@@ -88,6 +88,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="vertex">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Vertex</string>
         </property>
@@ -239,6 +245,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="edge">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Edge</string>
         </property>
@@ -547,6 +559,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="face">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Face</string>
         </property>
@@ -769,6 +787,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="component">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Component</string>
         </property>
@@ -1229,6 +1253,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="mesh">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Mesh</string>
         </property>
@@ -1379,6 +1409,9 @@
        <spacer name="verticalSpacer_2">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>

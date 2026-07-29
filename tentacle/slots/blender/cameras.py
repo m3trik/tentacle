@@ -62,8 +62,20 @@ class Cameras(SlotsBlender):
             w1 = widget.add("Select Camera")
             w1.sublist.add([c.name for c in cameras])
 
-        w2 = widget.add("Camera Options")
-        w2.sublist.add(["Auto Adjust Clipping", "Reset Clipping"])
+        w2 = widget.add("Visibility Settings")
+        w2.sublist.add(
+            [
+                "Exclusive to Camera",
+                "Hidden from Camera",
+                "Remove from Exclusive",
+                "Remove from Hidden",
+                "Remove All for Camera",
+                "Remove All",
+            ]
+        )
+
+        w3 = widget.add("Camera Options")
+        w3.sublist.add(["Auto Adjust Clipping", "Reset Clipping"])
 
     @Signals("on_item_interacted")
     def list000(self, item):
@@ -96,6 +108,30 @@ class Cameras(SlotsBlender):
                 if ctx and ctx.get("region") and ctx["region"].data:
                     with bpy.context.temp_override(**ctx):
                         ctx["region"].data.view_perspective = "CAMERA"
+
+        elif parent_text == "Visibility Settings":
+            # Per-camera isolate sets — the rolled btk.CameraVisibility engine (Maya's
+            # SetExclusiveToCamera family; sets follow scene.camera — the camera Select
+            # Camera / look-through makes active).
+            try:
+                if text == "Exclusive to Camera":
+                    names = btk.CameraVisibility.set_exclusive()
+                    self.sb.message_box(
+                        f"Exclusive set: <hl>{len(names)}</hl> object(s)."
+                    )
+                elif text == "Hidden from Camera":
+                    names = btk.CameraVisibility.set_hidden()
+                    self.sb.message_box(f"Hidden set: <hl>{len(names)}</hl> object(s).")
+                elif text == "Remove from Exclusive":
+                    btk.CameraVisibility.remove_from_exclusive()
+                elif text == "Remove from Hidden":
+                    btk.CameraVisibility.remove_from_hidden()
+                elif text == "Remove All for Camera":
+                    btk.CameraVisibility.remove_all()
+                elif text == "Remove All":
+                    btk.CameraVisibility.remove_all_for_all()
+            except ValueError as e:  # no active camera to attach the set to
+                self.sb.message_box(str(e))
 
         elif parent_text == "Camera Options":
             if text == "Auto Adjust Clipping":

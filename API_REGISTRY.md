@@ -11,7 +11,9 @@ _Generated: 2026-07-29_
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
+- [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_slots.py`](#slots--_slots)
+- [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
@@ -152,6 +154,15 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
   - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
 
+<a id="slots--_scene"></a>
+### `slots/_scene.py`
+
+Behavior shared by the Maya and Blender ``scene`` panels.
+
+- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L19)** — Shared ``scene`` panel behavior.
+  - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
+  - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
+
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
 
@@ -160,6 +171,13 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
   - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
   - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
+
+<a id="slots--_uv"></a>
+### `slots/_uv.py`
+
+Behavior shared by the Maya and Blender UV panels.
+
+- **[`class UvMixin`](tentacle/tentacle/slots/_uv.py#L6)** — Shared UV-panel behavior (see ``slots/maya/uv.py``, ``slots/blender/uv.py``).
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -394,6 +412,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `MaterialsSlots.b021(self)` — Image to Plane — open the panel (batch image→plane with aspect sizing, material affix
   - `MaterialsSlots.b010(self)` — Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /
   - `MaterialsSlots.b009(self)` — Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR
+  - `MaterialsSlots.b027(self)` — Emissive Groups — co-located blendertk panel (named face groups a game engine gates at
   - `MaterialsSlots.b011(self)` — Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /
   - `MaterialsSlots.b018(self)` — Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material
   - `MaterialsSlots.b008(self)` — Map Packer
@@ -416,8 +435,8 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Normals.b000(self)` — Soften Edge Normals (smooth shading).
   - `Normals.b001(self)` — Harden Edge Normals (flat shading).
   - `Normals.b006(self)` — Set To Face (vertex normals follow faces = flat shading).
-  - `Normals.tb010_init(self, widget)`
-  - `Normals.tb010(self, widget)` — Reverse Normals
+  - `Normals.tb010_init(self, widget)` — Maya's five ``polyNormal`` modes, 1:1 (same items, same default index) — the
+  - `Normals.tb010(self, widget)` — Reverse Normals (Maya polyNormal modes: Reverse / Propagate / Conform /
   - `Normals.b002(self)` — Transfer Normals (active mesh → other selected, native Data-Transfer
   - `Normals.b004(self)` — Toggle lock/unlock vertex normals — Maya parity (m_lock_vertex_normals): report the
 
@@ -446,6 +465,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Pivot.b000(self)` — Center Pivot: Object
   - `Pivot.b001(self)` — Center Pivot: Component
   - `Pivot.b002(self, widget)` — Center Pivot: World
+  - `Pivot.tb002_init(self, widget)` — Transfer Pivot options — the Mirror combo only.
   - `Pivot.tb002(self, widget)` — Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
   - `Pivot.tb003_init(self, widget)`
   - `Pivot.tb003(self, widget)` — World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its
@@ -549,7 +569,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
 
-- **[`class SceneSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L15)** — Blender port of the shared ``scene`` menu.
+- **[`class SceneSlots(SceneMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L16)** — Blender port of the shared ``scene`` menu.
   - `SceneSlots.header_init(self, widget)` — Header menu — mirror of the Maya scene header (portable subset).
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
@@ -602,8 +622,8 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Selection.b001(self)` — Toggle Selectability of the selected object(s).
   - `Selection.cmb005_init(self, widget)`
   - `Selection.cmb005(self, index, widget)` — Selection Constraints (one-shot in Blender: expands the current selection by
-  - `Selection.cmb001_init(self, widget)` — Reorder Selection — hidden: Blender has no ordered *object* selection to feed
-  - `Selection.cmb001(self, index, widget)` — Reorder Selection — not applicable in Blender.
+  - `Selection.cmb001_init(self, widget)` — Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
+  - `Selection.cmb001(self, index, widget)` — Reorder Selection (sort via ``btk.reorder_objects``, record the order on
   - `Selection.list000_init(self, widget)` — Select by Type: hierarchical type list.
   - `Selection.tb004_init(self, widget)` — Select by Type settings menu (mirror of the Maya slot's tb004).
   - `Selection.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
@@ -662,7 +682,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--blender--transform"></a>
 ### `slots/blender/transform.py`
 
-- **[`class TransformSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/transform.py#L8)** — Blender port of the shared ``transform`` menu.
+- **[`class TransformSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/transform.py#L10)** — Blender port of the shared ``transform`` menu.
   - `TransformSlots.header_init(self, widget)` — Header — Fix Non-Orthogonal Axes + the Snap Toolset button.
   - `TransformSlots.b_snap_ts(self)` — Snap Toolset — open the Snap panel (mirror of Maya's b_snap_ts).
   - `TransformSlots.fix_non_ortho_axes(self)` — Fix Non-Orthogonal Axes (bake out shear on the selected objects).
@@ -676,7 +696,8 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `TransformSlots.cmb002_init(self, widget)`
   - `TransformSlots.cmb002(self, index, widget)` — Align To (object centers onto the active object's, native ``object.align``).
   - `TransformSlots.tb004_init(self, widget)`
-  - `TransformSlots.tb004(self, widget)` — Transform Snap (per-transform increment snapping via the scene tool settings — Blender
+  - `TransformSlots.tb004(self, widget)` — Transform Snap (per-transform increment snapping via the scene tool settings).
+  - `TransformSlots.s023(self, value, widget)` — Transform Tool Snap Settings: rotate increment (degrees → the scene's
   - `TransformSlots.chk023_init(self, widget)` — Snap Rotate toggle — reflect the live tool-settings state.
   - `TransformSlots.chk023(self, state, widget)` — Snap: Rotate (increment rotation snapping).
   - `TransformSlots.tb001_init(self, widget)`
@@ -700,12 +721,12 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
 
-- **[`class Uv(SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
+- **[`class Uv(UvMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L11)** — Blender port of the shared ``uv`` menu.
   - `Uv.get_map_size(self)` — Get the map size from the combobox as an int.
   - `Uv.tb000_init(self, widget)`
   - `Uv.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
   - `Uv.tb001_init(self, widget)`
-  - `Uv.tb001(self, widget)` — Auto Unwrap (Smart UV Project / Cube / Cylinder / Sphere projection).
+  - `Uv.tb001(self, widget)` — Auto Unwrap (Smart UV Project, or an external unwrapping engine).
   - `Uv.tb004_init(self, widget)`
   - `Uv.tb004(self, widget)` — Unfold (unwrap, then optionally relax, axis-align, and stack similar shells).
   - `Uv.tb009_init(self, widget)`
@@ -718,7 +739,8 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Uv.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
   - `Uv.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
   - `Uv.b031(self)` — Open UV Editor
-  - `Uv.b000(self, widget)` — Transfer UVs (active mesh → other selected, native Data-Transfer).
+  - `Uv.b000_init(self, widget)` — Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;
+  - `Uv.b000(self, widget)` — Transfer UVs — from the active mesh, to the other selected meshes (Selection
   - `Uv.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
   - `Uv.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
   - `Uv.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
@@ -1032,6 +1054,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `MaterialsSlots.b008(self, widget)` — Map Packer
   - `MaterialsSlots.b009(self, widget)` — Create Game Shader
   - `MaterialsSlots.b026(self, widget)` — Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;
+  - `MaterialsSlots.b027(self, widget)` — Emissive Groups
   - `MaterialsSlots.b010(self, widget)` — Texture Path Editor
   - `MaterialsSlots.b011(self, widget)` — Shader Templates
   - `MaterialsSlots.b013(self)` — Reload Textures and Reset Viewport
@@ -1125,7 +1148,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `Pivot.tb002_init(self, widget)`
   - `Pivot.tb002(self, widget)` — Transfer Pivot
   - `Pivot.tb003_init(self, widget)` — Initialize World-Aligned Pivot options
-  - `Pivot.tb003(self, widget)` — World-Aligned Pivot
+  - `Pivot.tb003(self, widget)` — World-Aligned Pivot: world-align the pivot of the selected objects or components.
   - `Pivot.b000(self)` — Center Pivot: Object
   - `Pivot.b001(self)` — Center Pivot: Component
   - `Pivot.b002(self, widget)` — Center Pivot: World
@@ -1245,7 +1268,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L16)**
+- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L17)**
   - `SceneSlots.header_init(self, widget)` — Initialize Header
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
   - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
@@ -1435,7 +1458,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
 
-- **[`class UvSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L11)**
+- **[`class UvSlots(UvMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L12)**
   - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
   - `UvSlots.tb000_init(self, widget)` — Initialize UV packing tool interface.
@@ -1482,25 +1505,25 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1742) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1747) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1752) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1757) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1762) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register()`](tentacle/tentacle/tcl_blender.py#L1767) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1772) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L1777) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1782) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1787) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1792) — Remove the click tracer.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L1753) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L1758) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L1763) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L1768) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L1773) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register()`](tentacle/tentacle/tcl_blender.py#L1778) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L1783) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L1788) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L1793) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1798) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L1803) — Remove the click tracer.
 - **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1106)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1533)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1544)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1627)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1638)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register()` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

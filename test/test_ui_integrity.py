@@ -285,5 +285,51 @@ class TestNoShadowedObjectNames(unittest.TestCase):
         )
 
 
+class TestFixedSpacersAreGapsNotDeadSpace(unittest.TestCase):
+    """A `Fixed` vertical spacer's sizeHint is its EXACT height — it can
+    neither grow nor shrink. Qt Designer stamps 20x40 on every new spacer,
+    so an untuned default becomes 40px of permanent dead space above the
+    footer that the user cannot resize away (live report: the materials
+    panel). The panels use a deliberate ~10px gap; pin that.
+    """
+
+    MAX_GAP = 12
+
+    def test_no_oversized_fixed_vertical_spacer(self):
+        offenders = []
+        # Recursive: the rule is about the spacer declaration itself, so it
+        # holds for the menu subdirectories too, not just the main panels.
+        for path in sorted(UI_DIR.rglob("*.ui")):
+            for spacer in ET.parse(path).iter("spacer"):
+                # Default to "" not None: a spacer may omit either property
+                # (sizeType defaults to Expanding), and None.endswith raises.
+                orientation = size_type = ""
+                height = None
+                for prop in spacer.findall("property"):
+                    name = prop.get("name")
+                    if name == "orientation":
+                        orientation = prop.findtext("enum") or ""
+                    elif name == "sizeType":
+                        size_type = prop.findtext("enum") or ""
+                    elif name == "sizeHint":
+                        size = prop.find("size")
+                        if size is not None:
+                            height = int(size.findtext("height") or 0)
+                if (
+                    orientation.endswith("Vertical")
+                    and size_type.endswith("Fixed")
+                    and height is not None
+                    and height > self.MAX_GAP
+                ):
+                    offenders.append(f"{path.name}:{spacer.get('name')}={height}px")
+        self.assertEqual(
+            offenders,
+            [],
+            "Fixed vertical spacer(s) taller than "
+            f"{self.MAX_GAP}px are unresizable dead space above the footer "
+            f"(Qt Designer's untuned 20x40 default): {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

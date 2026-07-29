@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import math
+
 import bpy
 import blendertk as btk
 from tentacle.slots.blender._slots_blender import SlotsBlender
@@ -12,8 +14,11 @@ class TransformSlots(SlotsBlender):
     scale-connected-edges) are backed by ``blendertk.xform_utils`` (mirrors ``mtk.*``); the header
     adds Fix Non-Orthogonal Axes (``btk.Diagnostics.fix_non_orthogonal_axes``) + a master Snap toggle. Align-To
     rides native ``object.align``; Transform Snap maps onto the scene tool-settings increment snap
-    (``use_snap_translate/rotate/scale``) — the per-transform toggles, not Maya's numeric increment
-    values (grid-driven in Blender). Make-Live maps onto face-projection snapping (tb003 Constrain
+    (``use_snap_translate/rotate/scale``) — the per-transform toggles. Of Maya's three numeric
+    increment spinboxes only *rotate* has a Blender counterpart — s023 binds live to
+    ``snap_angle_increment_3d``; move is grid-driven (per-view ``View3DOverlay.grid_scale``) and
+    scale has no numeric snap value at all (s021/s022 ledgered ``na``). Make-Live maps onto
+    face-projection snapping (tb003 Constrain
     menu); Maya rig/channel-box/DG-connection extras have no Blender analogue and are classified in
     the parity overrides.
     """
@@ -338,12 +343,32 @@ class TransformSlots(SlotsBlender):
             setChecked=ts.use_snap and ts.use_snap_scale,
             setToolTip="Snap scaling to increments.",
         )
+        # Rotate increment (Maya s023, manipRotateContext snapValue) — the one numeric snap
+        # increment with a real Blender value to bind: ToolSettings.snap_angle_increment_3d
+        # (radians; factory 5°). Move is grid-driven, scale has no numeric snap value —
+        # s021/s022 stay unported (ledgered na). Same limits/prefix as Maya's spinbox.
+        widget.option_box.menu.add(
+            "QDoubleSpinBox",
+            setObjectName="s023",
+            setPrefix="Degrees:",
+            set_limits=[1.40625, 360, 0.40625, 5],
+            setDisabled=True,
+        )
+        widget.option_box.menu.s023.setValue(math.degrees(ts.snap_angle_increment_3d))
+        widget.option_box.menu.s023.setEnabled(ts.use_snap and ts.use_snap_rotate)
 
     def tb004(self, widget):
-        """Transform Snap (per-transform increment snapping via the scene tool settings — Blender
-        snaps to the grid increment; the Maya numeric increment spinboxes are not mirrored)."""
+        """Transform Snap (per-transform increment snapping via the scene tool settings). Move
+        snaps to the grid increment; Maya's numeric move/scale increment spinboxes (s021/s022)
+        have no Blender value to bind. The rotate increment (s023) binds live to
+        ``ToolSettings.snap_angle_increment_3d``."""
         m = widget.option_box.menu
         self._set_snap(translate=m.chk021.isChecked(), scale=m.chk022.isChecked())
+
+    def s023(self, value, widget):
+        """Transform Tool Snap Settings: rotate increment (degrees → the scene's
+        ``snap_angle_increment_3d``, Maya's manipRotateContext snapValue analogue)."""
+        bpy.context.scene.tool_settings.snap_angle_increment_3d = math.radians(value)
 
     # chk023 (Snap Rotate) is a static widget in transform#submenu.ui (its sibling chk021/chk022
     # are tb004 option-box-only), so it stays a standalone live toggle here rather than being
@@ -360,8 +385,12 @@ class TransformSlots(SlotsBlender):
         self.mirror_app_state(widget, lambda: widget.setChecked(snap))
 
     def chk023(self, state, widget):
-        """Snap: Rotate (increment rotation snapping)."""
+        """Snap: Rotate (increment rotation snapping). Also gates the rotate-increment
+        spinbox in the tb004 option box (Maya's chk023 → s023 enable pattern)."""
         self._set_snap(rotate=state)
+        tb = self.ui.tb004
+        tb.init_slot()
+        tb.option_box.menu.s023.setEnabled(state)
 
     # ------------------------------------------------------------------ tb001  Scale Connected Edges
     def tb001_init(self, widget):

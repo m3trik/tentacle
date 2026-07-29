@@ -103,7 +103,7 @@ CONTROLS = {
         },
         "chk_inherited_vis": {
             "status": "na",
-            "reason": "Blender's hide_viewport/hide_render are not inherited down a parent chain the way Maya's DAG visibility is, and AnimUtils.set_visibility_keys already covers direct visibility keying -- stated as a permanent scope cut in _smart_bake.py's own module docstring, matching the precedent set porting hierarchy_manager",
+            "reason": "Blender has no ANIMATABLE inherited-visibility source at all: hide_viewport/hide_render are not inherited down a parent chain, and while collection visibility IS inherited (Object.visible_get() resolves it), Collection.hide_viewport/hide_render are not animatable -- is_animatable=False; keyframe_insert AND driver_add both refuse (verified live, Blender 5.1, 2026-07-28; a full collection-chain bake pass was prototyped and reverted on this finding). The only animatable visibility is the object's OWN hide flags, which AnimUtils.set_visibility_keys already covers -- permanent scope cut, per _smart_bake.py's module docstring.",
         },
     },
     "reference_manager": {
@@ -293,13 +293,12 @@ CONTROLS = {
         # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
     },
     "telescope_rig": {
-        "cmb_axis": {
-            "status": "pending",
-            "reason": "Aim Axis combo added to the Maya panel 2026-07-18 with the TelescopeRig "
-            "engine overhaul (selects the segments' long axis: aim vectors + driven scale "
-            "channel + off-axis lock set). The blendertk twin's engine still hardcodes its "
-            "axis handling — port the aim_axis option to its engine, .ui, and slots.",
-        },
+        # cmb_axis (Aim Axis) BUILT 2026-07-28: .ui block copied verbatim from the Maya panel
+        # (default Y, ComboBox in <customwidgets>), engine gained _resolve_axis (signed token
+        # -> Damped-Track enums + driven scale index + off-axis lock tuple, mirroring mtk's)
+        # and setup_telescope_rig(aim_axis=); slot passes ("x","y","z")[currentIndex] like
+        # Maya's. Verified headless (test_telescope_rig.py 24/24: X-chain drives scale.x,
+        # TRACK_X, correct locks, 0.5 collapse). No delta.
     },
     "tube_rig": {
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
@@ -365,12 +364,12 @@ CONTROLS = {
     # duplicate_radial(..., suffix=…) -> Naming.append_location_based_suffix. Fully built on
     # both sides (sweep sees no delta); the old "intentionally dropped" na was stale.
     "cut_on_axis": {
-        # Weighted-spacing UI added to Maya's Cut on Axis panel 2026-07-25 (cmb001 + s002/s003/s004,
-        # driven by the new toggle_weight_ui handler; mirrors DuplicateLinearSlots' interpolation UI).
-        "cmb001": {"status": "pending", "reason": "Interpolation-mode combo (linear / ease_in / ease_out / weighted / smooth_step) added to Maya's Cut on Axis panel alongside the weighted-spacing fields: mtk.cut_on_axis now distributes the cut planes with non-linear spacing (weight_bias / weight_curve) instead of only even spacing, and toggle_weight_ui enables the weight fields per mode. Blender's cut_on_axis engine does even spacing only -- porting means adding the same spacing distribution to the btk engine plus the cmb001/s002/s003/s004 widgets to its .ui + slot. Needs a live-Blender check before building."},
-        "s002": {"status": "pending", "reason": "Cut-plane Spacing field (pairs with cmb001's interpolation modes) -- part of the same weighted-spacing port tracked on cmb001."},
-        "s003": {"status": "pending", "reason": "Weight Bias field for the 'weighted' interpolation mode (0..1) -- part of the same weighted-spacing port tracked on cmb001."},
-        "s004": {"status": "pending", "reason": "Weight Curve field (non-linear distribution strength) -- part of the same weighted-spacing port tracked on cmb001."},
+        # Weighted-spacing port BUILT 2026-07-28: cmb001 (interpolation combo) + s002 Spacing
+        # + s003 Weight Bias + s004 Weight Curve added to the Blender .ui/slot 1:1 (same
+        # INTERPOLATION_MODES table + toggle_weight_ui), and btk.cut_along_axis gained
+        # spacing/distribution/weight_bias/weight_curve via _cut_offsets on the shared
+        # ptk.ProgressionCurves (linear default reproduces the old even-fill exactly;
+        # verified headless in test_edit_utils.py). No delta.
     },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
@@ -415,29 +414,17 @@ HANDLERS = {
         # PARITY_SURFACE.md "combo item deltas (review)": `list000` 11->5 items; missing=
         # ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive',
         # 'Remove from Hidden', 'Remove All for Camera', 'Remove All']. Audited 2026-07-04.
-        "list000": {
-            "status": "na",
-            "reason": "Maya's 4th list000 group ('Visibility Settings', the 6 items above) drives "
-                      "the per-camera 'camera sets' isolate-visibility MEL commands "
-                      "(SetExclusiveToCamera/SetHiddenFromCamera/CameraRemoveFromExclusive/"
-                      "CameraRemoveFromHidden/CameraRemoveAll/CameraRemoveAllForAll) — objects are "
-                      "shown/hidden conditionally on which camera is currently being looked "
-                      "through. Blender has no per-camera-object visibility primitive to match: "
-                      "object visibility is either global (hide_viewport/hide_render, or Cycles "
-                      "ray-visibility flags like visible_camera — hides an object from ALL cameras, "
-                      "not one) or Scene/View-Layer/Collection-scoped (excluding a Collection from a "
-                      "View Layer is a per-Scene/View-Layer setting, not a live per-camera toggle "
-                      "flippable while orbiting). A faithful port would mean inventing a new "
-                      "subsystem (custom properties per camera + a depsgraph/render handler "
-                      "continuously re-deriving hide_render from scene.camera) with no native "
-                      "Blender feature to anchor it to — out of scope for a capability port (see "
-                      "CLAUDE.md YAGNI/OCP: don't build speculative infrastructure). Workflow "
-                      "substitute: give each camera its own Scene (or View Layer) and use Collection "
-                      "exclusion to control what's visible when rendering/looking through that "
-                      "camera, or Object > Visibility > Ray Visibility > Camera (Cycles) to hide an "
-                      "object from all camera rays at once. Checked blendertk/API_INDEX.md and "
-                      "cam_utils/_cam_utils.py — no existing helper covers this; none added.",
-        },
+        # list000 'Visibility Settings' BUILT 2026-07-28 — the rolled btk.CameraVisibility
+        # engine (cam_utils/camera_visibility.py) supplies the per-camera isolate primitive the
+        # old na correctly said Blender lacks: exclusive/hidden name sets as id-props on each
+        # camera (persist in the .blend), visibility derived from the ACTIVE scene camera with
+        # an exactly-reversible stash (user-hidden objects untouched; helper types not
+        # implicitly hidden by an exclusive set), optional msgbus auto-re-apply on camera
+        # switch. Documented divergence: Maya applies per look-through panel; Blender's
+        # look-through state is per-viewport draw state with no headless surface, so the sets
+        # follow scene.camera (which look-through sets). All 6 leaves wired in the Blender
+        # cameras slot; verified headless (test_cam_utils.py). The YAGNI ruling was overridden
+        # by the roll-our-own standard. No delta.
     },
     "nurbs": {
         "b016": {"status": "na", "reason": "[Create Curve from Edges] widget removed from nurbs.ui 2026-05-20 (9f534ba3) but the handler is pinned by test_nurbs.py (create_curve_from_edges fallback) - retarget the test at mtk directly, then delete the handler"},
@@ -455,16 +442,17 @@ HANDLERS = {
         # per-leaf reasoning.
         "list000:Lock": {"status": "na", "reason": "Lock Curve Length constrains a NURBS curve to a fixed arc length under deformation; a Blender curve/mesh control point has no such constraint to toggle."},
         "list000:Unlock": {"status": "na", "reason": "see Lock"},
-        "list000:Bend": {"status": "na", "reason": "Maya drives Bend from its own option-box magnitude/weight; Blender's nearest analogue (Simple Deform modifier) is a persistent modifier needing that same kind of dedicated option UI as this file's own tb000/tb001 tools, not a parameterless one-click list action -- reviewer's call, same as flagged by the parity audit. VERIFIED 2026-07-11 (headless Blender 5.1): a SIMPLE_DEFORM/BEND modifier applied to a curve DOES bake into the bezier control points, but ONLY when deform_axis is perpendicular to the curve's plane (deform_axis='Z' bends an X/Y-planar curve; 'X'/'Y' are silent no-ops) -- so a fixed-axis parameterless Bend no-ops for common orientations. A faithful Bend needs an option box (deform_axis + angle) = the dedicated option UI above; buildable later as a tb-style tool, stays na as a list-leaf action. (The 2026-07 divergence re-audit's 'trivial SIMPLE_DEFORM+apply' overturn is refuted by this probe.)"},
-        "list000:Curl": {"status": "na", "reason": "see Bend"},
-        "list000:Curvature": {"status": "na", "reason": "see Bend"},
-        "list000:Straighten": {"status": "na", "reason": "see Bend -- Maya's StraightenCurves interpolates CVs toward a line by a magnitude/weight parameter; no parameterless Blender op matches."},
+        # list000 Bend / Curl / Curvature / Straighten / Rebuild / Extend BUILT 2026-07-28 —
+        # the rolled btk.NurbsUtils CV-deformation family (pure control-point math on
+        # POLY/NURBS splines; arc-length-exact bend maps the chord onto a true circle,
+        # refuting-for-good the SIMPLE_DEFORM route's fixed-axis no-op trap probed
+        # 2026-07-11). Verified headless: test_nurbs_utils.py 16/16. Bezier splines are
+        # skipped by design (handle model needs its own authoring pass; slot reports it).
+        # No delta.
         "list000:Insert Isoparm": {"status": "na", "reason": "Isoparms are a parametric NURBS-surface-only concept; Blender's Screw/loft-bridge surfaces are meshes with no isoparm to insert."},
         "list000:Insert Knot": {"status": "na", "reason": "Knot insertion is parametric NURBS-curve re-parameterization; a Blender POLY/NURBS spline's control points have no knot vector exposed to Python to insert into."},
-        "list000:Rebuild": {"status": "na", "reason": "RebuildCurveOptions re-parameterizes a NURBS curve's knot/span structure; no Blender op rebuilds a spline's parameterization this way."},
-        "list000:Extend (Options)": {"status": "na", "reason": "Tolerance-based parametric curve extension (extend by a distance/tolerance along the curve's own parameterization); no Blender op extends a curve this way."},
-        "list000:Extend": {"status": "na", "reason": "see Extend (Options)"},
-        "list000:Extend on Surface": {"status": "na", "reason": "see Extend (Options) -- extending a curve constrained to a NURBS surface has no Blender analogue (no parametric surface-constrained curve concept)."},
+        "list000:Extend (Options)": {"status": "na", "reason": "Tolerance-based parametric curve extension (extend by a distance/tolerance along the curve's own parameterization) with its dedicated option box; the rolled btk.NurbsUtils.extend_curve covers the plain linear Extend leaf, but the parametric options surface has no CV-level equivalent."},
+        "list000:Extend on Surface": {"status": "na", "reason": "Extending a curve constrained to a NURBS surface has no Blender analogue (no parametric surface-constrained curve concept) -- see Extend (Options); the plain Extend leaf is covered by the rolled btk.NurbsUtils.extend_curve."},
     },
     "selection": {
         "chk000": {"status": "na", "reason": "QRadioButton siblings are auto-exclusive; Maya's manual "
@@ -520,9 +508,14 @@ HANDLERS = {
         # chk026 (Make Live) removed 2026-07-08: BUILT — the Blender chk026 handler maps
         # makeLive onto face-projection snapping (_set_project_snap -> snap_elements_individual
         # ={FACE_NEAREST}). Handler present on both sides; no delta.
-        "s021": {"status": "na", "reason": "snap increments are grid-driven in Blender (slot docstring)"},
-        "s022": {"status": "na", "reason": "see s021"},
-        "s023": {"status": "na", "reason": "see s021"},
+        # The blanket "snap increments are grid-driven" reason was wrong for ROTATE — corrected
+        # 2026-07-28 after enumerating ToolSettings' RNA live (Blender 5.1). Triage per widget:
+        # s021=Move, s022=Scale, s023=Rotate (Maya's manipMove/Scale/RotateContext snapValue).
+        "s021": {"status": "na", "reason": "Move snap increment (manipMoveContext snapValue). Blender has no scene-level numeric move increment to drive: absolute grid snapping (use_snap_grid_absolute) steps by the viewport grid, i.e. per-3D-view View3DOverlay.grid_scale/grid_subdivisions, not a value a single spinbox can own -- grid-driven, as the Blender slot docstring says."},
+        "s022": {"status": "na", "reason": "Scale snap increment (manipScaleContext snapValue). Verified live (Blender 5.1, full ToolSettings RNA enumeration): the only scale-snap property is the BOOLEAN use_snap_scale -- there is no numeric scale increment anywhere in ToolSettings, so there is no value to bind."},
+        # s023 (Rotate increment) BUILT 2026-07-28: bound degrees->radians onto
+        # ToolSettings.snap_angle_increment_3d in the tb004 option box, enable-gated by chk023
+        # (Maya's chk023 -> s023.setEnabled pattern). No delta.
     },
     "scene": {
         "b006": {"status": "renamed", "to": "b_cleanup",
@@ -620,15 +613,10 @@ HANDLERS = {
                       "edges (Outline/Dash/Black/White), not border edges specifically. No reasonable "
                       "mapping exists.",
         },
-        "list000[UV].Checkered": {
-            "status": "na",
-            "reason": "Verified live (Blender 5.1) by enumerating the full bpy.types RNA surface for "
-                      "'check*' properties: no UV/Image editor checker-background overlay boolean exists "
-                      "(only unrelated theme/brush/ImageTexture checker properties). A faithful port would "
-                      "mean generating and swapping in a UV_GRID checker image datablock as the editor's "
-                      "background image — a builder action, not a property toggle — a different capability "
-                      "shape than every other list000 item; out of scope for this port.",
-        },
+        # list000[UV].Checkered BUILT 2026-07-28 (_uv_checkered): rolled as the very builder
+        # action the old na entry described — a generated UV_GRID image datablock swapped into
+        # every open IMAGE_EDITOR (prev image stashed on the scene, restored on toggle-off).
+        # The "out of scope" ruling was overridden by the roll-our-own standard. No delta.
         "list000[UV].Borders": {
             "status": "na",
             "reason": "See list000[UV].Display UV Border — same Maya cmds.polyOptions displayMapBorder "
@@ -648,7 +636,9 @@ HANDLERS = {
         # cmb_lock Lock/Unlock selector — matching Maya's. No entry needed.
     },
     "pivot": {
-        "tb002_init": {"status": "replaced", "to": "tb002 (option-less always-translate transfer)", "reason": "Maya's Transfer Pivot option box (chk005-009 channel/space/bake toggles) is replaced on Blender by an option-less tb002 that always transfers the single origin (translate) — the button itself IS handled (def tb002 exists), only the option-box builder is deliberately absent; tool's 'visible but inert' applies to the empty option box, not the button."},
+        # tb002_init: BUILT 2026-07-28 — Blender's tb002 gained a real option box carrying the
+        # Mirror combo (cmb000; see CONTROLS_SLOTS['pivot'] for the per-control triage). The
+        # chk005-009 channel/space/bake toggles stay absent (ledgered there).
         # tb003_init: removed 2026-07-18 — BUILT. Blender's tb003 (World-Aligned Pivot) is no
         # longer a not-applicable stub: it now ships a real tb003_init building the Manip Pivot
         # option (chk010) 1:1 with Maya's, and the slot mirrors both halves (manip-on → Global
@@ -661,7 +651,12 @@ HANDLERS = {
     },
     "subdivision": {},
     "uv": {
-        "b000_init": {"status": "pending", "reason": "Transfer UVs scope option box (2026-07-25): Maya's b000 gained cmb014 (Scope: Selection Order / Similar in Selection / Similar in Scene) + d000 (similarity threshold), backed by mtk.transfer_uvs_to_similar (fan one source out to duplicate meshes matched by bbox volume + vertex count; true instances skipped -- shared shape). Blender's b000 is a native Data-Transfer from the active mesh with no option box yet. Portable: linked duplicates (Alt+D) share the datablock like Maya instances (skip), real copies (Shift+D) are the candidates -- add the same scope combo + threshold, similarity-match in btk, reuse the existing data_transfer path. Needs a live-Blender check before building."},
+        # b000_init BUILT 2026-07-28: the Blender b000 gained the same scope option box
+        # (cmb014 Selection Order / Similar in Selection / Similar in Scene + d000 similarity
+        # threshold), backed by the new btk.transfer_uvs_to_similar (bbox-volume + vertex-count
+        # similarity mirroring mtk's _calculate_mesh_similarity; linked duplicates of the source
+        # skipped, one representative per candidate linked group; native Data-Transfer under
+        # window_context_override). Verified headless in test_uv_utils.py. No delta.
     },
 }
 
@@ -691,7 +686,7 @@ CONTROLS_SLOTS = {
         # CONTROLS['smart_bake_slots'], where the Blender engine ships them as chk_use_override /
         # chk_delete_sources). The entries here named non-existent slot widgets and were never
         # consulted by the sweep (dead config).
-        "chk_inherited_vis": {"status": "divergent", "reason": "[Bake Inherited Visibility] Blender visibility isn't inherited through the hierarchy the Maya way; nothing to flatten on bake."},
+        "chk_inherited_vis": {"status": "divergent", "reason": "[Bake Inherited Visibility] Blender has no animatable inherited-visibility source: parent-chain hide isn't inherited, and Collection.hide_viewport/hide_render (the mechanism that IS inherited) are not animatable -- is_animatable=False, keyframe_insert and driver_add both refuse (verified live, Blender 5.1, 2026-07-28; a collection-chain bake pass was prototyped and reverted on this finding). Nothing animated exists to flatten on bake. See CONTROLS['smart_bake_slots']['chk_inherited_vis']."},
         "cmb037": {"status": "replaced", "to": "cmb_interp", "reason": "tb017 redesigned on Blender as an interpolation-type picker applied to all keys on the selection; code comment documents cmb_interp replacing cmb037/cmb040 (Maya's key-scope narrowing auto/current-time/selected dropped by design)."},
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
@@ -735,12 +730,16 @@ CONTROLS_SLOTS = {
     },
     "pivot": {
         "chk001": {"status": "na", "reason": "Reset Pivot Orientation drives Maya manipPivotReset's orientation channel; Blender's object origin is a point with no manipulator-pivot orientation — Blender tb000_init deliberately ships only chk000 and the module docstring documents the single-baked-origin model."},
-        "chk005": {"status": "replaced", "to": "tb002 always-on translate (btk.transfer_pivot)", "reason": "Translate is Blender's only pivot channel, so the toggle is meaningless; the capability runs unconditionally via btk.transfer_pivot(translate=True) in the option-less Blender tb002."},
+        "chk005": {"status": "replaced", "to": "tb002 always-on translate (btk.transfer_pivot)", "reason": "Translate is Blender's only pivot channel, so the toggle is meaningless; the capability runs unconditionally via btk.transfer_pivot(translate=True) in the Blender tb002 (whose option box, since 2026-07-28, carries only the Mirror combo)."},
         "chk006": {"status": "na", "reason": "Rotate-pivot transfer has no Blender analogue — btk.transfer_pivot accepts rotate= only for signature parity and no-ops (Blender has no separate rotate pivot)."},
         "chk007": {"status": "na", "reason": "Scale-pivot transfer has no Blender analogue — btk.transfer_pivot accepts scale= only for signature parity and no-ops (Blender has no separate scale pivot)."},
-        "chk008": {"status": "na", "reason": "Transfer-Pivot Bake toggle bakes Maya pivot values into the transform node; Blender's option-less tb002 has no such per-transfer toggle (origins are always baked). The standalone Bake Pivot button (b004) is a real op now — origin_set(ORIGIN_CURSOR), baking the 3D-cursor pivot into the origin — but exposes no option box, so this Transfer-Pivot toggle has no Blender twin."},
+        "chk008": {"status": "na", "reason": "Transfer-Pivot Bake toggle bakes Maya pivot values into the transform node; Blender's tb002 has no such per-transfer toggle (origins are always baked; its option box carries only the Mirror combo). The standalone Bake Pivot button (b004) is a real op now — origin_set(ORIGIN_CURSOR), baking the 3D-cursor pivot into the origin — but exposes no option box, so this Transfer-Pivot toggle has no Blender twin."},
         "chk009": {"status": "na", "reason": "World Space toggle is meaningless in Blender's transfer model — btk.transfer_pivot documents world_space as implicit (origin read via matrix_world; 3D-cursor snap is world-space by construction)."},
-        "cmb000": {"status": "pending", "reason": "Transfer-Pivot Mirror axis combo (None / X / Y / Z), 2026-07-25: Maya's tb002 gained mirror= (mtk.transfer_pivot reflects the transferred pivot across the world axis-plane through the origin — position negated, orientation conjugated — for a mirrored copy of the source). Portable to Blender at the *position* level: reflect the source origin (cursor.location) across the chosen world axis before ORIGIN_CURSOR snap. Blocked on Blender's tb002 currently being option-less (no option box builder) — adding this combo means introducing a tb002_init on the Blender slot; needs a live-Blender check before building (rotate/scale mirror stays N/A, single-point origin)."},
+        # cmb000 (Transfer-Pivot Mirror) BUILT 2026-07-28: the new tb002_init builds the Mirror
+        # combo (None/X/Y/Z) 1:1 with Maya's, and btk.transfer_pivot gained mirror= (reflects
+        # the source origin across the chosen world axis-plane before the ORIGIN_CURSOR snap —
+        # the position level of mtk's mirror; rotate/scale conjugation stays N/A, single-point
+        # origin). Verified headless in test_xform_utils.py. No delta.
         # chk010: removed 2026-07-18 — BUILT. Blender's tb003_init now builds the Manip Pivot
         # option 1:1 with Maya's (same objectName/label/default), so it matches on both sides.
         # The behavioral mapping (manip-on → Global orientation, off → apply-rotation) lives in
@@ -750,8 +749,13 @@ CONTROLS_SLOTS = {
         "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
         "chk008": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet U-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
         "chk009": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet V-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
-        "chk023": {"status": "pending", "reason": "Uninstance-before-Combine safety toggle (2026-07-25, default ON): Maya's tb004 Combine gained chk023 -> mtk.EditUtils.combine_objects(uninstance=), which breaks instance links first so combining doesn't silently delete sibling instances that share the shape but aren't in the selection. Blender's join (bpy.ops.object.join) merges the selected meshes into the active without deleting non-selected linked duplicates, so the sibling-loss hazard may not exist (cf. uv chk016 'instance dedupe is inherent in Blender') -- confirm before deciding na vs. a make_single_user pass. Needs a live-Blender check."},
-        "chk024": {"status": "pending", "reason": "Uninstance-before-Separate safety toggle (2026-07-25, default ON): Maya's tb002 Separate gained chk024 -> mtk.separate_objects(uninstance=), which breaks instance links first so separating instanced geometry doesn't silently delete siblings that share the shape. Blender's mesh.separate edits the active mesh datablock, which linked duplicates share, so a make_single_user pass is the likely analogue -- unlike Combine this one probably IS needed. Needs a live-Blender check before building."},
+        # chk023 (Uninstance-before-Combine) + chk024 (Uninstance-before-Separate) BUILT
+        # 2026-07-28: both hazards verified REAL in headless Blender 5.1 (join builds into the
+        # active object's shared datablock -> a linked sibling mutates into the combined
+        # geometry, refuting the 'may not exist' hypothesis; mesh.separate deletes the
+        # separated faces from every sibling). btk.combine_objects/separate_objects gained
+        # uninstance=True (default, mirroring mtk) via the existing NodeUtils.uninstance;
+        # slot checkboxes mirror Maya's names/defaults. No delta.
     },
     "rendering": {
         "chk000": {"status": "na", "reason": "Arnold preview-network attach (mtk.ArnoldBridge / aiStandardSurface) is Arnold/Maya-only; Blender tb001 docstring documents the drop. Added to Maya 2026-06-21 (9cc22169), same commit as the Blender tb001 port."},
@@ -762,7 +766,10 @@ CONTROLS_SLOTS = {
         # 2026-07-18 PlayblastExporter overhaul (clearCache became an internal always-on detail;
         # the regex stage was dropped — type the name in t000 instead), so their na/replaced
         # entries no longer match any Maya-only control.
-        "chk060": {"status": "pending", "reason": "Include Audio (2026-07-18 overhaul): Maya muxes the timeline's active sound into MP4/MOV (ffmpeg) and passes it to the native AVI playblast. Blender candidate route: set scene.render.ffmpeg.audio_codec before bpy.ops.render.opengl so VSE/speaker audio muxes into the FFMPEG output — needs a live-Blender check before building."},
+        # chk060 (Include Audio) BUILT 2026-07-28: tb000 sets scene.render.ffmpeg.audio_codec
+        # (AAC when checked / NONE when not) for movie formats before render.opengl, snapshotted
+        # + restored with the other borrowed render settings (audio_codec enum verified live:
+        # NONE/AAC/AC3/FLAC/MP2/MP3). Live-GUI playblast-with-audio pass owed. No delta.
     },
     "rigging": {
         "chk001": {"status": "na", "reason": "IK radio drives Maya's global ikHandleDisplayScale; Blender has no global IK-handle display-scale — excused in the Blender slot"},
@@ -770,9 +777,20 @@ CONTROLS_SLOTS = {
         "s000": {"status": "na", "reason": "Global joint/IK/IKFK display-scale spinbox (jointDisplayScale/ikHandleDisplayScale); no Blender scene-global display-scale — excused in the Blender slot"},
     },
     "uv": {
-        "chk000": {"status": "replaced", "to": "cube/cylinder/sphere_project (bounds-fit)", "reason": "Maya polyProjection -smartFit best-fits the projection manipulator; Blender's cube/cylinder/sphere_project ops fit from the object bounds natively and the slot documents 'no per-mode options, like Maya gates'."},
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
         "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
+        # cmb011 (Auto Unwrap mode) 2026-07-28: trimmed on BOTH DCCs to three
+        # byte-identical items -- "Standard" (each DCC's own auto projection:
+        # polyAutoProjection / smart_project), "Hard Surface (Ministry of Flat)"
+        # and "Organic (BFF)". The two engine modes call UvUtils.auto_unwrap,
+        # mirrored in mayatk and blendertk. No delta.
+        # chk000 (Smart Fit), cmb017 (Cut Algorithm) and the seam / planar /
+        # cylindrical / spherical / normal modes: REMOVED from the Maya panel
+        # 2026-07-28 with that trim, so their na rows are retired.
+        # cmb016 (Cut Cylinder Algorithm): REMOVED 2026-07-28 -- the seam
+        # strategy is now detected per mesh by mtk.UvUtils.detect_seam_algorithm
+        # (algorithm="auto" is the default), so there is nothing to select on
+        # either DCC.
         # cmb009 (Pre-Scale Mode): removed 2026-07-11 — BUILT. The Blender Pack UVs option box now
         # ships cmb009 with Maya's exact labels ("Pre-Scale: Preserve UV" / "Preserve 3D", default
         # Preserve 3D): Preserve 3D runs a native `bpy.ops.uv.average_islands_scale()` pass (equal
@@ -784,11 +802,22 @@ CONTROLS_SLOTS = {
         "s011": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search step; Blender pack_islands exposes packing rotation as a single rotate toggle (chk_pack_rotate) with no step/range search granularity."},
         "s012": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search minimum; covered by pack_islands' boolean rotate model (chk_pack_rotate) which has no min/max range."},
         "s013": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search maximum (opt-in gate for the search); covered by pack_islands' boolean rotate model (chk_pack_rotate) which has no min/max range."},
+        "cmb018": {"status": "na", "reason": "Post-pack scale-to-fit is u3dLayout -layoutScaleMode (Fill uniform / Off keep-density / Stretch non-uniform). Blender's pack_islands has no post-pack fit mode: it always fits the islands into the target region, so only the Fill behavior exists and there is nothing to select. Keep-density is instead reached on the Blender side by leaving Pre-Scale on Preserve UV (skipping average_islands_scale) -- same u3dLayout-params-are-Maya-only rationale as s011/s012/s013/s014."},
+        "cmb019": {"status": "pending", "reason": "Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only."},
+        "chk043": {"status": "pending", "reason": "Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=)."},
+        "chk044": {"status": "pending", "reason": "Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate."},
+        "s019": {"status": "na", "reason": "u3dLayout -tileU multi-tile distribution (pack across an N-wide grid of UDIM tiles anchored at the target UDIM). bpy.ops.uv.pack_islands packs into a single region with no tile-grid parameter, so there is no native counterpart to drive -- same u3dLayout-params-are-Maya-only rationale as s011/s012/s013/s014."},
+        "s020": {"status": "na", "reason": "u3dLayout -tileV multi-tile distribution (the vertical half of the s019 tile grid); same absent pack_islands capability."},
         "s014": {"status": "na", "reason": "u3dLayout -mutations is an Unfold3D-engine optimization-pass count; pack_islands has no iteration parameter, and the module docstring documents u3dLayout packing params as deferred Maya-only depth with no Blender analogue."},
         "uv_editor": {"status": "renamed", "to": "b031", "reason": "Maya's header button is a convenience duplicate that just calls b031; Blender header_init documents 'Open UV Editor is already on b031' (shared uv#submenu.ui button, btk.open_editor) and drops the duplicate."},
-        "cmb014": {"status": "pending", "reason": "Transfer UVs Scope combo (Selection Order / Similar in Selection / Similar in Scene) -- open work tracked on HANDLERS['uv']['b000_init'] (port the option box + btk similarity fan-out together)."},
-        "d000": {"status": "pending", "reason": "Transfer UVs similarity threshold (pairs with cmb014's Similar scopes) -- open work tracked on HANDLERS['uv']['b000_init']."},
-        "cmb015": {"status": "pending", "reason": "Pack UVs Tile Coverage combo (Full / Half U / Half V / Quarter, 2026-07-25): Maya shrinks u3dLayout's fractional -packBox from the tile's bottom-left. Blender pack_islands has no target-box parameter -- portable as a post-pack bmesh UV scale about the tile corner ((u,v) *= coverage), same math the rizom bridge's pack.lua uses for its UV_AREA token. Port alongside the tile handling tb000 already does."},
+        # cmb014 (Transfer UVs Scope) BUILT 2026-07-28 with the b000 option box (see
+        # HANDLERS['uv']). No delta.
+        # d000 (similarity threshold) BUILT 2026-07-28 with the b000 option box (see
+        # HANDLERS['uv']). No delta.
+        # cmb015 (Pack UVs Tile Coverage) BUILT 2026-07-28: post-pack whole-map scale about the
+        # target tile's bottom-left corner via the new btk.scale_uvs primitive (pack_islands has
+        # no packBox analogue), after tb000's existing tile-delta move. Same items/default as
+        # Maya. No delta.
     },
     "selection": {
         "chk003": {"status": "replaced", "to": "_ISLAND_DELIMIT model",
@@ -796,8 +825,12 @@ CONTROLS_SLOTS = {
         "s002": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
         "s004": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
         "s005": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
-        "chk009": {"status": "na",
-                   "reason": "option of cmb001 Reorder Selection, hidden on Blender (no ordered selection)"},
+        # chk009 (Reverse Order) BUILT 2026-07-28 with the cmb001 Reorder Selection port: the
+        # rolled btk.SelectionOrder tracker gives Blender an object selection order to reorder
+        # (depsgraph-diff click recording + explicit set_order), and btk.reorder_objects mirrors
+        # mtk's sort methods (creation_time -> session_uid, documented divergence). The old
+        # "no ordered selection" na is retired — that was the missing primitive, now rolled.
+        # No delta.
     },
     "scene": {
         "b006": {"status": "renamed", "to": "b_cleanup", "reason": "see HANDLERS['scene']['b006']"},
@@ -820,9 +853,9 @@ CONTROLS_SLOTS = {
         # chk026 (Make Live) removed 2026-07-08: BUILT as a tb003 option-box checkbox mapping
         # onto face-projection snapping (FACE_NEAREST); single-live-surface vs all-surfaces is
         # an accepted delta documented in the slot's tb003 comment. No delta.
-        "s021": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
-        "s022": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
-        "s023": {"status": "na", "reason": "grid-driven increments (see HANDLERS)"},
+        "s021": {"status": "na", "reason": "Move increment -- grid-driven (see HANDLERS['transform']['s021'])"},
+        "s022": {"status": "na", "reason": "Scale increment -- no numeric scale-snap value exists in Blender (see HANDLERS['transform']['s022'])"},
+        # s023 BUILT 2026-07-28 (see HANDLERS['transform'] note). No delta.
         "chk038": {"status": "na", "reason": "Freeze rig extras are Maya-rig-specific (slot comment)"},
         "chk040": {"status": "na", "reason": "Freeze rig extras are Maya-rig-specific (slot comment)"},
         "chk_restore_rig_anchors": {"status": "na", "reason": "Maya-rig-specific (slot comment)"},

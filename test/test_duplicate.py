@@ -98,7 +98,11 @@ class TestTb000ConvertToInstancesGate(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _widget(self):
-        return _FakeWidget(_FakeMenu(chk000=False, chk001=True, chk002=True))
+        return _FakeWidget(
+            _FakeMenu(
+                chk000=False, chk001=True, chk002=True, chk012=False, chk013=False
+            )
+        )
 
     def test_no_selection_warns(self):
         cmds.select(clear=True)
@@ -123,12 +127,15 @@ class TestTb000ConvertToInstancesGate(unittest.TestCase):
         self.assertEqual(set(self.captured[0][0]), {a, b})
 
     def test_checkbox_flags_forwarded(self):
-        """The three checkboxes flow through as kwargs to replace_with_instances."""
+        """The checkboxes flow through as kwargs to replace_with_instances."""
         a = cmds.polyCube(name="dup_kw_a")[0]
         b = cmds.polyCube(name="dup_kw_b")[0]
         cmds.select([a, b])
-        # chk000=Freeze, chk001=DeleteHistory, chk002=CenterPivot
-        widget = _FakeWidget(_FakeMenu(chk000=True, chk001=False, chk002=True))
+        # chk000=Freeze, chk001=DeleteHistory, chk002=CenterPivot,
+        # chk012=RetainRelativeScale, chk013=NonUniform
+        widget = _FakeWidget(
+            _FakeMenu(chk000=True, chk001=False, chk002=True, chk012=True, chk013=True)
+        )
         self.instance.tb000(widget)
 
         self.assertEqual(len(self.captured), 1)
@@ -136,6 +143,8 @@ class TestTb000ConvertToInstancesGate(unittest.TestCase):
         self.assertTrue(kwargs["freeze_transforms"])
         self.assertFalse(kwargs["delete_history"])
         self.assertTrue(kwargs["center_pivot"])
+        self.assertTrue(kwargs["retain_bbox_scale"])
+        self.assertTrue(kwargs["retain_bbox_per_axis"])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -191,8 +200,50 @@ class TestTb001SelectInstancedRouting(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb001SelectInstancedIncludesOriginal(unittest.TestCase):
+    """tb001 with chk003=False (selection-restricted) must include the
+    originally selected object(s) in the final selection alongside their
+    instances — previously only the *other* instances survived, dropping
+    the object(s) the user had selected."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance.sb = _RecordedSb()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def test_original_selection_included_with_instances(self):
+        src = cmds.polyCube(name="dup_tb001_src")[0]
+        inst = cmds.instance(src, name="dup_tb001_inst")[0]
+        cmds.select(src)
+
+        widget = _FakeWidget(_FakeMenu(chk003=False))
+        self.instance.tb001(widget)
+
+        selected = cmds.ls(sl=1)
+        self.assertIn(src, selected)
+        self.assertIn(inst, selected)
+
+    def test_non_instanced_selection_warns(self):
+        """A selected object with no instances should still warn, not
+        silently re-select just itself."""
+        a = cmds.polyCube(name="dup_tb001_lonely")[0]
+        cmds.select(a)
+
+        widget = _FakeWidget(_FakeMenu(chk003=False))
+        self.instance.tb001(widget)
+
+        self.assertTrue(self.instance.sb.messages)
+        self.assertIn(
+            "No instanced objects found", self.instance.sb.messages[-1][0][0]
+        )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb002AutoInstanceRouting(unittest.TestCase):
-    """tb002 (Auto Instance) forwards option-box settings to mtk.auto_instance."""
+    """tb002 (Auto Instance) forwards option-box settings to mtk.AutoInstancer.run_once."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -201,25 +252,25 @@ class TestTb002AutoInstanceRouting(unittest.TestCase):
 
         import mayatk as mtk
 
-        self._original = mtk.auto_instance
+        self._original = mtk.AutoInstancer.run_once
         self.captured = []
         self.result = []
         # Summary the slot now unpacks alongside the result list; tests may
         # mutate it to exercise the "matched but not instanced" branch.
         self.summary = mtk.AutoInstancer.default_summary()
 
-        def fake_auto_instance(nodes, **kwargs):
+        def fake_run_once(nodes, **kwargs):
             self.captured.append((nodes, kwargs))
             if kwargs.get("return_summary"):
                 return self.result, self.summary
             return self.result
 
-        mtk.auto_instance = fake_auto_instance
+        mtk.AutoInstancer.run_once = fake_run_once
 
     def tearDown(self):
         import mayatk as mtk
 
-        mtk.auto_instance = self._original
+        mtk.AutoInstancer.run_once = self._original
         cmds.file(new=True, force=True)
 
     def _widget(self, **overrides):

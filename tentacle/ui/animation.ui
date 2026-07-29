@@ -71,6 +71,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="selection">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Selection</string>
         </property>
@@ -145,6 +151,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="transform">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Transform</string>
         </property>
@@ -348,6 +360,12 @@ Else move all keyframes of the selected objects.</string>
       </item>
       <item>
        <widget class="CollapsableGroup" name="alignment">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Alignment</string>
         </property>
@@ -426,6 +444,12 @@ keyframes from the graph editor.</string>
       </item>
       <item>
        <widget class="CollapsableGroup" name="keys">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>Keys</string>
         </property>
@@ -645,6 +669,9 @@ Automatically detects each object's keyframe range.</string>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>

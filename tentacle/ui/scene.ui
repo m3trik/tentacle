@@ -71,6 +71,12 @@
       </item>
       <item>
        <widget class="CollapsableGroup" name="File">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="title">
          <string>File</string>
         </property>
@@ -125,6 +131,9 @@ Searches the current workspace's autosave folder — use Set Workspace (Workspac
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
