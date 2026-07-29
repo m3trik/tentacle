@@ -9635,7 +9635,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 1753,
+          "line": 1760,
           "deprecated": false
         },
         {
@@ -9644,7 +9644,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 1758,
+          "line": 1765,
           "deprecated": false
         },
         {
@@ -9653,7 +9653,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 1763,
+          "line": 1770,
           "deprecated": false
         },
         {
@@ -9662,7 +9662,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 1768,
+          "line": 1775,
           "deprecated": false
         },
         {
@@ -9671,7 +9671,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 1773,
+          "line": 1780,
           "deprecated": false
         },
         {
@@ -9680,7 +9680,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on / startup entry.",
-          "line": 1778,
+          "line": 1785,
           "deprecated": false
         },
         {
@@ -9689,7 +9689,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 1783,
+          "line": 1790,
           "deprecated": false
         },
         {
@@ -9698,7 +9698,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 1788,
+          "line": 1795,
           "deprecated": false
         },
         {
@@ -9707,7 +9707,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 1793,
+          "line": 1800,
           "deprecated": false
         },
         {
@@ -9716,7 +9716,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 1798,
+          "line": 1805,
           "deprecated": false
         },
         {
@@ -9725,7 +9725,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 1803,
+          "line": 1810,
           "deprecated": false
         }
       ],
@@ -9744,7 +9744,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1232,
+              "line": 1239,
               "deprecated": false
             },
             {
@@ -9753,7 +9753,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1295,
+              "line": 1302,
               "deprecated": false
             },
             {
@@ -9762,7 +9762,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1306,
+              "line": 1313,
               "deprecated": false
             },
             {
@@ -9771,7 +9771,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1324,
+              "line": 1331,
               "deprecated": false
             }
           ]
@@ -9779,7 +9779,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1544,
+          "line": 1551,
           "bases": [],
           "members": [
             {
@@ -9788,7 +9788,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1549,
+              "line": 1556,
               "deprecated": false
             }
           ]
@@ -9796,7 +9796,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 1638,
+          "line": 1645,
           "bases": [],
           "members": [
             {
@@ -9805,7 +9805,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 1644,
+              "line": 1651,
               "deprecated": false
             },
             {
@@ -9814,7 +9814,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 1663,
+              "line": 1670,
               "deprecated": false
             },
             {
@@ -9823,7 +9823,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 1690,
+              "line": 1697,
               "deprecated": false
             },
             {
@@ -9832,7 +9832,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 1695,
+              "line": 1702,
               "deprecated": false
             }
           ]
