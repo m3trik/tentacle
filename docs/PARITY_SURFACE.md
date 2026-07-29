@@ -147,7 +147,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 10 | 0 | 1 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 3 | 0 | 13 | 0 | 0 | **GAP** |
+| uv.py | 0 | 3 | 13 | 0 | 0 | open |
 
 ### Slot deltas
 
@@ -195,14 +195,14 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 **default/property deltas (review — a flipped default changes first-use behavior)**
   - `s023.setValue` maya=`0` blender=`None`
 
-#### uv.py
-**UNTRIAGED**
-  - `chk043` (control) — optbox QCheckBox 'Brute Force (xatlas)'
-  - `chk044` (control) — optbox QCheckBox 'Rotate Shells (xatlas)'
-  - `cmb019` (control) — optbox QComboBox None
-
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 
 <sub>arnold.py, cache.py, constrain.py, control.py, curves.py, deform.py, edit_mesh.py, effects.py, fields_solvers.py, fluids.py, generate.py, help.py, key.py, lighting_shading.py, mash.py, mesh.py, mesh_display.py, mesh_tools.py, ncloth.py, nconstraint.py, nhair.py, nparticles.py, playback.py, render.py, select.py, skeleton.py, skin.py, stereo.py, surfaces.py, texturing.py, toon.py, visualize.py, windows.py</sub>
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 0 open-work items; 0 stale Maya handlers. Sweep FAILS (untriaged deltas).
+## Open work (ledgered `pending`)
+
+- **uv** `chk043` — optbox QCheckBox 'Brute Force (xatlas)'  [pending] Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=).
+- **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
+- **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
+
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 3 open-work items; 0 stale Maya handlers. Sweep PASSES.
