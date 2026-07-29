@@ -380,6 +380,7 @@ CONTROLS = {
         # btk.open_editor("Shader Editor")). The capabilities were ported+relabeled, not dropped --
         # the label differences are report-only setText review deltas, not divergences to ledger.
         "select_file_node": {"status": "na", "reason": "no separable file node in Blender (kept as a disabled structural placeholder in the Blender panel)"},
+        "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
     },
     # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
     # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/
@@ -713,6 +714,7 @@ CONTROLS_SLOTS = {
         "b007": {"status": "renamed", "to": "b_shader_editor", "reason": "Hypershade Editor -> 'Shader Editor' header button (btk.open_editor, Blender's Hypershade analogue)"},
         "chk_exclude_defaults": {"status": "na", "reason": "Blender has no auto-created default materials to filter from the report; drop documented in tb001_init"},
         "chk_hide_defaults": {"status": "na", "reason": "Blender has no auto-created default materials (lambert1 etc.) to hide; drop documented in the Blender slot"},
+        "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the materials combo, for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
     },
     "nurbs": {
         "chk000": {"status": "na", "reason": "Loft 'Uniform' = NURBS uniform-vs-chord-length parameterization; Blender loft (btk.loft bmesh bridge) outputs a mesh with no parametric direction — explicitly excused in the blender slot's tb001 comment."},

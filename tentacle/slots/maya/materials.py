@@ -285,9 +285,23 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
                     "Off by default; user-created materials are always shown."
                 ),
             )
+            chk_hide_arnold = widget.option_box.menu.add(
+                "QCheckBox",
+                setText="Hide Arnold Shaders",
+                setObjectName="chk_hide_arnold",
+                setChecked=False,
+                setToolTip=(
+                    "Hide Arnold shaders (aiStandardSurface, aiToon, …) from the "
+                    "list — useful when every game material carries a parallel "
+                    "Arnold preview shader (see Tools > Arnold Preview Shader).\n"
+                    "Off by default. Arnold *utility* nodes (aiMultiply, bump2d, …) "
+                    "are never listed: they're shading-network helpers, not materials."
+                ),
+            )
             # Re-populate the combo when toggled. The submenu Assign list's
-            # contents don't depend on this toggle, so it needs no refresh.
+            # contents don't depend on these toggles, so it needs no refresh.
             chk_hide_defaults.toggled.connect(widget.init_slot)
+            chk_hide_arnold.toggled.connect(widget.init_slot)
             # Cleanup actions (moved here from the right-click context menu).
             widget.option_box.menu.add("Separator", setTitle="Cleanup")
             widget.option_box.menu.add(
@@ -379,10 +393,17 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
         # Use 'restore_index=True' to save and restore the index. Default
         # materials are shown unless the option-box toggle hides them.
+        # (Shading-network utility nodes — aiMultiply, bump2d, … — are dropped
+        # by get_scene_mats itself; they were never materials.)
         materials_dict = mtk.MatUtils.get_scene_mats(
             sort=True,
             as_dict=True,
-            exclude_defaults=self._hide_default_materials(),
+            exclude_defaults=self._list_option("chk_hide_defaults"),
+            exc_classification=(
+                "rendernode/arnold*"
+                if self._list_option("chk_hide_arnold")
+                else None
+            ),
         )
         widget.add(materials_dict, clear=True, restore_index=True)
 
@@ -392,15 +413,16 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             if icon:
                 widget.setItemIcon(i, icon)
 
-    def _hide_default_materials(self) -> bool:
-        """Whether cmb002's 'Hide Default Materials' option-box toggle is on.
+    def _list_option(self, name: str) -> bool:
+        """Whether the named cmb002 option-box list-filter checkbox is checked.
 
-        Returns False (defaults shown) when the option box / checkbox hasn't
-        been created yet, so a population pass that runs before init is safe.
+        Returns False when the option box / checkbox hasn't been created yet, so
+        a population pass that runs before init is safe (each filter's "off"
+        state is the unfiltered one).
         """
         option_box = self.ui.cmb002.option_box
         menu = option_box.get_menu(create=False) if option_box else None
-        chk = getattr(menu, "chk_hide_defaults", None) if menu else None
+        chk = getattr(menu, name, None) if menu else None
         return bool(chk and chk.isChecked())
 
     def _collision_mode_is_alpha(self):

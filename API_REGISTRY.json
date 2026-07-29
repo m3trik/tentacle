@@ -6426,7 +6426,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 510,
+              "line": 532,
               "deprecated": false
             },
             {
@@ -6435,7 +6435,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 567,
+              "line": 589,
               "deprecated": false
             },
             {
@@ -6444,7 +6444,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 598,
+              "line": 620,
               "deprecated": false
             },
             {
@@ -6453,7 +6453,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material",
-              "line": 629,
+              "line": 651,
               "deprecated": false
             },
             {
@@ -6462,7 +6462,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 697,
+              "line": 719,
               "deprecated": false
             },
             {
@@ -6471,7 +6471,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 705,
+              "line": 727,
               "deprecated": false
             },
             {
@@ -6480,7 +6480,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 710,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -6489,7 +6489,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 718,
+              "line": 740,
               "deprecated": false
             },
             {
@@ -6498,7 +6498,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 732,
+              "line": 754,
               "deprecated": false
             },
             {
@@ -6507,7 +6507,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 751,
+              "line": 773,
               "deprecated": false
             },
             {
@@ -6516,7 +6516,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 790,
+              "line": 812,
               "deprecated": false
             },
             {
@@ -6525,7 +6525,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 800,
+              "line": 822,
               "deprecated": false
             },
             {
@@ -6534,7 +6534,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 811,
+              "line": 833,
               "deprecated": false
             },
             {
@@ -6543,7 +6543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 817,
+              "line": 839,
               "deprecated": false
             },
             {
@@ -6552,7 +6552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 821,
+              "line": 843,
               "deprecated": false
             },
             {
@@ -6561,7 +6561,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Emissive Groups",
-              "line": 826,
+              "line": 848,
               "deprecated": false
             },
             {
@@ -6570,7 +6570,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 830,
+              "line": 852,
               "deprecated": false
             },
             {
@@ -6579,7 +6579,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 834,
+              "line": 856,
               "deprecated": false
             },
             {
@@ -6588,7 +6588,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 838,
+              "line": 860,
               "deprecated": false
             },
             {
@@ -6597,7 +6597,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 845,
+              "line": 867,
               "deprecated": false
             },
             {
@@ -6606,7 +6606,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 852,
+              "line": 874,
               "deprecated": false
             },
             {
@@ -6615,7 +6615,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 865,
+              "line": 887,
               "deprecated": false
             },
             {
@@ -6624,7 +6624,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 876,
+              "line": 898,
               "deprecated": false
             },
             {
@@ -6633,7 +6633,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 947,
+              "line": 969,
               "deprecated": false
             },
             {
@@ -6642,7 +6642,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 1058,
+              "line": 1080,
               "deprecated": false
             },
             {
@@ -6651,7 +6651,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 1062,
+              "line": 1084,
               "deprecated": false
             },
             {
@@ -6660,7 +6660,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 1066,
+              "line": 1088,
               "deprecated": false
             },
             {
@@ -6669,7 +6669,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 1070,
+              "line": 1092,
               "deprecated": false
             },
             {
@@ -6678,7 +6678,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 1074,
+              "line": 1096,
               "deprecated": false
             },
             {
@@ -6687,7 +6687,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "RealityCapture Workflow",
-              "line": 1078,
+              "line": 1100,
               "deprecated": false
             },
             {
@@ -6696,7 +6696,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Brush Splat Workflow",
-              "line": 1082,
+              "line": 1104,
               "deprecated": false
             }
           ]

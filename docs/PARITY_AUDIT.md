@@ -9,9 +9,9 @@
 | Layer | What it measures | Result |
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 223, Blender 225 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
-| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **86%** (395/459) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
+| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **86%** (395/460) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (857/1642 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (860/1646 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 52% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -29,17 +29,17 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | core_utils | 155 | 71 | 51 | 33% |
 | display_utils | 32 | 24 | 15 | 47% |
 | edit_utils | 157 | 161 | 109 | 69% |
-| env_utils | 323 | 211 | 139 | 43% |
+| env_utils | 325 | 213 | 141 | 43% |
 | light_utils | 57 | 43 | 34 | 60% |
 | mat_utils | 246 | 214 | 186 | 76% |
-| node_utils | 128 | 52 | 44 | 34% |
+| node_utils | 129 | 52 | 44 | 34% |
 | nurbs_utils | 25 | 26 | 15 | 60% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
 | rig_utils | 107 | 79 | 40 | 37% |
 | ui_utils | 63 | 67 | 23 | 37% |
-| uv_utils | 75 | 76 | 56 | 75% |
+| uv_utils | 76 | 77 | 57 | 75% |
 | xform_utils | 51 | 32 | 16 | 31% |
-| **TOTAL (unique)** | **1642** | **1199** | **857** | **52%** |
+| **TOTAL (unique)** | **1646** | **1202** | **860** | **52%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -58,20 +58,20 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | GameShader | 4→4 | 3→1 | 8→8 | 1968→235 | 12% | 100% | clean |
-| ArnoldBridge | 0→0 | 6→0 | 4→4 | 733→128 | 17% | 100% | clean |
+| ArnoldBridge | 0→0 | 6→0 | 4→4 | 741→128 | 17% | 100% | clean |
 | TubeRig | 0→0 | 5→1 | 16→16 | 3369→1028 | 31% | 100% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 784→285 | 36% | 100% | clean |
 | MatUpdater | 0→0 | 15→12 | 2→2 | 1050→403 | 38% | 100% | clean |
-| SceneExporter | 3→3 | 16→14 | 6→6 | 1325→533 | 40% | 100% | clean |
+| SceneExporter | 3→3 | 16→14 | 6→6 | 1326→533 | 40% | 100% | clean |
 | CurveToTube | 0→0 | 4→3 | 11→11 | 867→383 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 304→135 | 44% | 100% | clean |
 | Snap | 3→3 | 6→6 | 3→3 | 424→202 | 48% | 100% | clean |
 | TelescopeRig | 0→0 | 0→0 | 3→3 | 646→329 | 51% | 100% | clean |
 | ReferenceManager | 2→2 | 35→32 | 4→4 | 3623→1913 | 53% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3195→1757 | 55% | 100% | clean |
+| TexturePathEditor | 7→5 ⚠ | 27→21 | 1→1 | 1952→1064 | 55% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 18→8 | 2→6 | 822→458 | 56% | 300% | clean |
 | DuplicateRadial | 0→0 | 1→1 | 12→12 | 502→281 | 56% | 100% | clean |
-| TexturePathEditor | 7→5 ⚠ | 26→21 | 1→1 | 1911→1064 | 56% | 100% | clean |
 | DuplicateGrid | 0→0 | 1→1 | 7→7 | 438→266 | 61% | 100% | clean |
 | ShotSequencer | 1→1 | 15→12 | 2→2 | 3074→1887 | 61% | 100% | clean |
 | HdrManager | 2→2 | 13→12 | 4→4 | 1726→1107 | 64% | 100% | clean |
@@ -86,9 +86,9 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | ColorId | 0→0 | 1→0 | 8→8 | 555→488 | 88% | 100% | clean |
 | SubstanceBridge | 0→0 | 0→0 | 2→2 | 228→205 | 90% | 100% | clean |
 | Curtain | 0→0 | 1→1 | 13→13 | 880→812 | 92% | 100% | clean |
-| ShellXform | 7→7 | 12→12 | 24→24 | 515→476 | 92% | 100% | clean |
-| UnityBridge | 1→1 | 1→1 | 2→2 | 329→303 | 92% | 100% | clean |
+| ShellXform | 7→7 | 12→12 | 25→25 | 563→521 | 93% | 100% | clean |
 | Bevel | 0→0 | 0→0 | 3→3 | 174→163 | 94% | 100% | clean |
+| UnityBridge | 1→1 | 1→1 | 2→2 | 424→399 | 94% | 100% | clean |
 | Bridge | 0→0 | 0→0 | 5→5 | 268→255 | 95% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 283→271 | 96% | 100% | clean |
 | BlendshapeAnimator | 10→10 | 13→12 | 15→15 | 899→873 | 97% | 100% | clean |
@@ -134,7 +134,7 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | hud | 0→0 | — | 0→0 |  |
 | lighting | 0→0 | — | 0→0 |  |
 | main | 8→8 | 100% | 0→0 |  |
-| materials | 28→26 | 93% | 5→5 |  |
+| materials | 29→26 | 90% | 5→5 |  |
 | normals | 6→6 | 100% | 6→6 |  |
 | nurbs | 22→11 | 50% | 4→4 |  |
 | pivot | 12→6 | 50% | 11→11 |  |
@@ -150,7 +150,7 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | transform | 33→25 | 76% | 17→15 ⚠ |  |
 | utilities | 0→0 | — | 0→0 |  |
 | uv | 41→31 | 76% | 14→14 |  |
-| **TOTAL** | **459→395** | **86%** | | **0** |
+| **TOTAL** | **460→395** | **86%** | | **0** |
 
 ---
 
