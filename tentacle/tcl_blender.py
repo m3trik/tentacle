@@ -1170,9 +1170,16 @@ class TclBlender(MarkingMenu):
         # via ``external_app.launch``. ``context_tags={"blender"}`` (above)
         # surfaces the Substance/Marmoset panels here (they're gated out of Maya
         # only). ``extapps`` is an optional, discovered provider (not a hard
-        # dep) put on ``sys.path`` by ``_QtBootstrap``; the in-DCC provider
-        # install is suppressed (can't pip into blender.exe), so a genuinely-
-        # absent extapps raises a clear RuntimeError rather than wedging the UI.
+        # dep) put on ``sys.path`` by ``_QtBootstrap``. Registering it means an
+        # absent extapps installs on demand at first launch: the handler can't
+        # pip into ``blender.exe`` itself, but it now routes through Blender's
+        # bundled python (same site-packages), so the install is importable
+        # here. If that still can't be done it raises a clear RuntimeError
+        # rather than wedging the UI.
+        try:
+            self.sb.handlers.external_app.add_provider("extapps")
+        except Exception:  # never let provisioning wiring block startup
+            pass
 
         # Bridge the activation key from Blender's keymap to this Qt menu (GHOST owns the
         # keyboard, so MarkingMenu's QShortcut can't fire from the viewport). Automatic on

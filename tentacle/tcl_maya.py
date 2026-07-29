@@ -49,6 +49,16 @@ class TclMaya(MarkingMenu):
             **kwargs,
         )
 
+        # ``extapps`` ships the content-pipeline panels but is deliberately NOT
+        # a pip dependency (optional, runtime-discovered). Registering it as a
+        # provider means launching one of its panels installs it on demand --
+        # through mayapy, which shares Maya's site-packages -- instead of
+        # failing with "module not available".
+        try:
+            self.sb.handlers.external_app.add_provider("extapps")
+        except Exception:  # never let provisioning wiring block startup
+            pass
+
         # Register the Maya hotkey-collision checker on the bundled
         # ShortcutEditor whenever it's built. Lazily wired so the editor
         # module stays unimported until the user opens it.
