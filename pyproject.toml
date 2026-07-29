@@ -20,7 +20,7 @@ dependencies = [
     "pythontk>=0.8.96",
     "uitk>=1.3.35",
     "mayatk>=0.13.7",
-    "blendertk>=0.5.31",
+    "blendertk>=0.5.33",
 ]
 
 [project.urls]
