@@ -126,7 +126,8 @@ class TransformSlots(SlotsBlender):
             o.select_set(True)
 
     # ------------------------------------------------------------------ tb002  Freeze Transforms
-    # chk032-34 / cmb_center_pivot / chk037 reuse the Maya names + labels for the SAME options.
+    # chk032-34 / cmb_center_pivot / cmb_instance_strategy reuse the Maya names + labels for
+    # the SAME options.
     # Maya's rig-specific extras (Freeze Children, Restore Rig Anchors, Connection Strategy,
     # From Channel Box, Delete History) have no clean Blender analogue and are not mirrored.
     _CENTER_PIVOT_GEO = {"MESH", "CURVE", "SURFACE", "FONT", "META"}
@@ -168,12 +169,26 @@ class TransformSlots(SlotsBlender):
             setToolTip="Also apply the transform to every descendant object (recursive), "
             "not just the selection.",
         )
+        # Store Transforms is deliberately NOT an option: the bake history it
+        # stamps is what Un-Freeze Transforms reads, so turning it off only
+        # ever breaks the un-freeze. It is three custom props — always stamped.
         widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Store Transforms",
-            setObjectName="chk037",
-            setChecked=True,
-            setToolTip="Stamp the pre-freeze channels so Un-Freeze Transforms can restore them.",
+            "QComboBox",
+            setObjectName="cmb_instance_strategy",
+            addItems=[
+                "Instances: Warn and Skip",
+                "Instances: Preserve (bake in place)",
+                "Instances: Uninstance",
+            ],
+            setCurrentIndex=1,
+            setToolTip=(
+                "Baking into shared (linked) object data would rewrite every\n"
+                "linked duplicate, and Blender refuses it outright:\n"
+                "• Warn and Skip: leave them untouched\n"
+                "• Preserve: bake one member, re-link the rest with a\n"
+                "  compensating matrix — linking and appearance both survive\n"
+                "• Uninstance: make each object's data single-user, then bake"
+            ),
         )
 
     @btk.undoable
@@ -197,7 +212,10 @@ class TransformSlots(SlotsBlender):
             location=m.chk032.isChecked(),
             rotation=m.chk033.isChecked(),
             scale=m.chk034.isChecked(),
-            store=m.chk037.isChecked(),
+            store=True,  # always: Un-Freeze reads the stamped channels
+            instance_strategy=["skip", "preserve", "uninstance"][
+                m.cmb_instance_strategy.currentIndex()
+            ],
         )
         # Center pivot runs AFTER freeze: freeze (location) sends the origin to world 0, then
         # this re-centers it on geometry (Blender's origin is the pivot — no separate channel).

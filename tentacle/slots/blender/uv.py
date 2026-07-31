@@ -404,14 +404,19 @@ class Uv(UvMixin, SlotsBlender):
         angle = math.radians(m.s016.value())
         unfold = m.chk041.isChecked()
         orient = m.chk042.isChecked()
+        # Island gutter from the panel's map size, via the one ecosystem rule
+        # (btk.calculate_uv_padding, mirror of mtk's) rather than a bespoke
+        # literal — the Maya twin passes map_size into unwrap_cylinder for the
+        # same reason, so a mesh seamed in either DCC gets the same gutter.
+        margin = btk.calculate_uv_padding(self.get_map_size(), normalize=True)
 
         def _run():
             if unfold:
-                bpy.ops.uv.smart_project(angle_limit=angle, island_margin=0.003)
+                bpy.ops.uv.smart_project(angle_limit=angle, island_margin=margin)
                 try:
-                    bpy.ops.uv.pack_islands(rotate=orient, margin=0.003)
+                    bpy.ops.uv.pack_islands(rotate=orient, margin=margin)
                 except TypeError:  # older Blender pack_islands signature
-                    bpy.ops.uv.pack_islands(margin=0.003)
+                    bpy.ops.uv.pack_islands(margin=margin)
             else:  # cut crease seams only (no unwrap)
                 bpy.ops.mesh.select_all(action="DESELECT")
                 bpy.ops.mesh.edges_select_sharp(sharpness=angle)
@@ -772,8 +777,9 @@ class Uv(UvMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("shell_xform")
 
     def cmb003(self, index, widget):
-        """UV Map Size — passive input; read by get_map_size for the texel-density tools.
-        Nothing to do on change."""
+        """UV Map Size — passive input; the panel's one map size, read via
+        get_map_size by Get/Set Texel Density, Auto Unwrap's engine modes, and
+        Cut Cylinder's island gutter. Nothing to do on change."""
 
     def s003(self, value, widget):
         """Texel Density — passive input; read by Get/Set Texel Density (b003/b004).

@@ -101,19 +101,19 @@ class TestTb002FreezeConnectionStrategy(unittest.TestCase):
         mtk.restore_rig_anchors = self._orig_restore
         cmds.file(new=True, force=True)
 
-    def _widget(self, strategy_index):
+    def _widget(self, strategy_index, instance_index=1):
         return _FakeWidget(
             _FakeMenu(
                 chk032=_FakeChk(True),
                 chk033=_FakeChk(False),
                 chk034=_FakeChk(True),
-                chk037=_FakeChk(False),  # store_transforms
                 chk038=_FakeChk(False),  # delete_history
                 chk039=_FakeChk(False),  # freeze_children
                 chk040=_FakeChk(False),  # from_channel_box
                 chk_restore_rig_anchors=_FakeChk(False),
                 cmb_center_pivot=_FakeCombo(0),
                 cmb_connection_strategy=_FakeCombo(strategy_index),
+                cmb_instance_strategy=_FakeCombo(instance_index),
             )
         )
 
@@ -141,6 +141,27 @@ class TestTb002FreezeConnectionStrategy(unittest.TestCase):
     def test_index_2_deletes(self):
         self._run_with_one_cube(self._widget(2))
         self.assertEqual(self.freeze_calls[0][1]["connection_strategy"], "delete")
+
+    def test_instance_strategy_routes_by_index(self):
+        for index, expected in enumerate(("skip", "preserve", "uninstance")):
+            self.freeze_calls.clear()
+            self._run_with_one_cube(self._widget(0, instance_index=index))
+            self.assertEqual(
+                self.freeze_calls[0][1]["instance_strategy"], expected
+            )
+
+    def test_store_transforms_always_runs(self):
+        """Store is no longer optional — the bake history it stamps is what
+        Un-Freeze reads back, so an un-checkable option only ever broke it."""
+        import mayatk as mtk
+
+        stored = []
+        mtk.store_transforms = lambda *a, **kw: stored.append((a, kw))
+        try:
+            self._run_with_one_cube(self._widget(0))
+        finally:
+            mtk.store_transforms = self._orig_store
+        self.assertEqual(len(stored), 1)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

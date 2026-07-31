@@ -54,7 +54,7 @@
     <property name="geometry">
      <rect>
       <x>195</x>
-      <y>270</y>
+      <y>280</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -71,18 +71,18 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>uv</string>
-    </property>
     <property name="text">
      <string>UV</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>uv</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i005">
     <property name="geometry">
      <rect>
       <x>195</x>
-      <y>240</y>
+      <y>250</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -99,11 +99,11 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>normals</string>
-    </property>
     <property name="text">
      <string>Normals</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>normals</string>
     </property>
    </widget>
    <widget class="MenuButton" name="i012">
@@ -127,17 +127,17 @@
       <height>21</height>
      </size>
     </property>
-    <property name="target">
-     <string>materials</string>
-    </property>
     <property name="text">
      <string>Materials</string>
+    </property>
+    <property name="target" stdset="0">
+     <string>materials</string>
     </property>
    </widget>
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>165</x>
       <y>310</y>
       <width>120</width>
       <height>21</height>
@@ -156,8 +156,8 @@
    <widget class="ExpandableList" name="list001" native="true">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>210</y>
+      <x>145</x>
+      <y>190</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -172,10 +172,38 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="b003">
+    <property name="geometry">
+     <rect>
+      <x>145</x>
+      <y>220</y>
+      <width>120</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Get the material from the current selection, then select every object using it. For faces / selection-scoped / additive searches, use Select in the main panel (its option box).</string>
+    </property>
+    <property name="text">
+     <string>Get + Select</string>
+    </property>
+   </widget>
    <widget class="QPushButton" name="b013">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>125</x>
       <y>340</y>
       <width>120</width>
       <height>19</height>

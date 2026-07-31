@@ -117,7 +117,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the UV map resolution.</string>
+            <string>The UV map resolution every tool on this panel works against: island gutter and tile margin for Pack / Auto Unwrap / Cut Cylinder, and the reference size for Get / Set Texel Density.</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -259,7 +259,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Get the texel density of the currently selected object(s).</string>
+            <string>Get the texel density (pixels per unit) of the currently selected object(s), measured against the map size above.</string>
            </property>
            <property name="text">
             <string>Get</string>
@@ -290,7 +290,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the texel density of the currently selected object(s).</string>
+            <string>Scale the currently selected object(s) UVs to the density shown, measured against the map size above.</string>
            </property>
            <property name="text">
             <string>Set</string>
@@ -739,7 +739,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Pack UV's</string>
+            <string>Pack UV shells into the target tile. Select objects to pack their whole maps, or select faces / UVs / UV shells to pack only that region and leave the rest of the map where it is.</string>
            </property>
            <property name="text">
             <string>Pack</string>

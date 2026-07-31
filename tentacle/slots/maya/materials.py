@@ -119,6 +119,18 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             ),
         )
         widget.menu.add(
+            self.sb.registered_widgets.PushButton,
+            setText="Enable Viewport Opacity",
+            setObjectName="tb002",
+            setToolTip=(
+                "Wire each material's opacity map into the slot its shader "
+                "type uses, so transparency shows in the viewport. Materials "
+                "without an opacity map are left alone. Scope (selected, "
+                "visible, scene) and the viewport transparency mode are set "
+                "via the option box."
+            ),
+        )
+        widget.menu.add(
             "QPushButton",
             setText="Hypershade Editor",
             setObjectName="b007",
@@ -647,74 +659,101 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             setChecked=False,
             setToolTip="When checked, add matches to the existing selection instead of replacing it.",
         )
-
-    def tb000(self, widget):
-        """Select By Material"""
-        get_and_select = (
-            widget.option_box.menu.chk007.isChecked()
-        )  # Get and select option
-        add_to_selection = widget.option_box.menu.chk008.isChecked()
-        prior_selection = cmds.ls(sl=True, flatten=True) or []
-
-        # If get_and_select is enabled, first get the material from current selection
-        if get_and_select:
-            selection = cmds.ls(sl=True) or []
-            if selection:
-                mat = mtk.MatUtils.get_mats(selection[0])
-                if len(mat) == 1:
-                    # Refresh the materials list and set the found material as current
-                    self.ui.cmb002.init_slot()
-                    self.ui.cmb002.setAsCurrent(str(mat.pop()))
-                elif len(mat) == 0:
-                    print(
-                        "Get material failed: No material found on selected object. Proceeding with current material."
-                    )
-                    self.sb.message_box(
-                        "<hl>No material found</hl><br>Selected object has no material assigned. Proceeding with current material."
-                    )
-                else:
-                    print(
-                        "Get material failed: Multiple materials found on selected object. Proceeding with current material."
-                    )
-                    self.sb.message_box(
-                        "<hl>Multiple materials found</hl><br>Selected object has multiple materials assigned. Cannot determine single material. Proceeding with current material."
-                    )
-            else:
-                print(
-                    "Get material failed: Nothing selected. Proceeding with current material."
-                )
-                self.sb.message_box(
-                    "<hl>Nothing selected</hl><br>Select mesh object(s) or face(s) to get material from. Proceeding with current material."
-                )
-
-        mat = self.ui.cmb002.currentData()
-        if not mat:
-            return
-
-        shell = widget.option_box.menu.chk005.isChecked()  # Select by material: shell
-        search_in_selection_only = (
-            widget.option_box.menu.cmb_search_scope.currentText() == "Selection Only"
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="No Material",
+            setObjectName="chk009",
+            setChecked=False,
+            setToolTip=(
+                "Select the objects carrying NO material instead of the current one "
+                "— geometry still on Maya's default shader, plus any shape bound to "
+                "no shading engine at all.\n"
+                "Object-level, so Shell and Get and Select don't apply; scope and "
+                "Add to Selection still do."
+            ),
         )
 
-        if search_in_selection_only:
-            selection = cmds.ls(sl=True, objectsOnly=True) or []
-        else:
-            selection = None  # Search all objects in the scene
+    def tb000(self, widget):
+        """Select By Material — the option box supplies the parameters."""
+        menu = widget.option_box.menu
+        return self.select_by_mat(
+            shell=menu.chk005.isChecked(),
+            in_selection=menu.cmb_search_scope.currentText() == "Selection Only",
+            get_first=menu.chk007.isChecked(),
+            add=menu.chk008.isChecked(),
+            unassigned=menu.chk009.isChecked(),
+        )
 
-        faces_with_mat = mtk.MatUtils.find_by_mat_id(mat, selection, shell=shell)
+    def select_by_mat(
+        self,
+        shell=False,
+        in_selection=False,
+        get_first=False,
+        add=False,
+        unassigned=False,
+    ):
+        """Select the geometry carrying the current material.
 
-        if not faces_with_mat:
-            print(f"No objects found with material: {mat}")
-            self.sb.message_box(
-                f"<hl>No matches</hl><br>No objects found with material '<strong>{mat}</strong>'."
+        The parameterized primitive behind every select-by-material entry point
+        (``tb000``'s option box, the submenu's one-shot ``b003``, marking menus).
+        Takes plain values so callers don't have to reach into — or temporarily
+        mutate — another widget's option-box state.
+
+        Parameters:
+            shell (bool): Select whole objects instead of the matching faces.
+                Ignored when ``unassigned`` — that search is object-level.
+            in_selection (bool): Search within the current selection only
+                (falls back to the whole scene when nothing is selected).
+            get_first (bool): Adopt the material of the current selection as the
+                current material (cmb002) before searching. Ignored when
+                ``unassigned`` — that search doesn't read cmb002.
+            add (bool): Add the matches to the existing selection instead of
+                replacing it.
+            unassigned (bool): Select the objects carrying NO material instead
+                (default-shaded or orphaned — see ``mtk.MatUtils.find_unassigned``).
+                cmb002 is bypassed entirely: "no material" is not a material, so it
+                never becomes the current one.
+
+        Returns:
+            list: The components/objects selected (empty when nothing matched or
+            no current material was resolved).
+        """
+        prior_selection = cmds.ls(sl=True, flatten=True) or []
+
+        if get_first and not unassigned:  # adopt the selection's material first
+            self._adopt_selection_mat(" Proceeding with current material.")
+
+        # Scope: the selection (both finders fall back to the whole scene on an
+        # empty list) or None for every object in the scene.
+        selection = (cmds.ls(sl=True, objectsOnly=True) or []) if in_selection else None
+
+        if unassigned:
+            matches = mtk.MatUtils.find_unassigned(selection)
+            # Scope-neutral wording: "everything is assigned" would be a lie under
+            # Selection Only, which only looked at part of the scene.
+            empty_message = (
+                "<hl>No matches</hl><br>No objects without a material were found."
             )
-            return
-
-        if add_to_selection and prior_selection:
-            cmds.select(prior_selection, replace=True)
-            cmds.select(faces_with_mat, add=True)
         else:
-            cmds.select(faces_with_mat)
+            mat = self.ui.cmb002.currentData()
+            if not mat:
+                return []
+            matches = mtk.MatUtils.find_by_mat_id(mat, selection, shell=shell)
+            empty_message = (
+                f"<hl>No matches</hl><br>No objects found with material "
+                f"'<strong>{mat}</strong>'."
+            )
+
+        if not matches:
+            self.sb.message_box(empty_message)
+            return []
+
+        if add and prior_selection:
+            cmds.select(prior_selection, replace=True)
+            cmds.select(matches, add=True)
+        else:
+            cmds.select(matches)
+        return list(matches)
 
     def lbl002(self):
         """Delete Material"""
@@ -751,24 +790,20 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
         mtk.MatUtils.graph_materials(mat)
 
-    def b002(self, widget):
-        """Get Material: Change the index to match the current material selection."""
+    def _selection_mats(self):
+        """Material names on the current selection, or None when nothing is selected.
+
+        The DCC half of the shared ``_adopt_selection_mat`` (see ``MaterialsMixin``).
+        ``get_mats`` returns a de-duplicated list of names (not a set).
+        """
         selection = cmds.ls(sl=True) or []
         if not selection:
-            self.sb.message_box(
-                "<hl>Nothing selected</hl><br>Select mesh object(s) or face(s)."
-            )
-            return
+            return None
+        return [str(m) for m in mtk.MatUtils.get_mats(selection[0])]
 
-        mat = mtk.MatUtils.get_mats(selection[0])
-        if len(mat) != 1:
-            self.sb.message_box(
-                "<hl>Invalid selection</hl><br>Selection must have exactly one material assigned."
-            )
-            return
-
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
-        self.ui.cmb002.setAsCurrent(str(mat.pop()))  # pop: mat is a set
+    def b002(self, widget):
+        """Get Material: Change the index to match the current material selection."""
+        self._adopt_selection_mat()
 
     def b004(self, widget):
         """Assign Random"""
@@ -1076,6 +1111,82 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             size=(760, 520),
             monospace=False,
         )
+
+    # Scope choices for tb002 — label, value passed to get_mats_by_scope.
+    _TB002_SCOPES = (
+        ("Selected Objects", "selected"),
+        ("Visible Objects", "visible"),
+        ("All Scene Materials", "scene"),
+    )
+
+    def tb002_init(self, widget):
+        """Enable Viewport Opacity — option box."""
+        widget.option_box.menu.setTitle("Enable Viewport Opacity")
+        # NOT "cmb_scope": tb001's option box already owns that name, and a widget
+        # objectName is the StateManager key (plus the cross-surface sync key) — the
+        # two scope combos would overwrite each other's persisted choice.
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_opacity_scope",
+            setToolTip=(
+                "Selected Objects: materials on the current selection.\n"
+                "Visible Objects: materials on visible geometry.\n"
+                "All Scene Materials: every material, assigned or not."
+            ),
+        )
+        for label, data in self._TB002_SCOPES:
+            cmb.addItem(label, data)
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Depth Peeling",
+            setObjectName="chk_depth_peeling",
+            setChecked=False,
+            setToolTip=(
+                "Switch Viewport 2.0 to depth-peeled transparency so "
+                "overlapping transparent faces (decals, foliage) sort "
+                "correctly. Costs viewport performance; off leaves the "
+                "current transparency mode alone."
+            ),
+        )
+
+    def tb002(self, widget):
+        """Enable Viewport Opacity — wire opacity maps for the chosen scope."""
+        menu = widget.option_box.menu
+        scope = menu.cmb_opacity_scope.currentData() or "selected"
+        scope_label = menu.cmb_opacity_scope.currentText() or scope
+
+        materials = mtk.MatUtils.get_mats_by_scope(scope)
+        if not materials:
+            self.sb.message_box(
+                f"<hl>No materials</hl><br>Nothing found for scope: {scope_label}."
+            )
+            return
+
+        results = mtk.MatUtils.enable_viewport_opacity(
+            materials,
+            transparency_algorithm=(
+                "depth_peeling" if menu.chk_depth_peeling.isChecked() else None
+            ),
+        )
+
+        enabled = [m for m, s in results.items() if s == "enabled"]
+        already = [m for m, s in results.items() if s == "already enabled"]
+        skipped = [m for m, s in results.items() if s == "no opacity map"]
+        failed = {m: s for m, s in results.items() if s.startswith("unsupported")}
+
+        lines = [
+            f"<hl>Viewport opacity</hl> — {scope_label}<br>",
+            f"Enabled: <strong>{len(enabled)}</strong><br>",
+            f"Already enabled: <strong>{len(already)}</strong><br>",
+            f"No opacity map: <strong>{len(skipped)}</strong>",
+        ]
+        if failed:
+            lines.append(
+                "<br>Unsupported: <strong>"
+                + ", ".join(f"{m} ({s})" for m, s in failed.items())
+                + "</strong>"
+            )
+        self.sb.message_box("".join(lines))
 
     def b021(self, widget):
         """Image to Plane"""

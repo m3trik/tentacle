@@ -112,7 +112,7 @@
      <string>Unfold and layout the selected UV's</string>
     </property>
     <property name="text">
-     <string>Unfold and Pack</string>
+     <string>Unfold + Pack</string>
     </property>
     <property name="autoDefault">
      <bool>true</bool>
@@ -378,14 +378,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MenuButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.menubutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
