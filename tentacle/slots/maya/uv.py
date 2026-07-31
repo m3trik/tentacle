@@ -631,6 +631,12 @@ class UvSlots(UvMixin, SlotsMaya):
            isolate the offending one and re-packs the survivors together;
            a single mesh reports its failure directly)
 
+        Scope — objects or components: both methods pack exactly what is
+        selected. Select whole objects to pack their full maps, or select faces
+        / UVs / UV shells to pack only that region and leave the rest of the map
+        where it is (a component selection is widened to whole faces, since a
+        packer's unit of input is a face).
+
         Parameters:
             widget: The widget containing the menu controls with packing options
 
@@ -767,6 +773,10 @@ class UvSlots(UvMixin, SlotsMaya):
 
         successful = []
         failed = []
+        # What the resulting texel density is measured over. The engine path
+        # reports the components it actually packed, so a faces/shell selection
+        # is not read back as a whole-mesh density the run never produced.
+        density_scope = None
         cmds.undoInfo(openChunk=True, chunkName="UV Pack")
         cmds.refresh(suspend=True)
         try:
@@ -789,6 +799,7 @@ class UvSlots(UvMixin, SlotsMaya):
                     )
                     successful = list(result.succeeded)
                     failed = list(result.failed)
+                    density_scope = list(result.targets)
                 except (RuntimeError, ValueError) as engine_error:
                     self.sb.message_box(
                         f"<b>xatlas pack unavailable.</b><br><br>{engine_error}"
@@ -807,7 +818,7 @@ class UvSlots(UvMixin, SlotsMaya):
         density = 0.0
         if successful:
             try:
-                density = mtk.get_texel_density(successful, map_size)
+                density = mtk.get_texel_density(density_scope or successful, map_size)
             except Exception as error:
                 print(f"# Texel density unavailable: {error}")
 
@@ -930,6 +941,7 @@ class UvSlots(UvMixin, SlotsMaya):
         """Auto Unwrap: automatically unwrap UVs for the selected objects."""
         menu = widget.option_box.menu
         mode = menu.cmb011.currentData()
+        map_size = self.get_map_size()
 
         selection = cmds.ls(sl=True) or []
         if not selection:
@@ -940,9 +952,16 @@ class UvSlots(UvMixin, SlotsMaya):
 
         if mode in self.AUTO_UNWRAP_ENGINE_MODES:
             # The engine handles its own per-object loop and error reporting.
-            return self._run_auto_unwrap(mtk, selection, mode, self.get_map_size())
+            return self._run_auto_unwrap(mtk, selection, mode, map_size)
 
         scale_mode = menu.cmb012.currentData()
+        # Island gutter from the panel's map size, via the one ecosystem rule
+        # (mtk.calculate_uv_padding) that also feeds the Pack tool's
+        # shellSpacing and the RizomUV bridge — so a map auto-projected here
+        # keeps its gutter when repacked. percentageSpace wants a percentage of
+        # the texture area, hence the x100 (the normalized padding is
+        # map-size-invariant by design: 1/256 -> 0.39%).
+        percentage_space = mtk.calculate_uv_padding(map_size, normalize=True) * 100.0
         result = None
         failed = []
         for obj in selection:
@@ -957,7 +976,7 @@ class UvSlots(UvMixin, SlotsMaya):
                     projectBothDirections=0,  # If "on" : projections are mirrored on directly opposite faces. If "off" : projections are not mirrored on opposite faces.
                     layout=2,  # 0 UV pieces are set to no layout. 1 UV pieces are aligned along the U axis. 2 UV pieces are moved in a square shape.
                     planes=6,  # intermediate projections used. Valid numbers are 4, 5, 6, 8, and 12
-                    percentageSpace=0.2,  # percentage of the texture area which is added around each UV piece.
+                    percentageSpace=percentage_space,  # gutter added around each UV piece, as a percentage of the texture area
                     worldSpace=0,
                 )  # 1=world reference. 0=object reference.
             except Exception as error:
@@ -1303,8 +1322,9 @@ class UvSlots(UvMixin, SlotsMaya):
             )
 
     def cmb003(self, index, widget):
-        """UV Map Size — passive input; read by get_map_size for the texel-density
-        and layout tools. Nothing to do on change."""
+        """UV Map Size — passive input; the panel's one map size, read via
+        get_map_size by Pack (both methods), Auto Unwrap, Unfold, Cut Cylinder
+        and Get/Set Texel Density. Nothing to do on change."""
 
     def s003(self, value, widget):
         """Texel Density — passive input; read by Get/Set Texel Density (b003/b004).

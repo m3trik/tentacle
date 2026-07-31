@@ -243,7 +243,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         # Search scope is a choice between two named sets, not a modifier.
         scope = widget.option_box.menu.add(
             "QComboBox", setObjectName="cmb_search_scope",
-            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection.",
+            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection (falls back to all objects if nothing is selected).",
         )
         scope.addItems(["All Objects", "Selection Only"])
         scope.setCurrentText("All Objects")  # preserve prior default (checkbox off)
@@ -255,28 +255,102 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             "QCheckBox", setText="Add to Selection", setObjectName="chk008",
             setToolTip="Add matches to the current selection instead of replacing it.",
         )
+        widget.option_box.menu.add(
+            "QCheckBox", setText="No Material", setObjectName="chk009",
+            setToolTip=(
+                "Select the objects carrying NO material instead of the current one "
+                "(no material slots, or every slot empty).\n"
+                "Object-level, so Shell and Get and Select don't apply; scope and "
+                "Add to Selection still do."
+            ),
+        )
 
     def tb000(self, widget):
-        """Select By Material"""
+        """Select By Material — the option box supplies the parameters."""
         m = widget.option_box.menu
+        return self.select_by_mat(
+            shell=m.chk005.isChecked(),
+            in_selection=m.cmb_search_scope.currentText() == "Selection Only",
+            get_first=m.chk007.isChecked(),
+            add=m.chk008.isChecked(),
+            unassigned=m.chk009.isChecked(),
+        )
+
+    def select_by_mat(
+        self,
+        shell=False,
+        in_selection=False,
+        get_first=False,
+        add=False,
+        unassigned=False,
+    ):
+        """Select the geometry carrying the current material.
+
+        The parameterized primitive behind every select-by-material entry point
+        (``tb000``'s option box, the submenu's one-shot ``b003``, marking menus).
+        Takes plain values so callers don't have to reach into — or temporarily
+        mutate — another widget's option-box state.
+
+        Parameters:
+            shell (bool): Select whole objects; otherwise the material's faces are
+                highlighted in Edit Mode. Ignored when ``unassigned`` — an object
+                with no material has no faces to isolate.
+            in_selection (bool): Search within the current selection only
+                (falls back to the whole file when nothing is selected).
+            get_first (bool): Adopt the material of the active selection as the
+                current material (cmb002) before searching. Ignored when
+                ``unassigned`` — that search doesn't read cmb002.
+            add (bool): Add the matches to the existing selection instead of
+                replacing it.
+            unassigned (bool): Select the objects carrying NO material instead
+                (see ``btk.find_unassigned``). cmb002 is bypassed entirely: "no
+                material" is not a material, so it never becomes the current one.
+
+        Returns:
+            list: The objects selected (empty when nothing matched, no current
+            material was resolved, or every user is outside the view layer).
+        """
         prior = list(self.selected_objects())
 
-        if m.chk007.isChecked():  # get the material from the active selection first
-            self.b002(None)
+        if get_first and not unassigned:  # adopt the selection's material first
+            self._adopt_selection_mat(" Proceeding with current material.")
 
-        name = self.ui.cmb002.currentData()
-        if not name:
-            self.sb.message_box("No material selected in the materials list.")
-            return
-        mat = self._resolve_material(name)
-        if mat is None:
-            return
+        # ``prior or None``: the finders treat an EMPTY list as "search these zero
+        # objects" (``objects is not None``), so an empty selection has to be normalized
+        # to None or Selection Only would dead-end on "no objects use X" — Maya's
+        # find_by_mat_id falls back to the whole scene on a falsy pool.
+        pool = (prior or None) if in_selection else None
 
-        pool = prior if m.cmb_search_scope.currentText() == "Selection Only" else None
-        users = btk.find_by_mat_id(mat, objects=pool)
+        mat = None
+        if unassigned:
+            users = btk.find_unassigned(objects=pool)
+            # Scope-neutral wording: "everything is assigned" would be a lie under
+            # Selection Only, which only looked at part of the file.
+            empty_message = (
+                "<hl>No matches</hl><br>No objects without a material were found."
+            )
+            outside_message = (
+                f"All <hl>{len(users)}</hl> object(s) with no material are "
+                "outside the active view layer — nothing selectable."
+            )
+        else:
+            name = self.ui.cmb002.currentData()
+            if not name:
+                self.sb.message_box("No material selected in the materials list.")
+                return []
+            mat = self._resolve_material(name)
+            if mat is None:
+                return []
+            users = btk.find_by_mat_id(mat, objects=pool)
+            empty_message = f"No objects use <hl>{mat.name}</hl>."
+            outside_message = (
+                f"All <hl>{len(users)}</hl> object(s) using <hl>{mat.name}</hl> are "
+                "outside the active view layer — nothing selectable."
+            )
+
         if not users:
-            self.sb.message_box(f"No objects use <hl>{mat.name}</hl>.")
-            return
+            self.sb.message_box(empty_message)
+            return []
 
         # find_by_mat_id scans all of bpy.data, so a user can live outside the active view
         # layer (a multi-scene file / an excluded collection) — select_set and the active
@@ -284,11 +358,8 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         # still count as users, they just can't be selected from here.
         in_layer = [o for o in users if o.name in bpy.context.view_layer.objects]
         if not in_layer:
-            self.sb.message_box(
-                f"All <hl>{len(users)}</hl> object(s) using <hl>{mat.name}</hl> are "
-                "outside the active view layer — nothing selectable."
-            )
-            return
+            self.sb.message_box(outside_message)
+            return []
 
         # window override: mode_set / select_all poll on the active object from *screen*
         # context — dead in the Qt-pump state (no-op when a window is already active).
@@ -298,19 +369,23 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             active = bpy.context.view_layer.objects.active
             if active and active.mode != "OBJECT":
                 bpy.ops.object.mode_set(mode="OBJECT")
-            if not m.chk008.isChecked():
+            if not add:
                 bpy.ops.object.select_all(action="DESELECT")
         for o in in_layer:
             o.select_set(True)
         bpy.context.view_layer.objects.active = in_layer[0]
 
-        if not m.chk005.isChecked():  # face mode: highlight the material's faces in edit mode
+        # Face mode only applies to a material search — an unassigned object has no
+        # material faces to isolate.
+        if not shell and mat is not None:
             self._select_material_faces(in_layer, mat)
         if len(in_layer) < len(users):
+            what = f"using <hl>{mat.name}</hl>" if mat else "with no material"
             self.sb.message_box(
                 f"Selected <hl>{len(in_layer)}</hl> of <hl>{len(users)}</hl> object(s) "
-                f"using <hl>{mat.name}</hl> — the rest are outside the active view layer."
+                f"{what} — the rest are outside the active view layer."
             )
+        return in_layer
 
     def _select_material_faces(self, objects, mat):
         """Enter Edit Mode and select the faces assigned to ``mat`` across ``objects``."""
@@ -511,20 +586,20 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 return
 
     # ------------------------------------------------------------------ b-slots (assign / get)
-    def b002(self, widget=None):
-        """Get Material: set the combo to the selection's material."""
+    def _selection_mats(self):
+        """Material names on the current selection, or None when nothing is selected.
+
+        The DCC half of the shared ``_adopt_selection_mat`` (see ``MaterialsMixin``);
+        cmb002 stores names, not datablocks (see ``_resolve_material``).
+        """
         selection = self.selected_objects()
         if not selection:
-            self.sb.message_box("<hl>Nothing selected</hl><br>Select mesh object(s).")
-            return
-        mats = btk.get_mats(selection[0])
-        if len(mats) != 1:
-            self.sb.message_box(
-                "<hl>Invalid selection</hl><br>Selection must have exactly one material assigned."
-            )
-            return
-        self.ui.cmb002.init_slot()
-        self.ui.cmb002.setAsCurrent(mats[0].name)
+            return None
+        return [m.name for m in btk.get_mats(selection[0])]
+
+    def b002(self, widget=None):
+        """Get Material: set the combo to the selection's material."""
+        self._adopt_selection_mat()
 
     @btk.undoable
     def b004(self, widget=None):

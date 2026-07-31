@@ -147,6 +147,16 @@ class TransformSlots(SlotsMaya):
             setToolTip="The scale factor will be changed to 1, 1, 1.",
         )
         widget.option_box.menu.add(
+            "QCheckBox",
+            setText="From Channel Box",
+            setObjectName="chk040",
+            setChecked=False,
+            setToolTip="Use the selected attributes in the channel box to determine what to freeze.",
+        )
+        # Store Transforms is deliberately NOT an option: the bake history it
+        # stamps is what Un-Freeze Transforms reads, so turning it off only
+        # ever breaks the un-freeze. It is three attributes — always stamped.
+        widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb_center_pivot",
             addItems=["Center Pivot: None", "Center Pivot: Mesh", "Center Pivot: All"],
@@ -190,18 +200,24 @@ class TransformSlots(SlotsMaya):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox",
-            setText="From Channel Box",
-            setObjectName="chk040",
-            setChecked=False,
-            setToolTip="Use the selected attributes in the channel box to determine what to freeze.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Store Transforms",
-            setObjectName="chk037",
-            setChecked=True,
-            setToolTip="Store the original transforms as custom attributes.",
+            "QComboBox",
+            setObjectName="cmb_instance_strategy",
+            addItems=[
+                "Instances: Warn and Skip",
+                "Instances: Preserve (bake in place)",
+                "Instances: Uninstance",
+            ],
+            setCurrentIndex=1,
+            setToolTip=(
+                "Maya refuses to freeze a transform that shares its shape, so\n"
+                "instanced objects need a strategy:\n"
+                "• Warn and Skip: leave them untouched\n"
+                "• Preserve: bake the shared geometry in place and compensate\n"
+                "  the other instances — instancing, appearance and\n"
+                "  per-instance shading all survive. Only the frozen member\n"
+                "  ends at identity; the others keep matching channels.\n"
+                "• Uninstance: break the instance links, then freeze each"
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -232,21 +248,21 @@ class TransformSlots(SlotsMaya):
         rotate = widget.option_box.menu.chk033.isChecked()
         scale = widget.option_box.menu.chk034.isChecked()
         force = True if len(objects) == 1 else False
-        store_transforms = widget.option_box.menu.chk037.isChecked()
         delete_history = widget.option_box.menu.chk038.isChecked()
         freeze_children = widget.option_box.menu.chk039.isChecked()
         from_channel_box = widget.option_box.menu.chk040.isChecked()
-        restore_rig_anchors = (
-            widget.option_box.menu.chk_restore_rig_anchors.isChecked()
-        )
+        restore_rig_anchors = widget.option_box.menu.chk_restore_rig_anchors.isChecked()
         strategy_index = widget.option_box.menu.cmb_connection_strategy.currentIndex()
         connection_strategy = ["preserve", "disconnect", "delete"][strategy_index]
+        instance_strategy = ["skip", "preserve", "uninstance"][
+            widget.option_box.menu.cmb_instance_strategy.currentIndex()
+        ]
 
-        # Store transforms before freezing so they can be restored later.
-        # When freezing children the cascade reaches descendants, so traverse
-        # the same set or unfreeze on a child will warn about missing attrs.
-        if store_transforms:
-            mtk.store_transforms(objects, accumulate=True, traverse=freeze_children)
+        # Always store before freezing: the bake history is what Un-Freeze
+        # reads back. When freezing children the cascade reaches descendants,
+        # so traverse the same set or unfreeze on a child will warn about
+        # missing attrs.
+        mtk.store_transforms(objects, accumulate=True, traverse=freeze_children)
 
         mtk.freeze_transforms(
             objects,
@@ -258,6 +274,7 @@ class TransformSlots(SlotsMaya):
             delete_history=delete_history,
             freeze_children=freeze_children,
             connection_strategy=connection_strategy,
+            instance_strategy=instance_strategy,
             from_channel_box=from_channel_box,
         )
 
@@ -376,9 +393,7 @@ class TransformSlots(SlotsMaya):
         #              ignores, so it resolves to the same point as 'object'.
         #   'world'  — the origin, ignoring the target entirely (use Drop To Grid).
         skip = {"baked", "world"}
-        pivot_options = [
-            p for p in mtk.XformUtils.get_pivot_options() if p not in skip
-        ]
+        pivot_options = [p for p in mtk.XformUtils.get_pivot_options() if p not in skip]
         cmb.add(pivot_options, prefix="Pivot:")
         cmb.setAsCurrent("center")  # historical default (target bounding-box center)
 

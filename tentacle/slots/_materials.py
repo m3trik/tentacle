@@ -22,6 +22,27 @@ are identical across DCCs. Only the rename itself forks, delegated to each slot'
 ``_rename_current(text)`` hook (Maya ``cmds.rename`` / Blender datablock assignment), which
 must return the resulting name on success or a falsy value on failure so the field is
 cleared only when the rename actually happened.
+
+Also: the submenu's ``b003`` "Get + Select" one-shot — get the material off the current
+selection, then select every object using it. It carries no options of its own; it calls
+each slot's ``select_by_mat(shell, in_selection, get_first, add, unassigned)`` hook (the
+parameterized primitive that also backs the main panel's option-box-driven ``tb000``) with
+fixed values,
+so the two entry points share one implementation without either reading — or temporarily
+overwriting — the other's persisted option-box state.
+
+And the "get the material off the selection" half of that, :meth:`_adopt_selection_mat` —
+shared by "Get Material" (``b002``) and ``select_by_mat``'s ``get_first``, which differ
+only in their message when the selection can't yield exactly one material. Its DCC hook is
+``_selection_mats()``: the material NAMES on the selection, or ``None`` when nothing is
+selected (Maya ``mtk.MatUtils.get_mats`` / Blender ``btk.get_mats``). An empty list means
+"selected, but nothing assigned" — the case ``b003`` turns into an unassigned search
+(``select_by_mat(unassigned=True)``, which bypasses ``cmb002``: "no material" is not a
+material and must never become the current one, since ~24 call sites feed
+``cmb002.currentData()`` straight to delete / assign / graph / rename).
+
+Hooks each ``<Panel>Slots`` fork must supply: ``_rename_current(text)``,
+``select_by_mat(...)``, ``_selection_mats()``.
 """
 import pythontk as ptk
 
@@ -29,7 +50,9 @@ import pythontk as ptk
 class MaterialsMixin:
     """DCC-agnostic ``materials`` slot behavior.
 
-    ``cmb002`` "Rename" label (``lbl005``) + its prefix/suffix affix option box.
+    ``cmb002`` "Rename" label (``lbl005``) + its prefix/suffix affix option box,
+    the submenu's ``b003`` "Get + Select" one-shot, and the shared
+    adopt-the-selection's-material path behind ``b003`` / ``b002``.
     """
 
     #: Affix modes offered by ``cmb_rename_mode`` (index 0 is the default).
@@ -164,3 +187,95 @@ class MaterialsMixin:
             self._apply_rename_affix()
         else:
             self.ui.cmb002.setEditable(True)
+
+    #: Why the selection can't yield one material -> (title, body) for the message box.
+    _GET_MAT_FAILURES = {
+        "empty": (
+            "Nothing selected",
+            "Select mesh object(s) or face(s) to get the material from.",
+        ),
+        "none": (
+            "No material found",
+            "The selected object has no material assigned.",
+        ),
+        "multiple": (
+            "Multiple materials found",
+            "The selected object has multiple materials assigned, so a single "
+            "current material can't be determined.",
+        ),
+        "filtered": (
+            "Material hidden by the list filters",
+            "'{mat}' isn't in the materials list — a cmb002 option-box filter "
+            "(Hide Default Materials / Hide Arnold Shaders) is hiding it. Turn "
+            "that filter off to make it current.",
+        ),
+    }
+
+    def _adopt_selection_mat(self, on_failure=""):
+        """Set ``cmb002`` to the single material assigned to the current selection.
+
+        Shared by "Get Material" (``b002``) and ``select_by_mat``'s ``get_first``,
+        which differ only in what happens when the selection can't yield exactly
+        one material: b002 stops there, get_first carries on with whatever material
+        is current — hence ``on_failure``, appended to the reported reason.
+
+        Only the lookup forks, via each slot's ``_selection_mats()`` hook: the
+        material NAMES on the selection, or ``None`` when nothing is selected.
+
+        Parameters:
+            on_failure (str): Text appended to the failure message (e.g. what the
+                caller does next).
+
+        Returns:
+            str | None: The adopted material name, or None (a message was shown).
+        """
+        mats = self._selection_mats()
+        found = mats[0] if mats and len(mats) == 1 else ""
+
+        if found:
+            previous = self.ui.cmb002.currentData()
+            self.ui.cmb002.init_slot()  # refresh the list so the found material is in it
+            self.ui.cmb002.setAsCurrent(found)
+            if str(self.ui.cmb002.currentData() or "") == found:
+                return found
+            # A cmb002 list filter (Hide Default Materials / Hide Arnold Shaders)
+            # can drop the found material from the list — and ComboBox.setAsCurrent
+            # silently falls back to INDEX 0 for a missing item, which would leave
+            # an unrelated material current and select by it. Put the previous
+            # material back, then report it like any other adopt failure.
+            if previous is not None:
+                self.ui.cmb002.setAsCurrent(str(previous))
+            reason = "filtered"
+        else:
+            reason = "empty" if mats is None else "none" if not mats else "multiple"
+
+        # One report path, so ``on_failure`` (what the caller does next) is always
+        # part of the message — a reason without it would misdescribe the outcome.
+        title, body = self._GET_MAT_FAILURES[reason]
+        self.sb.message_box(f"<hl>{title}</hl><br>{body.format(mat=found)}{on_failure}")
+        return None
+
+    def b003(self, widget=None):
+        """Get + Select (submenu): adopt the selection's material, then select its users.
+
+        A fixed one-shot — whole objects, whole scene, replacing the selection —
+        so the submenu button does the same thing every time. The configurable
+        form is the main panel's ``tb000`` with its option box; both run the same
+        ``select_by_mat`` implementation.
+
+        A selection with NO material takes the analogous branch rather than
+        failing: "everything that matches this selection, material-wise" becomes
+        every object that also has no material. Only a genuinely materialless
+        selection routes there — an empty or multi-material selection still
+        reports through the normal adopt path.
+
+        Returns:
+            list: whatever ``select_by_mat`` selected (see the DCC slot's hook).
+        """
+        if self._selection_mats() == []:  # selected, but nothing assigned
+            self.sb.message_box(
+                "<hl>No material on the selection</hl><br>"
+                "Selecting the objects that have no material assigned."
+            )
+            return self.select_by_mat(shell=True, unassigned=True)
+        return self.select_by_mat(shell=True, get_first=True)

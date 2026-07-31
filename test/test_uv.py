@@ -996,6 +996,71 @@ class TestTb000Pack(unittest.TestCase):
             self.assertLessEqual(v1, 1.0)
         self.assertIn("UV Pack Complete", self._message_text())
 
+    def test_xatlas_method_honors_a_face_selection(self):
+        """User-reported: Method: xatlas only worked on a whole-object selection
+        — a face / shell selection reported "No mesh objects to pack." and
+        nothing moved. It must pack the selected faces into the target tile and
+        leave the rest of the map alone."""
+        import pythontk as ptk
+
+        if not ptk.UvPack.available():
+            self.skipTest("xatlas not installed in this interpreter")
+        cube = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.polyMapCut(f"{cube}.e[*]", ch=False)  # six separate shells
+        cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)  # park the map off-tile
+        before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+        scoped = {
+            int(c.split("[")[1].rstrip("]"))
+            for c in cmds.ls(
+                cmds.polyListComponentConversion(f"{cube}.f[0:2]", toUV=True),
+                flatten=True,
+            )
+        }
+        cmds.select(f"{cube}.f[0:2]")
+
+        widget = _FakeTb000Widget(cmb019=_FakeTb000Widget._Combo("xatlas"))
+        self.instance.tb000(widget=widget)
+
+        after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+        moved = {
+            i
+            for i in range(len(before) // 2)
+            if abs(before[2 * i] - after[2 * i]) > 1e-6
+            or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
+        }
+        self.assertEqual(moved, scoped)
+        for i in sorted(scoped):
+            self.assertLessEqual(max(after[2 * i], after[2 * i + 1]), 1.0 + 1e-4)
+        self.assertIn("UV Pack Complete", self._message_text())
+
+    def test_standard_method_honors_a_face_selection(self):
+        """The native packer's twin of the case above — both methods pack
+        exactly the selected scope, so switching method can't change it."""
+        cube = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.polyMapCut(f"{cube}.e[*]", ch=False)
+        cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)
+        before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+        scoped = {
+            int(c.split("[")[1].rstrip("]"))
+            for c in cmds.ls(
+                cmds.polyListComponentConversion(f"{cube}.f[0:2]", toUV=True),
+                flatten=True,
+            )
+        }
+        cmds.select(f"{cube}.f[0:2]")
+
+        self.instance.tb000(widget=_FakeTb000Widget())
+
+        after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+        moved = {
+            i
+            for i in range(len(before) // 2)
+            if abs(before[2 * i] - after[2 * i]) > 1e-6
+            or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
+        }
+        self.assertTrue(moved)
+        self.assertTrue(moved <= scoped, "the pack reached outside the selection")
+
     def test_xatlas_missing_engine_reports_install_note(self):
         """A missing engine must message (with the install command) and leave
         the scene untouched — not raise out of the slot."""
