@@ -111,7 +111,7 @@
         {
           "name": "MaterialsMixin",
           "summary": "DCC-agnostic ``materials`` slot behavior.",
-          "line": 29,
+          "line": 50,
           "bases": [],
           "members": [
             {
@@ -120,7 +120,16 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material.",
-              "line": 152,
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "MaterialsMixin.b003",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Get + Select (submenu): adopt the selection's material, then select its users.",
+              "line": 258,
               "deprecated": false
             }
           ]
@@ -1797,8 +1806,17 @@
               "qualname": "MaterialsSlots.tb000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Select By Material",
-              "line": 259,
+              "summary": "Select By Material — the option box supplies the parameters.",
+              "line": 268,
+              "deprecated": false
+            },
+            {
+              "name": "select_by_mat",
+              "qualname": "MaterialsSlots.select_by_mat",
+              "kind": "method",
+              "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
+              "summary": "Select the geometry carrying the current material.",
+              "line": 279,
               "deprecated": false
             },
             {
@@ -1807,7 +1825,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 343,
+              "line": 418,
               "deprecated": false
             },
             {
@@ -1816,7 +1834,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the text-view dialog.",
-              "line": 377,
+              "line": 452,
               "deprecated": false
             },
             {
@@ -1825,7 +1843,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: 'Assign: <current>' root + New / Random + scene materials.",
-              "line": 437,
+              "line": 512,
               "deprecated": false
             },
             {
@@ -1834,7 +1852,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Assign list: root assigns the current material;",
-              "line": 457,
+              "line": 532,
               "deprecated": false
             },
             {
@@ -1843,7 +1861,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list (Setup tools with a native Blender op).",
-              "line": 491,
+              "line": 566,
               "deprecated": false
             },
             {
@@ -1852,7 +1870,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 502,
+              "line": 577,
               "deprecated": false
             },
             {
@@ -1861,7 +1879,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get Material: set the combo to the selection's material.",
-              "line": 514,
+              "line": 600,
               "deprecated": false
             },
             {
@@ -1870,7 +1888,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Random",
-              "line": 530,
+              "line": 605,
               "deprecated": false
             },
             {
@@ -1879,7 +1897,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Current",
-              "line": 549,
+              "line": 624,
               "deprecated": false
             },
             {
@@ -1888,7 +1906,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign New Material",
-              "line": 565,
+              "line": 640,
               "deprecated": false
             },
             {
@@ -1897,7 +1915,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scene Textures",
-              "line": 576,
+              "line": 651,
               "deprecated": false
             },
             {
@@ -1906,7 +1924,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Duplicate Materials",
-              "line": 582,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -1915,7 +1933,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Delete All Unused Materials",
-              "line": 593,
+              "line": 668,
               "deprecated": false
             },
             {
@@ -1924,7 +1942,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete the current material.",
-              "line": 600,
+              "line": 675,
               "deprecated": false
             },
             {
@@ -1933,7 +1951,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select Node — select the object(s) using the current material.",
-              "line": 608,
+              "line": 683,
               "deprecated": false
             },
             {
@@ -1942,7 +1960,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 621,
+              "line": 696,
               "deprecated": false
             },
             {
@@ -1951,7 +1969,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers/underscores.",
-              "line": 632,
+              "line": 707,
               "deprecated": false
             },
             {
@@ -1960,7 +1978,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Strip trailing ints/underscores from ALL scene materials (skips on-collision).",
-              "line": 651,
+              "line": 726,
               "deprecated": false
             },
             {
@@ -1969,7 +1987,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 669,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -1978,7 +1996,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
-              "line": 675,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -1987,7 +2005,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 680,
+              "line": 755,
               "deprecated": false
             },
             {
@@ -1996,7 +2014,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Emissive Groups — co-located blendertk panel (named face groups a game engine gates at",
-              "line": 685,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -2005,7 +2023,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 690,
+              "line": 765,
               "deprecated": false
             },
             {
@@ -2014,7 +2032,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 695,
+              "line": 770,
               "deprecated": false
             },
             {
@@ -2023,7 +2041,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 732,
+              "line": 807,
               "deprecated": false
             },
             {
@@ -2032,7 +2050,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 736,
+              "line": 811,
               "deprecated": false
             },
             {
@@ -2041,7 +2059,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 740,
+              "line": 815,
               "deprecated": false
             },
             {
@@ -2050,7 +2068,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 744,
+              "line": 819,
               "deprecated": false
             },
             {
@@ -2059,7 +2077,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 748,
+              "line": 823,
               "deprecated": false
             },
             {
@@ -2068,7 +2086,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 752,
+              "line": 827,
               "deprecated": false
             },
             {
@@ -2077,7 +2095,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 761,
+              "line": 836,
               "deprecated": false
             },
             {
@@ -2086,7 +2104,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 765,
+              "line": 840,
               "deprecated": false
             }
           ]
@@ -4118,7 +4136,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 134,
+              "line": 135,
               "deprecated": false
             },
             {
@@ -4127,7 +4145,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations",
-              "line": 180,
+              "line": 195,
               "deprecated": false
             },
             {
@@ -4136,7 +4154,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 219,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -4145,7 +4163,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To (align source object(s) to the active/target object).",
-              "line": 243,
+              "line": 261,
               "deprecated": false
             },
             {
@@ -4154,7 +4172,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale (rescale the active object to the other selected objects' combined",
-              "line": 263,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -4163,7 +4181,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 285,
+              "line": 303,
               "deprecated": false
             },
             {
@@ -4172,7 +4190,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Align To (object centers onto the active object's, native ``object.align``).",
-              "line": 289,
+              "line": 307,
               "deprecated": false
             },
             {
@@ -4181,7 +4199,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 326,
+              "line": 344,
               "deprecated": false
             },
             {
@@ -4190,7 +4208,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transform Snap (per-transform increment snapping via the scene tool settings).",
-              "line": 360,
+              "line": 378,
               "deprecated": false
             },
             {
@@ -4199,7 +4217,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: rotate increment (degrees → the scene's",
-              "line": 368,
+              "line": 386,
               "deprecated": false
             },
             {
@@ -4208,7 +4226,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Rotate toggle — reflect the live tool-settings state.",
-              "line": 376,
+              "line": 394,
               "deprecated": false
             },
             {
@@ -4217,7 +4235,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Snap: Rotate (increment rotation snapping).",
-              "line": 387,
+              "line": 405,
               "deprecated": false
             },
             {
@@ -4226,7 +4244,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 396,
+              "line": 414,
               "deprecated": false
             },
             {
@@ -4235,7 +4253,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Connected Edges (each connected set of selected edges scales about its",
-              "line": 407,
+              "line": 425,
               "deprecated": false
             },
             {
@@ -4244,7 +4262,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box).",
-              "line": 419,
+              "line": 437,
               "deprecated": false
             },
             {
@@ -4253,7 +4271,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Un-Freeze Transforms (restore the channels stamped by Freeze;",
-              "line": 451,
+              "line": 469,
               "deprecated": false
             },
             {
@@ -4262,7 +4280,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraints Init (mirrors the Maya option box;",
-              "line": 544,
+              "line": 562,
               "deprecated": false
             },
             {
@@ -4271,7 +4289,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge (snap-to-edge during move).",
-              "line": 574,
+              "line": 592,
               "deprecated": false
             },
             {
@@ -4280,7 +4298,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Surface (snap-to-face during move).",
-              "line": 579,
+              "line": 597,
               "deprecated": false
             },
             {
@@ -4289,7 +4307,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Make Live (project transformed geometry onto surfaces —",
-              "line": 584,
+              "line": 602,
               "deprecated": false
             }
           ]
@@ -4450,7 +4468,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs (mark seam on selected edges)",
-              "line": 423,
+              "line": 428,
               "deprecated": false
             },
             {
@@ -4459,7 +4477,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs (clear seam on selected edges)",
-              "line": 428,
+              "line": 433,
               "deprecated": false
             },
             {
@@ -4468,7 +4486,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 433,
+              "line": 438,
               "deprecated": false
             },
             {
@@ -4477,7 +4495,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,",
-              "line": 443,
+              "line": 448,
               "deprecated": false
             },
             {
@@ -4486,7 +4504,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).",
-              "line": 474,
+              "line": 479,
               "deprecated": false
             },
             {
@@ -4495,7 +4513,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,",
-              "line": 506,
+              "line": 511,
               "deprecated": false
             },
             {
@@ -4504,7 +4522,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Create UV Snapshot — export the active mesh's UV layout to an image.",
-              "line": 523,
+              "line": 528,
               "deprecated": false
             },
             {
@@ -4513,7 +4531,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 532,
+              "line": 537,
               "deprecated": false
             },
             {
@@ -4522,7 +4540,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;",
-              "line": 538,
+              "line": 543,
               "deprecated": false
             },
             {
@@ -4531,7 +4549,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs — from the active mesh, to the other selected meshes (Selection",
-              "line": 586,
+              "line": 591,
               "deprecated": false
             },
             {
@@ -4540,7 +4558,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 629,
+              "line": 634,
               "deprecated": false
             },
             {
@@ -4549,7 +4567,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 638,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -4558,7 +4576,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 647,
+              "line": 652,
               "deprecated": false
             },
             {
@@ -4567,7 +4585,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 655,
+              "line": 660,
               "deprecated": false
             },
             {
@@ -4576,7 +4594,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 674,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -4585,7 +4603,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 700,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -4594,7 +4612,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — non-checkable text button.",
-              "line": 726,
+              "line": 731,
               "deprecated": false
             },
             {
@@ -4603,7 +4621,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 735,
+              "line": 740,
               "deprecated": false
             },
             {
@@ -4612,7 +4630,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 761,
+              "line": 766,
               "deprecated": false
             },
             {
@@ -4621,7 +4639,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 766,
+              "line": 771,
               "deprecated": false
             },
             {
@@ -4630,7 +4648,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 774,
+              "line": 779,
               "deprecated": false
             },
             {
@@ -4639,7 +4657,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 778,
+              "line": 784,
               "deprecated": false
             }
           ]
@@ -6381,7 +6399,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 131,
+              "line": 143,
               "deprecated": false
             },
             {
@@ -6390,7 +6408,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Assign list selection.",
-              "line": 166,
+              "line": 178,
               "deprecated": false
             },
             {
@@ -6399,7 +6417,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Conversion / External (mirrors prior header sections).",
-              "line": 231,
+              "line": 243,
               "deprecated": false
             },
             {
@@ -6408,7 +6426,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 249,
+              "line": 261,
               "deprecated": false
             },
             {
@@ -6417,7 +6435,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 269,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -6426,7 +6444,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 532,
+              "line": 544,
               "deprecated": false
             },
             {
@@ -6435,7 +6453,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 589,
+              "line": 601,
               "deprecated": false
             },
             {
@@ -6444,7 +6462,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 620,
+              "line": 632,
               "deprecated": false
             },
             {
@@ -6452,8 +6470,17 @@
               "qualname": "MaterialsSlots.tb000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Select By Material",
-              "line": 651,
+              "summary": "Select By Material — the option box supplies the parameters.",
+              "line": 676,
+              "deprecated": false
+            },
+            {
+              "name": "select_by_mat",
+              "qualname": "MaterialsSlots.select_by_mat",
+              "kind": "method",
+              "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
+              "summary": "Select the geometry carrying the current material.",
+              "line": 687,
               "deprecated": false
             },
             {
@@ -6462,7 +6489,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 719,
+              "line": 758,
               "deprecated": false
             },
             {
@@ -6471,7 +6498,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 727,
+              "line": 766,
               "deprecated": false
             },
             {
@@ -6480,7 +6507,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 732,
+              "line": 771,
               "deprecated": false
             },
             {
@@ -6489,7 +6516,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 740,
+              "line": 779,
               "deprecated": false
             },
             {
@@ -6498,7 +6525,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 754,
+              "line": 804,
               "deprecated": false
             },
             {
@@ -6507,7 +6534,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 773,
+              "line": 808,
               "deprecated": false
             },
             {
@@ -6516,7 +6543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Current (main UI button)",
-              "line": 812,
+              "line": 847,
               "deprecated": false
             },
             {
@@ -6525,7 +6552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 822,
+              "line": 857,
               "deprecated": false
             },
             {
@@ -6534,7 +6561,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 833,
+              "line": 868,
               "deprecated": false
             },
             {
@@ -6543,7 +6570,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 839,
+              "line": 874,
               "deprecated": false
             },
             {
@@ -6552,7 +6579,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 843,
+              "line": 878,
               "deprecated": false
             },
             {
@@ -6561,7 +6588,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Emissive Groups",
-              "line": 848,
+              "line": 883,
               "deprecated": false
             },
             {
@@ -6570,7 +6597,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 852,
+              "line": 887,
               "deprecated": false
             },
             {
@@ -6579,7 +6606,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 856,
+              "line": 891,
               "deprecated": false
             },
             {
@@ -6588,7 +6615,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 860,
+              "line": 895,
               "deprecated": false
             },
             {
@@ -6597,7 +6624,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 867,
+              "line": 902,
               "deprecated": false
             },
             {
@@ -6606,7 +6633,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 874,
+              "line": 909,
               "deprecated": false
             },
             {
@@ -6615,7 +6642,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 887,
+              "line": 922,
               "deprecated": false
             },
             {
@@ -6624,7 +6651,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 898,
+              "line": 933,
               "deprecated": false
             },
             {
@@ -6633,7 +6660,25 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 969,
+              "line": 1004,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "MaterialsSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Enable Viewport Opacity — option box.",
+              "line": 1122,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "MaterialsSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Enable Viewport Opacity — wire opacity maps for the chosen scope.",
+              "line": 1152,
               "deprecated": false
             },
             {
@@ -6642,7 +6687,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 1080,
+              "line": 1191,
               "deprecated": false
             },
             {
@@ -6651,7 +6696,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 1084,
+              "line": 1195,
               "deprecated": false
             },
             {
@@ -6660,7 +6705,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 1088,
+              "line": 1199,
               "deprecated": false
             },
             {
@@ -6669,7 +6714,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 1092,
+              "line": 1203,
               "deprecated": false
             },
             {
@@ -6678,7 +6723,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 1096,
+              "line": 1207,
               "deprecated": false
             },
             {
@@ -6687,7 +6732,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "RealityCapture Workflow",
-              "line": 1100,
+              "line": 1211,
               "deprecated": false
             },
             {
@@ -6696,7 +6741,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Brush Splat Workflow",
-              "line": 1104,
+              "line": 1215,
               "deprecated": false
             }
           ]
@@ -9083,7 +9128,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Freeze Transformations",
-              "line": 221,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -9092,7 +9137,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraints Init",
-              "line": 267,
+              "line": 284,
               "deprecated": false
             },
             {
@@ -9101,7 +9146,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Init",
-              "line": 296,
+              "line": 313,
               "deprecated": false
             },
             {
@@ -9110,7 +9155,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To Init",
-              "line": 360,
+              "line": 377,
               "deprecated": false
             },
             {
@@ -9119,7 +9164,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move To: move the selected objects onto the last-selected object (by a chosen pivot).",
-              "line": 401,
+              "line": 416,
               "deprecated": false
             },
             {
@@ -9128,7 +9173,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Move",
-              "line": 424,
+              "line": 439,
               "deprecated": false
             },
             {
@@ -9137,7 +9182,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Scale",
-              "line": 433,
+              "line": 448,
               "deprecated": false
             },
             {
@@ -9146,7 +9191,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Tool Snap Settings: Rotate",
-              "line": 442,
+              "line": 457,
               "deprecated": false
             },
             {
@@ -9155,7 +9200,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Edge",
-              "line": 451,
+              "line": 466,
               "deprecated": false
             },
             {
@@ -9164,7 +9209,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Contraints: Surface",
-              "line": 460,
+              "line": 475,
               "deprecated": false
             },
             {
@@ -9173,7 +9218,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Transform Constraints: Make Live",
-              "line": 469,
+              "line": 484,
               "deprecated": false
             },
             {
@@ -9182,7 +9227,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 480,
+              "line": 495,
               "deprecated": false
             },
             {
@@ -9191,7 +9236,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 486,
+              "line": 501,
               "deprecated": false
             },
             {
@@ -9200,7 +9245,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 492,
+              "line": 507,
               "deprecated": false
             },
             {
@@ -9209,7 +9254,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Snap Toolset",
-              "line": 498,
+              "line": 513,
               "deprecated": false
             },
             {
@@ -9218,7 +9263,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Match Scale: scale the selected object(s) to match the first-selected object's size.",
-              "line": 502,
+              "line": 517,
               "deprecated": false
             },
             {
@@ -9227,7 +9272,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Un-Freeze Transforms Init",
-              "line": 516,
+              "line": 531,
               "deprecated": false
             },
             {
@@ -9236,7 +9281,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Un-Freeze Transforms",
-              "line": 547,
+              "line": 562,
               "deprecated": false
             },
             {
@@ -9245,7 +9290,7 @@
               "kind": "method",
               "signature": "(self, ctx, state)",
               "summary": "Set the transform tool's move, rotate, and scale snap states.",
-              "line": 581,
+              "line": 596,
               "deprecated": false
             }
           ]
@@ -9361,7 +9406,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap.",
-              "line": 852,
+              "line": 863,
               "deprecated": false
             },
             {
@@ -9370,7 +9415,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap: automatically unwrap UVs for the selected objects.",
-              "line": 929,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -9379,7 +9424,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 979,
+              "line": 998,
               "deprecated": false
             },
             {
@@ -9388,7 +9433,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold: relax/unfold the selected UVs to reduce stretch and distortion.",
-              "line": 1029,
+              "line": 1048,
               "deprecated": false
             },
             {
@@ -9397,7 +9442,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 1117,
+              "line": 1136,
               "deprecated": false
             },
             {
@@ -9406,7 +9451,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 1163,
+              "line": 1182,
               "deprecated": false
             },
             {
@@ -9415,7 +9460,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 1224,
+              "line": 1243,
               "deprecated": false
             },
             {
@@ -9424,7 +9469,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1276,
+              "line": 1295,
               "deprecated": false
             },
             {
@@ -9433,7 +9478,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1305,
+              "line": 1324,
               "deprecated": false
             },
             {
@@ -9442,7 +9487,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1309,
+              "line": 1329,
               "deprecated": false
             },
             {
@@ -9451,7 +9496,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Transfer UVs option box — scope + similarity tolerance.",
-              "line": 1313,
+              "line": 1333,
               "deprecated": false
             },
             {
@@ -9460,7 +9505,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 1360,
+              "line": 1380,
               "deprecated": false
             },
             {
@@ -9469,7 +9514,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1406,
+              "line": 1426,
               "deprecated": false
             },
             {
@@ -9478,7 +9523,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1412,
+              "line": 1432,
               "deprecated": false
             },
             {
@@ -9487,7 +9532,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1420,
+              "line": 1440,
               "deprecated": false
             },
             {
@@ -9496,7 +9541,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1454,
+              "line": 1474,
               "deprecated": false
             },
             {
@@ -9505,7 +9550,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1477,
+              "line": 1497,
               "deprecated": false
             },
             {
@@ -9514,7 +9559,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1482,
+              "line": 1502,
               "deprecated": false
             },
             {
@@ -9523,7 +9568,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1517,
+              "line": 1537,
               "deprecated": false
             },
             {
@@ -9532,7 +9577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1552,
+              "line": 1572,
               "deprecated": false
             },
             {
@@ -9541,7 +9586,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1561,
+              "line": 1581,
               "deprecated": false
             },
             {
@@ -9550,7 +9595,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Stack button — non-checkable text button.",
-              "line": 1583,
+              "line": 1603,
               "deprecated": false
             },
             {
@@ -9559,7 +9604,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1592,
+              "line": 1612,
               "deprecated": false
             },
             {
@@ -9568,7 +9613,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1649,
+              "line": 1669,
               "deprecated": false
             },
             {
@@ -9577,7 +9622,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1653,
+              "line": 1673,
               "deprecated": false
             },
             {
@@ -9586,7 +9631,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 1657,
+              "line": 1677,
               "deprecated": false
             }
           ]

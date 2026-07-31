@@ -140,8 +140,9 @@ Shared HUD warning framework (DCC-agnostic).
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L29)** — DCC-agnostic ``materials`` slot behavior.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L50)** — DCC-agnostic ``materials`` slot behavior.
   - `MaterialsMixin.lbl005(self)` — Rename the current material.
+  - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
 
 <a id="slots--_preferences"></a>
 ### `slots/_preferences.py`
@@ -390,7 +391,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.cmb002_init(self, widget)` — Materials combo: scene materials with color swatches + option box (Cleanup) + a
   - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
   - `MaterialsSlots.tb000_init(self, widget)`
-  - `MaterialsSlots.tb000(self, widget)` — Select By Material
+  - `MaterialsSlots.tb000(self, widget)` — Select By Material — the option box supplies the parameters.
+  - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
   - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
   - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the text-view dialog.
   - `MaterialsSlots.list000_init(self, widget)` — Assign list: 'Assign: <current>' root + New / Random + scene materials.
@@ -1042,7 +1044,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.
   - `MaterialsSlots.lbl007_global(self)` — Rename ALL scene materials by stripping trailing integers and underscores.
   - `MaterialsSlots.tb000_init(self, widget)`
-  - `MaterialsSlots.tb000(self, widget)` — Select By Material
+  - `MaterialsSlots.tb000(self, widget)` — Select By Material — the option box supplies the parameters.
+  - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
   - `MaterialsSlots.lbl002(self)` — Delete Material
   - `MaterialsSlots.b015(self, widget)` — Delete Unused Materials
   - `MaterialsSlots.lbl004(self)` — Select and Show Attributes: Show Material Attributes in the Attribute Editor.
@@ -1063,6 +1066,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.b018(self, widget)` — Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.
   - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
   - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the viewer dialog.
+  - `MaterialsSlots.tb002_init(self, widget)` — Enable Viewport Opacity — option box.
+  - `MaterialsSlots.tb002(self, widget)` — Enable Viewport Opacity — wire opacity maps for the chosen scope.
   - `MaterialsSlots.b021(self, widget)` — Image to Plane
   - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
   - `MaterialsSlots.b020(self, widget)` — Substance Bridge

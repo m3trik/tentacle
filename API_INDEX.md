@@ -17,7 +17,7 @@ _Generated: 2026-07-31_
 
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
-  - methods: lbl005
+  - methods: lbl005, b003
 
 ### `slots/_preferences.py` — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - `class PreferencesMixin`
@@ -92,7 +92,7 @@ _Generated: 2026-07-31_
 
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
-  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b005, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
+  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, select_by_mat, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b005, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/normals.py`
 - `class Normals(SlotsBlender)`
@@ -253,7 +253,7 @@ _Generated: 2026-07-31_
 
 ### `slots/maya/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
-  - methods: header_init, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, lbl002, b015, lbl004, lbl006, b002, b004, b005, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, b021, b019, b020, b022, b023, b024, b025
+  - methods: header_init, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, select_by_mat, lbl002, b015, lbl004, lbl006, b002, b004, b005, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
 - `class MeshSlots(SlotsMaya)`
