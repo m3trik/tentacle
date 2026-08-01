@@ -121,7 +121,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 | slot file | untriaged | pending | triaged OK | stale (Maya) | prop deltas | status |
 |:--|--:|--:|--:|--:|--:|:--|
-| animation.py | 0 | 0 | 11 | 0 | 0 | OK |
+| animation.py | 0 | 0 | 10 | 0 | 0 | OK |
 | cameras.py | 0 | 0 | 0 | 0 | 0 | OK |
 | crease.py | 0 | 0 | 0 | 0 | 0 | OK |
 | deformation.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -132,7 +132,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
 | lighting.py | 0 | 0 | 0 | 0 | 0 | OK |
 | main.py | 0 | 0 | 0 | 0 | 0 | OK |
-| materials.py | 0 | 2 | 5 | 0 | 0 | open |
+| materials.py | 0 | 1 | 4 | 0 | 0 | open |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
 | pivot.py | 0 | 0 | 6 | 0 | 0 | OK |
@@ -140,7 +140,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 4 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
-| scene.py | 0 | 0 | 9 | 0 | 0 | OK |
+| scene.py | 0 | 0 | 5 | 0 | 0 | OK |
 | selection.py | 0 | 0 | 7 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -153,6 +153,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 #### animation.py
 **combo item deltas (review)**
+  - `_TOOLS_ITEMS[Repair]` 2->1 items; missing=['Repair Visibility Tangents'] extra=[]
   - `cmb002` 5->6 items; missing=['Start', 'End', 'Both', 'Before Start', 'After End'] extra=['When: Range Start', 'When: Range End', 'When: Both Ends', 'When: Before Start', 'When: After End', 'When: Current Frame']
   - `cmb038` 5->4 items; missing=['Mode: Channel Box'] extra=[]
   - `cmb_scope` 2->2 items; missing=['Selected', 'All Scene Objects'] extra=['Scope: Selected', 'Scope: All Scene Objects']
@@ -171,6 +172,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 #### materials.py
 **combo item deltas (review)**
   - `_TOOLS_ITEMS[Materials (scene)]` 4->3 items; missing=['Arnold Preview Shader'] extra=[]
+  - `_TOOLS_ITEMS[Utilities]` 4->3 items; missing=['Enable Viewport Opacity', 'Hypershade Editor'] extra=['Shader Editor']
 
 #### nurbs.py
 **combo item deltas (review)**
@@ -202,9 +204,8 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 ## Open work (ledgered `pending`)
 
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
-- **materials** `tb002` — header PushButton 'Enable Viewport Opacity'  [pending] Enable Viewport Opacity — wires each material's opacity map (in-network, or found beside its other textures on disk) into the slot its shader type honors, so transparency shows in the viewport. Maya's engine side is mtk.MatUtils.enable_viewport_opacity / get_mats_by_scope / find_opacity_source. The Blender twin is buildable on the same shape: find the image texture whose path resolves to an Opacity map, connect its Alpha into the Principled BSDF Alpha socket, and switch the material to blended surface rendering (4.2+ surface_render_method='BLENDED'; blend_method='BLEND' before that) — needs a live Blender pass to pin the version-dependent property, so it is tracked as open work rather than guessed.
 - **uv** `chk043` — optbox QCheckBox 'Brute Force (xatlas)'  [pending] Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=).
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 5 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 4 open-work items; 0 stale Maya handlers. Sweep PASSES.
