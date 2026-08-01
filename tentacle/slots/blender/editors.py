@@ -1,8 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Editors(SlotsBlender):
@@ -96,7 +95,7 @@ class Editors(SlotsBlender):
             w = widget.add(category)
             w.sublist.add(sorted(items))
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Open the picked editor in a new window (category headers are nav-only)."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
@@ -194,9 +193,7 @@ class Editors(SlotsBlender):
         whole session's output — and the shown state (and strip height) persists across
         Blender sessions (restored by TclBlender at launch, like Maya's workspaceControl
         uiScript restore)."""
-        from blendertk.env_utils import script_output
-
-        script_output.ScriptConsole.toggle()
+        btk.ScriptConsole.toggle()
 
     def b011(self):
         """Command Line (Python Console)"""

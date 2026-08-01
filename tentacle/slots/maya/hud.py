@@ -6,8 +6,7 @@ from typing import Optional
 import maya.cmds as cmds
 import pythontk as ptk
 import mayatk as mtk
-from tentacle.slots._hud_warnings import HudWarningsMixin
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import HudWarningsMixin, SlotsMaya
 
 
 class StatusMixin:

@@ -3,7 +3,7 @@
 import mayatk as mtk
 
 # From this Package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Lighting(SlotsMaya):

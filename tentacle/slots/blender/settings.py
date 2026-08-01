@@ -4,7 +4,7 @@ import sys
 import html
 
 import pythontk as ptk
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Settings(SlotsBlender):

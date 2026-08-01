@@ -121,5 +121,94 @@ class TestDccSlotInvariants(unittest.TestCase):
         )
 
 
+# Every module in the slots layer: the concrete per-DCC panels plus the shared
+# ``slots/_<panel>.py`` mixins (the import rules below apply to both).
+def _all_slot_modules():
+    return sorted(
+        f
+        for f in SLOTS_ROOT.rglob("*.py")
+        if f.name != "__init__.py" and "__pycache__" not in f.parts
+    )
+
+
+def _imports(source):
+    """[(module, imported_name)] for every ``from X import Y`` (absolute only)."""
+    out = []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            out.extend((node.module, a.name) for a in node.names)
+        elif isinstance(node, ast.Import):
+            out.extend((a.name, None) for a in node.names)
+    return out
+
+
+class TestSlotImportDiscipline(unittest.TestCase):
+    """The slots layer reaches upstream packages through their namespaces only.
+
+    Two rules, both silent-erosion-prone and so pinned here rather than in a doc:
+
+    1. **uitk comes off the Switchboard**, never a bare import. Every slot instance
+       is handed ``self.sb``, which resolves the whole uitk namespace
+       (``self.sb.IconManager``), the short names (``self.sb.style``,
+       ``self.sb.registered_widgets.X``) and its children's APIs
+       (``self.ui.footer.status_controller(...)``). The sole exemption is
+       ``_slots.py``, where ``Signals`` / ``Cancelable`` are re-exposed on the base:
+       they are class-body decorators, evaluated before any instance — and so before
+       any ``self.sb`` — exists.
+    2. **No deep module paths** into an upstream package. ``mtk.ScriptJobManager``,
+       not ``mayatk.core_utils.script_job_manager``; a deep path hard-codes a layout
+       that is not the package's contract. Applies to tentacle's own namespace too
+       (``from tentacle import SceneMixin``).
+    """
+
+    #: Only this module may import uitk directly — see rule 1.
+    _UITK_IMPORT_EXEMPT = {"_slots.py"}
+
+    #: ``bootstrap_package`` installs the resolver, so it cannot come through it.
+    _DEEP_IMPORT_EXEMPT = {("pythontk.core_utils.module_resolver", "bootstrap_package")}
+
+    _NAMESPACED = ("pythontk", "uitk", "mayatk", "blendertk", "tentacle")
+
+    def test_uitk_is_reached_through_the_switchboard(self):
+        offenders = {}
+        for f in _all_slot_modules():
+            if f.name in self._UITK_IMPORT_EXEMPT:
+                continue
+            hits = [
+                f"{mod}{'.' + name if name else ''}"
+                for mod, name in _imports(f.read_text(encoding="utf-8"))
+                if mod.split(".")[0] == "uitk"
+            ]
+            if hits:
+                offenders[str(f.relative_to(SLOTS_ROOT))] = hits
+        self.assertEqual(
+            offenders,
+            {},
+            "Slot modules must reach uitk through self.sb (self.sb.IconManager, "
+            "self.sb.style, self.sb.registered_widgets.X, self.ui.footer...), not by "
+            f"importing it: {offenders}",
+        )
+
+    def test_upstream_packages_are_reached_by_namespace(self):
+        offenders = {}
+        for f in _all_slot_modules():
+            hits = [
+                f"from {mod} import {name}"
+                for mod, name in _imports(f.read_text(encoding="utf-8"))
+                if name
+                and mod.split(".")[0] in self._NAMESPACED
+                and "." in mod
+                and (mod, name) not in self._DEEP_IMPORT_EXEMPT
+            ]
+            if hits:
+                offenders[str(f.relative_to(SLOTS_ROOT))] = hits
+        self.assertEqual(
+            offenders,
+            {},
+            "Slot modules must import from the package namespace (mtk.X / btk.X / "
+            f"`from tentacle import XMixin`), not a deep module path: {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

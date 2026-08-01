@@ -14,8 +14,9 @@ undo stack on its own -- see ``blendertk.core_utils.undoable``'s docstring.
 This module was born from a real gap: ``list000``'s "assign an existing material by name"
 and "release-on-root reassigns current material" paths both routed through
 ``_assign_named``, which was missing ``@btk.undoable`` while every sibling assignment
-action (b004/b005/b006/b014/b015) had it -- so Ctrl+Z silently no-op'd for those two paths
-only. Fixed by decorating ``_assign_named`` directly; this test guards the regression.
+action (b004/b006/b014/b015, and b005 before it was retired) had it -- so Ctrl+Z silently
+no-op'd for those two paths only. Fixed by decorating ``_assign_named`` directly; this
+test guards the regression.
 """
 import ast
 import sys
@@ -84,7 +85,9 @@ class TestAssignListUndoableConvention(unittest.TestCase):
     def test_sibling_assignment_actions_stay_undoable(self):
         """Locks in the existing convention _assign_named was missing: every other
         material-assignment / bulk-mutation action in the class stays wrapped."""
-        for method in ("b004", "b005", "b006", "b014", "b015"):
+        # b005 (Assign Current) was removed with the panel's Assign button — the
+        # Assign list's root release covers it through @btk.undoable _assign_named.
+        for method in ("b004", "b006", "b014", "b015"):
             with self.subTest(method=method):
                 decorators = _method_decorators(self.source, "MaterialsSlots", method)
                 self.assertIsNotNone(decorators, f"{method} not found in MaterialsSlots")

@@ -9,6 +9,7 @@ Playblast workflow.
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 try:
     import maya.cmds as cmds
@@ -555,22 +556,49 @@ class TestRenderButtonAction(unittest.TestCase):
         self.assertIn(("render_camera", cam_tf), self.ru.calls)
 
 
+class _ExporterPatchMixin:
+    """Swap ``mtk.PlayblastExporter`` for the duration of a test.
+
+    Patched on the ``mtk`` package namespace rather than on ``rendering``: the
+    slot calls ``mtk.PlayblastExporter(...)``, so there is no module-level
+    import to swap. ``patch.object`` reads the real symbol first (settling
+    mayatk's lazy attribute), then drops the stub on exit — mayatk's resolver
+    never caches into the package ``__dict__``, so lookup falls back to the
+    real class and no stub can leak into a later test.
+    """
+
+    def _patch_exporter(self, replacement):
+        """Install *replacement*, undone by :meth:`_unpatch` at the latest."""
+        self._patch = mock.patch.object(
+            rendering_module.mtk, "PlayblastExporter", replacement
+        )
+        self._patch.start()
+        self._patched = True
+
+    def _unpatch(self):
+        """Restore the real exporter. Idempotent: one test drops its stub
+        mid-body to exercise the real path, and tearDown calls this too —
+        ``mock``'s ``stop()`` raises on an already-stopped patcher."""
+        if getattr(self, "_patched", False):
+            self._patch.stop()
+            self._patched = False
+
+    def tearDown(self):
+        self._unpatch()
+        cmds.file(new=True, force=True)
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestExportPlayblastGuard(unittest.TestCase):
+class TestExportPlayblastGuard(_ExporterPatchMixin, unittest.TestCase):
     """tb000 bails early (message + no capture) on a scene with no animation."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self._orig_exporter = rendering_module.PlayblastExporter
 
         def _spy(*a, **k):  # constructing the exporter on a static scene is the bug
             raise AssertionError("PlayblastExporter must not run on a static scene")
 
-        rendering_module.PlayblastExporter = _spy
-
-    def tearDown(self):
-        rendering_module.PlayblastExporter = self._orig_exporter
-        cmds.file(new=True, force=True)
+        self._patch_exporter(_spy)
 
     def _inst(self):
         inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
@@ -594,7 +622,7 @@ class TestExportPlayblastGuard(unittest.TestCase):
         cube = cmds.polyCube(name="anim_cube")[0]
         cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
         cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
-        rendering_module.PlayblastExporter = self._orig_exporter
+        self._unpatch()
         inst = self._inst()
         try:
             inst.tb000(_Widget())
@@ -689,7 +717,7 @@ class _FakeExporter:
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestExportPlayblastAction(unittest.TestCase):
+class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
     """tb000 plumbs the option-box state into PlayblastExporter.export."""
 
     def setUp(self):
@@ -697,14 +725,10 @@ class TestExportPlayblastAction(unittest.TestCase):
         cube = cmds.polyCube(name="anim_cube")[0]
         cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
         cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
-        self._orig_exporter = rendering_module.PlayblastExporter
         _FakeExporter.instances = []
-        _FakeExporter.TARGETS = self._orig_exporter.TARGETS
-        rendering_module.PlayblastExporter = _FakeExporter
-
-    def tearDown(self):
-        rendering_module.PlayblastExporter = self._orig_exporter
-        cmds.file(new=True, force=True)
+        # Real TARGETS read before the swap — the fake mirrors the registry.
+        _FakeExporter.TARGETS = rendering_module.mtk.PlayblastExporter.TARGETS
+        self._patch_exporter(_FakeExporter)
 
     def _widget(self, tmpdir):
         menu = _Menu()

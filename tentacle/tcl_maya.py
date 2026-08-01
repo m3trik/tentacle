@@ -1,11 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import mayatk as mtk
-
-# From this package:
-from uitk.widgets.marking_menu._marking_menu import MarkingMenu
-from uitk.handlers.external_app_handler import ExternalAppHandler
-from mayatk.ui_utils.maya_ui_handler import MayaUiHandler
+from uitk import MarkingMenu, ExternalAppHandler
 
 
 class TclMaya(MarkingMenu):
@@ -37,7 +33,7 @@ class TclMaya(MarkingMenu):
             ui_source=("ui", "ui/maya_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            handlers={"ui": MayaUiHandler, "external_app": ExternalAppHandler},
+            handlers={"ui": mtk.MayaUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,

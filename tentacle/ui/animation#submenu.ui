@@ -356,35 +356,7 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
    </widget>
-   <widget class="QPushButton" name="b000">
-    <property name="geometry">
-     <rect>
-      <x>95</x>
-      <y>195</y>
-      <width>111</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Shot Sequencer</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b004">
+   <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
       <x>95</x>
@@ -395,21 +367,12 @@ Supports negative values to compress timing.</string>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
-      <height>19</height>
+      <width>111</width>
+      <height>0</height>
      </size>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>Shot Manifest</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="b005">
@@ -452,6 +415,12 @@ Supports negative values to compress timing.</string>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ExpandableList</class>
+   <extends>QWidget</extends>
+   <header>widgets.expandablelist.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

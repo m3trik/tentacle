@@ -2,8 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from uitk import Signals, IconManager
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Selection(SlotsBlender):
@@ -29,6 +28,7 @@ class Selection(SlotsBlender):
 
     def __init__(self, switchboard):
         super().__init__(switchboard)
+
         self.ui = self.sb.loaded_ui.selection
         self.submenu = self.sb.loaded_ui.selection_submenu
 
@@ -499,21 +499,20 @@ class Selection(SlotsBlender):
     # in tentacle/docs/parity_map.py instead of silently dropped).
     def list000_init(self, widget):
         """Select by Type: hierarchical type list."""
+        submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up")
+        widget.apply_preset("expand_up" if submenu else "header_menu")
         root = widget.add("By Type")
-        categories = btk.Selection.get_selection_categories()
-        for category, types in categories.items():
-            w = root.sublist.add(category)
-            w.sublist.add(sorted(types))
 
-        # Settings entry (added last so it sits nearest the trigger row —
-        # the list expands upward): a slot-wired button with a settings-gear
-        # prefix icon (set in tb004_init) and no option box, so it stays a
-        # plain list row. Its click is dispatched from list000 to open the
-        # scope / mode menu the leaf actions read.
-        self.add_slot_widget(
-            root.sublist,
+        # Settings entry, positioned nearest the trigger row in both hosts —
+        # last in the submenu (expand_up: last-added sits at the bottom, by
+        # the trigger), first in the panel (header_menu fans right with its
+        # top row aligned to the trigger): a
+        # slot-wired button with a settings-gear prefix icon (set in
+        # tb004_init) and no option box, so it stays a plain list row. Its
+        # click is dispatched from list000 to open the scope / mode menu the
+        # leaf actions read.
+        tb004_kwargs = dict(
             setObjectName="tb004",
             setText="Settings",
             setToolTip=(
@@ -522,6 +521,16 @@ class Selection(SlotsBlender):
                 "replace, add to, or remove from the existing selection."
             ),
         )
+        if not submenu:
+            self.add_slot_widget(root.sublist, **tb004_kwargs)
+
+        categories = btk.Selection.get_selection_categories()
+        for category, types in categories.items():
+            w = root.sublist.add(category)
+            w.sublist.add(sorted(types))
+
+        if submenu:
+            self.add_slot_widget(root.sublist, **tb004_kwargs)
 
     def tb004_init(self, widget):
         """Select by Type settings menu (mirror of the Maya slot's tb004).
@@ -535,7 +544,7 @@ class Selection(SlotsBlender):
         Self-labeling combos (the ``cmb_del_scope`` precedent — two radio
         groups in one menu would need manual QButtonGroup separation).
         """
-        IconManager.set_icon(widget, "settings")
+        self.sb.IconManager.set_icon(widget, "settings")
         # Reproduce the prior option-box popup's config minus the apply button
         # (the sole change asked for): the row's own click opens it (dispatched
         # from list000), so no auto-trigger; the MenuMixin base defaults would
@@ -611,7 +620,7 @@ class Selection(SlotsBlender):
         menu = self.submenu.tb004.menu
         return menu.cmb_bytype_mode.currentData() or "replace"
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Select by Type (native bpy predicates via ``btk.Selection``). Only leaf items act —
         the root and category headers are navigation-only."""

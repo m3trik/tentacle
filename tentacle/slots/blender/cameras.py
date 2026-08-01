@@ -2,8 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Cameras(SlotsBlender):
@@ -77,7 +76,7 @@ class Cameras(SlotsBlender):
         w3 = widget.add("Camera Options")
         w3.sublist.add(["Auto Adjust Clipping", "Reset Clipping"])
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Camera Options List"""
         text = item.item_text()

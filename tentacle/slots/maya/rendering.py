@@ -6,10 +6,8 @@ from typing import List
 import maya.cmds as cmds
 import maya.mel as mel
 
-from uitk.switchboard import Cancelable
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 import mayatk as mtk
-from mayatk.anim_utils.playblast_exporter import PlayblastExporter
 
 
 class Rendering(SlotsMaya):
@@ -236,14 +234,14 @@ class Rendering(SlotsMaya):
         output_combo = menu.cmb050
         output_combo.restore_by = "text"  # registry-driven items; index is unstable
         entries = [
-            (label, [name]) for name, label in PlayblastExporter.available_targets()
+            (label, [name]) for name, label in mtk.PlayblastExporter.available_targets()
         ]
         entries += self._TARGET_BUNDLES
         output_combo.addItems([label for label, _ in entries])
         for idx, (_, target_names) in enumerate(entries):
             output_combo.setItemData(idx, target_names)
 
-    @Cancelable(600)
+    @SlotsMaya.Cancelable(600)
     def tb000(self, widget):
         """Export Playblast"""
 
@@ -277,7 +275,7 @@ class Rendering(SlotsMaya):
         resolution = menu.cmb040.itemData(menu.cmb040.currentIndex()) or (1920, 1080)
         camera_selection = menu.cmb041.itemData(menu.cmb041.currentIndex())
 
-        exporter = PlayblastExporter(
+        exporter = mtk.PlayblastExporter(
             camera=str(camera_selection) if camera_selection else None,
             width=resolution[0],
             height=resolution[1],
@@ -304,7 +302,7 @@ class Rendering(SlotsMaya):
         errors: List[str] = []
         movie_outputs: List[str] = []
         for result in results:
-            label = PlayblastExporter.TARGETS[result.target].label
+            label = mtk.PlayblastExporter.TARGETS[result.target].label
             if not result.ok:
                 errors.append(f"{label}: {result.error}")
             elif isinstance(result.output, list):
@@ -482,7 +480,7 @@ class Rendering(SlotsMaya):
     @staticmethod
     def _scene_base_name() -> str:
         # Single source of truth — includes the batch phantom-"untitled" guard.
-        return PlayblastExporter.scene_name()
+        return mtk.PlayblastExporter.scene_name()
 
     @staticmethod
     def _camera_transforms() -> List[str]:

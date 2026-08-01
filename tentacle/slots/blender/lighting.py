@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Lighting(SlotsBlender):

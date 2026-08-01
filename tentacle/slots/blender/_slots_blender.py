@@ -2,7 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle.slots._slots import Slots
+from tentacle import Slots
 
 
 class SlotsBlender(Slots):

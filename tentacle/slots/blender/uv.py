@@ -4,8 +4,7 @@ import math
 
 import bpy
 import blendertk as btk
-from tentacle.slots.blender._slots_blender import SlotsBlender
-from tentacle.slots._uv import UvMixin
+from tentacle import UvMixin, SlotsBlender
 
 
 class Uv(UvMixin, SlotsBlender):

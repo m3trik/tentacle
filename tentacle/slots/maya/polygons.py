@@ -4,7 +4,7 @@ import maya.cmds as cmds
 import maya.mel as mel
 import pythontk as ptk
 import mayatk as mtk
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class PolygonsSlots(SlotsMaya):

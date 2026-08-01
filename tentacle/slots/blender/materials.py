@@ -3,9 +3,7 @@
 import bpy
 import pythontk as ptk
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots.blender._slots_blender import SlotsBlender
-from tentacle.slots._materials import MaterialsMixin
+from tentacle import MaterialsMixin, SlotsBlender
 
 
 class MaterialsSlots(MaterialsMixin, SlotsBlender):
@@ -90,6 +88,27 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             ("RealityCapture Workflow", "b024", ""),
             ("Brush Splat Workflow", "b025", ""),
         ],
+        # Folded in from the header menu's Utilities section. Maya's
+        # "Enable Viewport Opacity" (tb002) has no Blender analogue — EEVEE
+        # reads alpha from the shader graph directly (parity override).
+        "Utilities": [
+            (
+                "Reload Scene Textures",
+                "b013",
+                "Reload file textures for all scene materials.",
+            ),
+            (
+                "Get Material Info",
+                "tb001",
+                "Show a formatted report of materials/textures (resolution, mode, format, "
+                "bit depth, file size). Scope + filters are set via the option box.",
+            ),
+            (
+                "Shader Editor",
+                "b_shader_editor",
+                "Open the Shader (node) Editor — Blender's analogue of Maya's Hypershade.",
+            ),
+        ],
     }
 
     def __init__(self, switchboard):
@@ -99,25 +118,9 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self.last_random_material = None  # material NAME (undo-safe — see _resolve_material)
 
     # ------------------------------------------------------------------ header (Utilities)
-    def header_init(self, widget):
-        """Header menu — Utilities (Setup tools live in the submenu Tools list, mirroring Maya)."""
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add("Separator", setTitle="Utilities")
-        widget.menu.add(
-            "QPushButton", setText="Reload Scene Textures", setObjectName="b013",
-            setToolTip="Reload file textures for all scene materials.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton, setText="Get Material Info", setObjectName="tb001",
-            setToolTip="Show a formatted report of materials/textures (resolution, mode, format, "
-            "bit depth, file size). Scope + filters are set via the option box.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Shader Editor", setObjectName="b_shader_editor",
-            setToolTip="Open the Shader (node) Editor — Blender's analogue of Maya's Hypershade.",
-            clicked=lambda: btk.open_editor("Shader Editor"),
-        )
+    def b_shader_editor(self):
+        """Shader Editor — Blender's analogue of Maya's Hypershade."""
+        btk.open_editor("Shader Editor")
 
     # ------------------------------------------------------------------ cmb002  Material list
     def cmb002_init(self, widget):
@@ -508,13 +511,20 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         except Exception:  # fall back to a plain box if the host has no dialog
             self.sb.message_box(html)
 
-    # ------------------------------------------------------------------ Submenu Assign list
+    # ------------------------------------------------------------------ Assign list
     def list000_init(self, widget):
-        """Assign list: 'Assign: <current>' root + New / Random + scene materials."""
+        """Assign list: 'Assign: <current>' root + New / Random + scene materials.
+
+        This *is* the panel's assign surface — it replaced the Assign /
+        Assign Random / New buttons, each of which reached one action where
+        the list reaches all of them plus every material in the scene.
+        """
         if not getattr(widget, "_assign_list_configured", False):
             widget.refresh_on_show = True
             widget.fixed_item_height = 18
-            widget.apply_preset("expand_right")
+            widget.apply_preset(
+                "expand_right" if widget.ui.has_tags("submenu") else "header_menu"
+            )
             widget._assign_list_configured = True
             if not getattr(self.ui.cmb002, "is_initialized", False):
                 self.ui.cmb002.init_slot()
@@ -528,7 +538,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         for mat in btk.get_scene_mats(sort=True):
             root.sublist.add(mat.name)
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Assign list: root assigns the current material; New/Random route to b006/b004;
         any other leaf is a material name assigned directly."""
@@ -564,16 +574,33 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ Submenu Tools list
     def list001_init(self, widget):
-        """Tools list (Setup tools with a native Blender op)."""
+        """Tools list (Setup tools with a native Blender op).
+
+        Rows are plain labels dispatched by ``list001``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb001's
+        report scope/filters), which is lost on a plain label, so those are
+        added as real slot-wired widgets.
+        """
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up")
+        widget.apply_preset(
+            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         root = widget.add("Tools")
         for category, items in self._TOOLS_ITEMS.items():
             cat = root.sublist.add(category)
-            for label, _slot, *rest in items:
-                cat.sublist.add(label, setToolTip=rest[0] if rest else "")
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    cat.sublist.add(label, setToolTip=tooltip)
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list001(self, item):
         """Dispatch a Tools-list selection to its slot method."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
@@ -582,7 +609,14 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         parent = item.parent_item_text() or ""
         for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
             if label == text:
-                getattr(self, slot_name)()
+                slot = getattr(self, slot_name, None)
+                if not callable(slot):
+                    return
+                # Slots vary: some take the invoking widget, some take none.
+                try:
+                    slot(item)
+                except TypeError:
+                    slot()
                 return
 
     # ------------------------------------------------------------------ b-slots (assign / get)
@@ -619,22 +653,6 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self.last_random_material = new_mat.name
         self.ui.cmb002.init_slot()
         self.ui.cmb002.setAsCurrent(new_mat.name)
-
-    @btk.undoable
-    def b005(self, widget=None):
-        """Assign Current"""
-        selection = self.selected_objects()
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-        name = self.ui.cmb002.currentData()
-        if not name:
-            self.sb.message_box("No material selected in the materials list.")
-            return
-        mat = self._resolve_material(name)
-        if mat is None:
-            return
-        btk.assign_mat(selection, mat)
 
     @btk.undoable
     def b006(self, widget=None):

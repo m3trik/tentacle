@@ -559,7 +559,8 @@ HANDLERS = {
         # Import/Export ExpandableLists (list001/list002, scene#submenu.ui) on BOTH sides — same
         # items, same dispatch tables; the submenu's b007 Import button and tb003 Export PushButton
         # folded into them (tb003 is now list002's first entry, created dynamically with its
-        # option box; the header launcher was renamed b018 so the slot file adds tb003 once).
+        # option box). 2026-08-01: the header's plain "Export Scene" launcher (b018) was dropped
+        # on BOTH sides — redundant with that list entry, which carries the option box.
     },
     # display.py list000 (ExpandableList) — PARITY_SURFACE.md "combo item deltas (review)" for
     # this file. Audited 2026-07-04: Component ID / Mat Override / Soft Edge Display / UV

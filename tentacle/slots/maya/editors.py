@@ -2,8 +2,8 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
-from uitk import Signals
-from tentacle.slots.maya._slots_maya import SlotsMaya
+import mayatk as mtk
+from tentacle import SlotsMaya
 
 
 class Editors(SlotsMaya):
@@ -93,7 +93,7 @@ class Editors(SlotsMaya):
             w = widget.add(category)
             w.sublist.add(sorted(items))
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Open the chosen Maya editor (general, modeling, animation, rendering, or relationship)."""
         text = item.item_text()
@@ -314,9 +314,7 @@ class Editors(SlotsMaya):
 
     def b010(self):
         """Script Output"""
-        from mayatk.env_utils import script_output
-
-        script_output.ScriptConsole.toggle(
+        mtk.ScriptConsole.toggle(
             dock=("TimeSlider", "top"), tab_position="right", height=50
         )
 

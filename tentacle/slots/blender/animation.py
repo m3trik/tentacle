@@ -2,7 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Animation(SlotsBlender):
@@ -22,49 +22,121 @@ class Animation(SlotsBlender):
         self.ui = self.sb.loaded_ui.animation
         self._copied_action = None
 
-    def header_init(self, widget):
-        """Header menu — mirror of the Maya animation header. Sequencing (Shot Manifest /
-        Shot Sequencer) launches the native blendertk shots panels (added 2026-07-12, after the
-        Shots trio shipped — previously omitted as Maya-only). Only the Repair Visibility
-        Tangents tool stays omitted rather than shown as a dead entry. Reused objectNames carry
-        the Maya label verbatim (cross-DCC QSettings rule)."""
-        Btn = self.sb.registered_widgets.PushButton
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add("Separator", setTitle="Sequencing")
-        widget.menu.add(
-            "QPushButton", setText="Shot Manifest", setObjectName="b004",
-            setToolTip="Import a CSV sequence document and build scenes.",
+    #: ``category -> [(label, objectName, tooltip)]`` for the header Tools list
+    #: (was five separator sections of loose header buttons). Mirror of the Maya
+    #: animation Tools list; Sequencing (Shot Manifest / Shot Sequencer) launches
+    #: the native blendertk shots panels (added 2026-07-12, after the Shots trio
+    #: shipped — previously omitted as Maya-only). Only Maya's Repair Visibility
+    #: Tangents stays omitted rather than shown as a dead entry. Reused
+    #: objectNames carry the Maya label verbatim (cross-DCC QSettings rule).
+    _TOOLS_ITEMS = {
+        "Sequencing": [
+            (
+                "Shot Manifest",
+                "b004",
+                "Import a CSV sequence document and build scenes.",
+            ),
+            (
+                "Shot Sequencer",
+                "b000",
+                "Open the sequencer for managing per-scene animation with ripple editing.",
+            ),
+        ],
+        "Repair": [
+            (
+                "Repair Corrupted Curves",
+                "tb015",
+                "Remove corrupted keyframes (NaN/infinite values, absurd key times) and "
+                "delete curves left with no valid keys.\nUse the option box to choose which fixes apply.",
+            ),
+        ],
+        "Bake": [
+            (
+                "Smart Bake",
+                "tb020",
+                "Open the Smart Bake panel.\n"
+                "Analyzes and bakes constraints, drivers/expressions, IK, and blend shapes\n"
+                "— with a one-click Unbake to reverse the most recent bake, even after a "
+                "scene reopen.",
+            ),
+        ],
+        "Playback": [
+            (
+                "Fit Playback Range",
+                "b005",
+                "Set the playback range to the keyed extent of the selection (or scene).",
+            ),
+        ],
+        "Info": [
+            (
+                "Get Animation Info",
+                "tb016",
+                "Show a per-object keyframe summary (range / channels / keys) in a viewer.\n"
+                "Use the option box to choose scope (Selected / All) and sort order.",
+            ),
+        ],
+    }
+
+    def list000_init(self, widget):
+        """Tools list: Sequencing / Repair / Bake / Playback / Info.
+
+        Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb015,
+        tb016), which is lost on a plain label, so those are added as real
+        slot-wired widgets carrying their original objectNames.
+
+        The submenu hosts the same list where the Shot Sequencer / Shot
+        Manifest buttons used to sit (upper-left of the radial overlay), so it
+        opens upward over itself and fans left; the panel row fans right.
+        Category order follows suit: the upward flyout is anchored at the
+        trigger's bottom edge, so its LAST-added row is the one that lands
+        under the cursor — populated in reverse there to put Sequencing (the
+        two buttons this list replaced) where those buttons used to be. The
+        panel's flyout fans right with its top row on the trigger, so it keeps
+        natural order.
+        """
+        submenu = widget.ui.has_tags("submenu")
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_overlay_up_left" if submenu else "header_menu")
+        root = widget.add(
+            "Tools",
+            setToolTip="Sequencing, repair, bake, playback and info tools.",
         )
-        widget.menu.add(
-            "QPushButton", setText="Shot Sequencer", setObjectName="b000",
-            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
-        )
-        widget.menu.add("Separator", setTitle="Repair")
-        widget.menu.add(
-            Btn, setText="Repair Corrupted Curves", setObjectName="tb015",
-            setToolTip="Remove corrupted keyframes (NaN/infinite values, absurd key times) and "
-            "delete curves left with no valid keys.\nUse the option box to choose which fixes apply.",
-        )
-        widget.menu.add("Separator", setTitle="Bake")
-        widget.menu.add(
-            Btn, setText="Smart Bake", setObjectName="tb020",
-            setToolTip="Open the Smart Bake panel.\n"
-            "Analyzes and bakes constraints, drivers/expressions, IK, and blend shapes\n"
-            "— with a one-click Unbake to reverse the most recent bake, even after a "
-            "scene reopen.",
-        )
-        widget.menu.add("Separator", setTitle="Playback")
-        widget.menu.add(
-            "QPushButton", setText="Fit Playback Range", setObjectName="b005",
-            setToolTip="Set the playback range to the keyed extent of the selection (or scene).",
-        )
-        widget.menu.add("Separator", setTitle="Info")
-        widget.menu.add(
-            Btn, setText="Get Animation Info", setObjectName="tb016",
-            setToolTip="Show a per-object keyframe summary (range / channels / keys) in a viewer.\n"
-            "Use the option box to choose scope (Selected / All) and sort order.",
-        )
+        categories = list(self._TOOLS_ITEMS.items())
+        if submenu:
+            categories.reverse()
+        for category, items in categories:
+            cat = root.sublist.add(category)
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    cat.sublist.add(label, setToolTip=tooltip)
+
+    @SlotsBlender.Signals("on_item_interacted")
+    def list000(self, item):
+        """Dispatch a Tools leaf to its slot method."""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        text = item.item_text()
+        parent = item.parent_item_text() or ""
+        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
+            if label == text:
+                slot = getattr(self, slot_name, None)
+                if not callable(slot):
+                    return
+                # Slots vary: some take the invoking widget, some take none.
+                try:
+                    slot(item)
+                except TypeError:
+                    slot()
+                return
 
     # ------------------------------------------------------------------ tb000  Go To Frame
     def tb000_init(self, widget):

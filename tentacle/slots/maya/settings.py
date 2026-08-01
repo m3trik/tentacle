@@ -8,7 +8,7 @@ import mayatk as mtk
 import pythontk as ptk
 
 # From this package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Settings(SlotsMaya):
@@ -126,7 +126,7 @@ class Settings(SlotsMaya):
             return
 
         try:
-            from tentacle.tcl_maya import TclMaya
+            from tentacle import TclMaya
         except Exception as error:
             print(f"Tentacle restore skipped: {error}")
             return

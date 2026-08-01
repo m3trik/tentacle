@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import bpy
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Utilities(SlotsBlender):

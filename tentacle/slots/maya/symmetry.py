@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import maya.cmds as cmds
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Symmetry(SlotsMaya):

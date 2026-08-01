@@ -3,8 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Nurbs(SlotsMaya):
@@ -58,7 +57,9 @@ class Nurbs(SlotsMaya):
     def list000_init(self, widget):
         """Initialize Nurbs expandable list (categories → curve actions)."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_overlay")
+        widget.apply_preset(
+            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+        )
 
         root = widget.add("Nurbs")
 
@@ -66,7 +67,7 @@ class Nurbs(SlotsMaya):
             cat = root.sublist.add(category)
             cat.sublist.add([label for label, _ in items])
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings)."""
         if getattr(item, "sublist", None) and item.sublist.get_items():

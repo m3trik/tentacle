@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class DeformationSlots(SlotsMaya):

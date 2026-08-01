@@ -3,10 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals
-from uitk.switchboard import Cancelable
-from tentacle.slots._edit import EditMixin
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import EditMixin, SlotsMaya
 
 
 class Edit(EditMixin, SlotsMaya):
@@ -20,6 +17,14 @@ class Edit(EditMixin, SlotsMaya):
         """Initialize header menu"""
         # Every entry is a one-shot action — dismiss the menu once one is triggered.
         widget.menu.hide_on_trigger = True
+        # Submenu expandable lists surfaced in the panel: Create / Convert
+        # rows whose flyouts fan right on hover (the shared listNNN_init
+        # applies the header_menu preset here).
+        for list_name in ("list000", "list001"):
+            widget.menu.add(
+                self.sb.registered_widgets.ExpandableList,
+                setObjectName=list_name,
+            )
         widget.menu.add(
             "QPushButton",
             setText="Channels",
@@ -258,7 +263,7 @@ class Edit(EditMixin, SlotsMaya):
 
         return _count(vertex=True), _count(face=True)
 
-    @Cancelable(120)
+    @SlotsMaya.Cancelable(120)
     def tb000(self, widget):
         """Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
 
@@ -591,7 +596,9 @@ class Edit(EditMixin, SlotsMaya):
     def list000_init(self, widget):
         """Initialize Create Primitives list."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_left")
+        widget.apply_preset(
+            "expand_left" if widget.ui.has_tags("submenu") else "header_menu"
+        )
 
         root = widget.add("Create")
 
@@ -653,7 +660,7 @@ class Edit(EditMixin, SlotsMaya):
             w = root.sublist.add(category)
             w.sublist.add(types)
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Create Primitive"""
         if getattr(item, "sublist", None) and item.sublist.get_items():
@@ -731,13 +738,15 @@ class Edit(EditMixin, SlotsMaya):
     def list001_init(self, widget):
         """Initialize Convert list."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_down")
+        widget.apply_preset(
+            "expand_down" if widget.ui.has_tags("submenu") else "header_menu"
+        )
 
         root = widget.add("Convert")
         root.sublist.setMinimumWidth(180)
         root.sublist.add(list(self._CONVERT_COMMANDS))
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list001(self, item):
         """Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.)."""
         if getattr(item, "sublist", None) and item.sublist.get_items():

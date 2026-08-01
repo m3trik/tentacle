@@ -3,8 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Cameras(SlotsMaya):
@@ -70,7 +69,7 @@ class Cameras(SlotsMaya):
         options = ["Auto Adjust Clipping", "Reset Clipping"]
         w3.sublist.add(options)
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Camera Options List"""
         text = item.item_text()

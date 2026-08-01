@@ -3,8 +3,7 @@
 import os
 
 import blendertk as btk
-from uitk import Signals, RecentValuesStore, IconManager
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Main(SlotsBlender):
@@ -50,7 +49,7 @@ class Main(SlotsBlender):
             # construction). Namespaced "_blender" so it never collides with Maya's project
             # history under the same QSettings store (host-namespaced persistence — Maya and
             # Blender workspaces are different concepts even though both are "project dirs").
-            self._workspace_store = RecentValuesStore(
+            self._workspace_store = self.sb.RecentValuesStore(
                 settings_key="workspace_recent_projects_blender",
                 max_recent=10,
                 display_format="auto",
@@ -96,7 +95,7 @@ class Main(SlotsBlender):
         workspace_dir = btk.get_env_info("workspace_dir")
         if workspace and os.path.isdir(workspace):
             w = widget.add(workspace_dir, data=workspace)
-            IconManager.set_label_icon(w, "folder_filled")
+            self.sb.IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_contents(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)
@@ -117,11 +116,11 @@ class Main(SlotsBlender):
         for name in dirs:
             full = os.path.join(path, name)
             item = sublist.add(name, data=full)
-            IconManager.set_label_icon(item, "folder_filled")
+            self.sb.IconManager.set_label_icon(item, "folder_filled")
             if max_depth > 1:
                 self._populate_dir_contents(item.sublist, full, max_depth - 1)
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Workspace tab dispatch — editing actions, recent-workspace selection, and the
         directory-browser entries."""

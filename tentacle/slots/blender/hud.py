@@ -4,8 +4,7 @@ import os
 
 import bpy
 import blendertk as btk
-from tentacle.slots._hud_warnings import HudWarningsMixin
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import HudWarningsMixin, SlotsBlender
 
 
 class StatusMixin:

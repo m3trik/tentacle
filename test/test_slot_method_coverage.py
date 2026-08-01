@@ -28,6 +28,7 @@ a one-line justification.
 from __future__ import annotations
 
 import ast
+import functools
 import re
 import unittest
 from pathlib import Path
@@ -99,23 +100,42 @@ def _ui_widget_names(ui_path: Path) -> list[str]:
     return found
 
 
-def _shared_mixin_paths(tree: ast.Module) -> dict[str, Path]:
-    """``{imported name: file}`` for bases pulled from ``tentacle.slots.*``.
+@functools.lru_cache(maxsize=1)
+def _mixin_index() -> dict[str, Path]:
+    """``{class name: file}`` for every shared mixin in ``tentacle/slots/_*.py``.
 
-    Shared, DCC-agnostic mixins (e.g. ``PreferencesMixin``, which supplies
-    the window-theme combos to every DCC's ``Preferences``) define slots the
-    module itself doesn't — resolving them keeps those from reading as ghosts.
+    Indexed by CLASS name rather than by import path: a concrete panel now pulls
+    its mixin off the package namespace (``from tentacle import MaterialsMixin``),
+    so the module path is no longer written at the import site. Shared,
+    DCC-agnostic mixins (e.g. ``PreferencesMixin``, which supplies the
+    window-theme combos to every DCC's ``Preferences``) define slots the module
+    itself doesn't — resolving them keeps those from reading as ghosts.
     """
+    index: dict[str, Path] = {}
+    for path in sorted((ROOT / "tentacle" / "slots").glob("_*.py")):
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (SyntaxError, OSError):
+            continue
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
+                index[node.name] = path
+    return index
+
+
+def _shared_mixin_paths(tree: ast.Module) -> dict[str, Path]:
+    """``{imported name: file}`` for shared mixins this module imports, however
+    spelled — ``from tentacle import X`` or ``from tentacle.slots._x import X``."""
+    index = _mixin_index()
     mapping: dict[str, Path] = {}
     for node in ast.walk(tree):
         if not isinstance(node, ast.ImportFrom) or not node.module:
             continue
-        if not node.module.startswith("tentacle.slots"):
+        if node.module.split(".")[0] != "tentacle":
             continue
-        base_dir = ROOT.joinpath(*node.module.split("."))
         for alias in node.names:
-            path = base_dir.with_suffix(".py")
-            if path.exists():
+            path = index.get(alias.name)
+            if path is not None:
                 mapping[alias.asname or alias.name] = path
     return mapping
 

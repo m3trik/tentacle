@@ -5,8 +5,7 @@ import maya.mel as mel
 import mayatk as mtk
 
 # From this package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
-from tentacle.slots._uv import UvMixin
+from tentacle import UvMixin, SlotsMaya
 
 
 class UvSlots(UvMixin, SlotsMaya):
@@ -710,11 +709,8 @@ class UvSlots(UvMixin, SlotsMaya):
         shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
         tilePadding = shellPadding / 2
 
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
-            )
+        selection = self.require_selection()
+        if selection is None:
             return
 
         # Instances share one shape + UV set, so packing every instance is
@@ -943,11 +939,8 @@ class UvSlots(UvMixin, SlotsMaya):
         mode = menu.cmb011.currentData()
         map_size = self.get_map_size()
 
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
-            )
+        selection = self.require_selection()
+        if selection is None:
             return
 
         if mode in self.AUTO_UNWRAP_ENGINE_MODES:
@@ -1055,8 +1048,12 @@ class UvSlots(UvMixin, SlotsMaya):
         map_size = self.get_map_size()
 
         # Capture the operands before any mode switch, so the repair / warn paths
-        # can locate non-manifold geometry on them.
-        objects = cmds.ls(sl=True, objectsOnly=True) or []
+        # can locate non-manifold geometry on them. Guard first: u3dUnfold only
+        # logs an error on an empty selection, but the orient pass below is MEL
+        # (texOrientShells -> texCheckSelection) and raises outright.
+        objects = self.require_selection(objectsOnly=True)
+        if objects is None:
+            return
 
         # u3dUnfold flattens the whole object; make sure we're in object mode so a
         # leftover component selection (common mid-UV-edit) can't scope it to a
@@ -1188,11 +1185,8 @@ class UvSlots(UvMixin, SlotsMaya):
         force_rename = widget.option_box.menu.chk038.isChecked()
         dry_run = widget.option_box.menu.chk030.isChecked()
 
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least one selected object."
-            )
+        selection = self.require_selection()
+        if selection is None:
             return
 
         results = mtk.Diagnostics.cleanup_uv_sets(
@@ -1299,12 +1293,12 @@ class UvSlots(UvMixin, SlotsMaya):
         unfold = widget.option_box.menu.chk041.isChecked()
         orient = widget.option_box.menu.chk042.isChecked()
 
-        selection = cmds.ls(sl=True, objectsOnly=True) or []
-        if not selection:
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>The operation requires at least one "
-                "cylinder / tube mesh."
-            )
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>The operation requires at least one "
+            "cylinder / tube mesh.",
+            objectsOnly=True,
+        )
+        if selection is None:
             return
 
         seamed = mtk.UvUtils.unwrap_cylinder(
@@ -1425,26 +1419,35 @@ class UvSlots(UvMixin, SlotsMaya):
 
     def b003(self):
         """Get texel density."""
-        density = mtk.get_texel_density(cmds.ls(sl=True) or [], self.get_map_size())
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>Select the object(s) to measure."
+        )
+        if selection is None:
+            return
+        density = mtk.get_texel_density(selection, self.get_map_size())
         self.ui.s003.setValue(density)
 
     @mtk.undoable
     def b004(self):
         """Set Texel Density"""
-        density = self.ui.s003.value()
-        map_size = self.get_map_size()
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>Select the object(s) to set the texel density on."
+        )
+        if selection is None:
+            return
 
-        mtk.set_texel_density(cmds.ls(sl=True) or [], density, map_size)
+        mtk.set_texel_density(selection, self.ui.s003.value(), self.get_map_size())
 
     @mtk.undoable
     def b005(self):
         """Cut UVs: split the UV shell along the selected edges."""
-        selection = cmds.ls(sl=True) or []
-        selected_edges = cmds.filterExpand(selection, selectionMask=32)
-
-        if not selection:
-            self.sb.message_box("Nothing selected")
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>Select UV edge(s) to cut along, or mesh "
+            "object(s) to cut every edge of."
+        )
+        if selection is None:
             return
+        selected_edges = cmds.filterExpand(selection, selectionMask=32)
 
         if selected_edges:
             # cut_uv_edges groups per object (polyMapCut refuses multi-object lists).
@@ -1473,7 +1476,13 @@ class UvSlots(UvMixin, SlotsMaya):
     @mtk.undoable
     def b011(self):
         """Sew UVs: stitch the selected UV edges back together."""
-        selected = cmds.ls(sl=True, flatten=True) or []
+        selected = self.require_selection(
+            "<b>Nothing selected.</b><br>Select UV edge(s) to sew, or mesh "
+            "object(s) to sew every edge of.",
+            flatten=True,
+        )
+        if selected is None:
+            return
 
         # Edges (component selection) — sew directly
         edges = cmds.filterExpand(selected, selectionMask=32) or []
@@ -1496,6 +1505,10 @@ class UvSlots(UvMixin, SlotsMaya):
 
     def b021(self, widget):
         """Unfold and Pack UVs"""
+        # Guard here as well as in each step, so an empty selection reports once
+        # instead of twice (unfold's box, then pack's).
+        if self.require_selection() is None:
+            return
         self.ui.tb004.call_slot()  # perform unfold
         self.ui.tb000.call_slot()  # perform pack
 
@@ -1541,9 +1554,11 @@ class UvSlots(UvMixin, SlotsMaya):
         include_uv_borders = widget.option_box.menu.chk025.isChecked()
         include_auto_seams = widget.option_box.menu.chk026.isChecked()
 
-        objects = cmds.ls(sl=True, objectsOnly=True) or []
-        if not objects:
-            self.sb.message_box("Nothing selected")
+        objects = self.require_selection(
+            "<b>Nothing selected.</b><br>Select the mesh object(s) to cut.",
+            objectsOnly=True,
+        )
+        if objects is None:
             return
 
         # Hard edges (always on) — cut along edges within the angle range.
@@ -1585,9 +1600,10 @@ class UvSlots(UvMixin, SlotsMaya):
         on. A selection change since the last click resets the toggle, so the
         next click always starts with Pin.
         """
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box("<b>Nothing selected.</b>")
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>Select the UVs to pin."
+        )
+        if selection is None:
             return
         uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
         if not uvs:
@@ -1621,9 +1637,10 @@ class UvSlots(UvMixin, SlotsMaya):
         Per-UV capture and restore avoid an ordering ambiguity in bulk
         ``polyEditUV(..., query=True)``.
         """
-        selection = cmds.ls(sl=True) or []
-        if not selection:
-            self.sb.message_box("<b>Nothing selected.</b>")
+        selection = self.require_selection(
+            "<b>Nothing selected.</b><br>Select the shell(s) to stack."
+        )
+        if selection is None:
             return
         uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
         uvs = cmds.ls(uvs, flatten=True) or []

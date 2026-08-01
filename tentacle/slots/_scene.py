@@ -2,15 +2,22 @@
 # coding=utf-8
 """Behavior shared by the Maya and Blender ``scene`` panels.
 
-Currently the **Fix Non-Orthogonal Axes** header entry (``tb002``): the scan,
-the report, the confirmation and the result summary are identical on both
-sides because both engines expose the same
-``Diagnostics.get_non_orthogonal`` / ``.fix_non_orthogonal_axes`` contract
-(``mayatk.core_utils.diagnostics.transform_diag`` /
-``blendertk.core_utils.diagnostics.transform_diag``) returning the same
-``{object: {"skew": float, "cause": str}}`` diagnosis. Only the engine handle,
-the scope resolvers and the wording of what the fix *does* to the object are
-DCC-specific — those are the hooks below.
+Two subsystems live here:
+
+* the **Fix Non-Orthogonal Axes** header entry (``tb002``): the scan, the
+  report, the confirmation and the result summary are identical on both sides
+  because both engines expose the same ``Diagnostics.get_non_orthogonal`` /
+  ``.fix_non_orthogonal_axes`` contract
+  (``mayatk.core_utils.diagnostics.transform_diag`` /
+  ``blendertk.core_utils.diagnostics.transform_diag``) returning the same
+  ``{object: {"skew": float, "cause": str}}`` diagnosis; and
+* the **workspace status footer**: identical wiring on both sides — subscribe
+  the engine's ``ScriptJobManager`` to the DCC's scene events, own the
+  controller, refresh on each event.
+
+Only the engine handle, the scope resolvers, the wording of what the fix *does*
+to the object, and which events signal a workspace change are DCC-specific —
+those are the hooks below.
 """
 
 import html
@@ -32,11 +39,66 @@ class SceneMixin:
         """Return the current selection."""
         raise NotImplementedError
 
+    def _script_job_manager(self):
+        """Return the DCC engine's ``ScriptJobManager`` class (``mtk``/``btk``)."""
+        raise NotImplementedError
+
+    def _resolve_workspace_text(self) -> str:
+        """Return the current workspace path — the footer's status text."""
+        raise NotImplementedError
+
+    # ------------------------------------------------- workspace status footer
+    FOOTER_DEFAULT_TEXT = "No workspace set"
+    FOOTER_TRUNCATE = {"length": 96, "mode": "middle"}
+
+    #: Set by the fork's ``__init__`` from :meth:`_create_footer_controller`.
+    #: Declared here because the handler below reads it, and the subscription is
+    #: live from inside that call — before the assignment lands.
+    _footer_controller = None
+
+    def _create_footer_controller(self):
+        """Bind the panel footer to the workspace resolver and return the controller.
+
+        Each fork must declare ``FOOTER_EVENTS`` — the engine event names whose
+        firing means the workspace may have changed. Maya has a real
+        ``workspaceChanged``; Blender has none, so it settles for scene open/save
+        (a session-pin change shows on the next file event). There is deliberately
+        no default: an empty one would build a footer subscribed to nothing, which
+        never refreshes — the exact silent failure this wiring was moved off a
+        widget ``_init`` to avoid. A fork that forgets it raises here instead.
+
+        That move is the other half of the story: the subscription previously rode
+        the Workspace-Scenes combo's ``_init``, which went dead when that widget
+        left scene.ui. The footer is owned by the MainWindow, so it outlives every
+        widget ``_init``.
+
+        The controller comes off the footer widget itself
+        (:meth:`uitk.Footer.status_controller`) rather than an imported class: a slot's
+        uitk access goes through the Switchboard — ``self.ui`` here — and nothing else.
+        """
+        footer = getattr(self.ui, "footer", None)
+        if not footer:
+            return None
+        mgr = self._script_job_manager().instance()
+        for event in self.FOOTER_EVENTS:
+            mgr.subscribe(event, self._on_workspace_changed, owner=footer)
+        mgr.connect_cleanup(footer, owner=footer)
+        return footer.status_controller(
+            resolver=self._resolve_workspace_text,
+            default_text=self.FOOTER_DEFAULT_TEXT,
+            truncate_kwargs=self.FOOTER_TRUNCATE,
+        )
+
+    def _on_workspace_changed(self):
+        """Engine event handler — refresh the footer's workspace status."""
+        if self._footer_controller:
+            self._footer_controller.update()
+
+    # --------------------------------------------------- tb002  fix non-orthogonal
     # What freezing/baking actually does to the object in this DCC — shown in
     # the confirmation so the user knows the side effect before committing.
     NON_ORTHOGONAL_FIX_EFFECT = ""
 
-    # --------------------------------------------------- tb002  fix non-orthogonal
     _TB002_SCOPES = (
         ("Selected Objects", "selection"),
         ("Entire Scene", "all"),
@@ -66,16 +128,6 @@ class SceneMixin:
 
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Report Only (Dry Run)",
-            setObjectName="chk_dry_run",
-            setChecked=False,
-            setToolTip=(
-                "List the offending objects without changing anything.\n"
-                "Run this first to see what would be touched."
-            ),
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
             setText="Break Driving Connections",
             setObjectName="chk_break_connections",
             setChecked=False,
@@ -87,6 +139,16 @@ class SceneMixin:
                 "Tick to permanently remove those drivers and fix the objects "
                 "anyway. Position-only drivers never block the fix and are "
                 "always kept."
+            ),
+        )
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Report Only (Dry Run)",
+            setObjectName="chk_dry_run",
+            setChecked=False,
+            setToolTip=(
+                "List the offending objects without changing anything.\n"
+                "Run this first to see what would be touched."
             ),
         )
 
@@ -194,7 +256,10 @@ class SceneMixin:
         it gets the further the object is from something FBX can represent.
         """
         rows = sorted(found.items(), key=lambda kv: kv[1]["skew"], reverse=True)
-        shown, dropped = rows[: self._TB002_REPORT_LIMIT], rows[self._TB002_REPORT_LIMIT :]
+        shown, dropped = (
+            rows[: self._TB002_REPORT_LIMIT],
+            rows[self._TB002_REPORT_LIMIT :],
+        )
 
         lines = [
             f"{len(found)} object(s) with non-orthogonal axes",

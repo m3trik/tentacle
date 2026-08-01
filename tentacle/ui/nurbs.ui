@@ -70,6 +70,19 @@
        </widget>
       </item>
       <item>
+       <widget class="ExpandableList" name="list000" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="b056">
         <property name="minimumSize">
          <size>
@@ -306,6 +319,12 @@
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ExpandableList</class>
+   <extends>QWidget</extends>
+   <header>widgets.expandablelist.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
