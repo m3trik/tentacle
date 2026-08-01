@@ -2,9 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots._edit import EditMixin
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import EditMixin, SlotsBlender
 
 
 class Edit(EditMixin, SlotsBlender):
@@ -145,6 +143,14 @@ class Edit(EditMixin, SlotsBlender):
     def header_init(self, widget):
         # Every entry is a one-shot action — dismiss the menu once one is triggered.
         widget.menu.hide_on_trigger = True
+        # Submenu expandable lists surfaced in the panel: Create / Convert
+        # rows whose flyouts fan right on hover (the shared listNNN_init
+        # applies the header_menu preset here).
+        for list_name in ("list000", "list001"):
+            widget.menu.add(
+                self.sb.registered_widgets.ExpandableList,
+                setObjectName=list_name,
+            )
         widget.menu.add(
             "QPushButton",
             setText="Channels",
@@ -678,7 +684,9 @@ class Edit(EditMixin, SlotsBlender):
         """Initialize Create Primitives list — 6 categories, mirroring Maya's Polygon/NURBS/
         Curve/Helper/Light/Control (name+capability, not item-count) parity."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_left")
+        widget.apply_preset(
+            "expand_left" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         root = widget.add("Create")
 
         categories = {
@@ -695,7 +703,7 @@ class Edit(EditMixin, SlotsBlender):
 
     # The undoable wrap sits on the action helpers, not the list handlers — the handlers also
     # fire for category/expand clicks, which would otherwise push no-op undo steps.
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Create Primitive — branch per category the way Maya's list000 does (Control/Curve/
         Helper/Light get their own creation path; Polygon/NURBS stay a flat op-name lookup).
@@ -787,12 +795,14 @@ class Edit(EditMixin, SlotsBlender):
     def list001_init(self, widget):
         """Initialize Convert list."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_down")
+        widget.apply_preset(
+            "expand_down" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         root = widget.add("Convert")
         root.sublist.setMinimumWidth(180)
         root.sublist.add(list(self._CONVERT_TARGETS) + list(self._CONVERT_EXTRA))
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list001(self, item):
         """Convert the selected object(s) to another type (or run a Convert-list action that
         isn't itself a ``bpy.ops.object.convert`` target — see ``_CONVERT_EXTRA``)."""

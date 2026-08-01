@@ -6,11 +6,7 @@ import html
 import bpy
 import pythontk as ptk
 import blendertk as btk
-from uitk import Signals
-from uitk.widgets.footer import FooterStatusController
-from blendertk.core_utils.script_job_manager import ScriptJobManager
-from tentacle.slots._scene import SceneMixin
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SceneMixin, SlotsBlender
 
 
 class SceneSlots(SceneMixin, SlotsBlender):
@@ -53,11 +49,18 @@ class SceneSlots(SceneMixin, SlotsBlender):
 
     _EXPORTERS = {
         _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show("scene_exporter"),
+        # Was a header-menu button (b008) — a one-shot export, so it belongs
+        # with its siblings here rather than in the Tools list.
+        "Export Selection": lambda slot: slot.b008(),
         "Export FBX": "export_scene.fbx",
         "Export OBJ": "wm.obj_export",
         "Export glTF": "export_scene.gltf",
         "Export Collada": "wm.collada_export",
     }
+
+    #: Blender has no ``workspaceChanged`` event, so the shared footer wiring
+    #: refreshes on scene open/save (a session-pin change shows on the next file event).
+    FOOTER_EVENTS = ("SceneOpened", "SceneSaved")
 
     def __init__(self, switchboard):
         super().__init__(switchboard)
@@ -65,124 +68,156 @@ class SceneSlots(SceneMixin, SlotsBlender):
         self.submenu = self.sb.loaded_ui.scene_submenu
         self._footer_controller = self._create_footer_controller()
 
-    def _on_workspace_changed(self):
-        """Scene open/save handler — refresh the footer's workspace status."""
-        if self._footer_controller:
-            self._footer_controller.update()
-
-    def _create_footer_controller(self):
-        """Workspace-name footer, mirror of Maya's scene footer. Blender has no
-        ``workspaceChanged`` event, so it refreshes on scene open/save (a session-pin
-        change shows on the next file event)."""
-        footer = getattr(self.ui, "footer", None)
-        if not footer:
-            return None
-        mgr = ScriptJobManager.instance()
-        mgr.subscribe("SceneOpened", self._on_workspace_changed, owner=footer)
-        mgr.subscribe("SceneSaved", self._on_workspace_changed, owner=footer)
-        mgr.connect_cleanup(footer, owner=footer)
-        return FooterStatusController(
-            footer=footer,
-            resolver=self._resolve_workspace_text,
-            default_text="No workspace set",
-            truncate_kwargs={"length": 96, "mode": "middle"},
-        )
+    def _script_job_manager(self):
+        return btk.ScriptJobManager
 
     def _resolve_workspace_text(self) -> str:
         return btk.get_env_info("workspace_dir") or ""
 
-    def header_init(self, widget):
-        """Header menu — mirror of the Maya scene header (portable subset). ``b011`` (Fix Color
-        Spaces) is a genuine Blender build (data maps → 'Non-Color' by map type). ``b013`` (Mesh
-        Converter) is the DCC-agnostic extapps/mesh_convert tool, launched via the shared
-        external_app handler exactly like Maya. Maya-only entries (Save to Original Scene, Fix OCIO,
-        Toggle Command Ports) are omitted — see the parity overrides. Reused objectNames carry the
-        Maya label verbatim (cross-DCC QSettings rule); ``b_cleanup`` is Blender-specific (Maya's
-        b006 means the unrelated 'Cleanup Unknown')."""
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add("Separator", setTitle="Export")
-        widget.menu.add(
-            "QPushButton", setText="Export Scene", setObjectName="b018",
-            setToolTip="Export the whole scene to FBX.\nOptions live on the submenu's Export list ▸ Export Scene entry (gear icon).",
+    def _tools_items(self):
+        """``category -> [(label, objectName, tooltip)]`` for the Tools list.
+
+        Mirror of the Maya scene Tools list (portable subset). ``b011`` (Fix Color
+        Spaces) is a genuine Blender build (data maps → 'Non-Color' by map type).
+        ``b013`` (Mesh Converter) is the DCC-agnostic extapps/mesh_convert tool,
+        launched via the shared external_app handler exactly like Maya. Maya-only
+        entries (Save to Original Scene / the whole Recover category, Fix OCIO,
+        Toggle Command Ports) are omitted — see the parity overrides. Reused
+        objectNames carry the Maya label verbatim (cross-DCC QSettings rule);
+        ``b_cleanup`` is Blender-specific (Maya's b006 means the unrelated
+        'Cleanup Unknown'). ``b008`` Export Selection is not here: it is a
+        one-shot export and now lives in the Export list with its siblings.
+
+        A method rather than a class attribute because ``tb002``'s tooltip is
+        built with the switchboard's formatter, which needs a live ``self.sb``.
+        """
+        return {
+            "Bridges": [
+                (
+                    "Mesh Converter",
+                    "b013",
+                    "Open the FBX -> GLB converter window.\nBacked by godotengine/FBX2glTF; the binary is downloaded on first use.",
+                ),
+                (
+                    "Maya Bridge",
+                    "b010",
+                    "Send the selected objects to a fresh Maya (export FBX + run a chosen import template).",
+                ),
+                (
+                    "Unity Bridge",
+                    "b016",
+                    "Send the selected objects to a Unity project (export FBX + copy into Assets/).",
+                ),
+            ],
+            "Manage": [
+                ("Reference Manager", "b001", "Manage linked .blend libraries."),
+                (
+                    "Hierarchy Sync",
+                    "b004",
+                    "Diff/repair the scene hierarchy against a reference .blend.",
+                ),
+                ("Naming", "b005", "Blender's native Batch Rename."),
+                (
+                    "Audio Clips",
+                    "b003",
+                    "Manage scene-wide audio clips in the Video Sequence Editor "
+                    "(add/remove/trim/sync).",
+                ),
+                (
+                    "Blendshape Animator",
+                    "b015",
+                    "Build a morph between two meshes as a shape key, sculpt in-between "
+                    "tweens to customize the curve, and apply them back.",
+                ),
+            ],
+            "Fix": [
+                (
+                    "Scene Cleanup",
+                    "b_cleanup",
+                    "Purge orphan datablocks (meshes, materials, images … with no users).",
+                ),
+                (
+                    "Fix Color Spaces",
+                    "b011",
+                    "Set data textures (normal / roughness / metallic / height …) to "
+                    "'Non-Color' and color maps to 'sRGB', by map type — so PBR shading isn't gamma-wrong.",
+                ),
+                (
+                    "Fix Non-Orthogonal Axes",
+                    "tb002",
+                    self.sb.tooltip.fmt(
+                        title="Fix Non-Orthogonal Axes",
+                        body="Fix the objects behind FBX's <i>Non-orthogonal matrix "
+                        "support</i> warning — axes that aren't perpendicular don't "
+                        "survive import / export.",
+                        notes=[
+                            "In Blender the skew is always inherited: an object under a "
+                            "non-uniformly scaled, rotated parent evaluates to "
+                            "non-perpendicular world axes.",
+                            "Scope and a report-only dry run are set in the option box.",
+                        ],
+                    ),
+                ),
+            ],
+            "Diagnostics": [
+                (
+                    "Get Scene Info",
+                    "tb001",
+                    "Show an object / poly / material summary in a viewer.\n"
+                    "Use the option box to choose scope (Selected / Entire Scene).",
+                ),
+                (
+                    "Scene Metadata",
+                    "b017",
+                    "Show the tool-authored metadata stored on the scene's data nodes "
+                    "(data_internal + data_export) as JSON — shot metadata, audio manifests, etc.\n"
+                    "Use Save in the viewer to write it to a .json file.",
+                ),
+            ],
+        }
+
+    def list003_init(self, widget):
+        """Tools list: the scene actions that used to sit loose in the header
+        menu (Bridges / Manage / Fix / Diagnostics), grouped into one expandable
+        row in the panel body — mirror of the Maya fork.
+
+        Every leaf is a real slot-wired widget carrying the objectName its
+        header entry used, so its slot, tooltip, option box (``tb001`` /
+        ``tb002``) and QSettings identity are unchanged — only the location
+        moved.
+        """
+        widget.fixed_item_height = 18
+        widget.apply_preset("header_menu")
+        root = widget.add(
+            "Tools",
+            setToolTip="Scene bridges, management, fixes and diagnostics.",
         )
-        widget.menu.add(
-            "QPushButton", setText="Export Selection", setObjectName="b008",
-            setToolTip="Export only the selected objects (FBX).",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Mesh Converter", setObjectName="b013",
-            setToolTip="Open the FBX -> GLB converter window.\nBacked by godotengine/FBX2glTF; the binary is downloaded on first use.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Maya Bridge", setObjectName="b010",
-            setToolTip="Send the selected objects to a fresh Maya (export FBX + run a chosen import template).",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Unity Bridge", setObjectName="b016",
-            setToolTip="Send the selected objects to a Unity project (export FBX + copy into Assets/).",
-        )
-        widget.menu.add("Separator", setTitle="Manage")
-        widget.menu.add(
-            "QPushButton", setText="Reference Manager", setObjectName="b001",
-            setToolTip="Manage linked .blend libraries.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Hierarchy Sync", setObjectName="b004",
-            setToolTip="Diff/repair the scene hierarchy against a reference .blend.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Naming", setObjectName="b005",
-            setToolTip="Blender's native Batch Rename.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Audio Clips", setObjectName="b003",
-            setToolTip="Manage scene-wide audio clips in the Video Sequence Editor "
-            "(add/remove/trim/sync).",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Blendshape Animator", setObjectName="b015",
-            setToolTip="Build a morph between two meshes as a shape key, sculpt in-between "
-            "tweens to customize the curve, and apply them back.",
-        )
-        widget.menu.add("Separator", setTitle="Fix")
-        widget.menu.add(
-            "QPushButton", setText="Scene Cleanup", setObjectName="b_cleanup",
-            setToolTip="Purge orphan datablocks (meshes, materials, images … with no users).",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Fix Color Spaces", setObjectName="b011",
-            setToolTip="Set data textures (normal / roughness / metallic / height …) to "
-            "'Non-Color' and color maps to 'sRGB', by map type — so PBR shading isn't gamma-wrong.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Fix Non-Orthogonal Axes", setObjectName="tb002",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Fix Non-Orthogonal Axes",
-                body="Fix the objects behind FBX's <i>Non-orthogonal matrix "
-                "support</i> warning — axes that aren't perpendicular don't "
-                "survive import / export.",
-                notes=[
-                    "In Blender the skew is always inherited: an object under a "
-                    "non-uniformly scaled, rotated parent evaluates to "
-                    "non-perpendicular world axes.",
-                    "Scope and a report-only dry run are set in the option box.",
-                ],
-            ),
-        )
-        widget.menu.add("Separator", setTitle="Diagnostics")
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton, setText="Get Scene Info", setObjectName="tb001",
-            setToolTip="Show an object / poly / material summary in a viewer.\n"
-            "Use the option box to choose scope (Selected / Entire Scene).",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Scene Metadata", setObjectName="b017",
-            setToolTip="Show the tool-authored metadata stored on the scene's data nodes "
-            "(data_internal + data_export) as JSON — shot metadata, audio manifests, etc.\n"
-            "Use Save in the viewer to write it to a .json file.",
-        )
+        for category, entries in self._tools_items().items():
+            cat = root.sublist.add(category)
+            for label, name, tooltip in entries:
+                self.add_slot_widget(
+                    cat.sublist,
+                    setObjectName=name,
+                    setText=label,
+                    setToolTip=tooltip,
+                )
+
+    @SlotsBlender.Signals("on_item_interacted")
+    def list003(self, item):
+        """Dispatch a Tools leaf to its own slot.
+
+        Category rows are navigation only. Leaves are slot-wired widgets, so
+        ``call_slot`` routes through the switchboard's wrapper — which injects
+        the ``widget`` argument for the slots that declare it, so both
+        signatures work without a lookup table here. An option-box-wrapped
+        leaf never arrives: the wrap leaves it out of the list's item set and
+        its own ``clicked`` drives it (see ``Slots.add_slot_widget``).
+        """
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        call = getattr(item, "call_slot", None)
+        if callable(call):
+            call()
 
     # ------------------------------------------------------- SceneMixin hooks
     NON_ORTHOGONAL_FIX_EFFECT = (
@@ -214,14 +249,16 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def list000_init(self, widget):
         """Initialize Recent Files"""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up")
+        widget.apply_preset(
+            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         recent_files = btk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")
         truncated = ptk.truncate(recent_files, 65)
         w1.sublist.add(zip(truncated, recent_files))
         widget.setVisible(bool(recent_files))
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Recent Files"""
         data = item.item_data()
@@ -247,8 +284,11 @@ class SceneSlots(SceneMixin, SlotsBlender):
         """Initialize Import"""
         widget.fixed_item_height = 18
         # Lowest list in the submenu: open downward, covering the root row
-        # (expand_down would hang the sublist below it instead).
-        widget.apply_preset("expand_overlay")
+        # (expand_down would hang the sublist below it instead). The panel's
+        # header-menu row fans right on hover instead.
+        widget.apply_preset(
+            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         root = widget.add(
             "Import",
             setToolTip="Import a file (FBX / OBJ / Maya scene …), or append/link from a .blend.",
@@ -257,7 +297,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
             [k for k, v in self._IMPORTERS.items() if callable(v) or self.resolve_op(v)]
         )
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list001(self, item):
         """Import"""
         entry = self._IMPORTERS.get(item.item_text())
@@ -296,15 +336,20 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def list002_init(self, widget):
         """Initialize Export.
 
-        The list expands upward, so it is populated in reverse: the LAST item
-        added sits nearest the trigger row. The two tools go last — Scene
-        Exporter, then Export Scene (the tb003 PushButton folded in from the old
-        submenu button, option-box gear and all) closest to the cursor — with the
-        native one-shot format exporters that used to live on the Export combobox
-        stacking above them.
+        Population order keeps the two tools nearest the trigger row in both
+        hosts. The submenu expands upward, so it is populated in reverse: the
+        LAST item added sits nearest the trigger — Scene Exporter, then Export
+        Scene (the tb003 PushButton folded in from the old submenu button,
+        option-box gear and all) closest to the cursor, with the native
+        one-shot format exporters that used to live on the Export combobox
+        stacking above them. The panel's header_menu flyout fans right with
+        its top row aligned to the trigger, so the same rows are added in the
+        opposite order: tools first (top, nearest the trigger), one-shots
+        below in natural order.
         """
+        submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up")
+        widget.apply_preset("expand_up" if submenu else "header_menu")
         root = widget.add(
             "Export",
             setToolTip="Export the scene or selection (FBX / OBJ / glTF …).",
@@ -313,16 +358,11 @@ class SceneSlots(SceneMixin, SlotsBlender):
             k for k, v in self._EXPORTERS.items()
             if k != self._SCENE_EXPORTER and (callable(v) or self.resolve_op(v))
         ]
-        root.sublist.add(one_shots[::-1])
-        root.sublist.add(
-            self._SCENE_EXPORTER,
-            setToolTip="Batch-export via a configurable task/check pipeline (FBX/GLB).",
-        )
-        # Registration runs tb003_init (building the option-box menu), wires
-        # clicked -> tb003, and binds self.submenu.tb003 so the header's plain
-        # "Export Scene" entry (b018) can read the shared options.
-        self.add_slot_widget(
-            root.sublist,
+        exporter_tip = "Batch-export via a configurable task/check pipeline (FBX/GLB)."
+        # Registration of tb003 runs tb003_init (building the option-box menu),
+        # wires clicked -> tb003, and binds ui.tb003 so the panel fork's entry
+        # can read the submenu's shared options.
+        tb003_kwargs = dict(
             setObjectName="tb003",
             setText="Export Scene",
             setToolTip=(
@@ -330,8 +370,16 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 "Click the gear icon to configure scope, included types, and save location."
             ),
         )
+        if submenu:
+            root.sublist.add(one_shots[::-1])
+            root.sublist.add(self._SCENE_EXPORTER, setToolTip=exporter_tip)
+            self.add_slot_widget(root.sublist, **tb003_kwargs)
+        else:
+            self.add_slot_widget(root.sublist, **tb003_kwargs)
+            root.sublist.add(self._SCENE_EXPORTER, setToolTip=exporter_tip)
+            root.sublist.add(one_shots)
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list002(self, item):
         """Export.
 
@@ -486,19 +534,12 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def tb003(self, widget):
         """Export Scene — FBX (+ optional GLB) using the configured options.
 
-        Options always live on the submenu's tb003 (the PushButton carrying the option-box
-        gear, created by list002_init as the Export list's first entry); the header entry is
-        a plain button reaching the same slot, so read options off the submenu. If the Export
-        list hasn't built yet (header clicked before the submenu initialized), force it."""
-        opts_widget = getattr(self.submenu, "tb003", None)
-        if opts_widget is None:
-            self.sb.init_slot(self.submenu.list002)
-            opts_widget = self.submenu.tb003
-        if not getattr(opts_widget, "is_initialized", False):
-            self.tb003_init(opts_widget)
-            opts_widget.is_initialized = True
-
-        menu = opts_widget.option_box.menu
+        Every trigger is a tb003 PushButton carrying its own option-box gear (list002_init
+        builds one per surface), so the options come off the widget that was clicked — the
+        same idiom as every other tb slot. The panel and submenu forks stay in agreement
+        because uitk mirrors a value into every related surface's store on change
+        (``MainWindow.sync_widget_values``)."""
+        menu = widget.option_box.menu
         scope = menu.cmb_scope.currentData()
         save_mode = menu.cmb_save.currentData()
         selection_only = scope == "selected"
@@ -622,13 +663,6 @@ class SceneSlots(SceneMixin, SlotsBlender):
         Location / Suffix by Type, each with an option box), served from blendertk by the
         BlenderUiHandler, mirroring Maya's Naming window (replaces the native Batch Rename op)."""
         self.sb.handlers.marking_menu.show("naming")
-
-    def b018(self):
-        """Export Scene — header-menu launcher for tb003 (the submenu Export
-        list's entry that carries the option box). A distinct objectName
-        because a slot file must not add two widgets named tb003 (mirrors
-        Maya's b018)."""
-        self.tb003(None)
 
     def b008(self):
         """Export Selection (FBX, selected objects only)."""

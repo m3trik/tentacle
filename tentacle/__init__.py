@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.33"
+__version__ = "0.13.36"
 
 
 DEFAULT_INCLUDE = {
@@ -14,6 +14,23 @@ DEFAULT_INCLUDE = {
     "tcl_maya": "TclMaya",
     "slots._slots": "Slots",
     "slots.maya._slots_maya": "SlotsMaya",
+    "slots.blender._slots_blender": "SlotsBlender",
+    # Per-panel shared mixins (slots/_<panel>.py). Registered so a concrete panel
+    # pulls its mixin and its DCC base from ONE package-namespace import
+    # (``from tentacle import SceneMixin, SlotsMaya``) instead of two deep module
+    # paths. They are deliberately NOT folded into the DCC bases: every mixin
+    # defines widget-named slot methods (SceneMixin.tb002, MaterialsMixin.b003,
+    # PreferencesMixin.cmb004/cmb005), and those objectNames are reused across
+    # panels — 12 .ui files carry a ``tb002``, only 8 Maya slot files define one.
+    # Inherited from a shared base, the panels that DON'T define their own would
+    # silently bind their widget to another panel's slot. Mixing in per panel keeps
+    # each name owned by exactly the panels that opted in.
+    "slots._edit": "EditMixin",
+    "slots._hud_warnings": "HudWarningsMixin",
+    "slots._materials": "MaterialsMixin",
+    "slots._preferences": "PreferencesMixin",
+    "slots._scene": "SceneMixin",
+    "slots._uv": "UvMixin",
 }
 
 

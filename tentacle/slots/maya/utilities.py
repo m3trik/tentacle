@@ -2,7 +2,7 @@
 # coding=utf-8
 import maya.mel as mel
 import mayatk as mtk
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Utilities(SlotsMaya):

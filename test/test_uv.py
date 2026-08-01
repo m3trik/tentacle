@@ -351,6 +351,11 @@ class TestTb004UnfoldGuard(unittest.TestCase):
         self.instance.sb = _RecordedSb()
         self.instance.get_map_size = lambda: 2048
 
+        # An operand: tb004 now guards on an empty selection (see
+        # TestTb004EmptySelectionGuard), so the control-flow cases below need
+        # something selected to get past it.
+        cmds.select(cmds.polyCube()[0], replace=True)
+
         # Isolate tb004's control flow from Maya UI state and the Unfold3D
         # plugin by stubbing the cmds it drives. The u3d* commands only exist
         # once Unfold3D.mll is loaded, so capture a sentinel for any that are
@@ -410,6 +415,85 @@ class TestTb004UnfoldGuard(unittest.TestCase):
         self.assertFalse(self.instance.sb.messages)
         self.assertEqual(len(self.optimize_calls), 1)
         self.assertEqual(len(self.stack_calls), 1)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestUvEmptySelectionGuard(unittest.TestCase):
+    """A selection-driven UV command run with nothing selected must report it in
+    a message box — never as a traceback.
+
+    Regression: tb004 (Unfold) read the selection without guarding it. u3dUnfold
+    merely logged "This command requires at least 1 argument(s)", but the orient
+    pass is MEL (texOrientShells -> texCheckSelection), which raises
+    RuntimeError — so an empty selection surfaced to the user as an unhandled
+    traceback out of the slot dispatcher.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)  # nothing selected
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+
+        self._missing = object()
+        self._orig = {
+            name: getattr(cmds, name, self._missing)
+            for name in ("selectMode", "u3dUnfold", "u3dOptimize")
+        }
+        self.unfold_calls = []
+        cmds.selectMode = lambda *a, **k: False
+        cmds.u3dUnfold = lambda *a, **k: self.unfold_calls.append((a, k))
+        cmds.u3dOptimize = lambda *a, **k: None
+
+    def tearDown(self):
+        for name, fn in self._orig.items():
+            if fn is self._missing:
+                if hasattr(cmds, name):
+                    delattr(cmds, name)
+            else:
+                setattr(cmds, name, fn)
+        cmds.file(new=True, force=True)
+
+    def _assert_reported_empty(self):
+        self.assertTrue(self.instance.sb.messages, "expected a message box")
+        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
+        self.assertIn("nothing selected", joined)
+
+    def test_tb004_reports_instead_of_raising(self):
+        # orient=True is the shipped default and the exact path that raised.
+        self.instance.tb004(widget=_FakeUnfoldWidget(orient=True))
+
+        self._assert_reported_empty()
+        self.assertEqual(self.unfold_calls, [], "must not reach u3dUnfold")
+
+    def test_b021_reports_once_and_skips_both_steps(self):
+        """Unfold+Pack must not fire the guard twice (once per chained step)."""
+        called = []
+
+        class _Btn:
+            def __init__(self, name):
+                self.name = name
+
+            def call_slot(self, *a, **k):
+                called.append(self.name)
+
+        self.instance.ui = _FakeUi()
+        self.instance.ui.tb004 = _Btn("tb004")
+        self.instance.ui.tb000 = _Btn("tb000")
+
+        self.instance.b021(widget=None)
+
+        self._assert_reported_empty()
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertEqual(called, [], "neither chained step should run")
+
+    def test_b011_sew_reports_instead_of_silently_doing_nothing(self):
+        self.instance.b011()
+        self._assert_reported_empty()
+
+    def test_b005_cut_reports(self):
+        self.instance.b005()
+        self._assert_reported_empty()
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

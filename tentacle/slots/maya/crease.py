@@ -2,7 +2,7 @@
 # coding=utf-8
 import maya.cmds as cmds
 import mayatk as mtk
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Crease(SlotsMaya):

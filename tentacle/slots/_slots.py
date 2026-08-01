@@ -1,6 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 from qtpy import QtCore
+from uitk import Signals, Cancelable
 
 
 class Slots(QtCore.QObject):
@@ -12,6 +13,25 @@ class Slots(QtCore.QObject):
     ex. def getFloatReturnInt(self, f):
                     return int(f)
     """
+
+    #: uitk slot decorators, re-exposed on the base so concrete slot modules never
+    #: import uitk themselves: ``@SlotsMaya.Signals("on_item_interacted")``,
+    #: ``@SlotsMaya.Cancelable(120)``.
+    #:
+    #: ``self.sb`` is the single uitk gateway for the slots layer, and it reaches
+    #: the whole of uitk: any public symbol resolves off it directly
+    #: (``self.sb.IconManager``, ``self.sb.RecentValuesStore`` — see
+    #: ``uitk.switchboard.namespace``), the short names cover the rest
+    #: (``self.sb.registered_widgets.X``, ``self.sb.style``), and its children carry
+    #: their own APIs (``self.ui.footer.status_controller(...)``).
+    #:
+    #: These two are the sole outlier: they are class-body decorators, evaluated
+    #: while the slot class is still being built, so no instance — and therefore no
+    #: ``self.sb`` — exists yet. Hanging them off the base the module already imports
+    #: is the only way to keep the gateway rule without a bare ``from uitk import``
+    #: in every slot file.
+    Signals = Signals
+    Cancelable = Cancelable
 
     #: One-shot guard so the legacy repeat-last migration runs once per process,
     #: not on every slot instantiation (the base ``__init__`` runs for every

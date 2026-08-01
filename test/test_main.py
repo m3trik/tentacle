@@ -9,6 +9,7 @@ skipping, and OSError tolerance can silently break the panel.
 """
 import os
 import tempfile
+import types
 import unittest
 
 try:
@@ -65,14 +66,21 @@ class TestPopulateDirSublist(unittest.TestCase):
         # IconManager.set_label_icon — a real-QLabel operation (reads/writes
         # Qt properties, renders a pixmap) that can't run against the fakes.
         # Record the calls instead; the walker logic stays fully exercised.
-        self._orig_set_label_icon = main_module.IconManager.set_label_icon
+        #
+        # Reached through ``self.sb`` rather than a module global: the slots
+        # layer resolves every uitk symbol off the Switchboard namespace
+        # (``self.sb.IconManager``), so there is no module-level import to
+        # patch. A stub sb both records the calls and pins that access path.
         self.icon_calls = []
-        main_module.IconManager.set_label_icon = (
-            lambda item, name, *a, **k: self.icon_calls.append((item, name))
+
+        def record(item, name, *a, **k):
+            self.icon_calls.append((item, name))
+
+        self.instance.sb = types.SimpleNamespace(
+            IconManager=types.SimpleNamespace(set_label_icon=record)
         )
 
     def tearDown(self):
-        main_module.IconManager.set_label_icon = self._orig_set_label_icon
         import shutil
         shutil.rmtree(self.root, ignore_errors=True)
 

@@ -214,9 +214,8 @@ class _QtBootstrap:
 _QtBootstrap.run()
 
 from qtpy import QtWidgets, QtCore  # noqa: E402  (deferred until paths/Qt are provisioned above)
-from uitk import MarkingMenu  # noqa: E402
-from uitk.handlers.external_app_handler import ExternalAppHandler  # noqa: E402
-from blendertk.ui_utils.blender_ui_handler import BlenderUiHandler  # noqa: E402
+from uitk import MarkingMenu, ExternalAppHandler  # noqa: E402
+import blendertk as btk  # noqa: E402  (lazy resolver: nothing under btk.* imports yet)
 
 
 class _NativeWindow:
@@ -1148,7 +1147,7 @@ class TclBlender(MarkingMenu):
             # duplicate_*, hdr_manager, reference_manager) are discovered and served by
             # ``marking_menu.show("<tool>")`` — exactly the mayatk/MayaUiHandler split, so the
             # Blender tool panels live in blendertk (next to their engine) rather than here.
-            handlers={"ui": BlenderUiHandler, "external_app": ExternalAppHandler},
+            handlers={"ui": btk.BlenderUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
             # Scoped preloading: warm the binding-target startmenus once
@@ -1202,9 +1201,7 @@ class TclBlender(MarkingMenu):
         # is the ``tentacle_startup.py`` entry point referenced by
         # ``Macros.apply_saved_macros``. No active preset -> a no-op.
         try:
-            from blendertk.edit_utils.macros import Macros
-
-            Macros.apply_saved_macros()
+            btk.Macros.apply_saved_macros()
         except Exception as error:  # never let a preset issue block launch
             print(f"{__file__}: apply_saved_macros skipped: {error}")
 
@@ -1215,9 +1212,7 @@ class TclBlender(MarkingMenu):
         # even before it's first shown (tentacle_startup.py starts it earlier still,
         # before `import tentacle`, to catch the greeting banner).
         try:
-            from blendertk.env_utils import script_output
-
-            script_output.ScriptConsole.restore()
+            btk.ScriptConsole.restore()
         except Exception as error:  # never let console restore block launch
             print(f"{__file__}: script_output restore skipped: {error}")
 
@@ -1226,9 +1221,7 @@ class TclBlender(MarkingMenu):
         # first asks for it — enable() is idempotent and its handler no-ops until the
         # selection actually changes.
         try:
-            from blendertk.edit_utils.selection import SelectionOrder
-
-            SelectionOrder.enable()
+            btk.SelectionOrder.enable()
         except Exception as error:  # never let the tracker block launch
             print(f"{__file__}: SelectionOrder enable skipped: {error}")
 
@@ -1401,7 +1394,7 @@ class _ClickDebugger:
         if cls._slot_patch is not None:
             return
         try:
-            from uitk.switchboard.slots import SlotWrapper
+            from uitk import SlotWrapper
         except Exception as e:
             cls._write(f"{time.time():.3f} SLOT_TRACE_UNAVAILABLE err={e!r}")
             return
@@ -1458,7 +1451,7 @@ class _ClickDebugger:
         if cls._slot_patch is None:
             return
         try:
-            from uitk.switchboard.slots import SlotWrapper
+            from uitk import SlotWrapper
 
             SlotWrapper.__call__, SlotWrapper._invoke = cls._slot_patch
         except Exception:

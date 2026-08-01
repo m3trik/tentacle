@@ -5,7 +5,7 @@ import maya.mel as mel
 import mayatk as mtk
 
 # From this package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Rigging(SlotsMaya):

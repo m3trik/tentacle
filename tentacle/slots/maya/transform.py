@@ -3,7 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class TransformSlots(SlotsMaya):
@@ -153,9 +153,10 @@ class TransformSlots(SlotsMaya):
             setChecked=False,
             setToolTip="Use the selected attributes in the channel box to determine what to freeze.",
         )
-        # Store Transforms is deliberately NOT an option: the bake history it
-        # stamps is what Un-Freeze Transforms reads, so turning it off only
-        # ever breaks the un-freeze. It is three attributes — always stamped.
+        # Store Transforms is deliberately NOT an option: the bake history
+        # freeze_transforms stamps is what Un-Freeze Transforms reads, so
+        # turning it off only ever breaks the un-freeze. Three attributes per
+        # transform — always stamped (mtk default store=True).
         widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb_center_pivot",
@@ -258,12 +259,10 @@ class TransformSlots(SlotsMaya):
             widget.option_box.menu.cmb_instance_strategy.currentIndex()
         ]
 
-        # Always store before freezing: the bake history is what Un-Freeze
-        # reads back. When freezing children the cascade reaches descendants,
-        # so traverse the same set or unfreeze on a child will warn about
-        # missing attrs.
-        mtk.store_transforms(objects, accumulate=True, traverse=freeze_children)
-
+        # The bake history Un-Freeze reads back is stamped by
+        # freeze_transforms itself (store=True, always across the subtree —
+        # a group freeze zeroes every descendant's channels regardless of
+        # the Freeze Children option).
         mtk.freeze_transforms(
             objects,
             center_pivot=center_pivot,
@@ -590,7 +589,7 @@ class TransformSlots(SlotsMaya):
         if not restored:
             self.sb.message_box(
                 "<strong>Nothing restored</strong>.<br>None of the selected objects have "
-                "stored freeze data (it is stamped by Freeze Transforms &gt; Store Transforms)."
+                "stored freeze data (it is stamped by Freeze Transforms)."
             )
 
     def setTransformSnap(self, ctx, state):

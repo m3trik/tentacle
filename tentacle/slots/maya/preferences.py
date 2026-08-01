@@ -4,11 +4,9 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 import pythontk as ptk
-from mayatk.core_utils.script_job_manager import ScriptJobManager
 
 # From this package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
-from tentacle.slots._preferences import PreferencesMixin
+from tentacle import PreferencesMixin, SlotsMaya
 
 
 class Preferences(PreferencesMixin, SlotsMaya):
@@ -26,7 +24,7 @@ class Preferences(PreferencesMixin, SlotsMaya):
     def cmb001_init(self, widget):
         """Initializes the combo box with unit options."""
         if not widget.is_initialized:
-            mgr = ScriptJobManager.instance()
+            mgr = mtk.ScriptJobManager.instance()
             mgr.subscribe(
                 "linearUnitChanged",
                 lambda w=widget: w.setCurrentIndex(
@@ -61,7 +59,7 @@ class Preferences(PreferencesMixin, SlotsMaya):
     def cmb002_init(self, widget):
         """Initializes the combo box with frame rate options."""
         if not widget.is_initialized:
-            mgr = ScriptJobManager.instance()
+            mgr = mtk.ScriptJobManager.instance()
             mgr.subscribe(
                 "timeUnitChanged",
                 lambda w=widget: w.setCurrentIndex(

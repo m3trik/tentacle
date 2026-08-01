@@ -105,8 +105,19 @@ class TestAnimationSlotRoster(unittest.TestCase):
         missing = [name for name in self.EXPECTED_B_SLOTS if not hasattr(cls, name)]
         self.assertEqual(missing, [], f"Animation is missing b slots: {missing}")
 
-    def test_header_init_present(self):
-        self.assertTrue(hasattr(animation_module.Animation, "header_init"))
+    def test_tools_list_present(self):
+        """The panel's entry surface is the Tools list, not a header menu.
+
+        ``header_init`` was retired when the loose header entries moved into a
+        single expandable body row: ``list000_init`` builds it from
+        ``_TOOLS_ITEMS`` and ``list000`` dispatches its leaves. Pinning both
+        (plus a non-empty roster) catches an accidental removal the same way
+        the old header assertion did.
+        """
+        cls = animation_module.Animation
+        self.assertTrue(hasattr(cls, "list000_init"))
+        self.assertTrue(hasattr(cls, "list000"))
+        self.assertTrue(cls._TOOLS_ITEMS, "the Tools list roster must not be empty")
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

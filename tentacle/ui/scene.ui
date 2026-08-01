@@ -70,6 +70,58 @@
        </widget>
       </item>
       <item>
+       <widget class="ExpandableList" name="list000" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ExpandableList" name="list001" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ExpandableList" name="list002" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ExpandableList" name="list003" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>18</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="CollapsableGroup" name="File">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -184,6 +236,12 @@ Searches the current workspace's autosave folder — use Set Workspace (Workspac
    <class>CollapsableGroup</class>
    <extends>QGroupBox</extends>
    <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ExpandableList</class>
+   <extends>QWidget</extends>
+   <header>widgets.expandablelist.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

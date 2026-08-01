@@ -2,8 +2,7 @@
 # coding=utf-8
 import maya.cmds as cmds
 import mayatk as mtk
-from uitk.switchboard import Cancelable
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Animation(SlotsMaya):
@@ -14,68 +13,121 @@ class Animation(SlotsMaya):
         self.ui = self.sb.loaded_ui.animation
         self.ui_submenu = self.sb.loaded_ui.animation_submenu
 
-    def header_init(self, widget):
-        """Header Init"""
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add("Separator", setTitle="Sequencing")
-        widget.menu.add(
-            "QPushButton",
-            setText="Shot Manifest",
-            setObjectName="b004",
-            setToolTip="Import a CSV sequence document and build scenes.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Shot Sequencer",
-            setObjectName="b000",
-            setToolTip="Open the sequencer for managing per-scene animation with ripple editing.",
-        )
-        widget.menu.add("Separator", setTitle="Repair")
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Repair Corrupted Curves",
-            setObjectName="tb015",
-            setToolTip="Repair corrupted animation curves.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Repair Visibility Tangents",
-            setToolTip="Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
-            clicked=lambda: mtk.Diagnostics.repair_visibility_tangents(
-                objects=cmds.ls(sl=True) or None
+    #: ``category -> [(label, objectName, tooltip)]`` for the header Tools list
+    #: (was five separator sections of loose header buttons).
+    _TOOLS_ITEMS = {
+        "Sequencing": [
+            (
+                "Shot Manifest",
+                "b004",
+                "Import a CSV sequence document and build scenes.",
             ),
-        )
-        widget.menu.add("Separator", setTitle="Bake")
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Smart Bake",
-            setObjectName="tb020",
-            setToolTip=(
+            (
+                "Shot Sequencer",
+                "b000",
+                "Open the sequencer for managing per-scene animation with ripple editing.",
+            ),
+        ],
+        "Repair": [
+            ("Repair Corrupted Curves", "tb015", "Repair corrupted animation curves."),
+            (
+                "Repair Visibility Tangents",
+                "b006",
+                "Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
+            ),
+        ],
+        "Bake": [
+            (
+                "Smart Bake",
+                "tb020",
                 "Open the Smart Bake panel.\n"
                 "Analyzes and bakes constraints, driven keys, expressions, IK,\n"
                 "motion paths, and blend shapes — with a one-click Unbake to\n"
-                "reverse the most recent bake, even after a scene reopen."
+                "reverse the most recent bake, even after a scene reopen.",
             ),
-        )
-        widget.menu.add("Separator", setTitle="Playback")
-        widget.menu.add(
-            "QPushButton",
-            setText="Fit Playback Range",
-            setObjectName="b005",
-            setToolTip="Set the playback range to span all keyframed objects in the scene.",
-        )
-        widget.menu.add("Separator", setTitle="Info")
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Get Animation Info",
-            setObjectName="tb016",
-            setToolTip=(
+        ],
+        "Playback": [
+            (
+                "Fit Playback Range",
+                "b005",
+                "Set the playback range to span all keyframed objects in the scene.",
+            ),
+        ],
+        "Info": [
+            (
+                "Get Animation Info",
+                "tb016",
                 "Show segmented keyframe info in a formatted viewer.\n"
                 "Use the option box to choose scope (Selected / All), "
-                "dependency traversal, and output flags."
+                "dependency traversal, and output flags.",
             ),
+        ],
+    }
+
+    def list000_init(self, widget):
+        """Tools list: Sequencing / Repair / Bake / Playback / Info.
+
+        Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb015,
+        tb016), which is lost on a plain label, so those are added as real
+        slot-wired widgets carrying their original objectNames.
+
+        The submenu hosts the same list where the Shot Sequencer / Shot
+        Manifest buttons used to sit (upper-left of the radial overlay), so it
+        opens upward over itself and fans left; the panel row fans right.
+        Category order follows suit: the upward flyout is anchored at the
+        trigger's bottom edge, so its LAST-added row is the one that lands
+        under the cursor — populated in reverse there to put Sequencing (the
+        two buttons this list replaced) where those buttons used to be. The
+        panel's flyout fans right with its top row on the trigger, so it keeps
+        natural order.
+        """
+        submenu = widget.ui.has_tags("submenu")
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_overlay_up_left" if submenu else "header_menu")
+        root = widget.add(
+            "Tools",
+            setToolTip="Sequencing, repair, bake, playback and info tools.",
         )
+        categories = list(self._TOOLS_ITEMS.items())
+        if submenu:
+            categories.reverse()
+        for category, items in categories:
+            cat = root.sublist.add(category)
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    cat.sublist.add(label, setToolTip=tooltip)
+
+    @SlotsMaya.Signals("on_item_interacted")
+    def list000(self, item):
+        """Dispatch a Tools leaf to its slot method."""
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        text = item.item_text()
+        parent = item.parent_item_text() or ""
+        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
+            if label == text:
+                slot = getattr(self, slot_name, None)
+                if not callable(slot):
+                    return
+                # Slots vary: some take the invoking widget, some take none.
+                try:
+                    slot(item)
+                except TypeError:
+                    slot()
+                return
+
+    def b006(self):
+        """Repair Visibility Tangents"""
+        mtk.Diagnostics.repair_visibility_tangents(objects=cmds.ls(sl=True) or None)
 
     def tb000_init(self, widget):
         """Go To Frame Init"""
@@ -1711,7 +1763,7 @@ class Animation(SlotsMaya):
             setToolTip="Maximum allowed value deviation when removing keys.",
         )
 
-    @Cancelable(120)
+    @SlotsMaya.Cancelable(120)
     def tb019(self, widget):
         """Optimize Keys — remove redundant animation data."""
         remove_static = widget.option_box.menu.chk000.isChecked()

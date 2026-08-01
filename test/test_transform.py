@@ -150,18 +150,35 @@ class TestTb002FreezeConnectionStrategy(unittest.TestCase):
                 self.freeze_calls[0][1]["instance_strategy"], expected
             )
 
-    def test_store_transforms_always_runs(self):
+    def test_store_is_never_disabled(self):
         """Store is no longer optional — the bake history it stamps is what
         Un-Freeze reads back, so an un-checkable option only ever broke it."""
+        self._run_with_one_cube(self._widget(0))
+        self.assertNotEqual(self.freeze_calls[0][1].get("store", True), False)
+
+    def test_freeze_stamps_bake_history_once(self):
+        """End-to-end with the real engine: tb002 leaves restorable bake attrs.
+
+        The panel must NOT call store_transforms alongside the freeze —
+        mtk.freeze_transforms stamps the history itself (store=True), and
+        doing both double-composes it so Un-Freeze overshoots.
+        """
         import mayatk as mtk
 
-        stored = []
-        mtk.store_transforms = lambda *a, **kw: stored.append((a, kw))
-        try:
-            self._run_with_one_cube(self._widget(0))
-        finally:
-            mtk.store_transforms = self._orig_store
-        self.assertEqual(len(stored), 1)
+        mtk.freeze_transforms = self._orig_freeze  # tearDown restores either way
+        cube = cmds.polyCube(name="freeze_store")[0]
+        cmds.move(3, 0, 0, cube)
+        cmds.select(cube)
+
+        self.instance.tb002(self._widget(0))
+
+        # The widget freezes translate + scale (not rotate), so only those
+        # two channels are stamped.
+        self.assertTrue(cmds.attributeQuery("original_T_bake", node=cube, exists=True))
+        self.assertTrue(cmds.attributeQuery("original_S_bake", node=cube, exists=True))
+        self.assertAlmostEqual(
+            cmds.getAttr(f"{cube}.original_T_bake")[0][0], 3.0, delta=1e-4
+        )
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

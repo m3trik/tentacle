@@ -5,8 +5,7 @@ import os
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from uitk import Signals, RecentValuesStore, IconManager
-from tentacle.slots.maya._slots_maya import SlotsMaya
+from tentacle import SlotsMaya
 
 
 class Main(SlotsMaya):
@@ -35,7 +34,7 @@ class Main(SlotsMaya):
             # used — so existing history carries over. Built once (kept off the
             # slot __init__ so a recent-projects read can't break construction),
             # seeded from Maya's recent projects on first ever use.
-            self._workspace_store = RecentValuesStore(
+            self._workspace_store = self.sb.RecentValuesStore(
                 settings_key="workspace_recent_projects",
                 max_recent=10,
                 display_format="auto",
@@ -83,7 +82,7 @@ class Main(SlotsMaya):
             # separators and reliably opens in the system file browser.
             workspace = os.path.normpath(workspace)
             w = widget.add(workspace_dir, data=workspace)
-            IconManager.set_label_icon(w, "folder_filled")
+            self.sb.IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
         widget.setVisible(True)
@@ -102,7 +101,7 @@ class Main(SlotsMaya):
         for d in dirs:
             full_path = os.path.join(path, d)
             item = sublist.add(d, data=full_path)
-            IconManager.set_label_icon(item, "folder_filled")
+            self.sb.IconManager.set_label_icon(item, "folder_filled")
             if max_depth > 1:
                 try:
                     has_subdirs = any(
@@ -118,7 +117,7 @@ class Main(SlotsMaya):
                 except OSError:
                     pass
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Workspace tab dispatch — editing actions, recent-workspace selection,
         and directory-browser entries."""

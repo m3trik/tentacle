@@ -5,8 +5,7 @@ import sys
 
 import bpy
 import blendertk as btk
-from tentacle.slots.blender._slots_blender import SlotsBlender
-from tentacle.slots._preferences import PreferencesMixin
+from tentacle import PreferencesMixin, SlotsBlender
 
 
 class Preferences(PreferencesMixin, SlotsBlender):

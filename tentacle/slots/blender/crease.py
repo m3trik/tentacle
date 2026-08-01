@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import blendertk as btk
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Crease(SlotsBlender):

@@ -4,10 +4,9 @@ import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
 import pythontk as ptk
-from uitk import Signals
+
 # From this package:
-from tentacle.slots.maya._slots_maya import SlotsMaya
-from tentacle.slots._materials import MaterialsMixin
+from tentacle import MaterialsMixin, SlotsMaya
 
 
 class MaterialsSlots(MaterialsMixin, SlotsMaya):
@@ -79,6 +78,33 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             ("RealityCapture Workflow", "b024", ""),
             ("Brush Splat Workflow", "b025", ""),
         ],
+        # Folded in from the header menu's Utilities section.
+        "Utilities": [
+            (
+                "Reload Scene Textures",
+                "b013",
+                "Reload file textures for all scene materials.",
+            ),
+            (
+                "Get Material Info",
+                "tb001",
+                "Show a formatted report of textures, sizes, bit depth, "
+                "file size, and optimization recommendations. Scope "
+                "(textures, current material, all materials, selected "
+                "objects), default-material / unassigned filters, and "
+                "which fields to include are set via the option box.",
+            ),
+            (
+                "Enable Viewport Opacity",
+                "tb002",
+                "Wire each material's opacity map into the slot its shader "
+                "type uses, so transparency shows in the viewport. Materials "
+                "without an opacity map are left alone. Scope (selected, "
+                "visible, scene) and the viewport transparency mode are set "
+                "via the option box.",
+            ),
+            ("Hypershade Editor", "b007", "Open the Hypershade Window."),
+        ],
     }
 
     def __init__(self, switchboard):
@@ -95,50 +121,11 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         # ExternalAppHandler on host construction, so they appear in the UI
         # browser without first loading this UI.
 
-    def header_init(self, widget):
-        """Initialize the header menu (Utilities only — Setup/Conversion/External live in the submenu Tools list)."""
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add("Separator", setTitle="Utilities")
-        widget.menu.add(
-            "QPushButton",
-            setText="Reload Scene Textures",
-            setObjectName="b013",
-            setToolTip="Reload file textures for all scene materials.",
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Get Material Info",
-            setObjectName="tb001",
-            setToolTip=(
-                "Show a formatted report of textures, sizes, bit depth, "
-                "file size, and optimization recommendations. Scope "
-                "(textures, current material, all materials, selected "
-                "objects), default-material / unassigned filters, and "
-                "which fields to include are set via the option box."
-            ),
-        )
-        widget.menu.add(
-            self.sb.registered_widgets.PushButton,
-            setText="Enable Viewport Opacity",
-            setObjectName="tb002",
-            setToolTip=(
-                "Wire each material's opacity map into the slot its shader "
-                "type uses, so transparency shows in the viewport. Materials "
-                "without an opacity map are left alone. Scope (selected, "
-                "visible, scene) and the viewport transparency mode are set "
-                "via the option box."
-            ),
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Hypershade Editor",
-            setObjectName="b007",
-            setToolTip="Open the Hypershade Window.",
-            clicked=lambda: mel.eval("HypershadeWindow"),
-        )
+    def b007(self):
+        """Hypershade Editor"""
+        mel.eval("HypershadeWindow")
 
-    # --- Submenu Assign list -------------------------------------------
+    # --- Assign list ----------------------------------------------------
 
     def list000_init(self, widget):
         """Assign list: scene materials + 'New' + 'Random'.
@@ -146,11 +133,18 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         Re-populated on every show so the list reflects the current scene
         contents and the current cmb002 selection. The root mirrors the
         current material; releasing on it assigns that material.
+
+        This *is* the panel's assign surface — it replaced the Assign /
+        Assign Random / New buttons, each of which reached one action where
+        the list reaches all of them plus every material in the scene (and
+        reports the result, which the bare Assign button did not).
         """
         if not getattr(widget, "_assign_list_configured", False):
             widget.refresh_on_show = True
             widget.fixed_item_height = 18
-            widget.apply_preset("expand_right")
+            widget.apply_preset(
+                "expand_right" if widget.ui.has_tags("submenu") else "header_menu"
+            )
             widget._assign_list_configured = True
             # Ensure cmb002 is populated so we can read currentData below.
             if not getattr(self.ui.cmb002, "is_initialized", False):
@@ -174,7 +168,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         for mat in scene_mats:
             root.sublist.add(str(mat))
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch Assign list selection.
 
@@ -243,21 +237,38 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
     def list001_init(self, widget):
         """Tools list: Setup / Conversion / External (mirrors prior header sections).
 
-        Uses ``expand_up`` so the categories sublist overlays the root's
-        lower-left corner (the sublist's last item lines up with the
-        ``Tools`` trigger button), and deeper item sublists fan right.
+        Uses ``expand_up`` in the submenu so the categories sublist overlays
+        the root's lower-left corner (the sublist's last item lines up with
+        the ``Tools`` trigger button), and deeper item sublists fan right.
+        In the panel the list is a body row whose flyouts fan right on hover.
+
+        Rows are plain labels dispatched by ``list001``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb001's
+        report scope/filters, tb002's scope + transparency mode), which is
+        lost on a plain label, so those are added as real slot-wired widgets.
         """
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up")
+        widget.apply_preset(
+            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+        )
 
         root = widget.add("Tools")
 
         for category, items in self._TOOLS_ITEMS.items():
             cat = root.sublist.add(category)
-            for label, _slot, *rest in items:
-                cat.sublist.add(label, setToolTip=rest[0] if rest else "")
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    cat.sublist.add(label, setToolTip=tooltip)
 
-    @Signals("on_item_interacted")
+    @SlotsMaya.Signals("on_item_interacted")
     def list001(self, item):
         """Dispatch Tools list selection to the matching slot method."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
@@ -348,9 +359,9 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             # Toggle: how same-base name conflicts are resolved.
             # Off (default): skip conflicting groups (legacy behavior).
             # On: rename group members with alphabetical suffixes (mat_A, mat_B, ...).
-            from uitk.widgets.optionBox.options.action import ActionOption
-
-            self._strip_alpha_option = ActionOption(
+            # Registered-widget lookup, not an import: the Switchboard's widget
+            # registry already carries every public class under uitk/widgets/.
+            self._strip_alpha_option = self.sb.registered_widgets.ActionOption(
                 wrapped_widget=lbl007,
                 callback=None,
                 states=[
@@ -844,16 +855,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         # Reselect the original selection so that this method can be called again if needed.
         cmds.select(selection)
 
-    def b005(self, widget):
-        """Assign Current (main UI button)"""
-        selection = cmds.ls(sl=True, flatten=1) or []
-        if not selection:
-            self.sb.message_box("No renderable object is selected for assignment.")
-            return
-
-        mat = self.ui.cmb002.currentData()
-        mtk.MatUtils.assign_mat(selection, mat)
-
     def b006(self, widget):
         """Assign: New Material"""
         renderable_objects = cmds.ls(sl=True, type="mesh", dag=True, geometry=True) or []
@@ -911,13 +912,48 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         ui = self.sb.handlers.external_app.launch("converter", show=False)
         ui.slots.source_dir = mtk.get_env_info("sourceimages")
 
-        def _selected_texture_paths():
+        # The panel is DCC-agnostic: it owns the Scope picker, we own what each
+        # scope means here. Providers are called at tool time, so they always
+        # read the *current* selection rather than whatever was live at launch.
+        def _from_objects():
             sel = cmds.ls(selection=True, long=True) or []
             return mtk.MatUtils.get_texture_paths(objects=sel) if sel else []
 
-        ui.slots.texture_provider = _selected_texture_paths
+        def _from_materials():
+            mats = cmds.ls(selection=True, materials=True) or []
+            return mtk.MatUtils.get_texture_paths(materials=mats) if mats else []
+
+        def _from_file_nodes():
+            nodes = cmds.ls(selection=True, type="file") or []
+            return mtk.MatUtils.get_texture_paths(file_nodes=nodes) if nodes else []
+
+        def _from_chosen_materials():
+            mats = self._choose_scene_materials()
+            return mtk.MatUtils.get_texture_paths(materials=mats) if mats else []
+
+        for label, provider in (
+            ("Selected Objects", _from_objects),
+            ("Selected Materials", _from_materials),
+            ("Selected File Nodes", _from_file_nodes),
+            ("Choose Materials...", _from_chosen_materials),
+        ):
+            ui.slots.register_scope(label, provider)
 
         self.sb.handlers.marking_menu.show(ui)
+
+    def _choose_scene_materials(self):
+        """Multi-select picker over the scene's materials. Returns [] on cancel."""
+        materials = sorted(mtk.MatUtils.get_scene_mats() or [], key=str)
+        if not materials:
+            self.sb.message_box("<hl>No materials</hl><br>The scene has none.")
+            return []
+
+        return self.sb.list_input_dialog(
+            materials,
+            title="Choose Materials",
+            label="Select the material(s) to pull textures from:",
+            parent=self.sb.parent(),
+        )
 
     def b018(self, widget):
         """Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them."""

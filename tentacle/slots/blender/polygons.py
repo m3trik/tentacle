@@ -3,7 +3,7 @@
 import bpy
 import pythontk as ptk
 import blendertk as btk
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class PolygonsSlots(SlotsBlender):

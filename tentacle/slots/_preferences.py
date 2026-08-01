@@ -12,7 +12,6 @@ per window style. Both selectors read and write the live MarkingMenu theme prope
 persist per host and re-theme any already-open windows. The logic is pure uitk, so nothing
 is DCC-specific to fork.
 """
-from uitk.themes.style_sheet import StyleSheet
 
 
 class PreferencesMixin:
@@ -26,8 +25,13 @@ class PreferencesMixin:
         return token.replace("-", " ").title()
 
     def _theme_items(self) -> dict:
-        """``{display label: theme token}`` for every registered uitk theme."""
-        return {self._theme_label(t): t for t in StyleSheet.themes}
+        """``{display label: theme token}`` for every registered uitk theme.
+
+        ``sb.style`` is the Switchboard's lazy proxy for the ``StyleSheet`` class —
+        the slots layer reaches uitk through the Switchboard, never by importing
+        ``uitk.themes.style_sheet`` directly.
+        """
+        return {self._theme_label(t): t for t in self.sb.style.themes}
 
     def _marking_menu(self):
         return self.sb.handlers.marking_menu

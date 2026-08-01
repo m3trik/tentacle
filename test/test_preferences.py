@@ -202,8 +202,10 @@ class TestPreferencesMixin(unittest.TestCase):
     """cmb004 / cmb005 expose uitk's two previously hard-pinned window themes.
 
     DCC-agnostic by construction — the mixin only touches
-    ``sb.handlers.marking_menu`` and ``uitk.StyleSheet`` — so this runs without
-    Maya or Blender, and covers the slots both DCCs inherit.
+    ``sb.handlers.marking_menu`` and ``sb.style`` (the Switchboard's proxy for
+    ``uitk.StyleSheet``; slots reach uitk through the Switchboard, never by
+    importing ``uitk.themes.style_sheet``) — so this runs without Maya or
+    Blender, and covers the slots both DCCs inherit.
 
     Uses the REAL uitk ComboBox: the mixin's contract is a label→token map
     written with ``add()`` and read back with ``currentData()``/
@@ -224,10 +226,15 @@ class TestPreferencesMixin(unittest.TestCase):
 
         from tentacle.slots._preferences import PreferencesMixin
 
+        from uitk.themes.style_sheet import StyleSheet
+
         self.menu = _StubMarkingMenu()
         self.slots = PreferencesMixin()
+        # ``sb.style`` is the StyleSheet CLASS (a lazy proxy property on the real
+        # Switchboard), so the stub hands over the class itself.
         self.slots.sb = types.SimpleNamespace(
-            handlers=types.SimpleNamespace(marking_menu=self.menu)
+            handlers=types.SimpleNamespace(marking_menu=self.menu),
+            style=StyleSheet,
         )
 
     def _combo(self):

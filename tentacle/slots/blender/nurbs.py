@@ -4,8 +4,7 @@ import math
 
 import bpy
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class Nurbs(SlotsBlender):
@@ -181,7 +180,9 @@ class Nurbs(SlotsBlender):
         root -> category -> leaf structure as Maya's ``list000_init``, backed by
         ``_LIST000_COMMANDS`` (bpy ops/props instead of MEL strings)."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_overlay")
+        widget.apply_preset(
+            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+        )
 
         root = widget.add("Nurbs")
 
@@ -192,7 +193,7 @@ class Nurbs(SlotsBlender):
     # The undoable wrap sits on the leaf handlers below, not on this dispatcher, matching
     # edit.py's list000 (Create Primitive): the dispatcher also fires for category/expand
     # clicks, which would otherwise push no-op undo steps.
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch a Nurbs leaf action (mirrors Maya's list000: no-op on a node that still
         has its own populated sublist — i.e. a category, not a leaf — else resolve

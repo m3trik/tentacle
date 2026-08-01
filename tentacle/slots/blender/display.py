@@ -2,8 +2,7 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from uitk import Signals
-from tentacle.slots.blender._slots_blender import SlotsBlender
+from tentacle import SlotsBlender
 
 
 class DisplaySlots(SlotsBlender):
@@ -63,17 +62,30 @@ class DisplaySlots(SlotsBlender):
         self.ui = self.sb.loaded_ui.display
         self.submenu = self.sb.loaded_ui.display_submenu
 
+    def header_init(self, widget):
+        """Header menu: the submenu's Display expandable list — hover a row to
+        fan its flyout right (the shared list000_init applies the header_menu
+        preset here)."""
+        # List leaves are one-shot actions — dismiss the menu once one is
+        # triggered (category rows only navigate).
+        widget.menu.hide_on_trigger = True
+        widget.menu.add(
+            self.sb.registered_widgets.ExpandableList, setObjectName="list000"
+        )
+
     # --- Display expandable list ----------------------------------------
     def list000_init(self, widget):
         """Initialize Display expandable list (categories → actions)."""
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_overlay_left")
+        widget.apply_preset(
+            "expand_overlay_left" if widget.ui.has_tags("submenu") else "header_menu"
+        )
         root = widget.add("Display")
         for category, items in self._LIST000_ITEMS.items():
             cat = root.sublist.add(category)
             cat.sublist.add([label for label, _ in items])
 
-    @Signals("on_item_interacted")
+    @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch a Display action and report state via message_box."""
         if getattr(item, "sublist", None) and item.sublist.get_items():
