@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-01",
+  "generated_at": "2026-08-02",
   "modules": [
     {
       "relpath": "__init__.py",
