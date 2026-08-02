@@ -43,7 +43,7 @@
 | ShotManifest | 0 | 0 | 0 | 0 | OK |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | Shots | 0 | 0 | 0 | 0 | OK |
-| SmartBake | 0 | 0 | 5 | 5 | OK |
+| SmartBake | 0 | 0 | 4 | 2 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
@@ -85,9 +85,6 @@
 **property deltas (review)**
   - `b000.class` maya=`'PushButton'` blender=`'QPushButton'`
   - `b001.class` maya=`'PushButton'` blender=`'QPushButton'`
-  - `spn_sample_by..ui:value` maya=`'1'` blender=`'1.000000000000000'`
-  - `spn_sample_by..ui:minimum` maya=`'1'` blender=`'1.000000000000000'`
-  - `spn_sample_by..ui:maximum` maya=`'100'` blender=`'100.000000000000000'`
 
 #### TexturePathEditor
 **property deltas (review)**
