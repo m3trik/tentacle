@@ -464,6 +464,42 @@ class TransformSlots(SlotsBlender):
             setObjectName="chk_unfreeze_children",
             setToolTip="Also restore all descendant objects.\nMirrors the Freeze Transforms > Freeze Children option.",
         )
+        widget.option_box.menu.add(
+            "QPushButton",
+            setText="Restore Authored Axes",
+            setObjectName="b_restore_axes",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Restore Authored Axes",
+                body="Point the transform gizmo at the object's <b>pre-freeze</b> "
+                "axes, read from its stored freeze history. Non-destructive - "
+                "the object stays frozen.",
+                notes=[
+                    "A freeze zeroes the rotation channel, so a frozen object's "
+                    "local axes ARE the world axes and the gizmo can no longer "
+                    "show the frame the asset was modelled in.",
+                    "Maya aims its manipulator pivot; the Blender parity is a "
+                    "custom transform orientation (the same slot World-Aligned "
+                    "Pivot flips to Global).",
+                    "With several objects selected the last one wins - one gizmo.",
+                ],
+            ),
+        )
+        # No explicit clicked.connect: a menu widget auto-binds to the slot
+        # method sharing its objectName (same as b014/b015 elsewhere), so
+        # wiring it by hand as well would fire the handler twice.
+
+    def b_restore_axes(self):
+        """Restore Authored Axes - point the gizmo at the pre-freeze frame."""
+        obj = btk.XformUtils.restore_original_axes(self.selected_objects())
+        if obj is None:
+            self.sb.message_box(
+                "<strong>Nothing to restore.</strong><br>No selected object carries "
+                "stored freeze data (it is stamped by Freeze Transforms)."
+            )
+        else:
+            self.sb.message_box(
+                f"Transform orientation set to <hl>{obj.name}</hl>'s authored axes."
+            )
 
     @btk.undoable
     def b002(self, widget):

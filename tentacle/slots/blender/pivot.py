@@ -162,11 +162,17 @@ class Pivot(SlotsBlender):
         ``object.transform_apply``: the geometry doesn't move, but the rotation channel resets
         so the local axes end up world-aligned — tb003's permanent World-Aligned Pivot.
 
+        Goes through ``btk.freeze_transforms`` rather than calling
+        ``bpy.ops.object.transform_apply`` directly, so the rotation bake is stamped as
+        history (``store=True``) and the sibling transform panel's Un-Freeze Transforms can
+        reverse it — a raw op call left the bake invisible. The engine also handles the
+        multi-user (linked-data) skip, but only to the console — where the raw operator
+        raised, so its return value is checked below to keep the user informed.
+
         Runs under ``btk.window_context_override``: ``transform_apply`` gathers its targets and
         reads the active object from *screen* context, dead in the Qt-pump state (the same
         reason ``tb002``'s transfer and the nurbs Attach/Join calls override). Object Mode is
-        ensured first (the op poll-fails in Edit Mode); multi-user data can't be applied and
-        surfaces the operator's own message rather than a raw traceback.
+        ensured first (the op poll-fails in Edit Mode).
         """
         prior_selection = self.selected_objects()
         objects = [o for o in prior_selection if o.type in self._APPLYABLE]
@@ -187,7 +193,22 @@ class Pivot(SlotsBlender):
                 o.select_set(o in objects)
             view_layer.objects.active = objects[0]
             try:
-                bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+                baked = btk.freeze_transforms(
+                    objects,
+                    location=False,
+                    rotation=True,
+                    scale=False,
+                    store=True,  # always: Un-Freeze reads the stamped channels
+                )
+                if not baked:
+                    # The engine skips multi-user (linked) data with a console
+                    # message; the raw operator used to raise, so without this
+                    # the button would look like it did nothing.
+                    self.sb.message_box(
+                        f"{label} skipped every selected object — linked "
+                        "(multi-user) data cannot be baked. Make the objects "
+                        "single-user first."
+                    )
             except RuntimeError as e:
                 self.sb.message_box(str(e))
             for o in prior_selection:  # restore the user's prior selection / active
@@ -246,14 +267,20 @@ class Pivot(SlotsBlender):
         World-Aligned Pivot's permanent option covers world-aligning them). Verified live:
         non-geometry objects (EMPTY/CAMERA) in the selection are skipped untouched and armatures
         re-origin correctly, so the selection needs no type filter."""
-        if not self.selected_objects():
+        objects = self.selected_objects()
+        if not objects:
             self.sb.message_box("Bake Pivot requires selected object(s).")
             return
         if not self.ensure_object_mode():
             return
         with btk.window_context_override():
             try:
-                bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+                # btk.center_pivot(mode="cursor"), not a raw origin_set: moving
+                # the origin invalidates any stored freeze-location bake
+                # (Blender's origin IS the translate reference) and only the
+                # engine path drops it. A stale bake would make a later
+                # Un-Freeze Transforms double-apply the translation.
+                btk.center_pivot(objects, mode="cursor")
             except RuntimeError as e:
                 self.sb.message_box(str(e))
 

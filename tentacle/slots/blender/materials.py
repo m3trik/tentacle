@@ -175,8 +175,10 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
             widget.on_editing_finished.connect(self._rename_current)
             widget.before_popup_shown.connect(widget.init_slot)
-            widget.currentIndexChanged.connect(self.submenu.list000.init_slot)
-            widget.on_editing_finished.connect(self.submenu.list000.init_slot)
+            # Refresh BOTH Assign lists (panel + submenu) — their root row
+            # mirrors the current material (see the mixin).
+            widget.currentIndexChanged.connect(self._refresh_assign_lists)
+            widget.on_editing_finished.connect(self._refresh_assign_lists)
 
         # Item data is the material NAME, not the Material datablock: a stored reference
         # goes stale on undo (any later attribute access raises ReferenceError), so every
@@ -208,7 +210,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 f"Material <hl>{name}</hl> no longer exists (undone, deleted, or "
                 "renamed) — refreshing the material list."
             )
-            self.ui.cmb002.init_slot()
+            self._refresh_material_lists()
         return mat
 
     def _rename_current(self, text):
@@ -227,12 +229,12 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             # The combo item already carries the typed name (the edit-commit
             # happens widget-side, before this handler runs) — re-sync it
             # with the scene so a failed rename isn't displayed as done.
-            self.ui.cmb002.init_slot()
+            self._refresh_material_lists()
             return None
         mat.name = text
         # Re-sync the item data (a NAME — now stale) with the actual result; Blender may
         # have suffixed ``text`` (.001) on collision, so read the name back off the mat.
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(mat.name)
         return mat.name
 
@@ -651,7 +653,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         if last and last is not new_mat and not btk.is_mat_assigned(last):
             bpy.data.materials.remove(last)
         self.last_random_material = new_mat.name
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(new_mat.name)
 
     @btk.undoable
@@ -663,7 +665,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             return
         mat = btk.create_mat("standard", name="Material")
         btk.assign_mat(selection, mat)
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(mat.name)
 
     def b013(self):
@@ -679,14 +681,14 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             self.sb.message_box("No duplicate-texture materials found.")
             return
         reassigned = btk.reassign_duplicate_materials(dups, delete=True)
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.sb.message_box(f"Removed duplicates — reassigned <hl>{reassigned}</hl> slot(s).")
 
     @btk.undoable
     def b015(self, widget=None):
         """Delete All Unused Materials"""
         removed = btk.delete_unused_materials()
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.sb.message_box(f"Deleted <hl>{len(removed)}</hl> unused material(s).")
 
     # ------------------------------------------------------------------ context-menu (lbl) slots
@@ -696,7 +698,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         if mat is None:
             return
         bpy.data.materials.remove(mat)
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
 
     def lbl004(self):
         """Select Node — select the object(s) using the current material."""
@@ -738,7 +740,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             self.sb.message_box(f"<hl>Rename aborted</hl><br>'{base}' already exists.")
             return
         mat.name = base
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(base)
 
     def lbl007_global(self):
@@ -755,7 +757,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 continue  # would collide with a non-input node
             by_name[old].name = new
             renamed += 1
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.sb.message_box(f"<hl>Strip trailing — global</hl><br>Renamed: <strong>{renamed}</strong>.")
 
     # ------------------------------------------------------------------ Setup tools

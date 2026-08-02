@@ -13,7 +13,7 @@
 | Bridge | 0 | 0 | 0 | 0 | OK |
 | Calculator | 0 | 0 | 0 | 0 | OK |
 | Channels | 0 | 0 | 5 | 0 | OK |
-| ColorId | 0 | 0 | 0 | 1 | OK |
+| ColorId | 0 | 0 | 0 | 0 | OK |
 | Curtain | 0 | 0 | 0 | 0 | OK |
 | CurveToTube | 0 | 0 | 0 | 0 | OK |
 | CutOnAxis | 0 | 0 | 0 | 0 | OK |
@@ -23,7 +23,7 @@
 | DynamicPipe | 0 | 0 | 0 | 0 | OK |
 | EmissiveGroups | 0 | 0 | 0 | 0 | OK |
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
-| GameShader | 0 | 0 | 0 | 2 | OK |
+| GameShader | 0 | 0 | 2 | 0 | OK |
 | HdrManager | 0 | 0 | 0 | 2 | OK |
 | HierarchySync | 0 | 0 | 0 | 0 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
@@ -43,7 +43,7 @@
 | ShotManifest | 0 | 0 | 0 | 0 | OK |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | Shots | 0 | 0 | 0 | 0 | OK |
-| SmartBake | 0 | 0 | 5 | 2 | OK |
+| SmartBake | 0 | 0 | 5 | 5 | OK |
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
@@ -63,15 +63,6 @@
 #### Channels
 **combo item deltas (review)**
   - `cmb_attr_type` 6->5 items; missing=['enum', 'double3'] extra=['vector']
-
-#### ColorId
-**property deltas (review)**
-  - `chk012..ui:enabled` maya=`None` blender=`'false'`
-
-#### GameShader
-**property deltas (review)**
-  - `chk000..ui:enabled` maya=`None` blender=`'false'`
-  - `cmb004..ui:enabled` maya=`None` blender=`'false'`
 
 #### HdrManager
 **property deltas (review)**
@@ -94,6 +85,9 @@
 **property deltas (review)**
   - `b000.class` maya=`'PushButton'` blender=`'QPushButton'`
   - `b001.class` maya=`'PushButton'` blender=`'QPushButton'`
+  - `spn_sample_by..ui:value` maya=`'1'` blender=`'1.000000000000000'`
+  - `spn_sample_by..ui:minimum` maya=`'1'` blender=`'1.000000000000000'`
+  - `spn_sample_by..ui:maximum` maya=`'100'` blender=`'100.000000000000000'`
 
 #### TexturePathEditor
 **property deltas (review)**
@@ -111,7 +105,7 @@
   - `b004.class` maya=`'QPushButton'` blender=`'PushButton'`
   - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
 
-**N/A by design (1):** WorkspaceMap (Maya workspace-tree browser; Blender now SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18), but the map/browser tree itself stays unported — the Reference Manager combo + main.py Workspace tab cover discovery; port only if wanted)
+**N/A by design (1):** WorkspaceMap (Maya workspace-tree browser; Blender SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18) and, since 2026-08-02, the workspace-template store — but the map/browser tree itself stays unported: the Reference Manager combo (which also creates + promotes projects) and the main.py Workspace tab cover discovery; port only if wanted)
 
 **[counterpart-set OK]** BlenderBridge <-> MayaBridge — cross-DCC send pair — each package ships the bridge named after its TARGET app
 

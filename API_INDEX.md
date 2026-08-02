@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-01_
+_Generated: 2026-08-02_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -144,7 +144,7 @@ _Generated: 2026-08-01_
 
 ### `slots/blender/transform.py`
 - `class TransformSlots(SlotsBlender)`
-  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, s023, chk023_init, chk023, tb001_init, tb001, b002_init, b002, tb003_init, chk024, chk025, chk026
+  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, s023, chk023_init, chk023, tb001_init, tb001, b002_init, b_restore_axes, b002, tb003_init, chk024, chk025, chk026
 
 ### `slots/blender/utilities.py`
 - `class Utilities(SlotsBlender)`
@@ -354,7 +354,7 @@ _Generated: 2026-08-01_
 
 ### `slots/maya/transform.py`
 - `class TransformSlots(SlotsMaya)`
-  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb004_init, tb005_init, tb005, chk021, chk022, chk023, chk024, chk025, chk026, s021, s022, s023, b_snap_ts, b001, b002_init, b002, setTransformSnap
+  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb004_init, tb005_init, tb005, chk021, chk022, chk023, chk024, chk025, chk026, s021, s022, s023, b_snap_ts, b001, b002_init, b_restore_axes, b002, setTransformSnap
 
 ### `slots/maya/utilities.py`
 - `class Utilities(SlotsMaya)`

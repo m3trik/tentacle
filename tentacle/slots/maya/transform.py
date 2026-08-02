@@ -557,6 +557,41 @@ class TransformSlots(SlotsMaya):
             setObjectName="chk_unfreeze_children",
             setToolTip="Also restore all descendant transform nodes.\nMirrors the Freeze Transforms > Freeze Children option.",
         )
+        widget.option_box.menu.add(
+            "QPushButton",
+            setText="Restore Authored Axes",
+            setObjectName="b_restore_axes",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Restore Authored Axes",
+                body="Aim the manipulator at the object's <b>pre-freeze</b> axes, "
+                "read from its stored freeze history. Non-destructive - the "
+                "object stays frozen.",
+                notes=[
+                    "A freeze zeroes the rotate channel, so a frozen object's "
+                    "local axes ARE the world axes and the gizmo can no longer "
+                    "show the frame the asset was modelled in.",
+                    "With several objects selected the last one wins - Maya has "
+                    "one manipulator.",
+                ],
+            ),
+        )
+        # No explicit clicked.connect: a menu widget auto-binds to the slot
+        # method sharing its objectName (same as b014/b015 elsewhere), so
+        # wiring it by hand as well would fire the handler twice.
+
+    def b_restore_axes(self):
+        """Restore Authored Axes - point the manipulator at the pre-freeze frame."""
+        node = mtk.XformUtils.restore_original_axes()
+        if node is None:
+            self.sb.message_box(
+                "<strong>Nothing to restore</strong>.<br>None of the selected objects "
+                "have stored freeze data (it is stamped by Freeze Transforms)."
+            )
+        else:
+            self.sb.message_box(
+                f"Manipulator aimed at <hl>{mtk.CoreUtils.short_name(node)}</hl>'s "
+                "authored axes."
+            )
 
     def b002(self, widget):
         """Un-Freeze Transforms"""

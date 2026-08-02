@@ -207,7 +207,8 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
         Side effects:
             - Sets cmb002's current material to ``mat_name`` (which fires
-              the connected ``list000.init_slot`` so the root label updates).
+              the connected ``_refresh_assign_lists`` so both Assign lists'
+              root labels update).
             - Emits an sb.message_box describing success or the failure reason.
         """
         selection = cmds.ls(sl=True, flatten=True) or []
@@ -410,9 +411,10 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             widget.on_editing_finished.connect(self._rename_current)
             # Initialize the widget every time before the popup is shown.
             widget.before_popup_shown.connect(widget.init_slot)
-            # Refresh the submenu Assign list when the current material changes.
-            widget.on_editing_finished.connect(self.submenu.list000.init_slot)
-            widget.currentIndexChanged.connect(self.submenu.list000.init_slot)
+            # Refresh BOTH Assign lists (panel + submenu) when the current
+            # material changes — their root row mirrors it (see the mixin).
+            widget.on_editing_finished.connect(self._refresh_assign_lists)
+            widget.currentIndexChanged.connect(self._refresh_assign_lists)
 
         # Use 'restore_index=True' to save and restore the index. Default
         # materials are shown unless the option-box toggle hides them.
@@ -537,20 +539,25 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             # The combo item already carries the typed name (the edit-commit
             # happens widget-side, before this handler runs) — re-sync it
             # with the scene so a failed rename isn't displayed as done.
-            self.ui.cmb002.init_slot()
+            self._refresh_material_lists()
             return None
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(new_name)
         return new_name
 
     def _refresh_after_rename(self, current_old, renamed):
-        """Refresh the materials combo and restore selection on the current mat."""
-        self.ui.cmb002.init_slot()
+        """Re-populate the material lists and restore selection on the current mat.
+
+        The refresh comes first so the combo and both Assign lists carry the new
+        names before the selection is restored; ``setAsCurrent`` then re-fires
+        :meth:`_refresh_assign_lists` through ``currentIndexChanged`` if it
+        actually moves the index, so no trailing refresh is needed here.
+        """
+        self._refresh_material_lists()
         for old, new in renamed:
             if old == current_old:
                 self.ui.cmb002.setAsCurrent(new)
                 break
-        self.submenu.list000.init_slot()
 
     def lbl007(self):
         """Rename the current material by stripping trailing integers and underscores.
@@ -772,12 +779,12 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         if not mat:
             return
         cmds.delete(str(mat))
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+        self._refresh_material_lists()
 
     def b015(self, widget):
         """Delete Unused Materials"""
         mel.eval('hyperShadePanelMenuCommand "hyperShadePanel1" "deleteUnusedNodes"')
-        self.ui.cmb002.init_slot()  # refresh the materials list comboBox
+        self._refresh_material_lists()
 
     def lbl004(self):
         """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
@@ -849,7 +856,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         self.last_random_material = new_mat
 
         # Refresh the UI
-        self.ui.cmb002.init_slot()
+        self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(str(new_mat))
 
         # Reselect the original selection so that this method can be called again if needed.
@@ -905,7 +912,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         dups = mtk.MatUtils.find_materials_with_duplicate_textures()
         if dups:
             mtk.MatUtils.reassign_duplicate_materials(dups, delete=True)
-            self.ui.cmb002.init_slot()
+            self._refresh_material_lists()
 
     def b016(self):
         """Map Converter"""

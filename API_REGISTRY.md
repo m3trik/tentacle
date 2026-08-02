@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-01_
+_Generated: 2026-08-02_
 
 ## Index
 
@@ -140,7 +140,7 @@ Shared HUD warning framework (DCC-agnostic).
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L50)** — DCC-agnostic ``materials`` slot behavior.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L56)** — DCC-agnostic ``materials`` slot behavior.
   - `MaterialsMixin.lbl005(self)` — Rename the current material.
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
 
@@ -706,6 +706,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `TransformSlots.tb001_init(self, widget)`
   - `TransformSlots.tb001(self, widget)` — Scale Connected Edges (each connected set of selected edges scales about its
   - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box).
+  - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes - point the gizmo at the pre-freeze frame.
   - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms (restore the channels stamped by Freeze;
   - `TransformSlots.tb003_init(self, widget)` — Constraints Init (mirrors the Maya option box;
   - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge (snap-to-edge during move).
@@ -1452,6 +1453,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `TransformSlots.b_snap_ts(self)` — Snap Toolset
   - `TransformSlots.b001(self)` — Match Scale: scale the selected object(s) to match the first-selected object's size.
   - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init
+  - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes - point the manipulator at the pre-freeze frame.
   - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms
   - `TransformSlots.setTransformSnap(self, ctx, state)` — Set the transform tool's move, rotate, and scale snap states.
 
