@@ -41,6 +41,12 @@ selected (Maya ``mtk.MatUtils.get_mats`` / Blender ``btk.get_mats``). An empty l
 material and must never become the current one, since ~24 call sites feed
 ``cmb002.currentData()`` straight to delete / assign / graph / rename).
 
+Plus :meth:`_refresh_assign_lists`, the "current material changed" fan-out both forks
+wire ``cmb002``'s ``currentIndexChanged`` / ``on_editing_finished`` to. The Assign list
+(``list000``) exists on BOTH the panel and the submenu and its root row is
+"Assign: <current material>", so a refresh that reached only one surface left the other
+advertising — and appearing to offer — the previous material.
+
 Hooks each ``<Panel>Slots`` fork must supply: ``_rename_current(text)``,
 ``select_by_mat(...)``, ``_selection_mats()``.
 """
@@ -57,6 +63,49 @@ class MaterialsMixin:
 
     #: Affix modes offered by ``cmb_rename_mode`` (index 0 is the default).
     _RENAME_MODES = ("Auto", "Prefix", "Suffix")
+
+    def _refresh_assign_lists(self, *_):
+        """Re-init the Assign list (``list000``) on every surface that carries one.
+
+        The list's root row is "Assign: <current material>", built from
+        ``cmb002.currentData()`` — so it goes stale the moment the combo changes
+        unless the list is re-inited. BOTH the main panel and the submenu host a
+        ``list000``, while ``cmb002`` lives only on the panel: refreshing just the
+        submenu's copy (the original wiring) left the panel's own root label —
+        the one sitting directly above the combo — advertising the previous
+        material, so "release on the root to assign the current material" read as
+        assigning the wrong one.
+
+        Connected straight to ``currentIndexChanged(int)`` /
+        ``on_editing_finished(str)``, hence the swallowed signal args. A surface
+        without a ``list000`` is skipped rather than assumed.
+        """
+        for ui in (self.ui, self.submenu):
+            widget = getattr(ui, "list000", None)
+            if widget is not None:
+                widget.init_slot()
+
+    def _refresh_material_lists(self):
+        """Re-populate every surface that mirrors the scene's material set.
+
+        The panel's "the materials changed" signal — call it instead of a bare
+        ``cmb002.init_slot()`` from anything that creates, deletes or renames a
+        material. ``cmb002`` is not the only widget listing them: each Assign
+        list (``list000``) carries a row per scene material, so a combo-only
+        refresh left rows naming materials that no longer exist. Clicking one
+        then failed at the far end of the assign — loudly in Maya ("Assign
+        failed": ``assign_mat`` raises on a missing node) and silently in
+        Blender (``_resolve_material`` returns None and the handler just
+        returns) — which reads as a dead menu row rather than a stale one.
+
+        Combo first: the lists' root row is built from ``cmb002.currentData()``,
+        so it must be re-resolved against the new material set before the lists
+        rebuild off it. ``init_slot`` blocks the combo's own signals while it
+        re-populates, so this does not double up with the
+        ``currentIndexChanged`` -> :meth:`_refresh_assign_lists` connection.
+        """
+        self.ui.cmb002.init_slot()
+        self._refresh_assign_lists()
 
     def _add_rename_control(self, menu):
         """Add the "Rename" label with its affix option box to *menu*.

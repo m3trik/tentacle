@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>250</width>
-    <height>139</height>
+    <height>146</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -76,19 +76,6 @@
        </widget>
       </item>
       <item>
-       <widget class="ExpandableList" name="list001" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>18</height>
-         </size>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QGroupBox" name="group000">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -115,44 +102,6 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <item row="8" column="2" colspan="2">
-          <widget class="PushButton" name="tb000">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>19</height>
-            </size>
-           </property>
-           <property name="toolTip">
-            <string>Select objects that are assigned the current material.</string>
-           </property>
-           <property name="text">
-            <string>Select</string>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="4">
-          <widget class="ExpandableList" name="list000" native="true">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>18</height>
-            </size>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="2" column="0" colspan="4">
           <widget class="ComboBox" name="cmb002">
            <property name="minimumSize">
@@ -211,6 +160,57 @@
            </property>
            <property name="text">
             <string>Get</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0" colspan="4">
+          <widget class="ExpandableList" name="list000" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2" colspan="2">
+          <widget class="PushButton" name="tb000">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Select objects that are assigned the current material.</string>
+           </property>
+           <property name="text">
+            <string>Select</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0" colspan="4">
+          <widget class="ExpandableList" name="list001" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

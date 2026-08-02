@@ -101,10 +101,6 @@ CONTROLS = {
             "status": "na",
             "reason": "only meaningful in mayatk as an alternative to use_override_layer=False base-layer bakes; blendertk has no base-layer-conversion bake mode, so chk_use_override's mute/delete choice already covers the full space",
         },
-        "chk_inherited_vis": {
-            "status": "na",
-            "reason": "Blender has no ANIMATABLE inherited-visibility source at all: hide_viewport/hide_render are not inherited down a parent chain, and while collection visibility IS inherited (Object.visible_get() resolves it), Collection.hide_viewport/hide_render are not animatable -- is_animatable=False; keyframe_insert AND driver_add both refuse (verified live, Blender 5.1, 2026-07-28; a full collection-chain bake pass was prototyped and reverted on this finding). The only animatable visibility is the object's OWN hide flags, which AnimUtils.set_visibility_keys already covers -- permanent scope cut, per _smart_bake.py's module docstring.",
-        },
     },
     "reference_manager": {
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
@@ -220,12 +216,36 @@ CONTROLS = {
         # store key is Blender's own 'blendertk/color_id' (color_id.py:237), not Maya's legacy
         # 'mayatk/color_manager'. The header preset combo is not a distinct objectName the static sweep
         # tracks, so no ledger row is needed now that both sides build it.
-        "chk012": {"status": "na", "reason": "Maya wireframe-override color channel (overrideEnabled/overrideRGBColors/overrideColorRGB); Blender has no per-object wireframe color — Maya's outliner+wireframe tints collapse into the single obj.color Object Color channel (documented drop)."},
+        # chk012 (Wireframe): `na` row removed 2026-08-02 — the prior reason ("Blender has no
+        # per-object wireframe color") was factually wrong. Probed live on 5.1.2:
+        # View3DShading.wireframe_color_type takes ['THEME', 'OBJECT', 'RANDOM'], and 'OBJECT'
+        # draws the wires in obj.color. The checkbox is now ENABLED and wired
+        # (display_utils/color_id.py _channels/b001 -> ColorId.show_channels), defaulting checked
+        # like Maya's.
+        # chk013 (Outliner): TRUE parity as of 2026-08-02 — the Blender channel sets the
+        # object's outliner TEXT color exactly like Maya's outlinerColor. Blender publishes no
+        # such property (probed live: no Object.color_tag/outliner_color; SpaceOutliner exposes
+        # no tree at all), so blendertk's OutlinerTint stores it as a custom prop and PAINTS it
+        # via a SpaceOutliner POST_PIXEL draw handler over the internal TreeElement tree. It is
+        # fail-closed: struct offsets are re-validated against the live process before drawing
+        # and the overlay disables itself rather than risk the session. Same objectName, same
+        # label, same capability.
+        # chk016 (Set Per Color): NEW on both twins 2026-08-02 — opt-in grouping of each
+        # color's objects into an ID_<HEX> container (Maya objectSet / Blender color-tagged
+        # collection). Present and wired on both sides, so no ledger row.
     },
     "game_shader": {
-        "cmb002": {"status": "na", "reason": "Output Template (workflow-preset) map-export knob; Blender flow wires existing textures into the node graph and never bakes/writes maps (documented drop)"},
-        "cmb003": {"status": "na", "reason": "Ext output-format knob for the map-export step; Blender flow wires existing textures and never writes output maps (documented drop)"},
-        "cmb004": {"status": "na", "reason": "Maya shader-type choice (Stingray PBS / Standard Surface / OpenPBR are Maya shader nodes); Blender builds the one Principled BSDF (documented drop)"},
+        # cmb002 (Output Template) + cmb003 (Ext): `na` rows removed 2026-08-02 — BUILT and ENABLED.
+        # The prior reason ("Blender flow wires existing textures and never writes output maps") was
+        # a self-imposed scope limit, not a platform one: the map pipeline behind both controls is
+        # ptk.MapFactory.prepare_maps / ptk.MapRegistry, which live in DCC-agnostic pythontk, and the
+        # SIBLING panel in the same package already ran it (mat_utils/_mat_utils.py MatUpdater ->
+        # ensure_image_deps + prepare_maps). blendertk's new GameShader.create_network
+        # (mat_utils/game_shader.py) now makes the same calls, with Pillow provisioned on demand by
+        # btk.ensure_image_deps and a documented graceful degrade (wire-as-is + warning) when it
+        # can't be installed. Both are QComboBoxes present + functional on both sides -> no rows.
+        "chk000": {"status": "na", "reason": "AiBridge — attaches a parallel Maya aiStandardSurface preview network. Blender ships no Arnold integration (no MtoA equivalent, no aiStandardSurface node type) and Cycles/EEVEE both read the ONE Principled graph, so there is no second network to attach; see blendertk/mat_utils/arnold_bridge.py, the deliberately inert structural mirror. Removed from the .ui 2026-08-02 (was a disabled placeholder) at the user's call: a dead control that names a Maya-only renderer misleads a Maya user more than its absence does."},
+        "cmb004": {"status": "na", "reason": "Shader type (Stingray PBS / Standard Surface / OpenPBR) picks a Maya shader NODE; Blender has exactly one surface node. Probed on Blender 5.1.2: no OpenPBR node type exists (0 of 101 shader nodes), but Principled IS the OpenPBR model — its inputs map onto ND_open_pbr_surface_surfaceshader's, MaterialX 1.39.4 ships bundled, and Blender's own USD export emits ND_open_pbr_surface_surfaceshader for a Principled material (every conversion node this tool builds translates: MixRGB->ND_mix_color3, Invert->ND_subtract_color3, SeparateColor->ND_extract_color3, NormalMap->ND_normalmap_float). So OpenPBR is reachable, and what the Maya combo actually selects is the downstream TARGET — which on this panel is cmb002 (Unity URP/HDRP, Unreal, glTF, Godot). A Blender shader-type combo would be a second control for the same decision with two items naming Maya shaders that are never created. Removed from the .ui 2026-08-02 rather than left disabled."},
         # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (game_shader.py:76,107 ->
         # btk.graph_materials opens the Shader Editor), matched by objectName (GameShader 0 triaged).
     },
@@ -293,12 +313,14 @@ CONTROLS = {
         # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
     },
     "telescope_rig": {
-        # cmb_axis (Aim Axis) BUILT 2026-07-28: .ui block copied verbatim from the Maya panel
-        # (default Y, ComboBox in <customwidgets>), engine gained _resolve_axis (signed token
-        # -> Damped-Track enums + driven scale index + off-axis lock tuple, mirroring mtk's)
-        # and setup_telescope_rig(aim_axis=); slot passes ("x","y","z")[currentIndex] like
-        # Maya's. Verified headless (test_telescope_rig.py 24/24: X-chain drives scale.x,
-        # TRACK_X, correct locks, 0.5 collapse). No delta.
+        # cmb_axis (Aim Axis) BUILT 2026-07-28; btn_remove + the Auto collapse spinbox BUILT
+        # 2026-08-02 with the arity work (optional handles, 2-segment struts, auto collapse,
+        # bundle + teardown + scene stamp) landed in both twins in the same pass — the .ui files
+        # stay byte-identical and the engines mirror at the behavior level. Selection semantics
+        # are the one deliberate divergence and are inherent to the DCC: Maya reads click order
+        # (leading/trailing locator = base/end), Blender has none, so Empties are handles and
+        # segments order by distance from the ACTIVE object. Verified headless
+        # (test_telescope_rig.py 73/73). No delta.
     },
     "tube_rig": {
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
@@ -688,7 +710,6 @@ CONTROLS_SLOTS = {
         # CONTROLS['smart_bake_slots'], where the Blender engine ships them as chk_use_override /
         # chk_delete_sources). The entries here named non-existent slot widgets and were never
         # consulted by the sweep (dead config).
-        "chk_inherited_vis": {"status": "divergent", "reason": "[Bake Inherited Visibility] Blender has no animatable inherited-visibility source: parent-chain hide isn't inherited, and Collection.hide_viewport/hide_render (the mechanism that IS inherited) are not animatable -- is_animatable=False, keyframe_insert and driver_add both refuse (verified live, Blender 5.1, 2026-07-28; a collection-chain bake pass was prototyped and reverted on this finding). Nothing animated exists to flatten on bake. See CONTROLS['smart_bake_slots']['chk_inherited_vis']."},
         "cmb037": {"status": "replaced", "to": "cmb_interp", "reason": "tb017 redesigned on Blender as an interpolation-type picker applied to all keys on the selection; code comment documents cmb_interp replacing cmb037/cmb040 (Maya's key-scope narrowing auto/current-time/selected dropped by design)."},
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
@@ -976,9 +997,10 @@ PANELS = {
     # "smart_bake_slots" CONTROLS row above -- chk_bake_blendshapes/chk_delete_inputs renamed,
     # chk_override_layer replaced by chk_use_override (Blender's nla.bake always writes a
     # brand-new Action, so there's no override-vs-base-layer axis left to name), and
-    # chk_mute_drivers/chk_inherited_vis na (both fully covered by chk_use_override and by
-    # AnimUtils.set_visibility_keys respectively — see that row's header comment and
-    # _smart_bake.py's own module docstring).
+    # and chk_mute_drivers na (fully covered by chk_use_override). chk_inherited_vis was
+    # REMOVED from the Maya panel 2026-08-02 (API-only option; the FBX exporter already
+    # resolves inherited visibility, and baking it corrupts RenderOpacity fade encoding --
+    # measured, see _smart_bake.py), so there is no longer a control to ledger on either side.
     # BlendshapeAnimatorSlots: removed 2026-07-03 -- now a real blendertk twin (engine + Slots +
     # .ui under anim_utils/blendshape_animator, engine registered in blendertk/__init__.py).
     # scene.py's b015 -> marking_menu.show("blendshape_animator") is a NEW, Blender-only
@@ -1011,12 +1033,18 @@ PANELS = {
     # Project Window IS this editor; the two sides pair at the tentacle layer instead: both
     # main.py Workspace tabs carry the same "Edit Workspace" row (Maya → mel ProjectWindow,
     # Blender → marking_menu.show("workspace_editor")), pinned by test_main_workspace*.py.
+    # The one thing the native window can't do — build a project from a SAVED rule template —
+    # is shared at the engine layer instead (2026-08-02): ptk.WorkspaceTemplates is one
+    # unnamespaced store, read by btk.* and the new mtk.* twins alike, and Maya's entry point
+    # for it is WorkspaceMap's header menu (New Project / Save Rules As Template).
     "WorkspaceMapSlots": {"status": "na",
-                          "reason": "Maya workspace-tree browser; Blender now SHARES the "
+                          "reason": "Maya workspace-tree browser; Blender SHARES the "
                                     "workspace.mel project model (btk.current_workspace + the "
-                                    "workspace_editor panel, 2026-07-18), but the map/browser "
-                                    "tree itself stays unported — the Reference Manager combo + "
-                                    "main.py Workspace tab cover discovery; port only if wanted"},
+                                    "workspace_editor panel, 2026-07-18) and, since 2026-08-02, "
+                                    "the workspace-template store — but the map/browser tree "
+                                    "itself stays unported: the Reference Manager combo (which "
+                                    "also creates + promotes projects) and the main.py Workspace "
+                                    "tab cover discovery; port only if wanted"},
 }
 
 # --------------------------------------------------------------------------- file counterpart sets
