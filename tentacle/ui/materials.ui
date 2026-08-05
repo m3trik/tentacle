@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
+    <width>200</width>
     <height>146</height>
    </rect>
   </property>
@@ -31,7 +31,7 @@
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
     <size>
-     <width>250</width>
+     <width>200</width>
      <height>0</height>
     </size>
    </property>
@@ -156,7 +156,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set material shader ID from selection.</string>
+            <string>Sync the material dropdown to match the currently selected object's material.</string>
            </property>
            <property name="text">
             <string>Get</string>

@@ -127,7 +127,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Divide faces by splitting cutting and inserting edge loops</string>
+     <string>Divide faces interactively by cutting and inserting edge loops.</string>
     </property>
     <property name="text">
      <string>Multi-Cut</string>
@@ -138,7 +138,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Highlight">
@@ -249,7 +249,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Highlight">
@@ -349,7 +349,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Organize vertices of selected components into a perfect geometric shape.</string>
+     <string>Reshape the selected vertices, edges, or faces into an even circle.</string>
     </property>
     <property name="text">
      <string>Circularize</string>
@@ -360,7 +360,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Highlight">
@@ -423,7 +423,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Connect vertices edges and polygons</string>
+     <string>Connect vertices, edges, and faces interactively, using Maya's Connect tool.</string>
     </property>
     <property name="text">
      <string>Attach</string>
@@ -491,7 +491,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Bevel modifier</string>
+     <string>Open the Bevel tool panel.</string>
     </property>
     <property name="text">
      <string>Bevel</string>
@@ -528,7 +528,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Organize vertices of selected components into a perfect geometric shape.</string>
+     <string>Mirror selected mesh components across the topological symmetry axis.
+
+First select any components to mirror, then when prompted, select an edge to define an axis.</string>
     </property>
     <property name="text">
      <string>Symmetrize</string>
@@ -539,7 +541,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Highlight">

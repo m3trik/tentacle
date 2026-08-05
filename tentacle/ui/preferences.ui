@@ -113,6 +113,9 @@
              <height>19</height>
             </size>
            </property>
+           <property name="toolTip">
+            <string>Open Maya's native Preferences window.</string>
+           </property>
            <property name="text">
             <string>Preferences</string>
            </property>
@@ -131,6 +134,9 @@
              <width>16777215</width>
              <height>19</height>
             </size>
+           </property>
+           <property name="toolTip">
+            <string>Open Maya's native Plug-in Manager.</string>
            </property>
            <property name="text">
             <string>Plug-ins</string>
@@ -195,7 +201,9 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>App style / theme — pick a theme to match this app's look to the other DCC's. Mirrors the app's own theme selector, with our shipped theme + a Default backup of your current look injected in.</string>
+               <string>App style / theme — pick a theme to match this app's look to the other DCCs.
+
+Mirrors the app's own theme selector, with our shipped theme plus a Default entry (a backup of your prior look) injected in.</string>
               </property>
               <property name="maxCount">
                <number>999</number>
@@ -426,7 +434,9 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of autosave files to retain.&lt;/p&gt;&lt;p&gt;An amount of 0 will deactivate autosave.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>The number of autosave files to retain.
+
+An amount of 0 will deactivate autosave.</string>
               </property>
               <property name="buttonSymbols">
                <enum>QAbstractSpinBox::NoButtons</enum>

@@ -40,6 +40,7 @@ class Edit(EditMixin, SlotsMaya):
 
     def tb000_init(self, widget):
         """Initialize Mesh Cleanup"""
+        widget.setToolTip(self.mesh_cleanup_tooltip())
         widget.option_box.menu.add("Separator", setTitle="General")
         # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Items
         # are identical to the Blender panel (shared QSettings namespace + parity sweep both key off

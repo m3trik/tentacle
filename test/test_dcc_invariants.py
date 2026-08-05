@@ -142,6 +142,115 @@ def _imports(source):
     return out
 
 
+#: dcc -> (Import-list label, Export-list label) for the OTHER DCC's native format.
+#: Both directions of the Maya<->Blender scene hand-off are reachable from the Scene
+#: panel, and each is a registry entry + a backing method -- neither of which the panel
+#: parity sweep can see (it diffs widgets, and these lists are populated at runtime from
+#: these dicts). A third DCC with a scene bridge adds one entry here.
+SCENE_HANDOFF = {
+    "maya": ("Import Blender Scene", "Export .blend"),
+    "blender": ("Import Maya Scene", "Export .ma"),
+}
+
+
+def _dict_entries(class_node, name):
+    """``{literal key: value node}`` for the class-level dict assigned to *name*.
+
+    Empty when *name* is absent or is not a dict LITERAL -- a registry built some
+    other way is a finding for the caller, not an AttributeError here.
+    """
+    for item in class_node.body:
+        if not (
+            isinstance(item, ast.Assign)
+            and any(isinstance(t, ast.Name) and t.id == name for t in item.targets)
+            and isinstance(item.value, ast.Dict)
+        ):
+            continue
+        return {
+            k.value: v
+            for k, v in zip(item.value.keys, item.value.values)
+            if isinstance(k, ast.Constant) and isinstance(k.value, str)
+        }
+    return {}
+
+
+class TestSceneHandoffSymmetry(unittest.TestCase):
+    """Each DCC's Scene panel can BOTH read and write the other DCC's native format.
+
+    The push direction (``save_as``) exists because the pull direction alone left the
+    Import list able to reach a foreign scene while the Export list could not produce
+    one. Pinned here rather than left to the panel parity sweep, which diffs *widgets*:
+    these rows are built at runtime from ``_IMPORTERS`` / ``_EXPORTERS``, so a twin
+    silently missing its entry is invisible to that sweep. AST-based -- the Blender
+    slots import ``bpy`` at module scope and cannot be imported offline.
+    """
+
+    @staticmethod
+    def _class_node(path, class_name):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.ClassDef) and node.name == class_name:
+                return node
+        return None
+
+    def _scene_class(self, dcc):
+        cls = self._class_node(SLOTS_ROOT / dcc / "scene.py", "SceneSlots")
+        self.assertIsNotNone(cls, f"{dcc}/scene.py defines no SceneSlots")
+        return cls
+
+    def _resolvable_methods(self, dcc):
+        """Method names a Scene entry may call: the fork's own PLUS the shared mixin's.
+
+        Shared fork behavior lives on ``SceneMixin`` by convention (see tentacle's
+        CLAUDE.md), so a mixin-provided handler is a legitimate target -- looking only
+        at the fork class would reject exactly the arrangement the rule asks for.
+        """
+        names = set()
+        for cls in (
+            self._scene_class(dcc),
+            self._class_node(SLOTS_ROOT / "_scene.py", "SceneMixin"),
+        ):
+            names.update(
+                item.name
+                for item in (cls.body if cls else [])
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            )
+        return names
+
+    def test_both_directions_are_registered(self):
+        for dcc, (import_label, save_label) in SCENE_HANDOFF.items():
+            if dcc not in DCCS:
+                continue
+            cls = self._scene_class(dcc)
+            with self.subTest(dcc=dcc):
+                self.assertIn(import_label, _dict_entries(cls, "_IMPORTERS"))
+                self.assertIn(save_label, _dict_entries(cls, "_EXPORTERS"))
+
+    def test_each_entry_calls_a_method_that_exists(self):
+        """The lists dispatch by item TEXT, so a lambda naming a missing method dies at
+        click time with no compile-time error."""
+        for dcc, labels in SCENE_HANDOFF.items():
+            if dcc not in DCCS:
+                continue
+            cls = self._scene_class(dcc)
+            defined = self._resolvable_methods(dcc)
+            for registry, label in zip(("_IMPORTERS", "_EXPORTERS"), labels):
+                entry = _dict_entries(cls, registry).get(label)
+                with self.subTest(dcc=dcc, label=label):
+                    self.assertIsInstance(
+                        entry, ast.Lambda, f"{label} must be a callable entry"
+                    )
+                    called = [
+                        n.func.attr
+                        for n in ast.walk(entry)
+                        if isinstance(n, ast.Call)
+                        and isinstance(n.func, ast.Attribute)
+                    ]
+                    self.assertTrue(
+                        any(name in defined for name in called),
+                        f"{label} calls {called}, none on SceneSlots or SceneMixin",
+                    )
+
+
 class TestSlotImportDiscipline(unittest.TestCase):
     """The slots layer reaches upstream packages through their namespaces only.
 

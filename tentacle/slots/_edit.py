@@ -8,13 +8,37 @@ per feature — see the convention in ``tentacle/CLAUDE.md``.
 
 Currently: the two user-feedback channels for the Mesh Cleanup tool (``edit.tb000``) — a
 detailed console breakdown and a minimal HTML popup — so the tool reads identically across
-DCCs. The tool's cross-engine parity extends to its messaging, not just its controls, so the
-format lives here once rather than being duplicated (and drifting) in each engine's slot.
+DCCs, plus the button's own tooltip. The tool's cross-engine parity extends to its messaging,
+not just its controls, so the format lives here once rather than being duplicated (and
+drifting) in each engine's slot.
 """
 
 
 class EditMixin:
     """DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting)."""
+
+    def mesh_cleanup_tooltip(self):
+        """Rich tooltip for the Mesh Cleanup button (``edit.tb000``).
+
+        Shared across DCCs because the scope/mode split and overall shape of the tool
+        is identical, even though each engine builds its own option-box checkboxes
+        (the checks themselves differ enough per-DCC that the option box stays
+        per-engine — only this summary is common). Reached via ``self.sb.tooltip``
+        (the Switchboard's tooltip namespace) rather than importing uitk's
+        ``TooltipFormat`` directly — slot modules reach uitk through ``self.sb``.
+        """
+        return self.sb.tooltip.fmt(
+            title="Mesh Cleanup",
+            body="Find, or repair, common topology problems (lamina, non-planar, "
+            "holed faces, zero-area/length edges, shared UVs, and more).",
+            rows=[
+                ("Scope", "Selected / Visible / All Geometry"),
+                ("Mode", "Select (diagnose) or Repair (fix)"),
+            ],
+            notes=[
+                "Use the option box to set scope, mode, and exactly which checks run."
+            ],
+        )
 
     @staticmethod
     def cleanup_popup_html(header, rows):

@@ -125,7 +125,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Loft Curve Profile</string>
+     <string>Build a surface lofted across the selected profile curves.
+
+Use the option box to set uniform parameterization, closed surface, and degree.</string>
     </property>
     <property name="text">
      <string>Loft</string>
@@ -162,7 +164,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Extrude Curve Profile</string>
+     <string>Extrude the selected NURBS curve(s) into a surface.</string>
     </property>
     <property name="text">
      <string>Extrude</string>
@@ -199,7 +201,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Revolve Curve Profile</string>
+     <string>Sweep the selected profile curve around an axis into a surface.
+
+Use the option box to set degree and sweep angle.</string>
     </property>
     <property name="text">
      <string>Revolve</string>

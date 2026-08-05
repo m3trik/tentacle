@@ -103,7 +103,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Edit the crease value of any selected components&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Crease the selected edges (subdivision sharpness).
+
+Use the option box to set the crease amount and an optional smoothing angle.</string>
     </property>
     <property name="text">
      <string>Crease</string>

@@ -192,7 +192,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Select Nth: Select 2 components</string>
+            <string>Select edge loops/rings or shortest paths, stepping every Nth component.
+
+Use the option box to choose the mode and step count.</string>
            </property>
            <property name="text">
             <string>Nth Edge</string>
@@ -288,7 +290,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Selection contraints.</string>
+            <string>Selection constraints.</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -381,7 +383,7 @@
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Re-Order Selectiion</string>
+         <string>Re-Order Selection</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_8">
          <property name="spacing">

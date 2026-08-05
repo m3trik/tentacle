@@ -149,9 +149,6 @@
                  <height>21</height>
                 </size>
                </property>
-               <property name="toolTip">
-                <string>Settings</string>
-               </property>
                <property name="text">
                 <string>Settings</string>
                </property>

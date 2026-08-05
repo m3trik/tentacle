@@ -1565,6 +1565,14 @@ class Animation(SlotsMaya):
 
     def tb017_init(self, widget):
         """Step Tangents Init"""
+        # Maya's step_keys only ever sets STEPPED tangents (unlike Blender's tb017,
+        # which can also set linear/smooth) — override the .ui's DCC-neutral default
+        # with the accurate, Maya-specific description.
+        widget.setToolTip(
+            "Set stepped (hold) tangents on animation keys.\n\n"
+            "Use the option box to choose which keys to affect (auto / current time / "
+            "selected / all) and which tangent side (in, out, or both)."
+        )
         widget.option_box.menu.setTitle("Step Tangents")
         cmb = widget.option_box.menu.add(
             "QComboBox",

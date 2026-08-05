@@ -2,6 +2,7 @@
 # coding=utf-8
 import os
 import html
+import shutil
 
 import maya.cmds as cmds
 import maya.mel as mel
@@ -73,6 +74,17 @@ class SceneSlots(SceneMixin, SlotsMaya):
                     "Fix Color Spaces",
                     "b011",
                     "Fix missing color space errors on file texture nodes.\nAuto-detects sRGB vs Raw based on texture type.",
+                ),
+                (
+                    "Fix Mangled Names",
+                    "b018",
+                    "Repair scratch/mangled node names — accumulated "
+                    "'__uninst_tmp' tokens, '__RZTMP' Rizom suffixes, "
+                    "'FBXASC###' import escapes, underscore runs — on "
+                    "transforms AND shapes, then conform shapes to "
+                    "'<transform>Shape'.\nScope: selection, or the whole "
+                    "scene when nothing is selected.\nSame repair the Scene "
+                    "Exporter's 'Fix Mangled Names' task runs.",
                 ),
                 (
                     "Fix Non-Orthogonal Axes",
@@ -261,6 +273,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
             "scene_exporter"
         ),
         "Export Selection": lambda slot: slot._export_selection(),
+        # The push mirror of Import's "Import Blender Scene" — same bridge, opposite
+        # direction, so the two live symmetrically in the two lists.
+        "Export .blend": lambda slot: slot._export_foreign_scene(),
         "Export All": lambda slot: mel.eval("Export"),
         "Send to Unreal": lambda slot: mel.eval("SendToUnrealSelection"),
         "Send to Unity": lambda slot: mel.eval("SendToUnitySelection"),
@@ -313,12 +328,13 @@ class SceneSlots(SceneMixin, SlotsMaya):
 
     def _import_blender_scene(self):
         """Import a Blender scene (.blend) via ``mtk.BlenderSceneImport`` — a
-        headless-Blender FBX round-trip (a fresh ``blender --background`` converts
-        the scene; the FBX is imported and cleaned up; textures FBX can't carry are
-        rebuilt from the manifest sidecar via the GameShader engine). Mirror of the
-        Blender slots' "Import Maya Scene". Blocking: a scene conversion takes
-        seconds (no license checkout — Blender is free), so a wait cursor covers
-        the run. Requires a local Blender install."""
+        headless-Blender FBX round-trip by default (a fresh ``blender --background``
+        converts the scene; instancing is carried by the format, materials rebuilt
+        from a texture manifest; the USD route — native materials / animation,
+        instancing replayed from a sidecar — is opt-in via the Reference Manager's
+        route option or ``via="usd"``). Mirror of the Blender slots' "Import Maya Scene".
+        Blocking: a scene conversion takes seconds (no license checkout — Blender is
+        free), so a wait cursor covers the run. Requires a local Blender install."""
         src = self.sb.file_dialog(
             file_types=["*.blend"],
             title="Import Blender Scene",
@@ -340,6 +356,29 @@ class SceneSlots(SceneMixin, SlotsMaya):
             f"Imported <hl>{len(imported)}</hl> object(s) from "
             f"<hl>{os.path.basename(src)}</hl>."
         )
+
+    #: Export Scene's combo label for Blender's native format (SceneMixin hook).
+    FOREIGN_FORMAT_LABEL = "Blend"
+
+    def _current_scene_path(self) -> str:
+        """The open scene, or "" when it has never been saved (SceneMixin hook).
+
+        Through the engine, not ``cmds.file(sceneName=True)``: batch reports an
+        unsaved scene as a phantom extensionless ``<project>/untitled``, which would
+        pass the mixin's "has this been saved?" check and silently write the export
+        into the default project instead of asking the user to save.
+        """
+        return mtk.saved_scene_path()
+
+    def _foreign_scene_bridge(self):
+        """The bridge that writes Blender's native format (SceneMixin hook).
+
+        Materials ride the same ``.manifest.json`` sidecar the interactive Send to
+        Blender uses, so ``Save As Blender Scene`` is not a second export path. No
+        license checkout on that side, so the run is seconds rather than the tens the
+        Blender fork's Maya-bound twin costs.
+        """
+        return mtk.BlenderBridge()
 
     def list002_init(self, widget):
         """Initialize Export.
@@ -523,17 +562,21 @@ class SceneSlots(SceneMixin, SlotsMaya):
                     "photogrammetry texture already sitting beside the mesh)."
                 ),
             )
-            widget.option_box.menu.add(
-                "QCheckBox",
-                setText="Also Export GLB",
-                setObjectName="chk_glb",
-                setChecked=False,
+            cmb_format = widget.option_box.menu.add(
+                "QComboBox",
+                setObjectName="cmb_format",
                 setToolTip=(
-                    "After writing the FBX, also produce a GLB sidecar via\n"
-                    "pythontk's MeshConvert (FBX2glTF). The FBX2glTF binary\n"
-                    "is downloaded automatically on first use."
+                    "Output format:\n"
+                    "• FBX — the interchange default\n"
+                    "• OBJ — geometry only (no hierarchy, skinning or animation)\n"
+                    "• GLB — written via FBX2glTF; the intermediate FBX goes to a\n"
+                    "  temp dir and is discarded, so only the .glb is delivered\n"
+                    "• Blend — a real Blender scene, via a fresh headless Blender\n"
+                    "  (slower; a local Blender install is required)"
                 ),
             )
+            for text, data in self._export_format_items():
+                cmb_format.addItem(text, data)
 
             # Cameras and lights are scene-level categories: in Selected Only
             # mode they'd only export if explicitly selected, so the
@@ -587,119 +630,52 @@ class SceneSlots(SceneMixin, SlotsMaya):
         )
         return choice == "Yes"
 
-    def tb003(self, widget):
-        """Export Scene (FBX + optional GLB) using the configured options."""
-        # Every trigger is a tb003 PushButton carrying its own option-box gear
-        # (list002_init builds one per surface), so the options come off the
-        # widget that was clicked — the same idiom as every other tb slot. The
-        # panel and submenu forks stay in agreement because uitk mirrors a
-        # value into every related surface's store on change
-        # (``MainWindow.sync_widget_values``).
-        menu = widget.option_box.menu
-        scope = menu.cmb_scope.currentData()
-        save_mode = menu.cmb_save.currentData()
-        selection_only = scope == "selected"
-        # Cameras/lights are inert in Selected Only mode (see tb003_init);
-        # coerce to False so a stale checked-but-disabled box can't leak through.
-        include_cameras = menu.chk_cameras.isChecked() and not selection_only
-        include_lights = menu.chk_lights.isChecked() and not selection_only
-        include_skins = menu.chk_skins.isChecked()
-        include_tangents = menu.chk_tangents.isChecked()
-        embed_textures = menu.chk_embed.isChecked()
-        also_glb = menu.chk_glb.isChecked()
-        if selection_only and not cmds.ls(selection=True):
-            self.sb.message_box("No objects selected.")
+    def _export_scene_native(self, export_format, out_path, options, tick):
+        """Write FBX / OBJ / GLB (SceneMixin hook).
+
+        Maya has no GLB writer, so a GLB is an FBX plus an FBX2glTF conversion. The
+        intermediate goes to a TEMP dir rather than next to the deliverable: writing
+        it beside the target would overwrite whatever .fbx the user already had
+        there, and a "delete it afterwards" cleanup cannot run when the process dies
+        mid-convert (only TempArtifacts' age-gated sweep reclaims it then). Same rule
+        ``SceneExporter`` follows for its own ``output_format="glb"``. The converter
+        does take a ``dst``, but writing straight to the target would leave a partial
+        .glb there if it failed — the deliverable is only touched on success.
+        """
+        if export_format == "obj":
+            mtk.export_scene_as_obj(
+                file_path=out_path,
+                selection_only=options["selection_only"],
+                materials=options["embed_textures"],
+            )
             return
 
-        if not self._confirm_dense_export(selection_only, include_tangents):
+        write_path, tempdir = out_path, None
+        if export_format == "glb":
+            tempdir = ptk.TempArtifacts("scene_export_glb").dir_path()
+            write_path = os.path.join(
+                tempdir, os.path.splitext(os.path.basename(out_path))[0] + ".fbx"
+            )
+
+        mtk.export_scene_as_fbx(
+            file_path=write_path,
+            selection_only=options["selection_only"],
+            FBXExportCameras=options["include_cameras"],
+            FBXExportLights=options["include_lights"],
+            FBXExportSkins=options["include_skins"],
+            FBXExportTangents=options["include_tangents"],
+            FBXExportEmbeddedTextures=options["embed_textures"],
+        )
+        if export_format != "glb":
             return
 
-        scene_path = cmds.file(query=True, sceneName=True) or ""
-
-        if save_mode == "prompt":
-            base = (
-                os.path.splitext(os.path.basename(scene_path))[0]
-                if scene_path
-                else "untitled"
-            )
-            start_dir = (
-                os.path.dirname(scene_path)
-                if scene_path
-                else (cmds.workspace(query=True, rootDirectory=True) or "")
-            )
-            # fileMode=0 is a save-style "any file" dialog; passing the full
-            # default path as startingDirectory pre-fills an editable filename.
-            picked = cmds.fileDialog2(
-                fileMode=0,
-                caption="Export FBX As",
-                okCaption="Export",
-                fileFilter="FBX (*.fbx)",
-                dialogStyle=2,
-                startingDirectory=os.path.join(start_dir, base + ".fbx"),
-            )
-            if not picked:
-                return
-            fbx_path = picked[0]
-            if not fbx_path.lower().endswith(".fbx"):
-                fbx_path += ".fbx"
-        else:
-            if not scene_path:
-                self.sb.message_box(
-                    "Scene has not been saved yet.<br>"
-                    "Save the scene first, or choose <hl>Prompt for File</hl>."
-                )
-                return
-            fbx_path = os.path.splitext(scene_path)[0] + ".fbx"
-
-        # FBXExport is a single blocking call that scales with poly count, so on
-        # dense scenes the UI sits frozen with no feedback. Run it inside the
-        # footer progress context, painting a status before each heavy step
-        # (tick() pumps the event loop) so it reads as working, not hung.
-        # Tangents are the dominant controllable cost (~2x time/size on dense
-        # meshes), hence the opt-out above. Let failures propagate out of the
-        # context so it suppresses its "Complete" flash on a non-clean exit; the
-        # `stage` marker disambiguates an FBX failure from a GLB one.
-        stage = "fbx"
-        glb_path = None
-        try:
-            with self.sb.progress(
-                text="Exporting FBX… dense scenes can take a while"
-            ) as tick:
-                tick()  # paint the status before the blocking export
-                mtk.export_scene_as_fbx(
-                    file_path=fbx_path,
-                    selection_only=selection_only,
-                    FBXExportCameras=include_cameras,
-                    FBXExportLights=include_lights,
-                    FBXExportSkins=include_skins,
-                    FBXExportTangents=include_tangents,
-                    FBXExportEmbeddedTextures=embed_textures,
-                )
-                if also_glb:
-                    stage = "glb"
-                    tick(text="Converting to GLB…")
-                    glb_path = ptk.MeshConvert.fbx_to_glb(
-                        fbx_path,
-                        overwrite=True,
-                        auto_install=True,
-                        prompt=False,
-                    )
-        except Exception as e:
-            if stage == "glb":
-                self.sb.message_box(f"FBX exported, but GLB conversion failed:<br>{e}")
-            else:
-                self.sb.message_box(f"FBX export failed:<br>{e}")
-            return
-
-        if glb_path:
-            self.sb.message_box(
-                f"Exported <hl>{os.path.basename(fbx_path)}</hl> and "
-                f"<hl>{os.path.basename(glb_path)}</hl>."
-            )
-        else:
-            self.sb.message_box(
-                f"Exported <hl>{os.path.basename(fbx_path)}</hl>."
-            )
+        tick(text="Converting to GLB…")
+        glb_path = ptk.MeshConvert.fbx_to_glb(
+            write_path, overwrite=True, auto_install=True, prompt=False
+        )
+        if not (glb_path and os.path.isfile(glb_path)):
+            raise RuntimeError("FBX to GLB conversion produced no file.")
+        shutil.move(glb_path, out_path)
 
     def b004(self):
         """Open Hierarchy Sync"""
@@ -865,6 +841,22 @@ class SceneSlots(SceneMixin, SlotsMaya):
     def b011(self):
         """Fix Color Spaces"""
         mtk.Diagnostics.fix_missing_color_spaces(force_update=True)
+
+    def b018(self):
+        """Fix Mangled Names"""
+        result = mtk.Diagnostics.repair_mangled_names(
+            objects=cmds.ls(sl=True, long=True) or None
+        )
+        renamed = len(result["renamed"])
+        conformed = result["shapes_conformed"]
+        if renamed or conformed:
+            self.sb.message_box(
+                f"Repaired <hl>{renamed}</hl> mangled name(s), "
+                f"conformed <hl>{conformed}</hl> shape(s).",
+                timeout=4,
+            )
+        else:
+            self.sb.message_box("No mangled names found.", timeout=2)
 
     def b012(self):
         """Toggle Command Ports"""

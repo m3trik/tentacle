@@ -147,6 +147,9 @@
                <height>21</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Toggle the Status Line UI.</string>
+             </property>
              <property name="whatsThis">
               <string>dynLayout</string>
              </property>
@@ -174,6 +177,9 @@
                <width>16777215</width>
                <height>21</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Toggle the Time Slider and Range Slider UI.</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -203,6 +209,9 @@
                <height>21</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Toggle the Shelf UI.</string>
+             </property>
              <property name="whatsThis">
               <string>dynLayout</string>
              </property>
@@ -230,6 +239,9 @@
                <width>16777215</width>
                <height>21</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Toggle the Command Line UI.</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -259,6 +271,9 @@
                <height>21</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Toggle the Help Line UI.</string>
+             </property>
              <property name="whatsThis">
               <string>dynLayout</string>
              </property>
@@ -287,6 +302,9 @@
                <height>21</height>
               </size>
              </property>
+             <property name="toolTip">
+              <string>Toggle the Toolbox UI.</string>
+             </property>
              <property name="whatsThis">
               <string>dynLayout</string>
              </property>
@@ -314,6 +332,9 @@
                <width>16777215</width>
                <height>21</height>
               </size>
+             </property>
+             <property name="toolTip">
+              <string>Toggle the Script Output console (docked to the Time Slider).</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -366,7 +387,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Channels/Layers panel.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -397,7 +418,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Tool Settings window.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -428,7 +449,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Attribute Editor.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -459,7 +480,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Outliner window.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -490,7 +511,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Channels/Layers panel.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -521,13 +542,13 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Hypergraph (Dependency Graph) window.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
           </property>
           <property name="text">
-           <string>Dependancy Graph</string>
+           <string>Dependency Graph</string>
           </property>
          </widget>
          <widget class="QPushButton" name="b005">
@@ -552,7 +573,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string/>
+           <string>Open the Node Editor window.</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>

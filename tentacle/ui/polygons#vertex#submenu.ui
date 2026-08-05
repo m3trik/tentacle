@@ -75,7 +75,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Merge selected components.  (default: to center)</string>
+     <string>Merge selected components. (default: to center)</string>
     </property>
     <property name="text">
      <string>Merge</string>
@@ -154,7 +154,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Button">

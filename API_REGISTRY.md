@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-06_
+_Generated: 2026-08-04_
 
 ## Index
 
@@ -120,7 +120,8 @@ _Generated: 2026-08-06_
 
 Shared, DCC-agnostic behavior for the ``edit`` panel.
 
-- **[`class EditMixin`](tentacle/tentacle/slots/_edit.py#L16)** — DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).
+- **[`class EditMixin`](tentacle/tentacle/slots/_edit.py#L17)** — DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).
+  - `EditMixin.mesh_cleanup_tooltip(self)` — Rich tooltip for the Mesh Cleanup button (``edit.tb000``).
   - `EditMixin.cleanup_popup_html(header, rows)` *(static)* — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
   - `EditMixin.cleanup_console_report(title, lines)` *(static)* — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
   - `EditMixin.report_cleanup_failure(self, scope, mode_label, exc)` — Report a Mesh Cleanup failure through both channels — a detailed console line and a
@@ -160,7 +161,8 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 Behavior shared by the Maya and Blender ``scene`` panels.
 
-- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L26)** — Shared ``scene`` panel behavior.
+- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L34)** — Shared ``scene`` panel behavior.
+  - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
@@ -584,7 +586,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.list002_init(self, widget)` — Initialize Export.
   - `SceneSlots.list002(self, item)` — Export.
   - `SceneSlots.tb003_init(self, widget)` — Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.
-  - `SceneSlots.tb003(self, widget)` — Export Scene — FBX (+ optional GLB) using the configured options.
   - `SceneSlots.b011(self)` — Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type
   - `SceneSlots.b001(self)` — Reference Manager (library links — File ▸ Link manager panel).
   - `SceneSlots.b010(self)` — Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).
@@ -1278,7 +1279,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L13)**
+- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
   - `SceneSlots.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
   - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot.
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
@@ -1293,7 +1294,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b010(self)` — Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).
   - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).
   - `SceneSlots.tb003_init(self, widget)` — Initialize Export.
-  - `SceneSlots.tb003(self, widget)` — Export Scene (FBX + optional GLB) using the configured options.
   - `SceneSlots.b004(self)` — Open Hierarchy Sync
   - `SceneSlots.b005(self)` — Open Naming Tool
   - `SceneSlots.b006(self)` — Scene Cleanup
@@ -1301,6 +1301,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.tb001_init(self, widget)` — Get Scene Info — option box.
   - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the audit report to the viewer dialog.
   - `SceneSlots.b011(self)` — Fix Color Spaces
+  - `SceneSlots.b018(self)` — Fix Mangled Names
   - `SceneSlots.b012(self)` — Toggle Command Ports
   - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer.
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)

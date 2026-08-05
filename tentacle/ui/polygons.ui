@@ -19,7 +19,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <property name="balette" stdset="0">
+  <property name="palette" stdset="0">
    <palette>
     <active/>
     <inactive/>
@@ -33,7 +33,7 @@
      <height>0</height>
     </size>
    </property>
-   <property name="balette" stdset="0">
+   <property name="palette" stdset="0">
     <palette>
      <active/>
      <inactive/>
@@ -131,7 +131,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Merge selected components.  (default: to center)</string>
+            <string>Merge selected components. (default: to center)</string>
            </property>
            <property name="text">
             <string>Merge</string>
@@ -173,7 +173,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Button">
@@ -299,7 +299,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -367,7 +367,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -444,7 +444,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -515,7 +515,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -602,7 +602,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Divide facet</string>
+            <string>Divide the selected face(s) into smaller faces.
+
+Use the option box to split along U, V, or both.</string>
            </property>
            <property name="text">
             <string>Divide</string>
@@ -675,7 +677,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -732,7 +734,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Toggle assign the selected faces to be hole or unassign the hole faces to be non-hole.</string>
+            <string>Toggle the selected faces' hole state — assigns them as holes (invisible), or restores them to normal if already holes.</string>
            </property>
            <property name="text">
             <string>Assign Hole</string>
@@ -743,7 +745,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Button">
@@ -830,7 +832,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mirror selected mesh components across the topological symmetry axis.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;First select any components to mirror, then when prompted, select an edge to define an axis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Mirror selected mesh components across the topological symmetry axis.
+
+First select any components to mirror, then when prompted, select an edge to define an axis.</string>
            </property>
            <property name="text">
             <string>Symmetrize</string>
@@ -841,7 +845,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -969,7 +973,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Connect vertices edges and polygons</string>
+            <string>Connect vertices, edges, and faces interactively, using Maya's Connect tool.</string>
            </property>
            <property name="text">
             <string>Attach</string>
@@ -1000,7 +1004,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Organize vertices of selected components into a perfect geometric shape.</string>
+            <string>Reshape the selected vertices, edges, or faces into an even circle.</string>
            </property>
            <property name="text">
             <string>Circularize</string>
@@ -1011,7 +1015,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -1141,7 +1145,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -1198,7 +1202,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Divide faces by splitting cutting and inserting edge loops</string>
+            <string>Divide faces interactively by cutting and inserting edge loops.</string>
            </property>
            <property name="text">
             <string>Multi-Cut</string>
@@ -1209,7 +1213,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Highlight">
@@ -1296,7 +1300,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Separates the selected polygonobject shells or the shells of any selected faces from the object into one object into distinct objects</string>
+            <string>Separate the selected polygon object's shells (or the shells of any selected faces) into distinct objects.
+
+Use the option box to group by material, auto-rename, and uninstance the results.</string>
            </property>
            <property name="text">
             <string>Separate</string>
@@ -1327,7 +1333,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
+            <string>Perform a boolean operation on the selected polygon objects, creating a new object.
+
+Use the option box to choose Union, Difference, or Intersection, and to enable the interactive boolean tool.</string>
            </property>
            <property name="text">
             <string>Boolean</string>
@@ -1358,7 +1366,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Cap holes modifier</string>
+            <string>Cap open holes bounded by the mesh's border edges.</string>
            </property>
            <property name="text">
             <string>Fill Hole</string>
@@ -1389,7 +1397,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Combine the selected polygon objects into one single object to allow operations such as merges or face trims</string>
+            <string>Combine the selected polygon objects into one object, to allow operations such as merges or face trims.</string>
            </property>
            <property name="text">
             <string>Combine</string>

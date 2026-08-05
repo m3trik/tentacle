@@ -89,7 +89,7 @@
       <height>18</height>
      </size>
     </property>
-    <property name="balette" stdset="0">
+    <property name="palette" stdset="0">
      <palette>
       <active>
        <colorrole role="Highlight">

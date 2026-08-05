@@ -467,9 +467,58 @@ class Selection(SlotsMaya):
 
         cmds.select(result[::step])
 
+    # Select Similar's comparison metrics: (objectName, label, polyEvaluate
+    # kwarg, checked by default, tooltip). One table so the option box, the
+    # engine call and the no-match report can't drift apart. objectNames are
+    # persisted state — never renumber them. Mirrors the Blender fork's
+    # ``_SIMILAR_CRITERIA``.
+    _SIMILAR_METRICS = (
+        ("chk011", "Vertex", "vertex", True, "The number of vertices."),
+        ("chk012", "Edge", "edge", True, "The number of edges."),
+        ("chk013", "Face", "face", True, "The number of faces."),
+        ("chk014", "Triangle", "triangle", False, "The number of triangles."),
+        (
+            "chk015",
+            "Shell",
+            "shell",
+            False,
+            "The number of shells (disconnected pieces).",
+        ),
+        (
+            "chk016",
+            "Uv Coord",
+            "uvcoord",
+            False,
+            "The number of uv coordinates (for the current map).",
+        ),
+        (
+            "chk017",
+            "Area",
+            "area",
+            False,
+            "The surface area of the object's faces in local space.",
+        ),
+        (
+            "chk018",
+            "World Area",
+            "worldArea",
+            True,
+            "The surface area of the object's faces in world space.",
+        ),
+        (
+            "chk019",
+            "Bounding Box",
+            "boundingBox",
+            False,
+            "The object's bounding box dimensions (size only — position and "
+            "orientation are ignored).",
+        ),
+    )
+
     def tb001_init(self, widget):
         """ """
-        widget.option_box.menu.add(
+        menu = widget.option_box.menu
+        menu.add(
             "QDoubleSpinBox",
             setPrefix="Tolerance: ",
             setObjectName="s000",
@@ -477,102 +526,72 @@ class Selection(SlotsMaya):
             setValue=0.0,
             setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
         )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Vertex",
-            setObjectName="chk011",
-            setChecked=True,
-            setToolTip="The number of vertices.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Edge",
-            setObjectName="chk012",
-            setChecked=True,
-            setToolTip="The number of edges.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Face",
-            setObjectName="chk013",
-            setChecked=True,
-            setToolTip="The number of faces.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Triangle",
-            setObjectName="chk014",
-            setToolTip="The number of triangles.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Shell",
-            setObjectName="chk015",
-            setToolTip="The number of shells shells (disconnected pieces).",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Uv Coord",
-            setObjectName="chk016",
-            setToolTip="The number of uv coordinates (for the current map).",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Area",
-            setObjectName="chk017",
-            setToolTip="The surface area of the object's faces in local space.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="World Area",
-            setObjectName="chk018",
-            setChecked=True,
-            setToolTip="The surface area of the object's faces in world space.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Bounding Box",
-            setObjectName="chk019",
-            setToolTip="The object's bounding box in 3d space.",
-        )
-        widget.option_box.menu.add(
+        for name, label, _, checked, tooltip in self._SIMILAR_METRICS:
+            menu.add(
+                "QCheckBox",
+                setText=label,
+                setObjectName=name,
+                setChecked=checked,
+                setToolTip=tooltip,
+            )
+        menu.add(
             "QCheckBox",
             setText="Include Original",
             setObjectName="chk020",
             setToolTip="Include the original selected object(s) in the final selection.",
         )
+
     def tb001(self, widget):
         """Select Similar"""
-        tolerance = widget.option_box.menu.s000.value()  # tolerance
-        v = widget.option_box.menu.chk011.isChecked()  # vertex
-        e = widget.option_box.menu.chk012.isChecked()  # edge
-        f = widget.option_box.menu.chk013.isChecked()  # face
-        t = widget.option_box.menu.chk014.isChecked()  # triangle
-        s = widget.option_box.menu.chk015.isChecked()  # shell
-        uv = widget.option_box.menu.chk016.isChecked()  # uvcoord
-        a = widget.option_box.menu.chk017.isChecked()  # area
-        wa = widget.option_box.menu.chk018.isChecked()  # world area
-        b = widget.option_box.menu.chk019.isChecked()  # bounding box
-        inc = widget.option_box.menu.chk020.isChecked()  # select the original objects
+        menu = widget.option_box.menu
+        tolerance = menu.s000.value()
+        metrics = {
+            kwarg: getattr(menu, name).isChecked()
+            for name, _, kwarg, _, _ in self._SIMILAR_METRICS
+        }
 
-        objMode = cmds.selectMode(q=True, object=1)
-        if objMode:
-            selection = cmds.ls(sl=1, objectsOnly=1, type="transform") or []
-            mtk.get_similar_mesh(
+        if cmds.selectMode(q=True, object=True):
+            # An empty selection is a different failure from an empty result —
+            # telling someone to raise the tolerance when they haven't picked a
+            # reference object is worse than saying nothing.
+            selection = self.require_selection(
+                "<b>Select Similar</b> needs a reference object.<br>"
+                "Select the object you want to find matches for.",
+                objectsOnly=True,
+                type="transform",
+            )
+            if selection is None:
+                return
+
+            result = mtk.get_similar_mesh(
                 selection,
                 tolerance=tolerance,
-                inc_orig=inc,
+                inc_orig=menu.chk020.isChecked(),
                 select=True,
-                vertex=v,
-                edge=e,
-                face=f,
-                uvcoord=uv,
-                triangle=t,
-                shell=s,
-                boundingBox=b,
-                area=a,
-                worldArea=wa,
+                **metrics,
             )
+            # A no-match either silently clears the selection or (with Include
+            # Original on) leaves it untouched — both read as "the button did
+            # nothing". Compare against the originals rather than the returned
+            # list so the report doesn't depend on that flag. `or []` is
+            # load-bearing: get_similar_mesh returns None for a single-object
+            # query with no matches, and cmds.ls(None) lists the entire scene.
+            originals = set(cmds.ls(selection, long=True))
+            matched = [
+                m for m in cmds.ls(result or [], long=True) if m not in originals
+            ]
+            if not matched:
+                compared = [
+                    label
+                    for _, label, kwarg, _, _ in self._SIMILAR_METRICS
+                    if metrics[kwarg]
+                ]
+                self.sb.message_box(
+                    "<b>Select Similar</b> found no matches for "
+                    f"<hl>{', '.join(compared) or 'the default metrics'}</hl> "
+                    f"at a tolerance of <hl>{tolerance}</hl>.<br>"
+                    "Raise the tolerance, or clear metrics that vary between copies."
+                )
         else:
             try:
                 mel.eval(f"doSelectSimilar 1 {{{tolerance}}};")

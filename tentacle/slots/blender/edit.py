@@ -208,6 +208,7 @@ class Edit(EditMixin, SlotsBlender):
         # chk032/chk033: first numbers free in BOTH this file and maya/edit.py — the QSettings
         # store is shared across DCCs, so reusing a Maya name for a different option bleeds state
         # (maya chk025 = Overlapping Faces, chk027 = Toggle Lock/UnLock).
+        widget.setToolTip(self.mesh_cleanup_tooltip())
         menu = widget.option_box.menu
         menu.setTitle("Mesh Cleanup")
         # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Data

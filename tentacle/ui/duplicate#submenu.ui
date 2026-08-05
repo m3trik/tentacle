@@ -100,7 +100,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select objects that are an instance of the current selection.&lt;/p&gt;&lt;p&gt;If no user selection exists, function will select all instanced objects in the scene.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Select objects that are an instance of the current selection.
+
+If no user selection exists, function will select all instanced objects in the scene.</string>
     </property>
     <property name="text">
      <string>Select Instances</string>
@@ -120,7 +122,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -166,7 +168,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -192,7 +194,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The first selected object will be instanced across all other selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>The first selected object will be instanced across all other selected objects.</string>
     </property>
     <property name="text">
      <string>Convert to Instances</string>
@@ -212,7 +214,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -238,7 +240,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate: Create a linear array.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Duplicate: Create a linear array.</string>
     </property>
     <property name="text">
      <string>Duplicate Linear</string>
@@ -258,7 +260,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -284,7 +286,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate: Create a grid array.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Duplicate: Create a grid array.</string>
     </property>
     <property name="text">
      <string>Duplicate Grid</string>
@@ -304,7 +306,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -330,7 +332,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Radial Array: Create a radial array.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Radial Array: Create a radial array.</string>
     </property>
     <property name="text">
      <string>Duplicate Radial</string>
@@ -350,7 +352,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>
@@ -376,10 +378,10 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Open the Mirror tool window.</string>
     </property>
     <property name="text">
-     <string>Mirrior</string>
+     <string>Mirror</string>
     </property>
     <property name="iconSize">
      <size>
@@ -396,7 +398,7 @@
     <property name="flat">
      <bool>false</bool>
     </property>
-    <property name="bnabled" stdset="0">
+    <property name="enabled" stdset="0">
      <bool>true</bool>
     </property>
    </widget>

@@ -22,7 +22,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <property name="bnabled" stdset="0">
+  <property name="enabled" stdset="0">
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="central_widget">
@@ -157,7 +157,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Find geometrically identical meshes (in the selection, or the whole scene if nothing is selected) and convert the duplicates into instances of a single prototype.&lt;/p&gt;&lt;p&gt;Use the option box to configure matching tolerance, hierarchy mode, and assembly reconstruction.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Find geometrically identical meshes (in the selection, or the whole scene if nothing is selected) and convert the duplicates into instances of a single prototype.
+
+Use the option box to configure matching tolerance, hierarchy mode, and assembly reconstruction.</string>
            </property>
            <property name="text">
             <string>Auto Instance</string>
@@ -177,7 +179,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -197,7 +199,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create instances of any selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Create instances of any selected objects.</string>
            </property>
            <property name="text">
             <string>Instance Selected</string>
@@ -217,7 +219,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -237,7 +239,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The first selected object will be instanced across all other selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>The first selected object will be instanced across all other selected objects.</string>
            </property>
            <property name="text">
             <string>Convert to Instances</string>
@@ -257,7 +259,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -277,7 +279,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select objects that are an instance of the current selection.&lt;/p&gt;&lt;p&gt;If no user selection exists, function will select all instanced objects in the scene.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Select objects that are an instance of the current selection.
+
+If no user selection exists, function will select all instanced objects in the scene.</string>
            </property>
            <property name="text">
             <string>Select Instances</string>
@@ -297,7 +301,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -337,7 +341,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>

@@ -124,7 +124,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the current frame on the timeslider.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Set the current frame on the timeslider.</string>
            </property>
            <property name="text">
             <string>Go to Frame</string>
@@ -149,7 +149,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Select keys</string>
+            <string>Select keyframes on the selected object(s) within a chosen time range.
+
+Use the option box to set the range, scope, and whether to add to the current selection.</string>
            </property>
            <property name="text">
             <string>Select Keys</string>
@@ -229,7 +231,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Duplicate any selected keyframes and paste them inverted at the given time.&lt;br/&gt;If none are selected, all keys for the object(s) will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Reverse the selected keyframes in time — by default, mirrored in place.
+
+Use the option box to instead copy the reversal to a different start time, and to set relative/absolute offset, value pivot, and whether to keep the original keys.</string>
            </property>
            <property name="text">
             <string>Invert Keys</string>
@@ -254,7 +258,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stagger the keyframes of selected objects with various positioning controls.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Stagger the keyframes of selected objects with various positioning controls.
+
+If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.</string>
            </property>
            <property name="text">
             <string>Stagger Keys</string>
@@ -307,7 +313,8 @@ Supports negative values to compress timing.</string>
            </property>
            <property name="toolTip">
             <string>Add keys on every frame (or a percentage of frames) between existing keyframes.
-Useful for baking out curves before export or to lock timing.</string>
+
+Use the option box's "Remove Intermediate Keys" checkbox to instead strip them back down to just the first and last key. Useful for baking out curves before export, locking timing, or cleaning up an over-keyed curve.</string>
            </property>
            <property name="text">
             <string>Add Intermediate Keys</string>
@@ -332,8 +339,9 @@ Useful for baking out curves before export or to lock timing.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Move the selected keyframes to the current time with the selected option,
-Else move all keyframes of the selected objects.</string>
+            <string>Move the selected keyframes to the current time (or all keys, if none are selected).
+
+Use the option box to control spacing, channel-box scope, and which end of the range aligns to the target frame.</string>
            </property>
            <property name="text">
             <string>Move Keys</string>
@@ -358,7 +366,9 @@ Else move all keyframes of the selected objects.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfer keyframes from the first selected object to the subsequent objects.</string>
+            <string>Transfer keyframes from the first selected object to the subsequent objects.
+
+Use the option box to configure relative offset, tangent transfer, and curve optimization.</string>
            </property>
            <property name="text">
             <string>Transfer Keys</string>
@@ -502,7 +512,9 @@ keyframes from the graph editor.</string>
               </size>
              </property>
              <property name="toolTip">
-              <string>Copy the current keyframe/attribute values of the selected object(s) for later paste.</string>
+              <string>Copy the current keyframe/attribute values of the selected object(s) for later paste.
+
+Use the option box to choose what gets copied: auto, current frame, selected keys, or channel box.</string>
              </property>
              <property name="text">
               <string>Copy</string>
@@ -527,7 +539,9 @@ keyframes from the graph editor.</string>
               </size>
              </property>
              <property name="toolTip">
-              <string>Paste previously copied keyframe values onto the selection.</string>
+              <string>Paste previously copied key values onto the selection.
+
+Use the option box to choose whether to paste at the current playhead or back at the original copy frame.</string>
              </property>
              <property name="text">
               <string>Paste</string>
@@ -555,7 +569,7 @@ keyframes from the graph editor.</string>
               </size>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=" font-weight:600;"&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=" font-weight:600;"&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted. Use the option box to also restrict by time range (current frame, before/after current, etc.).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="text">
               <string>Delete</string>
@@ -612,7 +626,8 @@ Untying removes only those bookend keys, preserving genuine animation.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the tangent/interpolation type on keys (e.g. stepped, linear, smooth).
+            <string>Set the tangent/interpolation type on keys.
+
 Use the option box to configure scope and type.</string>
            </property>
            <property name="text">

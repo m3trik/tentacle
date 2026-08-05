@@ -111,7 +111,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Center the the selected object's pivot.</string>
+            <string>Center the selected object's pivot.</string>
            </property>
            <property name="text">
             <string>Center</string>
@@ -142,7 +142,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set pivot to world-aligned orientation.</string>
+            <string>Set pivot to world-aligned orientation.
+
+Use the option box to align the manipulator pivot instead of the object pivot.</string>
            </property>
            <property name="text">
             <string>Align World</string>
@@ -204,7 +206,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set pivot to world-aligned orientation.</string>
+            <string>Reset the selected object(s)' pivot position and/or orientation back to default.
+
+Use the option box to choose which to reset.</string>
            </property>
            <property name="text">
             <string>Reset</string>
@@ -235,7 +239,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set selected object(s) transform to the current tool's custom axis orintaion.</string>
+            <string>Bake the manipulator pivot's current position and orientation into the object's transform.</string>
            </property>
            <property name="text">
             <string>Bake</string>

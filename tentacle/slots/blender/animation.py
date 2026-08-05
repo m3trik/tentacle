@@ -1049,6 +1049,13 @@ class Animation(SlotsBlender):
     _INTERP_TYPES = {"Stepped": "CONSTANT", "Linear": "LINEAR", "Smooth (Bezier)": "BEZIER"}
 
     def tb017_init(self, widget):
+        # Blender's fcurve interpolation can be set to any of the three types below
+        # (unlike Maya's tb017, which only ever sets stepped/hold tangents) — override
+        # the .ui's DCC-neutral default with the accurate, Blender-specific description.
+        widget.setToolTip(
+            "Set the key interpolation/tangent type (stepped, linear, or smooth) on "
+            "every key of the selected object(s)."
+        )
         widget.option_box.menu.setTitle("Set Tangents")
         widget.option_box.menu.add(
             "QComboBox", addItems=list(self._INTERP_TYPES), setObjectName="cmb_interp",

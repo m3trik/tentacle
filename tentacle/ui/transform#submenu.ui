@@ -208,7 +208,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Freeze transformations on any selected objects and center the pivot on each objects bounding box.</string>
+     <string>Freeze transformations on any selected objects.
+
+Use the option box to also center the pivot (on the mesh, or on all selected).</string>
     </property>
     <property name="text">
      <string>Freeze Transforms</string>
@@ -404,7 +406,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Match the first selected object to the combined bounding box scale of any additional selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Match the first selected object to the combined bounding box scale of any additional selected objects.</string>
     </property>
     <property name="text">
      <string>Match Scale</string>

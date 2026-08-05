@@ -301,7 +301,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Select Style: Marquee</string>
+     <string>Toggle camera-based (depth) selection — ignores backfacing geometry when selecting through the viewport.</string>
     </property>
     <property name="text">
      <string>Ignore Backfacing ±</string>
@@ -341,7 +341,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Expand the outliner to show the currently selected object(s).</string>
+     <string>Toggle whether the selected object(s) can be selected in the viewport.</string>
     </property>
     <property name="text">
      <string>Toggle Non/Selectable</string>
