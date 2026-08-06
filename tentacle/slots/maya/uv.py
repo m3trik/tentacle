@@ -1383,8 +1383,21 @@ class UvSlots(UvMixin, SlotsMaya):
                     "<b>Nothing selected.</b><br>The operation requires the selection of at least two polygon objects."
                 )
             frm, *to = ordered
-            for t in to:
-                mtk.transfer_uvs(frm, t)
+            # match_by_similarity=False: the selection order already states the
+            # correspondence, so re-vetting it by geometric similarity can only
+            # silently drop a pair the user named deliberately.
+            results = [
+                r
+                for t in to
+                for r in mtk.transfer_uvs(frm, t, match_by_similarity=False)
+            ]
+            approximated = [r for r in results if r[2] != "topology"]
+            if approximated:
+                self.sb.message_box(
+                    f"Transferred UVs to <b>{len(results)}</b> object(s).<br>"
+                    f"<b>{len(approximated)}</b> did not match the source's topology "
+                    "and were sampled by proximity — check the result."
+                )
             return
 
         # Similar scopes: first-selected is the source; targets are found by

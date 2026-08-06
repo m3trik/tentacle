@@ -206,7 +206,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Match the first selected object to the combined bounding box scale of any additional selected objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Match the first selected object to the combined bounding box scale of any additional selected objects.</string>
            </property>
            <property name="text">
             <string>Match Scale</string>
@@ -298,7 +298,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Freeze transformations on any selected objects</string>
+            <string>Freeze transformations on any selected objects.
+
+Use the option box to also center the pivot (on the mesh, or on all selected).</string>
            </property>
            <property name="text">
             <string>Freeze Transforms</string>
@@ -420,7 +422,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Align to objects.</string>
+            <string>Align or snap objects: point-to-point, multi-point, or along a curve.
+
+Choose the mode from the dropdown.</string>
            </property>
            <property name="editable">
             <bool>false</bool>
@@ -495,7 +499,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Transform constraints.</string>
+            <string>Toggle transform constraints (edge, surface, or live surface) via the option box.
+
+The button label shows ON/OFF depending on whether any constraint is active.</string>
            </property>
            <property name="text">
             <string>Constrain: OFF</string>
@@ -541,7 +547,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Transform tool snap settings.</string>
+            <string>Toggle move/scale/rotate snapping via the option box.
+
+The button label shows ON/OFF depending on whether any snap type is active.</string>
            </property>
            <property name="text">
             <string>Snap: OFF</string>

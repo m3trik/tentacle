@@ -165,6 +165,9 @@
       <height>19</height>
      </size>
     </property>
+    <property name="toolTip">
+     <string>Open the Hierarchy Sync panel — view and edit the scene's parent/child hierarchy as a tree, with drag-to-reparent.</string>
+    </property>
     <property name="text">
      <string>Hierarchy Sync</string>
     </property>
@@ -304,6 +307,9 @@
       <width>16777215</width>
       <height>19</height>
      </size>
+    </property>
+    <property name="toolTip">
+     <string>Open the Naming tool — batch-rename scene objects using patterns and filters, ensuring compliance with Maya's naming conventions.</string>
     </property>
     <property name="text">
      <string>Naming</string>

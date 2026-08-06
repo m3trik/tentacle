@@ -2,7 +2,7 @@
 # coding=utf-8
 """Behavior shared by the Maya and Blender ``scene`` panels.
 
-Two subsystems live here:
+Three subsystems live here:
 
 * the **Fix Non-Orthogonal Axes** header entry (``tb002``): the scan, the
   report, the confirmation and the result summary are identical on both sides
@@ -13,14 +13,22 @@ Two subsystems live here:
   ``{object: {"skew": float, "cause": str}}`` diagnosis; and
 * the **workspace status footer**: identical wiring on both sides — subscribe
   the engine's ``ScriptJobManager`` to the DCC's scene events, own the
-  controller, refresh on each event.
+  controller, refresh on each event; and
+* **Save As <other DCC> Scene** (the Export list's cross-DCC entry): pick a
+  destination, run the blocking hand-off, report. Identical on both sides
+  because the bridges are mirrors (``mtk.BlenderBridge`` ↔ ``btk.MayaBridge``)
+  and the bridge itself carries everything that differs — its target app's
+  display name and the scene extensions it writes.
 
 Only the engine handle, the scope resolvers, the wording of what the fix *does*
-to the object, and which events signal a workspace change are DCC-specific —
-those are the hooks below.
+to the object, which events signal a workspace change, the open scene's path and
+the foreign-format bridge are DCC-specific — those are the hooks below.
 """
 
+import os
 import html
+
+import pythontk as ptk
 
 
 class SceneMixin:
@@ -46,6 +54,232 @@ class SceneMixin:
     def _resolve_workspace_text(self) -> str:
         """Return the current workspace path — the footer's status text."""
         raise NotImplementedError
+
+    def _current_scene_path(self) -> str:
+        """Return the open scene's path, or ``""`` when it has never been saved."""
+        raise NotImplementedError
+
+    def _foreign_scene_bridge(self):
+        """Return the hand-off bridge that writes the OTHER DCC's native format.
+
+        ``mtk.BlenderBridge()`` from the Maya fork, ``btk.MayaBridge()`` from the
+        Blender fork. The instance carries everything the foreign-export path needs
+        beyond the destination — the target app's display name and the scene
+        extensions it writes — so this is the only hook that direction requires.
+        """
+        raise NotImplementedError
+
+    # --------------------------------------------------- export: formats + paths
+    #: ``(label, data)`` for the Export Scene format combo — the formats BOTH DCCs
+    #: write. The fork's foreign twin is appended from :attr:`FOREIGN_FORMAT_LABEL`,
+    #: so the combo is "the portable three plus the other DCC" on either side and the
+    #: dispatch below is shared. ``"glb"`` matches ``SceneExporter``'s own
+    #: ``output_format`` vocabulary — one word for the same thing in both engines.
+    EXPORT_FORMATS = (("FBX", "fbx"), ("OBJ", "obj"), ("GLB", "glb"))
+    #: Output extension per portable format (``"foreign"`` resolves from the bridge).
+    EXPORT_EXTENSIONS = {"fbx": ".fbx", "obj": ".obj", "glb": ".glb"}
+    #: Combo label for the OTHER DCC's native format — "Blend" / "MA" per fork.
+    FOREIGN_FORMAT_LABEL = "Foreign"
+
+    def _export_format_items(self):
+        """``[(label, data), ...]`` for the ``cmb_format`` combo, foreign twin last."""
+        return [*self.EXPORT_FORMATS, (self.FOREIGN_FORMAT_LABEL, "foreign")]
+
+    def _export_extension(self, export_format: str) -> str:
+        """Output extension for a ``cmb_format`` data value.
+
+        The foreign one comes off the bridge rather than a second table here: it is
+        already declared there (``save_extensions``), and two lists of the same fact
+        drift.
+        """
+        if export_format == "foreign":
+            return self._foreign_scene_bridge().save_extensions[0]
+        return self.EXPORT_EXTENSIONS[export_format]
+
+    def _resolve_export_path(self, save_mode: str, extension: str):
+        """Output path for *save_mode*, or ``None`` to cancel (reported to the user).
+
+        ``"scene_dir"`` writes beside the open scene under its own name;
+        ``"prompt"`` asks, pre-filled with exactly that path so the two modes agree
+        on the default. An unsaved scene has no directory to write beside, so that
+        combination is the one hard error — the prompt falls back to the workspace.
+        """
+        scene_path = self._current_scene_path()
+        base = os.path.splitext(os.path.basename(scene_path))[0] or "untitled"
+        label = extension.lstrip(".").upper()
+
+        if save_mode == "prompt":
+            start_dir = os.path.dirname(scene_path) or self._resolve_workspace_text()
+            picked = self.sb.save_file_dialog(
+                file_types=[f"*{extension}"],
+                title=f"Export {label} As",
+                # A FILE path, not a directory: it pre-fills the name box.
+                start_dir=os.path.join(start_dir, base + extension),
+                filter_description=f"{label} Files",
+            )
+            if not picked:
+                return None
+            # Qt does not reliably append the filter's suffix when the user types a
+            # bare name, and the writer picks its translator off the extension.
+            return picked if picked.lower().endswith(extension) else picked + extension
+
+        if not scene_path:
+            self.sb.message_box(
+                "Scene has not been saved yet.<br>Save the scene first, or choose "
+                "<hl>Prompt for File</hl> in the export options."
+            )
+            return None
+        return os.path.splitext(scene_path)[0] + extension
+
+    def _export_scene_native(self, export_format, out_path, options, tick):
+        """Write *out_path* in a NATIVE format — ``"fbx"`` / ``"obj"`` / ``"glb"``.
+
+        The one genuinely DCC-specific step of :meth:`tb003`: everything around it
+        (reading the options, the guards, resolving the path, the foreign route, the
+        reporting) is identical on both sides. Raise on failure — the caller reports.
+
+        *options* is the option box's booleans: ``selection_only``,
+        ``include_cameras`` / ``include_lights`` / ``include_skins`` /
+        ``include_tangents``, ``embed_textures``. *tick* paints a progress status
+        (Maya's GLB route uses it for the conversion leg).
+        """
+        raise NotImplementedError
+
+    # ------------------------------------------------------------ tb003 Export Scene
+    def tb003(self, widget):
+        """Export Scene in the chosen format, using the configured options.
+
+        Every trigger is a tb003 PushButton carrying its own option-box gear
+        (``list002_init`` builds one per surface), so the options come off the widget
+        that was clicked — the same idiom as every other tb slot. The panel and
+        submenu forks stay in agreement because uitk mirrors a value into every
+        related surface's store on change (``MainWindow.sync_widget_values``).
+        """
+        menu = widget.option_box.menu
+        export_format = menu.cmb_format.currentData()
+        selection_only = menu.cmb_scope.currentData() == "selected"
+        options = {
+            "selection_only": selection_only,
+            # Cameras/lights are inert in Selected Only mode (see tb003_init); coerce
+            # to False so a stale checked-but-disabled box can't leak through.
+            "include_cameras": menu.chk_cameras.isChecked() and not selection_only,
+            "include_lights": menu.chk_lights.isChecked() and not selection_only,
+            "include_skins": menu.chk_skins.isChecked(),
+            "include_tangents": menu.chk_tangents.isChecked(),
+            "embed_textures": menu.chk_embed.isChecked(),
+        }
+
+        if selection_only and not self._selected_objects():
+            self.sb.message_box("No objects selected.")
+            return
+
+        # OBJ carries no tangent channel, so the cost that warning is about is not
+        # paid there — asking about it would be noise.
+        if not self._confirm_dense_export(
+            selection_only, options["include_tangents"] and export_format != "obj"
+        ):
+            return
+
+        extension = self._export_extension(export_format)
+        out_path = self._resolve_export_path(menu.cmb_save.currentData(), extension)
+        if not out_path:
+            return
+
+        if export_format == "foreign":
+            # The bridge owns its own wait cursor and reporting — it is a
+            # multi-second app launch, not a DCC-side write, so it does not belong
+            # under the progress context below.
+            result = self._run_foreign_export(
+                out_path, self._selected_objects() if selection_only else None
+            )
+            if result:
+                self.sb.message_box(
+                    f"Exported <hl>{ptk.format_path(result['output'], 'file')}</hl> "
+                    f"({result['duration']:.1f}s)."
+                )
+            return
+
+        # Every native writer is a single blocking call that scales with poly count,
+        # so on dense scenes the UI sits frozen with no feedback. Run inside the
+        # footer progress context, painting a status before the blocking step
+        # (``tick()`` pumps the event loop) so it reads as working, not hung. Let
+        # failures propagate out of the context so it suppresses its "Complete" flash
+        # on a non-clean exit.
+        try:
+            with self.sb.progress(
+                text=f"Exporting {extension.lstrip('.').upper()}… "
+                "dense scenes can take a while"
+            ) as tick:
+                tick()  # paint the status before the blocking export
+                self._export_scene_native(export_format, out_path, options, tick)
+        except Exception as error:  # noqa: BLE001 - every writer, one report
+            self.sb.message_box(f"Export failed:<br>{error}")
+            return
+
+        self.sb.message_box(f"Exported <hl>{ptk.format_path(out_path, 'file')}</hl>.")
+
+    # ------------------------------------------------ export: the foreign format
+    def _run_foreign_export(self, out_path, objects=None):
+        """Run the blocking bridge hand-off; return its result dict, or ``None``.
+
+        Blocking by nature — a fresh headless target app starts up, imports the
+        exported FBX and saves — so a wait cursor covers the run and the destination
+        is always chosen BEFORE it starts. The bridge reports a handled failure by
+        returning ``None`` (having logged the reason, e.g. the target app not being
+        installed), so both that and a raised exception have to reach the artist:
+        a silent no-op after a ten-second wait is the worst outcome here.
+        """
+        bridge = self._foreign_scene_bridge()
+        app = bridge.spec.app.name  # "Maya" / "Blender" -- the TARGET, from the spec
+        qapp = self.sb.QtWidgets.QApplication
+        qapp.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
+        try:
+            result = bridge.save_as(out_path, objects)
+        except Exception as error:
+            self.sb.message_box(f"Export to {app} failed: <hl>{error}</hl>")
+            return None
+        finally:
+            qapp.restoreOverrideCursor()
+
+        if not result:  # handled failure -- the bridge already logged the reason
+            self.sb.message_box(
+                f"Export to {app} <hl>failed</hl>.<br>See the script output for the "
+                f"reason (a local {app} install is required)."
+            )
+        return result
+
+    def _export_foreign_scene(self):
+        """Write the WHOLE scene in the other DCC's native format (Export list entry).
+
+        The push mirror of the Import list's "Import <other DCC> Scene", and the one
+        direction the pair could not previously go. The whole scene rather than the
+        selection, and its own destination prompt — the Export list's entries are
+        one-shots that carry no options of their own (Export Scene's format combo is
+        the configured route to the same place).
+        """
+        bridge = self._foreign_scene_bridge()
+        app = bridge.spec.app.name
+        extensions = bridge.save_extensions
+        scene_path = self._current_scene_path()
+        base = os.path.splitext(os.path.basename(scene_path))[0] or "untitled"
+
+        dest = self.sb.save_file_dialog(
+            file_types=[f"*{ext}" for ext in extensions],
+            title=f"Export {app} Scene",
+            start_dir=os.path.join(
+                os.path.dirname(scene_path) or self._resolve_workspace_text(),
+                base + extensions[0],
+            ),
+            filter_description=f"{app} Scenes",
+        )
+        if not dest:
+            return
+        result = self._run_foreign_export(dest)
+        if result:
+            self.sb.message_box(
+                f"Exported <hl>{ptk.format_path(result['output'], 'file')}</hl> "
+                f"({result['duration']:.1f}s)."
+            )
 
     # ------------------------------------------------- workspace status footer
     FOOTER_DEFAULT_TEXT = "No workspace set"

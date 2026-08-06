@@ -103,7 +103,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Harden all creased edges on the selected object.</string>
+     <string>Set edge hardness by angle — edges sharper than the threshold become hard, others soft.
+
+Use the option box to configure the angle threshold, hardness percentages, and whether to unlock normals first.</string>
     </property>
     <property name="text">
      <string>By Angle</string>
@@ -140,7 +142,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Reverse Selected Normals</string>
+     <string>Reverse Selected Normals.
+
+Use the option box to choose Reverse, Propagate, Conform, or a combined mode.</string>
     </property>
     <property name="text">
      <string>Reverse Normals</string>
@@ -177,7 +181,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Set Normals to face</string>
+     <string>Set vertex normals to match their face normals (faceted shading).</string>
     </property>
     <property name="text">
      <string>Set To Face</string>
@@ -214,7 +218,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Average Edge Normals</string>
+     <string>Average Edge Normals.
+
+Use the option box to average within each UV shell separately, instead of globally.</string>
     </property>
     <property name="text">
      <string>Average</string>
@@ -251,7 +257,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Soften edge normals&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Soften all edges of the selected object(s) or components.
+
+If the entire object is selected, all of its edges are used.</string>
     </property>
     <property name="text">
      <string>Soften Edges</string>
@@ -325,7 +333,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Harden all creased edges on the selected object.</string>
+     <string>Harden all edges of the selected object(s) or components.
+
+If the entire object is selected, all of its edges are used.</string>
     </property>
     <property name="text">
      <string>Harden Edges</string>
@@ -362,7 +372,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Toggle the vertex normals locked/Unlocked for the selected object(s) or components.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Toggle the vertex normals locked/unlocked for the selected object(s) or components.</string>
     </property>
     <property name="text">
      <string>Un/Lock Normals</string>

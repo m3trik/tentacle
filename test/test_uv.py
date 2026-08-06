@@ -110,13 +110,17 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
         self.instance.sb = _RecordedSb()
 
-        # Capture mtk.transfer_uvs calls.
+        # Capture mtk.transfer_uvs calls. `self.space` is the sample space the
+        # engine reports back per pair -- anything but "topology" means the pair
+        # was approximated, which b000 must surface to the user.
         import mayatk as mtk
         self._original = mtk.transfer_uvs
         self.captured = []
+        self.space = "topology"
 
-        def fake_transfer(frm, to):
-            self.captured.append((frm, to))
+        def fake_transfer(frm, to, **kwargs):
+            self.captured.append((frm, to, kwargs))
+            return [(frm, to, self.space)]
 
         mtk.transfer_uvs = fake_transfer
 
@@ -149,6 +153,9 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.assertEqual(len(self.captured), 1)
         self.assertEqual(self.captured[0][0], a)
         self.assertEqual(self.captured[0][1], b)
+        # The selection order IS the correspondence; re-vetting it by geometric
+        # similarity would silently drop pairs the user named deliberately.
+        self.assertIs(self.captured[0][2].get("match_by_similarity"), False)
 
     def test_three_objects_dispatches_twice(self):
         a = cmds.polyCube(name="uv_b000_a3")[0]
@@ -163,6 +170,37 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.assertEqual(self.captured[0][0], a)
         self.assertEqual(self.captured[1][0], a)
         self.assertEqual({self.captured[0][1], self.captured[1][1]}, {b, c})
+
+    def test_exact_transfer_stays_silent(self):
+        """A topology-space transfer is exact; popping a dialog on every routine
+        use would be noise."""
+        a = cmds.polyCube(name="uv_b000_quiet_a")[0]
+        b = cmds.polyCube(name="uv_b000_quiet_b")[0]
+        cmds.select([a, b])
+
+        self.instance.b000(widget=_FakeB000Widget())
+
+        self.assertEqual(len(self.captured), 1)
+        self.assertEqual(self.instance.sb.messages, [])
+
+    def test_approximated_transfer_is_reported(self):
+        """A target that didn't match the source's topology was sampled by
+        proximity -- the user has to be told, or an approximate result looks
+        identical to an exact one until they inspect the UVs."""
+        self.space = "object"
+        a = cmds.polyCube(name="uv_b000_approx_a")[0]
+        b = cmds.polyCube(name="uv_b000_approx_b")[0]
+        c = cmds.polyCube(name="uv_b000_approx_c")[0]
+        cmds.select([a, b, c])
+
+        self.instance.b000(widget=_FakeB000Widget())
+
+        self.assertEqual(len(self.captured), 2)
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        args, _kwargs = self.instance.sb.messages[0]
+        message = args[0]
+        self.assertIn("2", message)  # both pairs counted, not just the last
+        self.assertIn("proximity", message.lower())
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

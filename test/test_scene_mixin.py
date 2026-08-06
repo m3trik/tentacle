@@ -12,6 +12,7 @@ report, confirm + fix + re-verify — is exercised directly here with fakes
 that both DCC slots actually mix the shared class in and supply every hook.
 """
 import ast
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -25,7 +26,20 @@ from tentacle.slots._scene import SceneMixin  # noqa: E402
 MAYA_FILE = ROOT / "tentacle" / "slots" / "maya" / "scene.py"
 BLENDER_FILE = ROOT / "tentacle" / "slots" / "blender" / "scene.py"
 
-HOOKS = ("_diagnostics", "_scene_objects", "_selected_objects")
+HOOKS = (
+    "_diagnostics",
+    "_scene_objects",
+    "_selected_objects",
+    # Export Scene / the Export list's foreign entry. A fork that skips one of
+    # these inherits the mixin's NotImplementedError and dies on click — nothing
+    # fails at import, so it has to be pinned here.
+    "_current_scene_path",
+    "_foreign_scene_bridge",
+    "_export_scene_native",
+    "_confirm_dense_export",
+)
+#: Class attributes each fork must supply for the shared behavior above.
+REQUIRED_ATTRS = ("NON_ORTHOGONAL_FIX_EFFECT", "FOREIGN_FORMAT_LABEL")
 
 
 class _FakeDiagnostics:
@@ -274,13 +288,306 @@ class TestDccSlotsWireTheMixin(unittest.TestCase):
             for t in n.targets
             if isinstance(t, ast.Name)
         }
-        self.assertIn("NON_ORTHOGONAL_FIX_EFFECT", assigned, path.name)
+        for attr in REQUIRED_ATTRS:
+            self.assertIn(attr, assigned, f"{path.name} missing {attr}")
 
     def test_maya_slot(self):
         self._check(MAYA_FILE)
 
     def test_blender_slot(self):
         self._check(BLENDER_FILE)
+
+
+class _FakeBridge:
+    """Stand-in for mtk.BlenderBridge / btk.MayaBridge (the attrs the mixin reads)."""
+
+    def __init__(self, name="Blender", extensions=(".blend",), result=None, raises=None):
+        self.spec = _Attr(app=_Attr(name=name))
+        self.save_extensions = tuple(extensions)
+        self.calls = []
+        self._result = result
+        self._raises = raises
+
+    def save_as(self, out_path, objects=None):
+        self.calls.append((out_path, objects))
+        if self._raises:
+            raise self._raises
+        return self._result
+
+
+class _ExportHost(_Host):
+    """A ``_Host`` that also wires the export hooks."""
+
+    FOREIGN_FORMAT_LABEL = "Blend"
+
+    def __init__(self, bridge, scene_path="", picked=None, **kwargs):
+        super().__init__(diagnostics=None, **kwargs)
+        self._bridge = bridge
+        self._scene_path = scene_path
+        self._picked = picked
+        self.sb.save_file_dialog = self._save_file_dialog
+        self.sb.QtWidgets = _Attr(QApplication=_Attr(
+            setOverrideCursor=lambda *a: self.cursors.append("set"),
+            restoreOverrideCursor=lambda *a: self.cursors.append("restore"),
+        ))
+        self.sb.QtCore = _Attr(Qt=_Attr(WaitCursor=object()))
+        self.cursors = []
+        self.dialog_kwargs = None
+
+    def _save_file_dialog(self, **kwargs):
+        self.dialog_kwargs = kwargs
+        return self._picked
+
+    def _current_scene_path(self):
+        return self._scene_path
+
+    def _foreign_scene_bridge(self):
+        return self._bridge
+
+    def _resolve_workspace_text(self):
+        return "W:/proj"
+
+
+class TestExportFormats(unittest.TestCase):
+    """The format table + path resolution the Export Scene combo drives."""
+
+    def setUp(self):
+        self.bridge = _FakeBridge()
+
+    def test_the_combo_offers_the_portable_three_plus_the_foreign_twin(self):
+        items = _ExportHost(self.bridge)._export_format_items()
+        self.assertEqual([d for _, d in items], ["fbx", "obj", "glb", "foreign"])
+        # Only the LAST label is per-fork; the data values are shared, which is
+        # what lets the dispatch be shared.
+        self.assertEqual(items[-1], ("Blend", "foreign"))
+
+    def test_extensions_resolve_and_the_foreign_one_comes_off_the_bridge(self):
+        host = _ExportHost(_FakeBridge(extensions=(".ma", ".mb")))
+        self.assertEqual(host._export_extension("fbx"), ".fbx")
+        self.assertEqual(host._export_extension("obj"), ".obj")
+        self.assertEqual(host._export_extension("glb"), ".glb")
+        # Not a second table here -- the bridge already declares it.
+        self.assertEqual(host._export_extension("foreign"), ".ma")
+
+    def test_scene_dir_mode_writes_beside_the_open_scene(self):
+        host = _ExportHost(self.bridge, scene_path="P:/proj/scenes/asset.ma")
+        self.assertEqual(
+            host._resolve_export_path("scene_dir", ".fbx"), "P:/proj/scenes/asset.fbx"
+        )
+
+    def test_scene_dir_mode_reports_an_unsaved_scene_instead_of_guessing(self):
+        host = _ExportHost(self.bridge, scene_path="")
+        self.assertIsNone(host._resolve_export_path("scene_dir", ".fbx"))
+        self.assertIn("has not been saved", host.sb.messages[-1])
+
+    def test_prompt_mode_prefills_the_scene_dir_default(self):
+        host = _ExportHost(
+            self.bridge, scene_path="P:/proj/asset.ma", picked="P:/out/thing.glb"
+        )
+        self.assertEqual(host._resolve_export_path("prompt", ".glb"), "P:/out/thing.glb")
+        self.assertEqual(
+            host.dialog_kwargs["start_dir"], os.path.join("P:/proj", "asset.glb")
+        )
+        self.assertEqual(host.dialog_kwargs["file_types"], ["*.glb"])
+
+    def test_prompt_mode_falls_back_to_the_workspace_when_unsaved(self):
+        host = _ExportHost(self.bridge, scene_path="", picked="X:/a.fbx")
+        host._resolve_export_path("prompt", ".fbx")
+        self.assertEqual(
+            host.dialog_kwargs["start_dir"], os.path.join("W:/proj", "untitled.fbx")
+        )
+
+    def test_prompt_mode_appends_a_missing_extension(self):
+        """Qt does not reliably add the filter's suffix, and the writer picks its
+        translator off the extension."""
+        host = _ExportHost(self.bridge, picked="X:/bare_name")
+        self.assertEqual(host._resolve_export_path("prompt", ".obj"), "X:/bare_name.obj")
+
+    def test_prompt_mode_cancels_cleanly(self):
+        host = _ExportHost(self.bridge, picked=None)
+        self.assertIsNone(host._resolve_export_path("prompt", ".fbx"))
+        self.assertEqual(host.sb.messages, [])
+
+
+class TestForeignExport(unittest.TestCase):
+    """The blocking bridge hand-off shared by the list entry and the format combo."""
+
+    def test_success_returns_the_result_and_balances_the_cursor(self):
+        bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 1.5})
+        host = _ExportHost(bridge)
+        result = host._run_foreign_export("X:/a.blend", ["cube"])
+        self.assertEqual(result["output"], "X:/a.blend")
+        self.assertEqual(bridge.calls, [("X:/a.blend", ["cube"])])
+        self.assertEqual(host.cursors, ["set", "restore"])
+        self.assertEqual(host.sb.messages, [])
+
+    def test_a_handled_failure_is_reported_not_silent(self):
+        """The bridge returns None having logged the reason; a silent no-op after a
+        ten-second wait is the worst outcome."""
+        host = _ExportHost(_FakeBridge(result=None))
+        self.assertIsNone(host._run_foreign_export("X:/a.blend"))
+        self.assertIn("failed", host.sb.messages[-1])
+        self.assertEqual(host.cursors, ["set", "restore"])
+
+    def test_a_raised_error_is_reported_and_the_cursor_still_restores(self):
+        host = _ExportHost(_FakeBridge(raises=RuntimeError("boom")))
+        self.assertIsNone(host._run_foreign_export("X:/a.blend"))
+        self.assertIn("boom", host.sb.messages[-1])
+        self.assertEqual(host.cursors, ["set", "restore"])
+
+    def test_the_list_entry_prompts_then_delegates(self):
+        bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 2.0})
+        host = _ExportHost(
+            bridge, scene_path="P:/proj/asset.ma", picked="X:/a.blend"
+        )
+        host._export_foreign_scene()
+        # Whole scene: no object list is passed.
+        self.assertEqual(bridge.calls, [("X:/a.blend", None)])
+        self.assertIn("Exported", host.sb.messages[-1])
+        self.assertEqual(host.dialog_kwargs["title"], "Export Blender Scene")
+
+    def test_the_list_entry_cancels_without_running_anything(self):
+        bridge = _FakeBridge()
+        host = _ExportHost(bridge, picked=None)
+        host._export_foreign_scene()
+        self.assertEqual(bridge.calls, [])
+        self.assertEqual(host.cursors, [])
+
+
+def _export_widget(fmt="fbx", scope="all", save="scene_dir", **checks):
+    """A tb003 stand-in: the option box tb003_init builds, with all boxes ticked."""
+    state = dict(
+        chk_cameras=True,
+        chk_lights=True,
+        chk_skins=True,
+        chk_tangents=True,
+        chk_embed=True,
+    )
+    state.update(checks)
+    menu = _Attr(
+        cmb_format=_Attr(currentData=lambda: fmt),
+        cmb_scope=_Attr(currentData=lambda: scope),
+        cmb_save=_Attr(currentData=lambda: save),
+        **{
+            name: _Attr(isChecked=lambda v=value: v)
+            for name, value in state.items()
+        },
+    )
+    return _Attr(option_box=_Attr(menu=menu))
+
+
+class _Tb003Host(_ExportHost):
+    """An export host that records the native writes instead of performing them."""
+
+    def __init__(self, *args, dense_ok=True, native_error=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.native = []
+        self.dense_calls = []
+        self._dense_ok = dense_ok
+        self._native_error = native_error
+
+    def _selected_objects(self):
+        return list(self._selection)
+
+    def _confirm_dense_export(self, selection_only, include_tangents):
+        self.dense_calls.append((selection_only, include_tangents))
+        return self._dense_ok
+
+    def _export_scene_native(self, export_format, out_path, options, tick):
+        self.native.append((export_format, out_path, dict(options)))
+        if self._native_error:
+            raise self._native_error
+
+
+class TestTb003ExportFlow(unittest.TestCase):
+    """The shared Export Scene skeleton — one flow, both DCCs.
+
+    Only ``_export_scene_native`` differs per fork; everything here (option reads,
+    guards, path resolution, the foreign route, reporting) used to be duplicated in
+    the two ``tb003`` bodies and is now exercised once, offline, for both.
+    """
+
+    def _host(self, **kwargs):
+        kwargs.setdefault("scene_path", "P:/proj/asset.ma")
+        return _Tb003Host(_FakeBridge(), **kwargs)
+
+    def test_fbx_writes_beside_the_scene_and_reports(self):
+        host = self._host()
+        host.tb003(_export_widget(fmt="fbx"))
+        self.assertEqual(host.native[0][0], "fbx")
+        self.assertEqual(host.native[0][1], "P:/proj/asset.fbx")
+        self.assertIn("Exported", host.sb.messages[-1])
+
+    def test_each_format_picks_up_its_own_extension(self):
+        for fmt, ext in (("fbx", ".fbx"), ("obj", ".obj"), ("glb", ".glb")):
+            host = self._host()
+            host.tb003(_export_widget(fmt=fmt))
+            with self.subTest(fmt=fmt):
+                self.assertTrue(host.native[0][1].endswith(ext), host.native)
+
+    def test_selected_only_coerces_the_scene_level_toggles_off(self):
+        """Cameras/lights only export if selected, so the "include all" intent does
+        not apply — a stale checked-but-disabled box must not leak through."""
+        host = self._host(selection=["cube"])
+        host.tb003(_export_widget(scope="selected"))
+        options = host.native[0][2]
+        self.assertTrue(options["selection_only"])
+        self.assertFalse(options["include_cameras"])
+        self.assertFalse(options["include_lights"])
+        # Skins are intrinsic to the selected mesh, so they survive.
+        self.assertTrue(options["include_skins"])
+
+    def test_selected_only_with_nothing_selected_stops_before_writing(self):
+        host = self._host(selection=[])
+        host.tb003(_export_widget(scope="selected"))
+        self.assertEqual(host.native, [])
+        self.assertIn("No objects selected", host.sb.messages[-1])
+
+    def test_obj_skips_the_tangent_cost_warning(self):
+        """OBJ carries no tangent channel, so the cost it warns about isn't paid."""
+        host = self._host()
+        host.tb003(_export_widget(fmt="obj"))
+        self.assertEqual(host.dense_calls, [(False, False)])
+        host = self._host()
+        host.tb003(_export_widget(fmt="fbx"))
+        self.assertEqual(host.dense_calls, [(False, True)])
+
+    def test_declining_the_dense_warning_writes_nothing(self):
+        host = self._host(dense_ok=False)
+        host.tb003(_export_widget())
+        self.assertEqual(host.native, [])
+
+    def test_an_unsaved_scene_stops_before_writing(self):
+        host = self._host(scene_path="")
+        host.tb003(_export_widget(save="scene_dir"))
+        self.assertEqual(host.native, [])
+        self.assertIn("has not been saved", host.sb.messages[-1])
+
+    def test_a_cancelled_prompt_writes_nothing(self):
+        host = self._host(picked=None)
+        host.tb003(_export_widget(save="prompt"))
+        self.assertEqual(host.native, [])
+        self.assertEqual(host.sb.messages, [])
+
+    def test_a_failing_writer_is_reported_not_raised(self):
+        host = self._host(native_error=RuntimeError("plugin missing"))
+        host.tb003(_export_widget())
+        self.assertIn("plugin missing", host.sb.messages[-1])
+
+    def test_the_foreign_format_routes_through_the_bridge_not_the_writer(self):
+        bridge = _FakeBridge(result={"output": "P:/proj/asset.blend", "duration": 3.0})
+        host = _Tb003Host(bridge, scene_path="P:/proj/asset.ma")
+        host.tb003(_export_widget(fmt="foreign"))
+        self.assertEqual(host.native, [])  # never touches the native writer
+        self.assertEqual(bridge.calls, [("P:/proj/asset.blend", None)])
+        self.assertIn("Exported", host.sb.messages[-1])
+
+    def test_the_foreign_format_honors_the_scope_combo(self):
+        bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 1.0})
+        host = _Tb003Host(bridge, scene_path="P:/proj/asset.ma", selection=["cube"])
+        host.tb003(_export_widget(fmt="foreign", scope="selected"))
+        # Selected Only passes the selection; whole-scene passes None.
+        self.assertEqual(bridge.calls[0][1], ["cube"])
 
 
 if __name__ == "__main__":

@@ -390,6 +390,108 @@ class TestCmb003EdgeLoop(unittest.TestCase):
         self.assertEqual(len(result), 16, f"got {result}")
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb001SelectSimilarReporting(unittest.TestCase):
+    """tb001 (Select Similar) reports when it matches nothing.
+
+    Regression for a real report ("Select Similar selects nothing"): a no-match
+    is invisible from the UI — with Include Original off it silently clears the
+    selection, with it on it re-selects what was already selected. Both read as
+    a dead button, which is why a genuine engine bug went undiagnosed.
+    """
+
+    def setUp(self):
+        # cmds.selectMode is inert under maya.standalone — it answers False to
+        # every query even right after being set — so tb001's object-mode branch
+        # is unreachable headless and every case would fall through to the
+        # component path. Pin the query; a leaked mock would reroute every later
+        # cmds.selectMode call, hence addCleanup rather than a tearDown body.
+        real_select_mode = cmds.selectMode
+        self.addCleanup(setattr, cmds, "selectMode", real_select_mode)
+        cmds.selectMode = lambda *a, **kw: True
+
+    def _instance(self, tolerance=0.0, inc_orig=False, **checked):
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+
+        menu = _FakeOptionMenu()
+        menu.s000 = _FakeSpin(tolerance)
+        menu.chk020 = _FakeChk(inc_orig)
+        for name, _, kwarg, default, _tip in instance._SIMILAR_METRICS:
+            setattr(menu, name, _FakeChk(checked.get(kwarg, default)))
+
+        self.widget = _FakeWidget(menu)
+        self.widget.option_box = _FakeOptionBox(menu)
+        return instance
+
+    def test_no_selection_asks_for_a_reference_object(self):
+        """An empty selection is a different failure from an empty result and
+        must not advise raising the tolerance."""
+        cmds.file(new=True, force=True)
+        cmds.polyCube(name="similar_lonely")
+        cmds.select(clear=True)
+
+        inst = self._instance()
+        inst.tb001(self.widget)
+
+        self.assertEqual(len(inst.sb.messages), 1)
+        self.assertIn("reference object", inst.sb.messages[0][0][0])
+
+    def test_no_match_names_the_compared_metrics(self):
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="similar_cube", w=2, h=2, d=2)[0]
+        cmds.polySphere(name="similar_sphere", r=9)
+        cmds.select(cube)
+
+        inst = self._instance(vertex=True, edge=True, face=True, worldArea=True)
+        inst.tb001(self.widget)
+
+        self.assertEqual(len(inst.sb.messages), 1)
+        message = inst.sb.messages[0][0][0]
+        for label in ("Vertex", "Edge", "Face", "World Area"):
+            self.assertIn(label, message)
+        self.assertNotIn("Triangle", message)  # unchecked metrics aren't named
+
+    def test_no_match_reported_even_with_include_original(self):
+        """With Include Original on, the result is non-empty (it's the original)
+        — the report has to compare against the originals, not the raw return."""
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="similar_solo", w=2, h=2, d=2)[0]
+        cmds.polySphere(name="similar_other", r=9)
+        cmds.select(cube)
+
+        inst = self._instance(inc_orig=True)
+        inst.tb001(self.widget)
+
+        self.assertEqual(len(inst.sb.messages), 1)
+        self.assertIn("no matches", inst.sb.messages[0][0][0])
+
+    def test_match_selects_silently(self):
+        """A duplicate moved AND rotated is the reported scenario; it must match
+        at tolerance 0 with the default metrics, and say nothing."""
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="similar_src", w=2, h=2, d=2)[0]
+        twin = cmds.duplicate(cube, name="similar_twin")[0]
+        cmds.xform(twin, t=(25, 0, 0), ro=(0, 45, 0))
+        cmds.select(cube)
+
+        inst = self._instance(boundingBox=True)
+        inst.tb001(self.widget)
+
+        self.assertEqual(inst.sb.messages, [], "a successful match reported an error")
+        self.assertIn(twin, cmds.ls(sl=True))
+
+    def test_metric_table_kwargs_are_valid_polyevaluate_flags(self):
+        """The table's third field is passed straight to polyEvaluate as a
+        keyword — a typo there would silently widen the comparison."""
+        cmds.file(new=True, force=True)
+        cube = cmds.polyCube(name="similar_flags")[0]
+        inst = selection_module.Selection
+        for _, label, kwarg, _, _ in inst._SIMILAR_METRICS:
+            with self.subTest(metric=label):
+                self.assertIsNotNone(cmds.polyEvaluate(cube, **{kwarg: True}))
+
+
 class _Widget_ConvertTo:
     """cmb003's dispatch only reads ``widget.items`` (by index)."""
 

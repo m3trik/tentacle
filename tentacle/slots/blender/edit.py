@@ -145,7 +145,7 @@ class Edit(EditMixin, SlotsBlender):
         widget.menu.hide_on_trigger = True
         # Submenu expandable lists surfaced in the panel: Create / Convert
         # rows whose flyouts fan right on hover (the shared listNNN_init
-        # applies the header_menu preset here).
+        # applies the hover_menu preset here).
         for list_name in ("list000", "list001"):
             widget.menu.add(
                 self.sb.registered_widgets.ExpandableList,
@@ -208,6 +208,7 @@ class Edit(EditMixin, SlotsBlender):
         # chk032/chk033: first numbers free in BOTH this file and maya/edit.py — the QSettings
         # store is shared across DCCs, so reusing a Maya name for a different option bleeds state
         # (maya chk025 = Overlapping Faces, chk027 = Toggle Lock/UnLock).
+        widget.setToolTip(self.mesh_cleanup_tooltip())
         menu = widget.option_box.menu
         menu.setTitle("Mesh Cleanup")
         # Scope (cmb_scope) replaces the old "All Geometry" checkbox: which meshes to act on. Data
@@ -685,7 +686,7 @@ class Edit(EditMixin, SlotsBlender):
         Curve/Helper/Light/Control (name+capability, not item-count) parity."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_left" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_left" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add("Create")
 
@@ -796,7 +797,7 @@ class Edit(EditMixin, SlotsBlender):
         """Initialize Convert list."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_down" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_down" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add("Convert")
         root.sublist.setMinimumWidth(180)

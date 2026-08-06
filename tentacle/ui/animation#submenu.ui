@@ -137,7 +137,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sets keys matching any previously stored attributes at the current time.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Paste previously copied key values onto the selection.
+
+Use the option box to choose whether to paste at the current playhead or back at the original copy frame.</string>
     </property>
     <property name="text">
      <string>Paste Keys</string>
@@ -171,8 +173,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Move the selected keyframes to the current time with the selected option,
-Else move all keyframes of the selected objects.</string>
+     <string>Move the selected keyframes to the current time (or all keys, if none are selected).
+
+Use the option box to control spacing, channel-box scope, and which end of the range aligns to the target frame.</string>
     </property>
     <property name="text">
      <string>Move Keys</string>
@@ -203,7 +206,7 @@ Else move all keyframes of the selected objects.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the current frame on the timeslider.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Set the current frame on the timeslider.</string>
     </property>
     <property name="text">
      <string>Go to Frame</string>
@@ -270,7 +273,9 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set stepped (hold) out-tangents on animation keys.&lt;/p&gt;&lt;p&gt;Use the option box to choose: current time, selected keys, or all keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Set the tangent/interpolation type on keys.
+
+Use the option box to configure scope and type.</string>
     </property>
     <property name="text">
      <string>Step Tangents</string>
@@ -307,7 +312,7 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted. Use the option box to also restrict by time range (current frame, before/after current, etc.).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>Delete Keys</string>
@@ -344,7 +349,9 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stores the current values of any selected attributes in Maya's channel box for the currently selected scene objects.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Copy the current keyframe/attribute values of the selected object(s) for later paste.
+
+Use the option box to choose what gets copied: auto, current frame, selected keys, or channel box.</string>
     </property>
     <property name="text">
      <string>Copy Keys</string>
@@ -395,6 +402,9 @@ Supports negative values to compress timing.</string>
       <width>16777215</width>
       <height>19</height>
      </size>
+    </property>
+    <property name="toolTip">
+     <string>Set the playback range to span every keyed object in the scene, from the earliest to the latest keyframe.</string>
     </property>
     <property name="text">
      <string>Fit Playback Range</string>

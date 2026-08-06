@@ -13,9 +13,6 @@
     <height>358</height>
    </rect>
   </property>
-  <property name="toolTip">
-   <string>Transfer UV sets from the first selected object to the last.</string>
-  </property>
   <property name="tabShape">
    <enum>QTabWidget::Triangular</enum>
   </property>
@@ -508,7 +505,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>A tool for automatically unfolding UV</string>
+            <string>Automatically unwrap UVs for the selected objects.
+
+Use the option box to choose the unwrap engine/mode.</string>
            </property>
            <property name="text">
             <string>Auto Unwrap</string>
@@ -545,7 +544,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Select a poly object or UV's to be unfolded.</string>
+            <string>Relax/unfold the selected UVs to reduce stretch and distortion.</string>
            </property>
            <property name="text">
             <string>Unfold</string>
@@ -800,7 +799,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Transfers UV sets from the first selected object to all other selected objects. &lt;/p&gt;&lt;p&gt;This operation applies to individual meshes or the children of selected groups&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>Transfers UV sets from the first selected object to all other selected objects.
+
+This operation applies to individual meshes or the children of selected groups.</string>
            </property>
            <property name="text">
             <string>Transfer UV Sets</string>

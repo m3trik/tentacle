@@ -198,6 +198,10 @@ class _StubMarkingMenu:
         self.window_theme = "dark"
 
 
+@unittest.skipUnless(
+    _can_create_widgets(),
+    "Maya's non-GUI Qt stub hard-crashes on QWidget construction",
+)
 class TestPreferencesMixin(unittest.TestCase):
     """cmb004 / cmb005 expose uitk's two previously hard-pinned window themes.
 

@@ -47,8 +47,15 @@ wire ``cmb002``'s ``currentIndexChanged`` / ``on_editing_finished`` to. The Assi
 "Assign: <current material>", so a refresh that reached only one surface left the other
 advertising — and appearing to offer — the previous material.
 
+A material the combo can't represent is NOT assumed to be filtered: the adopt
+path asks ``_list_filter_names()`` which list filters are actually enabled, and
+when none are, adds the found material to the combo and adopts it — the list not
+carrying a material assigned to the selection is the list's limitation, not a
+reason for "Get Material" to fail.
+
 Hooks each ``<Panel>Slots`` fork must supply: ``_rename_current(text)``,
-``select_by_mat(...)``, ``_selection_mats()``.
+``select_by_mat(...)``, ``_selection_mats()``. Optional:
+``_list_filter_names()`` (defaults to no filters).
 """
 import pythontk as ptk
 
@@ -253,12 +260,31 @@ class MaterialsMixin:
             "current material can't be determined.",
         ),
         "filtered": (
-            "Material hidden by the list filters",
-            "'{mat}' isn't in the materials list — a cmb002 option-box filter "
-            "(Hide Default Materials / Hide Arnold Shaders) is hiding it. Turn "
-            "that filter off to make it current.",
+            "Material hidden by a list filter",
+            "'{mat}' isn't in the materials list — it's hidden by the cmb002 "
+            "option-box filter: {filters}. Turn that off to make it current.",
+        ),
+        "unlisted": (
+            "Material not in the list",
+            "'{mat}' is assigned to the selection but couldn't be made the "
+            "current material — the materials list doesn't carry it.",
         ),
     }
+
+    def _list_filter_names(self):
+        """Names of the cmb002 list filters currently ENABLED (DCC hook).
+
+        Only a filter that is actually on can be the reason a found material is
+        missing from the list — reporting "a filter is hiding it" without
+        checking sent the user to an option box whose boxes were already
+        unchecked, while the real cause (a material the DCC's own material query
+        doesn't report) went unnamed. Returning nothing means nothing is being
+        filtered, which is what :meth:`_adopt_selection_mat` treats as license to
+        adopt the material anyway.
+
+        Default: no filters (Blender's combo has none). Maya overrides it.
+        """
+        return ()
 
     def _adopt_selection_mat(self, on_failure=""):
         """Set ``cmb002`` to the single material assigned to the current selection.
@@ -281,28 +307,51 @@ class MaterialsMixin:
         mats = self._selection_mats()
         found = mats[0] if mats and len(mats) == 1 else ""
 
+        filters = ()
         if found:
             previous = self.ui.cmb002.currentData()
             self.ui.cmb002.init_slot()  # refresh the list so the found material is in it
-            self.ui.cmb002.setAsCurrent(found)
-            if str(self.ui.cmb002.currentData() or "") == found:
+            if self._make_current(found):
                 return found
-            # A cmb002 list filter (Hide Default Materials / Hide Arnold Shaders)
-            # can drop the found material from the list — and ComboBox.setAsCurrent
-            # silently falls back to INDEX 0 for a missing item, which would leave
-            # an unrelated material current and select by it. Put the previous
-            # material back, then report it like any other adopt failure.
+            # ``ComboBox.setAsCurrent`` silently falls back to INDEX 0 for a
+            # missing item, which would leave an unrelated material current and
+            # select by it — so a miss is handled here rather than trusted.
+            filters = tuple(self._list_filter_names())
+            if not filters:
+                # Nothing is filtering the list, so the material is simply one it
+                # doesn't carry. It IS assigned to the selection and every
+                # consumer of cmb002 works on the name, so add it and adopt it
+                # rather than failing on a list that can't represent it.
+                self.ui.cmb002.addItem(str(found).rsplit("|", 1)[-1], found)
+                if self._make_current(found):
+                    return found
+            # Put the previous material back, then report like any other failure.
+            # Only an enabled filter may be blamed — otherwise the list simply
+            # can't represent the material and the adopt-anyway above didn't take.
             if previous is not None:
                 self.ui.cmb002.setAsCurrent(str(previous))
-            reason = "filtered"
+            reason = "filtered" if filters else "unlisted"
         else:
             reason = "empty" if mats is None else "none" if not mats else "multiple"
 
         # One report path, so ``on_failure`` (what the caller does next) is always
         # part of the message — a reason without it would misdescribe the outcome.
         title, body = self._GET_MAT_FAILURES[reason]
-        self.sb.message_box(f"<hl>{title}</hl><br>{body.format(mat=found)}{on_failure}")
+        self.sb.message_box(
+            f"<hl>{title}</hl><br>"
+            f"{body.format(mat=found, filters=' / '.join(filters))}{on_failure}"
+        )
         return None
+
+    def _make_current(self, mat):
+        """Select *mat* in ``cmb002``; True only when it actually landed there.
+
+        ``setAsCurrent`` falls back to index 0 for an item it can't find, so its
+        return tells you nothing — the combo has to be read back.
+        """
+        mat = str(mat)
+        self.ui.cmb002.setAsCurrent(mat)
+        return str(self.ui.cmb002.currentData() or "") == mat
 
     def b003(self, widget=None):
         """Get + Select (submenu): adopt the selection's material, then select its users.

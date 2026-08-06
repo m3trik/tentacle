@@ -125,7 +125,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -156,7 +156,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -190,7 +190,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -224,7 +224,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>

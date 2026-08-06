@@ -109,7 +109,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Unfold and layout the selected UV's</string>
+     <string>Unfold, then pack, the selected UVs' shells in one step.</string>
     </property>
     <property name="text">
      <string>Unfold + Pack</string>
@@ -189,7 +189,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Cut all UV seams at hard edges.</string>
+     <string>Cut UVs along hard edges (always on). Optionally also cut along existing UV shell borders or auto-detected seams.</string>
     </property>
     <property name="text">
      <string>Cut Hard Edges</string>
@@ -269,7 +269,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Pack UV's</string>
+     <string>Pack UV shells into the target tile. Select objects to pack their whole maps, or select faces / UVs / UV shells to pack only that region and leave the rest of the map where it is.</string>
     </property>
     <property name="text">
      <string>Pack</string>

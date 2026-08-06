@@ -53,8 +53,8 @@
    <widget class="MenuButton" name="i018">
     <property name="geometry">
      <rect>
-      <x>195</x>
-      <y>280</y>
+      <x>190</x>
+      <y>270</y>
       <width>41</width>
       <height>21</height>
      </rect>
@@ -81,8 +81,8 @@
    <widget class="MenuButton" name="i005">
     <property name="geometry">
      <rect>
-      <x>195</x>
-      <y>250</y>
+      <x>190</x>
+      <y>240</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -137,8 +137,8 @@
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
-      <x>165</x>
-      <y>310</y>
+      <x>160</x>
+      <y>300</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -156,8 +156,8 @@
    <widget class="ExpandableList" name="list001" native="true">
     <property name="geometry">
      <rect>
-      <x>145</x>
-      <y>190</y>
+      <x>140</x>
+      <y>180</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -175,8 +175,8 @@
    <widget class="QPushButton" name="b003">
     <property name="geometry">
      <rect>
-      <x>145</x>
-      <y>220</y>
+      <x>140</x>
+      <y>210</y>
       <width>120</width>
       <height>19</height>
      </rect>
@@ -203,8 +203,8 @@
    <widget class="QPushButton" name="b013">
     <property name="geometry">
      <rect>
-      <x>125</x>
-      <y>340</y>
+      <x>120</x>
+      <y>330</y>
       <width>120</width>
       <height>19</height>
      </rect>

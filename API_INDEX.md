@@ -2,14 +2,14 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-02_
+_Generated: 2026-08-06_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
 
 ### `slots/_edit.py` — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - `class EditMixin`
-  - methods: cleanup_popup_html, cleanup_console_report, report_cleanup_failure
+  - methods: mesh_cleanup_tooltip, cleanup_popup_html, cleanup_console_report, report_cleanup_failure
 
 ### `slots/_hud_warnings.py` — Shared HUD warning framework (DCC-agnostic).
 - `class HudWarningsMixin`
@@ -25,7 +25,7 @@ _Generated: 2026-08-02_
 
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
-  - methods: tb002_init, tb002
+  - methods: tb003, tb002_init, tb002
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
@@ -124,7 +124,7 @@ _Generated: 2026-08-02_
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
-  - methods: list003_init, list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, tb003, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
+  - methods: list003_init, list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
 - `class Selection(SlotsBlender)`
@@ -313,7 +313,7 @@ _Generated: 2026-08-02_
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SceneMixin, SlotsMaya)`
-  - methods: list003_init, list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, tb003, b004, b005, b006, b009, tb001_init, tb001, b011, b012, b017, b013, b014_init, b014
+  - methods: list003_init, list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, tb001_init, tb001, b011, b018, b012, b017, b013, b014_init, b014
 
 ### `slots/maya/select.py`
 - `class SelectSlots(SlotsMaya)`

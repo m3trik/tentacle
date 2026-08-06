@@ -114,7 +114,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Reduce number of poliginal components for selected objects</string>
+            <string>Reduce the polygon count of the selected object(s), while preserving border, hard, crease, and UV edges.</string>
            </property>
            <property name="text">
             <string>Reduce</string>
@@ -176,7 +176,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Tesselate modifier</string>
+            <string>Subdivide the selected mesh, adding divisions.</string>
            </property>
            <property name="text">
             <string>Add Divisions</string>
@@ -187,7 +187,7 @@
              <height>18</height>
             </size>
            </property>
-           <property name="balette" stdset="0">
+           <property name="palette" stdset="0">
             <palette>
              <active>
               <colorrole role="Base">
@@ -413,7 +413,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Smooth Preview: Division Level</string>
+            <string>Smooth Preview: Tessellation Level</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

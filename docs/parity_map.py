@@ -560,6 +560,7 @@ HANDLERS = {
         # picker chooses inputs instead. Matched by objectName on both sides -> no ledger row needed.
         "b014": {"status": "na", "reason": "Save to Original Scene -- writes an open Maya autosave back over its original scene file (enabled only when an autosave is open and the original is locatable). Blender's recovery model differs (File > Recover Auto Save reopens the .blend; there is no 'save the autosave back to the original' action), so no 1:1 header entry."},
         "b014_init": {"status": "na", "reason": "see b014 (Save to Original Scene enable-state init)"},
+        "b018": {"status": "pending", "reason": "Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na."},
         # b016 Unity Bridge: BUILT on both sides 2026-07-14 — the Blender scene header now ships it
         # (slots/blender/scene.py header_init + def b016) via marking_menu.show("unity_bridge"),
         # 1:1 with Maya's scene.py b016. It previously lived in the Blender materials menu (b026);

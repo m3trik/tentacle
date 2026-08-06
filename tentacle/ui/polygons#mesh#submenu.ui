@@ -75,7 +75,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Cap holes modifier</string>
+     <string>Cap open holes bounded by the mesh's border edges.</string>
     </property>
     <property name="text">
      <string>Fill Hole</string>
@@ -112,7 +112,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Combine the selected polygon objects into one single object to allow operations such as merges or face trims</string>
+     <string>Combine the selected polygon objects into one object, to allow operations such as merges or face trims.</string>
     </property>
     <property name="text">
      <string>Combine</string>
@@ -149,7 +149,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Separates the selected polygonobject shells or the shells of any selected faces from the object into one object into distinct objects</string>
+     <string>Separate the selected polygon object's shells (or the shells of any selected faces) into distinct objects.
+
+Use the option box to group by material, auto-rename, and uninstance the results.</string>
     </property>
     <property name="text">
      <string>Separate</string>
@@ -217,7 +219,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Preforms a boolean union on the selected polygon objects creating a new object</string>
+     <string>Perform a boolean operation on the selected polygon objects, creating a new object.
+
+Use the option box to choose Union, Difference, or Intersection, and to enable the interactive boolean tool.</string>
     </property>
     <property name="text">
      <string>Boolean</string>

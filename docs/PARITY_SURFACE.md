@@ -131,7 +131,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 0 | 4 | 0 | 0 | OK |
 | rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
-| scene.py | 0 | 0 | 5 | 0 | 0 | OK |
+| scene.py | 0 | 1 | 5 | 0 | 0 | open |
 | selection.py | 0 | 0 | 7 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
 | subdivision.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -195,8 +195,9 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 ## Open work (ledgered `pending`)
 
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
+- **scene** `b018` — [pending] Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na.
 - **uv** `chk043` — optbox QCheckBox 'Brute Force (xatlas)'  [pending] Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=).
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 4 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 5 open-work items; 0 stale Maya handlers. Sweep PASSES.

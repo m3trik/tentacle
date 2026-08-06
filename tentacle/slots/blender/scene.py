@@ -52,6 +52,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         # Was a header-menu button (b008) — a one-shot export, so it belongs
         # with its siblings here rather than in the Tools list.
         "Export Selection": lambda slot: slot.b008(),
+        # The push mirror of Import's "Import Maya Scene" — same bridge, opposite
+        # direction, so the two live symmetrically in the two lists.
+        "Export .ma": lambda slot: slot._export_foreign_scene(),
         "Export FBX": "export_scene.fbx",
         "Export OBJ": "wm.obj_export",
         "Export glTF": "export_scene.gltf",
@@ -187,7 +190,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         moved.
         """
         widget.fixed_item_height = 18
-        widget.apply_preset("header_menu")
+        widget.apply_preset("hover_menu")
         root = widget.add(
             "Tools",
             setToolTip="Scene bridges, management, fixes and diagnostics.",
@@ -250,7 +253,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         """Initialize Recent Files"""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         recent_files = btk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")
@@ -287,7 +290,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         # (expand_down would hang the sublist below it instead). The panel's
         # header-menu row fans right on hover instead.
         widget.apply_preset(
-            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add(
             "Import",
@@ -308,9 +311,13 @@ class SceneSlots(SceneMixin, SlotsBlender):
 
     def _import_maya_scene(self):
         """Import a Maya scene (.ma/.mb) via ``btk.MayaSceneImport`` — a headless-Maya
-        FBX round-trip (fresh mayapy converts the scene; the FBX is imported and cleaned
-        up). Blocking: a scene conversion takes tens of seconds (mayapy startup + license
-        checkout), so a wait cursor covers the run. Requires a local Maya install."""
+        FBX round-trip by default (fresh mayapy converts the scene; instancing is
+        carried by the format, materials rebuilt from a texture manifest; the USD
+        route — native materials / animation / visibility, instancing replayed from
+        a sidecar — is opt-in via the Reference Manager's route option or
+        ``via="usd"``). Blocking: a scene conversion
+        takes tens of seconds (mayapy startup + license checkout), so a wait cursor
+        covers the run. Requires a local Maya install."""
         src = self.sb.file_dialog(
             file_types=["*.ma", "*.mb"],
             title="Import Maya Scene",
@@ -333,6 +340,21 @@ class SceneSlots(SceneMixin, SlotsBlender):
             f"<hl>{os.path.basename(src)}</hl>."
         )
 
+    #: Export Scene's combo label for Maya's native format (SceneMixin hook).
+    FOREIGN_FORMAT_LABEL = "MA"
+
+    def _current_scene_path(self) -> str:
+        """The open .blend, or "" when it has never been saved (SceneMixin hook)."""
+        return bpy.data.filepath or ""
+
+    def _foreign_scene_bridge(self):
+        """The bridge that writes Maya's native format (SceneMixin hook).
+
+        Materials ride the same ``.manifest.json`` sidecar the interactive Send to
+        Maya uses, so ``Save As Maya Scene`` is not a second export path.
+        """
+        return btk.MayaBridge()
+
     def list002_init(self, widget):
         """Initialize Export.
 
@@ -342,14 +364,14 @@ class SceneSlots(SceneMixin, SlotsBlender):
         Scene (the tb003 PushButton folded in from the old submenu button,
         option-box gear and all) closest to the cursor, with the native
         one-shot format exporters that used to live on the Export combobox
-        stacking above them. The panel's header_menu flyout fans right with
+        stacking above them. The panel's hover_menu flyout fans right with
         its top row aligned to the trigger, so the same rows are added in the
         opposite order: tools first (top, nearest the trigger), one-shots
         below in natural order.
         """
         submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up" if submenu else "header_menu")
+        widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add(
             "Export",
             setToolTip="Export the scene or selection (FBX / OBJ / glTF …).",
@@ -470,14 +492,20 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 "references — far smaller/faster when maps are large."
             ),
         )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Also Export GLB", setObjectName="chk_glb",
-            setChecked=False,
+        cmb_format = widget.option_box.menu.add(
+            "QComboBox", setObjectName="cmb_format",
             setToolTip=(
-                "After writing the FBX, also write a GLB beside it via Blender's native "
-                "glTF 2.0 exporter (the don't-reinvent answer to Maya's FBX2glTF sidecar)."
+                "Output format:\n"
+                "• FBX — the interchange default\n"
+                "• OBJ — geometry only (no hierarchy, skinning or animation)\n"
+                "• GLB — Blender's native glTF 2.0 exporter (no FBX hop; the\n"
+                "  don't-reinvent answer to Maya's FBX2glTF conversion)\n"
+                "• MA — a real Maya scene, via a fresh headless mayapy\n"
+                "  (slower; a local Maya install is required)"
             ),
         )
+        for text, data in self._export_format_items():
+            cmb_format.addItem(text, data)
 
         # Cameras/lights are scene-level: in Selected Only mode they'd only export if
         # explicitly selected, so the "include all" intent doesn't apply — disable them.
@@ -531,102 +559,49 @@ class SceneSlots(SceneMixin, SlotsBlender):
         )
         return choice == "Yes"
 
-    def tb003(self, widget):
-        """Export Scene — FBX (+ optional GLB) using the configured options.
+    def _export_scene_native(self, export_format, out_path, options, tick):
+        """Write FBX / OBJ / GLB (SceneMixin hook).
 
-        Every trigger is a tb003 PushButton carrying its own option-box gear (list002_init
-        builds one per surface), so the options come off the widget that was clicked — the
-        same idiom as every other tb slot. The panel and submenu forks stay in agreement
-        because uitk mirrors a value into every related surface's store on change
-        (``MainWindow.sync_widget_values``)."""
-        menu = widget.option_box.menu
-        scope = menu.cmb_scope.currentData()
-        save_mode = menu.cmb_save.currentData()
-        selection_only = scope == "selected"
-        # Cameras/lights are inert in Selected Only mode (see tb003_init); coerce to False
-        # so a stale checked-but-disabled box can't leak through.
-        include_cameras = menu.chk_cameras.isChecked() and not selection_only
-        include_lights = menu.chk_lights.isChecked() and not selection_only
-        include_skins = menu.chk_skins.isChecked()
-        include_tangents = menu.chk_tangents.isChecked()
-        embed_textures = menu.chk_embed.isChecked()
-        also_glb = menu.chk_glb.isChecked()
-
-        if selection_only and not self.selected_objects():
-            self.sb.message_box("No objects selected.")
+        Unlike Maya, Blender writes GLB natively — no FBX hop and no conversion, so
+        *tick* is unused here.
+        """
+        if export_format == "obj":
+            btk.export_scene_as_obj(
+                file_path=out_path,
+                selection_only=options["selection_only"],
+                materials=options["embed_textures"],
+            )
             return
 
-        if not self._confirm_dense_export(selection_only, include_tangents):
-            return
-
-        fbx_path = self._resolve_export_path(save_mode)
-        if not fbx_path:
+        if export_format == "glb":
+            # window override: the bundled glTF exporter unconditionally calls
+            # ``context.window.cursor_set('WAIT')`` — AttributeError when window is
+            # None (the Qt-pump state); btk.FbxUtils wraps its own.
+            with btk.window_context_override():
+                bpy.ops.export_scene.gltf(
+                    filepath=out_path,
+                    export_format="GLB",
+                    use_selection=options["selection_only"],
+                    export_cameras=options["include_cameras"],
+                    export_lights=options["include_lights"],
+                )
             return
 
         object_types = {"MESH", "EMPTY", "OTHER"}
-        if include_cameras:
+        if options["include_cameras"]:
             object_types.add("CAMERA")
-        if include_lights:
+        if options["include_lights"]:
             object_types.add("LIGHT")
-        if include_skins:
+        if options["include_skins"]:
             object_types.add("ARMATURE")
-
-        try:
-            btk.FbxUtils.export(
-                filepath=fbx_path,
-                selection_only=selection_only,
-                object_types=object_types,
-                use_tspace=include_tangents,
-                path_mode="COPY" if embed_textures else "AUTO",
-                embed_textures=embed_textures,
-            )
-        # AttributeError covers a disabled io_scene_fbx add-on (the op wouldn't exist).
-        except (RuntimeError, AttributeError) as e:
-            self.sb.message_box(f"<b>FBX export failed.</b><br><small>{e}</small>")
-            return
-
-        msg = f"Exported FBX:<br><hl>{ptk.format_path(fbx_path, 'file')}</hl>"
-        if also_glb:
-            glb_path = os.path.splitext(fbx_path)[0] + ".glb"
-            # Best-effort sidecar: the FBX already succeeded, so never let a missing/disabled
-            # glTF add-on (AttributeError) or an export error turn into a traceback — degrade.
-            # window override: the bundled glTF exporter unconditionally calls
-            # ``context.window.cursor_set('WAIT')`` — AttributeError when window is None
-            # (the Qt-pump state); the FBX path above is wrapped inside btk.FbxUtils.
-            try:
-                with btk.window_context_override():
-                    bpy.ops.export_scene.gltf(
-                        filepath=glb_path,
-                        export_format="GLB",
-                        use_selection=selection_only,
-                        export_cameras=include_cameras,
-                        export_lights=include_lights,
-                    )
-                msg += f"<br>+ GLB: <hl>{ptk.format_path(glb_path, 'file')}</hl>"
-            except Exception as e:
-                msg += f"<br><small>(GLB skipped: {e})</small>"
-        self.sb.message_box(msg)
-
-    def _resolve_export_path(self, save_mode):
-        """Resolve the FBX output path for ``save_mode`` ('scene_dir' next to the .blend, or
-        'prompt' via a save dialog). Returns the path, or None to cancel."""
-        blend_path = bpy.data.filepath or ""
-        if save_mode == "prompt":
-            base = os.path.splitext(os.path.basename(blend_path))[0] or "untitled"
-            start = os.path.join(os.path.dirname(blend_path), base + ".fbx")
-            picked, _ = self.sb.QtWidgets.QFileDialog.getSaveFileName(
-                self.ui, "Export FBX As", start, "FBX (*.fbx)"
-            )
-            if not picked:
-                return None
-            return picked if picked.lower().endswith(".fbx") else picked + ".fbx"
-        if not blend_path:
-            self.sb.message_box(
-                "Scene has not been saved yet.<br>Save the .blend first, or choose "
-                "<hl>Prompt for File</hl> in the export options."
-            )
-            return None
-        return os.path.splitext(blend_path)[0] + ".fbx"
+        btk.FbxUtils.export(
+            filepath=out_path,
+            selection_only=options["selection_only"],
+            object_types=object_types,
+            use_tspace=options["include_tangents"],
+            path_mode="COPY" if options["embed_textures"] else "AUTO",
+            embed_textures=options["embed_textures"],
+        )
 
     def b011(self):
         """Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type

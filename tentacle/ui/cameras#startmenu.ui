@@ -291,7 +291,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Camera: Pan</string>
+              <string>Camera: Orbit</string>
              </property>
              <property name="text">
               <string>Orbit</string>
@@ -520,6 +520,9 @@
             <width>999</width>
             <height>21</height>
            </size>
+          </property>
+          <property name="toolTip">
+           <string>Align the view to the selected object.</string>
           </property>
           <property name="text">
            <string>Align</string>

@@ -143,7 +143,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             widget.refresh_on_show = True
             widget.fixed_item_height = 18
             widget.apply_preset(
-                "expand_right" if widget.ui.has_tags("submenu") else "header_menu"
+                "expand_right" if widget.ui.has_tags("submenu") else "hover_menu"
             )
             widget._assign_list_configured = True
             # Ensure cmb002 is populated so we can read currentData below.
@@ -250,7 +250,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
         )
 
         root = widget.add("Tools")
@@ -438,6 +438,17 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             if icon:
                 widget.setItemIcon(i, icon)
 
+    #: objectNames of the cmb002 option-box list-filter checkboxes. The label
+    #: shown when one is reported comes off the widget itself — a second copy
+    #: here would be free to drift from the text the user actually sees.
+    _LIST_FILTERS = ("chk_hide_defaults", "chk_hide_arnold")
+
+    def _list_filter(self, name: str):
+        """The named cmb002 option-box filter checkbox, or None if not built yet."""
+        option_box = self.ui.cmb002.option_box
+        menu = option_box.get_menu(create=False) if option_box else None
+        return getattr(menu, name, None) if menu else None
+
     def _list_option(self, name: str) -> bool:
         """Whether the named cmb002 option-box list-filter checkbox is checked.
 
@@ -445,10 +456,16 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         a population pass that runs before init is safe (each filter's "off"
         state is the unfiltered one).
         """
-        option_box = self.ui.cmb002.option_box
-        menu = option_box.get_menu(create=False) if option_box else None
-        chk = getattr(menu, name, None) if menu else None
+        chk = self._list_filter(name)
         return bool(chk and chk.isChecked())
+
+    def _list_filter_names(self):
+        """Labels of the cmb002 list filters currently enabled (see MaterialsMixin)."""
+        return [
+            chk.text()
+            for chk in map(self._list_filter, self._LIST_FILTERS)
+            if chk is not None and chk.isChecked()
+        ]
 
     def _collision_mode_is_alpha(self):
         """Read the persistent toggle on the lbl007 option box.
@@ -922,21 +939,31 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         # The panel is DCC-agnostic: it owns the Scope picker, we own what each
         # scope means here. Providers are called at tool time, so they always
         # read the *current* selection rather than whatever was live at launch.
+        def _paths(**scope):
+            """Texture paths for one scope, minus the maps Maya ships itself.
+
+            Every tool on this panel WRITES (optimize, convert, repack), and a
+            StingrayPBS material carries file nodes for Maya's own preset
+            environment maps under MAYA_LOCATION — a read-only tree, so feeding
+            them in only ever produced a PermissionError per selected shader.
+            """
+            return mtk.MatUtils.get_texture_paths(exclude_bundled=True, **scope)
+
         def _from_objects():
             sel = cmds.ls(selection=True, long=True) or []
-            return mtk.MatUtils.get_texture_paths(objects=sel) if sel else []
+            return _paths(objects=sel) if sel else []
 
         def _from_materials():
             mats = cmds.ls(selection=True, materials=True) or []
-            return mtk.MatUtils.get_texture_paths(materials=mats) if mats else []
+            return _paths(materials=mats) if mats else []
 
         def _from_file_nodes():
             nodes = cmds.ls(selection=True, type="file") or []
-            return mtk.MatUtils.get_texture_paths(file_nodes=nodes) if nodes else []
+            return _paths(file_nodes=nodes) if nodes else []
 
         def _from_chosen_materials():
             mats = self._choose_scene_materials()
-            return mtk.MatUtils.get_texture_paths(materials=mats) if mats else []
+            return _paths(materials=mats) if mats else []
 
         for label, provider in (
             ("Selected Objects", _from_objects),

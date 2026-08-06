@@ -25,7 +25,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
-  <property name="balette" stdset="0">
+  <property name="palette" stdset="0">
    <palette>
     <active>
      <colorrole role="ButtonText">
@@ -96,7 +96,7 @@
      <height>0</height>
     </size>
    </property>
-   <property name="balette" stdset="0">
+   <property name="palette" stdset="0">
     <palette>
      <active>
       <colorrole role="Highlight">
@@ -218,7 +218,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Edit the crease value of any selected components.</string>
+            <string>Crease the selected edges (subdivision sharpness).
+
+Use the option box to set the crease amount and an optional smoothing angle.</string>
            </property>
            <property name="text">
             <string>Crease</string>
@@ -263,7 +265,7 @@
            <property name="flat">
             <bool>false</bool>
            </property>
-           <property name="bnabled" stdset="0">
+           <property name="enabled" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
