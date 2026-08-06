@@ -181,7 +181,7 @@ class Nurbs(SlotsBlender):
         ``_LIST000_COMMANDS`` (bpy ops/props instead of MEL strings)."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
         )
 
         root = widget.add("Nurbs")

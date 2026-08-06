@@ -501,12 +501,12 @@ class Selection(SlotsBlender):
         """Select by Type: hierarchical type list."""
         submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up" if submenu else "header_menu")
+        widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add("By Type")
 
         # Settings entry, positioned nearest the trigger row in both hosts —
         # last in the submenu (expand_up: last-added sits at the bottom, by
-        # the trigger), first in the panel (header_menu fans right with its
+        # the trigger), first in the panel (hover_menu fans right with its
         # top row aligned to the trigger): a
         # slot-wired button with a settings-gear prefix icon (set in
         # tb004_init) and no option box, so it stays a plain list row. Its

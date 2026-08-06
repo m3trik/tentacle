@@ -64,7 +64,7 @@ class DisplaySlots(SlotsBlender):
 
     def header_init(self, widget):
         """Header menu: the submenu's Display expandable list — hover a row to
-        fan its flyout right (the shared list000_init applies the header_menu
+        fan its flyout right (the shared list000_init applies the hover_menu
         preset here)."""
         # List leaves are one-shot actions — dismiss the menu once one is
         # triggered (category rows only navigate).
@@ -78,7 +78,7 @@ class DisplaySlots(SlotsBlender):
         """Initialize Display expandable list (categories → actions)."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_overlay_left" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_overlay_left" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add("Display")
         for category, items in self._LIST000_ITEMS.items():

@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-04_
+_Generated: 2026-08-06_
 
 ## Index
 
@@ -141,7 +141,7 @@ Shared HUD warning framework (DCC-agnostic).
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L56)** — DCC-agnostic ``materials`` slot behavior.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L63)** — DCC-agnostic ``materials`` slot behavior.
   - `MaterialsMixin.lbl005(self)` — Rename the current material.
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
 

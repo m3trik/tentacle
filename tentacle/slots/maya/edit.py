@@ -19,7 +19,7 @@ class Edit(EditMixin, SlotsMaya):
         widget.menu.hide_on_trigger = True
         # Submenu expandable lists surfaced in the panel: Create / Convert
         # rows whose flyouts fan right on hover (the shared listNNN_init
-        # applies the header_menu preset here).
+        # applies the hover_menu preset here).
         for list_name in ("list000", "list001"):
             widget.menu.add(
                 self.sb.registered_widgets.ExpandableList,
@@ -598,7 +598,7 @@ class Edit(EditMixin, SlotsMaya):
         """Initialize Create Primitives list."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_left" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_left" if widget.ui.has_tags("submenu") else "hover_menu"
         )
 
         root = widget.add("Create")
@@ -740,7 +740,7 @@ class Edit(EditMixin, SlotsMaya):
         """Initialize Convert list."""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_down" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_down" if widget.ui.has_tags("submenu") else "hover_menu"
         )
 
         root = widget.add("Convert")

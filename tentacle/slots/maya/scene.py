@@ -141,7 +141,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         destination label track the open scene) for the same reason.
         """
         widget.fixed_item_height = 18
-        widget.apply_preset("header_menu")
+        widget.apply_preset("hover_menu")
         root = widget.add(
             "Tools",
             setToolTip="Scene bridges, management, recovery, fixes and diagnostics.",
@@ -311,7 +311,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         # (expand_down would hang the sublist below it instead). The panel's
         # header-menu row fans right on hover instead.
         widget.apply_preset(
-            "expand_overlay" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add(
             "Import",
@@ -389,13 +389,13 @@ class SceneSlots(SceneMixin, SlotsMaya):
         Scene (the tb003 PushButton folded in from the old submenu button,
         option-box gear and all) closest to the cursor, with the one-shot
         actions that used to live on the Export combobox stacking above them.
-        The panel's header_menu flyout fans right with its top row aligned to
+        The panel's hover_menu flyout fans right with its top row aligned to
         the trigger, so the same rows are added in the opposite order: tools
         first (top, nearest the trigger), one-shots below in natural order.
         """
         submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_up" if submenu else "header_menu")
+        widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add(
             "Export",
             setToolTip="Export the scene or selection (FBX, Send To, presets).",
@@ -438,7 +438,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         """Initialize Recent Files"""
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_up" if widget.ui.has_tags("submenu") else "header_menu"
+            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         recent_files = mtk.get_recent_files(slice(0, 11))
         w1 = widget.add("Recent Files")

@@ -97,7 +97,7 @@ class Animation(SlotsBlender):
         """
         submenu = widget.ui.has_tags("submenu")
         widget.fixed_item_height = 18
-        widget.apply_preset("expand_overlay_up_left" if submenu else "header_menu")
+        widget.apply_preset("expand_overlay_up_left" if submenu else "hover_menu")
         root = widget.add(
             "Tools",
             setToolTip="Sequencing, repair, bake, playback and info tools.",

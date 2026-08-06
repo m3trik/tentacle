@@ -152,19 +152,25 @@ class TestB003UnassignedFallthrough(unittest.TestCase):
 
 
 class _FakeCombo:
-    """cmb002 stand-in. ``items`` mimics the list filters: a value that isn't in
+    """cmb002 stand-in. ``items`` mimics a restricted list: a value that isn't in
     it resolves to index 0, exactly as ``ComboBox.setAsCurrent`` does."""
 
     def __init__(self, current=None, items=None):
         self.current = current
         self.items = items
         self.init_calls = 0
+        self.added = []
 
     def currentData(self):
         return self.current
 
     def init_slot(self):
         self.init_calls += 1
+
+    def addItem(self, text, data):
+        self.added.append((text, data))
+        if self.items is not None:
+            self.items.append(data)
 
     def setAsCurrent(self, value):
         if self.items is not None and value not in self.items:
@@ -176,8 +182,9 @@ class _FakeCombo:
 class _AdoptHost(MaterialsMixin):
     """Host for the shared adopt path — ``_selection_mats`` is the DCC hook."""
 
-    def __init__(self, mats, current=None, items=None):
+    def __init__(self, mats, current=None, items=None, filters=()):
         self._mats = mats
+        self._filters = filters
         self.messages = []
         self.ui = type("_UI", (), {})()
         self.ui.cmb002 = _FakeCombo(current, items)
@@ -185,6 +192,9 @@ class _AdoptHost(MaterialsMixin):
 
     def _selection_mats(self):
         return self._mats
+
+    def _list_filter_names(self):
+        return self._filters
 
 
 class TestAdoptSelectionMat(unittest.TestCase):
@@ -233,14 +243,19 @@ class TestAdoptSelectionMat(unittest.TestCase):
 class TestAdoptRejectsAFilteredMaterial(unittest.TestCase):
     """``ComboBox.setAsCurrent`` falls back to INDEX 0 for a missing item.
 
-    A cmb002 list filter ("Hide Default Materials" / "Hide Arnold Shaders") can
-    drop the found material from the list — Maya's default shader is exactly the
-    material an unshaded object reports — so adopting it would silently leave an
-    unrelated material current and then select by THAT.
+    An ENABLED cmb002 list filter ("Hide Default Materials" / "Hide Arnold
+    Shaders") can drop the found material from the list — Maya's default shader
+    is exactly the material an unshaded object reports — so adopting it would
+    silently leave an unrelated material current and then select by THAT.
     """
 
     def _host(self):  # 'matA' is filtered out of the list; 'matZ' is current
-        return _AdoptHost(["matA"], current="matZ", items=["matB", "matZ"])
+        return _AdoptHost(
+            ["matA"],
+            current="matZ",
+            items=["matB", "matZ"],
+            filters=("Hide Default Materials",),
+        )
 
     def test_filtered_material_is_not_adopted(self):
         self.assertIsNone(self._host()._adopt_selection_mat())
@@ -250,12 +265,29 @@ class TestAdoptRejectsAFilteredMaterial(unittest.TestCase):
         host._adopt_selection_mat()
         self.assertEqual(host.ui.cmb002.current, "matZ")
 
-    def test_the_filter_is_reported(self):
+    def test_the_filter_is_reported_by_name(self):
         host = self._host()
         host._adopt_selection_mat()
         self.assertEqual(len(host.messages), 1)
         self.assertIn("matA", host.messages[0])
-        self.assertIn("filter", host.messages[0].lower())
+        self.assertIn("Hide Default Materials", host.messages[0])
+
+    def test_every_enabled_filter_is_named(self):
+        host = _AdoptHost(
+            ["matA"],
+            current="matZ",
+            items=["matB", "matZ"],
+            filters=("Hide Default Materials", "Hide Arnold Shaders"),
+        )
+        host._adopt_selection_mat()
+        self.assertIn("Hide Default Materials", host.messages[0])
+        self.assertIn("Hide Arnold Shaders", host.messages[0])
+
+    def test_a_filtered_material_is_not_forced_into_the_list(self):
+        """The filter is the user's setting — respect it instead of overriding."""
+        host = self._host()
+        host._adopt_selection_mat()
+        self.assertEqual(host.ui.cmb002.added, [])
 
     def test_unfiltered_material_still_adopts(self):
         host = _AdoptHost(["matA"], current="matZ", items=["matA", "matZ"])
@@ -268,6 +300,54 @@ class TestAdoptRejectsAFilteredMaterial(unittest.TestCase):
         host = self._host()
         host._adopt_selection_mat(" Proceeding with current material.")
         self.assertTrue(host.messages[0].endswith(" Proceeding with current material."))
+
+
+class TestAdoptWithNoFilterEnabled(unittest.TestCase):
+    """A material the list simply doesn't carry is NOT a filtered material.
+
+    ``cmds.ls(materials=True)`` reports ``defaultShaderList1`` only, so a shader
+    built with ``createNode`` (or wired up by an importer) is assigned to the
+    geometry yet absent from the combo. Blaming the list filters sent the user to
+    an option box whose boxes were already unchecked; with no filter enabled the
+    found material is added to the combo and adopted instead, because every
+    consumer of cmb002 works on the name and the node is real.
+    """
+
+    def _host(self):  # 'matA' is missing from the list, and NO filter is on
+        return _AdoptHost(["matA"], current="matZ", items=["matB", "matZ"])
+
+    def test_missing_material_is_adopted_anyway(self):
+        self.assertEqual(self._host()._adopt_selection_mat(), "matA")
+
+    def test_it_is_added_to_the_combo(self):
+        host = self._host()
+        host._adopt_selection_mat()
+        self.assertEqual(host.ui.cmb002.added, [("matA", "matA")])
+        self.assertEqual(host.ui.cmb002.current, "matA")
+
+    def test_no_failure_is_reported(self):
+        host = self._host()
+        host._adopt_selection_mat()
+        self.assertEqual(host.messages, [])
+
+    def test_the_added_row_drops_any_dag_path(self):
+        """The combo lists leaf names — the data keeps the full name."""
+        host = _AdoptHost(["|grp|matA"], current="matZ", items=["matZ"])
+        host._adopt_selection_mat()
+        self.assertEqual(host.ui.cmb002.added, [("matA", "|grp|matA")])
+
+    def test_default_hook_reports_no_filters(self):
+        """Blender's combo has none, so the mixin default must be empty."""
+        self.assertEqual(tuple(MaterialsMixin._list_filter_names(object())), ())
+
+    def test_a_combo_that_cannot_take_it_reports_without_blaming_a_filter(self):
+        """Belt-and-braces: if the adopt-anyway doesn't land, say so plainly
+        rather than sending the user to an option box with nothing enabled."""
+        host = _AdoptHost(["matA"], current="matZ", items=["matB", "matZ"])
+        host.ui.cmb002.addItem = lambda *_: None  # list refuses the entry
+        self.assertIsNone(host._adopt_selection_mat())
+        self.assertIn("matA", host.messages[0])
+        self.assertNotIn("filter", host.messages[0].lower())
 
 
 class _AstMixin:
@@ -300,6 +380,53 @@ class _AstMixin:
             and isinstance(n.func.value, ast.Name)
             and n.func.value.id == "self"
         }
+
+
+class TestMayaReportsItsRealFilterLabels(_AstMixin, unittest.TestCase):
+    """The reported filter name must be the text on the checkbox, not a copy.
+
+    The failure this guards is the one that produced the bug report: a message
+    naming filters that weren't on. Naming them from a hand-kept table is the
+    same class of mistake one step removed — the label is free to drift from
+    what the option box actually says.
+    """
+
+    def _source(self, name):
+        return ast.unparse(self._method(self._classdef(MAYA_FILE), name))
+
+    def test_labels_are_read_off_the_widget(self):
+        src = self._source("_list_filter_names")
+        self.assertIn(".text()", src, "the label must come from the checkbox itself")
+        self.assertIn("isChecked", src, "only an ENABLED filter may be reported")
+
+    def test_no_hardcoded_label_copy(self):
+        """The literal text lives in cmb002_init's setText and nowhere else."""
+        source = MAYA_FILE.read_text(encoding="utf-8")
+        for label in ("Hide Default Materials", "Hide Arnold Shaders"):
+            with self.subTest(label=label):
+                self.assertEqual(
+                    source.count(f'setText="{label}"'),
+                    1,
+                    f"'{label}' must be declared once, on the checkbox.",
+                )
+
+    def test_every_filter_checkbox_is_registered(self):
+        """A filter missing from _LIST_FILTERS can hide a material unreported."""
+        cls = self._classdef(MAYA_FILE)
+        init_src = ast.unparse(self._method(cls, "cmb002_init"))
+        declared = {
+            e.value
+            for b in cls.body
+            if isinstance(b, ast.Assign)
+            and any(getattr(t, "id", "") == "_LIST_FILTERS" for t in b.targets)
+            for e in b.value.elts
+        }
+        built = {
+            n
+            for n in ("chk_hide_defaults", "chk_hide_arnold")
+            if f"setObjectName='{n}'" in init_src
+        }
+        self.assertEqual(declared, built)
 
 
 class TestBothDccsImplementThePrimitive(_AstMixin, unittest.TestCase):
@@ -426,7 +553,7 @@ class TestAdoptPathIsSharedNotForked(_AstMixin, unittest.TestCase):
         self.assertTrue(callable(getattr(MaterialsMixin, "_adopt_selection_mat", None)))
         self.assertEqual(
             set(MaterialsMixin._GET_MAT_FAILURES),
-            {"empty", "none", "multiple", "filtered"},
+            {"empty", "none", "multiple", "filtered", "unlisted"},
         )
 
     def test_each_dcc_supplies_the_lookup_hook(self):
