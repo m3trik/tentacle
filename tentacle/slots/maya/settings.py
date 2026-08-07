@@ -5,44 +5,28 @@ import os
 import sys
 
 import mayatk as mtk
-import pythontk as ptk
 
 # From this package:
-from tentacle import SlotsMaya
+from tentacle import SettingsMixin, SlotsMaya
 
 
-class Settings(SlotsMaya):
+class Settings(SettingsMixin, SlotsMaya):
+    """Maya fork of the shared ``settings`` menu.
+
+    Everything DCC-agnostic (header Package menu, the ecosystem updater, editor
+    launchers, marking-menu binding combos) lives on ``SettingsMixin``. This class
+    supplies the pip interpreter (mayapy) and Reload Scripts.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = self.sb.loaded_ui.settings
         self.submenu = self.sb.loaded_ui.settings_submenu
 
-    def header_init(self, widget):
-        """Initialize header"""
-        if not widget.is_initialized:
-            # Every entry is a one-shot action — dismiss the menu once one is triggered.
-            widget.menu.hide_on_trigger = True
-            widget.menu.add(
-                self.sb.registered_widgets.Separator,
-                setTitle="Package",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.PushButton,
-                setText="Update Package",
-                setObjectName="tb000",
-                setToolTip="Check for Tentacle package updates.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.PushButton,
-                setText="Reload Scripts",
-                setObjectName="tb001",
-                setToolTip="Reload Tentacle and its core dependencies in the current session.",
-            )
-
-    def tb000(self):
-        """Update Package"""
-        self.check_for_update()
+    def _update_python_path(self) -> str:
+        """The interpreter whose environment the updater checks and upgrades."""
+        return os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
 
     def tb001(self):
         """Reload Tentacle package with its dependencies."""
@@ -140,144 +124,6 @@ class Settings(SlotsMaya):
                 new_instance.show()
         except Exception as error:
             print(f"Tentacle restore failed: {error}")
-
-    def check_for_update(self):
-        """Check for Tentacle package updates"""
-        mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
-        pkg_mgr = ptk.PackageManager(python_path=mayapy)
-        this_pkg = "tentacletk"
-
-        try:
-            latest_ver = pkg_mgr.latest_version(this_pkg)
-            if pkg_mgr.is_outdated(this_pkg):
-                user_choice = self.sb.message_box(
-                    f"<b><hl>{latest_ver}</hl> is available. Do you want to update it?</b>",
-                    "Yes",
-                    "No",
-                )
-                if user_choice == "Yes":
-                    pkg_mgr.update(this_pkg)
-                    self.sb.message_box(
-                        "<b>The package and it's dependencies have been <hl>updated</hl>.</b>"
-                    )
-                else:
-                    self.sb.message_box("<b>The update was cancelled.</b>")
-            else:
-                self.sb.message_box(
-                    f"<b><hl>{latest_ver}</hl> is already the latest version.</b>"
-                )
-
-        except Exception as error:
-            print(f"Update check failed: {error}")
-            self.sb.message_box(
-                "<b>Update check failed.</b><br><small>{}</small>".format(
-                    html.escape(str(error))
-                )
-            )
-
-    def b020(self):
-        """UI Style Editor"""
-        self.sb.editors.show("style")
-
-    def b021(self):
-        """Shortcut Editor"""
-        self.sb.editors.show("shortcut")
-
-    def b022(self):
-        """UI Browser: open the tentacle UI browser (search, show/hide registered UIs)."""
-        self.sb.editors.show("browser")
-
-    def b023(self):
-        """Global Shortcuts: open the shortcut editor focused on the global
-        triggers — the marking-menu activation key, repeat-last, and reopen-last
-        UI. Replaces the inline activation-key / repeat-last key-sequence editors;
-        the marking-menu chord→menu targets stay in the Menu Bindings combos."""
-        self.sb.editors.show("global_shortcuts")
-
-    # -------------------------------------------------------------------------
-    # Marking Menu Bindings
-    # -------------------------------------------------------------------------
-
-    def _get_startmenus(self) -> list:
-        """Available startmenu UIs — via the marking menu's SSoT helper."""
-        mm = self.sb.handlers.marking_menu
-        return mm.start_menu_names(short=False) if mm is not None else []
-
-    def _init_binding_combo(self, widget, buttons):
-        """Initialize a route combo for the activation-key + *buttons* gesture.
-
-        Binds by *gesture* (a button tuple like ``("LeftButton",)``), not a
-        captured key string, so the combo stays correct when the activation key is
-        changed in the shortcut editor. Target get/set delegate to the marking
-        menu (the SSoT), which resolves the gesture against the current key.
-        """
-        widget.restore_state = False  # managed via the marking-menu store, not QSettings
-
-        items = {ui.replace("#startmenu", ""): ui for ui in self._get_startmenus()}
-        widget.clear()
-        widget.add(items)
-
-        mm = self.sb.handlers.marking_menu
-        if mm is not None:
-            mm.on_bindings_changed(lambda _v: self._sync_binding_combo(widget, buttons))
-        self._sync_binding_combo(widget, buttons)
-
-    def _sync_binding_combo(self, widget, buttons):
-        """Reflect the gesture's current target menu in the combo."""
-        mm = self.sb.handlers.marking_menu
-        if mm is None:
-            return
-        try:
-            val = mm.get_route_target(buttons)
-            if val in widget.items and widget.currentData() != val:
-                widget.setCurrentIndex(widget.items.index(val))
-        except (RuntimeError, AttributeError):
-            pass  # widget likely deleted
-
-    def _on_binding_change(self, buttons, widget):
-        """Persist a route combo change via the marking menu (the SSoT)."""
-        mm = self.sb.handlers.marking_menu
-        if mm is not None and mm.get_route_target(buttons) != widget.currentData():
-            mm.set_route_target(buttons, widget.currentData())
-
-    def cmb_bind_default_init(self, widget):
-        """Default menu (activation key only)."""
-        self._init_binding_combo(widget, ())
-        widget.currentIndexChanged.connect(lambda: self._on_binding_change((), widget))
-
-    def cmb_bind_left_init(self, widget):
-        """Left mouse button."""
-        self._init_binding_combo(widget, ("LeftButton",))
-        widget.currentIndexChanged.connect(
-            lambda: self._on_binding_change(("LeftButton",), widget)
-        )
-
-    def cmb_bind_middle_init(self, widget):
-        """Middle mouse button."""
-        self._init_binding_combo(widget, ("MiddleButton",))
-        widget.currentIndexChanged.connect(
-            lambda: self._on_binding_change(("MiddleButton",), widget)
-        )
-
-    def cmb_bind_right_init(self, widget):
-        """Right mouse button."""
-        self._init_binding_combo(widget, ("RightButton",))
-        widget.currentIndexChanged.connect(
-            lambda: self._on_binding_change(("RightButton",), widget)
-        )
-
-    def cmb_bind_left_right_init(self, widget):
-        """Left + Right mouse buttons."""
-        self._init_binding_combo(widget, ("LeftButton", "RightButton"))
-        widget.currentIndexChanged.connect(
-            lambda: self._on_binding_change(("LeftButton", "RightButton"), widget)
-        )
-
-    def b_reset_bindings(self):
-        """Reset marking-menu bindings (routes + activation key) to defaults."""
-        mm = self.sb.handlers.marking_menu
-        if mm is not None:
-            mm.bindings = getattr(mm, "default_bindings", {})
 
 
 # -------------------------------------------------------------------------------------------

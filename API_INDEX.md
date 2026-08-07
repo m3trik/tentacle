@@ -23,9 +23,17 @@ _Generated: 2026-08-07_
 - `class PreferencesMixin`
   - methods: cmb004_init, cmb004, cmb005_init, cmb005
 
+### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
+- `class RenderingMixin`
+  - methods: webxr_init, webxr_push
+
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
   - methods: tb003, tb002_init, tb002
+
+### `slots/_settings.py` — Shared, DCC-agnostic behavior for the ``settings`` panel.
+- `class SettingsMixin`
+  - methods: header_init, tb000, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
@@ -115,8 +123,8 @@ _Generated: 2026-08-07_
   - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010, b011
 
 ### `slots/blender/rendering.py`
-- `class Rendering(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, b001, b003, b004
+- `class Rendering(RenderingMixin, SlotsBlender)`
+  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b001, b003, b004
 
 ### `slots/blender/rigging.py`
 - `class Rigging(SlotsBlender)`
@@ -131,8 +139,8 @@ _Generated: 2026-08-07_
   - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, cmb003_init, cmb003, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, cmb005_init, cmb005, cmb001_init, cmb001, list000_init, tb004_init, tb004, list000
 
 ### `slots/blender/settings.py`
-- `class Settings(SlotsBlender)`
-  - methods: header_init, tb000, tb001, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
+- `class Settings(SettingsMixin, SlotsBlender)`
+  - methods: tb001
 
 ### `slots/blender/subdivision.py`
 - `class Subdivision(SlotsBlender)`
@@ -304,8 +312,8 @@ _Generated: 2026-08-07_
 - `class Render(SlotsMaya)`
 
 ### `slots/maya/rendering.py`
-- `class Rendering(SlotsMaya)`
-  - methods: tb000_init, tb000, tb001_init, tb001, b001, b003, b004
+- `class Rendering(RenderingMixin, SlotsMaya)`
+  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b001, b003, b004
 
 ### `slots/maya/rigging.py`
 - `class Rigging(SlotsMaya)`
@@ -323,8 +331,8 @@ _Generated: 2026-08-07_
   - methods: list000_init, list000, tb004_init, tb004, cmb001_init, cmb001, cmb003_init, cmb003, cmb005_init, cmb005, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
 
 ### `slots/maya/settings.py`
-- `class Settings(SlotsMaya)`
-  - methods: header_init, tb000, tb001, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
+- `class Settings(SettingsMixin, SlotsMaya)`
+  - methods: tb001
 
 ### `slots/maya/skeleton.py`
 - `class SkeletonSlots(SlotsMaya)`

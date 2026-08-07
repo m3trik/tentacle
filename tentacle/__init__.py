@@ -29,7 +29,9 @@ DEFAULT_INCLUDE = {
     "slots._hud_warnings": "HudWarningsMixin",
     "slots._materials": "MaterialsMixin",
     "slots._preferences": "PreferencesMixin",
+    "slots._rendering": "RenderingMixin",
     "slots._scene": "SceneMixin",
+    "slots._settings": "SettingsMixin",
     "slots._uv": "UvMixin",
 }
 

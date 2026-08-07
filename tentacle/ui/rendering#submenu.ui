@@ -109,18 +109,74 @@
      <string>Render</string>
     </property>
    </widget>
+   <widget class="PushButton" name="tb000">
+    <property name="geometry">
+     <rect>
+      <x>335</x>
+      <y>260</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Export the current frame range sequence from the perspective camera viewport to the desktop.</string>
+    </property>
+    <property name="text">
+     <string>Export Playblast</string>
+    </property>
+   </widget>
+   <widget class="PushButton" name="tb002">
+    <property name="geometry">
+     <rect>
+      <x>335</x>
+      <y>320</y>
+      <width>111</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>19</height>
+     </size>
+    </property>
+    <property name="toolTip">
+     <string>Push the selection to a live WebXR preview in your browser. Serves on localhost, so a connected headset can enter VR. Use the option box for scope and textures.</string>
+    </property>
+    <property name="text">
+     <string>WebXR Preview</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MenuButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.menubutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

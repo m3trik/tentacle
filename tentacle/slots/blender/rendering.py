@@ -2,10 +2,10 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import RenderingMixin, SlotsBlender
 
 
-class Rendering(SlotsBlender):
+class Rendering(RenderingMixin, SlotsBlender):
     """Blender port of the shared ``rendering`` menu.
 
     Render-frame / show-last-render map onto ``render.render`` / ``render.view_show``;
@@ -356,6 +356,31 @@ class Rendering(SlotsBlender):
         # engine identifier this Blender doesn't register (invalid enum assignment).
         except (RuntimeError, TypeError, ReferenceError) as e:
             self.sb.message_box(str(e))
+
+    # ------------------------------------------------------------------ tb002  WebXR Preview
+    # Shared flow (option box + push) lives in RenderingMixin — same
+    # objectNames per the cross-DCC QSettings rule. Only what is Blender's
+    # stays here: the selection read, the engine class, the log location, and
+    # the sidecar tooltip naming what Blender's FBX exporter loses.
+    def tb002_init(self, widget):
+        """WebXR Preview: scope and export options for the live browser preview."""
+        self.webxr_init(
+            widget,
+            sidecar_tooltip="Carry extended scene setup the FBX cannot express, applied "
+            "to the preview after conversion. Today: emissive (the FBX clamps colour × "
+            "strength to LDR) and constant base colours, both read from the Principled "
+            "BSDF instead. Uncheck to preview exactly what the FBX itself carried — the "
+            "way to tell something the exporter dropped from something it mistranslated.",
+        )
+
+    def tb002(self, widget):
+        """Push the selection to the live WebXR preview."""
+        self.webxr_push(
+            widget,
+            engine=btk.WebXrPreview,
+            has_selection=lambda: bool(btk.selected_objects()),
+            log_hint="script output",
+        )
 
     # ------------------------------------------------------------------ b-slots
     def b001(self):

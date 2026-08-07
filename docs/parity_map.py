@@ -36,10 +36,12 @@ CONTROLS = {
         "select_bridged": {"status": "na", "reason": "Cycles/EEVEE read one Principled BSDF graph -- there is no parallel Arnold-preview material to select back to (see _NOT_AVAILABLE in blendertk's arnold_bridge.py)"},
     },
     # mayatk file stem is scene_exporter/_scene_exporter.py. Ported 2026-07-04 -- cmb000 (FBX
-    # export-option preset combo) and its option-box b003/b004/b007/b008 are real, built 1:1 by
+    # export-option preset combo) and its option-box b007/b008 are real, built 1:1 by
     # objectName against a pythontk.PresetStore-backed named-JSON-dict preset engine (see
     # blendertk/blendertk/env_utils/scene_exporter/_scene_exporter.py's module docstring for why
     # that design was chosen over Blender's native bl_options={'PRESET'} operator-preset system).
+    # b003/b004 (Add/Delete Preset) were dropped from BOTH panels 2026-08-06 -- a preset is a
+    # plain file, so it is added/deleted in the preset directory b007 opens.
     # No entry needed here anymore -- nothing to ledger.
     # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
     # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-

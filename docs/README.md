@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-679%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-688%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
@@ -12,13 +12,23 @@ Built on [`uitk.MarkingMenu`](../../uitk/uitk/widgets/marking_menu/_marking_menu
 
 ## Install
 
+**Maya** (2025+) — install into `mayapy`:
+
 ```bash
 "C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe" -m pip install tentacletk
 ```
 
-Or use the bundled [mayapy package manager](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) — pick your Maya version, press `1`, type `tentacletk`.
+**Blender** (4.x+) — same package, into Blender's bundled Python:
 
-Requires Python 3.9+ and Qt via `qtpy` (PySide2 or PySide6). The upstream toolkit packages [`pythontk`](https://github.com/m3trik/pythontk), [`uitk`](https://github.com/m3trik/uitk), and [`mayatk`](https://github.com/m3trik/mayatk) are pulled in automatically.
+```bash
+"C:/Program Files/Blender Foundation/Blender 5.1/5.1/python/bin/python.exe" -m pip install tentacletk
+```
+
+Prefer a menu? Download and run the package manager for your DCC — [mayapy-package-manager.bat](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) / [blenderpy-package-manager.bat](https://github.com/m3trik/blendertk/blob/master/blendertk/env_utils/blenderpy-package-manager.bat) — pick your DCC version, press `1`, type `tentacletk`. Each is a self-sufficient single-file download.
+
+Requires Python 3.9+ and a Qt binding (PySide2 or PySide6 — Maya ships its own; Blender's Qt-less Python gets PySide6 pip-installed automatically on first launch). The upstream toolkit packages [`pythontk`](https://github.com/m3trik/pythontk), [`uitk`](https://github.com/m3trik/uitk) (with the `qtpy` shim), [`mayatk`](https://github.com/m3trik/mayatk), and [`blendertk`](https://github.com/m3trik/blendertk) are pulled in automatically.
+
+Once running, updating is in-app: **Settings → Update Package** checks the whole toolkit against PyPI.
 
 ## Launch
 
@@ -35,6 +45,20 @@ executeDeferred(start_tentacle)
 ```
 
 `key_show` accepts bare keys (`"Z"`, `"Space"`) or Qt names (`"Key_Z"`); if omitted it defaults to `F12`.
+
+In Blender, save this as `tentacle_startup.py` in your user startup folder (`%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`):
+
+```python
+import bpy
+
+def _start_tentacle():
+    from tentacle import tcl_blender
+    tcl_blender.register()  # hosts Qt + wires the activation key
+
+bpy.app.timers.register(_start_tentacle, first_interval=0.5)
+```
+
+The Blender activation key defaults to `F12`; override with the `TENTACLE_KEY` environment variable (e.g. `Z`).
 
 ## Bindings
 

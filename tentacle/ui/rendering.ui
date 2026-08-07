@@ -140,6 +140,28 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="PushButton" name="tb002">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Push the selection to a live WebXR preview in your browser. Serves on localhost, so a connected headset can enter VR. Use the option box for scope and textures.</string>
+           </property>
+           <property name="text">
+            <string>WebXR Preview</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
