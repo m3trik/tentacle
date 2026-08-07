@@ -6,11 +6,11 @@ from typing import List
 import maya.cmds as cmds
 import maya.mel as mel
 
-from tentacle import SlotsMaya
+from tentacle import RenderingMixin, SlotsMaya
 import mayatk as mtk
 
 
-class Rendering(SlotsMaya):
+class Rendering(RenderingMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -460,6 +460,34 @@ class Rendering(SlotsMaya):
         else:
             mtk.RenderUtils.render_camera(camera)
             self._last_render_key = key
+
+    # ------------------------------------------------------------------ tb002  WebXR Preview
+    # Deliberately its own button rather than an option on tb001: a WebXR preview
+    # publishes geometry to a browser, it does not raster a frame, so every option
+    # tb001 carries (camera, renderer, Arnold network, IPR, smart redo) is
+    # meaningless to it — the sign the two don't belong on one control.
+    # Shared flow lives in RenderingMixin; only what is Maya's stays here.
+    def tb002_init(self, widget):
+        """WebXR Preview: scope and export options for the live browser preview."""
+        self.webxr_init(
+            widget,
+            sidecar_tooltip="Carry extended scene setup the FBX cannot express, applied "
+            "to the preview after conversion. Today: emissive and base colour — Maya's "
+            "FBX exporter maps both only for lambert/blinn/phong, so aiStandardSurface, "
+            "StingrayPBS and openPBR are read from the material instead. Uncheck to "
+            "preview exactly what the FBX itself carried — the way to tell something "
+            "the exporter dropped from something it mistranslated.",
+        )
+
+    @SlotsMaya.Cancelable(600)
+    def tb002(self, widget):
+        """Push the selection to the live WebXR preview."""
+        self.webxr_push(
+            widget,
+            engine=mtk.WebXrPreview,
+            has_selection=lambda: bool(cmds.ls(selection=True)),
+            log_hint="script editor",
+        )
 
     def b001(self):
         """Open Render Settings Window"""

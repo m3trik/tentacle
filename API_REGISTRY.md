@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-06_
+_Generated: 2026-08-07_
 
 ## Index
 
@@ -11,7 +11,9 @@ _Generated: 2026-08-06_
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
+- [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
+- [`slots/_settings.py`](#slots--_settings) — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
@@ -113,7 +115,7 @@ _Generated: 2026-08-06_
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L43) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L45) — Format a string using preset variables.
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -156,6 +158,15 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
   - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
 
+<a id="slots--_rendering"></a>
+### `slots/_rendering.py`
+
+Shared, DCC-agnostic behavior for the ``rendering`` panel.
+
+- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L22)** — DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).
+  - `RenderingMixin.webxr_init(self, widget, sidecar_tooltip)` — Build the WebXR Preview option box (``rendering.tb002``).
+  - `RenderingMixin.webxr_push(self, widget, engine, has_selection, log_hint)` — Read the option box and push to the live preview (``rendering.tb002``).
+
 <a id="slots--_scene"></a>
 ### `slots/_scene.py`
 
@@ -165,6 +176,26 @@ Behavior shared by the Maya and Blender ``scene`` panels.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
+
+<a id="slots--_settings"></a>
+### `slots/_settings.py`
+
+Shared, DCC-agnostic behavior for the ``settings`` panel.
+
+- **[`class SettingsMixin`](tentacle/tentacle/slots/_settings.py#L18)** — DCC-agnostic ``settings`` slot behavior.
+  - `SettingsMixin.header_init(self, widget)` — Initialize header
+  - `SettingsMixin.tb000(self)` — Update Package
+  - `SettingsMixin.check_for_update(self)` — Check the whole ecosystem for updates and upgrade what's outdated.
+  - `SettingsMixin.b020(self)` — UI Style Editor
+  - `SettingsMixin.b021(self)` — Shortcut Editor
+  - `SettingsMixin.b022(self)` — UI Browser: open the tentacle UI browser (search, show/hide registered UIs).
+  - `SettingsMixin.b023(self)` — Global Shortcuts: open the shortcut editor focused on the global
+  - `SettingsMixin.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
+  - `SettingsMixin.cmb_bind_left_init(self, widget)` — Left mouse button.
+  - `SettingsMixin.cmb_bind_middle_init(self, widget)` — Middle mouse button.
+  - `SettingsMixin.cmb_bind_right_init(self, widget)` — Right mouse button.
+  - `SettingsMixin.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
+  - `SettingsMixin.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -541,11 +572,13 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
 
-- **[`class Rendering(SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L8)** — Blender port of the shared ``rendering`` menu.
+- **[`class Rendering(RenderingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L8)** — Blender port of the shared ``rendering`` menu.
   - `Rendering.tb000_init(self, widget)`
   - `Rendering.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the chosen frame range / format).
   - `Rendering.tb001_init(self, widget)` — Render: pick the camera and renderer, then render the current frame.
   - `Rendering.tb001(self, widget)` — Render Current Frame
+  - `Rendering.tb002_init(self, widget)` — WebXR Preview: scope and export options for the live browser preview.
+  - `Rendering.tb002(self, widget)` — Push the selection to the live WebXR preview.
   - `Rendering.b001(self)` — Render Settings (Properties editor, Render tab)
   - `Rendering.b003(self)` — Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**
   - `Rendering.b004(self)` — Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray
@@ -636,20 +669,8 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--settings"></a>
 ### `slots/blender/settings.py`
 
-- **[`class Settings(SlotsBlender)`](tentacle/tentacle/slots/blender/settings.py#L10)** — Blender port of the shared ``settings`` menu.
-  - `Settings.header_init(self, widget)`
-  - `Settings.tb000(self)` — Update Package (PyPI check via Blender's bundled python — sys.executable).
+- **[`class Settings(SettingsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/settings.py#L9)** — Blender fork of the shared ``settings`` menu.
   - `Settings.tb001(self)` — Reload Scripts (tear down, reload the tentacle ecosystem in place, re-register).
-  - `Settings.b020(self)` — UI Style Editor
-  - `Settings.b021(self)` — Shortcut Editor
-  - `Settings.b022(self)` — UI Browser
-  - `Settings.b023(self)` — Global Shortcuts: focused shortcut editor for the global triggers
-  - `Settings.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
-  - `Settings.cmb_bind_left_init(self, widget)` — Left mouse button.
-  - `Settings.cmb_bind_middle_init(self, widget)` — Middle mouse button.
-  - `Settings.cmb_bind_right_init(self, widget)` — Right mouse button.
-  - `Settings.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
-  - `Settings.b_reset_bindings(self)` — Reset marking-menu bindings to defaults.
 
 <a id="slots--blender--subdivision"></a>
 ### `slots/blender/subdivision.py`
@@ -1242,11 +1263,13 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--rendering"></a>
 ### `slots/maya/rendering.py`
 
-- **[`class Rendering(SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L13)**
+- **[`class Rendering(RenderingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L13)**
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
   - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, Arnold network, IPR, and smart redo.
   - `Rendering.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
+  - `Rendering.tb002_init(self, widget)` — WebXR Preview: scope and export options for the live browser preview.
+  - `Rendering.tb002(self, widget)` — Push the selection to the live WebXR preview.
   - `Rendering.b001(self)` — Open Render Settings Window
   - `Rendering.b003(self)` — Editor: Render Setup
   - `Rendering.b004(self)` — Editor: Rendering Flags
@@ -1351,21 +1374,8 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--settings"></a>
 ### `slots/maya/settings.py`
 
-- **[`class Settings(SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L14)**
-  - `Settings.header_init(self, widget)` — Initialize header
-  - `Settings.tb000(self)` — Update Package
+- **[`class Settings(SettingsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L13)** — Maya fork of the shared ``settings`` menu.
   - `Settings.tb001(self)` — Reload Tentacle package with its dependencies.
-  - `Settings.check_for_update(self)` — Check for Tentacle package updates
-  - `Settings.b020(self)` — UI Style Editor
-  - `Settings.b021(self)` — Shortcut Editor
-  - `Settings.b022(self)` — UI Browser: open the tentacle UI browser (search, show/hide registered UIs).
-  - `Settings.b023(self)` — Global Shortcuts: open the shortcut editor focused on the global
-  - `Settings.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
-  - `Settings.cmb_bind_left_init(self, widget)` — Left mouse button.
-  - `Settings.cmb_bind_middle_init(self, widget)` — Middle mouse button.
-  - `Settings.cmb_bind_right_init(self, widget)` — Right mouse button.
-  - `Settings.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
-  - `Settings.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`

@@ -639,6 +639,19 @@ class Edit(EditMixin, SlotsMaya):
                 "Area",
                 "Volume",
             ],
+            # Arnold lights are a separate category, not extra entries under
+            # "Light": a native Maya areaLight and an aiAreaLight are not
+            # interchangeable at render time, and picking the Maya one for an
+            # Arnold render is the mistake this category exists to prevent.
+            # Dispatches to Primitives' "arnold" base type (mtoa loads on
+            # demand there); the generic else-branch below already routes it.
+            "Arnold": [
+                "Area",
+                "Skydome",
+                "Mesh",
+                "Photometric",
+                "Portal",
+            ],
             "Control": [
                 "Diamond",
                 "Arrow",

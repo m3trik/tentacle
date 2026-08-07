@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-06",
+  "generated_at": "2026-08-07",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -13,7 +13,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 43,
+          "line": 45,
           "deprecated": false
         }
       ],
@@ -197,6 +197,39 @@
       ]
     },
     {
+      "relpath": "slots/_rendering.py",
+      "summary": "Shared, DCC-agnostic behavior for the ``rendering`` panel.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RenderingMixin",
+          "summary": "DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).",
+          "line": 22,
+          "bases": [],
+          "members": [
+            {
+              "name": "webxr_init",
+              "qualname": "RenderingMixin.webxr_init",
+              "kind": "method",
+              "signature": "(self, widget, sidecar_tooltip)",
+              "summary": "Build the WebXR Preview option box (``rendering.tb002``).",
+              "line": 25,
+              "deprecated": false
+            },
+            {
+              "name": "webxr_push",
+              "qualname": "RenderingMixin.webxr_push",
+              "kind": "method",
+              "signature": "(self, widget, engine, has_selection, log_hint)",
+              "summary": "Read the option box and push to the live preview (``rendering.tb002``).",
+              "line": 73,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "slots/_scene.py",
       "summary": "Behavior shared by the Maya and Blender ``scene`` panels.",
       "functions": [],
@@ -232,6 +265,138 @@
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
               "line": 389,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/_settings.py",
+      "summary": "Shared, DCC-agnostic behavior for the ``settings`` panel.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SettingsMixin",
+          "summary": "DCC-agnostic ``settings`` slot behavior.",
+          "line": 18,
+          "bases": [],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "SettingsMixin.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize header",
+              "line": 35,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "SettingsMixin.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Update Package",
+              "line": 57,
+              "deprecated": false
+            },
+            {
+              "name": "check_for_update",
+              "qualname": "SettingsMixin.check_for_update",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Check the whole ecosystem for updates and upgrade what's outdated.",
+              "line": 61,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "SettingsMixin.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Style Editor",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "SettingsMixin.b021",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shortcut Editor",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "SettingsMixin.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "SettingsMixin.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Global Shortcuts: open the shortcut editor focused on the global",
+              "line": 130,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_default_init",
+              "qualname": "SettingsMixin.cmb_bind_default_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Default menu (activation key only).",
+              "line": 183,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_init",
+              "qualname": "SettingsMixin.cmb_bind_left_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left mouse button.",
+              "line": 188,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_middle_init",
+              "qualname": "SettingsMixin.cmb_bind_middle_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Middle mouse button.",
+              "line": 195,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_right_init",
+              "qualname": "SettingsMixin.cmb_bind_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Right mouse button.",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_right_init",
+              "qualname": "SettingsMixin.cmb_bind_left_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left + Right mouse buttons.",
+              "line": 209,
+              "deprecated": false
+            },
+            {
+              "name": "b_reset_bindings",
+              "qualname": "SettingsMixin.b_reset_bindings",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
+              "line": 216,
               "deprecated": false
             }
           ]
@@ -2990,6 +3155,7 @@
           "summary": "Blender port of the shared ``rendering`` menu.",
           "line": 8,
           "bases": [
+            "RenderingMixin",
             "SlotsBlender"
           ],
           "members": [
@@ -3030,12 +3196,30 @@
               "deprecated": false
             },
             {
+              "name": "tb002_init",
+              "qualname": "Rendering.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "WebXR Preview: scope and export options for the live browser preview.",
+              "line": 365,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Rendering.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Push the selection to the live WebXR preview.",
+              "line": 376,
+              "deprecated": false
+            },
+            {
               "name": "b001",
               "qualname": "Rendering.b001",
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 361,
+              "line": 386,
               "deprecated": false
             },
             {
@@ -3044,7 +3228,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 366,
+              "line": 391,
               "deprecated": false
             },
             {
@@ -3053,7 +3237,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 374,
+              "line": 399,
               "deprecated": false
             }
           ]
@@ -3731,127 +3915,20 @@
       "classes": [
         {
           "name": "Settings",
-          "summary": "Blender port of the shared ``settings`` menu.",
-          "line": 10,
+          "summary": "Blender fork of the shared ``settings`` menu.",
+          "line": 9,
           "bases": [
+            "SettingsMixin",
             "SlotsBlender"
           ],
           "members": [
-            {
-              "name": "header_init",
-              "qualname": "Settings.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 25,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "Settings.tb000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Update Package (PyPI check via Blender's bundled python — sys.executable).",
-              "line": 40,
-              "deprecated": false
-            },
             {
               "name": "tb001",
               "qualname": "Settings.tb001",
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scripts (tear down, reload the tentacle ecosystem in place, re-register).",
-              "line": 71,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "Settings.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Style Editor",
-              "line": 87,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "Settings.b021",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shortcut Editor",
-              "line": 91,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "Settings.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Browser",
-              "line": 95,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "Settings.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Global Shortcuts: focused shortcut editor for the global triggers",
-              "line": 99,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_default_init",
-              "qualname": "Settings.cmb_bind_default_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Default menu (activation key only).",
-              "line": 150,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_init",
-              "qualname": "Settings.cmb_bind_left_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left mouse button.",
-              "line": 155,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_middle_init",
-              "qualname": "Settings.cmb_bind_middle_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Middle mouse button.",
-              "line": 162,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_right_init",
-              "qualname": "Settings.cmb_bind_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Right mouse button.",
-              "line": 169,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_right_init",
-              "qualname": "Settings.cmb_bind_left_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left + Right mouse buttons.",
-              "line": 176,
-              "deprecated": false
-            },
-            {
-              "name": "b_reset_bindings",
-              "qualname": "Settings.b_reset_bindings",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reset marking-menu bindings to defaults.",
-              "line": 183,
+              "line": 28,
               "deprecated": false
             }
           ]
@@ -5916,7 +5993,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 665,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -5925,7 +6002,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 739,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -5934,7 +6011,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).",
-              "line": 751,
+              "line": 764,
               "deprecated": false
             },
             {
@@ -5943,7 +6020,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer operations menu.",
-              "line": 801,
+              "line": 814,
               "deprecated": false
             },
             {
@@ -5952,7 +6029,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 805,
+              "line": 818,
               "deprecated": false
             }
           ]
@@ -7826,6 +7903,7 @@
           "summary": "",
           "line": 13,
           "bases": [
+            "RenderingMixin",
             "SlotsMaya"
           ],
           "members": [
@@ -7866,12 +7944,30 @@
               "deprecated": false
             },
             {
+              "name": "tb002_init",
+              "qualname": "Rendering.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "WebXR Preview: scope and export options for the live browser preview.",
+              "line": 470,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "Rendering.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Push the selection to the live WebXR preview.",
+              "line": 483,
+              "deprecated": false
+            },
+            {
               "name": "b001",
               "qualname": "Rendering.b001",
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 464,
+              "line": 492,
               "deprecated": false
             },
             {
@@ -7880,7 +7976,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 468,
+              "line": 496,
               "deprecated": false
             },
             {
@@ -7889,7 +7985,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 472,
+              "line": 500,
               "deprecated": false
             }
           ]
@@ -8664,136 +8760,20 @@
       "classes": [
         {
           "name": "Settings",
-          "summary": "",
-          "line": 14,
+          "summary": "Maya fork of the shared ``settings`` menu.",
+          "line": 13,
           "bases": [
+            "SettingsMixin",
             "SlotsMaya"
           ],
           "members": [
-            {
-              "name": "header_init",
-              "qualname": "Settings.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize header",
-              "line": 21,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "Settings.tb000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Update Package",
-              "line": 43,
-              "deprecated": false
-            },
             {
               "name": "tb001",
               "qualname": "Settings.tb001",
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Tentacle package with its dependencies.",
-              "line": 47,
-              "deprecated": false
-            },
-            {
-              "name": "check_for_update",
-              "qualname": "Settings.check_for_update",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Check for Tentacle package updates",
-              "line": 144,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "Settings.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Style Editor",
-              "line": 178,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "Settings.b021",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shortcut Editor",
-              "line": 182,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "Settings.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
-              "line": 186,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "Settings.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Global Shortcuts: open the shortcut editor focused on the global",
-              "line": 190,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_default_init",
-              "qualname": "Settings.cmb_bind_default_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Default menu (activation key only).",
-              "line": 243,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_init",
-              "qualname": "Settings.cmb_bind_left_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left mouse button.",
-              "line": 248,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_middle_init",
-              "qualname": "Settings.cmb_bind_middle_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Middle mouse button.",
-              "line": 255,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_right_init",
-              "qualname": "Settings.cmb_bind_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Right mouse button.",
-              "line": 262,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_right_init",
-              "qualname": "Settings.cmb_bind_left_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left + Right mouse buttons.",
-              "line": 269,
-              "deprecated": false
-            },
-            {
-              "name": "b_reset_bindings",
-              "qualname": "Settings.b_reset_bindings",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
-              "line": 276,
+              "line": 31,
               "deprecated": false
             }
           ]
