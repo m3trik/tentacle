@@ -326,13 +326,13 @@ class MarkingMenuGuiTest(unittest.TestCase):
     # ── tests ───────────────────────────────────────────────────────
 
     def test_cameras_lmb_shows_on_screen(self):
-        """F12 + LMB presents cameras#startmenu fully on-screen."""
+        """Activation key + LMB presents cameras#startmenu fully on-screen."""
         self._activate(buttons=self.LEFT)
         ui = self._assert_visible("cameras#startmenu")
         self._assert_on_screen(ui)
 
     def test_main_rmb_shows_on_screen(self):
-        """F12 + RMB presents main#startmenu fully on-screen."""
+        """Activation key + RMB presents main#startmenu fully on-screen."""
         self._activate(buttons=self.RIGHT)
         ui = self._assert_visible("main#startmenu")
         self._assert_on_screen(ui)
@@ -352,8 +352,8 @@ class MarkingMenuGuiTest(unittest.TestCase):
         ui = self._assert_visible("animation#submenu")
         self._assert_on_screen(ui)
 
-    def test_default_F12_shows_hud(self):
-        """F12 with no mouse button shows hud#startmenu."""
+    def test_default_key_shows_hud(self):
+        """The activation key with no mouse button shows hud#startmenu."""
         self._activate(buttons=0)
         ui = self._assert_visible("hud#startmenu")
         self._assert_on_screen(ui)
@@ -454,8 +454,23 @@ class MarkingMenuGuiTest(unittest.TestCase):
         orig = self.mm._handle_widget_action
 
         def spy(widget, global_pos=None):
-            dispatched.append(widget)
-            return orig(widget, global_pos)
+            # Record the RESULT, not just the call: `_handle_widget_action`
+            # returns False for a non-interactive widget, and on that path
+            # `_handle_menu_item_release` UN-LATCHES `_action_dispatched` — so a
+            # declined first release lets the trailing one dispatch too. Spying
+            # on the call alone cannot tell "fired" from "declined", and the
+            # difference only surfaced later as the final count being 2, which
+            # reads as a latch bug rather than as the hit-test missing the item.
+            #
+            # Appended BEFORE dispatching, then filled in: `_handle_widget_action`
+            # is re-entrant by design (it pumps events on the nav-show path — see
+            # the latch comment in `_handle_menu_item_release`), so recording
+            # after the call would order a nested call ahead of its caller and
+            # make `dispatched[0]` the INNER one. Order stays call-entry order.
+            record = [widget, None]
+            dispatched.append(record)
+            record[1] = orig(widget, global_pos)
+            return record[1]
 
         self.mm._handle_widget_action = spy
 
@@ -465,6 +480,14 @@ class MarkingMenuGuiTest(unittest.TestCase):
             dispatched,
             "the click over the 'key' MenuButton was not registered on the "
             "both-button release (the dead-click / 'stays open and shifts' bug)",
+        )
+        self.assertTrue(
+            dispatched[0][1],
+            "the first release resolved a NON-INTERACTIVE widget, so nothing "
+            "fired: the 'key' MenuButton was not under the cursor when the "
+            "release landed. Suspect the hover/submenu reveal not having settled "
+            "(this test needs an otherwise idle machine — measured failing only "
+            "while other suites ran concurrently), not the dispatch latch.",
         )
 
         # L up (final) — swallowed by the single-shot latch; no second dispatch.

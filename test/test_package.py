@@ -11,6 +11,46 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+class TestSuiteIsolation(unittest.TestCase):
+    """The suite must not be running against the developer's live user state.
+
+    tentacle constructs real marking menus, and ``MarkingMenu`` **persists its bindings on
+    construction** — so an unisolated run rewrites the user's live activation key and chord table
+    in the shared ``QSettings`` store. That went unnoticed for a long time precisely because it
+    breaks nothing here: no test fails, the user's hotkey just resets in a different app hours
+    later (reported 2026-08-07 as "my set hotkey keeps being reset"; the give-away was
+    ``marking_menu_bindings_dbg*`` litter in the live store).
+
+    This lives in the structural suite because it has to run under **every** entry point — pytest,
+    ``run_tests.py``, and the ``--in-maya`` dispatcher — which share no setup code and each have to
+    activate the sandbox themselves. The original fix wired up only two of the three; this fails in
+    whichever one ever forgets.
+    """
+
+    def test_live_settings_store_is_sandboxed(self):
+        from uitk.testing import TestSandbox
+
+        self.assertTrue(
+            TestSandbox.is_active(),
+            "The live QSettings store is NOT sandboxed — this run is writing to the "
+            "developer's real settings. Whichever entry point started it must call "
+            "uitk.testing.TestSandbox.activate() before any test module is imported.",
+        )
+
+    def test_qsettings_writes_land_in_the_sandbox(self):
+        """Prove the redirect actually diverts a write, not just that a flag is set."""
+        from qtpy import QtCore
+
+        settings = QtCore.QSettings("uitk", "shared")  # the production (org, app)
+        path = settings.fileName()
+        self.assertNotIn(
+            "Registry",
+            path,
+            f"QSettings still resolves to the native registry store ({path!r}).",
+        )
+        self.assertIn("uitk_test_qsettings", path.replace("\\", "/"))
+
+
 class TestPackageMetadata(unittest.TestCase):
     """Verify package-level attributes and registry."""
 

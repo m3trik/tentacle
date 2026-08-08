@@ -42,10 +42,13 @@ material and must never become the current one, since ~24 call sites feed
 ``cmb002.currentData()`` straight to delete / assign / graph / rename).
 
 Plus :meth:`_refresh_assign_lists`, the "current material changed" fan-out both forks
-wire ``cmb002``'s ``currentIndexChanged`` / ``on_editing_finished`` to. The Assign list
-(``list000``) exists on BOTH the panel and the submenu and its root row is
-"Assign: <current material>", so a refresh that reached only one surface left the other
-advertising — and appearing to offer — the previous material.
+wire ``cmb002``'s ``currentIndexChanged`` / ``on_editing_finished`` to, and
+:meth:`_assign_root_text`, the root row those lists are built from. The Assign list
+(``list000``) exists on BOTH the panel and the submenu, so a refresh that reached only
+one surface left the other advertising — and appearing to offer — a stale material. The
+root row itself is worded per surface: the submenu, which floats free of the panel,
+names the current material ("Assign: <mat>"); the panel's own list sits directly under
+``cmb002`` and so states the action alone ("Assign Current").
 
 A material the combo can't represent is NOT assumed to be filtered: the adopt
 path asks ``_list_filter_names()`` which list filters are actually enabled, and
@@ -71,17 +74,41 @@ class MaterialsMixin:
     #: Affix modes offered by ``cmb_rename_mode`` (index 0 is the default).
     _RENAME_MODES = ("Auto", "Prefix", "Suffix")
 
+    def _assign_root_text(self, widget):
+        """Root-row label for the Assign list (``list000``) hosted by *widget*.
+
+        The two surfaces need different labels because they carry different
+        context. The submenu floats free of the panel, so its root row is the
+        only thing there naming what a release will assign: "Assign: <material>".
+        The panel's own list sits directly under ``cmb002``, which already shows
+        that name — repeating it made the row a second, redundant statement of
+        the same fact (and a wider one, since the row grows with the name), so
+        there it reads simply "Assign Current" and the combo stays the single
+        place the material is named.
+
+        Both forks build their root from this, so the panel/submenu split lives
+        in one place rather than being re-decided per DCC.
+
+        The submenu names the material by its LEAF, matching what ``cmb002``
+        displays (its item text is the leaf, its data the full name — see
+        :meth:`_adopt_selection_mat`): the row mirrors the combo, so it must not
+        spell the same material differently.
+        """
+        if not widget.ui.has_tags("submenu"):
+            return "Assign Current"
+        current = self.ui.cmb002.currentData()
+        return f"Assign: {ptk.HierarchyPath.leaf(str(current))}" if current else "Assign"
+
     def _refresh_assign_lists(self, *_):
         """Re-init the Assign list (``list000``) on every surface that carries one.
 
-        The list's root row is "Assign: <current material>", built from
-        ``cmb002.currentData()`` — so it goes stale the moment the combo changes
-        unless the list is re-inited. BOTH the main panel and the submenu host a
-        ``list000``, while ``cmb002`` lives only on the panel: refreshing just the
-        submenu's copy (the original wiring) left the panel's own root label —
-        the one sitting directly above the combo — advertising the previous
-        material, so "release on the root to assign the current material" read as
-        assigning the wrong one.
+        BOTH the main panel and the submenu host a ``list000``, while ``cmb002``
+        lives only on the panel — so a refresh must reach both. The submenu's
+        root row names the current material (see :meth:`_assign_root_text`) and
+        goes stale the moment the combo changes; the panel's rows are the scene's
+        materials, which change under :meth:`_refresh_material_lists`. Refreshing
+        one surface only (the original wiring, submenu-first) left the other
+        built against a material set / current material that had moved on.
 
         Connected straight to ``currentIndexChanged(int)`` /
         ``on_editing_finished(str)``, hence the swallowed signal args. A surface
@@ -208,7 +235,7 @@ class MaterialsMixin:
         if not mat:
             return
 
-        name = str(mat).rsplit("|", 1)[-1]
+        name = ptk.HierarchyPath.leaf(str(mat))
         mode = self._rename_mode_combo.currentText()
         new_name = self._join_affix(name, affix, mode)
         if new_name is None:
@@ -322,7 +349,7 @@ class MaterialsMixin:
                 # doesn't carry. It IS assigned to the selection and every
                 # consumer of cmb002 works on the name, so add it and adopt it
                 # rather than failing on a list that can't represent it.
-                self.ui.cmb002.addItem(str(found).rsplit("|", 1)[-1], found)
+                self.ui.cmb002.addItem(ptk.HierarchyPath.leaf(str(found)), found)
                 if self._make_current(found):
                     return found
             # Put the previous material back, then report like any other failure.

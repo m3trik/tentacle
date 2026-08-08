@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-07_
+_Generated: 2026-08-08_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -378,20 +378,24 @@ _Generated: 2026-08-07_
 ### `slots/maya/windows.py`
 - `class WindowsSlots(SlotsMaya)`
 
+### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
+- `class Tcl(_TclInternal)`
+  - methods: host, qt_key_name, resolve_key, chord_bindings, launch
+
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`
 - `ensure_blender_widget(app)`
 - `start_event_pump(app, interval=0.01)`
 - `blender_native_window()`
 - `launch(**kwargs)`
-- `register()`
+- `register(**kwargs)`
 - `unregister()`
 - `reload()`
 - `diagnose()`
 - `enable_click_debug()`
 - `disable_click_debug()`
 - `class TclBlender(MarkingMenu)`
-  - methods: get_main_window, showEvent, keyPressEvent, keyReleaseEvent
+  - methods: get_main_window, set_activation_key, showEvent, keyPressEvent, keyReleaseEvent
 - `class Diagnostics`
   - methods: report
 - `class BlenderHost`

@@ -6,24 +6,32 @@ except ImportError as error:
     print(error)
 from uitk import MarkingMenu
 
+from tentacle.tcl import Tcl
+
 
 class TclMax(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk 3ds Max."""
 
-    def __init__(self, parent=None, slot_source="slots/max", *args, **kwargs):
+    def __init__(self, parent=None, slot_source="slots/max", **kwargs):
         if not parent:
             try:
                 parent = self.get_main_window()
             except Exception as error:
                 print(__file__, error)
 
+        key_show = Tcl.resolve_key(kwargs.pop("key_show", None), {"max"})
+        # Same activation key + chord table as the Maya/Blender forks. No both-button target:
+        # Max ships no native-menu page (there is no ``max#startmenu``), so that chord is left
+        # unbound rather than pointed at a UI that cannot resolve — see Tcl.chord_bindings.
+        bindings = kwargs.pop("bindings", None) or Tcl.chord_bindings(key_show)
+
         super().__init__(
             parent,
             ui_source="ui",
             slot_source=slot_source,
+            bindings=bindings,
             suppress_default_on_reentry=True,
             context_tags={"max"},  # `requires` widget filtering (Phase-5 visibility)
-            *args,
             **kwargs,
         )
 

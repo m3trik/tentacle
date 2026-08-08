@@ -515,7 +515,10 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ Assign list
     def list000_init(self, widget):
-        """Assign list: 'Assign: <current>' root + New / Random + scene materials.
+        """Assign list: assign-current root + New / Random + scene materials.
+
+        The root's wording is surface-dependent — see the mixin's
+        ``_assign_root_text``.
 
         This *is* the panel's assign surface — it replaced the Assign /
         Assign Random / New buttons, each of which reached one action where
@@ -533,8 +536,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 self.ui.cmb002.is_initialized = True
 
         widget.clear()
-        current = self.ui.cmb002.currentData()  # a material name (see cmb002_init)
-        root = widget.add(f"Assign: {current}" if current else "Assign")
+        root = widget.add(self._assign_root_text(widget))
         root.sublist.add("New")
         root.sublist.add("Random")
         for mat in btk.get_scene_mats(sort=True):

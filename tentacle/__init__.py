@@ -5,10 +5,11 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.45"
+__version__ = "0.13.48"
 
 
 DEFAULT_INCLUDE = {
+    "tcl": "Tcl",  # host-detecting launcher — the documented entry point for every DCC
     "tcl_blender": "TclBlender",
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",

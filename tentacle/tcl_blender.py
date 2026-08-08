@@ -46,8 +46,10 @@ installed), and Blender's Qt-less Python gets PySide6 + qtpy **pip-installed on 
 (:meth:`_QtBootstrap.ensure_qt`) — point ``TENTACLE_QT_DEPS`` at a pre-staged folder to skip the
 download. This file also carries ``bl_info`` + :func:`register`/:func:`unregister`, so it doubles as
 an add-on / Text-Editor ▸ Run-Script target when loaded from its package location.
-Env overrides: ``TENTACLE_MONOREPO``, ``TENTACLE_QT_DEPS``, ``TENTACLE_KEY`` (default ``F12`` —
-see Preferences ▸ Keymap; the activation key is configurable).
+Env overrides: ``TENTACLE_MONOREPO``, ``TENTACLE_QT_DEPS``, ``TENTACLE_KEY`` (DEFAULT activation
+key; an explicit ``register(key_show=...)`` names the default over it, ``Tcl.DEFAULT_KEY`` applies
+when neither is given, and a key the user persisted — shortcut editor or Preferences ▸ Keymap —
+outranks all three; see ``Tcl.resolve_key``).
 
 See ``tentacle/docs/archive/BLENDER_PORT_PLAN.md``.
 """
@@ -61,7 +63,7 @@ bl_info = {
     "author": "m3trik",
     "version": (0, 1, 0),
     "blender": (4, 1, 0),
-    "location": "3D View ▸ activation key (default F12)",
+    "location": "3D View ▸ activation key (default Z)",
     "description": "Qt marking menu (tentacle) for Blender — press the activation key in the 3D view.",
     "category": "Interface",
 }
@@ -78,7 +80,9 @@ class _Config:
     QT_DEPS = os.environ.get(
         "TENTACLE_QT_DEPS"
     )  # optional pre-staged Qt folder (skips on-demand)
-    ACTIVATION_KEY = os.environ.get("TENTACLE_KEY", "F12")
+    # None when unset — the effective default lives once, in ``Tcl.DEFAULT_KEY``, and is applied
+    # by ``Tcl.qt_key_name`` at the end of the precedence chain (explicit arg > this > default).
+    ACTIVATION_KEY = os.environ.get("TENTACLE_KEY")
     DEBUG = False  # set True to log each activation (helps confirm the keymap is firing live)
 
 
@@ -216,6 +220,8 @@ _QtBootstrap.run()
 from qtpy import QtWidgets, QtCore  # noqa: E402  (deferred until paths/Qt are provisioned above)
 from uitk import MarkingMenu, ExternalAppHandler  # noqa: E402
 import blendertk as btk  # noqa: E402  (lazy resolver: nothing under btk.* imports yet)
+
+from tentacle.tcl import Tcl  # noqa: E402  (needs bootstrap_paths — see _QtBootstrap)
 
 
 class _NativeWindow:
@@ -632,23 +638,34 @@ class _KeymapBridge:
     )
     gesture_active = False  # a bridge-initiated press is awaiting its key-up (≈ GlobalShortcut pairing)
     chord_active = False  # the live gesture is a button-held chord (the grab path) — drives hover pump
+    active_vk = None  # Windows virtual-key the poller watches; moves with a rebind
+    key_down = False  # poller edge state for ``active_vk`` (class-level so a rebind can reset it)
+    _declined = None  # (type, is_bare) of a rebind we refused — remembered so it's reported once
+    # Preferences ▸ Keymap rebind scan. Throttled off the 20 ms poll cadence because it walks the
+    # 3D-View keymap (hundreds of items) — once a second is instant to a human and free in aggregate.
+    KEY_SCAN_INTERVAL = 1.0
+    _last_key_scan = 0.0
 
     # Qt key-name → Blender keymap ``type`` enum. Most keys line up after stripping ``Key_`` and
     # upper-casing (``F12``→``F12``, ``A``→``A``, ``SPACE``→``SPACE``); these are the ones that don't —
     # notably the Windows/Cmd/Super key, which Qt calls ``Meta``/``Super_L`` and Blender calls ``OSKEY``.
+    # Keyed by the key's *canonical Qt spelling* (not upper-cased) because this table is also read
+    # backwards, to name the Qt key for a Blender type when adopting a Preferences ▸ Keymap rebind —
+    # and ``QtCore.Qt`` has ``Key_Meta``, not ``Key_META``. The forward lookup case-folds via
+    # ``_ALIAS_BY_UPPER``, so callers can still pass any casing.
     _BLENDER_KEY_ALIASES = {
-        "META": "OSKEY",
-        "SUPER_L": "OSKEY",
-        "SUPER_R": "OSKEY",
-        "ESCAPE": "ESC",
-        "RETURN": "RET",
-        "ENTER": "RET",
-        "CONTROL": "LEFT_CTRL",
-        "ALT": "LEFT_ALT",
-        "SHIFT": "LEFT_SHIFT",
-        "PAGEUP": "PAGE_UP",
-        "PAGEDOWN": "PAGE_DOWN",
-        "DELETE": "DEL",
+        "Meta": "OSKEY",
+        "Super_L": "OSKEY",
+        "Super_R": "OSKEY",
+        "Escape": "ESC",
+        "Return": "RET",
+        "Enter": "RET",
+        "Control": "LEFT_CTRL",
+        "Alt": "LEFT_ALT",
+        "Shift": "LEFT_SHIFT",
+        "PageUp": "PAGE_UP",
+        "PageDown": "PAGE_DOWN",
+        "Delete": "DEL",
         # Number row — Qt names them by digit, Blender's enum by word.
         "1": "ONE",
         "2": "TWO",
@@ -661,16 +678,27 @@ class _KeymapBridge:
         "9": "NINE",
         "0": "ZERO",
         # Arrow keys — Blender suffixes ``_ARROW``.
-        "LEFT": "LEFT_ARROW",
-        "RIGHT": "RIGHT_ARROW",
-        "UP": "UP_ARROW",
-        "DOWN": "DOWN_ARROW",
+        "Left": "LEFT_ARROW",
+        "Right": "RIGHT_ARROW",
+        "Up": "UP_ARROW",
+        "Down": "DOWN_ARROW",
         # Punctuation whose Qt name diverges from Blender's enum identifier.
-        "SEMICOLON": "SEMI_COLON",
-        "BRACKETLEFT": "LEFT_BRACKET",
-        "BRACKETRIGHT": "RIGHT_BRACKET",
-        "BACKSLASH": "BACK_SLASH",
-        "QUOTELEFT": "ACCENT_GRAVE",
+        "Semicolon": "SEMI_COLON",
+        "BracketLeft": "LEFT_BRACKET",
+        "BracketRight": "RIGHT_BRACKET",
+        "Backslash": "BACK_SLASH",
+        "QuoteLeft": "ACCENT_GRAVE",
+    }
+    # Case-folded forward lookup, so any spelling of a Qt key name resolves.
+    _ALIAS_BY_UPPER = {
+        name.upper(): key_type for name, key_type in _BLENDER_KEY_ALIASES.items()
+    }
+    # Blender type → canonical Qt name. Several Qt names share one Blender type (Meta/Super_L/
+    # Super_R → OSKEY, Return/Enter → RET); reversing the item order before the (last-wins) dict
+    # build makes the FIRST listed spelling the canonical one, so OSKEY names back to ``Meta``.
+    _QT_BY_BLENDER = {
+        key_type: name
+        for name, key_type in reversed(list(_BLENDER_KEY_ALIASES.items()))
     }
 
     # Windows virtual-key → Qt button for the held-button poller (VK order: L=0x01, R=0x02, M=0x04).
@@ -686,7 +714,26 @@ class _KeymapBridge:
         """Translate a Qt key name (``'Key_F12'`` / ``'Key_Meta'``) to a Blender keymap ``type``
         (``'F12'`` / ``'OSKEY'``). Falls back to the stripped-upper name for keys that already match."""
         name = (key_show or "").replace("Key_", "").upper()
-        return cls._BLENDER_KEY_ALIASES.get(name, name)
+        return cls._ALIAS_BY_UPPER.get(name, name)
+
+    @classmethod
+    def blender_type_to_qt_key(cls, key_type):
+        """Translate a Blender keymap ``type`` back to a Qt key name (``'F12'`` → ``'Key_F12'``).
+
+        The inverse of :meth:`qt_key_to_blender_type`, needed to name the key a user picked in
+        Preferences ▸ Keymap so the Qt side can adopt it. Unaliased types line up after case
+        folding — single characters and F-keys stay upper (``'A'``, ``'F12'``), everything else is
+        capitalized (``'SPACE'`` → ``'Space'``), matching ``QtCore.Qt``'s spelling. Returns ``None``
+        for a type with no ``Key_*`` counterpart (Blender has keymap types Qt has no key for, e.g.
+        the mouse/NDOF entries) rather than a name that would only be rejected downstream."""
+        if not key_type:
+            return None
+        name = cls._QT_BY_BLENDER.get(key_type)
+        if name is None:
+            f_key = key_type[0] == "F" and key_type[1:].isdigit()
+            name = key_type if len(key_type) == 1 or f_key else key_type.capitalize()
+        qt_name = f"Key_{name}"
+        return qt_name if hasattr(QtCore.Qt, qt_name) else None
 
     @staticmethod
     def _is_bare_press(kmi):
@@ -699,7 +746,13 @@ class _KeymapBridge:
     @staticmethod
     def _vk_for_key(key_show):
         """Windows virtual-key code for a Qt key name (``'Key_F12'`` → ``0x7B``); None if unmapped
-        (the poller is then simply skipped — the keymap bridge still covers the no-button path)."""
+        (the poller is then simply skipped — the keymap bridge still covers the no-button path).
+
+        ``None`` off Windows, where there is no such thing: :meth:`install_poller` already returns
+        early there, but :meth:`rebind` reaches this on every platform, and a single-character key
+        would otherwise hit ``ctypes.windll`` and take the whole rebind down with it."""
+        if sys.platform != "win32":
+            return None
         name = (key_show or "").replace("Key_", "")
         if (
             len(name) > 1
@@ -884,6 +937,195 @@ class _KeymapBridge:
                 pass
         cls.keymaps.clear()
 
+    # --- rebinding: keeping Blender's half of the activation key in step -------------------
+    @classmethod
+    def addon_key_type(cls):
+        """The key OUR keymap items carry, or ``None`` when the bridge isn't installed.
+
+        Read live rather than cached alongside :meth:`install_keymap`, so it cannot drift from
+        what is actually bound — the divergence that would let a rebind silently revert."""
+        for _km, kmi in cls.keymaps:
+            try:
+                return kmi.type
+            except Exception:  # item removed underneath us (add-on reload, keyconfig reset)
+                return None
+        return None
+
+    @staticmethod
+    def _retype_items(items, key_type):
+        """Point every keymap item in ``items`` at ``key_type``; False if any assignment failed.
+
+        The one write shared by both halves of a rebind — our own add-on items
+        (:meth:`retype_keymap`) and the merged user-keyconfig rows the editor shows
+        (:meth:`_sync_sibling_items`)."""
+        ok = True
+        for kmi in items:
+            try:
+                if kmi.type != key_type:
+                    kmi.type = key_type
+            except Exception:  # invalid type, or an item removed underneath us
+                ok = False
+        return ok
+
+    @classmethod
+    def retype_keymap(cls, key_type):
+        """Move OUR installed items onto ``key_type`` in place; True when they all moved.
+
+        A rebind is a move, not a reinstall — see :meth:`rebind`. False when nothing is installed
+        or an assignment failed, which the caller recovers from by reinstalling."""
+        return bool(cls.keymaps) and cls._retype_items(
+            [kmi for _km, kmi in cls.keymaps], key_type
+        )
+
+    @classmethod
+    def user_keymap_items(cls):
+        """Our bridge's 3D-View items **as Preferences ▸ Keymap sees them** (order unspecified).
+
+        The user keyconfig, deliberately — not the addon items in :attr:`keymaps`. Blender merges
+        the addon keymap into the user one; the editor edits THAT copy and dispatch follows it,
+        while our addon item goes on reporting the key we installed. Both halves were measured on
+        real injected keystrokes in ``test/blender/gui_keymap_editor_check.py``: after a rebind to
+        F12 the operator fires on F12 and no longer on Z, and the addon item still reads Z. So a
+        bridge that watched its own item could never notice a user rebind."""
+        try:
+            import bpy
+
+            km = bpy.context.window_manager.keyconfigs.user.keymaps.get("3D View")
+            if km is None:
+                return []
+            return [
+                kmi
+                for kmi in km.keymap_items
+                if kmi.idname == "tentacle.show_marking_menu"
+            ]
+        except Exception:  # no bpy (plain-python/Maya interpreter), no window
+            return []  # manager yet, or keyconfig mid-rebuild
+
+    @classmethod
+    def live_press_item(cls):
+        """Our PRESS row as Preferences ▸ Keymap sees it, or ``None``.
+
+        The row that actually shows the menu, and so the one whose key *is* the activation key.
+        (Editing only the RELEASE row is therefore not a rebind; the next PRESS edit re-syncs
+        both, see :meth:`_sync_sibling_items`.)"""
+        for kmi in cls.user_keymap_items():
+            if kmi.value == "PRESS":
+                return kmi
+        return None
+
+    @classmethod
+    def _sync_sibling_items(cls, key_type):
+        """Move our other 3D-View rows onto ``key_type`` too.
+
+        The bridge installs a PRESS row and a RELEASE row, and the editor shows both under the same
+        name. A user rebinds the one they see; left alone the other keeps answering the old key —
+        which would then fire ``drive_release`` against an unrelated keystroke. Best-effort: a row
+        that can't be written (read-only in some keyconfig states) isn't worth failing a rebind."""
+        cls._retype_items(cls.user_keymap_items(), key_type)
+
+    @classmethod
+    def rebind(cls, tcl, key_show):
+        """Move Blender's half of the activation binding onto ``key_show`` (a Qt key name).
+
+        ``MarkingMenu.set_activation_key`` moves the Qt half — the chord table and the
+        ``GlobalShortcut``. On Blender that half never sees a viewport keystroke, so a rebind that
+        stops there leaves the menu still answering the OLD key: the 3D-View keymap item and the
+        poller's virtual-key both have to follow. Every rebind route (tentacle's Preferences panel,
+        the shortcut editor, adopting a Preferences ▸ Keymap edit) reaches this through
+        :meth:`TclBlender.set_activation_key`.
+
+        Our items move **in place** when they already exist (:meth:`retype_keymap`), and are only
+        built from scratch when there are none. Leaving them on the old key would let the rebind
+        revert the moment Blender rebuilds the user keyconfig from them; retyping is the smaller
+        operation than tearing both items down and recreating them, and it preserves the item
+        identity Blender's merged user keyconfig is built from rather than briefly removing what
+        the user just edited."""
+        key_type = cls.qt_key_to_blender_type(key_show)
+        cls.active_vk = cls._vk_for_key(key_show)
+        cls.key_down = False  # the new key's edge state is unknown — start from "up"
+        if not key_type:
+            return
+        if key_type != cls.addon_key_type():
+            # Nothing installed yet, or the retype failed — build from scratch.
+            if not cls.retype_keymap(key_type):
+                cls.install_keymap(tcl, key_type)
+        # The rows Preferences ▸ Keymap shows are a MERGED copy of our items (see
+        # user_keymap_items) and do not follow an addon-item retype — including a
+        # customization Blender restored from userpref.blend. Left on the old key,
+        # sync_keymap_rebind reads that stale row as a fresh user edit and adopts the
+        # OLD key right back: a shortcut-editor rebind silently reverts within one
+        # scan tick, and the persisted key resets across sessions. Runs even when the
+        # addon item already holds the key (a redundant set_activation_key is the
+        # self-heal route for rows gone stale some other way); _retype_items no-ops
+        # on rows already matching.
+        cls._sync_sibling_items(key_type)
+
+    @classmethod
+    def sync_keymap_rebind(cls, tcl):
+        """Adopt a rebind made in Preferences ▸ Keymap (throttled; driven by the poller).
+
+        Blender's keymap editor is a *working* rebind route — after an edit the new key reaches our
+        operator and the old one stops (measured, see :meth:`user_keymap_items`). But it moves only
+        Blender's half, and everything else still keys off the old one. Most destructively the
+        poller's virtual-key: it reads the OLD key as physically up while the new one arms a
+        gesture, so the release fires on the next 20 ms tick and the menu opens and vanishes — the
+        rebind reads as "nothing happened". Adopting closes that, and routes the new key through
+        ``set_activation_key`` so it is **persisted**, which the addon keyconfig cannot do (it is
+        built from scratch every launch, which is why the editor showed ``Z`` again next session).
+
+        Never runs while the activation key is armed — moving it out from under a live gesture
+        would strand that gesture. ``_activation_key_held`` is checked alongside
+        ``gesture_active`` because a press that half-failed leaves the first set without the
+        second (see :meth:`install_poller`), and that is exactly the state a rebind must not hit."""
+        if cls.gesture_active or cls.tcl is not tcl:
+            return
+        if getattr(tcl, "_activation_key_held", False):
+            return
+        now = time.monotonic()
+        if now - cls._last_key_scan < cls.KEY_SCAN_INTERVAL:
+            return
+        cls._last_key_scan = now
+        item, installed = cls.live_press_item(), cls.addon_key_type()
+        live = item.type if item is not None else None
+        # No installed item yet (startup, before Blender merges the addon keymap) is not a rebind.
+        if not live or not installed or live == installed:
+            return
+        # Keyed on the whole state, not just the type, so clearing a modifier off a declined
+        # binding is re-evaluated rather than skipped as "already reported".
+        state = (live, cls._is_bare_press(item))
+        if state == cls._declined:
+            return
+        if not state[1]:
+            cls._declined = state
+            print(
+                f"{__file__}: the marking menu's activation key must be an UNMODIFIED key press, "
+                f"and Preferences ▸ Keymap has it on '{live}' with a modifier — not adopted, the "
+                "menu keeps its previous key. Rebind it without Ctrl/Alt/Shift/Cmd."
+            )
+            return
+        qt_key = cls.blender_type_to_qt_key(live)
+        if qt_key is None:
+            cls._declined = state  # report once, not once a second
+            print(
+                f"{__file__}: Preferences ▸ Keymap bound the marking menu to '{live}', which has "
+                "no Qt key equivalent — the menu keeps its previous activation key. Pick a "
+                "standard keyboard key."
+            )
+            return
+        cls._declined = None
+        cls._sync_sibling_items(live)
+        try:
+            tcl.set_activation_key(qt_key)  # Qt chords + persistence
+            # …and Blender's half explicitly, rather than relying on the callback chain through
+            # set_activation_key: that one returns early when the Qt side ALREADY holds this key,
+            # which would leave our item on the old one — and this scan re-firing on it every
+            # second forever. rebind() is idempotent, so the usual double call costs nothing.
+            cls.rebind(tcl, qt_key)
+        except Exception as error:
+            # Bounded and audible: retrying a key that reliably fails would spin silently.
+            cls._declined = state
+            print(f"{__file__}: could not adopt the '{live}' keymap rebind → {error!r}")
+
     @classmethod
     def install_keymap(cls, tcl, key_type):
         """Bind ``key_type`` in Blender's **3D View** keymap to the bridge operator — a PRESS item and a
@@ -894,6 +1136,9 @@ class _KeymapBridge:
         Scoped to the viewport on purpose: a 3D-View region keymap item is evaluated before the global
         ``Screen`` keymap, so it takes the key over the viewport and naturally wins over ``render.render``
         — *without* us disabling anyone's global F12 (it still renders everywhere else). No muting needed.
+        Within the ``3D View`` keymap itself, an addon-keyconfig item also outranks factory/user items on
+        the same bare key (measured on a real injected keypress — ``test/blender/gui_key_rival_check.py``),
+        so a stock binding like the ``Z`` shading pie is shadowed while installed, not a conflict.
         """
         import bpy
 
@@ -914,9 +1159,10 @@ class _KeymapBridge:
         }
         if key_type not in valid_types:
             print(
-                f"{__file__}: activation key '{_Config.ACTIVATION_KEY}' maps to Blender keymap "
-                f"type '{key_type}', which is not a valid keymap type — the 3D-View bridge was "
-                "not installed. Pick a different TENTACLE_KEY, or bind it via Preferences ▸ Keymap."
+                f"{__file__}: the activation key maps to Blender keymap type '{key_type}', which "
+                "is not a valid keymap type — the 3D-View bridge was not installed. Pick a "
+                "different key (Tcl.launch(key_show=...) / TENTACLE_KEY), or bind it via "
+                "Preferences ▸ Keymap."
             )
             return
         km = kc.keymaps.new(name="3D View", space_type="VIEW_3D")
@@ -934,7 +1180,7 @@ class _KeymapBridge:
         of the bridge. Qt only receives the key when a Qt window has OS focus, and Blender's
         keymap only when GHOST has it *and* dispatch isn't eaten, so neither side alone can track
         the key through a real gesture; ``GetAsyncKeyState`` reads the physical key state and is
-        the one signal that is always true. Three duties, polled on the pump cadence:
+        the one signal that is always true. Four duties, polled on the pump cadence:
 
         **Press (edge) — the two states GHOST can't serve.** *Held-button chord:* measured
         (held-button probe, 2026-06-12): with ANY mouse button physically held, GHOST dispatches
@@ -960,6 +1206,11 @@ class _KeymapBridge:
         the user clicks the viewport. State-based on purpose (not hide-event-driven): it reads
         settled OS state on the next tick and heals every strand path, however reached.
 
+        **Rebind scan (throttled).** :meth:`sync_keymap_rebind` once a second, adopting a key the
+        user changed in Preferences ▸ Keymap. It lives here rather than on its own timer because
+        the poller is the thing that most needs to know: its watched key is read from
+        :attr:`active_vk`, and a stale one ends every gesture ~20 ms after it starts.
+
         **Release (level).** The gesture must end when the key is physically up,
         but every event-driven release path is conditional: Qt's ``keyReleaseEvent`` needs the
         overlay to have won the focus tussle, and the RELEASE keymap item is region-scoped (cursor
@@ -973,16 +1224,20 @@ class _KeymapBridge:
         is idempotent and hiding auto-releases the Qt grab."""
         if sys.platform != "win32":
             return
-        vk = cls._vk_for_key(key_show)
-        if vk is None:
-            return
         import bpy
         import ctypes
         from ctypes import wintypes
 
         cls.uninstall_poller()
         user32 = ctypes.windll.user32
-        state = {"down": False}
+        # The watched key lives on the class, not in this closure, so a rebind moves it without
+        # restarting the timer — unregistering a bpy timer from inside its own callback is exactly
+        # what a closure-captured key would have forced. The timer itself is registered
+        # unconditionally: an activation key with no virtual-key mapping (``Space``, punctuation)
+        # only skips the key branch below, and still gets the foreground watchdog and the
+        # rebind scan — which is how it recovers if the user then picks a mappable key.
+        cls.active_vk = cls._vk_for_key(key_show)
+        cls.key_down = False
 
         def _poll():
             try:
@@ -1010,8 +1265,13 @@ class _KeymapBridge:
                 # focus to GHOST mid-gesture would kill the interaction.
                 if cls.tcl is tcl and not cls.gesture_active:
                     _NativeWindow.restore_foreground_if_stranded(tcl)
+                # Adopt a Preferences ▸ Keymap rebind (throttled internally).
+                cls.sync_keymap_rebind(tcl)
+                vk = cls.active_vk
+                if vk is None:  # unmappable key — the keymap items still carry activation
+                    return 0.02
                 down = bool(user32.GetAsyncKeyState(vk) & 0x8000)
-                if down and not state["down"]:
+                if down and not cls.key_down:
                     held = cls.physical_mouse_buttons()
                     if held != QtCore.Qt.NoButton:
                         pid = wintypes.DWORD()
@@ -1056,7 +1316,7 @@ class _KeymapBridge:
                             cls.drive_release()
                         except Exception:
                             pass
-                state["down"] = down
+                cls.key_down = down
             except Exception as error:
                 # Swallow: a raising bpy timer is auto-unregistered, and a dead watchdog means
                 # permanently stuck menus. Still audible in debug so plumbing bugs surface.
@@ -1091,6 +1351,10 @@ class _KeymapBridge:
             None  # the next launch() builds a fresh instance (with a fresh keymap)
         )
         cls.gesture_active = False
+        cls.active_vk = None
+        cls.key_down = False
+        cls._last_key_scan = 0.0  # the next install's first scan must not be throttled out
+        cls._declined = None
         cls.uninstall_poller()
         cls.uninstall_keymap()
         op = getattr(bpy.types, "TENTACLE_OT_show_marking_menu", None)
@@ -1120,22 +1384,23 @@ class TclBlender(MarkingMenu):
             except Exception as error:
                 print(f"{__file__}: {error}")
 
-        key_show = kwargs.pop("key_show", "F12")
-        key_show = f"Key_{key_show}" if not key_show.startswith("Key_") else key_show
+        # The key the user last CHOSE (persisted) > the named default (explicit argument,
+        # then TENTACLE_KEY) > Tcl.DEFAULT_KEY. The persisted rung is what lets a shortcut-editor
+        # or Preferences ▸ Keymap rebind survive a restart: Blender's addon keyconfig is rebuilt
+        # from scratch every launch, so the store is the only place a Blender-side choice can
+        # live. See Tcl.resolve_key.
+        key_show = Tcl.resolve_key(
+            kwargs.pop("key_show", None) or _Config.ACTIVATION_KEY, {"blender"}
+        )
 
-        # Activation key + default UI per chord (mirrors tcl_maya). Global activation
-        # ultimately comes from the Blender keymap operator below (GHOST consumes keys
-        # before Qt); these also define what show() displays by default.
-        bindings = kwargs.pop("bindings", None) or {
-            key_show: "hud#startmenu",  # Maya-parity default (hud ported 2026-06-12)
-            f"{key_show}|LeftButton": "cameras#startmenu",
-            f"{key_show}|MiddleButton": "editors#startmenu",
-            f"{key_show}|RightButton": "main#startmenu",
-            # Both-button chord → Blender's native menu sets (Maya parity: there it's
-            # `maya#startmenu`). Resolved by the held-button poller, which ORs L+R into the
-            # chord mask. Where Maya wraps its Qt menus, Blender pops its OWN native menus.
-            f"{key_show}|LeftButton|RightButton": "blender#startmenu",
-        }
+        # Activation key + default UI per chord — the shared table (mirrors tcl_maya). Global
+        # activation ultimately comes from the Blender keymap operator below (GHOST consumes keys
+        # before Qt); these also define what show() displays by default. The both-button chord is
+        # the one fork-specific target: it opens Blender's OWN native menu sets, where Maya wraps
+        # its Qt menus. Resolved by the held-button poller, which ORs L+R into the chord mask.
+        bindings = kwargs.pop("bindings", None) or Tcl.chord_bindings(
+            key_show, "blender#startmenu"
+        )
 
         super().__init__(
             parent,
@@ -1277,6 +1542,23 @@ class TclBlender(MarkingMenu):
         result = super()._show_window(widget, *args, **kwargs)
         self._parent_to_blender(result if result is not None else widget)
         return result
+
+    def set_activation_key(self, new_key):
+        """Rebind the activation key — and move Blender's half of the binding with it.
+
+        The base implementation rewrites the chord table (persisting it) and re-installs the Qt
+        ``GlobalShortcut``. Maya needs nothing more, because there that shortcut *is* the binding.
+        Here GHOST consumes viewport keystrokes before Qt, so the 3D-View keymap item and the
+        poller's virtual-key are what actually open the menu — leave those behind and the Qt side
+        rebinds while the viewport goes on answering the old key. Overriding here (rather than at
+        each call site) means every route lands on the same path: tentacle's Preferences panel, the
+        shortcut editor, and :meth:`_KeymapBridge.sync_keymap_rebind` adopting a Preferences ▸
+        Keymap edit."""
+        super().set_activation_key(new_key)
+        try:
+            _KeymapBridge.rebind(self, self._activation_key_str)
+        except Exception as error:  # a live Qt binding beats no binding — never raise
+            print(f"{__file__}: Blender keymap rebind skipped: {error}")
 
     def _host_mouse_buttons(self):
         # GHOST owns the mouse, so the base Qt query (QApplication.mouseButtons()) is blind to a
@@ -1560,34 +1842,41 @@ class Diagnostics:
         the hidden *system* console). Reports the live module file (a stale/duplicate ``tentacle`` on
         ``sys.path`` is the #1 cause of "nothing happens"), whether the bridge operator is registered,
         whether a live ``TclBlender`` is wired, the keymap item(s) we installed, any *other* active item
-        bound to the same bare key in the ``3D View`` keymap (the only thing that could beat us over the
-        viewport), and a plain-language VERDICT. Blender's bare-F12 ``render.render`` lives in the global
-        ``Screen`` keymap and is evaluated *after* our region item, so it is intentionally not a rival."""
+        bound to the same bare key in the ``3D View`` keymap — split into genuine rivals (another
+        add-on's item) vs merely shadowed factory/user bindings — and a plain-language VERDICT.
+        Blender's bare-F12 ``render.render`` lives in the global ``Screen`` keymap and is evaluated
+        *after* our region item, so it is intentionally not a rival."""
         import bpy
 
         wm = bpy.context.window_manager
         operator_ok = hasattr(bpy.types, "TENTACLE_OT_show_marking_menu")
         our_active = [kmi for _km, kmi in _KeymapBridge.keymaps if kmi.active]
         our_keys = {kmi.type for _km, kmi in _KeymapBridge.keymaps}
-        rivals = []
+        # Same-key bare-press items in the ``3D View`` keymap, split by what they actually mean:
+        # another ADD-ON binding the key is a genuine contest (ordering among addon items is
+        # insertion order — undetermined), while factory/user items are merely SHADOWED — an
+        # addon-keyconfig item outranks them within the same keymap, measured on a real injected
+        # keypress in a factory session (``test/blender/gui_key_rival_check.py``: the stock shading
+        # pie on bare ``Z``, the default activation key, never fires while our item is installed).
+        # Dedup by name, not id(): ``active`` often aliases ``user``/``default`` but Blender hands
+        # back a fresh Python wrapper each access (distinct id), so id()-dedup would double-list.
+        addon_rivals = []
+        shadowed = []
         seen = set()
-        # Scan every evaluated config — including ``addon`` (another add-on binding bare F12 in the
-        # viewport is a real conflict the clean factory session can't show, so it must be checked too).
-        # Dedup by name, not id(): ``active`` often aliases ``user``/``default`` but Blender hands back a
-        # fresh Python wrapper each access (distinct id), so id()-dedup would double-list its rivals.
-        for kc in (
-            wm.keyconfigs.addon,
-            wm.keyconfigs.user,
-            wm.keyconfigs.active,
-            wm.keyconfigs.default,
+        for is_addon, kc in (
+            (True, wm.keyconfigs.addon),
+            (False, wm.keyconfigs.user),
+            (False, wm.keyconfigs.active),
+            (False, wm.keyconfigs.default),
         ):
             if kc is None or kc.name in seen:
                 continue
             seen.add(kc.name)
-            # Only a *bare* same-key PRESS in the 3D View keymap could beat us when the viewport has
-            # focus — modified combos coexist and the global Screen render shortcut is evaluated after us.
-            rivals += [
-                f"{kc.name}:{kmi.idname}"
+            # Only a *bare* same-key PRESS in the 3D View keymap is on our dispatch path — modified
+            # combos coexist and the global Screen render shortcut is evaluated after our region item.
+            bucket = addon_rivals if is_addon else shadowed
+            bucket += [
+                f"{kc.name}:{kmi.idname}" if is_addon else kmi.idname
                 for km in kc.keymaps
                 if km.name == "3D View"
                 for kmi in km.keymap_items
@@ -1596,6 +1885,7 @@ class Diagnostics:
                 and _KeymapBridge._is_bare_press(kmi)
                 and kmi.idname != "tentacle.show_marking_menu"
             ]
+        shadowed = sorted(set(shadowed))
 
         if not (operator_ok and our_active):
             verdict = (
@@ -1604,18 +1894,30 @@ class Diagnostics:
             )
         elif _KeymapBridge.tcl is None:
             verdict = "PROBLEM: no live menu wired — call tcl_blender.register() (it runs launch())."
-        elif rivals:
+        elif addon_rivals:
             verdict = (
-                f"CONFLICT: another 3D View binding {rivals} shares the key and may win — "
-                "disable it, or set TENTACLE_KEY to a different key."
+                f"CONFLICT: another add-on's 3D View binding {addon_rivals} shares the key and "
+                "may win — disable it, or pick a different activation key "
+                "(register(key_show=...) / TENTACLE_KEY)."
             )
         else:
-            key = next(iter(our_keys), _Config.ACTIVATION_KEY)
+            # Fallback for the no-items edge only; resolve the full precedence
+            # (user-persisted > TENTACLE_KEY > default) so the report never
+            # names the shipped default while the user's chosen key is active.
+            key = next(
+                iter(our_keys),
+                _KeymapBridge.qt_key_to_blender_type(
+                    Tcl.resolve_key(_Config.ACTIVATION_KEY, {"blender"})
+                ),
+            )
+            shadow_note = (
+                f" (shadowing {shadowed} while installed)" if shadowed else ""
+            )
             verdict = (
-                f"LIKELY WORKING: '{key}' is bound in the 3D View keymap. Hover the 3D viewport "
-                "and press it. If render still opens, set tcl_blender._Config.DEBUG=True — each "
-                "fire then shows 'Tentacle: key fired' in the status bar (print() output is in the "
-                "hidden system console: Window > Toggle System Console)."
+                f"LIKELY WORKING: '{key}' is bound in the 3D View keymap{shadow_note}. Hover the "
+                "3D viewport and press it. If render still opens, set tcl_blender._Config.DEBUG="
+                "True — each fire then shows 'Tentacle: key fired' in the status bar (print() "
+                "output is in the hidden system console: Window > Toggle System Console)."
             )
 
         lines = [
@@ -1626,7 +1928,8 @@ class Diagnostics:
             f"DEBUG (logs fires)  : {_Config.DEBUG}",
             f"key watcher (poll)  : {'installed' if _KeymapBridge.poller is not None else 'NOT installed'} (held-button press + release watchdog)",
             f"our keymap items    : {[(km.name, kmi.type, kmi.value, kmi.active) for km, kmi in _KeymapBridge.keymaps]}",
-            f"3D View rivals      : {rivals or 'none'}",
+            f"addon-kc rivals     : {addon_rivals or 'none'} (genuine contest — undetermined order)",
+            f"shadowed same-key   : {shadowed or 'none'} (factory/user items our addon item outranks)",
             f"VERDICT             : {verdict}",
         ]
         report = "\n".join(lines)
@@ -1660,8 +1963,14 @@ class BlenderHost:
         return TclBlender(**kwargs)
 
     @staticmethod
-    def register():
+    def register(**kwargs):
         """Blender add-on / startup entry: stand up the host. ``TclBlender`` wires the keymap itself.
+
+        ``**kwargs`` are forwarded to :meth:`launch` → ``TclBlender`` — notably ``key_show``, the
+        DEFAULT activation key (bare ``"Z"``-style or Qt ``"Key_Z"``-style, the same contract as
+        ``TclMaya``); omitted, the ``TENTACLE_KEY`` env var applies, then ``Tcl.DEFAULT_KEY`` — and
+        a key the user persisted outranks all three (``Tcl.resolve_key``). Only honored when a new
+        instance is built — :meth:`launch` is idempotent.
 
         Silent on success — a routine launch shouldn't announce itself (the greeting banner already
         confirms the load). Only on a PROBLEM/CONFLICT does it print the full :meth:`Diagnostics.report`
@@ -1669,7 +1978,7 @@ class BlenderHost:
         Returns the full report string either way; run :func:`diagnose` for it on demand."""
         import bpy
 
-        BlenderHost.launch(key_show=_Config.ACTIVATION_KEY)
+        BlenderHost.launch(**kwargs)
         report = Diagnostics.report(emit=False)
         if "PROBLEM" in report or "CONFLICT" in report:
             print(report)  # something's actually wrong — surface the full diagnostic
@@ -1775,9 +2084,9 @@ def launch(**kwargs):
     return BlenderHost.launch(**kwargs)
 
 
-def register():
+def register(**kwargs):
     """Blender add-on / startup entry. See :meth:`BlenderHost.register`."""
-    return BlenderHost.register()
+    return BlenderHost.register(**kwargs)
 
 
 def unregister():

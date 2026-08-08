@@ -114,48 +114,67 @@ class TestUiFilePairing(unittest.TestCase):
 
 
 class TestBindingTargetsResolve(unittest.TestCase):
-    """Tcl default bindings (both DCCs) must point to real UI files."""
+    """Default binding targets (both DCCs) must point to real UI files — no chord may dead-end.
 
-    def _get_binding_targets(self, tcl_filename="tcl_maya.py"):
-        """Parse a tcl_*.py and extract binding values (UI references)."""
-        tcl_path = PKG / tcl_filename
-        source = tcl_path.read_text(encoding="utf-8")
-        # Bindings are string values like "hud#startmenu", "cameras#startmenu", etc.
-        targets = []
-        tree = ast.parse(source)
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Dict):
-                for val in node.values:
-                    if isinstance(val, ast.Constant) and isinstance(val.value, str):
-                        if "#" in val.value:
-                            targets.append(val.value)
-                    elif isinstance(val, ast.JoinedStr):
-                        # f-string — skip dynamic parts, just grab the literal suffix
-                        for part in val.values:
-                            if isinstance(part, ast.Constant) and "#" in str(
-                                part.value
-                            ):
-                                targets.append(part.value.lstrip("|"))
-        return targets
+    Targets come from two places since the chord table was shared: the four common entries are
+    built by ``Tcl.chord_bindings`` (read from the live function — it is DCC-free, so this is the
+    real runtime value rather than scraped source), and the both-button target is supplied by each
+    fork at its call site, which is read from that fork's source (constructing one needs its DCC).
+    """
+
+    def _fork_targets(self, tcl_filename):
+        """The menu target(s) a fork passes to ``Tcl.chord_bindings`` — its both-button chord.
+
+        Read from that call specifically, not from every ``#``-bearing string in the module:
+        docstrings legitimately contain ``#`` ("the #1 cause of…") and would swamp the result.
+        """
+        source = (PKG / tcl_filename).read_text(encoding="utf-8")
+        return [
+            arg.value
+            for node in ast.walk(ast.parse(source))
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) == "chord_bindings"
+            for arg in node.args
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str)
+        ]
+
+    def _assert_all_resolve(self, targets, all_ui, label):
+        self.assertGreater(len(targets), 0, f"Could not extract any {label} binding targets")
+        missing = sorted({t for t in targets if t not in all_ui})
+        self.assertEqual(missing, [], f"{label} binding targets without .ui: {missing}")
+
+    def test_shared_chord_table_targets_exist(self):
+        """The common chords every DCC gets must resolve in ui/."""
+        from tentacle.tcl import Tcl
+
+        self._assert_all_resolve(
+            list(Tcl.chord_bindings().values()), _ui_files(UI_DIR), "shared chord table"
+        )
 
     def test_maya_binding_ui_files_exist(self):
         """Each TclMaya binding target (e.g. 'hud#startmenu') must have a .ui file."""
-        targets = self._get_binding_targets("tcl_maya.py")
-        self.assertGreater(len(targets), 0, "Could not extract any TclMaya binding targets")
+        from tentacle.tcl import Tcl
 
-        all_ui = _ui_files(UI_DIR) | _ui_files(UI_MAYA_DIR)
-        missing = [t for t in targets if t not in all_ui]
-        self.assertEqual(missing, [], f"TclMaya binding targets without .ui: {missing}")
+        fork = self._fork_targets("tcl_maya.py")
+        self.assertTrue(fork, "TclMaya passes no menu target to Tcl.chord_bindings")
+        self._assert_all_resolve(
+            list(Tcl.chord_bindings().values()) + fork,
+            _ui_files(UI_DIR) | _ui_files(UI_MAYA_DIR),
+            "TclMaya",
+        )
 
     def test_blender_binding_ui_files_exist(self):
         """Each TclBlender binding target (incl. the both-button 'blender#startmenu') must
         resolve to a .ui in ui/ or ui/blender_menus/ — so no chord can dead-end."""
-        targets = self._get_binding_targets("tcl_blender.py")
-        self.assertGreater(len(targets), 0, "Could not extract any TclBlender binding targets")
+        from tentacle.tcl import Tcl
 
-        all_ui = _ui_files(UI_DIR) | _ui_files(UI_BLENDER_DIR)
-        missing = [t for t in targets if t not in all_ui]
-        self.assertEqual(missing, [], f"TclBlender binding targets without .ui: {missing}")
+        fork = self._fork_targets("tcl_blender.py")
+        self.assertTrue(fork, "TclBlender passes no menu target to Tcl.chord_bindings")
+        self._assert_all_resolve(
+            list(Tcl.chord_bindings().values()) + fork,
+            _ui_files(UI_DIR) | _ui_files(UI_BLENDER_DIR),
+            "TclBlender",
+        )
 
 
 class TestSlotUiCoverage(unittest.TestCase):

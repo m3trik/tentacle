@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-07",
+  "generated_at": "2026-08-08",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -13,7 +13,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 45,
+          "line": 46,
           "deprecated": false
         }
       ],
@@ -120,7 +120,7 @@
         {
           "name": "MaterialsMixin",
           "summary": "DCC-agnostic ``materials`` slot behavior.",
-          "line": 63,
+          "line": 66,
           "bases": [],
           "members": [
             {
@@ -129,7 +129,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material.",
-              "line": 231,
+              "line": 258,
               "deprecated": false
             },
             {
@@ -138,7 +138,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get + Select (submenu): adopt the selection's material, then select its users.",
-              "line": 356,
+              "line": 383,
               "deprecated": false
             }
           ]
@@ -2043,7 +2043,7 @@
               "qualname": "MaterialsSlots.list000_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Assign list: 'Assign: <current>' root + New / Random + scene materials.",
+              "summary": "Assign list: assign-current root + New / Random + scene materials.",
               "line": 517,
               "deprecated": false
             },
@@ -2053,7 +2053,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Assign list: root assigns the current material;",
-              "line": 544,
+              "line": 546,
               "deprecated": false
             },
             {
@@ -2062,7 +2062,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list (Setup tools with a native Blender op).",
-              "line": 578,
+              "line": 580,
               "deprecated": false
             },
             {
@@ -2071,7 +2071,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 606,
+              "line": 608,
               "deprecated": false
             },
             {
@@ -2080,7 +2080,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get Material: set the combo to the selection's material.",
-              "line": 636,
+              "line": 638,
               "deprecated": false
             },
             {
@@ -2089,7 +2089,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Random",
-              "line": 641,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -2098,7 +2098,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign New Material",
-              "line": 660,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -2107,7 +2107,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scene Textures",
-              "line": 671,
+              "line": 673,
               "deprecated": false
             },
             {
@@ -2116,7 +2116,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Duplicate Materials",
-              "line": 677,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -2125,7 +2125,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Delete All Unused Materials",
-              "line": 688,
+              "line": 690,
               "deprecated": false
             },
             {
@@ -2134,7 +2134,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete the current material.",
-              "line": 695,
+              "line": 697,
               "deprecated": false
             },
             {
@@ -2143,7 +2143,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select Node — select the object(s) using the current material.",
-              "line": 703,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -2152,7 +2152,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 716,
+              "line": 718,
               "deprecated": false
             },
             {
@@ -2161,7 +2161,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rename the current material by stripping trailing integers/underscores.",
-              "line": 727,
+              "line": 729,
               "deprecated": false
             },
             {
@@ -2170,7 +2170,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Strip trailing ints/underscores from ALL scene materials (skips on-collision).",
-              "line": 746,
+              "line": 748,
               "deprecated": false
             },
             {
@@ -2179,7 +2179,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 764,
+              "line": 766,
               "deprecated": false
             },
             {
@@ -2188,7 +2188,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
-              "line": 770,
+              "line": 772,
               "deprecated": false
             },
             {
@@ -2197,7 +2197,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 775,
+              "line": 777,
               "deprecated": false
             },
             {
@@ -2206,7 +2206,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Emissive Groups — co-located blendertk panel (named face groups a game engine gates at",
-              "line": 780,
+              "line": 782,
               "deprecated": false
             },
             {
@@ -2215,7 +2215,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 785,
+              "line": 787,
               "deprecated": false
             },
             {
@@ -2224,7 +2224,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 790,
+              "line": 792,
               "deprecated": false
             },
             {
@@ -2233,7 +2233,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 827,
+              "line": 829,
               "deprecated": false
             },
             {
@@ -2242,7 +2242,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 831,
+              "line": 833,
               "deprecated": false
             },
             {
@@ -2251,7 +2251,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 835,
+              "line": 837,
               "deprecated": false
             },
             {
@@ -2260,7 +2260,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 839,
+              "line": 841,
               "deprecated": false
             },
             {
@@ -2269,7 +2269,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 843,
+              "line": 845,
               "deprecated": false
             },
             {
@@ -2278,7 +2278,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 847,
+              "line": 849,
               "deprecated": false
             },
             {
@@ -2287,7 +2287,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 856,
+              "line": 858,
               "deprecated": false
             },
             {
@@ -2296,7 +2296,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 860,
+              "line": 862,
               "deprecated": false
             }
           ]
@@ -8335,7 +8335,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 680,
+              "line": 701,
               "deprecated": false
             },
             {
@@ -8344,7 +8344,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 684,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -8353,7 +8353,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 688,
+              "line": 709,
               "deprecated": false
             },
             {
@@ -8362,7 +8362,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 692,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -8371,7 +8371,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box.",
-              "line": 731,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -8380,7 +8380,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the audit report to the viewer dialog.",
-              "line": 774,
+              "line": 795,
               "deprecated": false
             },
             {
@@ -8389,7 +8389,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 841,
+              "line": 862,
               "deprecated": false
             },
             {
@@ -8398,7 +8398,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 845,
+              "line": 866,
               "deprecated": false
             },
             {
@@ -8407,7 +8407,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 861,
+              "line": 882,
               "deprecated": false
             },
             {
@@ -8416,7 +8416,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer.",
-              "line": 876,
+              "line": 897,
               "deprecated": false
             },
             {
@@ -8425,7 +8425,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 937,
+              "line": 958,
               "deprecated": false
             },
             {
@@ -8434,7 +8434,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 970,
+              "line": 991,
               "deprecated": false
             },
             {
@@ -8443,7 +8443,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 1014,
+              "line": 1035,
               "deprecated": false
             }
           ]
@@ -9715,6 +9715,68 @@
       ]
     },
     {
+      "relpath": "tcl.py",
+      "summary": "The host-agnostic entry point — one launcher snippet for every DCC.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Tcl",
+          "summary": "Launch tentacle in whichever DCC is hosting this process.",
+          "line": 106,
+          "bases": [
+            "_TclInternal"
+          ],
+          "members": [
+            {
+              "name": "host",
+              "qualname": "Tcl.host",
+              "kind": "classmethod",
+              "signature": "(cls)",
+              "summary": "The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "qt_key_name",
+              "qualname": "Tcl.qt_key_name",
+              "kind": "classmethod",
+              "signature": "(cls, key_show=None)",
+              "summary": "Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "resolve_key",
+              "qualname": "Tcl.resolve_key",
+              "kind": "classmethod",
+              "signature": "(cls, key_show=None, context_tags=None)",
+              "summary": "The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "chord_bindings",
+              "qualname": "Tcl.chord_bindings",
+              "kind": "classmethod",
+              "signature": "(cls, key_show=None, chord_target=None)",
+              "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "launch",
+              "qualname": "Tcl.launch",
+              "kind": "classmethod",
+              "signature": "(cls, key_show=None, **kwargs)",
+              "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
+              "line": 195,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
       "relpath": "tcl_blender.py",
       "summary": "Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.",
       "functions": [
@@ -9724,7 +9786,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 1753,
+          "line": 2062,
           "deprecated": false
         },
         {
@@ -9733,7 +9795,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 1758,
+          "line": 2067,
           "deprecated": false
         },
         {
@@ -9742,7 +9804,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 1763,
+          "line": 2072,
           "deprecated": false
         },
         {
@@ -9751,7 +9813,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 1768,
+          "line": 2077,
           "deprecated": false
         },
         {
@@ -9760,16 +9822,16 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 1773,
+          "line": 2082,
           "deprecated": false
         },
         {
           "name": "register",
           "qualname": "register",
           "kind": "function",
-          "signature": "()",
+          "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 1778,
+          "line": 2087,
           "deprecated": false
         },
         {
@@ -9778,7 +9840,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 1783,
+          "line": 2092,
           "deprecated": false
         },
         {
@@ -9787,7 +9849,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 1788,
+          "line": 2097,
           "deprecated": false
         },
         {
@@ -9796,7 +9858,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 1793,
+          "line": 2102,
           "deprecated": false
         },
         {
@@ -9805,7 +9867,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 1798,
+          "line": 2107,
           "deprecated": false
         },
         {
@@ -9814,7 +9876,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 1803,
+          "line": 2112,
           "deprecated": false
         }
       ],
@@ -9822,7 +9884,7 @@
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 1105,
+          "line": 1369,
           "bases": [
             "MarkingMenu"
           ],
@@ -9833,7 +9895,16 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1232,
+              "line": 1497,
+              "deprecated": false
+            },
+            {
+              "name": "set_activation_key",
+              "qualname": "TclBlender.set_activation_key",
+              "kind": "method",
+              "signature": "(self, new_key)",
+              "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
+              "line": 1546,
               "deprecated": false
             },
             {
@@ -9842,7 +9913,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1295,
+              "line": 1577,
               "deprecated": false
             },
             {
@@ -9851,7 +9922,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1306,
+              "line": 1588,
               "deprecated": false
             },
             {
@@ -9860,7 +9931,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1324,
+              "line": 1606,
               "deprecated": false
             }
           ]
@@ -9868,7 +9939,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1544,
+          "line": 1826,
           "bases": [],
           "members": [
             {
@@ -9877,7 +9948,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1549,
+              "line": 1831,
               "deprecated": false
             }
           ]
@@ -9885,7 +9956,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 1638,
+          "line": 1941,
           "bases": [],
           "members": [
             {
@@ -9894,16 +9965,16 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 1644,
+              "line": 1947,
               "deprecated": false
             },
             {
               "name": "register",
               "qualname": "BlenderHost.register",
               "kind": "staticmethod",
-              "signature": "()",
+              "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 1663,
+              "line": 1966,
               "deprecated": false
             },
             {
@@ -9912,7 +9983,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 1690,
+              "line": 1999,
               "deprecated": false
             },
             {
@@ -9921,7 +9992,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 1695,
+              "line": 2004,
               "deprecated": false
             }
           ]
@@ -9936,7 +10007,7 @@
         {
           "name": "TclMax",
           "summary": "Marking Menu class overridden for use with Autodesk 3ds Max.",
-          "line": 10,
+          "line": 12,
           "bases": [
             "MarkingMenu"
           ],
@@ -9947,7 +10018,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Get the 3DS MAX main window.",
-              "line": 31,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -9956,7 +10027,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 50,
+              "line": 58,
               "deprecated": false
             },
             {
@@ -9965,7 +10036,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 58,
+              "line": 66,
               "deprecated": false
             }
           ]
@@ -9980,7 +10051,7 @@
         {
           "name": "TclMaya",
           "summary": "Marking Menu class overridden for use with Autodesk Maya.",
-          "line": 7,
+          "line": 9,
           "bases": [
             "MarkingMenu"
           ],

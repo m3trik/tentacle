@@ -59,6 +59,23 @@ for _stream in (sys.stdout, sys.stderr):
         except (ValueError, OSError):
             pass
 
+# Keep the run off the developer's live QSettings / preset stores. tentacle constructs real
+# marking menus, and MarkingMenu PERSISTS ITS BINDINGS ON CONSTRUCTION — unisolated, a run
+# rewrites the user's activation key and chord table, which surfaces much later as "my hotkey
+# keeps resetting itself" with no failing test to point at.
+#
+# Here as well as in conftest.py because this runner discovers with ``unittest``, which never
+# imports a conftest — so the pytest-only path would have left the canonical (and only in-Maya)
+# run unprotected. Before discovery, since the redirect replaces the QSettings class. Best-effort:
+# a checkout without uitk importable must still be able to run the structural tests.
+try:
+    from uitk.testing import TestSandbox
+
+    TestSandbox.activate()
+except Exception as _sandbox_error:  # pragma: no cover - depends on the checkout
+    print(f"# Warning: live-settings sandbox not active: {_sandbox_error!r} #")
+
+
 class TestResult:
     """Container for test result statistics."""
 
@@ -310,6 +327,18 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
         ):
             if p not in sys.path:
                 sys.path.insert(0, p)
+
+        # Keep the run off the user's live QSettings / preset stores. Repeated here because
+        # this dispatcher is a standalone source string executed inside Maya: it imports
+        # neither run_tests.py nor any conftest, so neither of their activations reaches it --
+        # and this is the run that actually constructs marking menus (which persist their
+        # bindings on construction). Before discovery, since the redirect swaps the QSettings
+        # class. Never fatal: a checkout without uitk importable must still report results.
+        try:
+            from uitk.testing import TestSandbox
+            TestSandbox.activate()
+        except Exception as _sandbox_error:
+            print('# Warning: live-settings sandbox not active: %r #' % (_sandbox_error,))
 
         import __main__ as _main
         _main._tentacle_test_complete = False
