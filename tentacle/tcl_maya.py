@@ -3,6 +3,8 @@
 import mayatk as mtk
 from uitk import MarkingMenu, ExternalAppHandler
 
+from tentacle.tcl import Tcl
+
 
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
@@ -16,17 +18,15 @@ class TclMaya(MarkingMenu):
             except Exception as error:
                 print(f"Error getting main window: {error}")
 
-        key_show = kwargs.pop("key_show", "F12")
-        key_show = f"Key_{key_show}" if not key_show.startswith("Key_") else key_show
-
-        # Default bindings for Maya (fully qualified)
-        bindings = kwargs.pop("bindings", None) or {
-            key_show: "hud#startmenu",  # Activation key + default UI
-            f"{key_show}|LeftButton": "cameras#startmenu",
-            f"{key_show}|MiddleButton": "editors#startmenu",
-            f"{key_show}|RightButton": "main#startmenu",
-            f"{key_show}|LeftButton|RightButton": "maya#startmenu",
-        }
+        # The key the user last CHOSE (persisted) > key_show (this install's default) >
+        # Tcl.DEFAULT_KEY — see Tcl.resolve_key. context_tags must match the set passed
+        # to super() below.
+        key_show = Tcl.resolve_key(kwargs.pop("key_show", None), {"maya"})
+        # Default bindings for Maya — the shared chord table, with Maya's native menus on the
+        # both-button chord (see Tcl.chord_bindings; Blender's fork differs only in that target).
+        bindings = kwargs.pop("bindings", None) or Tcl.chord_bindings(
+            key_show, "maya#startmenu"
+        )
 
         super().__init__(
             parent,

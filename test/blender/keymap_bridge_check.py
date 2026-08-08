@@ -8,9 +8,9 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
 Qt deps: set ``TENTACLE_QT_DEPS`` to a folder holding PySide6 + qtpy (or let ``tcl_blender``
 pip-install them on first run). Exercises the bridge helpers in isolation — no full TclBlender /
-Qt host needed: key translation, operator registration, the global ``Window`` keymap item,
-activation→show() routing, F12 collision mute/restore (against an injected synthetic conflict),
-re-install safety, error reporting, and teardown.
+Qt host needed: key translation, operator registration, the viewport-scoped ``3D View`` keymap
+item, activation→show() routing (no mouse grab on a bare key-hold), re-install safety, error
+reporting, no-active-menu pass-through, and teardown.
 """
 import sys
 import os

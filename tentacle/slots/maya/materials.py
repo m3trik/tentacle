@@ -131,8 +131,9 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """Assign list: scene materials + 'New' + 'Random'.
 
         Re-populated on every show so the list reflects the current scene
-        contents and the current cmb002 selection. The root mirrors the
-        current material; releasing on it assigns that material.
+        contents and the current cmb002 selection. Releasing on the root
+        assigns the current material; the row's wording is surface-dependent
+        (see the mixin's ``_assign_root_text``).
 
         This *is* the panel's assign surface — it replaced the Assign /
         Assign Random / New buttons, each of which reached one action where
@@ -146,16 +147,15 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
                 "expand_right" if widget.ui.has_tags("submenu") else "hover_menu"
             )
             widget._assign_list_configured = True
-            # Ensure cmb002 is populated so we can read currentData below.
+            # Ensure cmb002 is populated — the submenu's root row reads
+            # currentData() off it (see the mixin's _assign_root_text).
             if not getattr(self.ui.cmb002, "is_initialized", False):
                 self.ui.cmb002.init_slot()
                 self.ui.cmb002.is_initialized = True
 
         widget.clear()
 
-        current = self.ui.cmb002.currentData()
-        root_text = f"Assign: {current}" if current else "Assign"
-        root = widget.add(root_text)
+        root = widget.add(self._assign_root_text(widget))
 
         # Special actions first
         root.sublist.add("New")

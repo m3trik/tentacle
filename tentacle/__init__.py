@@ -9,6 +9,7 @@ __version__ = "0.13.46"
 
 
 DEFAULT_INCLUDE = {
+    "tcl": "Tcl",  # host-detecting launcher — the documented entry point for every DCC
     "tcl_blender": "TclBlender",
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",

@@ -669,9 +669,30 @@ class SceneSlots(SceneMixin, SlotsMaya):
         if export_format != "glb":
             return
 
+        # The scene sidecar repairs what the FBX hop mistranslates (modern-
+        # shader base colour / emissive) and rides embedded in the GLB. The
+        # Blender fork deliberately has no counterpart: it writes GLB through
+        # Blender's native glTF exporter — no FBX hop, nothing to repair.
+        sidecar = None
+        try:
+            objects = (
+                cmds.ls(selection=True, long=True)
+                if options["selection_only"]
+                else cmds.ls(assemblies=True, long=True)
+            )
+            sidecar = ptk.MeshConvert.build_scene_sidecar(
+                mtk.SceneState.read(
+                    objects, include_textures=options["embed_textures"]
+                ),
+                source=mtk.SceneState.source(),
+                asset=os.path.basename(write_path),
+            )
+        except Exception:  # a bare GLB still beats no GLB
+            self.sb.logger.warning("Scene sidecar skipped.", exc_info=True)
+
         tick(text="Converting to GLB…")
         glb_path = ptk.MeshConvert.fbx_to_glb(
-            write_path, overwrite=True, auto_install=True, prompt=False
+            write_path, overwrite=True, auto_install=True, prompt=False, sidecar=sidecar
         )
         if not (glb_path and os.path.isfile(glb_path)):
             raise RuntimeError("FBX to GLB conversion produced no file.")

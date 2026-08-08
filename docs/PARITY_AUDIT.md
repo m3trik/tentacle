@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 217, Blender 219 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **87%** (378/436) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **53%** (950/1781 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **53%** (955/1797 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 53% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -26,20 +26,20 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | anim_utils | 298 | 246 | 215 | 72% |
 | audio_utils | 66 | 24 | 9 | 14% |
 | cam_utils | 9 | 16 | 4 | 44% |
-| core_utils | 158 | 72 | 51 | 32% |
+| core_utils | 160 | 72 | 51 | 32% |
 | display_utils | 35 | 43 | 18 | 51% |
-| edit_utils | 162 | 165 | 113 | 70% |
-| env_utils | 382 | 251 | 183 | 48% |
-| light_utils | 58 | 44 | 35 | 60% |
-| mat_utils | 283 | 239 | 208 | 73% |
+| edit_utils | 162 | 166 | 113 | 70% |
+| env_utils | 391 | 253 | 185 | 47% |
+| light_utils | 58 | 56 | 35 | 60% |
+| mat_utils | 287 | 242 | 210 | 73% |
 | node_utils | 131 | 52 | 44 | 34% |
 | nurbs_utils | 25 | 26 | 15 | 60% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
 | rig_utils | 113 | 86 | 47 | 42% |
 | ui_utils | 64 | 68 | 24 | 38% |
-| uv_utils | 77 | 78 | 58 | 75% |
+| uv_utils | 78 | 79 | 58 | 74% |
 | xform_utils | 78 | 35 | 29 | 37% |
-| **TOTAL (unique)** | **1781** | **1294** | **950** | **53%** |
+| **TOTAL (unique)** | **1797** | **1313** | **955** | **53%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -70,12 +70,12 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | Channels | 2→3 | 34→22 | 4→4 | 3151→1713 | 54% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 18→8 | 2→6 | 822→458 | 56% | 300% | clean |
 | TexturePathEditor | 7→5 ⚠ | 28→22 | 1→1 | 1987→1140 | 57% | 100% | clean |
+| MarmosetBridge | 0→0 | 0→0 | 2→2 | 285→164 | 58% | 100% | clean |
 | DuplicateRadial | 0→0 | 1→1 | 12→12 | 542→320 | 59% | 100% | clean |
-| MarmosetBridge | 0→0 | 0→0 | 2→2 | 278→164 | 59% | 100% | clean |
 | DuplicateGrid | 0→0 | 1→1 | 7→7 | 438→266 | 61% | 100% | clean |
 | ShotSequencer | 1→1 | 15→12 | 2→2 | 3074→1887 | 61% | 100% | clean |
 | HdrManager | 2→2 | 13→12 | 4→4 | 1726→1107 | 64% | 100% | clean |
-| LightmapBaker | 2→2 | 3→3 | 8→8 | 1856→1262 | 68% | 100% | clean |
+| LightmapBaker | 2→2 | 3→3 | 8→8 | 1856→1285 | 69% | 100% | clean |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 533→371 | 70% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 234→168 | 72% | 100% | clean |
 | HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3104→2384 | 77% | 100% | clean |

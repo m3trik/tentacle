@@ -9,8 +9,10 @@ here:
 - the prefix/suffix affix option box mixed into both DCC Materials slots' "Rename" label
   (``_join_affix`` / ``_apply_rename_affix``);
 - ``_refresh_assign_lists``, which re-inits the Assign list (``list000``) on BOTH the
-  panel and the submenu when the current material changes, so the list's
-  "Assign: <current>" root row keeps matching what releasing on it will assign.
+  panel and the submenu when the current material changes, so each list keeps matching
+  what releasing on it will assign, plus ``_assign_root_text``, the per-surface wording
+  of that root row ("Assign: <current>" on the free-floating submenu; a bare "Assign
+  Current" on the panel, where ``cmb002`` already names the material).
 
 The mixin imports nothing DCC-specific, so both are exercised directly here (no
 ``maya.cmds`` / ``bpy`` needed — this runs everywhere). The per-DCC slots only supply
@@ -409,6 +411,123 @@ class TestMutatorsRefreshBothWidgets(unittest.TestCase):
                         "directly — use self._refresh_material_lists() so the Assign "
                         "lists don't keep rows for materials that no longer exist.",
                     )
+
+
+class _FakeListWidget:
+    """Stand-in for a hosted ExpandableList: only its surface's tags matter."""
+
+    class _Surface:
+        def __init__(self, tags):
+            self._tags = tags
+
+        def has_tags(self, tag):
+            return tag in self._tags
+
+    def __init__(self, submenu):
+        self.ui = self._Surface({"submenu"} if submenu else set())
+
+
+class TestAssignRootText(unittest.TestCase):
+    """The Assign list's root row is worded per surface.
+
+    The submenu floats free of the panel, so its root is the only thing there
+    naming what a release will assign. The panel's list sits directly under
+    cmb002, which already shows the name — so the row states the action only.
+    """
+
+    def test_submenu_names_the_current_material(self):
+        host = _Host(current="metal_mat")
+        self.assertEqual(
+            host._assign_root_text(_FakeListWidget(submenu=True)), "Assign: metal_mat"
+        )
+
+    def test_panel_omits_the_material_name(self):
+        """cmb002 sits right above it — repeating the name is redundant."""
+        host = _Host(current="metal_mat")
+        text = host._assign_root_text(_FakeListWidget(submenu=False))
+        self.assertEqual(text, "Assign Current")
+        self.assertNotIn("metal_mat", text)
+
+    def test_panel_wording_is_independent_of_the_current_material(self):
+        """No material current -> still 'Assign Current' (the row is the action)."""
+        host = _Host(current=None)
+        self.assertEqual(
+            host._assign_root_text(_FakeListWidget(submenu=False)), "Assign Current"
+        )
+
+    def test_submenu_falls_back_when_nothing_is_current(self):
+        host = _Host(current=None)
+        self.assertEqual(host._assign_root_text(_FakeListWidget(submenu=True)), "Assign")
+
+    def test_submenu_names_the_material_the_way_the_combo_does(self):
+        """cmb002's item text is the leaf, its data the full name — the row
+        mirrors the combo, so it must not spell the same material differently."""
+        host = _Host(current="grp|metal_mat")
+        self.assertEqual(
+            host._assign_root_text(_FakeListWidget(submenu=True)), "Assign: metal_mat"
+        )
+
+
+class TestForksBuildTheRootThroughTheMixin(unittest.TestCase):
+    """Neither list000_init may re-inline the root label.
+
+    Both forks built the same "Assign: <current>" string; the panel/submenu
+    split now lives in the mixin, so a fork spelling its own root would let the
+    two surfaces drift apart again.
+    """
+
+    def test_list000_init_calls_the_shared_helper(self):
+        for path in (MAYA_FILE, BLENDER_FILE):
+            with self.subTest(path=path.name):
+                init = _method(_classdef(path), "list000_init")
+                self.assertIsNotNone(init, f"list000_init not found in {path.name}")
+                calls = {
+                    n.func.attr
+                    for n in ast.walk(init)
+                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                }
+                self.assertIn(
+                    "_assign_root_text",
+                    calls,
+                    f"{path.name} list000_init must build the root row via "
+                    "self._assign_root_text(widget).",
+                )
+
+    def test_no_fork_spells_its_own_root_label(self):
+        """The root is ``widget.add(...)``: its label must be computed, not literal.
+
+        Pinned on that call rather than on 'no Assign-ish string anywhere in the
+        method', which would also fire on a legitimate sublist row — the leaves
+        (``root.sublist.add("New")``) are literals by design.
+
+        The argument is WALKED for string constants rather than type-checked at
+        its root: the label both forks used to build was
+        ``f"Assign: {current}" if current else "Assign"``, whose top-level node
+        is an ``IfExp``, so a shallow check waved that exact regression through.
+        """
+        for path in (MAYA_FILE, BLENDER_FILE):
+            with self.subTest(path=path.name):
+                init = _method(_classdef(path), "list000_init")
+                literal_roots = [
+                    n.lineno
+                    for n in ast.walk(init)
+                    if isinstance(n, ast.Call)
+                    and isinstance(n.func, ast.Attribute)
+                    and n.func.attr == "add"
+                    and isinstance(n.func.value, ast.Name)
+                    and n.func.value.id == "widget"
+                    and n.args
+                    and any(
+                        isinstance(sub, ast.Constant) and isinstance(sub.value, str)
+                        for sub in ast.walk(n.args[0])
+                    )
+                ]
+                self.assertEqual(
+                    literal_roots,
+                    [],
+                    f"{path.name}:{literal_roots} list000_init spells its own root "
+                    "label — the wording belongs to the mixin's _assign_root_text.",
+                )
 
 
 class TestBothSurfacesHaveAnAssignList(unittest.TestCase):
