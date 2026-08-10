@@ -77,10 +77,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def _resolve_workspace_text(self) -> str:
         return btk.get_env_info("workspace_dir") or ""
 
-    def _tools_items(self):
-        """``category -> [(label, objectName, tooltip)]`` for the Tools list.
+    TOOLS_ROOT_TOOLTIP = "Scene bridges, management, fixes and diagnostics."
 
-        Mirror of the Maya scene Tools list (portable subset). ``b011`` (Fix Color
+    def _tools_items(self):
+        """Mirror of the Maya scene Tools list (portable subset). ``b011`` (Fix Color
         Spaces) is a genuine Blender build (data maps → 'Non-Color' by map type).
         ``b013`` (Mesh Converter) is the DCC-agnostic extapps/mesh_convert tool,
         launched via the shared external_app handler exactly like Maya. Maya-only
@@ -90,9 +90,6 @@ class SceneSlots(SceneMixin, SlotsBlender):
         ``b_cleanup`` is Blender-specific (Maya's b006 means the unrelated
         'Cleanup Unknown'). ``b008`` Export Selection is not here: it is a
         one-shot export and now lives in the Export list with its siblings.
-
-        A method rather than a class attribute because ``tb002``'s tooltip is
-        built with the switchboard's formatter, which needs a live ``self.sb``.
         """
         return {
             "Bridges": [
@@ -179,48 +176,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ],
         }
 
-    def list003_init(self, widget):
-        """Tools list: the scene actions that used to sit loose in the header
-        menu (Bridges / Manage / Fix / Diagnostics), grouped into one expandable
-        row in the panel body — mirror of the Maya fork.
-
-        Every leaf is a real slot-wired widget carrying the objectName its
-        header entry used, so its slot, tooltip, option box (``tb001`` /
-        ``tb002``) and QSettings identity are unchanged — only the location
-        moved.
-        """
-        widget.fixed_item_height = 18
-        widget.apply_preset("hover_menu")
-        root = widget.add(
-            "Tools",
-            setToolTip="Scene bridges, management, fixes and diagnostics.",
-        )
-        for category, entries in self._tools_items().items():
-            cat = root.sublist.add(category)
-            for label, name, tooltip in entries:
-                self.add_slot_widget(
-                    cat.sublist,
-                    setObjectName=name,
-                    setText=label,
-                    setToolTip=tooltip,
-                )
-
     @SlotsBlender.Signals("on_item_interacted")
     def list003(self, item):
-        """Dispatch a Tools leaf to its own slot.
-
-        Category rows are navigation only. Leaves are slot-wired widgets, so
-        ``call_slot`` routes through the switchboard's wrapper — which injects
-        the ``widget`` argument for the slots that declare it, so both
-        signatures work without a lookup table here. An option-box-wrapped
-        leaf never arrives: the wrap leaves it out of the list's item set and
-        its own ``clicked`` drives it (see ``Slots.add_slot_widget``).
-        """
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
-        call = getattr(item, "call_slot", None)
-        if callable(call):
-            call()
+        """Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``)."""
+        self._dispatch_tools_item(item)
 
     # ------------------------------------------------------- SceneMixin hooks
     NON_ORTHOGONAL_FIX_EFFECT = (
@@ -577,14 +536,20 @@ class SceneSlots(SceneMixin, SlotsBlender):
             # window override: the bundled glTF exporter unconditionally calls
             # ``context.window.cursor_set('WAIT')`` — AttributeError when window is
             # None (the Qt-pump state); btk.FbxUtils wraps its own.
-            with btk.window_context_override():
-                bpy.ops.export_scene.gltf(
-                    filepath=out_path,
-                    export_format="GLB",
-                    use_selection=options["selection_only"],
-                    export_cameras=options["include_cameras"],
-                    export_lights=options["include_lights"],
-                )
+            # wired_for_export: the scene's COMMITTED lightmaps (if any) ride the
+            # GLB — wired for the export's lifetime, restored after, a clean no-op
+            # on an unbaked scene. The export needs no knowledge of the bake; it
+            # reads scene state, exactly like the Maya fork's fbx_to_glb route.
+            with btk.LightmapWebExport().wired_for_export():
+                with btk.window_context_override():
+                    bpy.ops.export_scene.gltf(
+                        filepath=out_path,
+                        export_format="GLB",
+                        use_selection=options["selection_only"],
+                        export_cameras=options["include_cameras"],
+                        export_lights=options["include_lights"],
+                        export_extras=True,  # carries the lightmap_web manifest
+                    )
             return
 
         object_types = {"MESH", "EMPTY", "OTHER"}

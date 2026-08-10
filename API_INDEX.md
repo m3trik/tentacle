@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-10_
+_Generated: 2026-08-09_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -14,6 +14,10 @@ _Generated: 2026-08-10_
 ### `slots/_hud_warnings.py` — Shared HUD warning framework (DCC-agnostic).
 - `class HudWarningsMixin`
   - methods: evaluate_warnings, insert_warning_icons, insert_warning_details
+
+### `slots/_lighting.py` — Shared surface for the ``lighting`` panel's Maya and Blender forks.
+- `class LightingMixin`
+  - methods: kelvin_tooltip
 
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
@@ -29,7 +33,7 @@ _Generated: 2026-08-10_
 
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
-  - methods: tb003, tb002_init, tb002
+  - methods: tb003, list003_init, tb002_init, tb002
 
 ### `slots/_settings.py` — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - `class SettingsMixin`
@@ -91,8 +95,8 @@ _Generated: 2026-08-10_
   - methods: request_hud_build, construct_hud
 
 ### `slots/blender/lighting.py`
-- `class Lighting(SlotsBlender)`
-  - methods: b000, b001
+- `class Lighting(LightingMixin, SlotsBlender)`
+  - methods: b000, b001, tb000_init, tb000
 
 ### `slots/blender/main.py`
 - `class Main(SlotsBlender)`
@@ -132,7 +136,7 @@ _Generated: 2026-08-10_
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
-  - methods: list003_init, list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
+  - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
 - `class Selection(SlotsBlender)`
@@ -247,8 +251,8 @@ _Generated: 2026-08-10_
 - `class KeySlots(SlotsMaya)`
 
 ### `slots/maya/lighting.py`
-- `class Lighting(SlotsMaya)`
-  - methods: b000, b001
+- `class Lighting(LightingMixin, SlotsMaya)`
+  - methods: b000, b001, tb000_init, tb000
 
 ### `slots/maya/lighting_shading.py`
 - `class LightingShadingSlots(SlotsMaya)`
@@ -321,7 +325,7 @@ _Generated: 2026-08-10_
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SceneMixin, SlotsMaya)`
-  - methods: list003_init, list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, tb001_init, tb001, b011, b018, b012, b017, b013, b014_init, b014
+  - methods: list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, tb001_init, tb001, b011, b018, b012, b017, b013, b014_init, b014
 
 ### `slots/maya/select.py`
 - `class SelectSlots(SlotsMaya)`
