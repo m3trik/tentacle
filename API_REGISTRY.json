@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-08",
+  "generated_at": "2026-08-10",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -13,7 +13,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 46,
+          "line": 47,
           "deprecated": false
         }
       ],
@@ -106,6 +106,30 @@
               "signature": "(self, hud, warnings) -> None",
               "summary": "Insert a formatted detail line per active warning.",
               "line": 75,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/_lighting.py",
+      "summary": "Shared surface for the ``lighting`` panel's Maya and Blender forks.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LightingMixin",
+          "summary": "Behaviour and reference data shared by both ``lighting`` forks.",
+          "line": 12,
+          "bases": [],
+          "members": [
+            {
+              "name": "kelvin_tooltip",
+              "qualname": "LightingMixin.kelvin_tooltip",
+              "kind": "classmethod",
+              "signature": "(cls, lead: str, tail: str) -> str",
+              "summary": "*lead*, then the reference table, then *tail*.",
+              "line": 47,
               "deprecated": false
             }
           ]
@@ -250,12 +274,21 @@
               "deprecated": false
             },
             {
+              "name": "list003_init",
+              "qualname": "SceneMixin.list003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tools list: the scene actions that used to sit loose in the header",
+              "line": 345,
+              "deprecated": false
+            },
+            {
               "name": "tb002_init",
               "qualname": "SceneMixin.tb002_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 345,
+              "line": 411,
               "deprecated": false
             },
             {
@@ -264,7 +297,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 389,
+              "line": 455,
               "deprecated": false
             }
           ]
@@ -1890,8 +1923,9 @@
         {
           "name": "Lighting",
           "summary": "Blender port of the shared ``lighting`` menu.",
-          "line": 6,
+          "line": 8,
           "bases": [
+            "LightingMixin",
             "SlotsBlender"
           ],
           "members": [
@@ -1901,7 +1935,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Launch the HDR Manager (world-environment HDRI panel).",
-              "line": 17,
+              "line": 19,
               "deprecated": false
             },
             {
@@ -1910,7 +1944,25 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).",
-              "line": 21,
+              "line": 23,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "Lighting.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lights From Geometry Init",
+              "line": 27,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Lighting.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create real area lights from the selected fixture meshes.",
+              "line": 64,
               "deprecated": false
             }
           ]
@@ -3420,21 +3472,12 @@
           ],
           "members": [
             {
-              "name": "list003_init",
-              "qualname": "SceneSlots.list003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 182,
-              "deprecated": false
-            },
-            {
               "name": "list003",
               "qualname": "SceneSlots.list003",
               "kind": "method",
               "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its own slot.",
-              "line": 209,
+              "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
+              "line": 180,
               "deprecated": false
             },
             {
@@ -3443,7 +3486,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 252,
+              "line": 211,
               "deprecated": false
             },
             {
@@ -3452,7 +3495,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 265,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -3461,7 +3504,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 272,
+              "line": 231,
               "deprecated": false
             },
             {
@@ -3470,7 +3513,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 281,
+              "line": 240,
               "deprecated": false
             },
             {
@@ -3479,7 +3522,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 286,
+              "line": 245,
               "deprecated": false
             },
             {
@@ -3488,7 +3531,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 304,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -3497,7 +3540,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 358,
+              "line": 317,
               "deprecated": false
             },
             {
@@ -3506,7 +3549,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 405,
+              "line": 364,
               "deprecated": false
             },
             {
@@ -3515,7 +3558,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 419,
+              "line": 378,
               "deprecated": false
             },
             {
@@ -3524,7 +3567,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 606,
+              "line": 571,
               "deprecated": false
             },
             {
@@ -3533,7 +3576,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 621,
+              "line": 586,
               "deprecated": false
             },
             {
@@ -3542,7 +3585,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 625,
+              "line": 590,
               "deprecated": false
             },
             {
@@ -3551,7 +3594,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 629,
+              "line": 594,
               "deprecated": false
             },
             {
@@ -3560,7 +3603,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 636,
+              "line": 601,
               "deprecated": false
             },
             {
@@ -3569,7 +3612,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 642,
+              "line": 607,
               "deprecated": false
             },
             {
@@ -3578,7 +3621,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 649,
+              "line": 614,
               "deprecated": false
             },
             {
@@ -3587,7 +3630,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 666,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -3596,7 +3639,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 690,
+              "line": 655,
               "deprecated": false
             },
             {
@@ -3605,7 +3648,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.",
-              "line": 715,
+              "line": 680,
               "deprecated": false
             },
             {
@@ -3614,7 +3657,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 748,
+              "line": 713,
               "deprecated": false
             },
             {
@@ -3623,7 +3666,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 754,
+              "line": 719,
               "deprecated": false
             },
             {
@@ -3632,7 +3675,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 765,
+              "line": 730,
               "deprecated": false
             },
             {
@@ -3641,7 +3684,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of",
-              "line": 776,
+              "line": 741,
               "deprecated": false
             }
           ]
@@ -6419,6 +6462,7 @@
           "summary": "",
           "line": 9,
           "bases": [
+            "LightingMixin",
             "SlotsMaya"
           ],
           "members": [
@@ -6438,6 +6482,24 @@
               "signature": "(self)",
               "summary": "Launch the Lightmap Baker.",
               "line": 21,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "Lighting.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lights From Geometry Init",
+              "line": 25,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "Lighting.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create real area lights from the selected fixture geometry.",
+              "line": 84,
               "deprecated": false
             }
           ]
@@ -8204,21 +8266,12 @@
           ],
           "members": [
             {
-              "name": "list003_init",
-              "qualname": "SceneSlots.list003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 132,
-              "deprecated": false
-            },
-            {
               "name": "list003",
               "qualname": "SceneSlots.list003",
               "kind": "method",
               "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its own slot.",
-              "line": 160,
+              "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
+              "line": 130,
               "deprecated": false
             },
             {
@@ -8227,7 +8280,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave",
-              "line": 223,
+              "line": 181,
               "deprecated": false
             },
             {
@@ -8236,7 +8289,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave: reopen a recent autosaved scene file.",
-              "line": 242,
+              "line": 200,
               "deprecated": false
             },
             {
@@ -8245,7 +8298,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 307,
+              "line": 265,
               "deprecated": false
             },
             {
@@ -8254,7 +8307,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import: import a file, or open import / FBX / OBJ preset options.",
-              "line": 323,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -8263,7 +8316,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 383,
+              "line": 341,
               "deprecated": false
             },
             {
@@ -8272,7 +8325,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 426,
+              "line": 384,
               "deprecated": false
             },
             {
@@ -8281,7 +8334,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 437,
+              "line": 395,
               "deprecated": false
             },
             {
@@ -8290,7 +8343,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 450,
+              "line": 408,
               "deprecated": false
             },
             {
@@ -8299,7 +8352,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 463,
+              "line": 421,
               "deprecated": false
             },
             {
@@ -8308,7 +8361,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 467,
+              "line": 425,
               "deprecated": false
             },
             {
@@ -8317,7 +8370,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 471,
+              "line": 429,
               "deprecated": false
             },
             {
@@ -8326,7 +8379,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 475,
+              "line": 433,
               "deprecated": false
             },
             {
@@ -8335,7 +8388,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 701,
+              "line": 659,
               "deprecated": false
             },
             {
@@ -8344,7 +8397,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 705,
+              "line": 663,
               "deprecated": false
             },
             {
@@ -8353,7 +8406,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 709,
+              "line": 667,
               "deprecated": false
             },
             {
@@ -8362,7 +8415,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 713,
+              "line": 671,
               "deprecated": false
             },
             {
@@ -8371,7 +8424,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box.",
-              "line": 752,
+              "line": 710,
               "deprecated": false
             },
             {
@@ -8380,7 +8433,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the audit report to the viewer dialog.",
-              "line": 795,
+              "line": 753,
               "deprecated": false
             },
             {
@@ -8389,7 +8442,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 862,
+              "line": 820,
               "deprecated": false
             },
             {
@@ -8398,7 +8451,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 866,
+              "line": 824,
               "deprecated": false
             },
             {
@@ -8407,7 +8460,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 882,
+              "line": 840,
               "deprecated": false
             },
             {
@@ -8416,7 +8469,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer.",
-              "line": 897,
+              "line": 855,
               "deprecated": false
             },
             {
@@ -8425,7 +8478,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 958,
+              "line": 916,
               "deprecated": false
             },
             {
@@ -8434,7 +8487,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 991,
+              "line": 949,
               "deprecated": false
             },
             {
@@ -8443,7 +8496,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 1035,
+              "line": 993,
               "deprecated": false
             }
           ]

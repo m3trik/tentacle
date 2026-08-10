@@ -2,14 +2,17 @@
 # coding=utf-8
 """Tests for the shared scene-panel behavior (DCC-agnostic).
 
-``tentacle/slots/_scene.py`` holds ``SceneMixin`` — the shared ``scene`` slot
-behavior, currently the Fix Non-Orthogonal Axes header entry (``tb002``)
-mixed into both DCC Scene slots. The mixin imports nothing DCC-specific
-(engine access goes through the ``_diagnostics`` / ``_scene_objects`` /
-``_selected_objects`` hooks), so the whole flow — scope resolution, dry-run
-report, confirm + fix + re-verify — is exercised directly here with fakes
-(no ``maya.cmds`` / ``bpy`` needed; this runs everywhere). Two AST checks pin
-that both DCC slots actually mix the shared class in and supply every hook.
+``tentacle/slots/_scene.py`` holds ``SceneMixin`` — the ``scene`` slot behavior
+shared by both DCC Scene slots: the Fix Non-Orthogonal Axes header entry
+(``tb002``), the Export Scene / foreign-bridge hand-off, and the Tools list
+(``list003``). The mixin imports nothing DCC-specific (engine access goes
+through the ``_diagnostics`` / ``_scene_objects`` / ``_selected_objects`` /
+``_tools_items`` hooks), so each flow — scope resolution, dry-run report,
+confirm + fix + re-verify; format/path resolution; list construction and
+dispatch — is exercised directly here with fakes (no ``maya.cmds`` / ``bpy``
+needed; this runs everywhere). AST checks pin that both DCC slots actually mix
+the shared class in, supply every hook, and do NOT carry their own copy of a
+shared method.
 """
 import ast
 import os
@@ -37,9 +40,18 @@ HOOKS = (
     "_foreign_scene_bridge",
     "_export_scene_native",
     "_confirm_dense_export",
+    # The Tools list's contents — the one part of list003 that is fork-specific.
+    "_tools_items",
 )
 #: Class attributes each fork must supply for the shared behavior above.
-REQUIRED_ATTRS = ("NON_ORTHOGONAL_FIX_EFFECT", "FOREIGN_FORMAT_LABEL")
+REQUIRED_ATTRS = (
+    "NON_ORTHOGONAL_FIX_EFFECT",
+    "FOREIGN_FORMAT_LABEL",
+    "TOOLS_ROOT_TOOLTIP",
+)
+#: Shared methods that must live ONLY on the mixin — a fork re-defining one is
+#: the drift this refactor removed (both forks carried byte-identical copies).
+FORK_MUST_NOT_DEFINE = ("list003_init", "_dispatch_tools_item")
 
 
 class _FakeDiagnostics:
@@ -290,12 +302,136 @@ class TestDccSlotsWireTheMixin(unittest.TestCase):
         }
         for attr in REQUIRED_ATTRS:
             self.assertIn(attr, assigned, f"{path.name} missing {attr}")
+        for name in FORK_MUST_NOT_DEFINE:
+            self.assertNotIn(
+                name,
+                defined,
+                f"{path.name} re-defines {name} — it belongs to SceneMixin",
+            )
 
     def test_maya_slot(self):
         self._check(MAYA_FILE)
 
     def test_blender_slot(self):
         self._check(BLENDER_FILE)
+
+    def test_forks_delegate_list003_to_the_mixin(self):
+        """``list003`` stays in the forks (its ``@Signals`` decorator is a
+        class-body evaluation, and the decorator is re-exposed on the DCC Slots
+        base so the slots layer never imports uitk) — but its BODY must be the
+        one call into the mixin, not a second copy of the dispatch."""
+        for path in (MAYA_FILE, BLENDER_FILE):
+            with self.subTest(fork=path.name):
+                cls = self._class_def(path)
+                fn = next(
+                    n
+                    for n in cls.body
+                    if isinstance(n, ast.FunctionDef) and n.name == "list003"
+                )
+                # Drop the docstring only — the delegating call is itself an
+                # ast.Expr, so filtering the whole node type hides the body.
+                body = list(fn.body)
+                if ast.get_docstring(fn) is not None:
+                    body = body[1:]
+                self.assertEqual(
+                    [ast.unparse(n) for n in body],
+                    ["self._dispatch_tools_item(item)"],
+                )
+
+
+class _FakeList:
+    """Stand-in for uitk's ExpandableList (the surface list003_init touches)."""
+
+    def __init__(self, submenu=False):
+        self.ui = _Attr(has_tags=lambda *tags: submenu)
+        self.fixed_item_height = None
+        self.preset = None
+        self.items = []
+
+    def apply_preset(self, name):
+        self.preset = name
+
+    def get_items(self):
+        return list(self.items)
+
+    def add(self, text, **kwargs):
+        item = _Attr(text=text, sublist=_FakeList(), **kwargs)
+        self.items.append(item)
+        return item
+
+
+class _ToolsHost(SceneMixin):
+    """A host wiring only the Tools list's hooks."""
+
+    TOOLS_ROOT_TOOLTIP = "Scene bridges and diagnostics."
+
+    def __init__(self, items):
+        self._items = items
+        self.slot_widgets = []
+
+    def _tools_items(self):
+        return self._items
+
+    def add_slot_widget(self, sublist, **kwargs):
+        self.slot_widgets.append((sublist, kwargs))
+        return sublist.add(kwargs.get("setText", ""), **kwargs)
+
+
+TOOLS = {
+    "Bridges": [("Unity Bridge", "b016", "Send to Unity.")],
+    "Fix": [("Fix OCIO", "b009", "Fix color management.")],
+}
+
+
+class TestToolsList(unittest.TestCase):
+    """``list003`` — the Tools list, shared by both forks."""
+
+    def test_submenu_flyout_overlays_the_row_and_fans_left(self):
+        """The submenu's trigger is a narrow, absolutely-positioned strip near
+        the right edge, so its flyout must cover that row (top-right anchored)
+        and fan LEFT — uitk's ``expand_overlay_left``. Fanning right (the panel
+        preset) ran the categories off the submenu's edge."""
+        widget = _FakeList(submenu=True)
+        _ToolsHost(TOOLS).list003_init(widget)
+        self.assertEqual(widget.preset, "expand_overlay_left")
+
+    def test_panel_row_keeps_the_header_menu_preset(self):
+        """The panel's row is layout-managed with room to its right — unchanged."""
+        widget = _FakeList(submenu=False)
+        _ToolsHost(TOOLS).list003_init(widget)
+        self.assertEqual(widget.preset, "hover_menu")
+
+    def test_every_category_and_leaf_is_built(self):
+        widget = _FakeList()
+        host = _ToolsHost(TOOLS)
+        host.list003_init(widget)
+
+        root = widget.items[0]
+        self.assertEqual(root.text, "Tools")
+        self.assertEqual(root.setToolTip, host.TOOLS_ROOT_TOOLTIP)
+        self.assertEqual([i.text for i in root.sublist.items], list(TOOLS))
+        # Leaves are slot-wired by objectName, so their slots/settings identity
+        # survives the move out of the header menu.
+        self.assertEqual(
+            [(kw["setObjectName"], kw["setText"]) for _, kw in host.slot_widgets],
+            [("b016", "Unity Bridge"), ("b009", "Fix OCIO")],
+        )
+
+    def test_dispatch_calls_a_leaf_and_ignores_a_category(self):
+        calls = []
+        leaf = _Attr(sublist=_FakeList(), call_slot=lambda: calls.append("leaf"))
+        category = _Attr(sublist=_FakeList(), call_slot=lambda: calls.append("cat"))
+        category.sublist.add("a leaf under it")
+
+        host = _ToolsHost(TOOLS)
+        host._dispatch_tools_item(category)  # navigation only
+        self.assertEqual(calls, [])
+        host._dispatch_tools_item(leaf)
+        self.assertEqual(calls, ["leaf"])
+
+    def test_dispatch_tolerates_an_item_with_no_slot(self):
+        """A plain ``add(str)`` row carries no ``call_slot`` — must not raise."""
+        _ToolsHost(TOOLS)._dispatch_tools_item(_Attr(sublist=_FakeList()))
 
 
 class _FakeBridge:

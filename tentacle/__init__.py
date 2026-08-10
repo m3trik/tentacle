@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.48"
+__version__ = "0.13.51"
 
 
 DEFAULT_INCLUDE = {
@@ -28,6 +28,7 @@ DEFAULT_INCLUDE = {
     # each name owned by exactly the panels that opted in.
     "slots._edit": "EditMixin",
     "slots._hud_warnings": "HudWarningsMixin",
+    "slots._lighting": "LightingMixin",
     "slots._materials": "MaterialsMixin",
     "slots._preferences": "PreferencesMixin",
     "slots._rendering": "RenderingMixin",

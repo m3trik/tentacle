@@ -23,12 +23,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
         self.submenu = self.sb.loaded_ui.scene_submenu
         self._footer_controller = self._create_footer_controller()
 
-    def _tools_items(self):
-        """``category -> [(label, objectName, tooltip)]`` for the Tools list.
+    TOOLS_ROOT_TOOLTIP = "Scene bridges, management, recovery, fixes and diagnostics."
 
-        A method rather than a class attribute because ``tb002``'s tooltip is
-        built with the switchboard's formatter, which needs a live ``self.sb``.
-        """
+    def _tools_items(self):
         return {
             "Bridges": [
                 (
@@ -129,49 +126,10 @@ class SceneSlots(SceneMixin, SlotsMaya):
             ],
         }
 
-    def list003_init(self, widget):
-        """Tools list: the scene actions that used to sit loose in the header
-        menu (Bridges / Manage / Recover / Fix / Diagnostics), grouped into one
-        expandable row in the panel body.
-
-        Every leaf is a real slot-wired widget carrying the objectName its
-        header entry used, so its slot, tooltip, option box (``tb001`` /
-        ``tb002``) and QSettings identity are unchanged — only the location
-        moved. ``b014`` keeps its stateful ``b014_init`` (enabled state and
-        destination label track the open scene) for the same reason.
-        """
-        widget.fixed_item_height = 18
-        widget.apply_preset("hover_menu")
-        root = widget.add(
-            "Tools",
-            setToolTip="Scene bridges, management, recovery, fixes and diagnostics.",
-        )
-        for category, entries in self._tools_items().items():
-            cat = root.sublist.add(category)
-            for label, name, tooltip in entries:
-                self.add_slot_widget(
-                    cat.sublist,
-                    setObjectName=name,
-                    setText=label,
-                    setToolTip=tooltip,
-                )
-
     @SlotsMaya.Signals("on_item_interacted")
     def list003(self, item):
-        """Dispatch a Tools leaf to its own slot.
-
-        Category rows are navigation only. Leaves are slot-wired widgets, so
-        ``call_slot`` routes through the switchboard's wrapper — which injects
-        the ``widget`` argument for the slots that declare it, so both
-        signatures work without a lookup table here. An option-box-wrapped
-        leaf never arrives: the wrap leaves it out of the list's item set and
-        its own ``clicked`` drives it (see ``Slots.add_slot_widget``).
-        """
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
-        call = getattr(item, "call_slot", None)
-        if callable(call):
-            call()
+        """Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``)."""
+        self._dispatch_tools_item(item)
 
     # ------------------------------------------------------- SceneMixin hooks
     NON_ORTHOGONAL_FIX_EFFECT = (

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>94</height>
+    <height>74</height>
    </rect>
   </property>
   <property name="tabShape">
@@ -140,6 +140,29 @@
            </property>
            <property name="text">
             <string>Lightmap Baker</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="tb000">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Create real area lights from the selected light-fixture geometry — whole meshes, or just their lens faces.
+Each light is an ordinary, artist-owned scene light stamped with the geometry it came from, so it can be re-fitted later if that geometry moves.</string>
+           </property>
+           <property name="text">
+            <string>Lights From Geometry</string>
            </property>
           </widget>
          </item>

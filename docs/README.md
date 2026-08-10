@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-742%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-748%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
@@ -6,7 +6,7 @@
 
 A Qt marking-menu launcher for DCC apps.
 
-Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships ~60 Maya tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …) — a starting set you can build on, or replace wholesale with your own — a Blender integration whose slot library is in progress, and a thin 3ds Max wrapper exists.
+Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships ~60 Maya tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …) — a starting set you can build on, or replace wholesale with your own — a Blender integration slot library is in progress, and a thin 3ds Max wrapper exists to build on.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 

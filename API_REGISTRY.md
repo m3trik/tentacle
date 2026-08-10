@@ -2,13 +2,14 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-08_
+_Generated: 2026-08-10_
 
 ## Index
 
 - [`__init__.py`](#__init__)
 - [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
+- [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
@@ -116,7 +117,7 @@ _Generated: 2026-08-08_
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L46) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L47) — Format a string using preset variables.
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -138,6 +139,14 @@ Shared HUD warning framework (DCC-agnostic).
   - `HudWarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
+
+<a id="slots--_lighting"></a>
+### `slots/_lighting.py`
+
+Shared surface for the ``lighting`` panel's Maya and Blender forks.
+
+- **[`class LightingMixin`](tentacle/tentacle/slots/_lighting.py#L12)** — Behaviour and reference data shared by both ``lighting`` forks.
+  - `LightingMixin.kelvin_tooltip(cls, lead: str, tail: str) -> str` *(class)* — *lead*, then the reference table, then *tail*.
 
 <a id="slots--_materials"></a>
 ### `slots/_materials.py`
@@ -175,6 +184,7 @@ Behavior shared by the Maya and Blender ``scene`` panels.
 
 - **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L34)** — Shared ``scene`` panel behavior.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
+  - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
@@ -408,9 +418,11 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--lighting"></a>
 ### `slots/blender/lighting.py`
 
-- **[`class Lighting(SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L6)** — Blender port of the shared ``lighting`` menu.
+- **[`class Lighting(LightingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L8)** — Blender port of the shared ``lighting`` menu.
   - `Lighting.b000(self)` — Launch the HDR Manager (world-environment HDRI panel).
   - `Lighting.b001(self)` — Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).
+  - `Lighting.tb000_init(self, widget)` — Lights From Geometry Init
+  - `Lighting.tb000(self, widget)` — Create real area lights from the selected fixture meshes.
 
 <a id="slots--blender--main"></a>
 ### `slots/blender/main.py`
@@ -609,8 +621,7 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/scene.py`
 
 - **[`class SceneSlots(SceneMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L12)** — Blender port of the shared ``scene`` menu.
-  - `SceneSlots.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
-  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot.
+  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave (recent temp-dir .blend autosaves, newest first).
@@ -1039,9 +1050,11 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--lighting"></a>
 ### `slots/maya/lighting.py`
 
-- **[`class Lighting(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
+- **[`class Lighting(LightingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
   - `Lighting.b000(self)` — Launch the HDR Manager.
   - `Lighting.b001(self)` — Launch the Lightmap Baker.
+  - `Lighting.tb000_init(self, widget)` — Lights From Geometry Init
+  - `Lighting.tb000(self, widget)` — Create real area lights from the selected fixture geometry.
 
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`
@@ -1304,8 +1317,7 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/scene.py`
 
 - **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
-  - `SceneSlots.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
-  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot.
+  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
   - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
   - `SceneSlots.list001_init(self, widget)` — Initialize Import

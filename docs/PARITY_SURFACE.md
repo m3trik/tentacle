@@ -121,7 +121,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | edit.py | 0 | 0 | 8 | 0 | 0 | OK |
 | editors.py | 0 | 0 | 0 | 0 | 0 | OK |
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
-| lighting.py | 0 | 0 | 0 | 0 | 0 | OK |
+| lighting.py | 0 | 1 | 0 | 0 | 5 | open |
 | main.py | 0 | 0 | 0 | 0 | 0 | OK |
 | materials.py | 0 | 1 | 4 | 0 | 0 | open |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -160,6 +160,14 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 **combo item deltas (review)**
   - `cmb_lock` 2->2 items; missing=['Unlock Nodes', 'Lock Nodes'] extra=['Unlock Objects', 'Lock Objects']
 
+#### lighting.py
+**default/property deltas (review — a flipped default changes first-use behavior)**
+  - `d000.setValue` maya=`1.0` blender=`100.0`
+  - `d000.set_limits` maya=`[0, 100000, 1.0, 2]` blender=`[0, 1000000, 10.0, 1]`
+  - `d000.setPrefix` maya=`'Intensity: '` blender=`'Power: '`
+  - `d001.setValue` maya=`1.0` blender=`0.01`
+  - `d001.set_limits` maya=`[0, 10000, 0.5, 2]` blender=`[0, 100, 0.01, 3]`
+
 #### materials.py
 **combo item deltas (review)**
   - `_TOOLS_ITEMS[Materials (scene)]` 4->3 items; missing=['Arnold Preview Shader'] extra=[]
@@ -194,10 +202,11 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
+- **lighting** `cmb000` — optbox QComboBox None  [pending] tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG).
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
 - **scene** `b018` — [pending] Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na.
 - **uv** `chk043` — optbox QCheckBox 'Brute Force (xatlas)'  [pending] Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=).
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 5 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 6 open-work items; 0 stale Maya handlers. Sweep PASSES.

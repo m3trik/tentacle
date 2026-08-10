@@ -328,6 +328,72 @@ class SceneMixin:
         if self._footer_controller:
             self._footer_controller.update()
 
+    # ------------------------------------------------------- list003  Tools list
+    #: Tooltip for the Tools list's root row. Fork-set, because the forks stock
+    #: different categories (only Maya has Recover) and the row should name what
+    #: is actually under it.
+    TOOLS_ROOT_TOOLTIP = ""
+
+    def _tools_items(self):
+        """``{category: [(label, objectName, tooltip), ...]}`` for the Tools list.
+
+        A method rather than a class attribute because some tooltips are built
+        with the switchboard's formatter, which needs a live ``self.sb``.
+        """
+        raise NotImplementedError
+
+    def list003_init(self, widget):
+        """Tools list: the scene actions that used to sit loose in the header
+        menu (Bridges / Manage / Fix / Diagnostics, plus Recover on Maya),
+        grouped into one expandable row.
+
+        Every leaf is a real slot-wired widget carrying the objectName its header
+        entry used, so its slot, tooltip, option box (``tb001`` / ``tb002``) and
+        QSettings identity are unchanged — only the location moved. Maya's
+        ``b014`` keeps its stateful ``b014_init`` (enabled state and destination
+        label track the open scene) for the same reason.
+
+        The submenu's trigger row is a narrow strip near the right edge of an
+        absolutely-positioned layout, so its flyout opens ON TOP of that row
+        (top-right corner to top-right corner) and the category fan-out runs
+        LEFT, back across the submenu instead of off its right side. The panel's
+        row is a layout-managed header menu and fans right on hover as usual.
+        """
+        submenu = widget.ui.has_tags("submenu")
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_overlay_left" if submenu else "hover_menu")
+        root = widget.add("Tools", setToolTip=self.TOOLS_ROOT_TOOLTIP)
+        for category, entries in self._tools_items().items():
+            cat = root.sublist.add(category)
+            for label, name, tooltip in entries:
+                self.add_slot_widget(
+                    cat.sublist,
+                    setObjectName=name,
+                    setText=label,
+                    setToolTip=tooltip,
+                )
+
+    def _dispatch_tools_item(self, item):
+        """Dispatch a Tools leaf to its own slot (the forks' ``list003`` body).
+
+        Category rows are navigation only. Leaves are slot-wired widgets, so
+        ``call_slot`` routes through the switchboard's wrapper — which injects
+        the ``widget`` argument for the slots that declare it, so both signatures
+        work without a lookup table here. An option-box-wrapped leaf never
+        arrives: the wrap leaves it out of the list's item set and its own
+        ``clicked`` drives it (see ``Slots.add_slot_widget``).
+
+        The forks keep the ``list003`` method itself: its ``@Signals`` decorator
+        is evaluated in the class body, and the decorator is re-exposed on the
+        DCC ``Slots`` base precisely so the slots layer never imports uitk
+        directly (see ``slots/_slots.py``).
+        """
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        call = getattr(item, "call_slot", None)
+        if callable(call):
+            call()
+
     # --------------------------------------------------- tb002  fix non-orthogonal
     # What freezing/baking actually does to the object in this DCC — shown in
     # the confirmation so the user knows the side effect before committing.
