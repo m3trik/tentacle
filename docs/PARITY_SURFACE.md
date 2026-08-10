@@ -121,7 +121,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | edit.py | 0 | 0 | 8 | 0 | 0 | OK |
 | editors.py | 0 | 0 | 0 | 0 | 0 | OK |
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
-| lighting.py | 0 | 1 | 0 | 0 | 5 | open |
+| lighting.py | 0 | 1 | 0 | 0 | 4 | open |
 | main.py | 0 | 0 | 0 | 0 | 0 | OK |
 | materials.py | 0 | 1 | 4 | 0 | 0 | open |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -162,7 +162,6 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 #### lighting.py
 **default/property deltas (review — a flipped default changes first-use behavior)**
-  - `d000.setValue` maya=`1.0` blender=`100.0`
   - `d000.set_limits` maya=`[0, 100000, 1.0, 2]` blender=`[0, 1000000, 10.0, 1]`
   - `d000.setPrefix` maya=`'Intensity: '` blender=`'Power: '`
   - `d001.setValue` maya=`1.0` blender=`0.01`
