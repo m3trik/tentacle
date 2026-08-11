@@ -23,7 +23,7 @@
 | DynamicPipe | 0 | 0 | 0 | 0 | OK |
 | EmissiveGroups | 0 | 0 | 0 | 0 | OK |
 | ExplodedView | 0 | 0 | 0 | 0 | OK |
-| GameShader | 0 | 0 | 2 | 0 | OK |
+| GameShader | 0 | 0 | 1 | 0 | OK |
 | HdrManager | 0 | 0 | 0 | 2 | OK |
 | HierarchySync | 0 | 0 | 0 | 0 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
@@ -33,7 +33,7 @@
 | MatUpdater | 0 | 0 | 0 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
-| ReferenceManager | 0 | 0 | 12 | 0 | OK |
+| ReferenceManager | 0 | 0 | 13 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | SceneExporter | 0 | 0 | 0 | 0 | OK |
