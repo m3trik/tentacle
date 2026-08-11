@@ -106,6 +106,10 @@ CONTROLS = {
     },
     "reference_manager": {
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
+        "cmb_unlink_namespace": {
+            "status": "na",
+            "reason": "picks what Unlink and Import does with the reference's NAMESPACE (remove / keep / keep on the top-level node only). Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between.",
+        },
         # btn_unlink_import_all / btn_unreference_all: the Blender buttons were renamed to
         # Maya's exact labels + objectNames (2026-07-20), so both header operations now match
         # name-for-name and need no ledger entry.
@@ -246,7 +250,11 @@ CONTROLS = {
         # (mat_utils/game_shader.py) now makes the same calls, with Pillow provisioned on demand by
         # btk.ensure_image_deps and a documented graceful degrade (wire-as-is + warning) when it
         # can't be installed. Both are QComboBoxes present + functional on both sides -> no rows.
-        "chk000": {"status": "na", "reason": "AiBridge — attaches a parallel Maya aiStandardSurface preview network. Blender ships no Arnold integration (no MtoA equivalent, no aiStandardSurface node type) and Cycles/EEVEE both read the ONE Principled graph, so there is no second network to attach; see blendertk/mat_utils/arnold_bridge.py, the deliberately inert structural mirror. Removed from the .ui 2026-08-02 (was a disabled placeholder) at the user's call: a dead control that names a Maya-only renderer misleads a Maya user more than its absence does."},
+        # chk000 (AiBridge): stale `na` entry removed 2026-08-10 — the control is gone from the
+        # MAYA .ui too now, so there is no delta left to triage. The Arnold preview bridge is
+        # owned end-to-end by the dedicated ArnoldBridge panel (mayatk/mat_utils/arnold_bridge.py),
+        # which adds/removes it on any scope after material creation; folding it into shader
+        # creation was a second, weaker entry point for the same capability.
         "cmb004": {"status": "na", "reason": "Shader type (Stingray PBS / Standard Surface / OpenPBR) picks a Maya shader NODE; Blender has exactly one surface node. Probed on Blender 5.1.2: no OpenPBR node type exists (0 of 101 shader nodes), but Principled IS the OpenPBR model — its inputs map onto ND_open_pbr_surface_surfaceshader's, MaterialX 1.39.4 ships bundled, and Blender's own USD export emits ND_open_pbr_surface_surfaceshader for a Principled material (every conversion node this tool builds translates: MixRGB->ND_mix_color3, Invert->ND_subtract_color3, SeparateColor->ND_extract_color3, NormalMap->ND_normalmap_float). So OpenPBR is reachable, and what the Maya combo actually selects is the downstream TARGET — which on this panel is cmb002 (Unity URP/HDRP, Unreal, glTF, Godot). A Blender shader-type combo would be a second control for the same decision with two items naming Maya shaders that are never created. Removed from the .ui 2026-08-02 rather than left disabled."},
         # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (game_shader.py:76,107 ->
         # btk.graph_materials opens the Shader Editor), matched by objectName (GameShader 0 triaged).
@@ -289,14 +297,16 @@ CONTROLS = {
         # chk_discover_sourceimages: removed 2026-07-11 — Blender ships it 1:1 (mat_updater.py:161,310
         # -> _mat_utils.py:1469 maps discover_sourceimages -> discover_dir = the .blend workspace dir),
         # matched by objectName against the Maya panel (mat_updater.py:785,958); MatUpdater 0 triaged.
+        # cmb_convert_format / cmb_max_size / cmb_mask_scale / txt_old_files: REMOVED from BOTH
+        # twins 2026-08-10 (separation of concerns) — file format, resolution clamp, mask/secondary
+        # scale and archiving-the-original are image *optimization*, owned by the Map Converter's
+        # Optimize tool (extapps/texture_maps/converter). This panel is reconfiguration only:
+        # which maps a material gets, and wiring/repathing to them. Dropped symmetrically, so
+        # there is no delta and no ledger row (txt_old_files' "na" row removed with them).
         "cmb_transfer_mode": {
             "status": "na",
             "reason": "copy/move transfer doesn't map — Blender engine writes to output_dir, "
                       "sources stay in place",
-        },
-        "txt_old_files": {
-            "status": "na",
-            "reason": "archive-folder companion of cmb_transfer_mode (same model difference)",
         },
     },
     "_shader_templates": {  # mayatk file stem is shader_templates/_shader_templates.py
