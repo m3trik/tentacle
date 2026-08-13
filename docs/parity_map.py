@@ -288,9 +288,15 @@ CONTROLS = {
         # test_lightmap_baker.py: 2 objects sharing a material -> 1 shared area-weighted EXR, source
         # maps consolidated, UVs repacked into their rects, revert EXACTLY restores the 0-1 layout).
         # cmb002 is a QComboBox present+functional on both sides -> no ledger row needed.
+        # Was mis-triaged `na` ("no sourceimages workspace in Blender") until 2026-08-12 --
+        # factually wrong: btk.EnvUtils.source_images_dir() exists and LightmapBakerSlots.
+        # _base_output_dir already resolves the bake default through it. Both panels ship an
+        # Output Directory field and BOTH handlers open the RESOLVED output dir (Maya falls
+        # back to the sourceimages it resolves against), so only the label differs.
         "open_sourceimages": {
-            "status": "na",
-            "reason": "no sourceimages workspace in Blender; output dir browsed explicitly",
+            "status": "renamed",
+            "to": "open_output",
+            "reason": "same 'open where the bakes went' action on the header menu; both resolve the Output Directory field and open it. Maya names the menu item for its project's sourceimages fallback, Blender for the resolved output dir (its texture-folder base is workspace/.blend-relative, so 'sourceimages' would name the wrong thing).",
         },
     },
     "mat_updater": {

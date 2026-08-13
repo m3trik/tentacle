@@ -9839,7 +9839,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2062,
+          "line": 2088,
           "deprecated": false
         },
         {
@@ -9848,7 +9848,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2067,
+          "line": 2093,
           "deprecated": false
         },
         {
@@ -9857,7 +9857,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2072,
+          "line": 2098,
           "deprecated": false
         },
         {
@@ -9866,7 +9866,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2077,
+          "line": 2103,
           "deprecated": false
         },
         {
@@ -9875,7 +9875,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2082,
+          "line": 2108,
           "deprecated": false
         },
         {
@@ -9884,7 +9884,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2087,
+          "line": 2113,
           "deprecated": false
         },
         {
@@ -9893,7 +9893,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2092,
+          "line": 2118,
           "deprecated": false
         },
         {
@@ -9902,7 +9902,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2097,
+          "line": 2123,
           "deprecated": false
         },
         {
@@ -9911,7 +9911,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2102,
+          "line": 2128,
           "deprecated": false
         },
         {
@@ -9920,7 +9920,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2107,
+          "line": 2133,
           "deprecated": false
         },
         {
@@ -9929,7 +9929,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2112,
+          "line": 2138,
           "deprecated": false
         }
       ],
@@ -9948,7 +9948,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1497,
+              "line": 1523,
               "deprecated": false
             },
             {
@@ -9957,7 +9957,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1546,
+              "line": 1572,
               "deprecated": false
             },
             {
@@ -9966,7 +9966,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1577,
+              "line": 1603,
               "deprecated": false
             },
             {
@@ -9975,7 +9975,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1588,
+              "line": 1614,
               "deprecated": false
             },
             {
@@ -9984,7 +9984,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1606,
+              "line": 1632,
               "deprecated": false
             }
           ]
@@ -9992,7 +9992,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1826,
+          "line": 1852,
           "bases": [],
           "members": [
             {
@@ -10001,7 +10001,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1831,
+              "line": 1857,
               "deprecated": false
             }
           ]
@@ -10009,7 +10009,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 1941,
+          "line": 1967,
           "bases": [],
           "members": [
             {
@@ -10018,7 +10018,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 1947,
+              "line": 1973,
               "deprecated": false
             },
             {
@@ -10027,7 +10027,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 1966,
+              "line": 1992,
               "deprecated": false
             },
             {
@@ -10036,7 +10036,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 1999,
+              "line": 2025,
               "deprecated": false
             },
             {
@@ -10045,7 +10045,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2004,
+              "line": 2030,
               "deprecated": false
             }
           ]

@@ -1552,26 +1552,26 @@ The host-agnostic entry point — one launcher snippet for every DCC.
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2062) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2067) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2072) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2077) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2082) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2087) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2092) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2097) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2102) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2107) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2112) — Remove the click tracer.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2088) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2093) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2098) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2103) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2108) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2113) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2118) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L2123) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2128) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2133) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2138) — Remove the click tracer.
 - **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1369)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1826)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1852)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1941)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1967)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

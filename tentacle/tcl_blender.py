@@ -1490,6 +1490,32 @@ class TclBlender(MarkingMenu):
         except Exception as error:  # never let the tracker block launch
             print(f"{__file__}: SelectionOrder enable skipped: {error}")
 
+        # Teach uitk how to cancel safely in this host (Esc-hold source and
+        # progress mirror — NOT rollback: BlenderCancelProvider declares
+        # ``supports_rollback = False`` and leaves partial changes in place,
+        # because Blender's undo stack offers no way to count the steps back).
+        # Maya installs its own provider from mayatk's import-time host block;
+        # Blender has no such hook, so the host wires it here — same public
+        # contract, so the slots stay branch-free.
+        try:
+            # Both halves, mirroring mayatk's block (which pairs the same
+            # set_interpreter with its install). ExecutionMonitor spawns the
+            # spinner and the over-threshold dialog as subprocesses, so the
+            # interpreter it uses has to be a real python: hand it Blender's
+            # bundled one rather than relying on its ``sys.executable``
+            # fallback. On 5.1 that fallback happens to be correct already
+            # (measured, GUI and background alike: ``sys.executable`` is
+            # ``<prefix>/bin/python.exe``), but blendertk supports 4.x, where
+            # ``sys.executable`` was the Blender binary — the case
+            # ``blender_python_exe`` exists for. Pinning it explicitly costs
+            # nothing and cannot regress with the host's semantics.
+            import pythontk as ptk
+
+            ptk.ExecutionMonitor.set_interpreter(_QtBootstrap.blender_python_exe())
+            btk.BlenderCancelProvider.install()
+        except Exception as error:  # never let cancel wiring block launch
+            print(f"{__file__}: cancel provider install skipped: {error}")
+
         # Own the overlay to Blender's GHOST window so the OS keeps it stacked above Blender.
         self._parent_to_blender(self)
 
