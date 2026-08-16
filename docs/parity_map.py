@@ -828,6 +828,11 @@ CONTROLS_SLOTS = {
     "uv": {
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
         "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
+        "chk045": {"status": "na", "reason": "Hide Seam From View: Maya's band-based seamer (mtk.UvUtils.get_auto_seam_edges) lands the lengthwise seam on the side facing away from the active viewport camera; Blender Cut Cylinder rides smart_project which places seams itself (same rationale as chk040). A blendertk twin of the band seamer would carry both -- see .claude/BACKLOG.md."},
+        "chk046": {"status": "na", "reason": "Keep Existing Seams (unwrap_cylinder sew=False): the Maya band seamer sews stale UV borders shut before cutting; Blender's smart_project re-seams from scratch and has no equivalent pre-sew, so there is no toggle to mirror. Rides the same blendertk twin as chk040 / chk045."},
+        "s021": {"status": "na", "reason": "Taper Angle (band seamer taper tolerance): a parameter of mtk.UvUtils.get_auto_seam_edges' profile reading, which Blender's smart_project auto-seaming does not have. Rides the blendertk twin (see .claude/BACKLOG.md)."},
+        "s022": {"status": "na", "reason": "Flat Angle (band seamer rings-vs-sectors threshold): same rationale as s021."},
+        "s023": {"status": "na", "reason": "Fillet Size (band seamer trim ratio, % of radius): same rationale as s021."},
         # cmb011 (Auto Unwrap mode) 2026-07-28: trimmed on BOTH DCCs to three
         # byte-identical items -- "Standard" (each DCC's own auto projection:
         # polyAutoProjection / smart_project), "Hard Surface (Ministry of Flat)"
@@ -836,10 +841,10 @@ CONTROLS_SLOTS = {
         # chk000 (Smart Fit), cmb017 (Cut Algorithm) and the seam / planar /
         # cylindrical / spherical / normal modes: REMOVED from the Maya panel
         # 2026-07-28 with that trim, so their na rows are retired.
-        # cmb016 (Cut Cylinder Algorithm): REMOVED 2026-07-28 -- the seam
-        # strategy is now detected per mesh by mtk.UvUtils.detect_seam_algorithm
-        # (algorithm="auto" is the default), so there is nothing to select on
-        # either DCC.
+        # cmb016 (Cut Cylinder Algorithm): REMOVED 2026-07-28 -- one band-based
+        # seamer (mtk.UvUtils.get_auto_seam_edges, 2026-08-15) reads straight,
+        # turned and bent tubes alike, so there is nothing to select on either
+        # DCC.
         # cmb009 (Pre-Scale Mode): removed 2026-07-11 — BUILT. The Blender Pack UVs option box now
         # ships cmb009 with Maya's exact labels ("Pre-Scale: Preserve UV" / "Preserve 3D", default
         # Preserve 3D): Preserve 3D runs a native `bpy.ops.uv.average_islands_scale()` pass (equal

@@ -376,7 +376,8 @@ class Uv(UvMixin, SlotsBlender):
 
     def tb009_init(self, widget):
         # s016/chk041/chk042 reuse the Maya names + labels for the SAME options. chk040 (Invert
-        # Seam) has no Blender analogue — the auto-seam path places the lengthwise cut itself.
+        # Seam) and chk045 (Hide Seam From View) have no Blender analogue — the auto-seam path
+        # places the lengthwise cut itself (parity_map.py "uv").
         m = widget.option_box.menu
         m.setTitle("Cut Cylinder")
         m.add(

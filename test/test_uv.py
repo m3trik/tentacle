@@ -528,6 +528,110 @@ class TestUvEmptySelectionGuard(unittest.TestCase):
         self._assert_reported_empty()
 
 
+class _FakeCutCylinderMenu:
+    """tb009's option box: s021 / s022 / s023 / s016 / chk045 / chk040 /
+    chk046 / chk041 / chk042."""
+
+    def __init__(
+        self,
+        angle=45,
+        taper=20,
+        flat=60,
+        fillet=12,
+        hide=True,
+        invert=False,
+        keep_seams=False,
+        unfold=True,
+        orient=True,
+    ):
+        self.s021 = _FakeSpin(taper)  # Taper Angle
+        self.s022 = _FakeSpin(flat)  # Flat Angle
+        self.s023 = _FakeSpin(fillet)  # Fillet Size (%)
+        self.s016 = _FakeSpin(angle)  # Crease Angle
+        self.chk045 = _FakeCheck(hide)  # Hide Seam From View
+        self.chk040 = _FakeCheck(invert)  # Invert Seam
+        self.chk046 = _FakeCheck(keep_seams)  # Keep Existing Seams
+        self.chk041 = _FakeCheck(unfold)  # Unfold
+        self.chk042 = _FakeCheck(orient)  # Orient
+
+
+class _FakeCutCylinderWidget:
+    def __init__(self, **kwargs):
+        self.option_box = _FakeOptionBox(_FakeCutCylinderMenu(**kwargs))
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb009CutCylinder(unittest.TestCase):
+    """tb009 (Cut Cylinder) hands the option box straight to
+    mtk.UvUtils.unwrap_cylinder -- in particular the seam-hiding camera: the
+    active viewport camera when "Hide Seam From View" is on and a view
+    exists, else None (mayatk then falls back to a fixed default side)."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.get_map_size = lambda: 2048
+        self.mesh = cmds.polyCylinder(name="cutCyl")[0]
+        cmds.select(self.mesh, replace=True)
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _run(self, camera_lookup, **menu):
+        with mock.patch.object(
+            mtk.UvUtils, "unwrap_cylinder", return_value=[self.mesh]
+        ) as unwrap, mock.patch.object(
+            mtk.CamUtils, "get_current_cam", side_effect=camera_lookup
+        ):
+            self.instance.tb009(widget=_FakeCutCylinderWidget(**menu))
+        unwrap.assert_called_once()
+        return unwrap.call_args.kwargs
+
+    def test_hide_from_view_passes_the_viewport_camera(self):
+        kwargs = self._run(lambda: "|persp|perspShape", hide=True, invert=True, angle=30)
+        self.assertEqual(kwargs["camera"], "|persp|perspShape")
+        self.assertTrue(kwargs["invert_seam"])
+        self.assertEqual(kwargs["angle"], 30)
+        self.assertEqual(kwargs["map_size"], 2048)
+
+    def test_preference_knobs_pass_through(self):
+        """Taper / Flat / Fillet Size and Keep Existing Seams reach
+        unwrap_cylinder as taper_angle / flat_angle / trim_ratio / sew."""
+        kwargs = self._run(
+            lambda: None, taper=25, flat=45, fillet=8, keep_seams=True
+        )
+        self.assertEqual(kwargs["taper_angle"], 25)
+        self.assertEqual(kwargs["flat_angle"], 45)
+        self.assertAlmostEqual(kwargs["trim_ratio"], 0.08)
+        self.assertFalse(kwargs["sew"])
+        kwargs = self._run(lambda: None)
+        self.assertEqual(
+            (kwargs["taper_angle"], kwargs["flat_angle"], kwargs["sew"]), (20, 60, True)
+        )
+        self.assertAlmostEqual(kwargs["trim_ratio"], 0.12)
+
+    def test_hide_off_passes_no_camera(self):
+        kwargs = self._run(lambda: "|persp|perspShape", hide=False)
+        self.assertIsNone(kwargs["camera"])
+
+    def test_no_active_view_falls_back_to_no_camera(self):
+        """Headless / no 3D view: M3dView raises -- the slot must not."""
+
+        def boom():
+            raise RuntimeError("no active 3d view")
+
+        kwargs = self._run(boom, hide=True)
+        self.assertIsNone(kwargs["camera"])
+
+    def test_nothing_selected_reports_and_stops(self):
+        cmds.select(clear=True)
+        with mock.patch.object(mtk.UvUtils, "unwrap_cylinder") as unwrap:
+            self.instance.tb009(widget=_FakeCutCylinderWidget())
+        unwrap.assert_not_called()
+        self.assertEqual(len(self.instance.sb.messages), 1)
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb004NeverSeamCuts(unittest.TestCase):
     """Regression: tb004 (Unfold) relaxes existing UVs only — it must never cut
