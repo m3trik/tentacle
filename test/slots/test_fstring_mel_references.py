@@ -17,9 +17,9 @@ import unittest
 from _helpers import (
     find_mel_eval_fstrings,
     first_mel_token,
-    maya_available,
     slot_files,
 )
+from _host import MAYA_AVAILABLE
 from test_mel_references import (  # reuse priming + allow-list
     _KNOWN_LAZY,
     _ensure_plugins_loaded,
@@ -28,7 +28,7 @@ from test_mel_references import (  # reuse priming + allow-list
 
 
 @unittest.skipUnless(
-    maya_available(), "Requires maya.cmds + maya.mel (run via mayapy)"
+    MAYA_AVAILABLE, "Requires maya.cmds + maya.mel (run via mayapy)"
 )
 class TestFStringMelReferences(unittest.TestCase):
     @classmethod

@@ -11,15 +11,10 @@ import tempfile
 import unittest
 from unittest import mock
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import rendering as rendering_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    rendering_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+rendering_module = maya_module("tentacle.slots.maya.rendering")
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

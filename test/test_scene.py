@@ -13,15 +13,10 @@ covers the units with branching logic:
 import unittest
 from types import SimpleNamespace as NS
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import scene as scene_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    scene_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+scene_module = maya_module("tentacle.slots.maya.scene")
 
 
 class _RecordedSb:

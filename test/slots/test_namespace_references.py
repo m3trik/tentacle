@@ -26,7 +26,8 @@ import importlib
 import unittest
 from typing import List, Tuple
 
-from _helpers import find_attr_chain_uses, maya_available, slot_files
+from _helpers import find_attr_chain_uses, slot_files
+from _host import MAYA_AVAILABLE
 
 # Alias → importable module name. The resolver lives on the package
 # itself, so we just import and `getattr` against it.
@@ -36,7 +37,7 @@ _NAMESPACES = (
 )
 
 
-@unittest.skipUnless(maya_available(), "Requires maya runtime (mayatk imports maya.cmds)")
+@unittest.skipUnless(MAYA_AVAILABLE, "Requires maya runtime (mayatk imports maya.cmds)")
 class TestNamespaceReferences(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

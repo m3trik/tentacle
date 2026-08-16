@@ -38,6 +38,9 @@ def _ensure_paths():
     # The slots subdir itself, so test files can import _helpers
     if str(THIS_DIR) not in sys.path:
         sys.path.insert(0, str(THIS_DIR))
+    # The parent test dir, so test files can import the shared _host probes
+    if str(TENTACLE_TEST) not in sys.path:
+        sys.path.insert(0, str(TENTACLE_TEST))
 
 
 def _start_maya():

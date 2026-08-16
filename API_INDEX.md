@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-13_
+_Generated: 2026-08-15_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -349,7 +349,7 @@ _Generated: 2026-08-13_
 
 ### `slots/maya/subdivision.py`
 - `class Subdivision(SlotsMaya)`
-  - methods: s000, s001, b000, b001, b005, tb000_init, tb000, b008, b011, b028, smoothProxy
+  - methods: s000_init, s001_init, s000, s001, b000, b001, b005, tb000_init, tb000, b008, b011, b028, smoothProxy
 
 ### `slots/maya/surfaces.py`
 - `class SurfacesSlots(SlotsMaya)`

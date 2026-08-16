@@ -13,27 +13,85 @@ class Subdivision(SlotsMaya):
         self.ui = self.sb.loaded_ui.subdivision
         self.submenu = self.sb.loaded_ui.subdivision_submenu
 
+    # --------------------------------------------------- s000/s001  smooth preview
+    # The mesh owns these levels, so the spinboxes mirror the selection rather than
+    # persisting their own copy: a restored value re-fires the slot on panel open,
+    # which would smooth (and re-tessellate) whatever happened to be selected.
+    def _init_smooth_level(self, widget, attr):
+        shapes = mtk.NodeUtils.get_shapes(
+            cmds.ls(selection=True), descend=True, type="mesh"
+        )
+        self.mirror_app_state(
+            widget,
+            (lambda: widget.setValue(cmds.getAttr(f"{shapes[0]}.{attr}")))
+            if shapes
+            else None,
+        )
+
+    def s000_init(self, widget):
+        """Division Level — reflect the selection's live preview division level."""
+        self._init_smooth_level(widget, "smoothLevel")
+
+    def s001_init(self, widget):
+        """Adaptive Level — reflect the selection's live adaptive tessellation level."""
+        self._init_smooth_level(widget, "smoothTessLevel")
+
+    def _report_smooth_level(self, label: str, attr: str, value: int, meshes) -> int:
+        """Message the count that actually took the value, and return it.
+
+        ``set_smooth_preview`` returns every RESOLVED shape by design (one
+        locked mesh must not abort the rest of the selection), so its length
+        is not a success count: on a referenced mesh with a locked plug the
+        panel would report "on 1 mesh(es)" having changed nothing. Read the
+        plugs back instead of trusting the write.
+        """
+        applied = []
+        for mesh in meshes:
+            try:
+                if cmds.getAttr(f"{mesh}.{attr}") == value:
+                    applied.append(mesh)
+            except Exception:  # plug gone with the shape mid-drag
+                continue
+        skipped = len(meshes) - len(applied)
+        if not applied:
+            self.sb.message_box(
+                f"{label} <hl>{value}</hl>: no mesh accepted the change "
+                f"(locked or connected)."
+            )
+        else:
+            suffix = f" ({skipped} skipped — locked or connected)" if skipped else ""
+            self.sb.message_box(
+                f"{label}: <hl>{value}</hl> on <hl>{len(applied)}</hl> mesh(es){suffix}."
+            )
+        return len(applied)
+
     def s000(self, value: int, widget: object) -> None:
-        """Division Level"""
-        shapes = cmds.ls(selection=True, dag=True, leaf=True) or []
-        transforms = cmds.listRelatives(shapes, parent=True) or []
-        for obj in transforms:
-            if cmds.attributeQuery("smoothLevel", node=obj, exists=True):
-                # Correctly pass attributes as keyword arguments
-                mtk.Attributes.set_attributes(obj, smoothLevel=value)
-                # SubDivision proxy options: 'divisions'
+        """Division Level (smooth mesh preview divisions)."""
+        # ``display=2`` because the level is only observable with the smooth
+        # preview actually on -- dragging this with it off looked like a no-op.
+        meshes = mtk.DisplayUtils.set_smooth_preview(
+            cmds.ls(selection=True), display=2, level=value
+        )
+        if meshes:
+            applied = self._report_smooth_level(
+                "Division Level", "smoothLevel", value, meshes
+            )
+            # SubDivision proxy options: 'divisions' -- only once the level
+            # is real, so a fully-skipped drag can't shift the global default.
+            if applied:
                 cmds.optionVar(intValue=("proxyDivisions", value))
-                self.sb.message_box(f"{obj}: Division Level: <hl>{value}</hl>")
 
     def s001(self, value: int, widget: object) -> None:
-        """Tesselation Level"""
-        shapes = cmds.ls(selection=True, dag=True, leaf=True) or []
-        transforms = cmds.listRelatives(shapes, parent=True) or []
-        for obj in transforms:
-            if cmds.attributeQuery("smoothLevel", node=obj, exists=True):
-                # Correctly pass attributes as keyword arguments
-                mtk.Attributes.set_attributes(obj, smoothTessLevel=value)
-                self.sb.message_box(f"{obj}: Tesselation Level: <hl>{value}</hl>")
+        """Adaptive Level (OpenSubdiv adaptive tessellation)."""
+        # Setting the adaptive level also switches the meshes to the OpenSubdiv
+        # Adaptive draw type -- no other draw type reads ``smoothTessLevel``.
+        meshes = mtk.DisplayUtils.set_smooth_preview(
+            cmds.ls(selection=True), display=2, adaptive_level=value
+        )
+        if meshes:
+            self._report_smooth_level(
+                "Adaptive Level", "smoothTessLevel", value, meshes
+            )
 
     def b000(self):
         """Quadrangulate"""

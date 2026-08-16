@@ -12,15 +12,10 @@ worth pinning at this layer:
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import normals as normals_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    normals_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+normals_module = maya_module("tentacle.slots.maya.normals")
 
 
 class _FakeSpin:

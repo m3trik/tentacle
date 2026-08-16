@@ -27,9 +27,9 @@ import unittest
 from _helpers import (
     find_mel_eval_strings,
     first_mel_token,
-    maya_available,
     slot_files,
 )
+from _host import MAYA_AVAILABLE
 
 
 # MEL files we explicitly source up-front so the procs they define become
@@ -102,7 +102,7 @@ def _ensure_plugins_loaded():
             pass
 
 
-@unittest.skipUnless(maya_available(), "Requires maya.cmds + maya.mel (run via mayapy)")
+@unittest.skipUnless(MAYA_AVAILABLE, "Requires maya.cmds + maya.mel (run via mayapy)")
 class TestMelReferences(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

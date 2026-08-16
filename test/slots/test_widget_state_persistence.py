@@ -27,12 +27,13 @@ from __future__ import annotations
 import sys
 import unittest
 
-from _helpers import maya_available, qt_widgets_available
+import _helpers  # noqa: F401 — bootstraps sys.path for _host
+from _host import MAYA_AVAILABLE, qt_widgets_available
 
 _SKIP_REASON = "Requires maya.cmds + Qt widgets (run via mayapy)"
 
 
-@unittest.skipUnless(maya_available() and qt_widgets_available(), _SKIP_REASON)
+@unittest.skipUnless(MAYA_AVAILABLE and qt_widgets_available(), _SKIP_REASON)
 class _PersistenceBase(unittest.TestCase):
     """Shared setup: one TclMaya per class, isolated QSettings, event drain.
 

@@ -822,7 +822,7 @@ CONTROLS_SLOTS = {
     },
     "rigging": {
         "chk001": {"status": "na", "reason": "IK radio drives Maya's global ikHandleDisplayScale; Blender has no global IK-handle display-scale — excused in the Blender slot"},
-        "chk002": {"status": "na", "reason": "IK\FK radio drives Maya's jointDisplayScale(ikfk=1); no Blender global IKFK display-scale — excused in the Blender slot"},
+        "chk002": {"status": "na", "reason": "IK\\FK radio drives Maya's jointDisplayScale(ikfk=1); no Blender global IKFK display-scale — excused in the Blender slot"},
         "s000": {"status": "na", "reason": "Global joint/IK/IKFK display-scale spinbox (jointDisplayScale/ikHandleDisplayScale); no Blender scene-global display-scale — excused in the Blender slot"},
     },
     "uv": {

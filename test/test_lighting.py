@@ -8,13 +8,9 @@ silently break the launch buttons.
 """
 import unittest
 
-try:
-    from tentacle.slots.maya import lighting as lighting_module
+from _host import MAYA_AVAILABLE as _AVAILABLE, maya_module
 
-    _AVAILABLE = True
-except ImportError:
-    lighting_module = None
-    _AVAILABLE = False
+lighting_module = maya_module("tentacle.slots.maya.lighting")
 
 
 class _FakeMarkingMenu:

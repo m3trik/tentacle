@@ -24,9 +24,9 @@ import unittest
 from _helpers import (
     find_mel_string_constants,
     first_mel_token,
-    maya_available,
     slot_files,
 )
+from _host import MAYA_AVAILABLE
 from test_mel_references import (
     _KNOWN_LAZY,
     _ensure_plugins_loaded,
@@ -60,7 +60,7 @@ _KNOWN_LAZY_TABLE_PROCS = frozenset(
 
 
 @unittest.skipUnless(
-    maya_available(), "Requires maya.cmds + maya.mel (run via mayapy)"
+    MAYA_AVAILABLE, "Requires maya.cmds + maya.mel (run via mayapy)"
 )
 class TestDynamicMelCommands(unittest.TestCase):
     @classmethod

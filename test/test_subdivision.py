@@ -8,9 +8,10 @@ pinning at this layer:
 - The one-click buttons (b000/b001/b008/b011/b028) each dispatch one exact
   MEL command — silent drift in those strings would ship broken menu
   entries with no error.
-- s000 (Division Level): only acts on transforms with a smoothLevel
-  attribute, set via mtk.Attributes.set_attributes. Guards against
-  applying smooth attrs to non-subdivision meshes.
+- s000 (Division Level) / s001 (Adaptive Level): write the smooth-preview
+  attrs to the mesh SHAPES under the selection. These used to guard with
+  ``attributeQuery(node=<transform>)``, which is always False for a shape
+  attribute — so both spinboxes were silently inert on every mesh.
 
 (TestCmb001SmoothProxyDispatch / TestCmb002MayaSubdivisionDispatch removed
 2026-07-12: the cmb001/cmb002 combo dispatchers they drove were redesigned
@@ -21,17 +22,11 @@ mayapy.)
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    import maya.mel as mel
-    from tentacle.slots.maya import subdivision as subdivision_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    mel = None
-    subdivision_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+mel = maya_module("maya.mel")
+subdivision_module = maya_module("tentacle.slots.maya.subdivision")
 
 
 class _FakeSb:
@@ -42,6 +37,27 @@ class _FakeSb:
 
     def message_box(self, string, *args, **kwargs):
         self.messages.append(string)
+
+
+class _FakeSpinBox:
+    """Minimal QSpinBox stand-in: records whether the seed ran signal-blocked."""
+
+    def __init__(self):
+        self._value = None
+        self._blocked = False
+        self.blocked_during_seed = False
+        self.restore_state = True
+
+    def blockSignals(self, block):
+        was, self._blocked = self._blocked, block
+        return was
+
+    def setValue(self, value):
+        self._value = value
+        self.blocked_during_seed = self._blocked
+
+    def value(self):
+        return self._value
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -82,51 +98,107 @@ class TestMelDispatchButtons(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestS000DivisionLevel(unittest.TestCase):
-    """s000 only writes smoothLevel to objects that have it (subdivision
-    proxies). Plain cubes have no smoothLevel attr → skipped."""
+class TestSmoothPreviewSpinBoxes(unittest.TestCase):
+    """s000/s001 drive the smooth-preview attrs on the selection's mesh shapes.
+
+    ``smoothLevel`` / ``smoothTessLevel`` live on the MESH SHAPE. The old
+    implementation walked the selection up to its transforms and guarded on
+    ``cmds.attributeQuery(..., node=<transform>, exists=True)`` — always False
+    for a shape attribute — so nothing was ever written, on any mesh.
+    """
 
     def setUp(self):
         cmds.file(new=True, force=True)
         self.instance = subdivision_module.Subdivision.__new__(
             subdivision_module.Subdivision
         )
-        # s000 posts per-object message_box feedback (added post-redesign) —
-        # stub sb so the bare __new__ instance can run it headlessly.
+        # stub sb so the bare __new__ instance can post feedback headlessly.
         self.instance.sb = _FakeSb()
 
-        import mayatk as mtk
-        self._orig = mtk.Attributes.set_attributes
-        self.set_calls = []
-        mtk.Attributes.set_attributes = lambda obj, **kw: self.set_calls.append(
-            (obj, kw)
-        )
-
     def tearDown(self):
-        import mayatk as mtk
-        mtk.Attributes.set_attributes = self._orig
         cmds.file(new=True, force=True)
 
-    def test_plain_cube_is_skipped(self):
-        """Plain polyCube has no smoothLevel → set_attributes never called."""
+    @staticmethod
+    def _shape(transform):
+        return cmds.listRelatives(transform, shapes=True, fullPath=True)[0]
+
+    def test_plain_cube_gets_the_division_level(self):
         cube = cmds.polyCube(name="sub_plain")[0]
         cmds.select(cube)
-        self.instance.s000(3, widget=None)
-        self.assertEqual(self.set_calls, [])
-        self.assertEqual(self.instance.sb.messages, [])
 
-    def test_object_with_smoothlevel_is_updated(self):
-        """An object with smoothLevel attr gets the new value (and posts the
-        per-object Division Level feedback message)."""
-        cube = cmds.polyCube(name="sub_smooth")[0]
-        cmds.addAttr(cube, longName="smoothLevel", attributeType="long")
-        cmds.select(cube)
         self.instance.s000(5, widget=None)
-        self.assertEqual(len(self.set_calls), 1)
-        obj, kw = self.set_calls[0]
-        self.assertEqual(kw["smoothLevel"], 5)
+
+        shape = self._shape(cube)
+        self.assertEqual(cmds.getAttr(f"{shape}.smoothLevel"), 5)
+        # The level is unobservable unless the preview itself is on.
+        self.assertEqual(cmds.getAttr(f"{shape}.displaySmoothMesh"), 2)
         self.assertEqual(len(self.instance.sb.messages), 1)
         self.assertIn("Division Level", self.instance.sb.messages[0])
+
+    def test_division_level_reaches_meshes_under_a_group(self):
+        cube = cmds.polyCube(name="sub_grp_cube")[0]
+        grp = cmds.group(cube, name="sub_grp")
+        cmds.select(grp)
+
+        self.instance.s000(4, widget=None)
+
+        self.assertEqual(cmds.getAttr(f"{self._shape(grp + '|sub_grp_cube')}.smoothLevel"), 4)
+
+    def test_adaptive_level_switches_to_the_adaptive_draw_type(self):
+        """``smoothTessLevel`` is inert unless the shape draws with OpenSubdiv
+        Adaptive, and a mesh follows the GLOBAL draw type by default."""
+        cube = cmds.polyCube(name="sub_adaptive")[0]
+        cmds.select(cube)
+
+        self.instance.s001(4, widget=None)
+
+        shape = self._shape(cube)
+        self.assertEqual(cmds.getAttr(f"{shape}.smoothTessLevel"), 4)
+        self.assertEqual(cmds.getAttr(f"{shape}.smoothDrawType"), 3)
+        self.assertFalse(cmds.getAttr(f"{shape}.useGlobalSmoothDrawType"))
+        self.assertIn("Adaptive Level", self.instance.sb.messages[0])
+
+    def test_non_mesh_selection_is_a_silent_no_op(self):
+        curve = cmds.curve(name="sub_curve", degree=1, point=[(0, 0, 0), (1, 0, 0)])
+        cmds.select(curve)
+
+        self.instance.s000(3, widget=None)
+        self.instance.s001(3, widget=None)
+
+        self.assertEqual(self.instance.sb.messages, [])
+
+    def test_init_seeds_from_the_selection_and_opts_out_of_persistence(self):
+        """A persisted spinbox value re-fires its slot on panel open — which
+        would smooth whatever happened to be selected. ``mirror_app_state``
+        seeds from the mesh with signals blocked and clears ``restore_state``."""
+        cube = cmds.polyCube(name="sub_init_cube")[0]
+        cmds.setAttr(f"{self._shape(cube)}.smoothLevel", 4)
+        cmds.select(cube)
+        widget = _FakeSpinBox()
+
+        self.instance.s000_init(widget)
+
+        self.assertEqual(widget.value(), 4)
+        self.assertFalse(widget.restore_state)
+        self.assertTrue(widget.blocked_during_seed)
+
+    def test_init_without_a_mesh_leaves_the_ui_default(self):
+        cmds.select(clear=True)
+        widget = _FakeSpinBox()
+
+        self.instance.s000_init(widget)
+
+        self.assertIsNone(widget.value())
+        self.assertFalse(widget.restore_state)
+
+    def test_mixed_selection_still_reaches_the_mesh(self):
+        cube = cmds.polyCube(name="sub_mixed_cube")[0]
+        curve = cmds.curve(name="sub_mixed_curve", degree=1, point=[(0, 0, 0), (1, 0, 0)])
+        cmds.select([cube, curve])
+
+        self.instance.s000(2, widget=None)
+
+        self.assertEqual(cmds.getAttr(f"{self._shape(cube)}.smoothLevel"), 2)
 
 
 if __name__ == "__main__":

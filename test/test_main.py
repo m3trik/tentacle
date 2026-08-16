@@ -12,14 +12,9 @@ import tempfile
 import types
 import unittest
 
-try:
-    import maya.cmds  # noqa: F401  — just to confirm runtime is mayapy
-    from tentacle.slots.maya import main as main_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    main_module = None
-    _MAYA_AVAILABLE = False
+main_module = maya_module("tentacle.slots.maya.main")
 
 
 class _FakeItem:

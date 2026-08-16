@@ -31,15 +31,10 @@ ROOT = Path(__file__).resolve().parent.parent
 UI_DIR = ROOT / "tentacle" / "ui"
 SLOTS_DIR = ROOT / "tentacle" / "slots"
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import preferences as preferences_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    preferences_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+preferences_module = maya_module("tentacle.slots.maya.preferences")
 
 
 def _can_create_widgets() -> bool:

@@ -24,15 +24,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 MAIN_PY = ROOT / "tentacle" / "slots" / "maya" / "main.py"
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import main as main_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    main_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+main_module = maya_module("tentacle.slots.maya.main")
 
 
 class ModuleAST:

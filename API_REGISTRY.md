@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-13_
+_Generated: 2026-08-15_
 
 ## Index
 
@@ -1409,8 +1409,10 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/subdivision.py`
 
 - **[`class Subdivision(SlotsMaya)`](tentacle/tentacle/slots/maya/subdivision.py#L9)**
-  - `Subdivision.s000(self, value: int, widget: object) -> None` — Division Level
-  - `Subdivision.s001(self, value: int, widget: object) -> None` — Tesselation Level
+  - `Subdivision.s000_init(self, widget)` — Division Level — reflect the selection's live preview division level.
+  - `Subdivision.s001_init(self, widget)` — Adaptive Level — reflect the selection's live adaptive tessellation level.
+  - `Subdivision.s000(self, value: int, widget: object) -> None` — Division Level (smooth mesh preview divisions).
+  - `Subdivision.s001(self, value: int, widget: object) -> None` — Adaptive Level (OpenSubdiv adaptive tessellation).
   - `Subdivision.b000(self)` — Quadrangulate
   - `Subdivision.b001(self)` — Triangulate: split the selected faces into triangles.
   - `Subdivision.b005(self)` — Reduce: lower the polygon count while preserving border, hard, crease, and UV edges.

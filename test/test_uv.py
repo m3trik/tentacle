@@ -13,17 +13,11 @@ at this layer:
 import unittest
 from unittest import mock
 
-try:
-    import maya.cmds as cmds
-    import mayatk as mtk
-    from tentacle.slots.maya import uv as uv_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    mtk = None
-    uv_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+mtk = maya_module("mayatk")
+uv_module = maya_module("tentacle.slots.maya.uv")
 
 
 class _FakeCmb:

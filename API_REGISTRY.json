@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-13",
+  "generated_at": "2026-08-15",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -7341,7 +7341,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Pivot",
-              "line": 161,
+              "line": 179,
               "deprecated": false
             },
             {
@@ -7350,7 +7350,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize World-Aligned Pivot options",
-              "line": 181,
+              "line": 199,
               "deprecated": false
             },
             {
@@ -7359,7 +7359,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "World-Aligned Pivot: world-align the pivot of the selected objects or components.",
-              "line": 201,
+              "line": 219,
               "deprecated": false
             },
             {
@@ -7368,7 +7368,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Object",
-              "line": 219,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -7377,7 +7377,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Center Pivot: Component",
-              "line": 225,
+              "line": 243,
               "deprecated": false
             },
             {
@@ -7386,7 +7386,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Center Pivot: World",
-              "line": 231,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -7395,7 +7395,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Bake Pivot: bake the manipulator pivot's position and orientation into the transform.",
-              "line": 237,
+              "line": 255,
               "deprecated": false
             }
           ]
@@ -8895,12 +8895,30 @@
           ],
           "members": [
             {
+              "name": "s000_init",
+              "qualname": "Subdivision.s000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Division Level — reflect the selection's live preview division level.",
+              "line": 31,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "Subdivision.s001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Adaptive Level — reflect the selection's live adaptive tessellation level.",
+              "line": 35,
+              "deprecated": false
+            },
+            {
               "name": "s000",
               "qualname": "Subdivision.s000",
               "kind": "method",
               "signature": "(self, value: int, widget: object) -> None",
-              "summary": "Division Level",
-              "line": 16,
+              "summary": "Division Level (smooth mesh preview divisions).",
+              "line": 68,
               "deprecated": false
             },
             {
@@ -8908,8 +8926,8 @@
               "qualname": "Subdivision.s001",
               "kind": "method",
               "signature": "(self, value: int, widget: object) -> None",
-              "summary": "Tesselation Level",
-              "line": 28,
+              "summary": "Adaptive Level (OpenSubdiv adaptive tessellation).",
+              "line": 84,
               "deprecated": false
             },
             {
@@ -8918,7 +8936,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quadrangulate",
-              "line": 38,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -8927,7 +8945,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Triangulate: split the selected faces into triangles.",
-              "line": 42,
+              "line": 100,
               "deprecated": false
             },
             {
@@ -8936,7 +8954,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reduce: lower the polygon count while preserving border, hard, crease, and UV edges.",
-              "line": 46,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -8945,7 +8963,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Decimate",
-              "line": 86,
+              "line": 144,
               "deprecated": false
             },
             {
@@ -8954,7 +8972,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.",
-              "line": 146,
+              "line": 204,
               "deprecated": false
             },
             {
@@ -8963,7 +8981,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Divisions - Subdivide Mesh",
-              "line": 170,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -8972,7 +8990,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Apply Smooth Preview",
-              "line": 174,
+              "line": 232,
               "deprecated": false
             },
             {
@@ -8981,7 +8999,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quad Draw: enter Maya's Quad Draw retopology tool.",
-              "line": 178,
+              "line": 236,
               "deprecated": false
             },
             {
@@ -8990,7 +9008,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Subdiv Proxy",
-              "line": 183,
+              "line": 241,
               "deprecated": false
             }
           ]

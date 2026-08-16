@@ -11,15 +11,9 @@ import os
 import tempfile
 import unittest
 
-try:
-    from tentacle.slots.maya import hud
-    _MAYA_AVAILABLE = True
-except ImportError:
-    # tentacle.slots.maya.hud imports maya.cmds at module load; in plain
-    # Python (no Maya runtime) this raises. The whole test module then
-    # has nothing meaningful to do — skip cleanly.
-    hud = None
-    _MAYA_AVAILABLE = False
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+
+hud = maya_module("tentacle.slots.maya.hud")
 
 
 class _FakeCmds:

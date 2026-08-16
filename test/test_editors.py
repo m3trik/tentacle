@@ -9,17 +9,11 @@ which sliders to toggle.
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    import maya.mel as mel
-    from tentacle.slots.maya import editors as editors_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    mel = None
-    editors_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+mel = maya_module("maya.mel")
+editors_module = maya_module("tentacle.slots.maya.editors")
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

@@ -11,10 +11,11 @@ tentacle test suite isn't affected.
 import importlib
 import unittest
 
-from _helpers import maya_available, slot_files
+from _helpers import slot_files
+from _host import MAYA_AVAILABLE
 
 
-@unittest.skipUnless(maya_available(), "Requires maya.cmds (run via mayapy)")
+@unittest.skipUnless(MAYA_AVAILABLE, "Requires maya.cmds (run via mayapy)")
 class TestSlotModulesImport(unittest.TestCase):
     """Subtests over every slot module so a single failure doesn't mask the rest."""
 

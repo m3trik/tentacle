@@ -17,15 +17,10 @@ pinned, without Maya, in ``test_slots_base.py::TestToggleCameraView``.
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import cameras as cameras_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    cameras_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+cameras_module = maya_module("tentacle.slots.maya.cameras")
 
 
 class _FakeSb:

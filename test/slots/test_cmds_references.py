@@ -13,7 +13,8 @@ file + line number.
 """
 import unittest
 
-from _helpers import find_cmds_calls, maya_available, slot_files
+from _helpers import find_cmds_calls, slot_files
+from _host import MAYA_AVAILABLE
 
 
 # Plugins loaded lazily by individual slots at __init__ time. To validate
@@ -22,7 +23,7 @@ from _helpers import find_cmds_calls, maya_available, slot_files
 _REQUIRED_PLUGINS = ("Unfold3D",)
 
 
-@unittest.skipUnless(maya_available(), "Requires maya.cmds (run via mayapy)")
+@unittest.skipUnless(MAYA_AVAILABLE, "Requires maya.cmds (run via mayapy)")
 class TestCmdsReferences(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
