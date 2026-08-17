@@ -27,12 +27,13 @@ from __future__ import annotations
 import sys
 import unittest
 
-from _helpers import maya_available, qt_widgets_available
+import _helpers  # noqa: F401 — bootstraps sys.path for _host
+from _host import MAYA_AVAILABLE, qt_widgets_available
 
 _SKIP_REASON = "Requires maya.cmds + Qt widgets (run via mayapy)"
 
 
-@unittest.skipUnless(maya_available() and qt_widgets_available(), _SKIP_REASON)
+@unittest.skipUnless(MAYA_AVAILABLE and qt_widgets_available(), _SKIP_REASON)
 class _PersistenceBase(unittest.TestCase):
     """Shared setup: one TclMaya per class, isolated QSettings, event drain.
 
@@ -302,6 +303,119 @@ class TestPolygonsSessionRoundTrip(_PersistenceBase):
             "state.load did not restore the persisted chk008 value "
             "after the state manager was rebuilt",
         )
+
+
+# ===========================================================================
+# Selection: the constraint icon row MIRRORS Maya, and must NOT persist;
+# the Convert To list builds on both surfaces
+# ===========================================================================
+
+class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
+    """b002-b007 (2026-08-16: the icon row that replaced the one-at-a-time
+    ``cmb005`` combo) are checkable buttons whose state IS Maya's
+    ``polySelectConstraint`` flags. A checkable button is a stateful widget
+    to ``ValueManager`` — so without ``mirror_app_state`` the row would be
+    persisted and a stored "on" replayed on panel open would silently
+    switch a constraint on. Pins the opt-out through the real chain, plus
+    the row/list actually building through the real slot init."""
+
+    _ALL_OFF = dict(
+        border=False, borderPropagation=False, shell=False, anglePropagation=False,
+        loopPropagation=False, ringPropagation=False, uvEdgeLoopPropagation=False,
+    )
+
+    def setUp(self):
+        super().setUp()
+        import maya.cmds as cmds
+        self.cmds = cmds
+        cmds.polySelectConstraint(**self._ALL_OFF)
+
+    def tearDown(self):
+        self.cmds.polySelectConstraint(**self._ALL_OFF)
+        super().tearDown()
+
+    def _row(self, ui):
+        return [getattr(ui, n) for n in ("b002", "b003", "b004", "b005", "b006", "b007")]
+
+    def test_row_builds_as_icon_toggles(self):
+        ui = self._load_panel("selection")
+        for b in self._row(ui):
+            with self.subTest(b.objectName()):
+                self.assertTrue(b.isCheckable())
+                self.assertFalse(b.icon().isNull(), "no glyph — a bad icon NAME resolves to an empty QIcon silently")
+                self.assertEqual(b.text(), "")
+                self.assertIn("Selection constraint", b.toolTip())
+                self.assertFalse(getattr(b, "restore_state", True), "constraint button not opted out of restore")
+
+    def test_click_toggles_maya_flag_and_writes_no_qsettings_key(self):
+        ui = self._load_panel("selection")
+        b004 = ui.b004  # Edge Loop
+        self.assertFalse(b004.isChecked())
+        b004.click()
+        self._drain()
+        self.assertTrue(self.cmds.polySelectConstraint(q=True, loopPropagation=True))
+        self.assertFalse(any("b004" in k for k in self._raw_keys()),
+                         "constraint state leaked into QSettings")
+        b004.click()
+        self._drain()
+        self.assertFalse(self.cmds.polySelectConstraint(q=True, loopPropagation=True))
+
+    def test_row_seeds_from_the_live_constraint(self):
+        """A constraint switched on outside the panel (Modeling Toolkit) reads
+        as checked when the row (re)initializes."""
+        self.cmds.polySelectConstraint(shell=True)
+        ui = self._load_panel("selection")
+        ui.b006.init_slot()
+        self._drain()
+        self.assertTrue(ui.b006.isChecked())
+        self.assertFalse(ui.b002.isChecked())
+
+    def test_convert_to_list_builds_on_panel_and_submenu(self):
+        for name in ("selection", "selection_submenu"):
+            with self.subTest(name):
+                ui = self._load_panel(name)
+                lst = ui.list001
+                # get_items() recurses; the root is the one item carrying a populated sublist
+                roots = [w for w in lst.get_items() if getattr(w, "sublist", None) and w.sublist.get_items()]
+                self.assertEqual([lst.get_item_text(r) for r in roots], ["Convert To"])
+                leaves = [roots[0].sublist.get_item_text(w) for w in roots[0].sublist.get_items()]
+                self.assertEqual(len(leaves), 20, leaves)
+                self.assertEqual(leaves[0], "Verts")
+                self.assertEqual(leaves[-1], "Shell Border")
+
+
+# ===========================================================================
+# UV: b030 (Stack) option box comes from the shared UvMixin.b030_init
+# ===========================================================================
+
+class TestUvStackOptionBox(_PersistenceBase):
+    """The Stack button's option box (Mode cmb020 / Tolerance s024 / Pin chk047) is
+    built by the DCC-shared ``UvMixin.b030_init`` -- prove it lands on the REAL
+    widget (not a fake) with its documented defaults, that ``_stack_options``
+    reads it back, and that a flipped Pin persists like any other option-box
+    widget."""
+
+    def test_b030_option_box_builds_with_defaults(self):
+        ui = self._load_panel("uv")
+        menu = ui.b030.option_box.menu
+        self.assertEqual(menu.cmb020.currentData(), "similar")
+        self.assertEqual(
+            [menu.cmb020.itemData(i) for i in range(menu.cmb020.count())],
+            ["similar", "center"],
+        )
+        self.assertEqual(menu.s024.value(), 1.0)
+        self.assertFalse(menu.chk047.isChecked())
+        self.assertFalse(ui.b030.isCheckable())
+        slot = self.sb.get_slots_instance(ui)
+        self.assertEqual(slot._stack_options(ui.b030), ("similar", 1.0, False))
+
+    def test_b030_pin_option_persists(self):
+        ui = self._load_panel("uv")
+        chk047 = ui.b030.option_box.menu.chk047
+        chk047.setChecked(True)
+        self._drain()
+        ui.settings.sync()
+        self.assertTrue(any("chk047" in k for k in self._raw_keys()), self._raw_keys())
 
 
 if __name__ == "__main__":

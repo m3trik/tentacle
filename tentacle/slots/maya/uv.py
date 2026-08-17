@@ -30,6 +30,7 @@ class UvSlots(UvMixin, SlotsMaya):
         self._b030_stacked = False
         self._b030_last_selection = None
         self._b030_uv_snapshot = None
+        self._b030_pin_weights = None
 
     def get_map_size(self):
         """Get the map size from the combobox as an int. ie. 2048"""
@@ -1237,18 +1238,66 @@ class UvSlots(UvMixin, SlotsMaya):
     def tb009_init(self, widget):
         """Initialize Cut Cylinder.
 
-        Cuts the hard creases (cap rims + step rings) plus one lengthwise seam
-        on cylinder / tube / turned meshes, then optionally unfolds so each
-        smooth section lays out as a clean strip and each flat step / cap as its
-        own shell. The seam strategy is detected per mesh — a straight revolved
-        axis for upright cylinders and turned columns, surface topology for
-        bent / swept tubes and toruses — so there's nothing to choose.
-        *Crease Angle* sets how sharp a bend must be to start a new shell;
-        *Invert Seam* moves the lengthwise seam to the opposite side; *Unfold*
-        flattens the cut sections (off = cut seams only).
+        Seams cylinder / tube / turned meshes the way a texture artist does by
+        hand — clean and minimal: every cylindrical wall, chamfer and flare
+        becomes a strip with ONE lengthwise seam (all strips along the same
+        edge loop, so the seams line up), washers / steps and caps stay closed
+        rings and discs, and a ring is cut wherever a strip meets one of them
+        or the profile kinks. Bent hoses and toruses are read locally, so
+        there's nothing to choose. Then optionally unfolds so each strip lays
+        out flat (a rectangle, a sector) and each ring / disc as its own shell.
+        The knobs are the artist's preferences, not the algorithm's: *Taper
+        Angle* is how far a band may tilt and still ride the cylinder's strip
+        (and how much the profile may turn before a new piece starts); *Flat
+        Angle* is the rings-vs-sectors call -- bands flatter than it stay
+        closed rings, steeper bevels are cut open; *Fillet Size* is how small
+        a bevel must be to ride its wall's strip instead of becoming a shell;
+        *Crease Angle* only decides creases in geometry the tube reading
+        doesn't cover; *Hide Seam From View* lands the lengthwise seam on the
+        side facing away from the active viewport camera; *Invert Seam* flips
+        it to the near side; *Keep Existing Seams* leaves hand-cut UV borders
+        in place instead of sewing them shut first; *Unfold* flattens the cut
+        sections (off = cut seams only).
         """
         menu = widget.option_box.menu
         menu.setTitle("Cut Cylinder")
+        menu.add(
+            "QSpinBox",
+            setPrefix="Taper Angle: ",
+            setObjectName="s021",
+            set_limits=[1, 60],
+            setValue=20,
+            setSuffix="°",
+            setToolTip="How far a band may tilt from the tube axis and still "
+            "ride the cylinder's strip, and how much the profile may turn "
+            "before a new piece starts. Raise it to let gentle chamfers and "
+            "tapers stay part of the wall; lower it to split them off. Default 20.",
+        )
+        menu.add(
+            "QSpinBox",
+            setPrefix="Flat Angle: ",
+            setObjectName="s022",
+            set_limits=[20, 85],
+            setValue=60,
+            setSuffix="°",
+            setToolTip="Rings vs. sectors. Bands tilted from the axis past this "
+            "(steps, shallow bevels) stay closed rings; steeper ones (chamfers, "
+            "flares, funnels) are cut open on the seam as exact sectors. Lower "
+            "it to keep more bevels as rings (45 keeps a 45° chamfer closed at a "
+            "41% stretch); raise it to cut more of them open. Default 60.",
+        )
+        menu.add(
+            "QSpinBox",
+            setPrefix="Fillet Size: ",
+            setObjectName="s023",
+            set_limits=[0, 50],
+            setValue=12,
+            setSuffix=" %",
+            setToolTip="Bands shorter than this percentage of the tube radius "
+            "are fillets / bevels / beads: they ride the strip of the wall they "
+            "round off instead of becoming shells of their own. 0 = every band "
+            "counts on its own. Default 12.",
+        )
         menu.add(
             "QSpinBox",
             setPrefix="Crease Angle: ",
@@ -1256,18 +1305,36 @@ class UvSlots(UvMixin, SlotsMaya):
             set_limits=[1, 179],
             setValue=45,
             setSuffix="°",
-            setToolTip="Crease threshold in degrees. An edge whose two faces "
-            "meet at this angle or sharper starts a new shell, so a smaller "
-            "value splits at gentler bevels and a larger value keeps only the "
-            "hardest (~90°) steps. Default 45.",
+            setToolTip="Crease threshold in degrees for geometry that isn't a "
+            "clean tube (edges sharper than this become seams there). The tube "
+            "itself is read from its profile (see Taper / Flat Angle); set this "
+            "below the Taper Angle to split gentler kinks too. Default 45.",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Hide Seam From View",
+            setObjectName="chk045",
+            setChecked=True,
+            setToolTip="Place the lengthwise seam on the side facing away from "
+            "the active viewport's camera, so it lands on the back. Off: a "
+            "fixed side, away from Maya's default front-right perspective.",
         )
         menu.add(
             "QCheckBox",
             setText="Invert Seam",
             setObjectName="chk040",
             setChecked=False,
-            setToolTip="Place the lengthwise seam on the opposite side of the "
-            "cylinder, so it lands on the back / hidden side.",
+            setToolTip="Flip the lengthwise seam to the opposite side (facing "
+            "the viewer).",
+        )
+        menu.add(
+            "QCheckBox",
+            setText="Keep Existing Seams",
+            setObjectName="chk046",
+            setChecked=False,
+            setToolTip="Leave the mesh's current UV borders (hand-cut seams) in "
+            "place and add the tube seams to them. Off: sew everything shut "
+            "first so the shells come only from this operation.",
         )
         menu.add(
             "QCheckBox",
@@ -1288,10 +1355,16 @@ class UvSlots(UvMixin, SlotsMaya):
     @mtk.undoable
     def tb009(self, widget):
         """Cut Cylinder"""
-        angle = widget.option_box.menu.s016.value()
-        invert_seam = widget.option_box.menu.chk040.isChecked()
-        unfold = widget.option_box.menu.chk041.isChecked()
-        orient = widget.option_box.menu.chk042.isChecked()
+        menu = widget.option_box.menu
+        angle = menu.s016.value()
+        taper_angle = menu.s021.value()
+        flat_angle = menu.s022.value()
+        trim_ratio = menu.s023.value() / 100.0
+        hide_from_view = menu.chk045.isChecked()
+        invert_seam = menu.chk040.isChecked()
+        keep_seams = menu.chk046.isChecked()
+        unfold = menu.chk041.isChecked()
+        orient = menu.chk042.isChecked()
 
         selection = self.require_selection(
             "<b>Nothing selected.</b><br>The operation requires at least one "
@@ -1301,6 +1374,13 @@ class UvSlots(UvMixin, SlotsMaya):
         if selection is None:
             return
 
+        camera = None
+        if hide_from_view:
+            try:  # no active 3D view (batch / undocked UI): fixed default side
+                camera = mtk.CamUtils.get_current_cam() or None
+            except Exception:
+                camera = None
+
         seamed = mtk.UvUtils.unwrap_cylinder(
             selection,
             angle=angle,
@@ -1308,6 +1388,11 @@ class UvSlots(UvMixin, SlotsMaya):
             unfold=unfold,
             orient=orient,
             map_size=self.get_map_size(),
+            sew=not keep_seams,
+            taper_angle=taper_angle,
+            camera=camera,
+            flat_angle=flat_angle,
+            trim_ratio=trim_ratio,
         )
         if not seamed:
             self.sb.message_box(
@@ -1629,34 +1714,34 @@ class UvSlots(UvMixin, SlotsMaya):
         cmds.polyPinUV(uvs, value=1.0 if self._b029_pinned else 0.0)
         self._b029_last_selection = list(selection)
 
-    def b030_init(self, widget):
-        """Initialize Stack button — non-checkable text button.
-
-        Defensively clears any `checkable` property a Qt Designer round-trip
-        may have re-added (the button's "Stack" label lives in the .ui).
-        """
-        widget.setCheckable(False)
-
     @mtk.undoable
     def b030(self, widget):
-        """Stack / Unstack similar shells (dual-state toggle).
+        """Stack / Unstack shells (dual-state toggle).
 
         First click on a fresh selection captures each selected UV's position
-        and stacks similar shells (texStackShells). The next click restores
-        those positions, returning shells to exactly where they were before
-        the stack. A selection change since the last click resets the toggle
-        and drops the snapshot.
+        (and pin weight) and stacks the shells per the option box
+        (:meth:`UvMixin.b030_init`): ``Similar`` =
+        ``mtk.UvUtils.stack_similar_uv_shells`` (``polyUVStackSimilarShells``)
+        — shells of the same topology + shape land on the first matching
+        shell, rotated (and scaled) to overlap exactly, unmatched shells stay
+        put; ``All shells`` = ``texStackShells`` — every shell translated onto
+        the shared center. ``Pin after stack`` pins the selected shells' UVs.
+        The next click restores the captured positions and pin weights,
+        returning shells to exactly where they were before the stack. A
+        selection change since the last click resets the toggle and drops
+        the snapshot.
 
         Per-UV capture and restore avoid an ordering ambiguity in bulk
         ``polyEditUV(..., query=True)``.
         """
+        mode, tolerance, pin = self._stack_options(widget)
         selection = self.require_selection(
             "<b>Nothing selected.</b><br>Select the shell(s) to stack."
         )
         if selection is None:
             return
-        uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
-        uvs = cmds.ls(uvs, flatten=True) or []
+        uv_ranges = cmds.polyListComponentConversion(selection, toUV=True) or []
+        uvs = cmds.ls(uv_ranges, flatten=True) or []
         if not uvs:
             self.sb.message_box("<b>No UVs found in selection.</b>")
             return
@@ -1666,22 +1751,54 @@ class UvSlots(UvMixin, SlotsMaya):
             # snapshot from a previous selection.
             self._b030_stacked = False
             self._b030_uv_snapshot = None
+            self._b030_pin_weights = None
 
         self._b030_stacked = not self._b030_stacked
         self._b030_last_selection = list(selection)
 
         if self._b030_stacked:
+            # Prior pin weights, always: the stack commands ignore pins but
+            # polyEditUV honours them, so Unstack has to lift every pin before
+            # it can move a UV back -- and then put exactly these weights back
+            # (pins the user set via b029 survive the cycle).
+            #
+            # Keyed by UV, then aligned to the snapshot: a UV whose position
+            # query comes back empty is dropped from `snapshot`, so a list
+            # captured over the full `uvs` would be LONGER than the list
+            # Unstack pairs it against -- shifting every subsequent weight onto
+            # a different UV, silently.
+            weight_by_uv = dict(zip(uvs, mtk.UvUtils.get_uv_pin_weights(uvs)))
             snapshot = []
             for uv in uvs:
                 pos = cmds.polyEditUV(uv, query=True)
                 if pos and len(pos) >= 2:
                     snapshot.append((uv, pos[0], pos[1]))
+            weights = [weight_by_uv[uv] for uv, _, _ in snapshot]
+            if mode == self.STACK_MODE_SIMILAR:
+                if not mtk.UvUtils.stack_similar_uv_shells(selection, tolerance):
+                    self._b030_stacked = False
+                    self._report_no_similar_shells()
+                    return
+            else:
+                # texStackShells stacks the shells of the SELECTED UVs / faces
+                # (a plain object selection is "No UVs selected" unless Maya's
+                # auto-convert preference is on) -- select the UVs, stack, and
+                # put the selection back so the toggle's compare still holds.
+                cmds.select(uv_ranges)
+                try:
+                    mel.eval("texStackShells {}")
+                finally:
+                    cmds.select(selection)
             self._b030_uv_snapshot = snapshot
-            mel.eval("texStackShells {}")
+            self._b030_pin_weights = weights
+            if pin:
+                cmds.polyPinUV(uvs, value=1.0)
             return
 
         snapshot = self._b030_uv_snapshot or []
+        weights = self._b030_pin_weights or []
         self._b030_uv_snapshot = None
+        self._b030_pin_weights = None
         if not snapshot:
             self.sb.message_box(
                 "<b>No snapshot available.</b><br>"
@@ -1690,9 +1807,13 @@ class UvSlots(UvMixin, SlotsMaya):
             return
         cmds.refresh(suspend=True)
         try:
+            live = [uv for uv, _, _ in snapshot if cmds.objExists(uv)]
+            if live:
+                cmds.polyPinUV(live, value=0.0)  # pins block polyEditUV
             for uv, u, v in snapshot:
                 if cmds.objExists(uv):
                     cmds.polyEditUV(uv, uValue=u, vValue=v, relative=False)
+            mtk.UvUtils.set_uv_pin_weights([uv for uv, _, _ in snapshot], weights)
         finally:
             cmds.refresh(suspend=False)
 

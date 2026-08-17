@@ -31,15 +31,10 @@ from unittest.mock import patch
 
 from tentacle.slots._settings import SettingsMixin
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import settings as settings_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    settings_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+settings_module = maya_module("tentacle.slots.maya.settings")
 
 
 class _FakeRegistry:

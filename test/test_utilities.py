@@ -8,13 +8,9 @@ that drives a marking menu instead of mel.eval; pin its key name.
 """
 import unittest
 
-try:
-    from tentacle.slots.maya import utilities as utilities_module
+from _host import MAYA_AVAILABLE as _AVAILABLE, maya_module
 
-    _AVAILABLE = True
-except ImportError:
-    utilities_module = None
-    _AVAILABLE = False
+utilities_module = maya_module("tentacle.slots.maya.utilities")
 
 
 class _FakeMarkingMenu:

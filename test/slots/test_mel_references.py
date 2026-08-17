@@ -27,9 +27,9 @@ import unittest
 from _helpers import (
     find_mel_eval_strings,
     first_mel_token,
-    maya_available,
     slot_files,
 )
+from _host import MAYA_AVAILABLE
 
 
 # MEL files we explicitly source up-front so the procs they define become
@@ -61,13 +61,9 @@ _KNOWN_LAZY = frozenset(
         "dR_multiCutTool",
         "dR_connectTool",
         "dR_quadDrawTool",
-        "dR_selConstraintAngle",
-        "dR_selConstraintBorder",
-        "dR_selConstraintEdgeLoop",
-        "dR_selConstraintEdgeRing",
-        "dR_selConstraintElement",
-        "dR_selConstraintUVEdgeLoop",
-        "dR_selConstraintOff",
+        # drInit.mel global proc (MTK's constraint-field refresher); the
+        # selection slot probes `exists` before calling it.
+        "dR_updateSelConstField",
         # runTimeCommands registered by Maya's preview/menu init scripts.
         "SendToUnrealSelection",
         "SendToUnitySelection",
@@ -102,7 +98,7 @@ def _ensure_plugins_loaded():
             pass
 
 
-@unittest.skipUnless(maya_available(), "Requires maya.cmds + maya.mel (run via mayapy)")
+@unittest.skipUnless(MAYA_AVAILABLE, "Requires maya.cmds + maya.mel (run via mayapy)")
 class TestMelReferences(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

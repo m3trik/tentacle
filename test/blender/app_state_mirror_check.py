@@ -173,24 +173,31 @@ try:
     else:
         check("selection chk004: VIEW_3D area available to seed from", False, "no VIEW_3D area")
 
-    # -- cmb005 Selection Constraints: one-shot ops must never restore --
-    # The REAL uitk ComboBox, not a QComboBox with a stubbed `add`: `ComboBox.add` ends with
-    # `restore_state = not self.has_header`, so a headerless combo populated inside the seed
-    # re-arms its own persistence. A stub `add` doesn't, and passed this vacuously.
-    ui = _Ui(cmb005=ComboBox())
+    # -- b002-b007 Selection Constraints (the icon row that replaced the cmb005 combo,
+    #    2026-08-16): one-shot ops -- nothing to persist, nothing to seed, and the shared .ui's
+    #    ``checkable`` (for the Maya fork's toggles) must be cleared so a press can't read "on" --
+    from uitk.managers.icon_manager import IconManager
+
+    row = {n: QtWidgets.QPushButton() for n in Selection._CONSTRAINT_BUTTONS}
+    for b in row.values():
+        b.setCheckable(True)  # as the shared selection.ui declares
+    ui = _Ui(**row)
     slot = make_slot(Selection, ui)
-    slot.cmb005_init(ui.cmb005)
+    slot.sb.IconManager = IconManager  # _init_constraint_button reaches it via sb
+    for n, b in row.items():
+        getattr(slot, f"{n}_init")(b)
     check(
-        "selection cmb005: Selection Constraints opt out of restore (one-shot ops)",
-        not ui.cmb005.restore_state,
-        f"restore_state={ui.cmb005.restore_state}",
+        "selection b002-b007: constraint buttons are one-shots, not toggles (checkable cleared)",
+        not any(b.isCheckable() for b in row.values()),
+        f"checkable={[n for n, b in row.items() if b.isCheckable()]}",
     )
     check(
-        "selection cmb005: populated with the items it dispatches",
-        ui.cmb005.count() == len(Selection._CONSTRAINT_OPS) + 1,
-        f"count={ui.cmb005.count()}",
+        "selection b002-b007: every constraint button got its glyph",
+        not any(b.icon().isNull() for b in row.values()),
+        f"blank={[n for n, b in row.items() if b.icon().isNull()]}",
     )
-    assert_quiet_init("selection cmb005", slot, ui, ("cmb005",))
+    check("selection b002-b007: init pops no message box", not slot.sb.messages, f"{slot.sb.messages}")
+    check("selection b002-b007: init fires no slot", not ui.fired, f"{ui.fired}")
 
     # ================================================================ symmetry
     from tentacle.slots.blender.symmetry import Symmetry

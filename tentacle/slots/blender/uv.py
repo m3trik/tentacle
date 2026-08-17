@@ -376,7 +376,8 @@ class Uv(UvMixin, SlotsBlender):
 
     def tb009_init(self, widget):
         # s016/chk041/chk042 reuse the Maya names + labels for the SAME options. chk040 (Invert
-        # Seam) has no Blender analogue — the auto-seam path places the lengthwise cut itself.
+        # Seam) and chk045 (Hide Seam From View) have no Blender analogue — the auto-seam path
+        # places the lengthwise cut itself (parity_map.py "uv").
         m = widget.option_box.menu
         m.setTitle("Cut Cylinder")
         m.add(
@@ -727,19 +728,19 @@ class Uv(UvMixin, SlotsBlender):
         self._uv_op(_run)
 
     # ------------------------------------------------------------------ shell ops (btk islands)
-    def b030_init(self, widget):
-        """Initialize Stack button — non-checkable text button.
-
-        Defensively clears any `checkable` property a Qt Designer round-trip
-        may have re-added (the button's "Stack" label lives in the .ui).
-        """
-        widget.setCheckable(False)
-
     @btk.undoable
     def b030(self, widget):
         """Stack / Unstack shells (dual-state toggle: first click stacks the targeted
-        shells at a shared center and captures their positions; the next click restores
-        them. A selection change resets the toggle)."""
+        shells per the option box — :meth:`UvMixin.b030_init` — and captures their positions
+        (and pins); the next click restores them. A selection change resets the toggle).
+
+        ``Similar`` = ``btk.stack_uv_shells(tolerance=...)`` — shells of the same topology +
+        shape land on the first matching shell, rotated / scaled to overlap exactly, unmatched
+        shells stay put (Maya's ``polyUVStackSimilarShells``); ``Center`` =
+        ``btk.stack_uv_shells()`` — every shell onto the shared center (``texStackShells``).
+        ``Pin after stack`` pins the targeted shells' UVs; Unstack restores the pins as they
+        were (the snapshot carries them)."""
+        mode, tolerance, pin = self._stack_options(widget)
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
         if not objects:
             self.sb.message_box("<b>Nothing selected.</b>")
@@ -749,16 +750,25 @@ class Uv(UvMixin, SlotsBlender):
             btk.set_uv_coords(objects, self._b030_snapshot)
             self._b030_snapshot = None
             return
-        snapshot = btk.get_uv_coords(objects)
-        moved = btk.stack_uv_shells(objects)
-        if moved:
-            self._b030_snapshot = snapshot
-            self._b030_signature = signature
-        else:
+        snapshot = btk.get_uv_coords(objects, pins=pin)
+        similar = mode == self.STACK_MODE_SIMILAR
+        moved = btk.stack_uv_shells(objects, tolerance=tolerance if similar else None)
+        if not moved:
             self._b030_snapshot = None
-            self.sb.message_box(
-                "<strong>No UV shells stacked.</strong><br>Needs at least two islands "
-                "(in Edit Mode, shells touched by the selection)."
+            if similar:
+                self._report_no_similar_shells()
+            else:
+                self.sb.message_box(
+                    "<strong>No UV shells stacked.</strong><br>Needs at least two islands "
+                    "(in Edit Mode, shells touched by the selection)."
+                )
+            return
+        self._b030_snapshot = snapshot
+        self._b030_signature = signature
+        if pin:
+            btk.pin_uvs(
+                objects, pin=True,
+                selected_only=any(o.mode == "EDIT" for o in objects), whole_shells=True,
             )
 
     # ------------------------------------------------------------------ deferred (Maya / UV-editor)

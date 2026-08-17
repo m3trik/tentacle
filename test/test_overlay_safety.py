@@ -4,28 +4,7 @@ from unittest.mock import MagicMock, patch
 from uitk.widgets.marking_menu.overlay import Overlay, Path
 
 
-def _can_create_widgets() -> bool:
-    """True iff QWidget construction is supported in the current process.
-
-    QWidget construction silently aborts (exit 127, no Python traceback)
-    in mayapy.standalone — even when a QApplication has been promoted by
-    other imports. Maya's batch/standalone Qt is a stub that can't host
-    real widgets. The reliable discriminator is `cmds.about(batch=True)`:
-
-    - Plain Python:         no maya.cmds          → True (widgets work)
-    - Interactive Maya:     batch=False           → True (full GUI Qt)
-    - mayapy.standalone:    batch=True            → False (widgets crash)
-    - maya -batch:          batch=True            → False (same)
-    """
-    try:
-        import maya.cmds as cmds  # noqa: WPS433
-    except ImportError:
-        # No Maya — plain Python with regular Qt context.
-        return True
-    try:
-        return not bool(cmds.about(batch=True))
-    except Exception:
-        return False
+from _host import qt_widgets_available as _can_create_widgets
 
 
 @unittest.skipUnless(

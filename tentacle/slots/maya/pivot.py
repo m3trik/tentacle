@@ -113,8 +113,16 @@ class Pivot(SlotsMaya):
             "QCheckBox",
             setText="Rotate",
             setObjectName="chk006",
-            setChecked=True,
-            setToolTip="Transfer the pivot orientation.",
+            setChecked=False,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Rotate",
+                body="Transfer the pivot ORIENTATION as well as its position.",
+                notes=[
+                    "Off by default — most transfers only want the pivot point.",
+                    "The object never moves: its geometry is pinned while the "
+                    "pivot re-frames.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -127,8 +135,18 @@ class Pivot(SlotsMaya):
             "QCheckBox",
             setText="Bake",
             setObjectName="chk008",
-            setChecked=False,
-            setToolTip="Bake the pivot values into the transform node.",
+            setChecked=True,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Bake",
+                body="Whether the transferred pivot is <b>permanent</b> or a "
+                "temporary manipulator pivot.",
+                notes=[
+                    "<b>On</b>: written into each target's own pivot attributes "
+                    "— saved with the scene.",
+                    "<b>Off</b>: only the manipulator is moved. Transient, "
+                    "shared by all targets, and cleared by Reset Pivot.",
+                ],
+            ),
         )
         widget.option_box.menu.add(
             "QCheckBox",

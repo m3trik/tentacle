@@ -15,24 +15,18 @@ real Maya when available.
 
 import ast
 import os
-import shutil
-import tempfile
 import types
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MAIN_PY = ROOT / "tentacle" / "slots" / "maya" / "main.py"
+MAIN_MIXIN_PY = ROOT / "tentacle" / "slots" / "_main.py"
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import main as main_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    main_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+main_module = maya_module("tentacle.slots.maya.main")
 
 
 class ModuleAST:
@@ -59,6 +53,60 @@ class ModuleAST:
         return ast.get_source_segment(self.source, fn) or "" if fn else ""
 
 
+class TestMainMixinStructure(unittest.TestCase):
+    """The browse → offer → build → open flow lives ONCE in ``slots/_main.py``
+    (``MainMixin``); each fork supplies only the engine hooks."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8"))
+
+    def test_shared_flow_and_hooks_declared(self):
+        for name in (
+            "_set_workspace_interactive",
+            "_set_workspace_from_path",
+            # hooks — declared (raise NotImplementedError) so a fork that forgets
+            # one fails loudly instead of silently inheriting a wrong default
+            "_current_workspace_root",
+            "_browse_workspace_dir",
+            "_is_workspace",
+            "_create_default_workspace",
+            "_switch_to_workspace",
+        ):
+            self.assertTrue(
+                self.mod.has_method("MainMixin", name), f"MainMixin must define {name}"
+            )
+
+    def test_set_workspace_offers_then_builds_then_opens(self):
+        """Set Workspace on a folder that is not a project must OFFER to build a
+        default workspace there from the shared template — marker AND rule folders.
+
+        Regression: Maya's row was a bare ``mel.eval("SetProject")``. Maya's own
+        "Create default workspace" answer calls
+        ``sp_createAndSetDefaultProject($path, false)`` — the ``false`` is
+        *createDirectories* — so it writes a lone ``workspace.mel`` and no
+        ``scenes/``, ``sourceimages/`` … folders; Blender's twin just pinned the
+        pick. The shared flow: browse → offer (never build unasked; Retry
+        re-browses) → build via the fork's ``_create_default_workspace`` → open.
+        """
+        src = self.mod.method_source("MainMixin", "_set_workspace_interactive")
+        for needle in (
+            "_browse_workspace_dir",
+            "_is_workspace",
+            "message_box",
+            '"Retry"',
+            "_create_default_workspace",
+            "_switch_to_workspace",
+        ):
+            self.assertIn(needle, src, f"_set_workspace_interactive must use {needle}")
+        self.assertNotIn("SetProject", src)
+
+    def test_recent_selection_validates(self):
+        src = self.mod.method_source("MainMixin", "_set_workspace_from_path")
+        self.assertIn("_is_workspace", src)
+        self.assertIn("_switch_to_workspace", src)
+
+
 class TestMainWorkspaceStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -69,13 +117,35 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "list000_init",
             "list000",
             "_is_workspace",
-            "_set_workspace_interactive",
             "_auto_set_workspace",
-            "_set_workspace_from_path",
+            "_switch_to_workspace",
+            # MainMixin hooks
+            "_current_workspace_root",
+            "_browse_workspace_dir",
+            "_create_default_workspace",
         ):
             self.assertTrue(
                 self.mod.has_method("Main", name), f"Main must define {name}"
             )
+
+    def test_does_not_reimplement_shared_flow(self):
+        for name in ("_set_workspace_interactive", "_set_workspace_from_path"):
+            self.assertFalse(
+                self.mod.has_method("Main", name),
+                f"{name} belongs to MainMixin — the fork must not re-implement it",
+            )
+        self.assertIn("class Main(MainMixin, SlotsMaya)", self.mod.source)
+
+    def test_hooks_use_the_shared_template_and_native_browser(self):
+        """The build hook is ``mtk.create_workspace`` (the same template Workspace
+        Map ▸ New Project builds from); the browser is Maya's ``fileDialog2``."""
+        self.assertIn(
+            "mtk.create_workspace",
+            self.mod.method_source("Main", "_create_default_workspace"),
+        )
+        self.assertIn(
+            "fileDialog2", self.mod.method_source("Main", "_browse_workspace_dir")
+        )
 
     def test_list000_builds_store_and_actions(self):
         """list000_init must build the store, add the editing actions, render the
@@ -127,9 +197,15 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         ):
             self.assertIn(needle, src, f"list000 must handle {needle}")
 
-    def test_recent_selection_validates(self):
-        src = self.mod.method_source("Main", "_set_workspace_from_path")
-        self.assertIn("_is_workspace", src)
+    def test_switch_opens_through_native_setproject(self):
+        """``_switch_to_workspace`` opens via MEL ``setProject "<path>"`` (the
+        no-popup form) rather than a raw ``workspace -o`` so recent projects /
+        project-window refresh / browser prefs behave exactly as Maya's own
+        Set Project — the flow this slot replaced. (Headless it falls back to a
+        plain ``workspace -o`` — ``setProject``'s ``savePrefs`` tail is GUI-only.)"""
+        src = self.mod.method_source("Main", "_switch_to_workspace")
+        self.assertIn('setProject "', src)
+        self.assertIn("about(batch=True)", src)
 
     def test_editor_row_opens_native_project_window(self):
         """The Edit Workspace row opens Maya's native Project Window (blendertk's
@@ -169,14 +245,21 @@ class TestSetWorkspaceFromPath(unittest.TestCase):
     """Main._set_workspace_from_path validates workspace.mel before switching."""
 
     def setUp(self):
+        import pythontk as ptk
+
         cmds.file(new=True, force=True)
+        self._before = cmds.workspace(query=True, rd=True)
         self.inst = main_module.Main.__new__(main_module.Main)
         self.inst.sb = _StubSb()
         self.inst._workspace_store = _StubStore()
-        self.root = tempfile.mkdtemp(prefix="main_ws_test_")
+        self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")
+        self.root = self.tmp.dir_path()
 
     def tearDown(self):
-        shutil.rmtree(self.root, ignore_errors=True)
+        # Restore the workspace BEFORE removing the folder Maya may be pointed at —
+        # a leaked switch bleeds into every later test's "current workspace".
+        cmds.workspace(self._before, openWorkspace=True)
+        self.tmp.cleanup()
         cmds.file(new=True, force=True)
 
     def test_rejects_path_with_no_workspace_mel(self):
@@ -216,6 +299,88 @@ class TestSetWorkspaceFromPath(unittest.TestCase):
         expected_name = os.path.basename(os.path.normpath(self.root))
         self.assertIn(expected_name, text)
         self.assertNotIn("set to .", text)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestSetWorkspaceInteractive(unittest.TestCase):
+    """Main._set_workspace_interactive: browse → (offer + build) → open.
+
+    The directory browser is stubbed at ``main_module.cmds.fileDialog2`` (the
+    slot's own reference); the offer is answered through ``_StubSb.choice``.
+    """
+
+    def setUp(self):
+        import pythontk as ptk
+
+        cmds.file(new=True, force=True)
+        self._before = cmds.workspace(query=True, rd=True)
+        self.inst = main_module.Main.__new__(main_module.Main)
+        self.inst.sb = _StubSb()
+        self.inst._workspace_store = _StubStore()
+        self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")
+        self.root = self.tmp.dir_path()
+        self._orig_dialog = main_module.cmds.fileDialog2
+
+    def tearDown(self):
+        main_module.cmds.fileDialog2 = self._orig_dialog
+        cmds.workspace(self._before, openWorkspace=True)
+        self.tmp.cleanup()
+        cmds.file(new=True, force=True)
+
+    def _pick(self, path):
+        main_module.cmds.fileDialog2 = lambda *a, **k: [path] if path else None
+
+    def _same(self, a, b):
+        return os.path.normcase(os.path.normpath(a)) == os.path.normcase(
+            os.path.normpath(b)
+        )
+
+    def test_unmarked_folder_offer_accepted_builds_marker_and_rule_folders(self):
+        """THE bug: accepting the offer must leave the standard rule folders on
+        disk (not just workspace.mel), and Maya must be switched to it."""
+        import pythontk as ptk
+
+        self._pick(self.root)
+        self.inst.sb.choice = "Yes"
+        self.inst._set_workspace_interactive()
+        ws = ptk.Workspace.load(self.root)
+        self.assertTrue(ws.is_marked, "workspace.mel must be written")
+        rule_dirs = {
+            v for v in ptk.DEFAULT_FILE_RULES.values() if v != "." and not os.path.isabs(v)
+        }
+        for rel in rule_dirs:
+            self.assertTrue(
+                os.path.isdir(os.path.join(self.root, rel)), f"missing rule folder {rel}"
+            )
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
+        self.assertTrue(
+            any(self._same(r, self.root) for r in self.inst._workspace_store.recorded)
+        )
+
+    def test_unmarked_folder_offer_declined_creates_nothing(self):
+        self._pick(self.root)
+        self.inst.sb.choice = "Cancel"
+        self.inst._set_workspace_interactive()
+        self.assertEqual(os.listdir(self.root), [], "nothing may be written on Cancel")
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self._before))
+        self.assertEqual(self.inst._workspace_store.recorded, [])
+
+    def test_marked_folder_opens_without_offer(self):
+        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
+            f.write('//Maya Project Definition\n\nworkspace -fr "scene" "scenes";\n')
+        self._pick(self.root)
+        self.inst.sb.choice = "Cancel"  # would abort if an offer were (wrongly) made
+        self.inst._set_workspace_interactive()
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
+        # A project's own rules win — no template folders imposed on an existing one.
+        self.assertFalse(os.path.isdir(os.path.join(self.root, "sourceimages")))
+
+    def test_dismissed_browser_is_a_noop(self):
+        self._pick(None)
+        self.inst._set_workspace_interactive()
+        self.assertEqual(os.listdir(self.root), [])
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self._before))
+        self.assertEqual(self.inst.sb.messages, [])
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-13_
+_Generated: 2026-08-17_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -18,6 +18,9 @@ _Generated: 2026-08-13_
 ### `slots/_lighting.py` — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - `class LightingMixin`
   - methods: kelvin_tooltip
+
+### `slots/_main.py` — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
+- `class MainMixin`
 
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
@@ -35,6 +38,10 @@ _Generated: 2026-08-13_
 - `class SceneMixin`
   - methods: tb003, list003_init, tb002_init, tb002
 
+### `slots/_selection.py` — Behavior shared by the Maya and Blender ``selection`` panels.
+- `class SelectionMixin`
+  - methods: list001_init
+
 ### `slots/_settings.py` — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - `class SettingsMixin`
   - methods: header_init, tb000, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
@@ -45,6 +52,7 @@ _Generated: 2026-08-13_
 
 ### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
 - `class UvMixin`
+  - methods: b030_init
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
@@ -99,7 +107,7 @@ _Generated: 2026-08-13_
   - methods: b000, b001, tb000_init, tb000
 
 ### `slots/blender/main.py`
-- `class Main(SlotsBlender)`
+- `class Main(MainMixin, SlotsBlender)`
   - methods: list000_init, list000
 
 ### `slots/blender/materials.py`
@@ -139,8 +147,8 @@ _Generated: 2026-08-13_
   - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
-- `class Selection(SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, cmb003_init, cmb003, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, cmb005_init, cmb005, cmb001_init, cmb001, list000_init, tb004_init, tb004, list000
+- `class Selection(SelectionMixin, SlotsBlender)`
+  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, list001, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, cmb001_init, cmb001, list000_init, tb004_init, tb004, list000
 
 ### `slots/blender/settings.py`
 - `class Settings(SettingsMixin, SlotsBlender)`
@@ -164,7 +172,7 @@ _Generated: 2026-08-13_
 
 ### `slots/blender/uv.py`
 - `class Uv(UvMixin, SlotsBlender)`
-  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000_init, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030_init, b030, b032, b033, cmb003, s003
+  - methods: get_map_size, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000_init, b000, b003, b004, b029_init, b029, tb022_init, tb022, b030, b032, b033, cmb003, s003
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -258,7 +266,7 @@ _Generated: 2026-08-13_
 - `class LightingShadingSlots(SlotsMaya)`
 
 ### `slots/maya/main.py`
-- `class Main(SlotsMaya)`
+- `class Main(MainMixin, SlotsMaya)`
   - methods: list000_init, list000
 
 ### `slots/maya/mash.py`
@@ -331,8 +339,8 @@ _Generated: 2026-08-13_
 - `class SelectSlots(SlotsMaya)`
 
 ### `slots/maya/selection.py`
-- `class Selection(SlotsMaya)`
-  - methods: list000_init, list000, tb004_init, tb004, cmb001_init, cmb001, cmb003_init, cmb003, cmb005_init, cmb005, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
+- `class Selection(SelectionMixin, SlotsMaya)`
+  - methods: list000_init, list000, tb004_init, tb004, cmb001_init, cmb001, list001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
 
 ### `slots/maya/settings.py`
 - `class Settings(SettingsMixin, SlotsMaya)`
@@ -349,7 +357,7 @@ _Generated: 2026-08-13_
 
 ### `slots/maya/subdivision.py`
 - `class Subdivision(SlotsMaya)`
-  - methods: s000, s001, b000, b001, b005, tb000_init, tb000, b008, b011, b028, smoothProxy
+  - methods: s000_init, s001_init, s000, s001, b000, b001, b005, tb000_init, tb000, b008, b011, b028, smoothProxy
 
 ### `slots/maya/surfaces.py`
 - `class SurfacesSlots(SlotsMaya)`
@@ -374,7 +382,7 @@ _Generated: 2026-08-13_
 
 ### `slots/maya/uv.py`
 - `class UvSlots(UvMixin, SlotsMaya)`
-  - methods: get_map_size, header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, cmb003, s003, b000_init, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030_init, b030, b031, b032, b033
+  - methods: get_map_size, header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, cmb003, s003, b000_init, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030, b031, b032, b033
 
 ### `slots/maya/visualize.py`
 - `class VisualizeSlots(SlotsMaya)`

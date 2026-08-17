@@ -12,15 +12,10 @@ crease.py has two slot methods worth pinning:
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import crease as crease_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    crease_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+crease_module = maya_module("tentacle.slots.maya.crease")
 
 
 class _FakeSpin:

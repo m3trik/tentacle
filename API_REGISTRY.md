@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-13_
+_Generated: 2026-08-17_
 
 ## Index
 
@@ -10,10 +10,12 @@ _Generated: 2026-08-13_
 - [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
 - [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
+- [`slots/_main.py`](#slots--_main) — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
+- [`slots/_selection.py`](#slots--_selection) — Behavior shared by the Maya and Blender ``selection`` panels.
 - [`slots/_settings.py`](#slots--_settings) — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
@@ -117,7 +119,7 @@ _Generated: 2026-08-13_
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L47) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L49) — Format a string using preset variables.
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -147,6 +149,13 @@ Shared surface for the ``lighting`` panel's Maya and Blender forks.
 
 - **[`class LightingMixin`](tentacle/tentacle/slots/_lighting.py#L12)** — Behaviour and reference data shared by both ``lighting`` forks.
   - `LightingMixin.kelvin_tooltip(cls, lead: str, tail: str) -> str` *(class)* — *lead*, then the reference table, then *tail*.
+
+<a id="slots--_main"></a>
+### `slots/_main.py`
+
+Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
+
+- **[`class MainMixin`](tentacle/tentacle/slots/_main.py#L25)** — Shared ``main`` Workspace-tab behavior.
 
 <a id="slots--_materials"></a>
 ### `slots/_materials.py`
@@ -188,6 +197,14 @@ Behavior shared by the Maya and Blender ``scene`` panels.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
+<a id="slots--_selection"></a>
+### `slots/_selection.py`
+
+Behavior shared by the Maya and Blender ``selection`` panels.
+
+- **[`class SelectionMixin`](tentacle/tentacle/slots/_selection.py#L22)** — Shared ``selection`` panel behavior.
+  - `SelectionMixin.list001_init(self, widget)` — Convert To: one flat list of the fork's conversions.
+
 <a id="slots--_settings"></a>
 ### `slots/_settings.py`
 
@@ -223,6 +240,7 @@ Shared, DCC-agnostic behavior for the ``settings`` panel.
 Behavior shared by the Maya and Blender UV panels.
 
 - **[`class UvMixin`](tentacle/tentacle/slots/_uv.py#L6)** — Shared UV-panel behavior (see ``slots/maya/uv.py``, ``slots/blender/uv.py``).
+  - `UvMixin.b030_init(self, widget)` — Stack button — non-checkable text button with the stack option box.
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -427,7 +445,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--main"></a>
 ### `slots/blender/main.py`
 
-- **[`class Main(SlotsBlender)`](tentacle/tentacle/slots/blender/main.py#L9)** — Blender port of the shared ``main`` start menu — a workspace switcher (primary) with
+- **[`class Main(MainMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/main.py#L9)** — Blender port of the shared ``main`` start menu — a workspace switcher (primary) with
   - `Main.list000_init(self, widget)` — Initialize the Workspace tab.
   - `Main.list000(self, item)` — Workspace tab dispatch — editing actions, recent-workspace selection, and the
 
@@ -649,7 +667,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--selection"></a>
 ### `slots/blender/selection.py`
 
-- **[`class Selection(SlotsBlender)`](tentacle/tentacle/slots/blender/selection.py#L8)** — Blender port of the shared ``selection`` menu.
+- **[`class Selection(SelectionMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/selection.py#L8)** — Blender port of the shared ``selection`` menu.
   - `Selection.tb000_init(self, widget)`
   - `Selection.tb000(self, widget)` — Select Nth
   - `Selection.tb001_init(self, widget)`
@@ -658,8 +676,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Selection.tb002(self, widget)` — Select Island (connected region;
   - `Selection.tb003_init(self, widget)`
   - `Selection.tb003(self, widget)` — Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``).
-  - `Selection.cmb003_init(self, widget)`
-  - `Selection.cmb003(self, index, widget)` — Convert the current selection to another component type (Maya Convert-To parity).
+  - `Selection.list001(self, item)` — Convert the current selection to another component type (Maya Convert-To parity).
   - `Selection.chk004_init(self, widget)` — Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).
   - `Selection.chk004(self, state, widget)` — Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.
   - `Selection.chk005_init(self, widget)`
@@ -669,8 +686,18 @@ Behavior shared by the Maya and Blender UV panels.
   - `Selection.chk006(self, state, widget)` — Select Style: Lasso
   - `Selection.chk007(self, state, widget)` — Select Style: Circle (Paint)
   - `Selection.b001(self)` — Toggle Selectability of the selected object(s).
-  - `Selection.cmb005_init(self, widget)`
-  - `Selection.cmb005(self, index, widget)` — Selection Constraints (one-shot in Blender: expands the current selection by
+  - `Selection.b002_init(self, widget)` — Selection constraint: Angle.
+  - `Selection.b002(self, widget)` — Selection constraint: Angle (one-shot expand).
+  - `Selection.b003_init(self, widget)` — Selection constraint: Border.
+  - `Selection.b003(self, widget)` — Selection constraint: Border (one-shot expand).
+  - `Selection.b004_init(self, widget)` — Selection constraint: Edge Loop.
+  - `Selection.b004(self, widget)` — Selection constraint: Edge Loop (one-shot expand).
+  - `Selection.b005_init(self, widget)` — Selection constraint: Edge Ring.
+  - `Selection.b005(self, widget)` — Selection constraint: Edge Ring (one-shot expand).
+  - `Selection.b006_init(self, widget)` — Selection constraint: Shell.
+  - `Selection.b006(self, widget)` — Selection constraint: Shell (one-shot expand).
+  - `Selection.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
+  - `Selection.b007(self, widget)` — Selection constraint: UV Edge Loop (one-shot expand).
   - `Selection.cmb001_init(self, widget)` — Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
   - `Selection.cmb001(self, index, widget)` — Reorder Selection (sort via ``btk.reorder_objects``, record the order on
   - `Selection.list000_init(self, widget)` — Select by Type: hierarchical type list.
@@ -689,14 +716,14 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class Subdivision(SlotsBlender)`](tentacle/tentacle/slots/blender/subdivision.py#L7)** — Blender port of the shared ``subdivision`` menu.
   - `Subdivision.tb000_init(self, widget)`
-  - `Subdivision.tb000(self, widget)` — Decimate
+  - `Subdivision.tb000(self, widget)` — Decimate: reduce face count by collapse percentage or coplanar-face dissolve.
   - `Subdivision.s000_init(self, widget)` — Division Level — reflect the active object's live viewport subdivision level.
   - `Subdivision.s001_init(self, widget)` — Tesselation Level — reflect the active object's live render subdivision level.
   - `Subdivision.s000(self, value, widget)` — Division Level (live Subdivision-Surface viewport level).
   - `Subdivision.s001(self, value, widget)` — Tesselation Level (Subdivision-Surface render level).
   - `Subdivision.b000(self)` — Quadrangulate (tris -> quads).
   - `Subdivision.b001(self)` — Triangulate
-  - `Subdivision.b005(self)` — Reduce (decimate to 50%).
+  - `Subdivision.b005(self)` — Reduce (decimate to 50%) — whole meshes, or the selected components in Edit Mode.
   - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
   - `Subdivision.b011(self)` — Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons
   - `Subdivision.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
@@ -785,7 +812,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `Uv.b029(self, widget)` — Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
   - `Uv.tb022_init(self, widget)`
   - `Uv.tb022(self, widget)` — Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
-  - `Uv.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
   - `Uv.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
   - `Uv.b032(self)` — RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).
   - `Uv.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
@@ -1064,7 +1090,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--main"></a>
 ### `slots/maya/main.py`
 
-- **[`class Main(SlotsMaya)`](tentacle/tentacle/slots/maya/main.py#L11)**
+- **[`class Main(MainMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/main.py#L11)**
   - `Main.list000_init(self, widget)` — Initialize the Workspace tab.
   - `Main.list000(self, item)` — Workspace tab dispatch — editing actions, recent-workspace selection,
 
@@ -1352,17 +1378,26 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--selection"></a>
 ### `slots/maya/selection.py`
 
-- **[`class Selection(SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L9)**
+- **[`class Selection(SelectionMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L9)**
   - `Selection.list000_init(self, widget)` — Select by Type: Hierarchical type list.
   - `Selection.list000(self, item)` — Select by Type
   - `Selection.tb004_init(self, widget)` — Select by Type settings menu.
   - `Selection.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
   - `Selection.cmb001_init(self, widget)` — Reorder Selection Init
   - `Selection.cmb001(self, index, widget)` — Reorder Selection
-  - `Selection.cmb003_init(self, widget)`
-  - `Selection.cmb003(self, index, widget)` — Convert To: convert the component selection to verts, edges, faces, UVs, or shells.
-  - `Selection.cmb005_init(self, widget)`
-  - `Selection.cmb005(self, index, widget)` — Selection Contraints
+  - `Selection.list001(self, item)` — Convert To: convert the component selection to verts, edges, faces, UVs, or shells.
+  - `Selection.b002_init(self, widget)` — Selection constraint: Angle.
+  - `Selection.b002(self, widget)` — Selection constraint: Angle (toggle).
+  - `Selection.b003_init(self, widget)` — Selection constraint: Border.
+  - `Selection.b003(self, widget)` — Selection constraint: Border (toggle).
+  - `Selection.b004_init(self, widget)` — Selection constraint: Edge Loop.
+  - `Selection.b004(self, widget)` — Selection constraint: Edge Loop (toggle).
+  - `Selection.b005_init(self, widget)` — Selection constraint: Edge Ring.
+  - `Selection.b005(self, widget)` — Selection constraint: Edge Ring (toggle).
+  - `Selection.b006_init(self, widget)` — Selection constraint: Shell.
+  - `Selection.b006(self, widget)` — Selection constraint: Shell (toggle).
+  - `Selection.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
+  - `Selection.b007(self, widget)` — Selection constraint: UV Edge Loop (toggle).
   - `Selection.chk000(self, state, widget)` — Select Nth: uncheck other checkboxes
   - `Selection.chk001(self, state, widget)` — Select Nth: uncheck other checkboxes
   - `Selection.chk002(self, state, widget)` — Select Nth: uncheck other checkboxes
@@ -1375,7 +1410,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Selection.tb000_init(self, widget)`
   - `Selection.tb000(self, widget)` — Select Nth: select edge loops/rings or shortest paths, stepping every Nth component.
   - `Selection.tb001_init(self, widget)`
-  - `Selection.tb001(self, widget)` — Select Similar
+  - `Selection.tb001(self, widget)` — Select Similar.
   - `Selection.tb002_init(self, widget)`
   - `Selection.tb002(self, widget)` — Select Island: Select Polygon Face Island
   - `Selection.tb003_init(self, widget)`
@@ -1409,11 +1444,13 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/subdivision.py`
 
 - **[`class Subdivision(SlotsMaya)`](tentacle/tentacle/slots/maya/subdivision.py#L9)**
-  - `Subdivision.s000(self, value: int, widget: object) -> None` — Division Level
-  - `Subdivision.s001(self, value: int, widget: object) -> None` — Tesselation Level
+  - `Subdivision.s000_init(self, widget)` — Division Level — reflect the selection's live preview division level.
+  - `Subdivision.s001_init(self, widget)` — Adaptive Level — reflect the selection's live adaptive tessellation level.
+  - `Subdivision.s000(self, value: int, widget: object) -> None` — Division Level (smooth mesh preview divisions).
+  - `Subdivision.s001(self, value: int, widget: object) -> None` — Adaptive Level (OpenSubdiv adaptive tessellation).
   - `Subdivision.b000(self)` — Quadrangulate
   - `Subdivision.b001(self)` — Triangulate: split the selected faces into triangles.
-  - `Subdivision.b005(self)` — Reduce: lower the polygon count while preserving border, hard, crease, and UV edges.
+  - `Subdivision.b005(self)` — Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.
   - `Subdivision.tb000_init(self, widget)` — Initialize Decimate
   - `Subdivision.tb000(self, widget)` — Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.
   - `Subdivision.b008(self)` — Add Divisions - Subdivide Mesh
@@ -1519,8 +1556,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.tb022(self, widget)` — Cut UV hard edges (always), optionally also UV borders and auto-detected seams.
   - `UvSlots.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
   - `UvSlots.b029(self, widget)` — Pin / Unpin selected UVs (dual-state toggle).
-  - `UvSlots.b030_init(self, widget)` — Initialize Stack button — non-checkable text button.
-  - `UvSlots.b030(self, widget)` — Stack / Unstack similar shells (dual-state toggle).
+  - `UvSlots.b030(self, widget)` — Stack / Unstack shells (dual-state toggle).
   - `UvSlots.b031(self)` — Open UV Editor
   - `UvSlots.b032(self)` — RizomUV Bridge
   - `UvSlots.b033(self)` — Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).

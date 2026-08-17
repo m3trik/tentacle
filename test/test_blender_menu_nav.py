@@ -51,18 +51,7 @@ except Exception:  # pragma: no cover - environment without a Qt binding / blend
     _QT_OK = False
 
 
-def _can_create_widgets() -> bool:
-    """False under mayapy.standalone / maya -batch, where Maya's non-GUI Qt stub
-    hard-crashes on widget construction (exit 9, no traceback) — the same
-    discriminator test_overlay_safety documents. No maya.cmds = plain Python."""
-    try:
-        import maya.cmds as cmds
-    except ImportError:
-        return True
-    try:
-        return not bool(cmds.about(batch=True))
-    except Exception:
-        return False
+from _host import qt_widgets_available as _can_create_widgets
 
 
 _QT_OK = _QT_OK and _can_create_widgets()

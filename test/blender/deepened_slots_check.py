@@ -5,7 +5,7 @@ existed: selection list000 (select-by-type), transform cmb002 (object.align), no
 uv b000 (Data-Transfer), uv b003/b004 (texel density), uv b029 (pin toggle), uv tb022 (cut
 hard edges), polygons b043 (interactive target weld), animation
 tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys), transform
-chk024/chk025 (constraints -> snap elements), selection cmb005 (one-shot constraints),
+chk024/chk025 (constraints -> snap elements), selection b002-b007 (one-shot constraints),
 rigging cmb002 (Rigify quick rig), nurbs b056 (image tracer), the manager-panel routing,
 main list000 (workspace browser = the current .blend's dir contents, files + folders),
 editors buttons + list (every entry opens a real editor; no-analogue buttons relabel).
@@ -99,7 +99,9 @@ try:
     bpy.ops.object.empty_add(type="PLAIN_AXES")
     # Labels must be real _SELECTION_CONFIG leaves (what the list actually offers) — the old
     # flat-type labels ("Mesh"/"Empty") raise ValueError and no-op, passing only vacuously.
-    slot = make_slot(Selection)
+    # list000 reads its scope from the submenu's tb004 option box (all / selected / visible).
+    slot = make_slot(Selection, submenu=NS(tb004=NS(menu=NS(
+        cmb_bytype_scope=combo("all"), cmb_bytype_mode=combo("replace")))))
     slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None, objectName=lambda: ""))
     sel = [o.name for o in bpy.context.selected_objects]
     check("selection list000 'Polygon Meshes' selects only meshes", sel == ["M"], f"sel={sel}")
@@ -129,7 +131,8 @@ try:
     src.select_set(True); tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
     slot = make_slot(Uv)
-    slot.b000(None)
+    # b000 reads its scope + similarity from the option box (Selection Order = active -> others).
+    slot.b000(option_box(cmb014=combo("order"), d000=spin(0.9)))
 
     def min_u(o):
         bm = bmesh.new(); bm.from_mesh(o.data); uvl = bm.loops.layers.uv.active
@@ -198,7 +201,10 @@ try:
           hasattr(bpy.types, "BTK_OT_target_weld"))
 
     # ---- transform tb004/chk023: increment snap -----------------------------------------------
-    slot = make_slot(TransformSlots)
+    # chk023 re-inits the panel's tb004 option box (gates the rotate-increment spinbox).
+    slot = make_slot(TransformSlots, ui=NS(tb004=NS(
+        init_slot=lambda: None,
+        option_box=NS(menu=NS(s023=NS(setEnabled=lambda state: None))))))
     slot.tb004(option_box(chk021=chk(True), chk022=chk(False)))
     move_on = ts.use_snap and ts.use_snap_translate and not ts.use_snap_scale
     slot.chk023(True, None)
@@ -462,12 +468,38 @@ try:
     reset()
     o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.6, 0.6, 0.8, 0.8)])
     slot = make_slot(Uv)
-    slot.b030(None)  # stack
+    stack_w = option_box(cmb020=combo("center"), s024=spin(1.0), chk047=chk(False))
+    slot.b030(stack_w)  # stack
     snap_after_stack = btk.get_uv_coords([o])
-    slot.b030(None)  # unstack (same selection -> restore)
+    slot.b030(stack_w)  # unstack (same selection -> restore)
     check("uv b030 stack/unstack round-trips",
           btk.get_uv_coords([o])[o.name] != snap_after_stack[o.name]
           and round(btk.get_uv_coords([o])[o.name][0][0], 3) == 0.0)
+    # Similar mode + Pin: a rotated twin is fitted onto the reference and pinned; the
+    # second click restores positions AND pins (the snapshot carries them).
+    reset()
+    o = uv_quads([(0.0, 0.0, 0.2, 0.1), (0.5, 0.5, 0.7, 0.6)])
+    bm = _bm.new(); bm.from_mesh(o.data); bm.faces.ensure_lookup_table()
+    uvl = bm.loops.layers.uv.active
+    import math as _math
+    for l in bm.faces[1].loops:  # rotate the twin 37 deg about its center (0.6, 0.55)
+        x, y = l[uvl].uv.x - 0.6, l[uvl].uv.y - 0.55
+        a = _math.radians(37)
+        l[uvl].uv = (0.6 + x * _math.cos(a) - y * _math.sin(a), 0.55 + x * _math.sin(a) + y * _math.cos(a))
+    bm.to_mesh(o.data); bm.free()
+    slot = make_slot(Uv)
+    stack_w = option_box(cmb020=combo("similar"), s024=spin(1.0), chk047=chk(True))
+    before = btk.get_uv_coords([o], pins=True)[o.name]
+    slot.b030(stack_w)  # stack (similar + pin)
+    after = btk.get_uv_coords([o], pins=True)[o.name]
+    check("uv b030 similar mode fits the rotated twin onto the reference",
+          all(round(after[i][0] - after[i + 4][0], 6) == 0 and round(after[i][1] - after[i + 4][1], 6) == 0
+              for i in range(4)),
+          f"{[(round(u, 3), round(v, 3)) for u, v, _ in after]}")
+    check("uv b030 pin-after-stack pins the stacked shells", all(pin for _, _, pin in after))
+    slot.b030(stack_w)  # unstack -> positions + pins restored
+    check("uv b030 unstack restores positions and pins",
+          btk.get_uv_coords([o], pins=True)[o.name] == before)
 
     # (uv tb005 Straighten / tb006 Distribute moved to the blendertk shell_xform panel with
     # the rest of the transform cluster — no longer tentacle Uv slot methods.)
@@ -519,7 +551,7 @@ try:
     slot.chk026(False, None)
     check("transform chk026 off disables snap", not ts.use_snap)
 
-    # ---- selection cmb005: one-shot constraint expansion -----------------------------------
+    # ---- selection b002-b007: one-shot constraint expansion (icon row, was cmb005) ----------
     reset()
     o = add_cube("C5")
     bpy.ops.object.mode_set(mode="EDIT")
@@ -530,13 +562,11 @@ try:
     bm.verts[0].select = True
     _bm.update_edit_mesh(o.data)
     slot = make_slot(Selection)
-    items = ["OFF", "Angle", "Border", "Edge Loop", "Edge Ring", "Shell"]
-    slot.cmb005(5, NS(items=items))  # Shell -> whole connected mesh
+    slot.b006(NS(objectName=lambda: "b006"))  # Shell -> whole connected mesh
     bm = _bm.from_edit_mesh(o.data)
-    check("selection cmb005 Shell expands to the whole shell",
+    check("selection b006 (Shell) expands to the whole shell",
           all(v.select for v in bm.verts),
           f"selected={sum(v.select for v in bm.verts)}/8")
-    slot.cmb005(0, NS(items=items))  # OFF -> no-op, no message
     bpy.ops.object.mode_set(mode="OBJECT")
 
     # ---- rigging cmb002: Rigify quick rig ---------------------------------------------------

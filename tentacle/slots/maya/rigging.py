@@ -163,7 +163,7 @@ class Rigging(SlotsMaya):
         widget.option_box.menu.setTitle("Display Local Rotation Axes")
         widget.option_box.menu.add(
             "QDoubleSpinBox",
-            setPrefix="Tolerance: ",
+            setPrefix="Scale: ",
             setObjectName="s000",
             set_limits=[0, 10, 0.5, 2],
             setValue=scale_joint_value,

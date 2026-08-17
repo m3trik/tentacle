@@ -17,15 +17,10 @@ pinning at this layer:
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import transform as transform_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    transform_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+transform_module = maya_module("tentacle.slots.maya.transform")
 
 
 class _FakeChk:

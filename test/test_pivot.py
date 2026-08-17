@@ -12,15 +12,10 @@ object pivot — pin the routing.
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import pivot as pivot_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    cmds = None
-    pivot_module = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+pivot_module = maya_module("tentacle.slots.maya.pivot")
 
 
 class _FakeSb:
@@ -273,6 +268,71 @@ class TestB004BakePivot(unittest.TestCase):
         self.instance.b004()
         self.assertEqual(len(self.captured), 1)
         self.assertEqual(self.captured[0][0], ())
+
+
+class _RecordingCombo:
+    def __init__(self):
+        self.items = []
+
+    def addItem(self, text, data):
+        self.items.append((text, data))
+
+
+class _RecordingMenu:
+    """Records the widgets a ``*_init`` slot builds on the option box."""
+
+    def __init__(self):
+        self.added = {}
+        self.title = None
+
+    def setTitle(self, title):
+        self.title = title
+
+    def add(self, widget_type, **kwargs):
+        self.added[kwargs.get("setObjectName")] = kwargs
+        return _RecordingCombo()
+
+
+class _RecordingWidget:
+    def __init__(self):
+        self.option_box = _FakeOptionBox(_RecordingMenu())
+
+
+class _FakeTooltip:
+    def fmt(self, title="", body="", notes=(), **kwargs):
+        return f"{title}: {body}"
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb002Defaults(unittest.TestCase):
+    """tb002's option-box defaults.
+
+    Bake decides whether the transferred pivot is permanent or a temporary
+    manipulator pivot — it defaults ON so the button does something that
+    sticks.  Rotate defaults OFF: most transfers only want the pivot point,
+    and re-framing an orientation is the bigger change.
+    """
+
+    def setUp(self):
+        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance.sb = _FakeSb()
+        self.instance.sb.tooltip = _FakeTooltip()
+        self.widget = _RecordingWidget()
+        self.instance.tb002_init(self.widget)
+        self.added = self.widget.option_box.menu.added
+
+    def test_bake_defaults_on(self):
+        self.assertTrue(self.added["chk008"]["setChecked"])
+
+    def test_rotate_defaults_off(self):
+        self.assertFalse(self.added["chk006"]["setChecked"])
+
+    def test_translate_and_scale_default_on(self):
+        self.assertTrue(self.added["chk005"]["setChecked"])
+        self.assertTrue(self.added["chk007"]["setChecked"])
+
+    def test_world_space_defaults_on(self):
+        self.assertTrue(self.added["chk009"]["setChecked"])
 
 
 if __name__ == "__main__":

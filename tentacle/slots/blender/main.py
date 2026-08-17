@@ -3,10 +3,10 @@
 import os
 
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import MainMixin, SlotsBlender
 
 
-class Main(SlotsBlender):
+class Main(MainMixin, SlotsBlender):
     """Blender port of the shared ``main`` start menu — a workspace switcher (primary) with
     a read-only directory browser of the current workspace (secondary), mirroring Maya's
     ``list000`` at the behavior level.
@@ -16,8 +16,9 @@ class Main(SlotsBlender):
     format — else a plain folder of ``.blend`` files), and the *current* workspace is
     blendertk's session pin (``btk.set_current_workspace``, the ``workspace -o`` analogue)
     falling back to the open .blend's resolved root (``btk.current_workspace``). So ``Set
-    Workspace`` switches the pin from a directory picker exactly like Maya's ``SetProject``;
-    its flyout nests ``Auto Set Workspace`` (resolve from the open file and pin it) and a
+    Workspace`` switches the pin from a directory picker exactly like Maya's Set Workspace
+    (a pick that isn't a workspace yet is offered as a new one built from the shared
+    template — marker + rule folders — in both DCCs); its flyout nests ``Auto Set Workspace`` (resolve from the open file and pin it) and a
     ``Recent Workspaces`` sub-flyout (persisted, jump back in one click). ``Edit
     Workspace`` opens the blendertk panel that creates a workspace / customizes its file
     rules (Maya's row opens the native Project Window). The workspace-name row then browses
@@ -148,18 +149,23 @@ class Main(SlotsBlender):
             return False
         return os.path.normpath(path) in btk.find_workspaces(path, recursive=False)
 
-    def _set_workspace_interactive(self):
-        """Set Workspace — prompt for the project directory and pin it as the session's
-        current workspace (mirror of Maya's MEL ``SetProject``, over
-        ``btk.set_current_workspace``)."""
+    # MainMixin hooks — the browse → offer → build → open flow itself lives once in
+    # ``slots/_main.py`` (Maya's twin supplies fileDialog2 / mtk.create_workspace).
+    def _current_workspace_root(self):
+        return btk.get_env_info("workspace") or ""
+
+    def _browse_workspace_dir(self, start):
+        """Qt directory browser; '' when dismissed."""
         from qtpy import QtWidgets
 
-        # Hide first — the topmost marking-menu window would sit over the modal dialog.
-        self.sb.handlers.marking_menu.hide()
-        start = btk.get_env_info("workspace") or ""
-        path = QtWidgets.QFileDialog.getExistingDirectory(None, "Set Workspace", start)
-        if path:
-            self._switch_to_workspace(path)
+        return QtWidgets.QFileDialog.getExistingDirectory(None, "Set Workspace", start)
+
+    def _create_default_workspace(self, path):
+        """Marker + rule folders from the shared template (``btk.create_workspace``).
+        Only reached for a pick that is neither marked nor a folder of .blend files —
+        a flat blend folder stays a zero-ceremony unmarked workspace (promoting one is
+        the Workspace Editor's *Mark* job, not this row's)."""
+        return btk.create_workspace(path)
 
     def _auto_set_workspace(self):
         """Auto Set Workspace — resolve the workspace from the open .blend (nearest
@@ -172,13 +178,6 @@ class Main(SlotsBlender):
             self.sb.message_box("No workspace found.")
             return
         self._switch_to_workspace(ws.root)
-
-    def _set_workspace_from_path(self, path):
-        """Switch to a recent workspace *path* (re-validated first)."""
-        if not self._is_workspace(path):
-            self.sb.message_box("Not a valid workspace.")
-            return
-        self._switch_to_workspace(path)
 
     def _switch_to_workspace(self, path):
         """Pin *path* as the session's current workspace, bump it to most-recent, and

@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.61"
+__version__ = "0.13.64"
 
 
 DEFAULT_INCLUDE = {
@@ -29,10 +29,12 @@ DEFAULT_INCLUDE = {
     "slots._edit": "EditMixin",
     "slots._hud_warnings": "HudWarningsMixin",
     "slots._lighting": "LightingMixin",
+    "slots._main": "MainMixin",
     "slots._materials": "MaterialsMixin",
     "slots._preferences": "PreferencesMixin",
     "slots._rendering": "RenderingMixin",
     "slots._scene": "SceneMixin",
+    "slots._selection": "SelectionMixin",
     "slots._settings": "SettingsMixin",
     "slots._uv": "UvMixin",
 }

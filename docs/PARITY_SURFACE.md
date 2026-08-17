@@ -138,7 +138,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 10 | 0 | 1 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 3 | 13 | 0 | 0 | open |
+| uv.py | 0 | 3 | 18 | 0 | 0 | open |
 
 ### Slot deltas
 
@@ -182,10 +182,6 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 **combo item deltas (review)**
   - `cmb002` 6->7 items; missing=['Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
   - `cmb010` 3->4 items; missing=['Attrs: Auto', 'Attrs: Channel Box'] extra=['Attrs: Translate', 'Attrs: Rotate', 'Attrs: Scale']
-
-#### selection.py
-**combo item deltas (review)**
-  - `cmb003` 20->18 items; missing=['Vertex Faces', "UV's"] extra=[]
 
 #### subdivision.py
 **combo item deltas (review)**

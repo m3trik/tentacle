@@ -7,7 +7,9 @@ faces) and did not exercise both component types polyCircularize supports.
 """
 import unittest
 
-try:
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+
+if _MAYA_AVAILABLE:
     import maya.standalone
 
     if not getattr(maya.standalone, "_tentacle_circ_initialized", False):
@@ -16,12 +18,8 @@ try:
             maya.standalone._tentacle_circ_initialized = True
         except RuntimeError:
             pass
-    import maya.cmds as cmds
-    from tentacle.slots.maya import polygons as polygons_mod
-
-    _MAYA_AVAILABLE = True
-except ImportError:
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+polygons_mod = maya_module("tentacle.slots.maya.polygons")
 
 
 class _StubSb:

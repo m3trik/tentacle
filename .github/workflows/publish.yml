@@ -72,11 +72,13 @@ jobs:
         # Install WITH dependencies: proves the wheel's pins resolve on PyPI
         # exactly as users will install them. Retries absorb index-propagation
         # lag when an upstream package published minutes earlier in the same
-        # release cascade.
+        # release cascade (~3.5 min cover; the old 3x30s was measured too
+        # short on 2026-08-13 — the simple index lagged past it and the
+        # chain aborted on "No matching distribution found").
         run: |
-          for attempt in 1 2 3; do
+          for attempt in 1 2 3 4 5 6 7 8; do
             if pip install dist/*.whl; then exit 0; fi
-            if [ "$attempt" -lt 3 ]; then
+            if [ "$attempt" -lt 8 ]; then
               echo "Install attempt $attempt failed; retrying in 30s (index propagation lag?)"
               sleep 30
             fi

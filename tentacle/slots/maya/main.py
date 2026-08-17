@@ -5,10 +5,10 @@ import os
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import MainMixin, SlotsMaya
 
 
-class Main(SlotsMaya):
+class Main(MainMixin, SlotsMaya):
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
@@ -141,16 +141,28 @@ class Main(SlotsMaya):
         """True if *path* is a Maya workspace root (contains a workspace.mel)."""
         return bool(path) and os.path.isfile(os.path.join(str(path), "workspace.mel"))
 
-    def _set_workspace_interactive(self):
-        """Set Workspace — prompt for the project directory (MEL SetProject)."""
-        mel.eval("SetProject")
-        workspace = mtk.get_env_info("workspace")
-        if workspace:
-            # cmds.workspace(q=True, rd=True) keeps a trailing slash; normalize
-            # before storing so a later os.path.basename() on this entry (e.g.
-            # reselecting it from Recent Workspaces) doesn't collapse to "".
-            self._workspace_store.record(os.path.normpath(workspace))
-        self.sb.handlers.marking_menu.hide()
+    # MainMixin hooks — the browse → offer → build → open flow itself lives once in
+    # ``slots/_main.py``. Maya's own SetProject is not used because its "Create
+    # default workspace" answer writes a bare workspace.mel with no rule folders
+    # (``sp_createAndSetDefaultProject($path, false)`` — the false is createDirectories).
+    def _current_workspace_root(self):
+        return mtk.get_env_info("workspace") or ""
+
+    def _browse_workspace_dir(self, start):
+        """Maya's directory browser (``fileDialog2 -fileMode 3``); '' when dismissed."""
+        opts = {"startingDirectory": start} if start else {}
+        picked = cmds.fileDialog2(
+            fileMode=3,
+            caption="Set Workspace",
+            okCaption="Set",
+            setProjectBtnEnabled=False,
+            **opts,
+        )
+        return picked[0] if picked else ""
+
+    def _create_default_workspace(self, path):
+        """Marker + rule folders from the shared template (``mtk.create_workspace``)."""
+        return mtk.create_workspace(path)
 
     def _open_workspace_editor(self):
         """Edit Workspace — Maya's native Project Window: create a project / customize
@@ -166,15 +178,15 @@ class Main(SlotsMaya):
             return
         self._switch_to_workspace(workspace)
 
-    def _set_workspace_from_path(self, path):
-        """Switch to a recent workspace *path* (re-validates the workspace.mel)."""
-        if not self._is_workspace(path):
-            self.sb.message_box("Not a valid workspace.")
-            return
-        self._switch_to_workspace(path)
-
     def _switch_to_workspace(self, path):
         """Set Maya's workspace to *path*, bump it to most-recent, and report it.
+
+        Opens through MEL ``setProject "<path>"`` (its no-popup form) rather than a
+        raw ``workspace -o`` so every native side effect of File ▸ Set Project still
+        happens — Maya's own recent-projects list, the Project Window refresh, the
+        file-browser prefs reset. Callers pass a marked workspace (validated by
+        ``_is_workspace`` / built by ``_set_workspace_interactive``), so its
+        create-a-bare-default branch is never reached.
 
         Normalizes first (strips any trailing slash — Maya's own
         ``workspace -q -rd`` keeps one, which would otherwise collapse
@@ -182,7 +194,13 @@ class Main(SlotsMaya):
         always shows the real workspace name.
         """
         path = os.path.normpath(path)
-        cmds.workspace(path, openWorkspace=True)
+        if cmds.about(batch=True):
+            # Headless there are no prefs/windows to update — and ``setProject``'s
+            # tail (``addRecentProject`` → ``savePrefs``) is GUI-only and errors.
+            cmds.workspace(path, openWorkspace=True)
+        else:
+            mel_path = path.replace("\\", "/").replace('"', '\\"')
+            mel.eval(f'setProject "{mel_path}"')
         self._workspace_store.record(path)
         self.sb.message_box(f"Workspace set to <hl>{os.path.basename(path)}</hl>.")
         self.sb.handlers.marking_menu.hide()

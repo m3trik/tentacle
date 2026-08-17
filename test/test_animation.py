@@ -24,15 +24,10 @@ What's worth pinning at this layer:
 """
 import unittest
 
-try:
-    import maya.cmds as cmds
-    from tentacle.slots.maya import animation as animation_module
+from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
-    _MAYA_AVAILABLE = True
-except ImportError:
-    animation_module = None
-    cmds = None
-    _MAYA_AVAILABLE = False
+cmds = maya_module("maya.cmds")
+animation_module = maya_module("tentacle.slots.maya.animation")
 
 
 class _FakeCombo:

@@ -9,12 +9,12 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 Pins two things end-to-end through the REAL slot class (not just the ``btk.Selection`` engine,
 which ``blendertk/test/test_selection.py`` already covers directly):
 
-1. **cmb003 "Convert To"** — the 18-item combo (mayatk parity: 7→18 of Maya's 20) dispatches
-   every item without raising against real geometry, and the touching-vs-contained fix ("Faces"
-   vs "Contained Faces" from an identical seed) actually differs through the slot dispatch, not
-   just the underlying engine call.
+1. **list001 "Convert To"** — the 18-entry list (mayatk parity: 7→18 of Maya's 20; the
+   ``cmb003`` combo until 2026-08-16) dispatches every entry without raising against real
+   geometry, and the touching-vs-contained fix ("Faces" vs "Contained Faces" from an identical
+   seed) actually differs through the slot dispatch, not just the underlying engine call.
 2. **The ``loop_multi_select`` phantom-operator bug** — ``tb000``'s Edge Ring/Edge Loop radios
-   and ``cmb005``'s Selection-Constraints entries used to call a Blender operator that doesn't
+   and the Selection-Constraint row's entries used to call a Blender operator that doesn't
    exist (``bpy.ops.mesh.loop_multi_select``; ``hasattr`` lies, ``get_rna_type()`` proves it
    fake) — fixed to ``select_edge_ring_multi``/``select_edge_loop_multi``. Pins real loop/ring
    growth (not just "doesn't crash") through both call sites.
@@ -74,20 +74,20 @@ try:
 
     slot = make_slot(Selection)
 
-    class _FakeWidget:
-        def __init__(self, items=None):
-            self.items = items or []
+    class _Leaf:
+        """A Convert To list leaf as ``_dispatch_convert_to`` sees it."""
 
-        def add(self, items, header=None):
-            self.items = list(items)
+        sublist = None
 
-    # -- cmb003_init: exactly the 18 expected items, in order --
-    # This list also drives the dispatch loop *by index*, so a stale copy doesn't just fail the
-    # count — it silently drives the WRONG leaves (it lagged behind the UV Shell Border / UV
-    # Perimeter / UV Edge Loop additions, so the "Shell"/"Shell Border" dispatch checks below
-    # were passing against whatever sat at those indices). Keep it in sync with cmb003_init.
-    w = _FakeWidget()
-    slot.cmb003_init(w)
+        def __init__(self, label):
+            self._label = label
+
+        def item_text(self):
+            return self._label
+
+    # -- _CONVERT_TO_OPS: exactly the 18 expected entries, in order (the table IS the list) --
+    # This list also drives the dispatch loop, so a stale copy doesn't just fail the count --
+    # it silently skips leaves. Keep it in sync with the fork's _CONVERT_TO_OPS.
     EXPECTED_CMB003 = [
         "Verts", "Vertex Perimeter",
         "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
@@ -96,9 +96,10 @@ try:
         "UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop",
         "Shell", "Shell Border",
     ]
-    check("cmb003_init adds all 18 expected items in order", w.items == EXPECTED_CMB003, f"{w.items}")
+    check("_CONVERT_TO_OPS holds all 18 expected entries in order",
+          list(Selection._CONVERT_TO_OPS) == EXPECTED_CMB003, f"{list(Selection._CONVERT_TO_OPS)}")
 
-    # -- cmb003: drive every item through the real dispatch against real geometry --
+    # -- list001: drive every entry through the real dispatch against real geometry --
     reset()
     obj = grid(6)
     bpy.ops.uv.smart_project()
@@ -155,24 +156,24 @@ try:
         bm.select_flush_mode()
         bmesh.update_edit_mesh(obj.data)
 
-    for i, label in enumerate(EXPECTED_CMB003):
+    for label in EXPECTED_CMB003:
         seed_for(label)
         try:
-            slot.cmb003(i, _FakeWidget(EXPECTED_CMB003))
+            slot.list001(_Leaf(label))
             ok, err = True, ""
         except Exception as e:  # noqa: BLE001 — pin "doesn't raise", report whatever it was
             ok, err = False, repr(e)
-        check(f"cmb003 dispatches '{label}' without raising", ok, err)
+        check(f"list001 dispatches '{label}' without raising", ok, err)
 
     # -- regression: 'Faces' (touching) must differ from 'Contained Faces' from an identical
     #    1-vertex seed, through the REAL slot dispatch (not just the underlying engine call) --
     seed_for("Verts")
-    slot.cmb003(EXPECTED_CMB003.index("Faces"), _FakeWidget(EXPECTED_CMB003))
+    slot.list001(_Leaf("Faces"))
     bm = bmesh.from_edit_mesh(obj.data)
     n_touching = len([f for f in bm.faces if f.select])
 
     seed_for("Verts")
-    slot.cmb003(EXPECTED_CMB003.index("Contained Faces"), _FakeWidget(EXPECTED_CMB003))
+    slot.list001(_Leaf("Contained Faces"))
     bm = bmesh.from_edit_mesh(obj.data)
     n_contained = len([f for f in bm.faces if f.select])
 
@@ -226,12 +227,12 @@ try:
     n_loop = len([e for e in bm.edges if e.select])
     check("tb000 Edge Loop (select_edge_loop_multi) grows beyond the 1 seed edge", n_loop > 1, f"got {n_loop}")
 
-    # -- same fix, second call site: cmb005's Selection-Constraints dict --
+    # -- same fix, second call site: the Selection-Constraint row's Edge Ring (b005) --
     seed_one_interior_edge()
-    Selection._CONSTRAINT_OPS["Edge Ring"]()
+    slot.b005(NS(objectName=lambda: "b005"))
     bm = bmesh.from_edit_mesh(obj.data)
-    n_cmb005_ring = len([e for e in bm.edges if e.select])
-    check("cmb005 _CONSTRAINT_OPS['Edge Ring'] grows beyond the 1 seed edge", n_cmb005_ring > 1, f"got {n_cmb005_ring}")
+    n_b005_ring = len([e for e in bm.edges if e.select])
+    check("b005 (Edge Ring constraint) grows beyond the 1 seed edge", n_b005_ring > 1, f"got {n_b005_ring}")
 
     bpy.ops.object.mode_set(mode="OBJECT")
 

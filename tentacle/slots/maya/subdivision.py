@@ -13,27 +13,85 @@ class Subdivision(SlotsMaya):
         self.ui = self.sb.loaded_ui.subdivision
         self.submenu = self.sb.loaded_ui.subdivision_submenu
 
+    # --------------------------------------------------- s000/s001  smooth preview
+    # The mesh owns these levels, so the spinboxes mirror the selection rather than
+    # persisting their own copy: a restored value re-fires the slot on panel open,
+    # which would smooth (and re-tessellate) whatever happened to be selected.
+    def _init_smooth_level(self, widget, attr):
+        shapes = mtk.NodeUtils.get_shapes(
+            cmds.ls(selection=True), descend=True, type="mesh"
+        )
+        self.mirror_app_state(
+            widget,
+            (lambda: widget.setValue(cmds.getAttr(f"{shapes[0]}.{attr}")))
+            if shapes
+            else None,
+        )
+
+    def s000_init(self, widget):
+        """Division Level — reflect the selection's live preview division level."""
+        self._init_smooth_level(widget, "smoothLevel")
+
+    def s001_init(self, widget):
+        """Adaptive Level — reflect the selection's live adaptive tessellation level."""
+        self._init_smooth_level(widget, "smoothTessLevel")
+
+    def _report_smooth_level(self, label: str, attr: str, value: int, meshes) -> int:
+        """Message the count that actually took the value, and return it.
+
+        ``set_smooth_preview`` returns every RESOLVED shape by design (one
+        locked mesh must not abort the rest of the selection), so its length
+        is not a success count: on a referenced mesh with a locked plug the
+        panel would report "on 1 mesh(es)" having changed nothing. Read the
+        plugs back instead of trusting the write.
+        """
+        applied = []
+        for mesh in meshes:
+            try:
+                if cmds.getAttr(f"{mesh}.{attr}") == value:
+                    applied.append(mesh)
+            except Exception:  # plug gone with the shape mid-drag
+                continue
+        skipped = len(meshes) - len(applied)
+        if not applied:
+            self.sb.message_box(
+                f"{label} <hl>{value}</hl>: no mesh accepted the change "
+                f"(locked or connected)."
+            )
+        else:
+            suffix = f" ({skipped} skipped — locked or connected)" if skipped else ""
+            self.sb.message_box(
+                f"{label}: <hl>{value}</hl> on <hl>{len(applied)}</hl> mesh(es){suffix}."
+            )
+        return len(applied)
+
     def s000(self, value: int, widget: object) -> None:
-        """Division Level"""
-        shapes = cmds.ls(selection=True, dag=True, leaf=True) or []
-        transforms = cmds.listRelatives(shapes, parent=True) or []
-        for obj in transforms:
-            if cmds.attributeQuery("smoothLevel", node=obj, exists=True):
-                # Correctly pass attributes as keyword arguments
-                mtk.Attributes.set_attributes(obj, smoothLevel=value)
-                # SubDivision proxy options: 'divisions'
+        """Division Level (smooth mesh preview divisions)."""
+        # ``display=2`` because the level is only observable with the smooth
+        # preview actually on -- dragging this with it off looked like a no-op.
+        meshes = mtk.DisplayUtils.set_smooth_preview(
+            cmds.ls(selection=True), display=2, level=value
+        )
+        if meshes:
+            applied = self._report_smooth_level(
+                "Division Level", "smoothLevel", value, meshes
+            )
+            # SubDivision proxy options: 'divisions' -- only once the level
+            # is real, so a fully-skipped drag can't shift the global default.
+            if applied:
                 cmds.optionVar(intValue=("proxyDivisions", value))
-                self.sb.message_box(f"{obj}: Division Level: <hl>{value}</hl>")
 
     def s001(self, value: int, widget: object) -> None:
-        """Tesselation Level"""
-        shapes = cmds.ls(selection=True, dag=True, leaf=True) or []
-        transforms = cmds.listRelatives(shapes, parent=True) or []
-        for obj in transforms:
-            if cmds.attributeQuery("smoothLevel", node=obj, exists=True):
-                # Correctly pass attributes as keyword arguments
-                mtk.Attributes.set_attributes(obj, smoothTessLevel=value)
-                self.sb.message_box(f"{obj}: Tesselation Level: <hl>{value}</hl>")
+        """Adaptive Level (OpenSubdiv adaptive tessellation)."""
+        # Setting the adaptive level also switches the meshes to the OpenSubdiv
+        # Adaptive draw type -- no other draw type reads ``smoothTessLevel``.
+        meshes = mtk.DisplayUtils.set_smooth_preview(
+            cmds.ls(selection=True), display=2, adaptive_level=value
+        )
+        if meshes:
+            self._report_smooth_level(
+                "Adaptive Level", "smoothTessLevel", value, meshes
+            )
 
     def b000(self):
         """Quadrangulate"""
@@ -44,44 +102,16 @@ class Subdivision(SlotsMaya):
         mel.eval("polyTriangulate")
 
     def b005(self):
-        """Reduce: lower the polygon count while preserving border, hard, crease, and UV edges."""
-        selection = cmds.ls(sl=1, objectsOnly=1, type="transform") or []
+        """Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.
+
+        The one-click form of tb000's Reduce (same ``polyReduce`` flags via
+        ``mtk.EditUtils.decimate``, history kept so the node stays tweakable);
+        acts on whole meshes or, given a component selection, only that region.
+        """
+        selection = cmds.ls(sl=True) or []
         if not selection:
             return
-
-        cmds.polyReduce(
-            selection,
-            ver=1,
-            trm=0,
-            shp=0,
-            keepBorder=1,
-            keepMapBorder=1,
-            keepColorBorder=1,
-            keepFaceGroupBorder=1,
-            keepHardEdge=1,
-            keepCreaseEdge=1,
-            keepBorderWeight=0.5,
-            keepMapBorderWeight=0.5,
-            keepColorBorderWeight=0.5,
-            keepFaceGroupBorderWeight=0.5,
-            keepHardEdgeWeight=0.5,
-            keepCreaseEdgeWeight=0.5,
-            useVirtualSymmetry=0,
-            symmetryTolerance=0.01,
-            sx=0,
-            sy=1,
-            sz=0,
-            sw=0,
-            preserveTopology=1,
-            keepQuadsWeight=1,
-            vertexMapName="",
-            cachingReduce=1,
-            ch=1,
-            p=50,
-            vct=0,
-            tct=0,
-            replaceOriginal=1,
-        )
+        mtk.EditUtils.decimate(selection, percentage=50.0, delete_history=False)
 
     def tb000_init(self, widget):
         """Initialize Decimate"""
@@ -144,27 +174,40 @@ class Subdivision(SlotsMaya):
         _sync()
 
     def tb000(self, widget):
-        """Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve."""
-        objects = cmds.ls(sl=True, objectsOnly=True, type="transform") or []
-        if not objects:
+        """Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.
+
+        Acts on the selection as-is — whole meshes, or a COMPONENT selection to
+        decimate only that region: faces reduce / dissolve within themselves
+        (the region's outline is held), verts and edges resolve to their faces
+        (Reduce) or the edges between them (Planar). Mixed selections work.
+        """
+        selection = cmds.ls(sl=True) or []
+        if not selection:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Select one or more "
-                "meshes to decimate."
+                "meshes, or mesh components, to decimate."
             )
             return
 
         menu = widget.option_box.menu
         if menu.cmb000.currentData() == "planar":
-            mtk.EditUtils.dissolve_coplanar(objects, angle_tolerance=menu.s011.value())
+            processed = mtk.EditUtils.dissolve_coplanar(
+                selection, angle_tolerance=menu.s011.value()
+            )
         else:
-            mtk.EditUtils.decimate(
-                objects,
+            processed = mtk.EditUtils.decimate(
+                selection,
                 percentage=menu.s010.value(),
                 preserve_borders=menu.chk010.isChecked(),
                 preserve_hard_edges=menu.chk011.isChecked(),
                 preserve_uv_borders=menu.chk012.isChecked(),
                 preserve_quads=menu.chk013.isChecked(),
                 symmetry=menu.chk014.isChecked(),
+            )
+        if not processed:
+            self.sb.message_box(
+                "<strong>No mesh in the selection</strong>.<br>Select polygon "
+                "meshes or their components to decimate."
             )
 
     def b008(self):

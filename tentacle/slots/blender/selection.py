@@ -2,10 +2,10 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import SelectionMixin, SlotsBlender
 
 
-class Selection(SlotsBlender):
+class Selection(SelectionMixin, SlotsBlender):
     """Blender port of the shared ``selection`` menu.
 
     Per the capability map (BLENDER_PORT_PLAN §5), selection maps almost entirely to **native
@@ -13,8 +13,8 @@ class Selection(SlotsBlender):
     event-pump context); select-by-type (``list000``) rides ``btk.Selection`` -- a full mirror of
     mayatk's ``Selection._SELECTION_CONFIG`` category breadth (Animation/Dynamics/Geometry/
     Hierarchy/Scene/UV), built from Object-level bpy primitives instead of Maya's string-node type
-    lookups; the dR_ selection constraints become one-shot selection expansion (no modal
-    analogue). Reorder Selection rides the rolled ``btk.SelectionOrder`` tracker +
+    lookups; the selection-constraint icon row (``b002``-``b007``) becomes one-shot selection
+    expansion (no modal analogue). Reorder Selection rides the rolled ``btk.SelectionOrder`` tracker +
     ``btk.reorder_objects`` (Blender records no object click order natively; the tracker
     maintains one).
     """
@@ -125,20 +125,49 @@ class Selection(SlotsBlender):
             setToolTip="The allowed difference in any compared metric (e.g. 4 allows a 4-component "
             "difference; 0.05 allows that much variance between bounding-box values).\n"
             "In Edit Mode the value feeds Blender's native select_similar threshold, which is "
-            "normalized 0-1 (larger values are clamped to 1).",
+            "normalized 0-1 (larger values are clamped to 1).\n"
+            "UV shells (UV editor in Island select mode): how much two shells' shapes may "
+            "differ and still count as the same shell -- 0 = identical, 1 also absorbs the "
+            "drift of two separately unfolded copies.",
         )
         for name, label, tip, checked in self._SIMILAR_CRITERIA:
             widget.option_box.menu.add(
                 "QCheckBox", setText=label, setObjectName=name, setChecked=checked, setToolTip=tip,
             )
 
+    @staticmethod
+    def _uv_island_select_mode():
+        """True when the UV editor is in Island select mode — the analogue of Maya's UV-shell
+        selection type. Blender 5 made it the ``use_uv_select_island`` toggle; 4.x had it as
+        the ``uv_select_mode`` enum's ``ISLAND`` value."""
+        ts = bpy.context.scene.tool_settings
+        return bool(getattr(ts, "use_uv_select_island", False)) or (
+            getattr(ts, "uv_select_mode", "") == "ISLAND"
+        )
+
     def tb001(self, widget):
         """Select Similar — object-level similarity by topology / area / bounding-box metrics
-        (Maya parity, via ``btk.get_similar_mesh``); in Edit mode, fall back to Blender's native
-        component ``select_similar``."""
+        (Maya parity, via ``btk.get_similar_mesh``); in Edit mode with the UV editor in Island
+        select mode, the UV shells sharing the selected shell's topology and shape
+        (``btk.get_similar_uv_shells`` -- the Stack (Similar) oracle, Maya's UV-shell branch);
+        otherwise Blender's native component ``select_similar``."""
         m = widget.option_box.menu
         obj = self.active_object()
         if obj and obj.mode == "EDIT":
+            if self._uv_island_select_mode():
+                found = btk.get_similar_uv_shells(
+                    [o for o in self.selected_objects() if o.type == "MESH"],
+                    tolerance=m.s000.value(),
+                    include_reference=m.chk020.isChecked(),
+                    select=True,
+                )
+                if not found:
+                    self.sb.message_box(
+                        "<b>Select Similar</b> found no other UV shell with the selected "
+                        f"shell's topology and shape at a tolerance of <hl>{m.s000.value()}</hl>."
+                        "<br>Raise the tolerance to allow some shape drift."
+                    )
+                return
             vert, edge, face = bpy.context.tool_settings.mesh_select_mode
             mode = "FACE" if face else "EDGE" if edge else "VERT"
             try:
@@ -229,8 +258,8 @@ class Selection(SlotsBlender):
         if not n:
             self.sb.message_box("No edges found in that angle range.")
 
-    # ------------------------------------------------------------------ cmb003  Convert To
-    # Mirror of Maya's 20-item Convert-To combo, minus 2 ledgered in tentacle/docs/parity_map.py
+    # ------------------------------------------------------------------ list001  Convert To
+    # Mirror of Maya's 20-item Convert-To list, minus 2 ledgered in tentacle/docs/parity_map.py
     # (HANDLERS["selection"]): Vertex Faces (Maya's vtxFace sub-component -- a per-corner
     # split-normal-style component with no Blender selection-mode analogue) and UV's (Maya's
     # .map[] component, only selectable from the UV Editor's own mode, not a 3D-viewport
@@ -240,54 +269,52 @@ class Selection(SlotsBlender):
     # Touching-vs-contained (plain "Faces"/"Edges" vs. "Contained Faces"/"Contained Edges") is a
     # single native ``use_expand`` flag -- see ``btk.Selection.convert_to``'s docstring;
     # Perimeter/Path/Border items have no single native op and are real bmesh helpers.
-    def cmb003_init(self, widget):
-        widget.add(
-            [
-                "Verts", "Vertex Perimeter",
-                "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
-                "Border Edges",
-                "Faces", "Face Path", "Contained Faces", "Face Perimeter",
-                "UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop",
-                "Shell", "Shell Border",
-            ],
-            header="Convert To:",
-        )
+    #
+    # label -> op(obj): every entry acts on the edit-mode mesh ``_run_convert_to`` resolves
+    # (the table IS the menu -- see SelectionMixin).
+    _CONVERT_TO_OPS = {
+        "Verts": lambda obj: bpy.ops.mesh.select_mode(type="VERT"),
+        "Vertex Perimeter": lambda obj: btk.Selection.select_vertex_perimeter(obj),
+        "Edges": lambda obj: btk.Selection.convert_to(obj, "EDGE"),
+        "Edge Loop": lambda obj: btk.Selection.loop_multi_select(),
+        "Edge Ring": lambda obj: btk.Selection.loop_multi_select(ring=True),
+        "Contained Edges": lambda obj: btk.Selection.convert_to(obj, "EDGE", contained=True),
+        "Edge Perimeter": lambda obj: btk.Selection.select_edge_perimeter(obj),
+        "Border Edges": lambda obj: btk.Selection.select_border_edges(obj),
+        "Faces": lambda obj: btk.Selection.convert_to(obj, "FACE"),
+        "Face Path": lambda obj: btk.Selection.select_face_path(obj),
+        "Contained Faces": lambda obj: btk.Selection.convert_to(obj, "FACE", contained=True),
+        "Face Perimeter": lambda obj: btk.Selection.select_face_perimeter(obj),
+        "UV Shell": lambda obj: btk.Selection.select_uv_shell(obj),
+        "UV Shell Border": lambda obj: btk.Selection.select_uv_shell_border(obj),
+        "UV Perimeter": lambda obj: btk.Selection.select_uv_perimeter(obj),
+        "UV Edge Loop": lambda obj: btk.Selection.select_uv_edge_loop(obj),
+        "Shell": lambda obj: bpy.ops.mesh.select_linked(),
+        "Shell Border": lambda obj: btk.Selection.select_shell_border(obj),
+    }
 
-    def cmb003(self, index, widget):
+    @SlotsBlender.Signals("on_item_interacted")
+    def list001(self, item):
         """Convert the current selection to another component type (Maya Convert-To parity)."""
-        text = widget.items[index]
-        obj = self.ensure_edit_mode("MESH")
+        self._dispatch_convert_to(item)
+
+    def _run_on_edit_mesh(self, op, mask=None, missing="This operation requires a mesh in Edit Mode."):
+        """Run ``op(obj)`` against the edit-mode mesh (``ensure_edit_mode``), optionally
+        forcing the component *mask*; *missing* is the message when there is no mesh to
+        edit. A bmesh helper's / operator's RuntimeError is user feedback, not a traceback.
+        Shared by Convert To and the constraint row — both are "one op on the edit mesh"."""
+        obj = self.ensure_edit_mode("MESH", mask)
         if not obj:
-            self.sb.message_box("Convert requires a mesh in edit mode.")
-            return
-        conversions = {
-            "Verts": lambda: bpy.ops.mesh.select_mode(type="VERT"),
-            "Vertex Perimeter": lambda: btk.Selection.select_vertex_perimeter(obj),
-            "Edges": lambda: btk.Selection.convert_to(obj, "EDGE"),
-            "Edge Loop": lambda: btk.Selection.loop_multi_select(),
-            "Edge Ring": lambda: btk.Selection.loop_multi_select(ring=True),
-            "Contained Edges": lambda: btk.Selection.convert_to(obj, "EDGE", contained=True),
-            "Edge Perimeter": lambda: btk.Selection.select_edge_perimeter(obj),
-            "Border Edges": lambda: btk.Selection.select_border_edges(obj),
-            "Faces": lambda: btk.Selection.convert_to(obj, "FACE"),
-            "Face Path": lambda: btk.Selection.select_face_path(obj),
-            "Contained Faces": lambda: btk.Selection.convert_to(obj, "FACE", contained=True),
-            "Face Perimeter": lambda: btk.Selection.select_face_perimeter(obj),
-            "UV Shell": lambda: btk.Selection.select_uv_shell(obj),
-            "UV Shell Border": lambda: btk.Selection.select_uv_shell_border(obj),
-            "UV Perimeter": lambda: btk.Selection.select_uv_perimeter(obj),
-            "UV Edge Loop": lambda: btk.Selection.select_uv_edge_loop(obj),
-            "Shell": lambda: bpy.ops.mesh.select_linked(),
-            "Shell Border": lambda: btk.Selection.select_shell_border(obj),
-        }
-        op = conversions.get(text)
-        if not op:
-            self.sb.message_box(f"'{text}' conversion not yet mapped for Blender.")
+            self.sb.message_box(missing)
             return
         try:
-            op()
+            op(obj)
         except RuntimeError as e:
             self.sb.message_box(str(e))
+
+    def _run_convert_to(self, label, op):
+        """Blender's Convert To runner: every entry acts on the edit-mode mesh."""
+        self._run_on_edit_mesh(op, missing="Convert requires a mesh in edit mode.")
 
     # ------------------------------------------------------------------ chk004  Ignore Backfacing
     def chk004_init(self, widget):
@@ -391,41 +418,91 @@ class Selection(SlotsBlender):
                 pass  # not in the active view layer (excluded collection) — selectability is restored regardless
         self.sb.message_box(f"Selectability <hl>ON</hl> ({len(hidden)} object(s)).")
 
-    # ------------------------------------------------------------------ cmb005  Selection Constraints
-    # Maya's dR_selConstraint* are persistent drag-select constraints; Blender has no modal
-    # analogue, so each entry instead expands the CURRENT selection once by the same rule.
+    # ------------------------------------------------------------------ b002-b007  Selection Constraints
+    # Maya's polySelectConstraint flags are persistent drag-select constraints; Blender has no
+    # modal analogue, so each button instead expands the CURRENT selection once by the same
+    # rule (and pressing several in turn stacks the expansions -- the one-shot reading of
+    # "more than one constraint at a time"). Same objectNames / glyphs as the Maya fork
+    # (SelectionMixin._CONSTRAINT_BUTTONS); UV Edge Loop rides the same bmesh UV-graph helper
+    # as the Convert To entry. Angle expands a FACE selection (faces_select_linked_flat is
+    # face-mode only), so it forces the face mask; the rest keep the current mask.
     _CONSTRAINT_OPS = {
-        "Angle": lambda: bpy.ops.mesh.faces_select_linked_flat(),
-        "Border": lambda: bpy.ops.mesh.region_to_loop(),
-        "Edge Loop": lambda: btk.Selection.loop_multi_select(),
-        "Edge Ring": lambda: btk.Selection.loop_multi_select(ring=True),
-        "Shell": lambda: bpy.ops.mesh.select_linked(),
+        "b002": (lambda obj: bpy.ops.mesh.faces_select_linked_flat(), "FACE"),
+        "b003": (lambda obj: bpy.ops.mesh.region_to_loop(), None),
+        "b004": (lambda obj: btk.Selection.loop_multi_select(), None),
+        "b005": (lambda obj: btk.Selection.loop_multi_select(ring=True), None),
+        "b006": (lambda obj: bpy.ops.mesh.select_linked(), None),
+        "b007": (lambda obj: btk.Selection.select_uv_edge_loop(obj), None),
     }
+    _CONSTRAINT_ACTION_HINT = (
+        "One-shot: expands the current selection by this rule "
+        "(Blender has no persistent drag-select constraint)."
+    )
 
-    def cmb005_init(self, widget):
-        # One-shot commands, not a persisted setting: restoring a non-OFF index re-fired the
-        # op against whatever the user had selected the moment the submenu opened (and popped
-        # the "require a mesh in Edit Mode" box when they hadn't). Nothing to persist either —
-        # Blender has no constraint left switched on to reflect. Combos populated with a
-        # `header=` opt out of restore for free (ComboBox.add: `restore_state = not
-        # has_header`); this one has no header, so it must say so itself. Populating is the
-        # seed because `add` emits currentIndexChanged (see preferences.cmb001_init).
-        self.mirror_app_state(widget, lambda: widget.add(["OFF", *self._CONSTRAINT_OPS]))
+    def _init_constraint_oneshot(self, widget):
+        """Dress the button; a one-shot has no state, so it is not a toggle here.
 
-    def cmb005(self, index, widget):
-        """Selection Constraints (one-shot in Blender: expands the current selection by
-        the chosen rule — there is no persistent drag-select constraint to leave on)."""
-        text = widget.items[index]
-        op = self._CONSTRAINT_OPS.get(text)
-        if op is None:  # OFF — nothing persistent to disable
-            return
-        if not self.ensure_edit_mode("MESH", "FACE" if text == "Angle" else None):
-            self.sb.message_box("Selection Constraints require a mesh in Edit Mode.")
-            return
-        try:
-            op()
-        except RuntimeError as e:
-            self.sb.message_box(str(e))
+        The shared .ui declares the row checkable for the Maya fork's toggles;
+        cleared here so a press can't leave a Blender button reading "on" for a
+        constraint that was never left switched on (and so nothing is persisted).
+        """
+        widget.setCheckable(False)
+        self._init_constraint_button(widget)
+
+    def _expand_by_constraint(self, widget):
+        """Expand the current selection once by *widget*'s constraint rule."""
+        op, mask = self._CONSTRAINT_OPS[widget.objectName()]
+        self._run_on_edit_mesh(
+            op, mask, missing="Selection Constraints require a mesh in Edit Mode."
+        )
+
+    def b002_init(self, widget):
+        """Selection constraint: Angle."""
+        self._init_constraint_oneshot(widget)
+
+    def b002(self, widget):
+        """Selection constraint: Angle (one-shot expand)."""
+        self._expand_by_constraint(widget)
+
+    def b003_init(self, widget):
+        """Selection constraint: Border."""
+        self._init_constraint_oneshot(widget)
+
+    def b003(self, widget):
+        """Selection constraint: Border (one-shot expand)."""
+        self._expand_by_constraint(widget)
+
+    def b004_init(self, widget):
+        """Selection constraint: Edge Loop."""
+        self._init_constraint_oneshot(widget)
+
+    def b004(self, widget):
+        """Selection constraint: Edge Loop (one-shot expand)."""
+        self._expand_by_constraint(widget)
+
+    def b005_init(self, widget):
+        """Selection constraint: Edge Ring."""
+        self._init_constraint_oneshot(widget)
+
+    def b005(self, widget):
+        """Selection constraint: Edge Ring (one-shot expand)."""
+        self._expand_by_constraint(widget)
+
+    def b006_init(self, widget):
+        """Selection constraint: Shell."""
+        self._init_constraint_oneshot(widget)
+
+    def b006(self, widget):
+        """Selection constraint: Shell (one-shot expand)."""
+        self._expand_by_constraint(widget)
+
+    def b007_init(self, widget):
+        """Selection constraint: UV Edge Loop."""
+        self._init_constraint_oneshot(widget)
+
+    def b007(self, widget):
+        """Selection constraint: UV Edge Loop (one-shot expand)."""
+        self._expand_by_constraint(widget)
 
     # ------------------------------------------------------------------ cmb001  Reorder Selection
     def cmb001_init(self, widget):
