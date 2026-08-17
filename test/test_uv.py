@@ -1301,6 +1301,184 @@ class TestTb000Pack(unittest.TestCase):
         self.assertIn("pip install", text)
 
 
+class _FakeStackWidget:
+    """b030's option-box surface (UvMixin.b030_init): Mode (cmb020), Tolerance (s024),
+    Pin after stack (chk047)."""
+
+    def __init__(self, mode="similar", tolerance=1.0, pin=False):
+        menu = _FakeUi()
+        menu.cmb020 = _FakeDataCombo(mode)
+        menu.s024 = _FakeSpin(tolerance)
+        menu.chk047 = _FakeCheck(pin)
+        self.option_box = _FakeOptionBox(menu)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB030Stack(unittest.TestCase):
+    """b030 (Stack / Unstack) — Similar mode is Maya's polyUVStackSimilarShells (rotates
+    identical shells into exact overlap), Center mode is texStackShells (translate only);
+    the second click restores positions and prior pin weights."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        cmds.loadPlugin("Unfold3D.mll", quiet=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        # __init__ is bypassed (it needs the loaded UI); seed the toggle state it owns.
+        self.instance._b030_stacked = False
+        self.instance._b030_last_selection = None
+        self.instance._b030_uv_snapshot = None
+        self.instance._b030_pin_weights = None
+        # texStackShells is MEL over GUI-only selection-mask queries (fails headless);
+        # capture the call instead — the command itself is Maya's, not ours.
+        self._orig_eval = uv_module.mel.eval
+        self.mel_calls = []
+        uv_module.mel.eval = lambda cmd: self.mel_calls.append(cmd)
+
+    def tearDown(self):
+        uv_module.mel.eval = self._orig_eval
+        cmds.file(new=True, force=True)
+
+    # -- fixtures ------------------------------------------------------------
+    @staticmethod
+    def _twins(rotate=37.0, scale=1.0):
+        """Two identical 2x2 planes; B's shell rotated / scaled / moved away from A's."""
+        a = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="stackA")[0]
+        b = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="stackB")[0]
+        cmds.polyEditUV(f"{a}.map[*]", pu=0.5, pv=0.5, su=0.3, sv=0.3, r=True)
+        cmds.polyEditUV(f"{a}.map[*]", u=-0.3, v=-0.3, r=True)
+        cmds.polyEditUV(
+            f"{b}.map[*]", pu=0.5, pv=0.5, su=0.3 * scale, sv=0.3 * scale, r=True
+        )
+        cmds.polyEditUV(f"{b}.map[*]", pu=0.5, pv=0.5, a=rotate, r=True)
+        cmds.polyEditUV(f"{b}.map[*]", u=0.3, v=0.2, r=True)
+        return a, b
+
+    @staticmethod
+    def _uvs(obj):
+        n = cmds.polyEvaluate(obj, uv=True)
+        return [tuple(cmds.polyEditUV(f"{obj}.map[{i}]", q=True)) for i in range(n)]
+
+    @staticmethod
+    def _max_dist(pa, pb):
+        return max(((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2) ** 0.5 for x, y in zip(pa, pb))
+
+    def _pin(self, uv):
+        return (cmds.polyPinUV(uv, q=True, value=True) or [0.0])[0]
+
+    # -- tests ---------------------------------------------------------------
+    def test_similar_mode_rotates_twins_into_exact_overlap_and_unstack_restores(self):
+        a, b = self._twins()
+        before_b = self._uvs(b)
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        widget = _FakeStackWidget(mode="similar", tolerance=1.0)
+
+        self.instance.b030(widget)
+        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+        self.assertEqual(self.instance.sb.messages, [])
+        self.assertEqual(self.mel_calls, [])  # not the translate-only path
+
+        self.instance.b030(widget)  # same selection -> Unstack
+        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
+        self.assertFalse(self.instance._b030_stacked)
+
+    def test_similar_mode_matches_a_scaled_copy_too(self):
+        a, b = self._twins(rotate=90.0, scale=0.5)
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
+        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+
+    def test_object_selection_is_widened_to_faces(self):
+        """polyUVStackSimilarShells silently ignores whole objects (Maya's toolkit widens
+        them to .f[*]); the slot must do the same or a transform selection is a no-op."""
+        a, b = self._twins()
+        cmds.select(a, b)
+        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
+        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+
+    def test_non_mesh_object_in_selection_is_skipped_not_raised(self):
+        """A curve selected alongside the meshes must not blow up the .f[*] widening."""
+        a, b = self._twins()
+        curve = cmds.circle(ch=False, name="stackCurve")[0]
+        cmds.select(a, b, curve)
+        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
+        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+        self.assertEqual(self.instance.sb.messages, [])
+
+    def test_similar_mode_with_no_match_reports_and_stays_unstacked(self):
+        a = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="lone2x2")[0]
+        c = cmds.polyPlane(w=1, h=1, sx=3, sy=1, ch=False, name="lone3x1")[0]
+        cmds.polyEditUV(f"{c}.map[*]", u=0.5, v=0.5, r=True)
+        before = self._uvs(a) + self._uvs(c)
+        cmds.select(f"{a}.f[*]", f"{c}.f[*]")
+        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=0.1))
+        self.assertEqual(before, self._uvs(a) + self._uvs(c))
+        self.assertTrue(self.instance.sb.messages)
+        self.assertIn("No similar shells", self.instance.sb.messages[0][0][0])
+        self.assertFalse(self.instance._b030_stacked)  # next click stacks again
+        self.assertIsNone(self.instance._b030_uv_snapshot)
+
+    def test_center_mode_routes_to_texStackShells_with_uvs_selected(self):
+        """All-shells mode runs texStackShells over the selection's UVs (the MEL
+        needs a UV/face selection -- a plain object selection would be "No UVs
+        selected") and puts the original selection back for the toggle."""
+        a, b = self._twins()
+        cmds.select(a, b)
+        seen = []
+        uv_module.mel.eval = lambda cmd: seen.append((cmd, cmds.ls(sl=True)))
+        self.instance.b030(_FakeStackWidget(mode="center"))
+        self.assertEqual(len(seen), 1)
+        self.assertEqual(seen[0][0], "texStackShells {}")
+        self.assertTrue(all(".map[" in item for item in seen[0][1]), seen[0][1])
+        self.assertEqual(cmds.ls(sl=True), [a, b])  # selection restored
+        self.assertTrue(self.instance._b030_stacked)
+        self.assertTrue(self.instance._b030_uv_snapshot)
+
+    def test_pin_after_stack_pins_stacked_shells_and_unstack_restores_prior_weights(self):
+        a, b = self._twins()
+        cmds.polyPinUV(f"{a}.map[0]", value=1.0)  # a pin the user set beforehand
+        before_b = self._uvs(b)
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        widget = _FakeStackWidget(mode="similar", tolerance=1.0, pin=True)
+
+        self.instance.b030(widget)
+        self.assertEqual(self._pin(f"{a}.map[4]"), 1.0)
+        self.assertEqual(self._pin(f"{b}.map[4]"), 1.0)
+
+        self.instance.b030(widget)  # Unstack
+        # Positions come back even though the UVs were pinned meanwhile
+        # (polyEditUV honours pins -- Unstack must lift them first).
+        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
+        self.assertEqual(self._pin(f"{a}.map[0]"), 1.0)  # the user's pin survives
+        self.assertEqual(self._pin(f"{a}.map[4]"), 0.0)
+        self.assertEqual(self._pin(f"{b}.map[4]"), 0.0)
+
+    def test_unstack_moves_back_uvs_the_user_had_pinned(self):
+        """polyUVStackSimilarShells ignores pins but polyEditUV honours them:
+        a user-pinned UV that the stack moved must still come back on Unstack."""
+        a, b = self._twins()
+        cmds.polyPinUV(f"{b}.map[2]", value=1.0)
+        before_b = self._uvs(b)
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        widget = _FakeStackWidget(mode="similar", tolerance=1.0, pin=False)
+        self.instance.b030(widget)
+        self.assertGreater(self._max_dist(self._uvs(b), before_b), 0.01)
+        self.instance.b030(widget)  # Unstack
+        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
+        self.assertEqual(self._pin(f"{b}.map[2]"), 1.0)  # weight restored
+
+    def test_selection_change_resets_the_toggle(self):
+        a, b = self._twins()
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        widget = _FakeStackWidget(mode="similar", tolerance=1.0)
+        self.instance.b030(widget)
+        c, d = self._twins()
+        cmds.select(f"{c}.f[*]", f"{d}.f[*]")
+        self.instance.b030(widget)  # fresh selection -> stacks (not Unstack)
+        self.assertTrue(self.instance._b030_stacked)
+        self.assertLess(self._max_dist(self._uvs(c), self._uvs(d)), 1e-5)
+
+
 # TestCmb002Dispatch (+ its _FakeItemsWidget/_FakeAddWidget helpers) removed 2026-07-12:
 # the cmb002 "UV Transform" menu it drove was relocated wholesale to the mayatk
 # shell_xform panel on 2026-07-09 (commit e80fcdc0, "UV transform cluster relocated to

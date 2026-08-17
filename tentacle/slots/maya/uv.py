@@ -30,6 +30,7 @@ class UvSlots(UvMixin, SlotsMaya):
         self._b030_stacked = False
         self._b030_last_selection = None
         self._b030_uv_snapshot = None
+        self._b030_pin_weights = None
 
     def get_map_size(self):
         """Get the map size from the combobox as an int. ie. 2048"""
@@ -1713,34 +1714,34 @@ class UvSlots(UvMixin, SlotsMaya):
         cmds.polyPinUV(uvs, value=1.0 if self._b029_pinned else 0.0)
         self._b029_last_selection = list(selection)
 
-    def b030_init(self, widget):
-        """Initialize Stack button — non-checkable text button.
-
-        Defensively clears any `checkable` property a Qt Designer round-trip
-        may have re-added (the button's "Stack" label lives in the .ui).
-        """
-        widget.setCheckable(False)
-
     @mtk.undoable
     def b030(self, widget):
-        """Stack / Unstack similar shells (dual-state toggle).
+        """Stack / Unstack shells (dual-state toggle).
 
         First click on a fresh selection captures each selected UV's position
-        and stacks similar shells (texStackShells). The next click restores
-        those positions, returning shells to exactly where they were before
-        the stack. A selection change since the last click resets the toggle
-        and drops the snapshot.
+        (and pin weight) and stacks the shells per the option box
+        (:meth:`UvMixin.b030_init`): ``Similar`` =
+        ``mtk.UvUtils.stack_similar_uv_shells`` (``polyUVStackSimilarShells``)
+        — shells of the same topology + shape land on the first matching
+        shell, rotated (and scaled) to overlap exactly, unmatched shells stay
+        put; ``All shells`` = ``texStackShells`` — every shell translated onto
+        the shared center. ``Pin after stack`` pins the selected shells' UVs.
+        The next click restores the captured positions and pin weights,
+        returning shells to exactly where they were before the stack. A
+        selection change since the last click resets the toggle and drops
+        the snapshot.
 
         Per-UV capture and restore avoid an ordering ambiguity in bulk
         ``polyEditUV(..., query=True)``.
         """
+        mode, tolerance, pin = self._stack_options(widget)
         selection = self.require_selection(
             "<b>Nothing selected.</b><br>Select the shell(s) to stack."
         )
         if selection is None:
             return
-        uvs = cmds.polyListComponentConversion(selection, toUV=True) or []
-        uvs = cmds.ls(uvs, flatten=True) or []
+        uv_ranges = cmds.polyListComponentConversion(selection, toUV=True) or []
+        uvs = cmds.ls(uv_ranges, flatten=True) or []
         if not uvs:
             self.sb.message_box("<b>No UVs found in selection.</b>")
             return
@@ -1750,22 +1751,54 @@ class UvSlots(UvMixin, SlotsMaya):
             # snapshot from a previous selection.
             self._b030_stacked = False
             self._b030_uv_snapshot = None
+            self._b030_pin_weights = None
 
         self._b030_stacked = not self._b030_stacked
         self._b030_last_selection = list(selection)
 
         if self._b030_stacked:
+            # Prior pin weights, always: the stack commands ignore pins but
+            # polyEditUV honours them, so Unstack has to lift every pin before
+            # it can move a UV back -- and then put exactly these weights back
+            # (pins the user set via b029 survive the cycle).
+            #
+            # Keyed by UV, then aligned to the snapshot: a UV whose position
+            # query comes back empty is dropped from `snapshot`, so a list
+            # captured over the full `uvs` would be LONGER than the list
+            # Unstack pairs it against -- shifting every subsequent weight onto
+            # a different UV, silently.
+            weight_by_uv = dict(zip(uvs, mtk.UvUtils.get_uv_pin_weights(uvs)))
             snapshot = []
             for uv in uvs:
                 pos = cmds.polyEditUV(uv, query=True)
                 if pos and len(pos) >= 2:
                     snapshot.append((uv, pos[0], pos[1]))
+            weights = [weight_by_uv[uv] for uv, _, _ in snapshot]
+            if mode == self.STACK_MODE_SIMILAR:
+                if not mtk.UvUtils.stack_similar_uv_shells(selection, tolerance):
+                    self._b030_stacked = False
+                    self._report_no_similar_shells()
+                    return
+            else:
+                # texStackShells stacks the shells of the SELECTED UVs / faces
+                # (a plain object selection is "No UVs selected" unless Maya's
+                # auto-convert preference is on) -- select the UVs, stack, and
+                # put the selection back so the toggle's compare still holds.
+                cmds.select(uv_ranges)
+                try:
+                    mel.eval("texStackShells {}")
+                finally:
+                    cmds.select(selection)
             self._b030_uv_snapshot = snapshot
-            mel.eval("texStackShells {}")
+            self._b030_pin_weights = weights
+            if pin:
+                cmds.polyPinUV(uvs, value=1.0)
             return
 
         snapshot = self._b030_uv_snapshot or []
+        weights = self._b030_pin_weights or []
         self._b030_uv_snapshot = None
+        self._b030_pin_weights = None
         if not snapshot:
             self.sb.message_box(
                 "<b>No snapshot available.</b><br>"
@@ -1774,9 +1807,13 @@ class UvSlots(UvMixin, SlotsMaya):
             return
         cmds.refresh(suspend=True)
         try:
+            live = [uv for uv, _, _ in snapshot if cmds.objExists(uv)]
+            if live:
+                cmds.polyPinUV(live, value=0.0)  # pins block polyEditUV
             for uv, u, v in snapshot:
                 if cmds.objExists(uv):
                     cmds.polyEditUV(uv, uValue=u, vValue=v, relative=False)
+            mtk.UvUtils.set_uv_pin_weights([uv for uv, _, _ in snapshot], weights)
         finally:
             cmds.refresh(suspend=False)
 

@@ -3,10 +3,10 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import SelectionMixin, SlotsMaya
 
 
-class Selection(SlotsMaya):
+class Selection(SelectionMixin, SlotsMaya):
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
@@ -228,112 +228,163 @@ class Selection(SlotsMaya):
                 f"Reordered {len(reordered)} objects by {selected_option}{' (reversed)' if reverse else ''}"
             )
 
-    def cmb003_init(self, widget):
-        """ """
-        items = [
-            "Verts",
-            "Vertex Faces",
-            "Vertex Perimeter",
-            "Edges",
-            "Edge Loop",
-            "Edge Ring",
-            "Contained Edges",
-            "Edge Perimeter",
-            "Border Edges",
-            "Faces",
-            "Face Path",
-            "Contained Faces",
-            "Face Perimeter",
-            "UV's",
-            "UV Shell",
-            "UV Shell Border",
-            "UV Perimeter",
-            "UV Edge Loop",
-            "Shell",
-            "Shell Border",
-        ]
-        widget.add(items, header="Convert To:")
+    # Convert To (list001): label -> conversion. Rows appear in this order (the
+    # table IS the menu — see SelectionMixin). Every entry is Maya's own menu
+    # command for that conversion (Polygons > Select > Convert Selection),
+    # except Border Edges, which rides mtk.Components. The Blender fork's table
+    # mirrors this one minus the two items it lacks (Vertex Faces, UV's),
+    # ledgered in docs/parity_map.py.
+    _CONVERT_TO_OPS = {
+        "Verts": lambda self: mel.eval("PolySelectConvert 3"),
+        "Vertex Faces": lambda self: mel.eval("PolySelectConvert 5"),
+        "Vertex Perimeter": lambda self: mel.eval("ConvertSelectionToVertexPerimeter"),
+        "Edges": lambda self: mel.eval("PolySelectConvert 2"),
+        "Edge Loop": lambda self: mel.eval("SelectEdgeLoopSp"),
+        "Edge Ring": lambda self: mel.eval("SelectEdgeRingSp"),
+        "Contained Edges": lambda self: mel.eval("PolySelectConvert 20"),
+        "Edge Perimeter": lambda self: mel.eval("ConvertSelectionToEdgePerimeter"),
+        "Border Edges": lambda self: self._convert_to_border_edges(),
+        "Faces": lambda self: mel.eval("PolySelectConvert 1"),
+        "Face Path": lambda self: mel.eval('polySelectEdges "edgeRing"'),
+        "Contained Faces": lambda self: mel.eval("PolySelectConvert 10"),
+        "Face Perimeter": lambda self: mel.eval("polySelectFacePerimeter"),
+        "UV's": lambda self: mel.eval("PolySelectConvert 4"),
+        "UV Shell": lambda self: mel.eval("polySelectBorderShell 0"),
+        "UV Shell Border": lambda self: mel.eval("polySelectBorderShell 1"),
+        "UV Perimeter": lambda self: mel.eval("ConvertSelectionToUVPerimeter"),
+        "UV Edge Loop": lambda self: mel.eval('polySelectEdges "edgeUVLoopOrBorder"'),
+        "Shell": lambda self: mel.eval("polyConvertToShell"),
+        "Shell Border": lambda self: mel.eval("polyConvertToShellBorder"),
+    }
 
-    def cmb003(self, index, widget):
+    @SlotsMaya.Signals("on_item_interacted")
+    def list001(self, item):
         """Convert To: convert the component selection to verts, edges, faces, UVs, or shells."""
-        text = widget.items[index]
-        if text == "Verts":  # Convert Selection To Vertices
-            mel.eval("PolySelectConvert 3")
-        elif text == "Vertex Faces":
-            mel.eval("PolySelectConvert 5")
-        elif text == "Vertex Perimeter":
-            mel.eval("ConvertSelectionToVertexPerimeter")
-        elif text == "Edges":  # Convert Selection To Edges
-            mel.eval("PolySelectConvert 2")
-        elif text == "Edge Loop":
-            mel.eval("SelectEdgeLoopSp")
-        elif text == "Edge Ring":  # Convert Selection To Edge Ring
-            mel.eval("SelectEdgeRingSp")
-        elif text == "Contained Edges":
-            mel.eval("PolySelectConvert 20")
-        elif text == "Edge Perimeter":
-            mel.eval("ConvertSelectionToEdgePerimeter")
-        elif text == "Border Edges":
-            selection = cmds.ls(sl=True) or []
-            all_edges = mtk.Components.get_components(selection, "edges")
-            if not all_edges:
-                self.sb.message_box("No valid selection to convert to border edges.")
-                return
-            cmds.select(mtk.Components.get_border_components(all_edges))
-        elif text == "Faces":  # Convert Selection To Faces
-            mel.eval("PolySelectConvert 1")
-        elif text == "Face Path":
-            mel.eval('polySelectEdges "edgeRing"')
-        elif text == "Contained Faces":
-            mel.eval("PolySelectConvert 10")
-        elif text == "Face Perimeter":
-            mel.eval("polySelectFacePerimeter")
-        elif text == "UV's":
-            mel.eval("PolySelectConvert 4")
-        elif text == "UV Shell":
-            mel.eval("polySelectBorderShell 0")
-        elif text == "UV Shell Border":
-            mel.eval("polySelectBorderShell 1")
-        elif text == "UV Perimeter":
-            mel.eval("ConvertSelectionToUVPerimeter")
-        elif text == "UV Edge Loop":
-            mel.eval('polySelectEdges "edgeUVLoopOrBorder"')
-        elif text == "Shell":
-            mel.eval("polyConvertToShell")
-        elif text == "Shell Border":
-            mel.eval("polyConvertToShellBorder")
+        self._dispatch_convert_to(item)
 
-    def cmb005_init(self, widget):
-        """ """
-        items = [
-            "OFF",
-            "Angle",
-            "Border",
-            "Edge Loop",
-            "Edge Ring",
-            "Shell",
-            "UV Edge Loop",
+    def _convert_to_border_edges(self):
+        """Convert To > Border Edges: the selection's naked (one-face) edges."""
+        selection = cmds.ls(sl=True) or []
+        all_edges = mtk.Components.get_components(selection, "edges")
+        if not all_edges:
+            self.sb.message_box("No valid selection to convert to border edges.")
+            return
+        cmds.select(mtk.Components.get_border_components(all_edges))
+
+    # Selection constraints (b002-b007): objectName -> the polySelectConstraint
+    # flags the button owns. Each constraint is its own independent flag on
+    # Maya's one global constraint state (verified: setting one leaves the
+    # others as they were), which is what lets more than one be enabled at a
+    # time — Maya's own Modeling Toolkit menu (dR_setSelConst) writes all of
+    # them on every pick, so it can only ever show one. Border is two flags
+    # because MTK sets both (-bo -bp) for it. Glyph + label per button live in
+    # SelectionMixin._CONSTRAINT_BUTTONS.
+    _CONSTRAINT_FLAGS = {
+        "b002": ("anglePropagation",),
+        "b003": ("border", "borderPropagation"),
+        "b004": ("loopPropagation",),
+        "b005": ("ringPropagation",),
+        "b006": ("shell",),
+        "b007": ("uvEdgeLoopPropagation",),
+    }
+    _CONSTRAINT_ACTION_HINT = (
+        "Toggle: constrains what drag-selection picks up while on. "
+        "Several can be on at once."
+    )
+
+    def _constraint_is_on(self, widget):
+        """Live state of *widget*'s constraint — Maya owns it, not QSettings."""
+        flag = self._CONSTRAINT_FLAGS[widget.objectName()][0]
+        return bool(cmds.polySelectConstraint(q=True, **{flag: True}))
+
+    def _init_constraint_toggle(self, widget):
+        """Dress the button and seed its checked state from Maya's live constraint.
+
+        Re-run on every show (``refresh_on_show``): the constraint is global
+        session state the Modeling Toolkit can change behind the panel's back,
+        so a one-time seed would go stale. Mirrored, never restored — a
+        persisted "on" replayed on panel open would silently switch the
+        constraint on (see ``mirror_app_state``).
+        """
+        widget.refresh_on_show = True
+        self._init_constraint_button(widget)
+        self.mirror_app_state(
+            widget, lambda: widget.setChecked(self._constraint_is_on(widget))
+        )
+
+    def _toggle_constraint(self, widget):
+        """Write the button's checked state to its constraint flag(s) and report
+        the full set now on, so a multi-constraint state reads at a glance."""
+        state = widget.isChecked()
+        flags = self._CONSTRAINT_FLAGS[widget.objectName()]
+        cmds.polySelectConstraint(**{f: state for f in flags})
+        # Keep the Modeling Toolkit's own constraint field honest when it is up.
+        # The proc only exists once drInit.mel has been sourced (MTK panel built
+        # in a GUI session); probing with `exists` first keeps the script editor
+        # quiet — a bare failing mel.eval echoes "Error:" there even when Python
+        # catches the RuntimeError.
+        if mel.eval('exists "dR_updateSelConstField"'):
+            try:
+                mel.eval("dR_updateSelConstField")
+            except RuntimeError:
+                pass  # its textField torn down since — nothing to refresh
+        on = [
+            self._constraint_label(w)
+            for name in self._CONSTRAINT_FLAGS
+            for w in (getattr(widget.ui, name, None),)
+            if w is not None and w.isChecked()
         ]
-        widget.add(items)
+        self.sb.message_box(
+            f"Selection Constraints: <hl>{', '.join(on) if on else 'OFF'}</hl>"
+        )
 
-    def cmb005(self, index, widget):
-        """Selection Contraints"""
-        text = widget.items[index]
-        if text == "Angle":
-            mel.eval("dR_selConstraintAngle")
-        elif text == "Border":
-            mel.eval("dR_selConstraintBorder")
-        elif text == "Edge Loop":
-            mel.eval("dR_selConstraintEdgeLoop")
-        elif text == "Edge Ring":
-            mel.eval("dR_selConstraintEdgeRing")
-        elif text == "Shell":
-            mel.eval("dR_selConstraintElement")
-        elif text == "UV Edge Loop":
-            mel.eval("dR_selConstraintUVEdgeLoop")
-        elif text == "OFF":
-            mel.eval("dR_selConstraintOff")
-        self.sb.message_box(f"Select Constaints: <hl>{text}</hl>")
+    def b002_init(self, widget):
+        """Selection constraint: Angle."""
+        self._init_constraint_toggle(widget)
+
+    def b002(self, widget):
+        """Selection constraint: Angle (toggle)."""
+        self._toggle_constraint(widget)
+
+    def b003_init(self, widget):
+        """Selection constraint: Border."""
+        self._init_constraint_toggle(widget)
+
+    def b003(self, widget):
+        """Selection constraint: Border (toggle)."""
+        self._toggle_constraint(widget)
+
+    def b004_init(self, widget):
+        """Selection constraint: Edge Loop."""
+        self._init_constraint_toggle(widget)
+
+    def b004(self, widget):
+        """Selection constraint: Edge Loop (toggle)."""
+        self._toggle_constraint(widget)
+
+    def b005_init(self, widget):
+        """Selection constraint: Edge Ring."""
+        self._init_constraint_toggle(widget)
+
+    def b005(self, widget):
+        """Selection constraint: Edge Ring (toggle)."""
+        self._toggle_constraint(widget)
+
+    def b006_init(self, widget):
+        """Selection constraint: Shell."""
+        self._init_constraint_toggle(widget)
+
+    def b006(self, widget):
+        """Selection constraint: Shell (toggle)."""
+        self._toggle_constraint(widget)
+
+    def b007_init(self, widget):
+        """Selection constraint: UV Edge Loop."""
+        self._init_constraint_toggle(widget)
+
+    def b007(self, widget):
+        """Selection constraint: UV Edge Loop (toggle)."""
+        self._toggle_constraint(widget)
 
     def chk000(self, state, widget):
         """Select Nth: uncheck other checkboxes"""
@@ -524,7 +575,15 @@ class Selection(SlotsMaya):
             setObjectName="s000",
             set_limits=[0, 9999, 0.1, 3],
             setValue=0.0,
-            setToolTip="The allowed difference in any of the compared results.\nie. A tolerance of 4 allows for a difference of 4 components.\nie. A tolerance of 0.05 allows for that amount of variance between any of the bounding box values.",
+            setToolTip=(
+                "The allowed difference in any of the compared results.\n"
+                "ie. A tolerance of 4 allows for a difference of 4 components.\n"
+                "ie. A tolerance of 0.05 allows for that amount of variance between "
+                "any of the bounding box values.\n"
+                "UV shells (a UV / UV-shell selection): how much two shells' shapes "
+                "may differ and still count as the same shell -- 0 = identical, "
+                "1 also absorbs the drift of two separately unfolded copies."
+            ),
         )
         for name, label, _, checked, tooltip in self._SIMILAR_METRICS:
             menu.add(
@@ -538,11 +597,23 @@ class Selection(SlotsMaya):
             "QCheckBox",
             setText="Include Original",
             setObjectName="chk020",
-            setToolTip="Include the original selected object(s) in the final selection.",
+            setToolTip=(
+                "Include the original selected object(s) / UV shell(s) in the "
+                "final selection."
+            ),
         )
 
     def tb001(self, widget):
-        """Select Similar"""
+        """Select Similar.
+
+        Object mode: geometry metrics (``mtk.get_similar_mesh``). A UV / UV-shell
+        selection: shells of the same topology and shape as the selected shell(s)
+        -- Maya's ``polyUVStackSimilarShells`` similarity, so what this selects is
+        exactly what the UV panel's Stack (Similar) will stack -- searched across
+        the hilited (component-mode) meshes without moving anything
+        (``mtk.UvUtils.get_similar_uv_shells``). Other components: Maya's
+        ``doSelectSimilar``.
+        """
         menu = widget.option_box.menu
         tolerance = menu.s000.value()
         metrics = {
@@ -592,6 +663,30 @@ class Selection(SlotsMaya):
                     f"at a tolerance of <hl>{tolerance}</hl>.<br>"
                     "Raise the tolerance, or clear metrics that vary between copies."
                 )
+        elif cmds.filterExpand(selectionMask=35):  # UV components (UV / UV-shell modes)
+            reference = cmds.ls(sl=True) or []
+            # The meshes being edited: hilited in component mode; fall back to
+            # the shells' own objects (a UV selection made by script).
+            candidates = cmds.ls(hilite=True) or cmds.ls(reference, objectsOnly=True)
+            shells = mtk.UvUtils.get_similar_uv_shells(
+                reference, candidates, tolerance=tolerance
+            )
+            if not shells:
+                self.sb.message_box(
+                    "<b>Select Similar</b> found no other UV shell with the "
+                    f"selected shell's topology and shape at a tolerance of "
+                    f"<hl>{tolerance}</hl>.<br>Raise the tolerance to allow "
+                    "some shape drift."
+                )
+                return
+            uvs = [uv for shell in shells for uv in shell]
+            # One mode flag per call: `add` and `replace` are mutually
+            # exclusive, and every other cmds.select in the monorepo passes
+            # exactly one.
+            if menu.chk020.isChecked():
+                cmds.select(uvs, add=True)
+            else:
+                cmds.select(uvs, replace=True)
         else:
             try:
                 mel.eval(f"doSelectSimilar 1 {{{tolerance}}};")

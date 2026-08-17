@@ -56,15 +56,28 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "list000_init",
             "list000",
             "_is_workspace",
-            "_set_workspace_interactive",
             "_auto_set_workspace",
-            "_set_workspace_from_path",
             "_switch_to_workspace",
             "_open_workspace_editor",
+            # MainMixin hooks
+            "_current_workspace_root",
+            "_browse_workspace_dir",
+            "_create_default_workspace",
         ):
             self.assertTrue(
                 self.mod.has_method("Main", name), f"Main must define {name}"
             )
+
+    def test_does_not_reimplement_shared_flow(self):
+        """Set Workspace / recent selection live once in ``slots/_main.py``
+        (``MainMixin``, pinned by ``test_main_workspace.py``); the fork supplies
+        hooks only."""
+        for name in ("_set_workspace_interactive", "_set_workspace_from_path"):
+            self.assertFalse(
+                self.mod.has_method("Main", name),
+                f"{name} belongs to MainMixin — the fork must not re-implement it",
+            )
+        self.assertIn("class Main(MainMixin, SlotsBlender)", self.mod.source)
 
     def test_list000_builds_store_and_actions(self):
         """list000_init must build the store, add the editing actions, render the
@@ -129,19 +142,22 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         ):
             self.assertIn(needle, src, f"list000 must handle {needle}")
 
-    def test_recent_selection_validates(self):
-        src = self.mod.method_source("Main", "_set_workspace_from_path")
-        self.assertIn("_is_workspace", src)
-
-    def test_set_workspace_interactive_pins_via_dir_picker(self):
-        """Mirror of Maya's MEL ``SetProject``: a directory picker feeding the session
+    def test_set_workspace_hooks_pin_via_dir_picker_and_shared_template(self):
+        """Mirror of Maya's Set Workspace: a directory picker feeding the session
         pin — NOT the old Open/Save-As file-dialog workaround, which predates Blender
-        having real workspace state (``btk.set_current_workspace``)."""
-        src = self.mod.method_source("Main", "_set_workspace_interactive")
-        self.assertIn("getExistingDirectory", src)
-        self.assertIn("_switch_to_workspace", src)
-        self.assertNotIn("wm.open_mainfile", src)
-        self.assertNotIn("wm.save_as_mainfile", src)
+        having real workspace state (``btk.set_current_workspace``). A pick that is
+        neither a marked project nor a folder of .blend files is OFFERED (by the
+        shared flow) as a new workspace built from the shared template —
+        ``btk.create_workspace``: marker + rule folders — never silently pinned
+        as-is and never built unasked."""
+        browse = self.mod.method_source("Main", "_browse_workspace_dir")
+        self.assertIn("getExistingDirectory", browse)
+        self.assertNotIn("wm.open_mainfile", self.mod.source)
+        self.assertNotIn("wm.save_as_mainfile", self.mod.source)
+        self.assertIn(
+            "btk.create_workspace",
+            self.mod.method_source("Main", "_create_default_workspace"),
+        )
 
     def test_switch_pins_records_and_reports(self):
         """_switch_to_workspace = pin + recent-store bump + toast — the twin of Maya's

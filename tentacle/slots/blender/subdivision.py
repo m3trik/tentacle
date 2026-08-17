@@ -66,10 +66,20 @@ class Subdivision(SlotsBlender):
 
     @btk.undoable
     def tb000(self, widget):
-        """Decimate"""
+        """Decimate: reduce face count by collapse percentage or coplanar-face dissolve.
+
+        Mode-aware, matching the Maya twin's object-or-components selection: in
+        Object Mode the selected meshes reduce whole; in Edit Mode only the
+        SELECTED components of the edit meshes do (the region's outline is
+        held; ``percentage`` is of the selected faces) — both via the mode-aware
+        ``btk.decimate`` / ``btk.dissolve_coplanar``.
+        """
         objects = self.selected_objects()
         if not objects:
-            self.sb.message_box("<strong>Nothing selected</strong>.<br>Select mesh(es) to decimate.")
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Select mesh(es), or mesh "
+                "components in Edit Mode, to decimate."
+            )
             return
         menu = widget.option_box.menu
         if menu.cmb000.currentData() == "planar":
@@ -78,14 +88,19 @@ class Subdivision(SlotsBlender):
                 delimit.add("SHARP")
             if menu.chk012.isChecked():
                 delimit.add("UV")
-            btk.dissolve_coplanar(
+            processed = btk.dissolve_coplanar(
                 objects, angle_tolerance=menu.s011.value(), delimit=delimit,
                 preserve_borders=menu.chk010.isChecked(),
             )
         else:
-            btk.decimate(
+            processed = btk.decimate(
                 objects, percentage=menu.s010.value(),
                 preserve_quads=menu.chk013.isChecked(), symmetry=menu.chk014.isChecked(),
+            )
+        if not processed:
+            self.sb.message_box(
+                "<strong>Nothing to decimate</strong>.<br>Select polygon meshes, or "
+                "components of the mesh being edited."
             )
 
     # ------------------------------------------------------------------ s000/s001  subsurf levels
@@ -141,7 +156,7 @@ class Subdivision(SlotsBlender):
 
     @btk.undoable
     def b005(self):
-        """Reduce (decimate to 50%)."""
+        """Reduce (decimate to 50%) — whole meshes, or the selected components in Edit Mode."""
         objects = self.selected_objects()
         if not objects:
             return

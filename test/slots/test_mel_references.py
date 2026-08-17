@@ -61,13 +61,9 @@ _KNOWN_LAZY = frozenset(
         "dR_multiCutTool",
         "dR_connectTool",
         "dR_quadDrawTool",
-        "dR_selConstraintAngle",
-        "dR_selConstraintBorder",
-        "dR_selConstraintEdgeLoop",
-        "dR_selConstraintEdgeRing",
-        "dR_selConstraintElement",
-        "dR_selConstraintUVEdgeLoop",
-        "dR_selConstraintOff",
+        # drInit.mel global proc (MTK's constraint-field refresher); the
+        # selection slot probes `exists` before calling it.
+        "dR_updateSelConstField",
         # runTimeCommands registered by Maya's preview/menu init scripts.
         "SendToUnrealSelection",
         "SendToUnitySelection",

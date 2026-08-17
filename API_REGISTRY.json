@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-16",
+  "generated_at": "2026-08-17",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -13,7 +13,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 47,
+          "line": 49,
           "deprecated": false
         }
       ],
@@ -133,6 +133,20 @@
               "deprecated": false
             }
           ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/_main.py",
+      "summary": "Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MainMixin",
+          "summary": "Shared ``main`` Workspace-tab behavior.",
+          "line": 25,
+          "bases": [],
+          "members": []
         }
       ]
     },
@@ -298,6 +312,30 @@
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
               "line": 455,
+              "deprecated": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "relpath": "slots/_selection.py",
+      "summary": "Behavior shared by the Maya and Blender ``selection`` panels.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SelectionMixin",
+          "summary": "Shared ``selection`` panel behavior.",
+          "line": 22,
+          "bases": [],
+          "members": [
+            {
+              "name": "list001_init",
+              "qualname": "SelectionMixin.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Convert To: one flat list of the fork's conversions.",
+              "line": 83,
               "deprecated": false
             }
           ]
@@ -499,7 +537,17 @@
           "summary": "Shared UV-panel behavior (see ``slots/maya/uv.py``, ``slots/blender/uv.py``).",
           "line": 6,
           "bases": [],
-          "members": []
+          "members": [
+            {
+              "name": "b030_init",
+              "qualname": "UvMixin.b030_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stack button — non-checkable text button with the stack option box.",
+              "line": 54,
+              "deprecated": false
+            }
+          ]
         }
       ]
     },
@@ -1979,6 +2027,7 @@
           "summary": "Blender port of the shared ``main`` start menu — a workspace switcher (primary) with",
           "line": 9,
           "bases": [
+            "MainMixin",
             "SlotsBlender"
           ],
           "members": [
@@ -1988,7 +2037,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Workspace tab.",
-              "line": 33,
+              "line": 34,
               "deprecated": false
             },
             {
@@ -1997,7 +2046,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Workspace tab dispatch — editing actions, recent-workspace selection, and the",
-              "line": 124,
+              "line": 125,
               "deprecated": false
             }
           ]
@@ -3701,6 +3750,7 @@
           "summary": "Blender port of the shared ``selection`` menu.",
           "line": 8,
           "bases": [
+            "SelectionMixin",
             "SlotsBlender"
           ],
           "members": [
@@ -3737,7 +3787,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Similar — object-level similarity by topology / area / bounding-box metrics",
-              "line": 135,
+              "line": 148,
               "deprecated": false
             },
             {
@@ -3746,7 +3796,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 187,
+              "line": 216,
               "deprecated": false
             },
             {
@@ -3755,7 +3805,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Island (connected region;",
-              "line": 195,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -3764,7 +3814,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 208,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -3773,25 +3823,16 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``).",
-              "line": 221,
+              "line": 250,
               "deprecated": false
             },
             {
-              "name": "cmb003_init",
-              "qualname": "Selection.cmb003_init",
+              "name": "list001",
+              "qualname": "Selection.list001",
               "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 243,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003",
-              "qualname": "Selection.cmb003",
-              "kind": "method",
-              "signature": "(self, index, widget)",
+              "signature": "(self, item)",
               "summary": "Convert the current selection to another component type (Maya Convert-To parity).",
-              "line": 256,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -3800,7 +3841,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).",
-              "line": 293,
+              "line": 320,
               "deprecated": false
             },
             {
@@ -3809,7 +3850,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.",
-              "line": 306,
+              "line": 333,
               "deprecated": false
             },
             {
@@ -3818,7 +3859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 313,
+              "line": 340,
               "deprecated": false
             },
             {
@@ -3827,7 +3868,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Style: Lasso — mirrors the active tool;",
-              "line": 329,
+              "line": 356,
               "deprecated": false
             },
             {
@@ -3836,7 +3877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Style: Circle — mirrors the active tool;",
-              "line": 333,
+              "line": 360,
               "deprecated": false
             },
             {
@@ -3845,7 +3886,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Box (Marquee)",
-              "line": 344,
+              "line": 371,
               "deprecated": false
             },
             {
@@ -3854,7 +3895,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Lasso",
-              "line": 348,
+              "line": 375,
               "deprecated": false
             },
             {
@@ -3863,7 +3904,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Circle (Paint)",
-              "line": 352,
+              "line": 379,
               "deprecated": false
             },
             {
@@ -3872,25 +3913,115 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability of the selected object(s).",
-              "line": 358,
+              "line": 385,
               "deprecated": false
             },
             {
-              "name": "cmb005_init",
-              "qualname": "Selection.cmb005_init",
+              "name": "b002_init",
+              "qualname": "Selection.b002_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "",
-              "line": 405,
+              "summary": "Selection constraint: Angle.",
+              "line": 459,
               "deprecated": false
             },
             {
-              "name": "cmb005",
-              "qualname": "Selection.cmb005",
+              "name": "b002",
+              "qualname": "Selection.b002",
               "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Selection Constraints (one-shot in Blender: expands the current selection by",
-              "line": 415,
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Angle (one-shot expand).",
+              "line": 463,
+              "deprecated": false
+            },
+            {
+              "name": "b003_init",
+              "qualname": "Selection.b003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border.",
+              "line": 467,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Selection.b003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border (one-shot expand).",
+              "line": 471,
+              "deprecated": false
+            },
+            {
+              "name": "b004_init",
+              "qualname": "Selection.b004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop.",
+              "line": 475,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Selection.b004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop (one-shot expand).",
+              "line": 479,
+              "deprecated": false
+            },
+            {
+              "name": "b005_init",
+              "qualname": "Selection.b005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring.",
+              "line": 483,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Selection.b005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring (one-shot expand).",
+              "line": 487,
+              "deprecated": false
+            },
+            {
+              "name": "b006_init",
+              "qualname": "Selection.b006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell.",
+              "line": 491,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Selection.b006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell (one-shot expand).",
+              "line": 495,
+              "deprecated": false
+            },
+            {
+              "name": "b007_init",
+              "qualname": "Selection.b007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop.",
+              "line": 499,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "Selection.b007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop (one-shot expand).",
+              "line": 503,
               "deprecated": false
             },
             {
@@ -3899,7 +4030,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender",
-              "line": 431,
+              "line": 508,
               "deprecated": false
             },
             {
@@ -3908,7 +4039,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Reorder Selection (sort via ``btk.reorder_objects``, record the order on",
-              "line": 460,
+              "line": 537,
               "deprecated": false
             },
             {
@@ -3917,7 +4048,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type: hierarchical type list.",
-              "line": 500,
+              "line": 577,
               "deprecated": false
             },
             {
@@ -3926,7 +4057,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type settings menu (mirror of the Maya slot's tb004).",
-              "line": 535,
+              "line": 612,
               "deprecated": false
             },
             {
@@ -3935,7 +4066,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select by Type settings: open the scope/mode menu.",
-              "line": 591,
+              "line": 668,
               "deprecated": false
             },
             {
@@ -3944,7 +4075,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Select by Type (native bpy predicates via ``btk.Selection``).",
-              "line": 624,
+              "line": 701,
               "deprecated": false
             }
           ]
@@ -4005,7 +4136,7 @@
               "qualname": "Subdivision.tb000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Decimate",
+              "summary": "Decimate: reduce face count by collapse percentage or coplanar-face dissolve.",
               "line": 68,
               "deprecated": false
             },
@@ -4015,7 +4146,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Division Level — reflect the active object's live viewport subdivision level.",
-              "line": 105,
+              "line": 120,
               "deprecated": false
             },
             {
@@ -4024,7 +4155,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tesselation Level — reflect the active object's live render subdivision level.",
-              "line": 109,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -4033,7 +4164,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Division Level (live Subdivision-Surface viewport level).",
-              "line": 114,
+              "line": 129,
               "deprecated": false
             },
             {
@@ -4042,7 +4173,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Tesselation Level (Subdivision-Surface render level).",
-              "line": 123,
+              "line": 138,
               "deprecated": false
             },
             {
@@ -4051,7 +4182,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quadrangulate (tris -> quads).",
-              "line": 133,
+              "line": 148,
               "deprecated": false
             },
             {
@@ -4060,7 +4191,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Triangulate",
-              "line": 138,
+              "line": 153,
               "deprecated": false
             },
             {
@@ -4068,8 +4199,8 @@
               "qualname": "Subdivision.b005",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Reduce (decimate to 50%).",
-              "line": 143,
+              "summary": "Reduce (decimate to 50%) — whole meshes, or the selected components in Edit Mode.",
+              "line": 158,
               "deprecated": false
             },
             {
@@ -4078,7 +4209,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Divisions - Subdivide Mesh",
-              "line": 151,
+              "line": 166,
               "deprecated": false
             },
             {
@@ -4087,7 +4218,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons",
-              "line": 156,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -4096,7 +4227,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so",
-              "line": 170,
+              "line": 185,
               "deprecated": false
             }
           ]
@@ -4754,21 +4885,12 @@
               "deprecated": false
             },
             {
-              "name": "b030_init",
-              "qualname": "Uv.b030_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Stack button — non-checkable text button.",
-              "line": 731,
-              "deprecated": false
-            },
-            {
               "name": "b030",
               "qualname": "Uv.b030",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 740,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -4777,7 +4899,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 766,
+              "line": 775,
               "deprecated": false
             },
             {
@@ -4786,7 +4908,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 771,
+              "line": 780,
               "deprecated": false
             },
             {
@@ -4795,7 +4917,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 779,
+              "line": 788,
               "deprecated": false
             },
             {
@@ -4804,7 +4926,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 784,
+              "line": 793,
               "deprecated": false
             }
           ]
@@ -6532,6 +6654,7 @@
           "summary": "",
           "line": 11,
           "bases": [
+            "MainMixin",
             "SlotsMaya"
           ],
           "members": [
@@ -8529,6 +8652,7 @@
           "summary": "",
           "line": 9,
           "bases": [
+            "SelectionMixin",
             "SlotsMaya"
           ],
           "members": [
@@ -8587,39 +8711,120 @@
               "deprecated": false
             },
             {
-              "name": "cmb003_init",
-              "qualname": "Selection.cmb003_init",
+              "name": "list001",
+              "qualname": "Selection.list001",
               "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 231,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003",
-              "qualname": "Selection.cmb003",
-              "kind": "method",
-              "signature": "(self, index, widget)",
+              "signature": "(self, item)",
               "summary": "Convert To: convert the component selection to verts, edges, faces, UVs, or shells.",
-              "line": 257,
+              "line": 261,
               "deprecated": false
             },
             {
-              "name": "cmb005_init",
-              "qualname": "Selection.cmb005_init",
+              "name": "b002_init",
+              "qualname": "Selection.b002_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "",
-              "line": 306,
+              "summary": "Selection constraint: Angle.",
+              "line": 341,
               "deprecated": false
             },
             {
-              "name": "cmb005",
-              "qualname": "Selection.cmb005",
+              "name": "b002",
+              "qualname": "Selection.b002",
               "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Selection Contraints",
-              "line": 319,
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Angle (toggle).",
+              "line": 345,
+              "deprecated": false
+            },
+            {
+              "name": "b003_init",
+              "qualname": "Selection.b003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border.",
+              "line": 349,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "Selection.b003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border (toggle).",
+              "line": 353,
+              "deprecated": false
+            },
+            {
+              "name": "b004_init",
+              "qualname": "Selection.b004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop.",
+              "line": 357,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "Selection.b004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop (toggle).",
+              "line": 361,
+              "deprecated": false
+            },
+            {
+              "name": "b005_init",
+              "qualname": "Selection.b005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring.",
+              "line": 365,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "Selection.b005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring (toggle).",
+              "line": 369,
+              "deprecated": false
+            },
+            {
+              "name": "b006_init",
+              "qualname": "Selection.b006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell.",
+              "line": 373,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "Selection.b006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell (toggle).",
+              "line": 377,
+              "deprecated": false
+            },
+            {
+              "name": "b007_init",
+              "qualname": "Selection.b007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop.",
+              "line": 381,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "Selection.b007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop (toggle).",
+              "line": 385,
               "deprecated": false
             },
             {
@@ -8628,7 +8833,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 338,
+              "line": 389,
               "deprecated": false
             },
             {
@@ -8637,7 +8842,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 342,
+              "line": 393,
               "deprecated": false
             },
             {
@@ -8646,7 +8851,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Nth: uncheck other checkboxes",
-              "line": 346,
+              "line": 397,
               "deprecated": false
             },
             {
@@ -8655,7 +8860,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create button group for radioboxes chk005, chk006, chk007",
-              "line": 350,
+              "line": 401,
               "deprecated": false
             },
             {
@@ -8664,7 +8869,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Marquee",
-              "line": 362,
+              "line": 413,
               "deprecated": false
             },
             {
@@ -8673,7 +8878,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Lasso",
-              "line": 367,
+              "line": 418,
               "deprecated": false
             },
             {
@@ -8682,7 +8887,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Select Style: Paint",
-              "line": 372,
+              "line": 423,
               "deprecated": false
             },
             {
@@ -8691,7 +8896,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Ignore Backfacing (Camera Based Selection)",
-              "line": 377,
+              "line": 428,
               "deprecated": false
             },
             {
@@ -8700,7 +8905,7 @@
               "kind": "method",
               "signature": "(self, **kwargs)",
               "summary": "Transform Constraints: Constraint CheckBoxes",
-              "line": 386,
+              "line": 437,
               "deprecated": false
             },
             {
@@ -8709,7 +8914,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 395,
+              "line": 446,
               "deprecated": false
             },
             {
@@ -8718,7 +8923,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Nth: select edge loops/rings or shortest paths, stepping every Nth component.",
-              "line": 437,
+              "line": 488,
               "deprecated": false
             },
             {
@@ -8727,7 +8932,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 518,
+              "line": 569,
               "deprecated": false
             },
             {
@@ -8735,8 +8940,8 @@
               "qualname": "Selection.tb001",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Select Similar",
-              "line": 544,
+              "summary": "Select Similar.",
+              "line": 606,
               "deprecated": false
             },
             {
@@ -8745,7 +8950,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 614,
+              "line": 709,
               "deprecated": false
             },
             {
@@ -8754,7 +8959,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Island: Select Polygon Face Island",
-              "line": 667,
+              "line": 762,
               "deprecated": false
             },
             {
@@ -8763,7 +8968,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 696,
+              "line": 791,
               "deprecated": false
             },
             {
@@ -8772,7 +8977,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Edges By Angle",
-              "line": 715,
+              "line": 810,
               "deprecated": false
             },
             {
@@ -8781,7 +8986,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Selectability",
-              "line": 729,
+              "line": 824,
               "deprecated": false
             },
             {
@@ -8790,7 +8995,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Queries the current selection tool in Maya.",
-              "line": 734,
+              "line": 829,
               "deprecated": false
             },
             {
@@ -8799,7 +9004,7 @@
               "kind": "staticmethod",
               "signature": "(tool)",
               "summary": "Sets the selection tool in Maya.",
-              "line": 747,
+              "line": 842,
               "deprecated": false
             }
           ]
@@ -8953,7 +9158,7 @@
               "qualname": "Subdivision.b005",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Reduce: lower the polygon count while preserving border, hard, crease, and UV edges.",
+              "summary": "Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.",
               "line": 104,
               "deprecated": false
             },
@@ -8963,7 +9168,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Decimate",
-              "line": 144,
+              "line": 116,
               "deprecated": false
             },
             {
@@ -8972,7 +9177,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.",
-              "line": 204,
+              "line": 176,
               "deprecated": false
             },
             {
@@ -8981,7 +9186,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Add Divisions - Subdivide Mesh",
-              "line": 228,
+              "line": 213,
               "deprecated": false
             },
             {
@@ -8990,7 +9195,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Apply Smooth Preview",
-              "line": 232,
+              "line": 217,
               "deprecated": false
             },
             {
@@ -8999,7 +9204,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Quad Draw: enter Maya's Quad Draw retopology tool.",
-              "line": 236,
+              "line": 221,
               "deprecated": false
             },
             {
@@ -9008,7 +9213,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Subdiv Proxy",
-              "line": 241,
+              "line": 226,
               "deprecated": false
             }
           ]
@@ -9485,7 +9690,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 34,
+              "line": 35,
               "deprecated": false
             },
             {
@@ -9494,7 +9699,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 38,
+              "line": 39,
               "deprecated": false
             },
             {
@@ -9503,7 +9708,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 64,
+              "line": 65,
               "deprecated": false
             },
             {
@@ -9512,7 +9717,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 619,
+              "line": 620,
               "deprecated": false
             },
             {
@@ -9521,7 +9726,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap.",
-              "line": 859,
+              "line": 860,
               "deprecated": false
             },
             {
@@ -9530,7 +9735,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap: automatically unwrap UVs for the selected objects.",
-              "line": 936,
+              "line": 937,
               "deprecated": false
             },
             {
@@ -9539,7 +9744,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 991,
+              "line": 992,
               "deprecated": false
             },
             {
@@ -9548,7 +9753,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold: relax/unfold the selected UVs to reduce stretch and distortion.",
-              "line": 1041,
+              "line": 1042,
               "deprecated": false
             },
             {
@@ -9557,7 +9762,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 1133,
+              "line": 1134,
               "deprecated": false
             },
             {
@@ -9566,7 +9771,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 1179,
+              "line": 1180,
               "deprecated": false
             },
             {
@@ -9575,7 +9780,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 1237,
+              "line": 1238,
               "deprecated": false
             },
             {
@@ -9584,7 +9789,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1355,
+              "line": 1356,
               "deprecated": false
             },
             {
@@ -9593,7 +9798,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1402,
+              "line": 1403,
               "deprecated": false
             },
             {
@@ -9602,7 +9807,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1407,
+              "line": 1408,
               "deprecated": false
             },
             {
@@ -9611,7 +9816,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Transfer UVs option box — scope + similarity tolerance.",
-              "line": 1411,
+              "line": 1412,
               "deprecated": false
             },
             {
@@ -9620,7 +9825,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UV's",
-              "line": 1458,
+              "line": 1459,
               "deprecated": false
             },
             {
@@ -9629,7 +9834,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1517,
+              "line": 1518,
               "deprecated": false
             },
             {
@@ -9638,7 +9843,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1528,
+              "line": 1529,
               "deprecated": false
             },
             {
@@ -9647,7 +9852,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1539,
+              "line": 1540,
               "deprecated": false
             },
             {
@@ -9656,7 +9861,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1574,
+              "line": 1575,
               "deprecated": false
             },
             {
@@ -9665,7 +9870,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1603,
+              "line": 1604,
               "deprecated": false
             },
             {
@@ -9674,7 +9879,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1612,
+              "line": 1613,
               "deprecated": false
             },
             {
@@ -9683,7 +9888,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1647,
+              "line": 1648,
               "deprecated": false
             },
             {
@@ -9692,7 +9897,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1684,
+              "line": 1685,
               "deprecated": false
             },
             {
@@ -9701,16 +9906,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1693,
-              "deprecated": false
-            },
-            {
-              "name": "b030_init",
-              "qualname": "UvSlots.b030_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Stack button — non-checkable text button.",
-              "line": 1716,
+              "line": 1694,
               "deprecated": false
             },
             {
@@ -9718,8 +9914,8 @@
               "qualname": "UvSlots.b030",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Stack / Unstack similar shells (dual-state toggle).",
-              "line": 1725,
+              "summary": "Stack / Unstack shells (dual-state toggle).",
+              "line": 1718,
               "deprecated": false
             },
             {
@@ -9728,7 +9924,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1783,
+              "line": 1820,
               "deprecated": false
             },
             {
@@ -9737,7 +9933,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1787,
+              "line": 1824,
               "deprecated": false
             },
             {
@@ -9746,7 +9942,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 1791,
+              "line": 1828,
               "deprecated": false
             }
           ]

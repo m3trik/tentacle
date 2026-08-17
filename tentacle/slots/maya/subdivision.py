@@ -102,44 +102,16 @@ class Subdivision(SlotsMaya):
         mel.eval("polyTriangulate")
 
     def b005(self):
-        """Reduce: lower the polygon count while preserving border, hard, crease, and UV edges."""
-        selection = cmds.ls(sl=1, objectsOnly=1, type="transform") or []
+        """Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.
+
+        The one-click form of tb000's Reduce (same ``polyReduce`` flags via
+        ``mtk.EditUtils.decimate``, history kept so the node stays tweakable);
+        acts on whole meshes or, given a component selection, only that region.
+        """
+        selection = cmds.ls(sl=True) or []
         if not selection:
             return
-
-        cmds.polyReduce(
-            selection,
-            ver=1,
-            trm=0,
-            shp=0,
-            keepBorder=1,
-            keepMapBorder=1,
-            keepColorBorder=1,
-            keepFaceGroupBorder=1,
-            keepHardEdge=1,
-            keepCreaseEdge=1,
-            keepBorderWeight=0.5,
-            keepMapBorderWeight=0.5,
-            keepColorBorderWeight=0.5,
-            keepFaceGroupBorderWeight=0.5,
-            keepHardEdgeWeight=0.5,
-            keepCreaseEdgeWeight=0.5,
-            useVirtualSymmetry=0,
-            symmetryTolerance=0.01,
-            sx=0,
-            sy=1,
-            sz=0,
-            sw=0,
-            preserveTopology=1,
-            keepQuadsWeight=1,
-            vertexMapName="",
-            cachingReduce=1,
-            ch=1,
-            p=50,
-            vct=0,
-            tct=0,
-            replaceOriginal=1,
-        )
+        mtk.EditUtils.decimate(selection, percentage=50.0, delete_history=False)
 
     def tb000_init(self, widget):
         """Initialize Decimate"""
@@ -202,27 +174,40 @@ class Subdivision(SlotsMaya):
         _sync()
 
     def tb000(self, widget):
-        """Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve."""
-        objects = cmds.ls(sl=True, objectsOnly=True, type="transform") or []
-        if not objects:
+        """Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.
+
+        Acts on the selection as-is — whole meshes, or a COMPONENT selection to
+        decimate only that region: faces reduce / dissolve within themselves
+        (the region's outline is held), verts and edges resolve to their faces
+        (Reduce) or the edges between them (Planar). Mixed selections work.
+        """
+        selection = cmds.ls(sl=True) or []
+        if not selection:
             self.sb.message_box(
                 "<strong>Nothing selected</strong>.<br>Select one or more "
-                "meshes to decimate."
+                "meshes, or mesh components, to decimate."
             )
             return
 
         menu = widget.option_box.menu
         if menu.cmb000.currentData() == "planar":
-            mtk.EditUtils.dissolve_coplanar(objects, angle_tolerance=menu.s011.value())
+            processed = mtk.EditUtils.dissolve_coplanar(
+                selection, angle_tolerance=menu.s011.value()
+            )
         else:
-            mtk.EditUtils.decimate(
-                objects,
+            processed = mtk.EditUtils.decimate(
+                selection,
                 percentage=menu.s010.value(),
                 preserve_borders=menu.chk010.isChecked(),
                 preserve_hard_edges=menu.chk011.isChecked(),
                 preserve_uv_borders=menu.chk012.isChecked(),
                 preserve_quads=menu.chk013.isChecked(),
                 symmetry=menu.chk014.isChecked(),
+            )
+        if not processed:
+            self.sb.message_box(
+                "<strong>No mesh in the selection</strong>.<br>Select polygon "
+                "meshes or their components to decimate."
             )
 
     def b008(self):

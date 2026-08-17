@@ -12,6 +12,11 @@ pinning at this layer:
   attrs to the mesh SHAPES under the selection. These used to guard with
   ``attributeQuery(node=<transform>)``, which is always False for a shape
   attribute — so both spinboxes were silently inert on every mesh.
+- tb000 (Decimate) / b005 (Reduce): pass the selection through AS-IS so a
+  component selection scopes the reduce/dissolve to that region. The old
+  ``ls -objectsOnly -type transform`` read resolved a face selection to its
+  SHAPE and then filtered it out — so selecting faces reported "Nothing
+  selected" (tb000) or silently did nothing (b005).
 
 (TestCmb001SmoothProxyDispatch / TestCmb002MayaSubdivisionDispatch removed
 2026-07-12: the cmb001/cmb002 combo dispatchers they drove were redesigned
@@ -20,6 +25,7 @@ out of the slot — their ops now ship as the direct buttons pinned below
 plus the smoothProxy() static — so both classes raised AttributeError under
 mayapy.)
 """
+import types
 import unittest
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
@@ -199,6 +205,141 @@ class TestSmoothPreviewSpinBoxes(unittest.TestCase):
         self.instance.s000(2, widget=None)
 
         self.assertEqual(cmds.getAttr(f"{self._shape(cube)}.smoothLevel"), 2)
+
+
+class _FakeOption:
+    """One option-box control: answers value()/isChecked()/currentData() alike."""
+
+    def __init__(self, value):
+        self._value = value
+
+    def value(self):
+        return self._value
+
+    def isChecked(self):
+        return self._value
+
+    def currentData(self):
+        return self._value
+
+
+def _decimate_widget(algorithm="qem", percentage=50.0, angle=1.0):
+    """A stand-in for tb000's option-box widget with the menu controls it reads."""
+    menu = types.SimpleNamespace(
+        cmb000=_FakeOption(algorithm),
+        s010=_FakeOption(percentage),
+        s011=_FakeOption(angle),
+        chk010=_FakeOption(True),
+        chk011=_FakeOption(True),
+        chk012=_FakeOption(True),
+        chk013=_FakeOption(True),
+        chk014=_FakeOption(False),
+    )
+    return types.SimpleNamespace(option_box=types.SimpleNamespace(menu=menu))
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestDecimateComponentScope(unittest.TestCase):
+    """tb000 / b005 act on the selection as-is: whole meshes, or a component
+    selection to reduce / dissolve only that region."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = subdivision_module.Subdivision.__new__(
+            subdivision_module.Subdivision
+        )
+        self.instance.sb = _FakeSb()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    @staticmethod
+    def _faces_where(obj, predicate):
+        out = []
+        for i in range(cmds.polyEvaluate(obj, face=True)):
+            xyz = cmds.xform(f"{obj}.f[{i}]", q=True, ws=True, t=True)
+            n = len(xyz) // 3
+            if predicate(tuple(sum(xyz[k::3]) / n for k in range(3))):
+                out.append(f"{obj}.f[{i}]")
+        return out
+
+    @staticmethod
+    def _positions(obj, predicate):
+        out = set()
+        for i in range(cmds.polyEvaluate(obj, vertex=True)):
+            pos = tuple(
+                round(c, 5) for c in cmds.xform(f"{obj}.vtx[{i}]", q=True, ws=True, t=True)
+            )
+            if predicate(pos):
+                out.add(pos)
+        return out
+
+    def test_face_selection_reduces_only_those_faces(self):
+        sphere = cmds.polySphere(name="sub_dec_sphere", sx=40, sy=40, ch=False)[0]
+        before = cmds.polyEvaluate(sphere, face=True)
+        upper = self._faces_where(sphere, lambda c: c[1] > 0.0)
+        lower_before = self._positions(sphere, lambda p: p[1] < -0.05)
+        cmds.select(upper)
+
+        self.instance.tb000(_decimate_widget("qem", 50.0))
+
+        self.assertEqual(self.instance.sb.messages, [])
+        after = cmds.polyEvaluate(sphere, face=True)
+        self.assertLess(after, before)
+        self.assertGreater(after, before - len(upper))  # the other half survives
+        self.assertTrue(lower_before <= self._positions(sphere, lambda p: p[1] < -0.05))
+
+    def test_planar_face_selection_dissolves_within_the_region(self):
+        cube = cmds.polyCube(name="sub_dec_cube", sx=5, sy=5, sz=5, ch=False)[0]
+        cmds.select(self._faces_where(cube, lambda c: c[1] > 0.49))
+
+        self.instance.tb000(_decimate_widget("planar", angle=1.0))
+
+        self.assertEqual(self.instance.sb.messages, [])
+        self.assertEqual(cmds.polyEvaluate(cube, face=True), 126)
+
+    def test_whole_mesh_selection_still_reduces_the_mesh(self):
+        sphere = cmds.polySphere(name="sub_dec_whole", sx=40, sy=40, ch=False)[0]
+        before = cmds.polyEvaluate(sphere, face=True)
+        cmds.select(sphere)
+
+        self.instance.tb000(_decimate_widget("qem", 50.0))
+
+        self.assertEqual(self.instance.sb.messages, [])
+        self.assertLess(cmds.polyEvaluate(sphere, face=True), before * 0.6)
+
+    def test_b005_reduce_honors_a_component_selection_and_keeps_history(self):
+        sphere = cmds.polySphere(name="sub_reduce_sphere", sx=40, sy=40, ch=False)[0]
+        before = cmds.polyEvaluate(sphere, face=True)
+        upper = self._faces_where(sphere, lambda c: c[1] > 0.0)
+        lower_before = self._positions(sphere, lambda p: p[1] < -0.05)
+        cmds.select(upper)
+
+        self.instance.b005()
+
+        after = cmds.polyEvaluate(sphere, face=True)
+        self.assertLess(after, before)
+        self.assertGreater(after, before - len(upper))
+        self.assertTrue(lower_before <= self._positions(sphere, lambda p: p[1] < -0.05))
+        # The one-click Reduce keeps its polyReduce node (tweakable), as before.
+        self.assertIn("polyReduce", str(cmds.listHistory(sphere) or []))
+
+    def test_non_mesh_selection_reports_instead_of_silently_passing(self):
+        curve = cmds.curve(name="sub_dec_curve", degree=1, point=[(0, 0, 0), (1, 0, 0)])
+        cmds.select(curve)
+
+        self.instance.tb000(_decimate_widget("qem", 50.0))
+
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("No mesh in the selection", self.instance.sb.messages[0])
+
+    def test_empty_selection_reports_nothing_selected(self):
+        cmds.select(clear=True)
+
+        self.instance.tb000(_decimate_widget("qem", 50.0))
+
+        self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertIn("Nothing selected", self.instance.sb.messages[0])
 
 
 if __name__ == "__main__":

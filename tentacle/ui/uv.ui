@@ -655,7 +655,7 @@ Use the option box to choose the unwrap engine/mode.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Stack / Unstack similar shells (toggle). Unstack packs the selection at the original texel density.</string>
+            <string>Stack / Unstack shells (toggle). Similar shells rotate to overlap exactly (mode, tolerance and pin in the option box); Unstack restores the pre-stack positions.</string>
            </property>
            <property name="text">
             <string>Stack</string>

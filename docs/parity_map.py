@@ -500,7 +500,9 @@ HANDLERS = {
                                              "uncheck handlers are redundant on Blender"},
         "chk001": {"status": "na", "reason": "see chk000"},
         "chk002": {"status": "na", "reason": "see chk000"},
-        # cmb003 "Convert To" -- ported 2026-07-06 from 7 to 15 of Maya's 20 items (Vertex
+        # list001 "Convert To" (the cmb003 combo until 2026-08-16; now an ExpandableList on the
+        # panel AND the submenu, both forks via SelectionMixin) -- ported 2026-07-06 from 7 to 15
+        # of Maya's 20 items (Vertex
         # Perimeter, Contained Edges, Edge Perimeter, Contained Faces, Face Path, Face
         # Perimeter, UV Shell, Shell Border added; touching-vs-contained on plain Faces/Edges
         # fixed to match Maya -- see btk.Selection.convert_to's docstring). UV Shell Border / UV
@@ -513,8 +515,8 @@ HANDLERS = {
         # and a seamless grid (one island => no internal seams) -- incl. UV Edge Loop truncating a
         # cross-loop at a real re-unwrapped seam (uv=3 < native=6). The 2 below stay genuinely NOT
         # built (no Blender component analogue), not silently dropped:
-        "cmb003:Vertex Faces": {"status": "na", "reason": "Maya's vtxFace (PolySelectConvert 5) is its own per-corner sub-component type (like a split-normal/face-corner element, cmds type 70) -- a hybrid vertex-belonging-to-one-face component with no Blender selection-mode analogue (Blender's VERT/EDGE/FACE modes have no fourth 'corner' mode); Blender's nearest concept (custom split normals per-loop) lives in a completely different workflow (Mesh > Normals), not a selectable component."},
-        "cmb003:UV's": {"status": "na", "reason": "Maya's UV component (PolySelectConvert 4, cmds .map[]) is a persistent 3D-viewport component type; Blender has no such thing -- UV coordinates are only selectable from within the UV Editor's own uv_select_mode, not the 3D viewport's VERT/EDGE/FACE modes. UV Shell/UV Shell Border/UV Perimeter/UV Edge Loop are the UV-domain items with viewport-reachable bmesh analogues and ARE built (2026-07-13)."},
+        "list001:Vertex Faces": {"status": "na", "reason": "Maya's vtxFace (PolySelectConvert 5) is its own per-corner sub-component type (like a split-normal/face-corner element, cmds type 70) -- a hybrid vertex-belonging-to-one-face component with no Blender selection-mode analogue (Blender's VERT/EDGE/FACE modes have no fourth 'corner' mode); Blender's nearest concept (custom split normals per-loop) lives in a completely different workflow (Mesh > Normals), not a selectable component."},
+        "list001:UV's": {"status": "na", "reason": "Maya's UV component (PolySelectConvert 4, cmds .map[]) is a persistent 3D-viewport component type; Blender has no such thing -- UV coordinates are only selectable from within the UV Editor's own uv_select_mode, not the 3D viewport's VERT/EDGE/FACE modes. UV Shell/UV Shell Border/UV Perimeter/UV Edge Loop are the UV-domain items with viewport-reachable bmesh analogues and ARE built (2026-07-13)."},
         # list000 "Select by Type" leaves -- code-built control keys sourced from
         # btk.Selection._SELECTION_CONFIG (blendertk/blendertk/edit_utils/selection.py), the
         # mirror of mayatk's Selection._SELECTION_CONFIG. Ported 2026-07-04: the category

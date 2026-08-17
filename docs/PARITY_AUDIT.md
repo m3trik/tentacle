@@ -8,10 +8,10 @@
 
 | Layer | What it measures | Result |
 |:--|:--|:--|
-| **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 217, Blender 219 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
-| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **87%** (379/438) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
+| **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 222, Blender 224 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
+| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (377/441) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (966/1842 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (967/1851 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 52% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -25,21 +25,21 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 |:--|--:|--:|--:|--:|
 | anim_utils | 299 | 246 | 215 | 72% |
 | audio_utils | 66 | 24 | 9 | 14% |
-| cam_utils | 9 | 16 | 4 | 44% |
+| cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 162 | 72 | 51 | 31% |
 | display_utils | 38 | 43 | 18 | 47% |
 | edit_utils | 162 | 166 | 113 | 70% |
 | env_utils | 404 | 260 | 192 | 48% |
 | light_utils | 62 | 59 | 34 | 55% |
-| mat_utils | 287 | 239 | 209 | 73% |
-| node_utils | 135 | 53 | 47 | 35% |
+| mat_utils | 291 | 240 | 209 | 72% |
+| node_utils | 137 | 53 | 47 | 34% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
 | rig_utils | 122 | 86 | 47 | 39% |
 | ui_utils | 71 | 71 | 27 | 38% |
-| uv_utils | 79 | 79 | 58 | 73% |
+| uv_utils | 81 | 80 | 59 | 73% |
 | xform_utils | 78 | 35 | 29 | 37% |
-| **TOTAL (unique)** | **1842** | **1325** | **966** | **52%** |
+| **TOTAL (unique)** | **1851** | **1327** | **967** | **52%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -62,7 +62,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | MatUpdater | 0→0 | 12→9 | 2→2 | 1252→389 | 31% | 100% | clean |
 | GameShader | 4→4 | 3→2 | 7→6 | 2048→687 | 34% | 86% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 892→330 | 37% | 100% | clean |
-| SceneExporter | 4→4 | 17→15 | 7→7 | 1532→616 | 40% | 100% | clean |
+| SceneExporter | 4→4 | 17→15 | 7→7 | 1544→619 | 40% | 100% | clean |
 | CurveToTube | 0→0 | 4→3 | 11→11 | 869→383 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 304→135 | 44% | 100% | clean |
 | Snap | 3→3 | 6→6 | 3→3 | 424→202 | 48% | 100% | clean |
@@ -143,14 +143,14 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | rendering | 21→16 | 76% | 4→4 |  |
 | rigging | 21→18 | 86% | 12→8 ⚠ |  |
 | scene | 22→25 | 114% | 3→3 |  |
-| selection | 24→20 | 83% | 11→10 ⚠ |  |
+| selection | 22→18 | 82% | 11→10 ⚠ |  |
 | settings | 0→0 | — | 0→0 |  |
 | subdivision | 8→10 | 125% | 2→2 |  |
 | symmetry | 0→0 | — | 0→0 |  |
 | transform | 34→26 | 76% | 17→15 ⚠ |  |
 | utilities | 0→0 | — | 0→0 |  |
-| uv | 41→31 | 76% | 14→14 |  |
-| **TOTAL** | **438→379** | **87%** | | **0** |
+| uv | 46→31 | 67% | 14→14 |  |
+| **TOTAL** | **441→377** | **85%** | | **0** |
 
 ---
 
