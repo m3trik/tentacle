@@ -4,10 +4,14 @@
 
 Two subsystems live here:
 
-* the **Convert To** list (``list001``): one root-plus-leaves list on both the panel
-  (a hover-menu row under the header) and the submenu (an ``expand_up`` flyout),
-  built from the fork's ``_CONVERT_TO_OPS`` table and dispatched back into it.
-  Only the table differs per DCC (Maya has two component types Blender lacks —
+* the **Convert To** list (``list001``): a root row whose flyout is one row per
+  component category (Verts, Edges, Faces, UV's, Shell), each of which both
+  converts on click AND fans out its related conversions on hover (Verts →
+  Vertex Faces / Vertex Perimeter, …). Same on the panel (a hover-menu row
+  under the header) and the submenu (an ``expand_overlay`` flyout). The grouping
+  is one table here (``_CONVERT_TO_GROUPS``); the ops are the fork's flat
+  ``_CONVERT_TO_OPS`` table, which is what the leaves dispatch back into. Only
+  that table differs per DCC (Maya has two component types Blender lacks —
   ledgered in ``docs/parity_map.py``); the list plumbing is identical.
 * the **selection-constraint icon row** (``b002``–``b007``): six icon-only
   buttons replacing the one-at-a-time ``cmb005`` combo, so more than one
@@ -28,6 +32,26 @@ class SelectionMixin:
     #: list to keep in step with the dispatch. How an entry is invoked is the
     #: fork's :meth:`_run_convert_to`.
     _CONVERT_TO_OPS = {}
+
+    #: Convert To menu shape: ``{category: (member, ...)}`` in display order.
+    #: A category is itself a table key (clicking "Verts" converts to verts);
+    #: hovering it fans out its members. Shared by both forks — the shape is
+    #: DCC-neutral; a member a fork's table lacks is simply not shown, and a
+    #: category a fork's table lacks (Blender has no "UV's" component) is a
+    #: navigation-only header for the members it does have.
+    _CONVERT_TO_GROUPS = {
+        "Verts": ("Vertex Faces", "Vertex Perimeter"),
+        "Edges": (
+            "Edge Loop",
+            "Edge Ring",
+            "Contained Edges",
+            "Edge Perimeter",
+            "Border Edges",
+        ),
+        "Faces": ("Face Path", "Contained Faces", "Face Perimeter"),
+        "UV's": ("UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop"),
+        "Shell": ("Shell Border",),
+    }
 
     def _run_convert_to(self, label, op):
         """Invoke Convert To entry *op* (from ``_CONVERT_TO_OPS``) for *label*.
@@ -81,33 +105,50 @@ class SelectionMixin:
 
     # ------------------------------------------------------------- Convert To
     def list001_init(self, widget):
-        """Convert To: one flat list of the fork's conversions.
+        """Convert To: category rows that convert on click and expand on hover.
 
-        ``expand_up`` in the submenu (the row sits above the radial center, so
-        its flyout covers the root and grows upward, like ``list000`` beside
-        it); ``hover_menu`` in the panel, where the row is a layout-managed
-        header menu that fans right on hover.
+        ``expand_overlay`` in the submenu: the category flyout covers the
+        "Convert To" row itself (top row aligned to it, at least as wide as
+        it) and grows downward — the row sits below the radial center — with
+        each category's members fanning right; ``hover_menu`` in the panel,
+        where the row is a layout-managed header menu that fans right on
+        hover. Shape from :attr:`_CONVERT_TO_GROUPS`, filtered to what the
+        fork's :attr:`_CONVERT_TO_OPS` actually provides.
         """
         widget.fixed_item_height = 18
         widget.apply_preset(
-            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
+            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
         )
         root = widget.add(
             "Convert To",
             setToolTip="Convert the component selection to another component type.",
         )
-        root.sublist.add(list(self._CONVERT_TO_OPS))
+        ops = self._CONVERT_TO_OPS
+        for category, members in self._CONVERT_TO_GROUPS.items():
+            members = [m for m in members if m in ops]
+            if category not in ops and not members:
+                continue
+            if category in ops:
+                tip = f"Click: convert to {category}."
+                if members:
+                    tip += " Hover: related conversions."
+            else:
+                tip = f"{category} conversions."
+            row = root.sublist.add(category, setToolTip=tip)
+            if members:
+                row.sublist.add(members)
 
     def _dispatch_convert_to(self, item):
-        """Run the conversion a Convert To leaf names (the forks' ``list001`` body).
+        """Run the conversion a Convert To row names (the forks' ``list001`` body).
 
-        The root row is navigation only. The forks keep the ``list001`` method
+        Any row whose label is a table key runs — a category row ("Verts") as
+        much as a leaf ("Vertex Faces"); the root ("Convert To") and a
+        category the fork's table lacks are navigation only because they have
+        no entry, not because they carry a sublist. The forks keep the ``list001`` method
         itself: its ``@Signals`` decorator is evaluated in the class body, and
         the decorator is re-exposed on the DCC ``Slots`` base precisely so the
         slots layer never imports uitk directly (see ``slots/_slots.py``).
         """
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
         label = item.item_text()
         op = self._CONVERT_TO_OPS.get(label)
         if op is not None:

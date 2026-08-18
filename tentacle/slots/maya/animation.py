@@ -221,13 +221,9 @@ class Animation(SlotsMaya):
 
         widget.option_box.menu.s000.valueChanged.connect(update_invert_checkbox)
 
-        self.sb.toggle_multi(
-            widget.option_box.menu,
-            trigger="cmb001",
-            signal="currentIndexChanged",
-            on_0={"setEnabled": "s000,cmb000,lbl020,chk010"},
-            on_1={"setDisabled": "s000,cmb000,lbl020,chk010"},
-            on_2={"setDisabled": "s000,cmb000,lbl020,chk010"},
+        # Snap = None is the only mode where the tolerance controls apply.
+        self.sb.enable_when(
+            widget.option_box.menu, "s000,cmb000,lbl020,chk010", "cmb001", "none"
         )
 
     def tb000(self, widget):
@@ -304,15 +300,10 @@ class Animation(SlotsMaya):
             setToolTip="Delete the original keyframes after inverting.\nImplied when Time is Auto (in-place mirror).",
         )
 
-        self.sb.toggle_multi(
-            widget.option_box.menu,
-            trigger="cmb035",
-            signal="currentIndexChanged",
-            on_0={"setEnabled": "s001,chk002", "setDisabled": "d000"},
-            on_1={"setDisabled": "s001,chk002", "setEnabled": "d000"},
-            on_2={"setEnabled": "s001,chk002,d000"},
-        )
-        widget.option_box.menu.d000.setDisabled(True)
+        # Time controls apply to the X (horizontal) axis, the value pivot to Y.
+        m = widget.option_box.menu
+        self.sb.enable_when(m, "s001,chk002", "cmb035", {"horizontal", "both"})
+        self.sb.enable_when(m, "d000", "cmb035", {"vertical", "both"})
 
     def tb001(self, widget):
         """Invert keyframes (selected keys preferred, fallback to all keys)."""
@@ -615,14 +606,8 @@ class Animation(SlotsMaya):
             setChecked=False,
             setToolTip="If checked, removes all intermediate keys (keeps only first and last).\nIf unchecked, adds intermediate keys within the range.",
         )
-        # Auto-connect toggle behavior using state mapping
-        self.sb.toggle_multi(
-            widget.option_box.menu,
-            trigger="chk027",
-            signal="toggled",
-            on_True={"setDisabled": "s007"},
-            on_False={"setEnabled": "s007"},
-        )
+        # Percent only drives the add-keys branch.
+        self.sb.enable_when(widget.option_box.menu, "s007", "chk027", invert=True)
 
     def tb005(self, widget):
         """Add/Remove Intermediate Keys"""

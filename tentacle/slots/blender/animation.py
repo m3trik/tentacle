@@ -206,12 +206,8 @@ class Animation(SlotsBlender):
 
         m.s000.valueChanged.connect(update_invert_checkbox)
 
-        self.sb.toggle_multi(
-            m, trigger="cmb001", signal="currentIndexChanged",
-            on_0={"setEnabled": "s000,cmb000,lbl020,chk010"},
-            on_1={"setDisabled": "s000,cmb000,lbl020,chk010"},
-            on_2={"setDisabled": "s000,cmb000,lbl020,chk010"},
-        )
+        # Snap = None is the only mode where the tolerance controls apply.
+        self.sb.enable_when(m, "s000,cmb000,lbl020,chk010", "cmb001", "none")
 
     def tb000(self, widget):
         """Go To Frame (absolute, or relative offset from the current frame); the Snap combo
@@ -228,16 +224,25 @@ class Animation(SlotsBlender):
 
     # ------------------------------------------------------------------ key-timing ops
     # Inversion mode (reuses Maya's cmb035 items + d000 pivot — cross-DCC QSettings rule).
-    _INVERT_MODES = {"Mode: X": "time", "Mode: Y": "value", "Mode: X & Y": "both"}
+    # Item DATA matches Maya's ("horizontal"/"vertical"/"both") so the shared
+    # ``enable_when`` rules read the same values; the map converts to btk's mode.
+    _INVERT_MODE_ITEMS = (
+        ("Mode: X", "horizontal"),
+        ("Mode: Y", "vertical"),
+        ("Mode: X & Y", "both"),
+    )
+    _INVERT_MODES = {"horizontal": "time", "vertical": "value", "both": "both"}
 
     def tb001_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Invert Keys")
-        m.add(
-            "QComboBox", addItems=list(self._INVERT_MODES), setObjectName="cmb035",
+        cmb = m.add(
+            "QComboBox", setObjectName="cmb035",
             setToolTip="Mode: X mirrors key times (reverse timing); Y mirrors values about the "
             "pivot (flip motion); X & Y does both.",
         )
+        for text, data in self._INVERT_MODE_ITEMS:
+            cmb.addItem(text, data)
         m.add(
             self.sb.registered_widgets.SpinBox, setPrefix="Time: ", setObjectName="s001",
             set_limits=[-100000, 100000], setValue=-1, setCustomDisplayValues={-1: "Auto"},
@@ -260,13 +265,9 @@ class Animation(SlotsBlender):
             "Auto (in-place mirror).",
         )
 
-        self.sb.toggle_multi(
-            m, trigger="cmb035", signal="currentIndexChanged",
-            on_0={"setEnabled": "s001,chk002", "setDisabled": "d000"},
-            on_1={"setDisabled": "s001,chk002", "setEnabled": "d000"},
-            on_2={"setEnabled": "s001,chk002,d000"},
-        )
-        m.d000.setDisabled(True)
+        # Time controls apply to the X (horizontal) axis, the value pivot to Y.
+        self.sb.enable_when(m, "s001,chk002", "cmb035", {"horizontal", "both"})
+        self.sb.enable_when(m, "d000", "cmb035", {"vertical", "both"})
 
     @btk.undoable
     def tb001(self, widget):
@@ -276,7 +277,7 @@ class Animation(SlotsBlender):
             self.sb.message_box("Invert Keys requires a selection.")
             return
         m = widget.option_box.menu
-        mode = self._INVERT_MODES.get(m.cmb035.currentText(), "time")
+        mode = self._INVERT_MODES.get(m.cmb035.currentData(), "time")
         time_value = m.s001.value()
         btk.invert_keys(
             objects,
@@ -564,11 +565,8 @@ class Animation(SlotsBlender):
             setToolTip="If checked, removes intermediate keys (keeps the endpoints).\n"
             "If unchecked, adds sampled keys within the range (density set by Percent).",
         )
-        self.sb.toggle_multi(
-            m, trigger="chk027", signal="toggled",
-            on_True={"setDisabled": "s007"},
-            on_False={"setEnabled": "s007"},
-        )
+        # Percent only drives the add-keys branch.
+        self.sb.enable_when(m, "s007", "chk027", invert=True)
 
     @btk.undoable
     def tb005(self, widget):

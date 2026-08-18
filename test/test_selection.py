@@ -365,10 +365,28 @@ class TestList001ConvertToBorderEdges(unittest.TestCase):
 
         self.assertTrue(instance.sb.messages, "should warn on an empty selection")
 
+    def test_category_row_with_a_sublist_still_converts(self):
+        """A category row ("Verts") both converts on click and carries a
+        sublist of related conversions on hover; the sublist must not make it
+        navigation-only (the pre-2026-08-17 dispatch skipped any row with a
+        populated sublist)."""
+        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance.sb = _RecordedSb()
+        ran = []
+        original = selection_module.Selection._CONVERT_TO_OPS
+        selection_module.Selection._CONVERT_TO_OPS = {
+            k: (lambda self, k=k: ran.append(k)) for k in original
+        }
+        try:
+            instance.list001(_ConvertToRoot("Verts", ["Vertex Faces"]))
+        finally:
+            selection_module.Selection._CONVERT_TO_OPS = original
+        self.assertEqual(ran, ["Verts"])
+
     def test_root_row_is_navigation_only(self):
-        """The list root ("Convert To") carries a populated sublist; interacting
-        with it must not run any conversion (a stray op on the root would fire
-        on every hover-open)."""
+        """The list root ("Convert To") is not a table key; interacting with it
+        must not run any conversion (a stray op on the root would fire on
+        every hover-open)."""
         instance = selection_module.Selection.__new__(selection_module.Selection)
         instance.sb = _RecordedSb()
         ran = []
@@ -516,6 +534,24 @@ class TestSelectionForksAgreeWithMixin(unittest.TestCase):
                 assert isinstance(node.value, ast.Dict), f"{attr} in {path.name} is not a dict literal"
                 return [ast.literal_eval(k) for k in node.value.keys]
         raise AssertionError(f"{attr} not found in {path}")
+
+    def test_convert_to_groups_partition_the_table(self):
+        """Every table key is exactly one menu row: a category or a member of
+        one; nothing in the shape names a key Maya's table lacks."""
+        tree = ast.parse((self.ROOT / "_selection.py").read_text(encoding="utf-8"))
+        groups = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign) and any(
+                isinstance(t, ast.Name) and t.id == "_CONVERT_TO_GROUPS" for t in node.targets
+            ):
+                groups = ast.literal_eval(node.value)
+        self.assertIsInstance(groups, dict)
+        rows = list(groups)
+        for members in groups.values():
+            rows.extend(members)
+        maya = self._class_dict_keys(self.ROOT / "maya" / "selection.py", "_CONVERT_TO_OPS")
+        self.assertEqual(sorted(rows), sorted(maya))
+        self.assertEqual(len(rows), len(set(rows)), "a row appears in two places")
 
     def test_convert_to_tables_mirror_minus_ledgered_items(self):
         maya = self._class_dict_keys(self.ROOT / "maya" / "selection.py", "_CONVERT_TO_OPS")
@@ -670,8 +706,13 @@ class TestTb001SelectSimilarUvShells(unittest.TestCase):
             cmds.polyEditUV(f"{o}.map[*]", pu=0.5, pv=0.5, a=ang, r=True)
             cmds.polyEditUV(f"{o}.map[*]", u=du, v=dv, r=True)
         cmds.hilite([self.a, self.b, self.c])
+        # A UV pick puts a live session in component mode; do it explicitly so
+        # the GUI runner takes the UV branch too (standalone's selectMode is
+        # inert either way -- it answers False, which already skips object mode).
+        cmds.selectMode(component=True)
 
     def tearDown(self):
+        cmds.selectMode(object=True)
         cmds.file(new=True, force=True)
 
     def _instance(self, tolerance=0.0, inc_orig=False):
@@ -731,16 +772,22 @@ class _ConvertToLeaf:
 
 
 class _ConvertToRoot:
-    """The list root: a populated sublist marks it navigation-only."""
+    """A row carrying a populated sublist: the list root by default, or a
+    category row (``"Verts"``) that both converts and expands."""
 
-    class sublist:  # noqa: N801 — attribute stand-in
-        @staticmethod
-        def get_items():
-            return ["Verts"]
+    class _Sublist:
+        def __init__(self, items):
+            self._items = items
 
-    @staticmethod
-    def item_text():
-        return "Convert To"
+        def get_items(self):
+            return self._items
+
+    def __init__(self, label="Convert To", members=("Verts",)):
+        self._label = label
+        self.sublist = self._Sublist(list(members))
+
+    def item_text(self):
+        return self._label
 
 
 if __name__ == "__main__":

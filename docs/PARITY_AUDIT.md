@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 222, Blender 224 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (377/441) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (967/1851 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **52%** (969/1854 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 52% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -29,7 +29,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | core_utils | 162 | 72 | 51 | 31% |
 | display_utils | 38 | 43 | 18 | 47% |
 | edit_utils | 162 | 166 | 113 | 70% |
-| env_utils | 404 | 260 | 192 | 48% |
+| env_utils | 407 | 262 | 194 | 48% |
 | light_utils | 62 | 59 | 34 | 55% |
 | mat_utils | 291 | 240 | 209 | 72% |
 | node_utils | 137 | 53 | 47 | 34% |
@@ -39,7 +39,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 71 | 71 | 27 | 38% |
 | uv_utils | 81 | 80 | 59 | 73% |
 | xform_utils | 78 | 35 | 29 | 37% |
-| **TOTAL (unique)** | **1851** | **1327** | **967** | **52%** |
+| **TOTAL (unique)** | **1854** | **1329** | **969** | **52%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -62,9 +62,9 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | MatUpdater | 0→0 | 12→9 | 2→2 | 1252→389 | 31% | 100% | clean |
 | GameShader | 4→4 | 3→2 | 7→6 | 2048→687 | 34% | 86% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 892→330 | 37% | 100% | clean |
-| SceneExporter | 4→4 | 17→15 | 7→7 | 1544→619 | 40% | 100% | clean |
 | CurveToTube | 0→0 | 4→3 | 11→11 | 869→383 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 304→135 | 44% | 100% | clean |
+| SceneExporter | 2→2 | 14→14 | 5→5 | 1630→737 | 45% | 100% | clean |
 | Snap | 3→3 | 6→6 | 3→3 | 424→202 | 48% | 100% | clean |
 | ReferenceManager | 2→2 | 37→33 | 4→4 | 3959→1985 | 50% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3151→1713 | 54% | 100% | clean |
@@ -78,7 +78,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | ImageTracer | 1→1 | 2→2 | 7→7 | 535→371 | 69% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 234→168 | 72% | 100% | clean |
 | LightmapBaker | 3→3 | 5→4 | 8→8 | 2370→1713 | 72% | 100% | clean |
-| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3104→2384 | 77% | 100% | clean |
+| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3122→2395 | 77% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 350→287 | 82% | 100% | clean |
 | TelescopeRig | 0→0 | 0→0 | 4→4 | 1111→958 | 86% | 100% | clean |
 | WheelRig | 2→2 | 2→2 | 7→7 | 714→622 | 87% | 100% | clean |
@@ -95,7 +95,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | Shots | 4→4 | 5→5 | 14→14 | 955→961 | 101% | 100% | clean |
 | DuplicateLinear | 0→0 | 3→3 | 7→7 | 337→345 | 102% | 100% | clean |
 | SmartBake | 0→0 | 4→3 | 11→10 | 298→310 | 104% | 91% | clean |
-| Mirror | 0→0 | 0→0 | 10→10 | 281→300 | 107% | 100% | clean |
+| Mirror | 0→0 | 0→0 | 10→10 | 269→289 | 107% | 100% | clean |
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 195→212 | 109% | 100% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 230→251 | 109% | 100% | clean |
 | Naming | 13→13 | 26→26 | 6→6 | 528→581 | 110% | 100% | clean |
