@@ -202,8 +202,8 @@ Behavior shared by the Maya and Blender ``scene`` panels.
 
 Behavior shared by the Maya and Blender ``selection`` panels.
 
-- **[`class SelectionMixin`](tentacle/tentacle/slots/_selection.py#L22)** — Shared ``selection`` panel behavior.
-  - `SelectionMixin.list001_init(self, widget)` — Convert To: one flat list of the fork's conversions.
+- **[`class SelectionMixin`](tentacle/tentacle/slots/_selection.py#L26)** — Shared ``selection`` panel behavior.
+  - `SelectionMixin.list001_init(self, widget)` — Convert To: category rows that convert on click and expand on hover.
 
 <a id="slots--_settings"></a>
 ### `slots/_settings.py`

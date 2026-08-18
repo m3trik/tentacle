@@ -199,36 +199,21 @@ class Edit(EditMixin, SlotsMaya):
             setDisabled=True,
             setToolTip="Overlapping Duplicate Objects: Search for duplicates of any selected objects while omitting the initially selected objects.",
         )
-        widget.option_box.menu.chk013.toggled.connect(
-            lambda state: widget.option_box.menu.s006.setEnabled(
-                True if state else False
-            )
+        # Overlapping Duplicate Objects is a whole-object search: the
+        # component-level cleanup options don't apply while it is on, and
+        # "Omit Selected" only applies while it is on.
+        m = widget.option_box.menu
+        self.sb.enable_when(
+            m, "chk002-3,cmb_scope,chk010-18,chk024", "chk022", invert=True
         )
-        widget.option_box.menu.chk014.toggled.connect(
-            lambda state: widget.option_box.menu.s007.setEnabled(
-                True if state else False
+        self.sb.enable_when(m, "chk023", "chk022")
+        # Each tolerance spinbox is live only while ITS checkbox is on AND the
+        # whole-object search is off — one rule per pair, so neither owner can
+        # stomp the other's state.
+        for chk, spin in (("chk013", "s006"), ("chk014", "s007"), ("chk015", "s008")):
+            self.sb.enable_when(
+                m, spin, [chk, "chk022"], lambda on, dup: bool(on) and not dup
             )
-        )
-        widget.option_box.menu.chk015.toggled.connect(
-            lambda state: widget.option_box.menu.s008.setEnabled(
-                True if state else False
-            )
-        )
-        widget.option_box.menu.chk022.stateChanged.connect(
-            lambda state: (
-                self.sb.toggle_multi(
-                    widget.menu,
-                    setDisabled="chk002-3,cmb_scope,chk010-21,chk024,s006-8",
-                    setEnabled="chk023",
-                )
-                if state
-                else self.sb.toggle_multi(
-                    widget.menu,
-                    setEnabled="chk002-3,cmb_scope,chk010-21,s006-8",
-                    setDisabled="chk023",
-                )
-            )
-        )  # disable non-relevant options.
 
     @staticmethod
     def _cleanup_pool(scope):

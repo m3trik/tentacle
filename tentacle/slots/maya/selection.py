@@ -228,8 +228,10 @@ class Selection(SelectionMixin, SlotsMaya):
                 f"Reordered {len(reordered)} objects by {selected_option}{' (reversed)' if reverse else ''}"
             )
 
-    # Convert To (list001): label -> conversion. Rows appear in this order (the
-    # table IS the menu — see SelectionMixin). Every entry is Maya's own menu
+    # Convert To (list001): label -> conversion. The keys are the menu's rows,
+    # arranged into category flyouts by SelectionMixin._CONVERT_TO_GROUPS
+    # (Verts / Edges / Faces / UV's / Shell each convert on click and fan out
+    # their related rows on hover). Every entry is Maya's own menu
     # command for that conversion (Polygons > Select > Convert Selection),
     # except Border Edges, which rides mtk.Components. The Blender fork's table
     # mirrors this one minus the two items it lacks (Vertex Faces, UV's),

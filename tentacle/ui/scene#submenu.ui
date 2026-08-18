@@ -53,8 +53,8 @@
    <widget class="ExpandableList" name="list001" native="true">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>470</y>
+      <x>100</x>
+      <y>390</y>
       <width>76</width>
       <height>21</height>
      </rect>
@@ -72,8 +72,8 @@
    <widget class="ExpandableList" name="list000" native="true">
     <property name="geometry">
      <rect>
-      <x>145</x>
-      <y>420</y>
+      <x>215</x>
+      <y>340</y>
       <width>120</width>
       <height>21</height>
      </rect>
@@ -94,8 +94,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>460</y>
+      <x>190</x>
+      <y>380</y>
       <width>136</width>
       <height>19</height>
      </rect>
@@ -128,8 +128,8 @@
    <widget class="ExpandableList" name="list002" native="true">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>450</y>
+      <x>100</x>
+      <y>370</y>
       <width>76</width>
       <height>21</height>
      </rect>
@@ -147,8 +147,8 @@
    <widget class="MenuButton" name="i032">
     <property name="geometry">
      <rect>
-      <x>265</x>
-      <y>500</y>
+      <x>335</x>
+      <y>420</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -175,8 +175,8 @@
    <widget class="MenuButton" name="i022">
     <property name="geometry">
      <rect>
-      <x>355</x>
-      <y>500</y>
+      <x>425</x>
+      <y>420</y>
       <width>91</width>
       <height>21</height>
      </rect>
@@ -203,8 +203,8 @@
    <widget class="MenuButton" name="i020">
     <property name="geometry">
      <rect>
-      <x>355</x>
-      <y>460</y>
+      <x>425</x>
+      <y>380</y>
       <width>66</width>
       <height>21</height>
      </rect>
@@ -234,8 +234,8 @@
    <widget class="MenuButton" name="i003">
     <property name="geometry">
      <rect>
-      <x>265</x>
-      <y>460</y>
+      <x>335</x>
+      <y>380</y>
       <width>71</width>
       <height>21</height>
      </rect>
@@ -262,8 +262,8 @@
    <widget class="QPushButton" name="b005">
     <property name="geometry">
      <rect>
-      <x>175</x>
-      <y>500</y>
+      <x>245</x>
+      <y>420</y>
       <width>71</width>
       <height>19</height>
      </rect>
@@ -290,8 +290,8 @@
    <widget class="ExpandableList" name="list003" native="true">
     <property name="geometry">
      <rect>
-      <x>115</x>
-      <y>500</y>
+      <x>185</x>
+      <y>420</y>
       <width>56</width>
       <height>21</height>
      </rect>

@@ -228,12 +228,7 @@ class TransformSlots(SlotsMaya):
             setToolTip="Delete the objects history.",
         )
 
-        self.sb.toggle_multi(
-            widget.option_box.menu,
-            trigger="chk040",
-            on_True={"setDisabled": "chk032-34"},
-            on_False={"setEnabled": "chk032-34"},
-        )
+        self.sb.enable_when(widget.option_box.menu, "chk032-34", "chk040", invert=True)
 
     def tb002(self, widget):
         """Freeze Transformations"""

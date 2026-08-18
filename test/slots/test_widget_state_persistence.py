@@ -375,13 +375,24 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
             with self.subTest(name):
                 ui = self._load_panel(name)
                 lst = ui.list001
-                # get_items() recurses; the root is the one item carrying a populated sublist
-                roots = [w for w in lst.get_items() if getattr(w, "sublist", None) and w.sublist.get_items()]
-                self.assertEqual([lst.get_item_text(r) for r in roots], ["Convert To"])
-                leaves = [roots[0].sublist.get_item_text(w) for w in roots[0].sublist.get_items()]
-                self.assertEqual(len(leaves), 20, leaves)
-                self.assertEqual(leaves[0], "Verts")
-                self.assertEqual(leaves[-1], "Shell Border")
+                # get_items() recurses; every row carrying a populated sublist is
+                # the root plus one category (categories fan out on hover).
+                from tentacle.slots._selection import SelectionMixin
+                groups = SelectionMixin._CONVERT_TO_GROUPS
+                branches = [w for w in lst.get_items() if getattr(w, "sublist", None) and w.sublist.get_items()]
+                self.assertEqual(
+                    [lst.get_item_text(r) for r in branches], ["Convert To", *groups]
+                )
+                root = branches[0]
+                # sublist.get_items() recurses too: categories, then every leaf.
+                rows = [root.sublist.get_item_text(w) for w in root.sublist.get_items()]
+                self.assertEqual([r for r in rows if r in groups], list(groups))
+                leaves = [m for members in groups.values() for m in members]
+                self.assertEqual(sorted(rows), sorted([*groups, *leaves]))
+                for cat in branches[1:]:
+                    name = lst.get_item_text(cat)
+                    members = [cat.sublist.get_item_text(w) for w in cat.sublist.get_items()]
+                    self.assertEqual(members, list(groups[name]), name)
 
 
 # ===========================================================================

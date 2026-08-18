@@ -270,8 +270,10 @@ class Selection(SelectionMixin, SlotsBlender):
     # single native ``use_expand`` flag -- see ``btk.Selection.convert_to``'s docstring;
     # Perimeter/Path/Border items have no single native op and are real bmesh helpers.
     #
-    # label -> op(obj): every entry acts on the edit-mode mesh ``_run_convert_to`` resolves
-    # (the table IS the menu -- see SelectionMixin).
+    # label -> op(obj): every entry acts on the edit-mode mesh ``_run_convert_to`` resolves.
+    # The keys are the menu's rows, grouped into category flyouts by
+    # SelectionMixin._CONVERT_TO_GROUPS; the "UV's" category has no op here (see above),
+    # so its row is a navigation-only header for the four UV conversions.
     _CONVERT_TO_OPS = {
         "Verts": lambda obj: bpy.ops.mesh.select_mode(type="VERT"),
         "Vertex Perimeter": lambda obj: btk.Selection.select_vertex_perimeter(obj),
