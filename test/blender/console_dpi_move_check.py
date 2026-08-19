@@ -1,8 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
 """GUI harness: cross-monitor (different resolution/DPI) move + maximize with the Script
-Output console docked — the USER-REPORTED hard-hang gesture (2026-07-18, razer15:
-1920x1080 primary + 2048x1280@125% secondary).
+Output console docked — the USER-REPORTED hard-hang gesture (2026-07-18, on a mixed-DPI
+dual-monitor box: 1920x1080 primary + 2048x1280@125% secondary).
 
 Moving Blender's GHOST window to a monitor with a different DPI sends ``WM_DPICHANGED``
 to the parent and ``WM_DPICHANGED_AFTERPARENT`` to the embedded WS_CHILD Qt console;

@@ -176,10 +176,25 @@ class TestResetBindings(unittest.TestCase):
 
 
 class _UpdaterHost(SettingsMixin):
-    """Minimal concrete host — the mixin is DCC-agnostic, so no Maya needed."""
+    """Minimal concrete host — the mixin is DCC-agnostic, so no Maya needed.
 
-    def __init__(self, sb):
+    ``ecosystem_dists`` is PINNED rather than derived: the real one reads this
+    interpreter's installed metadata (``Tcl.declared_dists``), so leaving it live would
+    make every updater assertion depend on whether the test host happens to have an
+    engine installed — passing in CI and inside Maya for different reasons. The
+    derivation itself is covered by :class:`TestEcosystemDistsDerivation`.
+    """
+
+    #: A Maya install: base deps + Maya's engine extra + self. No ``blendertk``.
+    DISTS = ("pythontk", "uitk", "mayatk", "tentacletk")
+
+    def __init__(self, sb, dists=None):
         self.sb = sb
+        self._dists = self.DISTS if dists is None else dists
+
+    def ecosystem_dists(self, installed=None):
+        self.seen_installed = installed  # the real one uses it; pin that it arrives
+        return self._dists
 
     def _update_python_path(self):
         return "python"
@@ -213,7 +228,7 @@ class TestCheckForUpdate(unittest.TestCase):
     version" while e.g. uitk went stale (dep-blind regression, 2026-08-06).
     """
 
-    ALL_CURRENT = {d: "1.0" for d in SettingsMixin.ECOSYSTEM_DISTS}
+    ALL_CURRENT = {d: "1.0" for d in _UpdaterHost.DISTS}
 
     def _run(self, installed, latest, answer="Yes"):
         _FakePkgMgr.installed = installed
@@ -251,9 +266,9 @@ class TestCheckForUpdate(unittest.TestCase):
 
     def test_missing_dist_is_offered_for_install(self):
         installed = dict(self.ALL_CURRENT)
-        del installed["blendertk"]
+        del installed["mayatk"]
         self._run(installed, dict(self.ALL_CURRENT))
-        self.assertEqual(_FakePkgMgr.updated_with, "blendertk")
+        self.assertEqual(_FakePkgMgr.updated_with, "mayatk")
 
     def test_an_unreachable_lookup_is_not_reported_as_outdated(self):
         """A failed index lookup comes back None; comparing installed != None
@@ -296,6 +311,122 @@ class TestCheckForUpdate(unittest.TestCase):
         sb = self._run(dict(self.ALL_CURRENT), latest)
         confirm_buttons = next(b for _t, b in sb.boxes if b)
         self.assertTrue(set(confirm_buttons) <= qt_names, confirm_buttons)
+
+
+class TestEcosystemDistsDerivation(unittest.TestCase):
+    """The updater's dist list is DERIVED per host, not hardcoded.
+
+    The engines are extras, so a Maya install has no ``blendertk``. A hardcoded list
+    naming both made the updater read the absent one as ``installed=None != latest``,
+    report "blendertk not installed -> X.Y.Z", and pip-install the other DCC's engine
+    into mayapy on the next update click.
+    """
+
+    def test_the_hosts_engine_is_included_and_the_others_is_not(self):
+        """Drives the REAL derivation against the REAL metadata — only the detected host
+        is faked. Stubbing ``declared_dists`` here would assert nothing but the stub."""
+        from tentacle.tcl import Tcl
+
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+
+        with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
+            maya = SettingsMixin.ecosystem_dists()
+        with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "blender")):
+            blender = SettingsMixin.ecosystem_dists()
+
+        self.assertIn("mayatk", maya)
+        self.assertNotIn("blendertk", maya)
+        self.assertIn("blendertk", blender)
+        self.assertNotIn("mayatk", blender)
+
+    def test_an_already_installed_foreign_engine_keeps_being_maintained(self):
+        """The upgrade path for the ENTIRE existing user base: today's release hard-pins
+        both engines, so every Maya install already has a `blendertk` sitting in mayapy.
+        Dropping it from the check would freeze it at its installed version forever."""
+        from tentacle.tcl import Tcl
+
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        installed = {
+            "pythontk": "1.0",
+            "uitk": "1.0",
+            "mayatk": "1.0",
+            "blendertk": "1.0",
+            "tentacletk": "1.0",
+        }
+        with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
+            dists = SettingsMixin.ecosystem_dists(installed)
+        self.assertIn("blendertk", dists)
+        self.assertIn("mayatk", dists)
+
+    def test_an_absent_foreign_engine_is_never_added(self):
+        """The bug this whole change fixes: a Maya install must not be told the Blender
+        engine is "not installed -> X.Y.Z" and have pip fetch it into mayapy."""
+        from tentacle.tcl import Tcl
+
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        installed = {"pythontk": "1.0", "uitk": "1.0", "mayatk": "1.0", "tentacletk": "1.0"}
+        with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
+            self.assertNotIn("blendertk", SettingsMixin.ecosystem_dists(installed))
+        # ...and with no installed map at all, still never speculatively added
+        with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
+            self.assertNotIn("blendertk", SettingsMixin.ecosystem_dists())
+
+    def test_the_updater_passes_the_installed_map_through(self):
+        """If `check_for_update` stopped forwarding it, the foreign-engine rule above
+        would be unreachable and every existing install would silently lose coverage."""
+        seen = {}
+
+        class _Host(_UpdaterHost):
+            def ecosystem_dists(self, installed=None):
+                seen["installed"] = installed
+                return ("pythontk", "tentacletk")
+
+        _FakePkgMgr.installed = {"pythontk": "1.0", "tentacletk": "1.0"}
+        _FakePkgMgr.latest = {"pythontk": "1.0", "tentacletk": "1.0"}
+        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+            _Host(_FakeSb()).check_for_update()
+        self.assertEqual(seen["installed"], {"pythontk": "1.0", "tentacletk": "1.0"})
+
+    def test_the_static_fallback_names_no_engine_at_all(self):
+        """Reached when metadata is unreadable and the host is unknown — naming either
+        engine there would reintroduce the bug for exactly the users who hit it."""
+        self.assertNotIn("mayatk", SettingsMixin.ECOSYSTEM_DISTS)
+        self.assertNotIn("blendertk", SettingsMixin.ECOSYSTEM_DISTS)
+        self.assertIn("tentacletk", SettingsMixin.ECOSYSTEM_DISTS)
+
+    def test_empty_metadata_falls_back_instead_of_checking_nothing(self):
+        """A source checkout has no metadata. An empty list would make the updater
+        silently check zero packages and report "could not reach the package index"."""
+        with patch("tentacle.tcl.Tcl.declared_dists", return_value=()):
+            self.assertEqual(
+                SettingsMixin.ecosystem_dists(), SettingsMixin.ECOSYSTEM_DISTS
+            )
+
+    def test_an_unimportable_launcher_falls_back(self):
+        with patch("tentacle.tcl.Tcl.declared_dists", side_effect=RuntimeError("boom")):
+            self.assertEqual(
+                SettingsMixin.ecosystem_dists(), SettingsMixin.ECOSYSTEM_DISTS
+            )
+
+    def test_the_updater_consumes_the_derived_list_not_the_constant(self):
+        """Pins the wiring: if ``check_for_update`` reverted to reading the class
+        constant, the per-host derivation would be dead code and the bug would return.
+
+        The derived list must contain a dist the CONSTANT does not, and that dist must
+        be the outdated one — otherwise the assertion passes under either wiring.
+        """
+        self.assertNotIn("mayatk", SettingsMixin.ECOSYSTEM_DISTS)  # fixture premise
+
+        host = _UpdaterHost(_FakeSb(), dists=("pythontk", "mayatk", "tentacletk"))
+        _FakePkgMgr.installed = {"pythontk": "1.0", "mayatk": "1.0", "tentacletk": "1.0"}
+        _FakePkgMgr.latest = {"pythontk": "1.0", "mayatk": "2.0", "tentacletk": "1.0"}
+        _FakePkgMgr.updated_with = None
+        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+            host.check_for_update()
+        self.assertEqual(_FakePkgMgr.updated_with, "mayatk")
 
 
 if __name__ == "__main__":

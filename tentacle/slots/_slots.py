@@ -141,6 +141,74 @@ class Slots(QtCore.QObject):
         root_list.ui.register_widget(widget)
         return widget
 
+    def gate_on_app(self, widget, resolve_spec) -> bool:
+        """Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
+
+        The panel-side half of ``sb.gate``: uitk owns the presentation policy
+        (hide / disable / show, per the user's Preferences), this owns the two
+        things every DCC panel would otherwise repeat -- pulling ``available`` and
+        ``not_found_message`` off the spec, and surviving an engine that will not
+        import.
+
+        *resolve_spec* is a zero-arg callable (``lambda: mtk.RizomUVBridge.APP``),
+        not the spec itself, because reaching a bridge's ``APP`` IMPORTS its engine
+        module. Passing the spec would perform that import at the call site, where
+        a failure propagates into the panel build; deferring it into here means a
+        broken or missing engine costs its own entry a gate, not the whole panel.
+        An unresolvable spec leaves the widget ungated and usable -- the bridge
+        still reports its own missing app when actually used.
+
+        Parameters:
+            widget: The widget to gate. ``None`` is tolerated (``sb.gate``'s rule).
+            resolve_spec (callable): Returns the ``AppSpec`` to gate on.
+
+        Returns:
+            bool: True when the app is available (or could not be determined), so
+            a caller can ``if not self.gate_on_app(...): return``.
+        """
+        try:
+            spec = resolve_spec()
+        except Exception as error:  # noqa: BLE001 - an unimportable engine isn't gated
+            self.sb.logger.debug(f"[gate_on_app] spec unresolved, not gating: {error}")
+            return True
+        self._app_gate_specs.add(spec)
+        # Registered as a CALLABLE, not as the bool it evaluates to right now, so
+        # `recheck_app_gates` can ask the spec again after invalidating its cache --
+        # which is the whole point of a re-check (the app appeared mid-session).
+        return self.sb.gate(widget, lambda s=spec: s.available, spec.not_found_message)
+
+    #: Every :class:`pythontk.AppSpec` any Slots object has gated on. CLASS level,
+    #: not per instance: gates are registered by the panel that OWNS the widget
+    #: (Materials, UV) while the re-check is triggered from Preferences, so a
+    #: per-instance set would leave that trigger refreshing nothing. It also matches
+    #: the scope of its partner ``sb.recheck_gates()``, which re-applies EVERY live
+    #: gate — refreshing one panel's specs while re-applying all of them was already
+    #: asymmetric. Specs are module-level singletons hung off their bridge class, so
+    #: this holds a handful of long-lived objects for the life of the process.
+    _app_gate_specs = set()
+
+    def recheck_app_gates(self) -> int:
+        """Re-probe every gated app and re-present its widgets. Returns widgets updated.
+
+        The answer to "I just installed it, why is the button still missing?" —
+        reachable from ``Preferences`` > header > **Re-check Installed Tools**.
+        ``AppSpec.path`` memoizes on purpose -- an availability gate re-runs on
+        every panel show and must not re-scan Program Files each time -- so a
+        mid-session install is invisible until the cache is dropped. This drops
+        it (``AppSpec.refresh``) and then re-applies the gates, which is the pair
+        that has to happen together: refreshing alone leaves the widgets as they
+        were, and re-gating alone re-reads the same cached miss.
+
+        Returns:
+            int: Widgets re-presented by the sweep.
+        """
+        for spec in self._app_gate_specs:
+            try:
+                spec.refresh()
+            except Exception as error:  # noqa: BLE001 - one bad spec, not the sweep
+                self.sb.logger.debug(f"[recheck_app_gates] {spec}: {error}")
+        return self.sb.recheck_gates()
+
     def toggle_camera_view(self):
         """Toggle between the last two viewport-camera views in slot history.
 

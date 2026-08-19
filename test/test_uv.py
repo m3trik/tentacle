@@ -10,10 +10,12 @@ at this layer:
 - b000 (Transfer UVs): the ≥2-ordered-selection gate.
 - b005 (Cut UVs): the "selected edges vs whole mesh" routing.
 """
+
 import unittest
 from unittest import mock
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from uitk.widgets.mixins.tooltip_mixin import TooltipFormat
 
 cmds = maya_module("maya.cmds")
 mtk = maya_module("mayatk")
@@ -32,16 +34,54 @@ class _FakeUi:
     pass
 
 
+class _RecordedProgress:
+    """The slice of ``Switchboard.progress`` a slot actually uses.
+
+    The long-running UV slots wrap their engine call in the footer's
+    task-indicator context; a double without it turns every one of those
+    slots into an AttributeError. Records the status texts so a test can
+    assert a slot reported what it was doing.
+    """
+
+    def __init__(self, log, text):
+        self._log = log
+        self._text = text
+
+    def __enter__(self):
+        self._log.append(self._text)
+        return self._tick
+
+    def _tick(self, value=None, text=None):
+        """``update(value, text)`` -- a text re-labels the running task."""
+        if text:
+            self._log.append(text)
+        return True  # never cancelled
+
+    def __exit__(self, *exc):
+        return False
+
+
 class _RecordedSb:
     def __init__(self):
         self.messages = []
+        self.progress_texts = []
 
     def message_box(self, *args, **kwargs):
         self.messages.append((args, kwargs))
 
+    def progress(self, ui=None, total=None, text=""):
+        return _RecordedProgress(self.progress_texts, text)
+
 
 class _FakeB000Widget:
-    """b000's option-box surface: Scope combo (cmb014) + Similarity (d000)."""
+    """b000's option-box surface -- the merged Transfer UV Set / Textures tool.
+
+    b000 reads every row up front (both passes share one option box), so a
+    double that carries only the two rows a given test cares about turns every
+    call into an AttributeError from an unrelated row. Defaults describe the
+    common case: source = first selected, scope = selection order, UV pass on,
+    texture pass off.
+    """
 
     class _Combo:
         def __init__(self, data):
@@ -57,10 +97,43 @@ class _FakeB000Widget:
         def value(self):
             return self._value
 
-    def __init__(self, scope="order", tolerance=0.9):
+    class _Check:
+        def __init__(self, checked):
+            self._checked = checked
+
+        def isChecked(self):
+            return self._checked
+
+    class _Text:
+        def __init__(self, text):
+            self._text = text
+
+        def text(self):
+            return self._text
+
+    def __init__(
+        self,
+        scope="order",
+        tolerance=0.9,
+        mode="first",
+        transfer="uvs",
+        output_name="transfer_result",
+    ):
         menu = _FakeUi()
-        menu.cmb014 = self._Combo(scope)
-        menu.d000 = self._Spin(tolerance)
+        menu.cmb024 = self._Combo(mode)  # Source
+        menu.cmb014 = self._Combo(scope)  # Scope
+        menu.d000 = self._Spin(tolerance)  # Similarity
+        menu.cmb028 = self._Combo(transfer)  # Transfer: uvs / textures / both
+        # Texture-pass rows -- read even when the pass is off.
+        menu.t_tt_name = self._Text(output_name)
+        menu.t_tt_src_uvset = self._Text("")
+        menu.t_tt_dst_uvset = self._Text("")
+        menu.t_tt_output = self._Text("")
+        menu.cmb025 = self._Combo(0)  # Resolution
+        menu.cmb026 = self._Combo(2)  # Quality
+        menu.s025 = self._Spin(-1)  # Padding
+        menu.cmb027 = self._Combo(None)  # Normal convention
+        menu.chk050 = self._Check(True)  # Assign Result
         self.option_box = _FakeUi()
         self.option_box.menu = menu
 
@@ -108,18 +181,29 @@ class TestB000TransferUVsGate(unittest.TestCase):
         # engine reports back per pair -- anything but "topology" means the pair
         # was approximated, which b000 must surface to the user.
         import mayatk as mtk
+
         self._original = mtk.transfer_uvs
         self.captured = []
         self.space = "topology"
 
         def fake_transfer(frm, to, **kwargs):
             self.captured.append((frm, to, kwargs))
-            return [(frm, to, self.space)]
+            sources = frm if isinstance(frm, (list, tuple)) else [frm]
+            targets = to if isinstance(to, (list, tuple)) else [to]
+            return [(s, t, self.space) for s, t in zip(sources * len(targets), targets)]
 
         mtk.transfer_uvs = fake_transfer
 
+    @staticmethod
+    def _leaves(names):
+        """Leaf names of a bulk argument -- b000 pairs on FULL DAG paths."""
+        if not isinstance(names, (list, tuple)):
+            names = [names]
+        return [str(n).rsplit("|", 1)[-1] for n in names]
+
     def tearDown(self):
         import mayatk as mtk
+
         mtk.transfer_uvs = self._original
         cmds.file(new=True, force=True)
 
@@ -136,22 +220,61 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.assertEqual(self.captured, [])
         self.assertTrue(self.instance.sb.messages)
 
-    def test_two_objects_dispatches_once(self):
+    def test_two_objects_transfer_as_one_pair(self):
         a = cmds.polyCube(name="uv_b000_a")[0]
         b = cmds.polyCube(name="uv_b000_b")[0]
         cmds.select([a, b])
 
         self.instance.b000(widget=_FakeB000Widget())
 
-        # frm=a, to=[b] → one transfer call
+        # The engine takes the pairing in bulk: sources[] -> targets[].
         self.assertEqual(len(self.captured), 1)
-        self.assertEqual(self.captured[0][0], a)
-        self.assertEqual(self.captured[0][1], b)
+        sources, targets, kwargs = self.captured[0]
+        self.assertEqual(self._leaves(sources), [a])
+        self.assertEqual(self._leaves(targets), [b])
         # The selection order IS the correspondence; re-vetting it by geometric
         # similarity would silently drop pairs the user named deliberately.
-        self.assertIs(self.captured[0][2].get("match_by_similarity"), False)
+        self.assertIs(kwargs.get("match_by_similarity"), False)
 
-    def test_three_objects_dispatches_twice(self):
+    def test_the_footer_reports_the_running_task(self):
+        """A transfer over many meshes freezes the UI for its duration; the
+        footer is what says *why*, so the busy context is part of the slot's
+        contract rather than a decoration."""
+        a = cmds.polyCube(name="uv_b000_p1")[0]
+        b = cmds.polyCube(name="uv_b000_p2")[0]
+        cmds.select([a, b])
+        self.instance.b000(widget=_FakeB000Widget())
+        self.assertTrue(
+            any("Transfer UV Set" in t for t in self.instance.sb.progress_texts),
+            self.instance.sb.progress_texts,
+        )
+
+    def test_the_footer_relabels_itself_for_the_texture_pass(self):
+        """One indicator spans both passes, so it has to say which is running
+        -- the texture remap is the one that freezes the UI for minutes."""
+        a = cmds.polyCube(name="uv_b000_p3")[0]
+        b = cmds.polyCube(name="uv_b000_p4")[0]
+        cmds.select([a, b])
+        widget = _FakeB000Widget(transfer="textures")
+        self.instance.b000(widget=widget)
+        self.assertIn("Working: Transfer Textures", self.instance.sb.progress_texts)
+
+    def test_the_texture_pass_is_refused_without_an_output_name(self):
+        """It names the material AND every map; there is no safe default, and
+        finding out after the remap has run costs the whole run."""
+        a = cmds.polyCube(name="uv_b000_noname_a")[0]
+        b = cmds.polyCube(name="uv_b000_noname_b")[0]
+        cmds.select([a, b])
+        self.instance.b000(
+            widget=_FakeB000Widget(transfer="textures", output_name="  ")
+        )
+        self.assertEqual(self.captured, [])  # refused before any pass ran
+        self.assertIn(
+            "output name",
+            "".join(str(m) for m in self.instance.sb.messages).lower(),
+        )
+
+    def test_three_objects_pair_the_source_against_every_target(self):
         a = cmds.polyCube(name="uv_b000_a3")[0]
         b = cmds.polyCube(name="uv_b000_b3")[0]
         c = cmds.polyCube(name="uv_b000_c3")[0]
@@ -159,11 +282,11 @@ class TestB000TransferUVsGate(unittest.TestCase):
 
         self.instance.b000(widget=_FakeB000Widget())
 
-        # frm=a, to=[b, c] → two transfer calls
-        self.assertEqual(len(self.captured), 2)
-        self.assertEqual(self.captured[0][0], a)
-        self.assertEqual(self.captured[1][0], a)
-        self.assertEqual({self.captured[0][1], self.captured[1][1]}, {b, c})
+        # frm=a paired against each of [b, c], in one bulk call.
+        self.assertEqual(len(self.captured), 1)
+        sources, targets, _ = self.captured[0]
+        self.assertEqual(set(self._leaves(sources)), {a})
+        self.assertEqual(set(self._leaves(targets)), {b, c})
 
     def test_exact_transfer_stays_silent(self):
         """A topology-space transfer is exact; popping a dialog on every routine
@@ -175,7 +298,10 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.instance.b000(widget=_FakeB000Widget())
 
         self.assertEqual(len(self.captured), 1)
-        self.assertEqual(self.instance.sb.messages, [])
+        # One report is always posted; it must not carry an approximation warning.
+        self.assertNotIn(
+            "proximity", "".join(str(m) for m in self.instance.sb.messages)
+        )
 
     def test_approximated_transfer_is_reported(self):
         """A target that didn't match the source's topology was sampled by
@@ -189,7 +315,7 @@ class TestB000TransferUVsGate(unittest.TestCase):
 
         self.instance.b000(widget=_FakeB000Widget())
 
-        self.assertEqual(len(self.captured), 2)
+        self.assertEqual(len(self.captured), 1)  # one bulk call, both pairs
         self.assertEqual(len(self.instance.sb.messages), 1)
         args, _kwargs = self.instance.sb.messages[0]
         message = args[0]
@@ -359,9 +485,7 @@ class TestClassifyU3dError(unittest.TestCase):
 
     def test_overlapping(self):
         err = RuntimeError("u3dLayout: overlapping UVs detected in the shell")
-        self.assertEqual(
-            uv_module.UvSlots._classify_u3d_error(err), "overlapping UVs"
-        )
+        self.assertEqual(uv_module.UvSlots._classify_u3d_error(err), "overlapping UVs")
 
     def test_other_truncates_first_line(self):
         err = RuntimeError("Some unexpected failure\nwith trailing detail lines")
@@ -579,17 +703,22 @@ class TestTb009CutCylinder(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _run(self, camera_lookup, **menu):
-        with mock.patch.object(
-            mtk.UvUtils, "unwrap_cylinder", return_value=[self.mesh]
-        ) as unwrap, mock.patch.object(
-            mtk.CamUtils, "get_current_cam", side_effect=camera_lookup
+        with (
+            mock.patch.object(
+                mtk.UvUtils, "unwrap_cylinder", return_value=[self.mesh]
+            ) as unwrap,
+            mock.patch.object(
+                mtk.CamUtils, "get_current_cam", side_effect=camera_lookup
+            ),
         ):
             self.instance.tb009(widget=_FakeCutCylinderWidget(**menu))
         unwrap.assert_called_once()
         return unwrap.call_args.kwargs
 
     def test_hide_from_view_passes_the_viewport_camera(self):
-        kwargs = self._run(lambda: "|persp|perspShape", hide=True, invert=True, angle=30)
+        kwargs = self._run(
+            lambda: "|persp|perspShape", hide=True, invert=True, angle=30
+        )
         self.assertEqual(kwargs["camera"], "|persp|perspShape")
         self.assertTrue(kwargs["invert_seam"])
         self.assertEqual(kwargs["angle"], 30)
@@ -598,9 +727,7 @@ class TestTb009CutCylinder(unittest.TestCase):
     def test_preference_knobs_pass_through(self):
         """Taper / Flat / Fillet Size and Keep Existing Seams reach
         unwrap_cylinder as taper_angle / flat_angle / trim_ratio / sew."""
-        kwargs = self._run(
-            lambda: None, taper=25, flat=45, fillet=8, keep_seams=True
-        )
+        kwargs = self._run(lambda: None, taper=25, flat=45, fillet=8, keep_seams=True)
         self.assertEqual(kwargs["taper_angle"], 25)
         self.assertEqual(kwargs["flat_angle"], 45)
         self.assertAlmostEqual(kwargs["trim_ratio"], 0.08)
@@ -679,9 +806,10 @@ class TestTb004NeverSeamCuts(unittest.TestCase):
 
     def test_seamless_mesh_is_not_routed_through_seam_cutting(self):
         shells_before = cmds.polyEvaluate(self.mesh, uvShell=True)
-        with mock.patch.object(
-            mtk.UvUtils, "unwrap_cylinder"
-        ) as unwrap, mock.patch.object(cmds, "polyMapCut") as map_cut:
+        with (
+            mock.patch.object(mtk.UvUtils, "unwrap_cylinder") as unwrap,
+            mock.patch.object(cmds, "polyMapCut") as map_cut,
+        ):
             self.instance.tb004(widget=_FakeUnfoldWidget(orient=False, stack=False))
         unwrap.assert_not_called()
         map_cut.assert_not_called()
@@ -992,7 +1120,10 @@ class TestUvSlotSurface(unittest.TestCase):
 
         path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "tentacle", "slots", dcc, "uv.py",
+            "tentacle",
+            "slots",
+            dcc,
+            "uv.py",
         )
         with open(path, encoding="utf-8") as f:
             return f.read()
@@ -1361,7 +1492,9 @@ class TestB030Stack(unittest.TestCase):
 
     @staticmethod
     def _max_dist(pa, pb):
-        return max(((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2) ** 0.5 for x, y in zip(pa, pb))
+        return max(
+            ((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2) ** 0.5 for x, y in zip(pa, pb)
+        )
 
     def _pin(self, uv):
         return (cmds.polyPinUV(uv, q=True, value=True) or [0.0])[0]
@@ -1434,7 +1567,9 @@ class TestB030Stack(unittest.TestCase):
         self.assertTrue(self.instance._b030_stacked)
         self.assertTrue(self.instance._b030_uv_snapshot)
 
-    def test_pin_after_stack_pins_stacked_shells_and_unstack_restores_prior_weights(self):
+    def test_pin_after_stack_pins_stacked_shells_and_unstack_restores_prior_weights(
+        self,
+    ):
         a, b = self._twins()
         cmds.polyPinUV(f"{a}.map[0]", value=1.0)  # a pin the user set beforehand
         before_b = self._uvs(b)
@@ -1489,6 +1624,300 @@ class TestB030Stack(unittest.TestCase):
 # same relocation note as test/blender/uv_slot_check.py's tb005/tb008 removal.
 
 
+class _FakeButton:
+    """Stand-in for a QPushButton / option-box action button."""
+
+    def __init__(self):
+        self.enabled = True
+
+    def setEnabled(self, state):
+        self.enabled = bool(state)
+
+
+class _FakeAction:
+    """Stand-in for the ActionOption ``set_action`` returns."""
+
+    def __init__(self):
+        self.widget = _FakeButton()
+
+
+class _FakeCheck(_FakeButton):
+    """A checkbox row the enablement sync reads AND greys."""
+
+    def __init__(self, checked):
+        super().__init__()
+        self._checked = checked
+
+    def isChecked(self):
+        return self._checked
+
+
+class _FakeTransferCombo:
+    """The Transfer combo (uvs / textures), enough of it for the sync.
+
+    ``setCurrentIndex`` re-enters the sync exactly as the real combo's
+    ``currentIndexChanged`` does -- the pin path is only correct because the
+    outer call re-reads the value afterwards, and a double that swallowed the
+    signal could not catch that.
+    """
+
+    ITEMS = ("uvs", "textures")
+
+    def __init__(self, data="uvs", on_change=None):
+        self._index = self.ITEMS.index(data)
+        self.enabled = True
+        self.on_change = on_change
+
+    def currentData(self):
+        return self.ITEMS[self._index]
+
+    def currentIndex(self):
+        return self._index
+
+    def findData(self, data):
+        return self.ITEMS.index(data) if data in self.ITEMS else -1
+
+    def setCurrentIndex(self, index):
+        if index == self._index:
+            return
+        self._index = index
+        if self.on_change:
+            self.on_change()
+
+    def setEnabled(self, state):
+        self.enabled = bool(state)
+
+
+class _FakeSourceCombo:
+    def __init__(self, data="stored"):
+        self._data = data
+
+    def currentData(self):
+        return self._data
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTransferTexturesSourceControls(unittest.TestCase):
+    """b034's Set Source row -- the stored set is invisible state, so the row
+    itself has to report it: the capture button follows the Source mode, and
+    Clear follows whether anything is stored."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance._tt_src_button = _FakeButton()
+        self.instance._tt_clear_action = _FakeAction()
+        self.instance._tt_sources = []
+        # The control map b034_init hands the sync (``_tt_ctl``): every row it
+        # greys, keyed the way the slot reads them.
+        self._mode = _FakeSourceCombo("stored")
+        self.instance._tt_ctl = {
+            "source": self._mode,
+            "scope": _FakeButton(),
+            "similarity": _FakeButton(),
+            "transfer": _FakeTransferCombo(
+                on_change=lambda: self.instance._tt_sync_controls()
+            ),
+            "texture_controls": (_FakeButton(),),
+        }
+        self.instance._tt_ctl["scope"].currentData = lambda: "order"
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _set_mode(self, mode):
+        self.instance._tt_ctl["source"] = _FakeSourceCombo(mode)
+
+    def _sync(self):
+        self.instance._tt_sync_controls()
+        return (
+            self.instance._tt_src_button.enabled,
+            self.instance._tt_clear_action.widget.enabled,
+        )
+
+    def test_clear_is_greyed_until_something_is_stored(self):
+        self.assertEqual(self._sync(), (True, False))
+        self.instance._tt_sources = ["|pCube1"]
+        self.assertEqual(self._sync(), (True, True))
+
+    def test_other_source_modes_grey_the_whole_row(self):
+        """'first' / 'uvset' never read the stored set, so capturing into it
+        would silently do nothing -- which reads as a broken button."""
+        self.instance._tt_sources = ["|pCube1"]
+        for mode in ("first", "uvset"):
+            self._set_mode(mode)
+            self.assertEqual(self._sync(), (False, False), mode)
+
+    def test_clear_empties_the_set_and_greys_itself(self):
+        self.instance._tt_sources = ["|pCube1", "|pCube2"]
+        self.instance._tt_clear_source()
+        self.assertEqual(self.instance._tt_sources, [])
+        self.assertFalse(self.instance._tt_clear_action.widget.enabled)
+
+    def test_capture_stores_the_selection_and_enables_clear(self):
+        cube = cmds.polyCube()[0]
+        cmds.select(cube, replace=True)
+        self.instance._tt_set_source_from_selection()
+        self.assertEqual(len(self.instance._tt_sources), 1)
+        self.assertTrue(self.instance._tt_clear_action.widget.enabled)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTransferTexturesSourceTooltip(unittest.TestCase):
+    """The live hover is the ONLY place the stored set can be inspected."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self.instance.sb.tooltip = TooltipFormat
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def test_lists_short_names_not_full_dag_paths(self):
+        self.instance._tt_sources = ["|grp|pCube1", "|grp|pCube2"]
+        html = self.instance._tt_source_tooltip()
+        self.assertIn("<li>pCube1</li>", html)
+        self.assertNotIn("grp", html)
+
+    def test_truncates_a_long_capture(self):
+        n = TooltipFormat.STORED_ITEMS_MAX
+        self.instance._tt_sources = [f"|pCube{i}" for i in range(n + 4)]
+        html = self.instance._tt_source_tooltip()
+        self.assertEqual(html.count("<li>"), n)
+        self.assertIn("4 more", html)
+
+    def test_empty_still_explains_what_the_button_does(self):
+        self.instance._tt_sources = []
+        html = self.instance._tt_source_tooltip()
+        self.assertNotIn("<li>", html)
+        self.assertIn("Set Source From Selection", html)
+
+    def test_deleted_nodes_are_called_out(self):
+        """b034 drops them; a count that no longer matches needs a reason."""
+        cube = cmds.polyCube()[0]
+        self.instance._tt_sources = cmds.ls(cube, long=True) + ["|goneForever"]
+        html = self.instance._tt_source_tooltip()
+        self.assertIn("1 no longer in the scene", html)
+
+
+class TestTransferSyncControls(unittest.TestCase):
+    """``UvMixin._tt_sync_controls`` -- which rows the current mode greys.
+
+    DCC-free (the mixin only touches its own control map), so the enablement
+    contract is pinned where it runs without Maya. The Maya-gated class below
+    covers the parts that need real nodes.
+    """
+
+    def setUp(self):
+        from tentacle.slots._uv import UvMixin
+
+        class _Host(UvMixin):
+            pass
+
+        self.instance = _Host()
+        self.instance._tt_sources = []
+        self.instance._tt_src_button = _FakeButton()
+        self.instance._tt_clear_action = _FakeAction()
+        self.instance._tt_ctl = {
+            "source": _FakeSourceCombo("stored"),
+            "scope": _FakeButton(),
+            "similarity": _FakeButton(),
+            "transfer": _FakeTransferCombo(
+                on_change=lambda: self.instance._tt_sync_controls()
+            ),
+            "texture_controls": (_FakeButton(),),
+        }
+        self.instance._tt_ctl["scope"].currentData = lambda: "order"
+
+    def _set_mode(self, mode):
+        self.instance._tt_ctl["source"] = _FakeSourceCombo(mode)
+
+    def _sync(self):
+        self.instance._tt_sync_controls()
+        return (
+            self.instance._tt_src_button.enabled,
+            self.instance._tt_clear_action.widget.enabled,
+        )
+
+    def test_pinning_the_combo_leaves_the_texture_rows_live(self):
+        """The pin re-enters the sync through the combo's signal; the outer
+        call must re-read the mode, or it finishes with the pre-pin flags and
+        greys every row the re-entrant call had just enabled."""
+        row = self.instance._tt_ctl["texture_controls"][0]
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo(
+            "uvs", on_change=lambda: self.instance._tt_sync_controls()
+        )
+        self._set_mode("uvset")
+        self._sync()
+        self.assertEqual(self.instance._tt_ctl["transfer"].currentData(), "textures")
+        self.assertTrue(row.enabled, "texture rows greyed under a Textures-only mode")
+
+    def test_the_same_mesh_source_pins_the_transfer_combo_to_textures(self):
+        """Two layouts of ONE mesh give the UV pass no second mesh to read, so
+        the combo is moved (and locked) rather than left offering a mode that
+        would run nothing."""
+        combo = self.instance._tt_ctl["transfer"]
+        self._set_mode("uvset")
+        self._sync()
+        self.assertEqual(combo.currentData(), "textures")
+        self.assertFalse(combo.enabled)
+        # ... and released again for a mesh source, keeping the value.
+        self._set_mode("first")
+        self._sync()
+        self.assertTrue(combo.enabled)
+        self.assertEqual(combo.currentData(), "textures")
+
+    def test_a_partial_control_map_is_a_no_op(self):
+        """The mixin's contract: a fork that has not built every row yet must
+        not raise from inside a signal handler."""
+        self.instance._tt_ctl = {"source": _FakeSourceCombo("stored")}
+        self.instance._tt_sync_controls()  # must not raise
+        del self.instance._tt_ctl
+        self.instance._tt_sync_controls()
+
+    def test_the_texture_rows_follow_the_transfer_combo(self):
+        row = self.instance._tt_ctl["texture_controls"][0]
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("uvs")
+        self._sync()
+        self.assertFalse(row.enabled)
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("textures")
+        self._sync()
+        self.assertTrue(row.enabled)
+
+
+class TestTransferPasses(unittest.TestCase):
+    """``UvMixin._tt_passes`` -- the Transfer combo's one meaning.
+
+    DCC-free: the mode pair is panel logic, and it decides which engine calls
+    ``b000`` makes, so it is pinned where it can run without Maya.
+    """
+
+    def _passes(self, source_mode, transfer_mode):
+        from tentacle.slots._uv import UvMixin
+
+        return UvMixin._tt_passes(source_mode, transfer_mode)
+
+    def test_each_mode_selects_exactly_one_pass(self):
+        """The two are alternatives, not options that compose: the texture
+        pass keeps the TARGET's own layout, so a source layout copied
+        alongside it would land in a UV set nothing references."""
+        self.assertEqual(self._passes("first", "uvs"), (True, False))
+        self.assertEqual(self._passes("first", "textures"), (False, True))
+
+    def test_the_same_mesh_source_drops_the_uv_pass(self):
+        """Two layouts of ONE mesh: there is no second mesh to read a layout
+        from, so only the texture pass can run there."""
+        self.assertEqual(self._passes("uvset", "textures"), (False, True))
+        self.assertEqual(self._passes("uvset", "uvs"), (False, False))
+
+    def test_an_unset_combo_falls_back_to_the_uv_pass(self):
+        """currentData() is None before the combo is populated; the default
+        must be the non-destructive pass, not a texture write."""
+        self.assertEqual(self._passes("first", None), (True, False))
+
+
 if __name__ == "__main__":
     unittest.main()
-

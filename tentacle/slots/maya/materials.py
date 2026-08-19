@@ -3,7 +3,6 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-import pythontk as ptk
 
 # From this package:
 from tentacle import MaterialsMixin, SlotsMaya
@@ -235,6 +234,21 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
     # --- Submenu Tools list --------------------------------------------
 
+    #: ``{slot name: () -> AppSpec}`` for Tools entries whose external app may be
+    #: absent. Lambdas rather than specs, because reaching a bridge's ``APP``
+    #: imports its engine module and this class body executes for EVERY panel when
+    #: the Switchboard builds its slot registry — the import has to wait until the
+    #: list is actually built. ``Slots.gate_on_app`` calls them and tolerates a
+    #: failure, so a broken engine costs its own entry a gate, not the whole list.
+    #:
+    #: ``b022`` / ``b023`` (Map Compositor, Metashape Workflow) are deliberately
+    #: absent: those are ``extapps`` panels the ExternalAppHandler installs ON
+    #: DEMAND, so gating them would contradict install-on-first-launch.
+    _EXTERNAL_APP_GATES = {
+        "b019": lambda: mtk.MarmosetBridge.APP,
+        "b020": lambda: mtk.SubstanceBridge.APP,
+    }
+
     def list001_init(self, widget):
         """Tools list: Setup / Conversion / External (mirrors prior header sections).
 
@@ -260,14 +274,17 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             for label, slot_name, *rest in items:
                 tooltip = rest[0] if rest else ""
                 if slot_name and hasattr(self, f"{slot_name}_init"):
-                    self.add_slot_widget(
+                    item = self.add_slot_widget(
                         cat.sublist,
                         setObjectName=slot_name,
                         setText=label,
                         setToolTip=tooltip,
                     )
                 else:
-                    cat.sublist.add(label, setToolTip=tooltip)
+                    item = cat.sublist.add(label, setToolTip=tooltip)
+                resolve_spec = self._EXTERNAL_APP_GATES.get(slot_name)
+                if resolve_spec is not None:
+                    self.gate_on_app(item, resolve_spec)
 
     @SlotsMaya.Signals("on_item_interacted")
     def list001(self, item):
@@ -294,7 +311,17 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """Initialize Materials"""
         if not widget.is_initialized:
             widget.refresh_on_show = True  # Call this method on show
-            widget.editable = True
+            # Renaming IS the double-click: the two menu entries this replaced
+            # (free-form Rename + its affix box, and Rename-strip-trailing) are
+            # gone. Batch name surgery lives in the Texture Path Editor now.
+            #
+            # Deliberately NOT editable at init: an editable combo swallows the
+            # body click that opens the popup (probed), so the panel used to
+            # open with a material list you could not drop down until the combo
+            # had lost focus once — tolerable when a menu command was what
+            # re-enabled editing, wrong now that the combo itself is the
+            # picker. begin_rename() turns editing on for the rename only.
+            widget.rename_on_double_click = True
             # Option box (a separate dropdown from the right-click context
             # menu built below): list-population options for the materials combo.
             widget.option_box.menu.setTitle("Material List Options")
@@ -344,49 +371,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             # context menu once one is triggered.
             widget.menu.hide_on_trigger = True
             widget.menu.add("Separator", setTitle="Edit")
-            # "Rename" label + prefix/suffix affix option box (shared, DCC-agnostic).
-            self._add_rename_control(widget.menu)
-            lbl007 = widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Rename (strip trailing ints & _)",
-                setObjectName="lbl007",
-                setToolTip="Rename the current material by removing trailing digits and underscores if present.",
-            )
-            lbl007.option_box.set_action(
-                callback=self.lbl007_global,
-                icon="list",
-                tooltip="Strip trailing ints & _ from ALL scene materials.",
-            )
-            # Toggle: how same-base name conflicts are resolved.
-            # Off (default): skip conflicting groups (legacy behavior).
-            # On: rename group members with alphabetical suffixes (mat_A, mat_B, ...).
-            # Registered-widget lookup, not an import: the Switchboard's widget
-            # registry already carries every public class under uitk/widgets/.
-            self._strip_alpha_option = self.sb.registered_widgets.ActionOption(
-                wrapped_widget=lbl007,
-                callback=None,
-                states=[
-                    {
-                        "icon": "font",
-                        "tooltip": (
-                            "Name conflicts: <strong>skip</strong> (default).<br>"
-                            "Click to resolve conflicts with alphabetical suffixes "
-                            "(mat_A, mat_B, mat_C, ...)."
-                        ),
-                    },
-                    {
-                        "icon": "font",
-                        "color": "#5fb878",
-                        "tooltip": (
-                            "Name conflicts: <strong>alphabetical</strong> "
-                            "(mat_A, mat_B, mat_C, ...).<br>"
-                            "Click to disable and skip conflicts instead."
-                        ),
-                    },
-                ],
-                settings_key="materials_strip_collision_alpha",
-            )
-            lbl007.option_box.add_option(self._strip_alpha_option)
             widget.menu.add(
                 self.sb.registered_widgets.Label,
                 setText="Delete",
@@ -467,70 +451,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             if chk is not None and chk.isChecked()
         ]
 
-    def _collision_mode_is_alpha(self):
-        """Read the persistent toggle on the lbl007 option box.
-
-        Returns True when same-base name conflicts should be resolved with
-        alphabetical suffixes (mat_A, mat_B, ...) rather than skipped.
-        """
-        opt = getattr(self, "_strip_alpha_option", None)
-        return bool(opt and opt.current_state == 1)
-
-    def _strip_material_names(self, materials):
-        """Strip trailing ints/underscores across the given materials and apply renames.
-
-        Delegates the strip + collision-resolution logic to
-        ``pythontk.StrUtils.resolve_name_collisions``. The option-box toggle
-        controls whether multi-member groups get alphabetical suffixes
-        (``mat_A``, ``mat_B``, ...) or are skipped. Single-member groups
-        always strip to base.
-
-        Parameters:
-            materials: Iterable of Maya material nodes.
-
-        Returns:
-            dict with keys:
-                renamed: list[(old_name, new_name)] successfully renamed.
-                no_change: list[old_name] that needed no strip (already at base
-                    in a singleton group, or skipped because of toggle-off conflict).
-                conflicts: list[old_name] whose target collided with a non-input
-                    scene node.
-                failed: list[str] error messages from cmds.rename failures.
-        """
-        materials = list(materials)
-        name_to_mat = {str(m).rsplit("|", 1)[-1]: m for m in materials}
-        candidates = list(name_to_mat.keys())
-
-        rename_map = ptk.StrUtils.resolve_name_collisions(
-            candidates,
-            strip="_",
-            strip_trailing_ints=True,
-            collision_suffix="alpha" if self._collision_mode_is_alpha() else None,
-        )
-
-        renamed, conflicts, failed = [], [], []
-        no_change = [n for n in candidates if n not in rename_map]
-        candidate_set = set(candidates)
-
-        for old_name, new_name in rename_map.items():
-            # Allow the rename if the target collides only with another candidate
-            # (which will itself be renamed away), but not with an unrelated node.
-            if new_name not in candidate_set and cmds.objExists(new_name):
-                conflicts.append(old_name)
-                continue
-            try:
-                cmds.rename(str(name_to_mat[old_name]), new_name)
-                renamed.append((old_name, new_name))
-            except Exception as e:
-                failed.append(f"{old_name}: {e}")
-
-        return {
-            "renamed": renamed,
-            "no_change": no_change,
-            "conflicts": conflicts,
-            "failed": failed,
-        }
-
     def _rename_current(self, text):
         """Rename the current material to ``text`` (combo edit-finished).
 
@@ -561,108 +481,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         self._refresh_material_lists()
         self.ui.cmb002.setAsCurrent(new_name)
         return new_name
-
-    def _refresh_after_rename(self, current_old, renamed):
-        """Re-populate the material lists and restore selection on the current mat.
-
-        The refresh comes first so the combo and both Assign lists carry the new
-        names before the selection is restored; ``setAsCurrent`` then re-fires
-        :meth:`_refresh_assign_lists` through ``currentIndexChanged`` if it
-        actually moves the index, so no trailing refresh is needed here.
-        """
-        self._refresh_material_lists()
-        for old, new in renamed:
-            if old == current_old:
-                self.ui.cmb002.setAsCurrent(new)
-                break
-
-    def lbl007(self):
-        """Rename the current material by stripping trailing integers and underscores.
-
-        With the option-box alpha toggle ON, the current material's collision
-        group (other materials sharing the same stripped base) is renamed
-        alphabetically together so the convention stays consistent. With the
-        toggle OFF, only the current material is renamed and the operation
-        aborts on conflict.
-        """
-        mat = self.ui.cmb002.currentData()
-        if not mat:
-            return
-
-        old_name = str(mat).rsplit("|", 1)[-1]
-        target_base = ptk.StrUtils.format_suffix(
-            old_name, strip="_", strip_trailing_ints=True
-        )
-        if not target_base:
-            self.sb.message_box(
-                "<hl>Invalid new name</hl><br>Stripping suffix results in an empty name. Rename aborted."
-            )
-            return
-
-        # Scope the operation: alpha mode renames the whole group; skip mode renames just the current.
-        if self._collision_mode_is_alpha():
-            all_materials = mtk.MatUtils.get_scene_mats(
-                exc="standardSurface", sort=True
-            )
-            scope = [
-                m
-                for m in all_materials
-                if ptk.StrUtils.format_suffix(
-                    str(m).rsplit("|", 1)[-1], strip="_", strip_trailing_ints=True
-                )
-                == target_base
-            ]
-        else:
-            scope = [mat]
-
-        result = self._strip_material_names(scope)
-
-        if old_name in result["no_change"]:
-            self.sb.message_box(
-                "<hl>No trailing suffix</hl><br>No trailing integers or underscores to strip; rename not performed."
-            )
-            return
-        if old_name in result["conflicts"]:
-            self.sb.message_box(
-                f"<hl>Rename aborted</hl><br>A node named '<strong>{target_base}</strong>' already exists."
-            )
-            return
-        if result["failed"]:
-            self.sb.message_box(f"<hl>Rename failed</hl><br>{result['failed'][0]}")
-            return
-
-        self._refresh_after_rename(old_name, result["renamed"])
-
-    def lbl007_global(self):
-        """Rename ALL scene materials by stripping trailing integers and underscores.
-
-        Same-base groups are resolved per the option-box alpha toggle: skipped
-        (default) or renamed with alphabetical suffixes (mat_A, mat_B, mat_C, ...).
-        Reports a summary at the end.
-        """
-        materials = list(
-            mtk.MatUtils.get_scene_mats(exc="standardSurface", sort=True)
-        )
-        if not materials:
-            self.sb.message_box(
-                "<hl>No materials</hl><br>No materials found in scene."
-            )
-            return
-
-        current = self.ui.cmb002.currentData()
-        current_old = str(current).rsplit("|", 1)[-1] if current else None
-
-        result = self._strip_material_names(materials)
-        self._refresh_after_rename(current_old, result["renamed"])
-
-        mode = "alpha" if self._collision_mode_is_alpha() else "skip"
-        self.sb.message_box(
-            f"<hl>Strip trailing — global ({mode})</hl><br>"
-            f"Renamed: <strong>{len(result['renamed'])}</strong><br>"
-            f"No change: <strong>{len(result['no_change'])}</strong><br>"
-            f"Conflicts: <strong>{len(result['conflicts'])}</strong><br>"
-            f"Failed: <strong>{len(result['failed'])}</strong>"
-        )
 
     def tb000_init(self, widget):
         """ """

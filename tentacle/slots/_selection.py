@@ -24,7 +24,11 @@ Two subsystems live here:
 
 
 class SelectionMixin:
-    """Shared ``selection`` panel behavior. Mixed in ahead of the DCC Slots base."""
+    """Shared ``selection`` panel behavior. Mixed in ahead of the DCC Slots base.
+
+    Not to be confused with ``slots/{maya,blender}/hud.py``'s ``HudSelectionMixin``,
+    which is the HUD's readout of *what is selected*; this is the panel's logic.
+    """
 
     # ------------------------------------------------------------------ hooks
     #: Convert To: ``{label: callable}`` in display order. The fork defines it;

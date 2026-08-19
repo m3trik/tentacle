@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import bpy
-import pythontk as ptk
 import blendertk as btk
 from tentacle import MaterialsMixin, SlotsBlender
 
@@ -125,10 +124,15 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
     # ------------------------------------------------------------------ cmb002  Material list
     def cmb002_init(self, widget):
         """Materials combo: scene materials with color swatches + option box (Cleanup) + a
-        right-click Edit/View menu (Rename / Delete / Select Node / Open in Editor)."""
+        right-click Edit/View menu (Delete / Select Node / Open in Editor; renaming is the
+        combo's own double-click)."""
         if not widget.is_initialized:
             widget.refresh_on_show = True
-            widget.editable = True
+            # Renaming IS the double-click (mirror of mayatk) — the two menu
+            # rename entries this replaced are gone. Not editable at init: an
+            # editable combo swallows the body click that opens the popup, so
+            # the list could not be dropped down until it had lost focus once.
+            widget.rename_on_double_click = True
 
             # Option box — Cleanup actions. (Maya's 'Hide Default Materials' toggle is omitted:
             # Blender has no built-in default materials to hide.)
@@ -148,17 +152,6 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             # one-shot action — dismiss the menu once one is triggered.
             widget.menu.hide_on_trigger = True
             widget.menu.add("Separator", setTitle="Edit")
-            # "Rename" label + prefix/suffix affix option box (shared, DCC-agnostic).
-            self._add_rename_control(widget.menu)
-            lbl007 = widget.menu.add(
-                self.sb.registered_widgets.Label, setText="Rename (strip trailing ints & _)",
-                setObjectName="lbl007",
-                setToolTip="Strip trailing digits/underscores from the current material's name.",
-            )
-            lbl007.option_box.set_action(
-                callback=self.lbl007_global, icon="list",
-                tooltip="Strip trailing ints & _ from ALL scene materials.",
-            )
             widget.menu.add(
                 self.sb.registered_widgets.Label, setText="Delete", setObjectName="lbl002",
                 setToolTip="Delete the current material.",
@@ -577,6 +570,24 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self.sb.message_box(f"Assigned <hl>{mat_name}</hl> to <hl>{len(selection)}</hl> object(s).")
 
     # ------------------------------------------------------------------ Submenu Tools list
+
+    #: ``{slot name: () -> AppSpec}`` for Tools entries whose external app may be
+    #: absent (mirrors the Maya fork). Lambdas rather than specs, because reaching
+    #: a bridge's ``APP`` imports its engine module and this class body executes for
+    #: EVERY panel when the Switchboard builds its slot registry — the import has to
+    #: wait until the list is actually built. ``Slots.gate_on_app`` calls them and
+    #: tolerates a failure, so a broken engine costs its own entry a gate, not the
+    #: whole list.
+    #:
+    #: ``b022``-``b025`` (Map Compositor, Metashape / RealityCapture / Brush Splat
+    #: workflows) are deliberately absent: those are ``extapps`` panels the
+    #: ExternalAppHandler installs ON DEMAND, so gating them would contradict
+    #: install-on-first-launch.
+    _EXTERNAL_APP_GATES = {
+        "b019": lambda: btk.MarmosetBridge.APP,
+        "b020": lambda: btk.SubstanceBridge.APP,
+    }
+
     def list001_init(self, widget):
         """Tools list (Setup tools with a native Blender op).
 
@@ -595,14 +606,17 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             for label, slot_name, *rest in items:
                 tooltip = rest[0] if rest else ""
                 if slot_name and hasattr(self, f"{slot_name}_init"):
-                    self.add_slot_widget(
+                    item = self.add_slot_widget(
                         cat.sublist,
                         setObjectName=slot_name,
                         setText=label,
                         setToolTip=tooltip,
                     )
                 else:
-                    cat.sublist.add(label, setToolTip=tooltip)
+                    item = cat.sublist.add(label, setToolTip=tooltip)
+                resolve_spec = self._EXTERNAL_APP_GATES.get(slot_name)
+                if resolve_spec is not None:
+                    self.gate_on_app(item, resolve_spec)
 
     @SlotsBlender.Signals("on_item_interacted")
     def list001(self, item):
@@ -725,42 +739,6 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         if mat is None:
             return
         btk.graph_materials(mat)
-
-    def lbl007(self):
-        """Rename the current material by stripping trailing integers/underscores."""
-        mat = self._resolve_material(self.ui.cmb002.currentData())
-        if mat is None:
-            return
-        base = ptk.StrUtils.format_suffix(mat.name, strip="_", strip_trailing_ints=True)
-        if not base:
-            self.sb.message_box("<hl>Invalid name</hl><br>Stripping leaves an empty name.")
-            return
-        if base == mat.name:
-            self.sb.message_box("<hl>No trailing suffix</hl><br>Nothing to strip.")
-            return
-        if bpy.data.materials.get(base) is not None:
-            self.sb.message_box(f"<hl>Rename aborted</hl><br>'{base}' already exists.")
-            return
-        mat.name = base
-        self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(base)
-
-    def lbl007_global(self):
-        """Strip trailing ints/underscores from ALL scene materials (skips on-collision)."""
-        materials = btk.get_scene_mats(sort=True)
-        names = [m.name for m in materials]
-        rename_map = ptk.StrUtils.resolve_name_collisions(
-            names, strip="_", strip_trailing_ints=True
-        )
-        by_name = {m.name: m for m in materials}
-        renamed = 0
-        for old, new in rename_map.items():
-            if new in names or bpy.data.materials.get(new) is not None:
-                continue  # would collide with a non-input node
-            by_name[old].name = new
-            renamed += 1
-        self._refresh_material_lists()
-        self.sb.message_box(f"<hl>Strip trailing — global</hl><br>Renamed: <strong>{renamed}</strong>.")
 
     # ------------------------------------------------------------------ Setup tools
     def b021(self):

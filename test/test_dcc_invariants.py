@@ -319,5 +319,99 @@ class TestSlotImportDiscipline(unittest.TestCase):
         )
 
 
+def _gate_tokens(source):
+    """``(gated widget names, gated AppSpec names)`` for one slot module.
+
+    Two spellings reach the same feature, so both are collected:
+
+    * ``_EXTERNAL_APP_GATES`` — a ``{slot name: () -> AppSpec}`` registry consumed by a
+      loop that builds the widgets (the Tools list), where the ``gate_on_app`` call site
+      names a loop variable and says nothing about WHICH entries are gated.
+    * a direct ``self.gate_on_app(widget.menu.<name>, lambda: <Bridge>.APP)`` on a widget
+      built by hand (the UV header's RizomUV button).
+
+    The AppSpec half is the DCC-neutral tail of the resolver chain (``mtk.X.APP`` and
+    ``btk.X.APP`` both reduce to ``X``), which is what makes the two forks comparable.
+    """
+    widgets, specs, resolvers = set(), set(), []
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.ClassDef):
+            registry = _dict_entries(node, "_EXTERNAL_APP_GATES")
+            widgets.update(registry)
+            resolvers.extend(registry.values())
+        if not (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "gate_on_app"
+        ):
+            continue
+        target = node.args[0] if node.args else None
+        # A bare Name is a loop variable (``item``) — the registry above already
+        # names those entries; only a hand-built widget path identifies itself here.
+        if isinstance(target, ast.Attribute):
+            widgets.add(target.attr)
+        resolvers.append(node)
+    for resolver in resolvers:
+        for sub_node in ast.walk(resolver):
+            if (
+                isinstance(sub_node, ast.Attribute)
+                and sub_node.attr == "APP"
+                and isinstance(sub_node.value, ast.Attribute)
+            ):
+                specs.add(sub_node.value.attr)
+    return widgets, specs
+
+
+class TestExternalAppGateParity(unittest.TestCase):
+    """A widget gated on an optional external app in one fork is gated in the twin.
+
+    ``blendertk`` mirrors ``mayatk``'s bridge surface (``MarmosetBridge`` /
+    ``SubstanceBridge`` / ``RizomUVBridge`` all carry the same ``APP`` spec), and the
+    forks carry the same menu entries — so gating only one fork leaves the other
+    offering a button whose sole outcome is a "not found" error, ignoring the user's
+    ``unmet_policy``. Invisible to the panel parity sweep, which diffs *widgets*: both
+    forks HAVE the widget; only one presents it conditionally.
+
+    AST-based — the Blender slots import ``bpy`` at module scope. Extends to a new
+    bridge or a third DCC with no edit here.
+    """
+
+    def _forks(self, module):
+        out = {}
+        for dcc in DCCS:
+            path = SLOTS_ROOT / dcc / module
+            if path.is_file():
+                out[dcc] = _gate_tokens(path.read_text(encoding="utf-8"))
+        return out
+
+    def test_the_same_widgets_are_gated_in_every_fork(self):
+        for module in ("materials.py", "uv.py"):
+            forks = self._forks(module)
+            if len(forks) < 2:
+                continue
+            baseline = forks["maya"][0]
+            self.assertTrue(baseline, f"maya/{module} gates nothing — bad baseline")
+            for dcc, (widgets, _) in forks.items():
+                with self.subTest(module=module, dcc=dcc):
+                    self.assertEqual(
+                        widgets,
+                        baseline,
+                        f"{dcc}/{module} gates {sorted(widgets)}; "
+                        f"maya/{module} gates {sorted(baseline)}",
+                    )
+
+    def test_every_fork_gates_on_the_same_bridge_specs(self):
+        """``mtk.MarmosetBridge.APP`` and ``btk.MarmosetBridge.APP`` are the same spec —
+        a fork gating on a differently named bridge is a mirror that drifted."""
+        for module in ("materials.py", "uv.py"):
+            forks = self._forks(module)
+            if len(forks) < 2:
+                continue
+            baseline = forks["maya"][1]
+            for dcc, (_, specs) in forks.items():
+                with self.subTest(module=module, dcc=dcc):
+                    self.assertEqual(specs, baseline)
+
+
 if __name__ == "__main__":
     unittest.main()

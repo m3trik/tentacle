@@ -37,7 +37,12 @@ class StatusMixin:
         )
 
 
-class SelectionMixin:
+class HudSelectionMixin:
+    """HUD readout of what is selected — unrelated to the package-level
+    :class:`tentacle.SelectionMixin` (the shared ``selection`` panel behavior); named
+    apart so the two can't be confused at an import site.
+    """
+
     @staticmethod
     def _poly_counts(objects):
         """(faces, tris, uvs) across the given mesh objects — C-speed via foreach_get
@@ -165,7 +170,7 @@ class WarningsMixin(HudWarningsMixin):
         )
 
 
-class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin):
+class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin):
     """HUD Slots for Blender, providing scene and selection information."""
 
     _hud_request_token: int = 0

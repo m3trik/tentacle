@@ -124,3 +124,45 @@ jobs:
         # mtime-based registry-freshness guard; --check still
         # content-diffs the committed PARITY_AUDIT.md.
         run: python m3trik/scripts/generate_parity_audit.py --check --allow-stale
+
+  api-registry:
+    # Content-hash staleness gate for the committed API_INDEX.md /
+    # API_REGISTRY.md (root CLAUDE.md documents --check as the CI gate; before
+    # this it was wired into no workflow). Its own job because the generator
+    # lives in the m3trik repo and expects the monorepo layout - <pkg>/ and
+    # m3trik/ as siblings - so the repos are checked out into sibling paths,
+    # the same shape tentacle's parity job uses. pythontk is checked out for
+    # one stdlib file: it owns the SymbolRecord DTO the generator loads from
+    # source (SSoT for the registry's symbol shape).
+    #
+    # AST-only: no package install, no DCC, no git history. Deterministic in a
+    # fresh checkout because --check hashes CONTENT, not mtimes, and normalizes
+    # away the generation date and #L line numbers (see StalenessGate) - only a
+    # real public-surface delta fails this.
+    name: API registry up to date
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tentacle
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/m3trik
+          ref: main
+          path: m3trik
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/pythontk
+          ref: dev
+          path: pythontk
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Registry matches source
+        run: python m3trik/scripts/generate_api_registry.py tentacle --check

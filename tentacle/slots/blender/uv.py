@@ -1,8 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
 import math
+import os
 
 import bpy
+import pythontk as ptk
 import blendertk as btk
 from tentacle import UvMixin, SlotsBlender
 
@@ -116,7 +118,8 @@ class Uv(UvMixin, SlotsBlender):
         # "Preserve 3D" runs a native average-islands-scale pass (equal texel density) before
         # packing; "Preserve UV" skips it and keeps each shell's current relative proportions.
         cmb009 = m.add(
-            "QComboBox", setObjectName="cmb009",
+            "QComboBox",
+            setObjectName="cmb009",
             setToolTip=self.sb.tooltip.fmt(
                 title="Pre-Scale Mode",
                 body="How shells are sized relative to each other before packing.",
@@ -128,19 +131,28 @@ class Uv(UvMixin, SlotsBlender):
                 ],
             ),
         )
-        for text, data in (("Pre-Scale: Preserve UV", 0), ("Pre-Scale: Preserve 3D", 1)):
+        for text, data in (
+            ("Pre-Scale: Preserve UV", 0),
+            ("Pre-Scale: Preserve 3D", 1),
+        ):
             cmb009.addItem(text, data)
         cmb009.setCurrentIndex(1)  # matches Maya's default (Preserve 3D)
         m.add(
-            "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_pack_margin",
-            set_limits=[0, 1, 0.001, 3], setValue=0.001,
+            "QDoubleSpinBox",
+            setPrefix="Margin: ",
+            setObjectName="s_pack_margin",
+            set_limits=[0, 1, 0.001, 3],
+            setValue=0.001,
             setToolTip=self.sb.tooltip.fmt(
                 title="Margin",
                 body="Spacing left between packed islands, in UV units.",
             ),
         )
         m.add(
-            "QCheckBox", setText="Rotate Islands", setObjectName="chk_pack_rotate", setChecked=True,
+            "QCheckBox",
+            setText="Rotate Islands",
+            setObjectName="chk_pack_rotate",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Rotate Islands",
                 body="Let the packer re-orient an island wherever that packs tighter.",
@@ -152,8 +164,11 @@ class Uv(UvMixin, SlotsBlender):
         # tile they already occupy, NOT 0-1 — so tb000 reads the tile actually packed into
         # afterward and moves the map by the delta into this tile.
         m.add(
-            "QSpinBox", setPrefix="UDIM: ", setObjectName="s004",
-            set_limits=[1001, 1200], setValue=1001,
+            "QSpinBox",
+            setPrefix="UDIM: ",
+            setObjectName="s004",
+            set_limits=[1001, 1200],
+            setValue=1001,
             setToolTip=self.sb.tooltip.fmt(
                 title="UDIM",
                 body="The tile the shells end up in (1001–1200). "
@@ -203,12 +218,18 @@ class Uv(UvMixin, SlotsBlender):
                 margin=m.s_pack_margin.value(), rotate=m.chk_pack_rotate.isChecked()
             )
 
-        try:
-            if not self._uv_op(_pack):
+        # One bulk operator call with nothing to tick from the inside, so the
+        # marquee is painted before it and torn down after (mirror of Maya's).
+        with self.sb.progress(text="Working: Pack UVs") as update:
+            update()
+            try:
+                if not self._uv_op(_pack):
+                    return
+            except (
+                RuntimeError
+            ):  # average_islands_scale/pack_islands poll-fail without a UV layer
+                self.sb.message_box("No UVs found on the selection.")
                 return
-        except RuntimeError:  # average_islands_scale/pack_islands poll-fail without a UV layer
-            self.sb.message_box("No UVs found on the selection.")
-            return
         # 4.x+ pack_islands defaults udim_source='CLOSEST_UDIM' — islands already in another
         # tile pack into THAT tile, not 0-1, so a blind fixed shift would land the map in the
         # wrong tile. Read the tile actually packed into (floor of the achieved min u/v) and
@@ -234,7 +255,9 @@ class Uv(UvMixin, SlotsBlender):
         # Item data is the key consumed by tb001 -- "standard" for Blender's own
         # Smart UV Project, else a UvUtils.auto_unwrap method name. Labels match
         # the Maya panel's exactly (cross-DCC parity).
-        cmb011 = m.add("QComboBox", setObjectName="cmb011",
+        cmb011 = m.add(
+            "QComboBox",
+            setObjectName="cmb011",
             setToolTip=self.sb.tooltip.fmt(
                 title="Unwrap Method",
                 body="Which algorithm generates the UVs.",
@@ -262,8 +285,11 @@ class Uv(UvMixin, SlotsBlender):
             cmb011.addItem(text, data)
         cmb011.setCurrentIndex(0)  # Standard — needs no external engine
         m.add(
-            "QSpinBox", setPrefix="Angle Limit: ", setObjectName="s_smart_angle",
-            set_limits=[1, 89], setValue=66,
+            "QSpinBox",
+            setPrefix="Angle Limit: ",
+            setObjectName="s_smart_angle",
+            set_limits=[1, 89],
+            setValue=66,
             setToolTip=self.sb.tooltip.fmt(
                 title="Angle Limit",
                 body="Smart UV Project's projection angle limit, in degrees. "
@@ -272,8 +298,11 @@ class Uv(UvMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Island Margin: ", setObjectName="s_smart_margin",
-            set_limits=[0, 1, 0.001, 3], setValue=0.0,
+            "QDoubleSpinBox",
+            setPrefix="Island Margin: ",
+            setObjectName="s_smart_margin",
+            set_limits=[0, 1, 0.001, 3],
+            setValue=0.0,
             setToolTip=self.sb.tooltip.fmt(
                 title="Island Margin",
                 body="Spacing left between the generated islands, in UV units.",
@@ -304,14 +333,18 @@ class Uv(UvMixin, SlotsBlender):
                 )
                 return
             # Not via _uv_op: auto_unwrap manages its own object-mode context.
-            return self._run_auto_unwrap(btk, objects, mode, self.get_map_size())
+            with self.sb.progress(text=f"Working: Auto Unwrap ({mode})") as update:
+                update()
+                return self._run_auto_unwrap(btk, objects, mode, self.get_map_size())
 
-        self._uv_op(
-            lambda: bpy.ops.uv.smart_project(
-                angle_limit=math.radians(m.s_smart_angle.value()),
-                island_margin=m.s_smart_margin.value(),
+        with self.sb.progress(text="Working: Auto Unwrap") as update:
+            update()
+            self._uv_op(
+                lambda: bpy.ops.uv.smart_project(
+                    angle_limit=math.radians(m.s_smart_angle.value()),
+                    island_margin=m.s_smart_margin.value(),
+                )
             )
-        )
 
     # method enum -> friendly label (Minimum Stretch only exists on newer Blender; guarded).
     _UNWRAP_METHODS = {"Angle Based": "ANGLE_BASED", "Conformal": "CONFORMAL"}
@@ -320,33 +353,50 @@ class Uv(UvMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Unfold")
         m.add(
-            "QComboBox", addItems=list(self._UNWRAP_METHODS), setObjectName="cmb_unfold_method",
+            "QComboBox",
+            addItems=list(self._UNWRAP_METHODS),
+            setObjectName="cmb_unfold_method",
             setToolTip="Unwrap algorithm.",
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Margin: ", setObjectName="s_unfold_margin",
-            set_limits=[0, 1, 0.001, 3], setValue=0.0,
+            "QDoubleSpinBox",
+            setPrefix="Margin: ",
+            setObjectName="s_unfold_margin",
+            set_limits=[0, 1, 0.001, 3],
+            setValue=0.0,
             setToolTip="Spacing between islands after unwrap.",
         )
         # Maya parity: post-unwrap relax (Optimize) + axis-align (Orient). Reuses Maya's
         # chk017/chk007 names + labels (same options, cross-DCC QSettings rule).
         m.add(
-            "QCheckBox", setText="Optimize", setObjectName="chk017", setChecked=True,
+            "QCheckBox",
+            setText="Optimize",
+            setObjectName="chk017",
+            setChecked=True,
             setToolTip="Relax the unwrap to even out UV spacing (Minimize Stretch).",
         )
         m.add(
-            "QCheckBox", setText="Orient", setObjectName="chk007", setChecked=True,
+            "QCheckBox",
+            setText="Orient",
+            setObjectName="chk007",
+            setChecked=True,
             setToolTip="Rotate each shell parallel to the nearest U/V axis (Align Rotation).",
         )
         # chk022/s000 reuse the Maya objectNames + labels (same options, cross-DCC rule):
         # post-unfold similarity-gated stacking (btk.stack_uv_shells(tolerance=...)).
         m.add(
-            "QCheckBox", setText="Stack Similar", setObjectName="chk022", setChecked=True,
+            "QCheckBox",
+            setText="Stack Similar",
+            setObjectName="chk022",
+            setChecked=True,
             setToolTip="Stack only shells that fall within the set tolerance.",
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="s000",
-            set_limits=[0, 10, 0.1, 1], setValue=1.0,
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="s000",
+            set_limits=[0, 10, 0.1, 1],
+            setValue=1.0,
             setToolTip="Stack shells with uv's within the given range.",
         )
 
@@ -354,7 +404,9 @@ class Uv(UvMixin, SlotsBlender):
     def tb004(self, widget):
         """Unfold (unwrap, then optionally relax, axis-align, and stack similar shells)."""
         m = widget.option_box.menu
-        method = self._UNWRAP_METHODS.get(m.cmb_unfold_method.currentText(), "ANGLE_BASED")
+        method = self._UNWRAP_METHODS.get(
+            m.cmb_unfold_method.currentText(), "ANGLE_BASED"
+        )
         optimize = m.chk017.isChecked()
         orient = m.chk007.isChecked()
         stack_similar = m.chk022.isChecked()
@@ -381,17 +433,27 @@ class Uv(UvMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Cut Cylinder")
         m.add(
-            "QDoubleSpinBox", setPrefix="Crease Angle: ", setObjectName="s016",
-            set_limits=[1, 179], setValue=45.0, setSuffix="°",
+            "QDoubleSpinBox",
+            setPrefix="Crease Angle: ",
+            setObjectName="s016",
+            set_limits=[1, 179],
+            setValue=45.0,
+            setSuffix="°",
             setToolTip="Edges sharper than this angle (degrees) become UV seams — cuts ~90° steps "
             "and cap rings while keeping shallow chamfers merged.",
         )
         m.add(
-            "QCheckBox", setText="Unfold", setObjectName="chk041", setChecked=True,
+            "QCheckBox",
+            setText="Unfold",
+            setObjectName="chk041",
+            setChecked=True,
             setToolTip="Unwrap (flatten) after seaming. Off = only cut the crease seams.",
         )
         m.add(
-            "QCheckBox", setText="Orient", setObjectName="chk042", setChecked=True,
+            "QCheckBox",
+            setText="Orient",
+            setObjectName="chk042",
+            setChecked=True,
             setToolTip="Rotate each shell parallel to the nearest U/V axis when packing.",
         )
 
@@ -439,7 +501,10 @@ class Uv(UvMixin, SlotsBlender):
         """Unfold and Pack UVs"""
         try:
             self._uv_op(
-                lambda: (bpy.ops.uv.unwrap(method="ANGLE_BASED"), bpy.ops.uv.pack_islands())
+                lambda: (
+                    bpy.ops.uv.unwrap(method="ANGLE_BASED"),
+                    bpy.ops.uv.pack_islands(),
+                )
             )
         except RuntimeError:  # uv.* poll failure without a UV layer
             self.sb.message_box("No UVs found on the selection.")
@@ -451,27 +516,42 @@ class Uv(UvMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Cleanup UV Sets")
         m.add(
-            "QCheckBox", setText="Prefer Best Layout", setObjectName="chk029", setChecked=True,
+            "QCheckBox",
+            setText="Prefer Best Layout",
+            setObjectName="chk029",
+            setChecked=True,
             setToolTip="Keep the UV set with the largest UV footprint, not just the first one.",
         )
         m.add(
-            "QCheckBox", setText="Remove Empty Sets", setObjectName="chk035", setChecked=True,
+            "QCheckBox",
+            setText="Remove Empty Sets",
+            setObjectName="chk035",
+            setChecked=True,
             setToolTip="Delete UV sets whose UVs are all at the origin (never unwrapped).",
         )
         m.add(
-            "QCheckBox", setText="Delete Secondary Sets", setObjectName="chk036",
+            "QCheckBox",
+            setText="Delete Secondary Sets",
+            setObjectName="chk036",
             setToolTip="Delete ALL other UV sets, leaving only the kept one.",
         )
         m.add(
-            "QCheckBox", setText="Rename to 'map1'", setObjectName="chk037", setChecked=True,
+            "QCheckBox",
+            setText="Rename to 'map1'",
+            setObjectName="chk037",
+            setChecked=True,
             setToolTip="Rename the kept UV set to 'map1' (Maya's default — export pipeline parity).",
         )
         m.add(
-            "QCheckBox", setText="Force Rename", setObjectName="chk038",
+            "QCheckBox",
+            setText="Force Rename",
+            setObjectName="chk038",
             setToolTip="If another set is already named 'map1', overwrite it instead of skipping.",
         )
         m.add(
-            "QCheckBox", setText="Dry Run", setObjectName="chk030",
+            "QCheckBox",
+            setText="Dry Run",
+            setObjectName="chk030",
             setToolTip="Report what would change without modifying anything.",
         )
 
@@ -481,7 +561,9 @@ class Uv(UvMixin, SlotsBlender):
         m = widget.option_box.menu
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
         if not objects:
-            self.sb.message_box("<b>Nothing selected.</b><br>Select mesh object(s) with UV sets.")
+            self.sb.message_box(
+                "<b>Nothing selected.</b><br>Select mesh object(s) with UV sets."
+            )
             return
         dry_run = m.chk030.isChecked()
         results = btk.cleanup_uv_sets(
@@ -493,7 +575,9 @@ class Uv(UvMixin, SlotsBlender):
             prefer_largest_area=m.chk029.isChecked(),
             dry_run=dry_run,
         )
-        verb, del_verb = ("Would keep", "would delete") if dry_run else ("Kept", "deleted")
+        verb, del_verb = (
+            ("Would keep", "would delete") if dry_run else ("Kept", "deleted")
+        )
         lines = []
         for r in results:
             if r.error:
@@ -515,15 +599,26 @@ class Uv(UvMixin, SlotsBlender):
         # Every entry is a one-shot action — dismiss the menu once one is triggered.
         widget.menu.hide_on_trigger = True
         widget.menu.add(
-            "QPushButton", setText="Create UV Snapshot", setObjectName="uv_snapshot",
+            "QPushButton",
+            setText="Create UV Snapshot",
+            setObjectName="uv_snapshot",
             setToolTip="Export the active mesh's UV layout to an image (native Export UV Layout) "
             "as a texture-painting reference.",
         )
         widget.menu.add(
-            "QPushButton", setText="RizomUV Bridge", setObjectName="btn_rizom_bridge",
+            "QPushButton",
+            setText="RizomUV Bridge",
+            setObjectName="btn_rizom_bridge",
             setToolTip="Round-trip selected meshes through RizomUV using a Lua preset.",
             clicked=lambda: self.b032(),
         )
+        # RizomUV is an optional third-party app. Present the entry per the user's
+        # ``unmet_policy`` (Preferences > Unavailable tools) when it isn't installed,
+        # rather than offering a button whose only outcome is a "not found" error.
+        # The lambda defers the engine import into gate_on_app (see its docstring);
+        # ``APP.available`` is cached, so this costs one dict lookup after the
+        # first probe.
+        self.gate_on_app(widget.menu.btn_rizom_bridge, lambda: btk.RizomUVBridge.APP)
 
     def uv_snapshot(self):
         """Create UV Snapshot — export the active mesh's UV layout to an image."""
@@ -538,30 +633,94 @@ class Uv(UvMixin, SlotsBlender):
         """Open UV Editor"""
         btk.open_editor("UV Editor")
 
-    # ------------------------------------------------------------------ b000  Transfer UVs
-    @btk.undoable
+    # ------------------------------------------------------------------
+    # b000  Transfer UVs / Textures
+    # ------------------------------------------------------------------
     def b000_init(self, widget):
-        """Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;
-        'instances' here = linked duplicates, which share the datablock and are skipped)."""
-        widget.option_box.menu.setTitle("Transfer UVs")
-        cmb014 = widget.option_box.menu.add(
+        """Initialize the Transfer option box.
+
+        One tool, two transfers that are ALTERNATIVES (see ``UvMixin``'s
+        Transfer modes): the source's UV layout onto the targets
+        (``btk.transfer_uvs`` -- exact for identical topology, sampled by
+        proximity otherwise), or the source's textures re-mapped into each
+        target's OWN layout (``btk.TextureTransfer`` over ``pythontk.UvTransfer``:
+        exact texel correspondence, so it never bleeds the way a ray-cast bake
+        does where a mesh touches itself). They do not compose -- the texture
+        pass keeps the target's UV map, so a source layout copied alongside its
+        maps would land in a UV map nothing references.
+        """
+        menu = widget.option_box.menu
+        menu.setTitle("Transfer UVs / Textures")
+        cmb024 = menu.add(
+            "QComboBox",
+            setObjectName="cmb024",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Source",
+                body="Where the UVs / textures come FROM. Everything else selected "
+                "at run time is a <b>target</b>.",
+                bullets=[
+                    "<b>Active Mesh</b> — the active object is the source; the "
+                    "Scope below picks the targets.",
+                    "<b>Stored Source Meshes</b> — the meshes captured with "
+                    "<i>Set Source From Selection</i>, paired to the selected "
+                    "targets by matching name (then by order). Use for a "
+                    "re-unwrapped / repacked copy, or a many-materials-to-one "
+                    "consolidation.",
+                    "<b>UV Map On Same Mesh</b> — textures only: read them through "
+                    "the Source UV Map and write them for the Target UV Map, on "
+                    "each selected mesh.",
+                ],
+                notes=[
+                    "Textures need identical topology (same faces and vertex "
+                    "order); UVs do not.",
+                ],
+            ),
+        )
+        for text, data in [
+            ("Source: Active Mesh", "first"),
+            ("Source: Stored Source Meshes", "stored"),
+            ("Source: UV Map On Same Mesh", "uvset"),
+        ]:
+            cmb024.addItem(text, data)
+        btn_src = menu.add(
+            "QPushButton",
+            setText="Set Source From Selection",
+            setObjectName="btn_tt_set_source",
+        )
+        btn_src.clicked.connect(self._tt_set_source_from_selection)
+        # Bound through the switchboard rather than ``btn_src.tooltip``:
+        # ``Menu.add`` defers register_widget (which stamps the per-widget
+        # namespace) to a timer, so the proxy does not exist yet here.
+        self.sb.tooltip.bind(btn_src, self._tt_source_tooltip)
+        # Clear rides the button's own option box. It greys (rather than
+        # hides) while nothing is stored, so the row doubles as the panel's
+        # only at-a-glance "is a source set?" readout -- a button that
+        # vanishes reads as a layout change, not as a state.
+        self._tt_clear_action = btn_src.option_box.set_action(
+            callback=self._tt_clear_source,
+            icon="clear",
+            tooltip="Clear the stored source meshes. Enabled only while "
+            "something is stored; the geometry itself is untouched.",
+        )
+        self._tt_src_button = btn_src
+        cmb014 = menu.add(
             "QComboBox",
             setObjectName="cmb014",
             setToolTip=self.sb.tooltip.fmt(
                 title="Scope",
-                body="Where the transfer targets come from. The <b>active</b> "
-                "object is always the source.",
+                body="Which meshes receive the transfer when the source is the "
+                "<b>Active Mesh</b>.",
                 bullets=[
-                    "<b>Selection Order</b> — transfer to each additionally "
-                    "selected object.",
-                    "<b>Similar in Selection</b> — transfer to the selected "
-                    "objects that are geometrically similar to the source.",
-                    "<b>Similar in Scene</b> — transfer to every geometrically "
-                    "similar mesh in the scene.",
+                    "<b>Selection Order</b> — every other selected object.",
+                    "<b>Similar in Selection</b> — the selected objects that are "
+                    "geometrically similar to the source.",
+                    "<b>Similar in Scene</b> — every geometrically similar mesh "
+                    "in the scene.",
                 ],
                 notes=[
-                    "The Similar scopes skip linked duplicates of the source: "
-                    "they share one mesh datablock, so their UVs already match.",
+                    "The Similar scopes find their targets by transferring UVs, "
+                    "so they need <b>Transfer UV Set</b> on; they skip linked "
+                    "duplicates of the source (one mesh datablock, UVs already match).",
                 ],
             ),
         )
@@ -571,7 +730,7 @@ class Uv(UvMixin, SlotsBlender):
             ("Scope: Similar in Scene", "scene"),
         ]:
             cmb014.addItem(text, data)
-        widget.option_box.menu.add(
+        d000 = menu.add(
             "QDoubleSpinBox",
             setObjectName="d000",
             setPrefix="Similarity: ",
@@ -586,49 +745,475 @@ class Uv(UvMixin, SlotsBlender):
                 notes=["Used by the <b>Similar</b> scopes only."],
             ),
         )
+        cmb028 = menu.add(
+            "QComboBox",
+            setObjectName="cmb028",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Transfer",
+                body="What travels from the source to the targets — one or "
+                "the other, since the texture pass deliberately keeps the "
+                "target's own layout.",
+                bullets=[
+                    "<b>UV Map</b> — copy the source's active uv map onto each "
+                    "target, replacing its active one. Exact for identical "
+                    "topology, sampled by proximity otherwise.",
+                    "<b>Textures</b> — re-map the source's textures into "
+                    "each target's OWN layout by exact texel correspondence: a "
+                    "repacked atlas, a material consolidation, or another "
+                    "uv map on the same mesh. No rays, no cage, no bleed.",
+                ],
+                notes=[
+                    "Textures need identical topology (same faces and vertex "
+                    "order); uv maps do not.",
+                ],
+            ),
+        )
+        for text, data in [
+            ("Transfer: UV Map", "uvs"),
+            ("Transfer: Textures", "textures"),
+        ]:
+            cmb028.addItem(text, data)
+        t_tt_src_uvset = menu.add(
+            "QLineEdit",
+            setPlaceholderText="Source UV Map: Auto",
+            setText="",
+            setObjectName="t_tt_src_uvset",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Source UV Map",
+                body="The UV map the textures are READ through. Blank = <b>Auto</b>.",
+                bullets=[
+                    "<b>Mesh sources</b> — Auto is each source mesh's active UV map.",
+                    "<b>UV Map On Same Mesh</b> — Auto is the UV map the mesh's "
+                    "textures are actually bound to (the UV Map node feeding the "
+                    "image, else the active-render map), i.e. the layout the maps "
+                    "were painted for.",
+                ],
+            ),
+        )
+        t_tt_dst_uvset = menu.add(
+            "QLineEdit",
+            setPlaceholderText="Target UV Map: Auto",
+            setText="",
+            setObjectName="t_tt_dst_uvset",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Target UV Map",
+                body="The UV map the maps are WRITTEN for. Blank = <b>Auto</b>.",
+                bullets=[
+                    "<b>Mesh sources</b> — Auto is each target mesh's active UV map.",
+                    "<b>UV Map On Same Mesh</b> — Auto is the first UV map other "
+                    "than the source, so a two-map mesh needs neither named.",
+                ],
+            ),
+        )
+        cmb025 = menu.add(
+            "QComboBox",
+            setObjectName="cmb025",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Resolution",
+                body="Output size per target material.",
+                bullets=["<b>Auto</b> — the largest source map feeding it."],
+            ),
+        )
+        cmb025.addItem("Resolution: Auto", 0)
+        for n in (512, 1024, 2048, 4096, 8192):
+            cmb025.addItem(f"Resolution: {n}", n)
+        cmb026 = menu.add(
+            "QComboBox",
+            setObjectName="cmb026",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Quality",
+                body="Sub-samples per texel axis.",
+                bullets=[
+                    "<b>Fast</b> (1) — point sampling; exact for 1:1 layouts.",
+                    "<b>Standard</b> (2) — anti-aliased island edges and a box "
+                    "filter for islands packed smaller than their source.",
+                    "<b>High</b> (3) — for heavy downscaling.",
+                ],
+                notes=[
+                    "Memory: 8 bytes x quality² x resolution². 4k Standard ≈ 540 MB."
+                ],
+            ),
+        )
+        for text, data in [
+            ("Quality: Fast", 1),
+            ("Quality: Standard", 2),
+            ("Quality: High", 3),
+        ]:
+            cmb026.addItem(text, data)
+        cmb026.setCurrentIndex(1)
+        s025 = menu.add(
+            self.sb.registered_widgets.SpinBox,
+            setPrefix="Padding: ",
+            setObjectName="s025",
+            set_limits=[-1, 256],
+            setValue=-1,
+            setCustomDisplayValues={-1: "Fill"},
+            setToolTip=self.sb.tooltip.fmt(
+                title="Padding",
+                body="Gutter width in texels around each island.",
+                bullets=[
+                    "<b>Fill</b> (-1) — fill every empty texel (mip-safe, the "
+                    "usual choice)."
+                ],
+            ),
+        )
+        cmb027 = menu.add(
+            "QComboBox",
+            setObjectName="cmb027",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Normal Map Convention",
+                body="Y axis of the SOURCE normal maps. Rotated islands mix X and Y, "
+                "so this must be right.",
+                bullets=[
+                    "<b>Auto</b> — classify the filename's map-type suffix through "
+                    "the shared map registry, which knows every handedness "
+                    "spelling the pipeline emits (<i>_DX</i>, <i>DirectX</i>, "
+                    "<i>NRMLDX</i>, <i>N-dx</i> …) and ignores a trailing UDIM or "
+                    "duplicate token.",
+                ],
+                notes=[
+                    "A map with no convention tag (plain <i>_Normal</i>) is read "
+                    "as OpenGL: the convention is unknown, and flipping a guess "
+                    "inverts a map that may already be right. Override here when "
+                    "the filename does not say.",
+                ],
+            ),
+        )
+        for text, data in [
+            ("Normals: Auto", None),
+            ("Normals: OpenGL (Y+)", "opengl"),
+            ("Normals: DirectX (Y-)", "directx"),
+        ]:
+            cmb027.addItem(text, data)
+        # Required, and deliberately NOT persisted: it names ONE deliverable.
+        # ``restore_state`` is set before ``Menu.add``'s deferred
+        # ``register_widget`` runs, which is the only window in which the
+        # opt-out is read (``MainWindow.register_widget`` defaults it to True
+        # only when the attribute is absent).
+        t_tt_name = menu.add(
+            self.sb.registered_widgets.LineEdit,
+            setPlaceholderText="Output name (required)",
+            setObjectName="t_tt_name",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Output Name",
+                body="Names BOTH halves of the result: the material that gets "
+                "assigned, and every map wired to it "
+                "(<i>&lt;name&gt;_&lt;Channel&gt;.png</i>).",
+                notes=[
+                    "Required — there is no sensible default for a deliverable, "
+                    "so the texture pass is refused without one.",
+                    "Not remembered between sessions: it names one specific "
+                    "result, and a name left over from the last scene would "
+                    "overwrite that scene's material and maps without asking.",
+                    "Re-running with the same name replaces that material and "
+                    "its maps — which is what a second attempt wants.",
+                    "A run that has to keep two UV layouts apart appends each "
+                    "layout's label, so their maps cannot collide.",
+                ],
+            ),
+        )
+        t_tt_name.restore_state = False
+        t_tt_name.option_box.clear_option = True
+        # A uitk LineEdit for the option-box affordances: the clear icon
+        # shows only while there is text (ClearOption auto-hides), and the
+        # browse writes back the PORTABLE spelling — relative to
+        # the .blend's textures folder when the pick is under it, which survives the project
+        # being moved. The engine reads the entry the same way
+        # (btk.TextureTransfer.resolve_output_dir), so "relative" is a real
+        # contract rather than a UI convention.
+        t_tt_output = menu.add(
+            self.sb.registered_widgets.LineEdit,
+            setPlaceholderText="Output folder (blank = //textures/uv_transfer)",
+            setText="",
+            setObjectName="t_tt_output",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Output Folder",
+                body="Where the maps are written, as "
+                "<i>&lt;name&gt;_&lt;Channel&gt;.png</i>.",
+                bullets=[
+                    "<b>Blank</b> — <i>//textures/uv_transfer</i>.",
+                    "<b>A relative entry</b> — a subdirectory of the .blend's textures folder; "
+                    "the portable spelling, since it survives a project move.",
+                    "<b>A full path</b> — used as-is.",
+                ],
+            ),
+        )
+        t_tt_output.option_box.clear_option = True
+        t_tt_output.option_box.browse(
+            mode="directory",
+            title="Transfer output folder",
+            tooltip="Browse for the output folder…",
+            start_dir=lambda w=t_tt_output: btk.TextureTransfer.resolve_output_dir(
+                w.text()
+            ),
+            callback=lambda picked, w=t_tt_output: w.setText(
+                ptk.FileUtils.relativize_output_dir(
+                    picked, btk.TextureTransfer.output_base_dir()
+                )
+            ),
+        )
+        chk050 = menu.add(
+            "QCheckBox",
+            setText="Assign Result",
+            setObjectName="chk050",
+            setChecked=True,
+            setToolTip=self.sb.tooltip.fmt(
+                title="Assign Result",
+                body="Build one material per shared UV set — materials whose "
+                "islands share a set and do not overlap merge into it — wired "
+                "to the new maps and assigned to every transferred face.",
+                notes=[
+                    "Named after <b>Output Name</b>; a run that has to keep two "
+                    "layouts apart appends each layout's label.",
+                    "The original materials are never modified.",
+                ],
+            ),
+        )
+        self._tt_sources = []
+        # Direct references: ``Menu.add`` registers the ``menu.<name>`` proxies
+        # on a timer, so they are not addressable from inside this init.
+        self._tt_ctl = {
+            "source": cmb024,
+            "scope": cmb014,
+            "similarity": d000,
+            "transfer": cmb028,
+            "texture_controls": (
+                t_tt_src_uvset,
+                t_tt_dst_uvset,
+                cmb025,
+                cmb026,
+                s025,
+                cmb027,
+                t_tt_name,
+                t_tt_output,
+                chk050,
+            ),
+        }
+        for w in (cmb024, cmb014, cmb028):
+            w.currentIndexChanged.connect(lambda *_: self._tt_sync_controls())
+        self._tt_sync_controls()
+
+    @staticmethod
+    def _tt_meshes(objects):
+        """Mesh objects among *objects* and their children (order kept)."""
+        out = []
+
+        def visit(o):
+            if o.type == "MESH" and o not in out:
+                out.append(o)
+            for c in o.children:
+                visit(c)
+
+        for o in objects:
+            visit(o)
+        return out
+
+    def _tt_source_tooltip(self):
+        """Live tooltip for Set Source From Selection -- what is stored NOW.
+
+        Mirror of the Maya slot's. The stored set is otherwise invisible
+        until a transfer runs and either uses the wrong meshes or reports
+        none, so the hover is the only place it can be checked. Names are
+        stored (not object references), so an object renamed or removed
+        since the capture is called out rather than silently listed.
+        """
+        stored = getattr(self, "_tt_sources", [])
+        missing = [n for n in stored if n not in bpy.data.objects]
+        return self.sb.tooltip.stored_items(
+            stored,
+            title="Set Source From Selection",
+            body="Capture the current selection as the <b>Stored Source "
+            "Meshes</b> (mesh objects; collections/empties contribute their "
+            "mesh children). Read by the <i>Stored Source Meshes</i> source.",
+            noun="stored source mesh(es)",
+            empty_text="Nothing stored yet — the <i>Stored Source Meshes</i> "
+            "source has nothing to read from.",
+            notes=(
+                [f"{len(missing)} no longer in the file; they are skipped."]
+                if missing
+                else None
+            ),
+        )
+
+    def _tt_set_source_from_selection(self):
+        self._tt_sources = [o.name for o in self._tt_meshes(self.selected_objects())]
+        self._tt_sync_controls()
+        self.sb.message_box(
+            f"Stored <b>{len(self._tt_sources)}</b> source mesh(es) for Transfer."
+            if self._tt_sources
+            else "<b>Nothing selected.</b><br>Select the source meshes."
+        )
 
     @btk.undoable
     def b000(self, widget):
-        """Transfer UVs — from the active mesh, to the other selected meshes (Selection
-        Order, native Data-Transfer) or to geometrically similar meshes
-        (``btk.transfer_uvs_to_similar`` fan-out)."""
-        scope = widget.option_box.menu.cmb014.currentData() or "order"
-        tolerance = widget.option_box.menu.d000.value()
-        if scope == "order":
-            self.transfer_from_active(
-                "UV", layers_select_src="ACTIVE", layers_select_dst="ACTIVE"
+        """Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``)."""
+        menu = widget.option_box.menu
+        mode = menu.cmb024.currentData() or "first"
+        scope = menu.cmb014.currentData() or "order"
+        do_uvs, do_textures = self._tt_passes(mode, menu.cmb028.currentData())
+        if not (do_uvs or do_textures):
+            return self.sb.message_box(
+                "<b>Nothing to transfer.</b><br>The <i>UV Map On Same Mesh</i> "
+                "source has no second mesh to read a layout from, so it "
+                "transfers textures — pick a <b>Transfer</b> mode that "
+                "includes them."
             )
-            return
+        # Checked before anything is touched: the texture pass writes files and
+        # builds a material, and finding out it had no name after the remap has
+        # already run costs the whole run.
+        out_name = menu.t_tt_name.text().strip()
+        if do_textures and not out_name:
+            return self.sb.message_box(
+                "<b>Output Name required.</b><br>Open the option box and name "
+                "the result — it names the new material and its maps."
+            )
+        selected = self.selected_objects()
 
-        active = self.active_object()
-        if active is None or active.type != "MESH":
-            self.sb.message_box(
-                "<b>Nothing selected.</b><br>Make the source mesh active"
-                + (", with the candidate objects selected." if scope == "selection" else ".")
-            )
-            return
-        candidates = None
-        if scope == "selection":
-            candidates = [o for o in self.selected_objects() if o != active]
-            if not candidates:
-                self.sb.message_box(
-                    "<b>Insufficient selection.</b><br>Select the candidate objects "
+        # ---- resolve source(s) and targets -------------------------------
+        # pairs: [(source, target), ...] for the UV pass (None = found by scope)
+        pairs = None
+        source = None
+        others = []
+        if mode == "uvset":
+            targets = self._tt_meshes(selected)
+            if not targets:
+                return self.sb.message_box(
+                    "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on."
+                )
+        elif mode == "first":
+            active = self.active_object()
+            if active is None or active.type != "MESH":
+                return self.sb.message_box(
+                    "<b>Make the source mesh active</b>"
+                    + (
+                        ", with the target mesh(es) selected."
+                        if scope != "scene"
+                        else "."
+                    )
+                )
+            source = [active]
+            others = [t for t in self._tt_meshes(selected) if t is not active]
+            if scope != "scene" and not others:
+                return self.sb.message_box(
+                    "<b>Insufficient selection.</b><br>Select the target mesh(es) "
                     "with the source mesh active."
                 )
-                return
-        try:
-            targets = btk.transfer_uvs_to_similar(
-                active, candidates, tolerance=tolerance
-            )
-        except ValueError as e:
-            self.sb.message_box(f"<b>Transfer UVs:</b><br>{e}")
-            return
-        if targets:
-            self.sb.message_box(
-                f"Transferred UVs to <hl>{len(targets)}</hl> similar mesh(es)."
-            )
+            if scope == "order":
+                targets = others
+                pairs = [(active, t) for t in targets]
+            else:
+                if not do_uvs:
+                    return self.sb.message_box(
+                        "<b>The Similar scopes need a Transfer mode that "
+                        "includes UV Map</b> -- the UV pass is what finds their "
+                        "targets. Use Selection Order to transfer textures alone."
+                    )
+                targets = None  # found by transfer_uvs_to_similar below
         else:
-            self.sb.message_box("No similar meshes found within the tolerance.")
+            source = [
+                bpy.data.objects[n]
+                for n in getattr(self, "_tt_sources", [])
+                if n in bpy.data.objects
+            ]
+            if not source:
+                return self.sb.message_box(
+                    "<b>No stored source meshes.</b><br>Open the option box and use "
+                    "<i>Set Source From Selection</i> first."
+                )
+            targets = [t for t in self._tt_meshes(selected) if t not in source]
+            if not targets:
+                return self.sb.message_box(
+                    "<b>Nothing selected.</b><br>Select the target mesh(es)."
+                )
+            try:
+                pairs = [
+                    (s, t)
+                    for t, s in btk.TextureTransfer.pair_by_name(
+                        targets, source
+                    ).items()
+                ]
+            except ValueError as e:
+                return self.sb.message_box(f"<b>Transfer:</b><br>{e}")
+
+        report = []
+        # Mirror of Maya's: both passes are bulk engine calls with nothing to
+        # tick from the inside, so ONE task indicator spans them and re-labels
+        # itself between the two -- the footer names whichever pass is
+        # currently freezing the UI, which a bare wait cursor cannot.
+        first_label = (
+            "Working: Transfer UV Set" if do_uvs else "Working: Transfer Textures"
+        )
+        with self.sb.progress(text=first_label) as tick:
+            tick()
+            # ---- UV pass ---------------------------------------------------
+            if do_uvs:
+                try:
+                    if pairs is None:
+                        candidates = others if scope == "selection" else None
+                        targets = btk.transfer_uvs_to_similar(
+                            source[0],
+                            candidates,
+                            tolerance=menu.d000.value(),
+                        )
+                        if not targets:
+                            return self.sb.message_box(
+                                "<b>No similar meshes found</b> within the tolerance "
+                                "(linked duplicates already share the source's UVs)."
+                            )
+                    else:
+                        # match_by_similarity=False: the pairing is already decided
+                        # (selection / stored-by-name); re-vetting it by geometric
+                        # similarity could only silently drop a pair the user named.
+                        btk.transfer_uvs(
+                            [s for s, _ in pairs],
+                            [t for _, t in pairs],
+                            match_by_similarity=False,
+                        )
+                except ValueError as e:
+                    return self.sb.message_box(f"<b>Transfer UV Set:</b><br>{e}")
+                report.append(
+                    f"Transferred UVs to <b>{len(targets)}</b> mesh(es)" + "."
+                )
+
+            # ---- texture pass ----------------------------------------------
+            if do_textures:
+                tick(text="Working: Transfer Textures")
+                try:
+                    results = btk.TextureTransfer().transfer(
+                        targets,
+                        source,
+                        source_uv_set=menu.t_tt_src_uvset.text().strip() or None,
+                        target_uv_set=menu.t_tt_dst_uvset.text().strip() or None,
+                        size=menu.cmb025.currentData() or None,
+                        supersample=menu.cmb026.currentData() or 2,
+                        padding=menu.s025.value(),
+                        output_name=out_name,
+                        output_dir=menu.t_tt_output.text().strip() or None,
+                        normal_convention=menu.cmb027.currentData(),
+                        assign=menu.chk050.isChecked(),
+                    )
+                except ValueError as e:
+                    report.append(f"<b>Transfer Textures:</b> {e}")
+                else:
+                    n_maps = sum(len(v) for v in results.values())
+                    folder = next(
+                        (
+                            os.path.dirname(p)
+                            for v in results.values()
+                            for p in v.values()
+                        ),
+                        "",
+                    )
+                    report.append(
+                        f"Transferred <b>{n_maps}</b> map(s) for "
+                        f"<b>{len(results)}</b> material(s)"
+                        + (
+                            f'<br><a href="action://open?path={folder}">{folder}</a>'
+                            if folder
+                            else ""
+                        )
+                    )
+        self.sb.message_box("<br><br>".join(report))
 
     # ------------------------------------------------------------------ b003/b004  Texel density
     def b003(self):
@@ -670,7 +1255,8 @@ class Uv(UvMixin, SlotsBlender):
             self._b029_pinned = False  # fresh selection — start with Pin
         self._b029_pinned = not self._b029_pinned
         btk.pin_uvs(
-            objects, pin=self._b029_pinned,
+            objects,
+            pin=self._b029_pinned,
             selected_only=any(o.mode == "EDIT" for o in objects),
         )
         self._b029_last_selection = signature
@@ -680,24 +1266,34 @@ class Uv(UvMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Cut Hard Edges")
         m.add(
-            "QDoubleSpinBox", setPrefix="Angle Low:  ", setObjectName="s017",
-            set_limits=[0, 180], setValue=70,
+            "QDoubleSpinBox",
+            setPrefix="Angle Low:  ",
+            setObjectName="s017",
+            set_limits=[0, 180],
+            setValue=70,
             setToolTip="Lower bound: edges whose dihedral angle is at least this are seam-cut.",
         )
         # s018 / chk025 reuse the Maya objectNames + labels (same options, cross-DCC rule).
         m.add(
-            "QDoubleSpinBox", setPrefix="Angle High: ", setObjectName="s018",
-            set_limits=[0, 180], setValue=180,
+            "QDoubleSpinBox",
+            setPrefix="Angle High: ",
+            setObjectName="s018",
+            set_limits=[0, 180],
+            setValue=180,
             setToolTip="Upper bound of the seam-cut angle band (180 = no upper limit).",
         )
         m.add(
-            "QCheckBox", setText="Include UV Borders", setObjectName="chk025",
+            "QCheckBox",
+            setText="Include UV Borders",
+            setObjectName="chk025",
             setToolTip="Also mark seams at the current UV island borders (Seams From Islands).",
         )
         # chk026 reuses the Maya objectName + label (same option, cross-DCC rule): a temporary
         # Smart UV Project decomposition stands in for u3dAutoSeam (btk.derive_auto_seams).
         m.add(
-            "QCheckBox", setText="Include Auto Seams", setObjectName="chk026",
+            "QCheckBox",
+            setText="Include Auto Seams",
+            setObjectName="chk026",
             setToolTip="Also cut seams auto-detected via a temporary Smart UV Project pass.",
         )
 
@@ -767,8 +1363,10 @@ class Uv(UvMixin, SlotsBlender):
         self._b030_signature = signature
         if pin:
             btk.pin_uvs(
-                objects, pin=True,
-                selected_only=any(o.mode == "EDIT" for o in objects), whole_shells=True,
+                objects,
+                pin=True,
+                selected_only=any(o.mode == "EDIT" for o in objects),
+                whole_shells=True,
             )
 
     # ------------------------------------------------------------------ deferred (Maya / UV-editor)

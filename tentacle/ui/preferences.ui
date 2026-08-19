@@ -278,6 +278,34 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
              </widget>
             </item>
             <item>
+             <widget class="ComboBox" name="cmb006">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>How tools whose external app / plugin isn't installed are presented.</string>
+              </property>
+              <property name="maxCount">
+               <number>999</number>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="b001">
               <property name="minimumSize">
                <size>

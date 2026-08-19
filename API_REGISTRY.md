@@ -162,8 +162,7 @@ Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L66)** — DCC-agnostic ``materials`` slot behavior.
-  - `MaterialsMixin.lbl005(self)` — Rename the current material.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L58)** — DCC-agnostic ``materials`` slot behavior.
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
 
 <a id="slots--_preferences"></a>
@@ -171,11 +170,15 @@ Shared, DCC-agnostic behavior for the ``materials`` panel.
 
 Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
-- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L17)** — DCC-agnostic ``preferences`` slot behavior.
+- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L18)** — DCC-agnostic ``preferences`` slot behavior.
   - `PreferencesMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
   - `PreferencesMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
   - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
   - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
+  - `PreferencesMixin.cmb006_init(self, widget)` — Presentation for tools whose external app / plugin isn't installed.
+  - `PreferencesMixin.cmb006(self, index, widget)` — Persist the chosen presentation policy and re-present the live gates.
+  - `PreferencesMixin.header_init(self, widget)` — Header menu — the manual re-probe that pairs with ``cmb006``.
+  - `PreferencesMixin.tb000(self)` — Re-check installed tools: drop the cached probes, then re-apply the gates.
 
 <a id="slots--_rendering"></a>
 ### `slots/_rendering.py`
@@ -211,6 +214,7 @@ Behavior shared by the Maya and Blender ``selection`` panels.
 Shared, DCC-agnostic behavior for the ``settings`` panel.
 
 - **[`class SettingsMixin`](tentacle/tentacle/slots/_settings.py#L18)** — DCC-agnostic ``settings`` slot behavior.
+  - `SettingsMixin.ecosystem_dists(cls, installed=None)` *(class)* — The distributions to check for updates in THIS host.
   - `SettingsMixin.header_init(self, widget)` — Initialize header
   - `SettingsMixin.tb000(self)` — Update Package
   - `SettingsMixin.check_for_update(self)` — Check the whole ecosystem for updates and upgrade what's outdated.
@@ -231,6 +235,8 @@ Shared, DCC-agnostic behavior for the ``settings`` panel.
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L7)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
+  - `Slots.gate_on_app(self, widget, resolve_spec) -> bool` — Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
+  - `Slots.recheck_app_gates(self) -> int` — Re-probe every gated app and re-present its widgets.
   - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
   - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
 
@@ -425,11 +431,11 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L10)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L40)**
-  - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
-  - `SelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L107)** — Blender HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L168)** — HUD Slots for Blender, providing scene and selection information.
+- **[`class HudSelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L40)** — HUD readout of what is selected — unrelated to the package-level
+  - `HudSelectionMixin.insert_selection_info(self, hud, selection) -> None`
+  - `HudSelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L112)** — Blender HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L173)** — HUD Slots for Blender, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
@@ -452,7 +458,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--materials"></a>
 ### `slots/blender/materials.py`
 
-- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L9)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
+- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L8)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
   - `MaterialsSlots.b_shader_editor(self)` — Shader Editor — Blender's analogue of Maya's Hypershade.
   - `MaterialsSlots.cmb002_init(self, widget)` — Materials combo: scene materials with color swatches + option box (Cleanup) + a
   - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
@@ -474,8 +480,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.lbl002(self)` — Delete the current material.
   - `MaterialsSlots.lbl004(self)` — Select Node — select the object(s) using the current material.
   - `MaterialsSlots.lbl006(self)` — Open in Editor — graph the current material in the Shader Editor.
-  - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers/underscores.
-  - `MaterialsSlots.lbl007_global(self)` — Strip trailing ints/underscores from ALL scene materials (skips on-collision).
   - `MaterialsSlots.b021(self)` — Image to Plane — open the panel (batch image→plane with aspect sizing, material affix
   - `MaterialsSlots.b010(self)` — Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /
   - `MaterialsSlots.b009(self)` — Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR
@@ -786,7 +790,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
 
-- **[`class Uv(UvMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
+- **[`class Uv(UvMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L12)** — Blender port of the shared ``uv`` menu.
   - `Uv.get_map_size(self)` — Get the map size from the combobox as an int.
   - `Uv.tb000_init(self, widget)`
   - `Uv.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
@@ -804,8 +808,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `Uv.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
   - `Uv.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
   - `Uv.b031(self)` — Open UV Editor
-  - `Uv.b000_init(self, widget)` — Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;
-  - `Uv.b000(self, widget)` — Transfer UVs — from the active mesh, to the other selected meshes (Selection
+  - `Uv.b000_init(self, widget)` — Initialize the Transfer option box.
+  - `Uv.b000(self, widget)` — Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).
   - `Uv.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
   - `Uv.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
   - `Uv.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
@@ -1058,13 +1062,13 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--hud"></a>
 ### `slots/maya/hud.py`
 
-- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L12)**
+- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L11)**
   - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class SelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L55)**
-  - `SelectionMixin.insert_selection_info(self, hud, selection) -> None`
-  - `SelectionMixin.insert_component_info(self, hud, selection) -> None`
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L128)** — Maya HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L208)** — HUD Slots for Maya, providing scene and selection information.
+- **[`class HudSelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L54)** — HUD readout of what is selected — unrelated to the package-level
+  - `HudSelectionMixin.insert_selection_info(self, hud, selection) -> None`
+  - `HudSelectionMixin.insert_component_info(self, hud, selection) -> None`
+- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L132)** — Maya HUD warnings — the framework lives in the shared
+- **[`class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, HudSelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L212)** — HUD Slots for Maya, providing scene and selection information.
   - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
   - `HudSlots.construct_hud(self) -> None`
 
@@ -1102,15 +1106,13 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L12)**
+- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L11)**
   - `MaterialsSlots.b007(self)` — Hypershade Editor
   - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
   - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
   - `MaterialsSlots.list001_init(self, widget)` — Tools list: Setup / Conversion / External (mirrors prior header sections).
   - `MaterialsSlots.list001(self, item)` — Dispatch Tools list selection to the matching slot method.
   - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
-  - `MaterialsSlots.lbl007(self)` — Rename the current material by stripping trailing integers and underscores.
-  - `MaterialsSlots.lbl007_global(self)` — Rename ALL scene materials by stripping trailing integers and underscores.
   - `MaterialsSlots.tb000_init(self, widget)`
   - `MaterialsSlots.tb000(self, widget)` — Select By Material — the option box supplies the parameters.
   - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
@@ -1530,7 +1532,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
 
-- **[`class UvSlots(UvMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L11)**
+- **[`class UvSlots(UvMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L14)**
   - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
   - `UvSlots.tb000_init(self, widget)` — Initialize UV packing tool interface.
@@ -1545,8 +1547,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.tb009(self, widget)` — Cut Cylinder
   - `UvSlots.cmb003(self, index, widget)` — UV Map Size — passive input;
   - `UvSlots.s003(self, value, widget)` — Texel Density — passive input;
-  - `UvSlots.b000_init(self, widget)` — Initialize Transfer UVs option box — scope + similarity tolerance.
-  - `UvSlots.b000(self, widget)` — Transfer UV's
+  - `UvSlots.b000_init(self, widget)` — Initialize the Transfer option box.
+  - `UvSlots.b000(self, widget)` — Transfer UVs OR textures -- one pass per run (see ``b000_init``).
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density
   - `UvSlots.b005(self)` — Cut UVs: split the UV shell along the selected edges.
@@ -1576,38 +1578,41 @@ Behavior shared by the Maya and Blender UV panels.
 
 The host-agnostic entry point — one launcher snippet for every DCC.
 
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L106)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L290)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
+  - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
   - `Tcl.resolve_key(cls, key_show=None, context_tags=None)` *(class)* — The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
+  - `Tcl.engine_dists(cls, host)` *(class)* — Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
+  - `Tcl.engine_install_hint(cls, host=None)` *(class)* — The pip line that installs *host*'s engine, naming the interpreter to use.
 
 <a id="tcl_blender"></a>
 ### `tcl_blender.py`
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2088) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2093) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2098) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2103) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2108) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2113) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2118) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2123) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2128) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2133) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2138) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1369)** — Marking Menu class overridden for use with Blender.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2110) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2115) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2120) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2125) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2130) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2135) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2140) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L2145) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2150) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2155) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2160) — Remove the click tracer.
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1391)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1852)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1874)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1967)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L1989)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

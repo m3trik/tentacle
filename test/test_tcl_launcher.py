@@ -543,5 +543,352 @@ class TestForksUseTheSharedContract(unittest.TestCase):
                 self.assertNotIn(f'"key_show", "{Tcl.DEFAULT_KEY}"', src)
 
 
+class TestEngineExtras(unittest.TestCase):
+    """The DCC engine is an ``[extra]``, resolved from installed metadata.
+
+    The contract: every key in ``[project.optional-dependencies]`` equals a ``Tcl.HOSTS``
+    key, so ``host()`` doubles as the extra resolver and no second table exists to drift.
+
+    These read the LIVE metadata, so they must not assume which engine this interpreter
+    has — inside Maya ``mayatk`` is genuinely installed and in CI neither may be. What is
+    asserted is the mapping (which extra declares which dist), never presence.
+    """
+
+    def test_base_requirements_exclude_both_engines(self):
+        """The whole point: neither engine may be a base dependency, or both land in
+        every install again (~19 MB of never-imported code in the other DCC)."""
+        base = Tcl._requires()
+        if not base:
+            self.skipTest("no installed metadata (source checkout)")
+        self.assertIn("pythontk", base)
+        self.assertIn("uitk", base)
+        self.assertNotIn("mayatk", base)
+        self.assertNotIn("blendertk", base)
+
+    def test_each_host_extra_declares_its_own_engine(self):
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        self.assertEqual(Tcl.engine_dists("maya"), ("mayatk",))
+        self.assertEqual(Tcl.engine_dists("blender"), ("blendertk",))
+
+    def test_a_host_without_an_extra_is_a_no_op(self):
+        """``max`` ships no engine (there is no ``maxtk``) — that must read as "nothing
+        to install", not as an error, so the launcher stays uniform across hosts."""
+        self.assertEqual(Tcl.engine_dists("max"), ())
+        self.assertEqual(Tcl.engine_dists("no-such-host"), ())
+
+    def test_no_host_is_not_the_base_set(self):
+        """``_requires(extra=None)`` means "the BASE set", and ``host()`` answers None
+        outside any DCC — so a missing guard made ``engine_dists(None)`` claim this
+        host's engine is ``pythontk``/``uitk``."""
+        self.assertEqual(Tcl.engine_dists(None), ())
+        self.assertEqual(Tcl.engine_dists(""), ())
+
+    def test_declared_dists_names_this_hosts_engine_and_not_the_other(self):
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        maya = Tcl.declared_dists("maya")
+        blender = Tcl.declared_dists("blender")
+        self.assertIn("mayatk", maya)
+        self.assertNotIn("blendertk", maya)
+        self.assertIn("blendertk", blender)
+        self.assertNotIn("mayatk", blender)
+
+    def test_declared_dists_includes_the_package_itself_last(self):
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        self.assertEqual(Tcl.declared_dists("maya")[-1], Tcl.DIST)
+        self.assertNotIn(Tcl.DIST, Tcl.declared_dists("maya", include_self=False))
+
+    def test_unreadable_metadata_reports_empty_not_a_partial_list(self):
+        """A source checkout has no metadata. Reporting ``(pythontk, uitk)`` there would
+        be a LIE the updater acts on; empty means "unknown" and lets it fall back."""
+        with mock.patch.object(
+            Tcl, "_requires", classmethod(lambda cls, extra=None: ())
+        ):
+            self.assertEqual(Tcl.declared_dists("maya"), ())
+
+    def test_install_hint_names_the_extra_and_quotes_it(self):
+        """``[maya]`` is a glob character class in POSIX shells — an unquoted hint is a
+        line that silently does nothing when pasted into bash."""
+        hint = Tcl.engine_install_hint("maya")
+        self.assertIn('"tentacletk[maya]"', hint)
+        self.assertIn("-m pip install", hint)
+
+    def test_a_hostless_hint_lists_only_hosts_that_declare_an_engine(self):
+        """Asked outside any DCC. ``[None]`` would be nonsense, and offering ``[max]``
+        — a host with no engine — sends the reader to a pip line resolving to nothing."""
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        with mock.patch.object(Tcl, "host", classmethod(lambda cls: None)):
+            hint = Tcl.engine_install_hint()
+        self.assertNotIn("None", hint)
+        self.assertIn("[maya]", hint)
+        self.assertIn("[blender]", hint)
+        self.assertNotIn("[max]", hint)
+
+    def test_a_host_with_no_engine_gets_no_pip_line_for_it(self):
+        """``max`` ships no engine, so ``"tentacletk[max]"`` names an extra that does
+        not exist — pip warns and no-ops. The named host must fall through to the same
+        "here are the hosts that DO ship one" answer as the hostless call."""
+        if not Tcl._requires():
+            self.skipTest("no installed metadata (source checkout)")
+        hint = Tcl.engine_install_hint("max")
+        self.assertNotIn("[max]", hint)
+        self.assertIn("[maya]", hint)
+
+    def test_a_source_checkout_keeps_the_named_hosts_pip_line(self):
+        """With no metadata EVERY host reads as engine-less. Demoting a real Maya user
+        onto the hostless branch there would cost the interpreter-specific line and
+        still print ``[max]`` via its ``or list(HOSTS)`` fallback."""
+        with mock.patch.object(
+            Tcl, "_requires", classmethod(lambda cls, extra=None: ())
+        ):
+            hint = Tcl.engine_install_hint("maya")
+        self.assertIn('"tentacletk[maya]"', hint)
+
+    def test_requirement_parsing_cannot_raise(self):
+        """``_import_entry`` consults ``engine_dists`` from INSIDE an ``except ImportError``
+        handler — anything that raises there replaces the user's real error with a
+        confusing one raised during exception handling."""
+        for label, patch_kwargs in (
+            ("metadata raises", {"side_effect": RuntimeError("boom")}),
+            ("metadata None", {"return_value": None}),
+            ("garbage rows", {"return_value": ["", ";;;", 'x; extra == "']}),
+        ):
+            with self.subTest(case=label):
+                with mock.patch("importlib.metadata.requires", **patch_kwargs):
+                    self.assertIsInstance(Tcl._requires(), tuple)
+                    self.assertIsInstance(Tcl.engine_dists("maya"), tuple)
+                    self.assertIsInstance(Tcl.declared_dists("maya"), tuple)
+
+    def test_the_hint_never_names_a_dcc_host_binary(self):
+        """pip driven through ``maya.exe`` routes into its ``-c`` handler and HANGS the
+        host (uitk's ``default_install`` refuses for exactly this reason). ``pip_python``
+        returns None in that case — falling back to ``sys.executable`` would print a
+        command that freezes the user's DCC, which is worse than naming no interpreter."""
+        from uitk.managers.optional_package_manager import OptionalPackageManager
+
+        host_exe = r"C:\Program Files\Autodesk\Maya2025\bin\maya.exe"
+
+        # (a) DCC host with no sibling python — uitk declines to bless one
+        with mock.patch.object(
+            OptionalPackageManager, "pip_python", staticmethod(lambda: None)
+        ), mock.patch.object(sys, "executable", host_exe):
+            hint = Tcl.engine_install_hint("maya")
+        self.assertNotIn("\\maya.exe", hint)
+        self.assertIn("tentacletk[maya]", hint)
+
+        # (b) uitk unreachable — still must not fall back to sys.executable. Not exotic:
+        # pip_python imports ExternalAppHandler, which pulls qtpy, which raises with no
+        # Qt binding installed (bare venv / CI).
+        with mock.patch.dict(
+            sys.modules, {"uitk.managers.optional_package_manager": None}
+        ), mock.patch.object(sys, "executable", host_exe):
+            hint = Tcl.engine_install_hint("maya")
+        self.assertNotIn("\\maya.exe", hint)
+        self.assertIn("tentacletk[maya]", hint)
+
+        # (c) ...but a plain `python*` interpreter IS safe to name, and should be — the
+        # fallback is an allowlist, not "anything that isn't a DCC I recognise".
+        with mock.patch.dict(
+            sys.modules, {"uitk.managers.optional_package_manager": None}
+        ), mock.patch.object(sys, "executable", r"C:\venv\Scripts\python.exe"):
+            hint = Tcl.engine_install_hint("maya")
+        self.assertIn(r"C:\venv\Scripts\python.exe", hint)
+
+    def test_the_hint_fallback_is_an_allowlist_not_a_denylist(self):
+        """An unrecognised interpreter name must NOT be named. A denylist ("not one of
+        the DCC binaries I know") would print the host binary of any DCC whose probe
+        module failed to import — the exact command that hangs the session."""
+        with mock.patch.dict(
+            sys.modules, {"uitk.managers.optional_package_manager": None}
+        ), mock.patch.object(sys, "executable", r"C:\Some\Unknown\host-app.exe"):
+            hint = Tcl.engine_install_hint("maya")
+        self.assertNotIn("host-app.exe", hint)
+        self.assertIn("tentacletk[maya]", hint)
+
+    def test_a_combined_marker_still_resolves_its_extra(self):
+        """setuptools writes a lone ``extra == "maya"`` today, but a combined marker is
+        legal. An exact-string compare dropped it silently — no diagnostic for the
+        launcher, and the updater blind to that engine."""
+        combined = [
+            "pythontk>=0.9.24",
+            'mayatk>=0.13.53; python_version >= "3.10" and extra == "maya"',
+            "blendertk>=0.5.73; extra == 'blender'",  # single-quoted is legal too
+        ]
+        with mock.patch("importlib.metadata.requires", return_value=combined):
+            self.assertEqual(Tcl.engine_dists("maya"), ("mayatk",))
+            self.assertEqual(Tcl.engine_dists("blender"), ("blendertk",))
+            self.assertEqual(Tcl._requires(), ("pythontk",))
+
+
+class TestEngineExtrasContract(unittest.TestCase):
+    """``pyproject.toml``'s extras keys ARE ``Tcl.HOSTS`` keys — the identity the design rests on.
+
+    Reads the source pyproject (not metadata) so a renamed extra fails here, in a fresh
+    checkout, rather than at a user's pip line.
+    """
+
+    def _pyproject(self):
+        toml = ROOT / "pyproject.toml"
+        if not toml.is_file():
+            self.skipTest("no pyproject.toml (installed, not a source checkout)")
+        try:
+            import tomllib
+        except ModuleNotFoundError:  # < 3.11
+            try:
+                import tomli as tomllib
+            except ModuleNotFoundError:
+                self.skipTest("no TOML parser available")
+        with open(toml, "rb") as handle:
+            return tomllib.load(handle).get("project", {})
+
+    def test_every_extra_is_named_after_a_host(self):
+        for extra in self._pyproject().get("optional-dependencies", {}):
+            with self.subTest(extra=extra):
+                self.assertIn(
+                    extra,
+                    Tcl.HOSTS,
+                    f"extra '{extra}' matches no Tcl.HOSTS key — Tcl.host() can no "
+                    f"longer resolve it, so declared_dists() silently returns nothing",
+                )
+
+    def test_the_engines_are_declared_as_extras_not_base_dependencies(self):
+        joined = " ".join(self._pyproject().get("dependencies", []))
+        self.assertNotIn("mayatk", joined)
+        self.assertNotIn("blendertk", joined)
+
+    def test_declared_engines_carry_a_version_floor(self):
+        """push.ps1 syncs pins by regexing ``"<dist>>=<ver>"`` over the whole file. A
+        floor-less extra silently drops out of the release cascade."""
+        for extra, specs in self._pyproject().get("optional-dependencies", {}).items():
+            for spec in specs:
+                with self.subTest(extra=extra, spec=spec):
+                    self.assertIn(">=", spec)
+
+
+class TestMissingEngineDiagnostic(unittest.TestCase):
+    """A missing engine must name itself and the fix; anything else propagates untouched.
+
+    ``engine_dists`` is stubbed throughout: inside Maya the real ``mayatk`` IS installed,
+    so testing against the live environment would assert nothing.
+    """
+
+    @contextlib.contextmanager
+    def _imports_raising(self, error):
+        """Patch the launcher's importer so the entry module raises *error*."""
+        import tentacle.tcl as tcl_module
+
+        real = tcl_module.importlib.import_module
+
+        def fake(name):
+            if name == "tentacle.tcl_maya":
+                raise error
+            return real(name)
+
+        with mock.patch.object(
+            Tcl, "engine_dists", classmethod(lambda cls, host: ("mayatk",))
+        ), mock.patch.object(tcl_module.importlib, "import_module", fake):
+            yield
+
+    def _import_maya_entry(self):
+        """Import the Maya entry the way ``_launch_maya`` does, bypassing the package
+        attribute so the patched importer is the thing that answers."""
+        import tentacle
+
+        with mock.patch.dict(tentacle.__dict__, {}, clear=False):
+            tentacle.__dict__.pop("tcl_maya", None)
+            return Tcl._import_entry("maya", "tentacle.tcl_maya", "TclMaya")
+
+    def test_a_missing_engine_names_the_dist_and_the_pip_line(self):
+        error = ModuleNotFoundError("No module named 'mayatk'", name="mayatk")
+        with self._imports_raising(error):
+            with self.assertRaises(ImportError) as ctx:
+                self._import_maya_entry()
+        message = str(ctx.exception)
+        self.assertIn("mayatk", message)
+        self.assertIn('"tentacletk[maya]"', message)
+
+    def test_a_missing_engine_submodule_is_still_the_engine(self):
+        """``import mayatk.foo`` reports ``mayatk.foo`` — matching only the exact dist
+        name would let the real cause fall through as a bare ModuleNotFoundError."""
+        error = ModuleNotFoundError("No module named 'mayatk.core'", name="mayatk.core")
+        with self._imports_raising(error):
+            with self.assertRaises(ImportError) as ctx:
+                self._import_maya_entry()
+        self.assertIn("tentacletk[maya]", str(ctx.exception))
+
+    def test_an_unrelated_import_error_is_not_rewritten(self):
+        """Rewriting every ImportError would disguise a real bug inside the engine as
+        "the engine is not installed" and send the user to a pip line that fixes nothing."""
+        error = ModuleNotFoundError("No module named 'PIL'", name="PIL")
+        with self._imports_raising(error):
+            with self.assertRaises(ImportError) as ctx:
+                self._import_maya_entry()
+        message = str(ctx.exception)
+        self.assertIn("PIL", message)
+        self.assertNotIn("tentacletk[maya]", message)
+
+    def test_a_from_import_failure_inside_the_engine_is_not_rewritten(self):
+        """``from mayatk import Gone`` raises a plain ImportError whose ``.name`` is
+        still ``mayatk`` — the engine IS installed and a symbol it exports moved (the
+        cascade break). Rewriting that to "not installed" offers a pip line that
+        reinstalls what is already there and hides the rename."""
+        error = ImportError("cannot import name 'Gone' from 'mayatk'", name="mayatk")
+        with self._imports_raising(error):
+            with self.assertRaises(ImportError) as ctx:
+                self._import_maya_entry()
+        message = str(ctx.exception)
+        self.assertIn("Gone", message)
+        self.assertNotIn("tentacletk[maya]", message)
+
+    def test_the_original_error_is_chained(self):
+        error = ModuleNotFoundError("No module named 'mayatk'", name="mayatk")
+        with self._imports_raising(error):
+            with self.assertRaises(ImportError) as ctx:
+                self._import_maya_entry()
+        self.assertIs(ctx.exception.__cause__, error)
+
+    def test_a_successful_import_returns_the_named_attribute(self):
+        self.assertIs(Tcl._import_entry("maya", "tentacle.tcl", "Tcl"), Tcl)
+
+    def test_no_attribute_returns_the_module(self):
+        module = Tcl._import_entry("maya", "tentacle.tcl")
+        self.assertEqual(module.__name__, "tentacle.tcl")
+
+    def test_the_launcher_never_installs_anything(self):
+        """Driving pip from a DCC's startup tick blocks the host on network I/O, and
+        Blender's bundled interpreter keeps user-site off ``sys.path`` so the obvious
+        install would not even be importable. The diagnostic is the whole feature."""
+        source = (PKG / "tcl.py").read_text(encoding="utf-8")
+        for banned in ("PackageManager(", "subprocess"):
+            with self.subTest(token=banned):
+                offenders = [
+                    line
+                    for line in source.splitlines()
+                    if banned in line and not line.lstrip().startswith("#")
+                ]
+                self.assertEqual(offenders, [], f"{banned} reached tcl.py")
+
+
+class TestEntryForksRouteThroughTheGuard(unittest.TestCase):
+    """Each ``_launch_*`` imports its entry through ``_import_entry``.
+
+    By source: a fork that re-inlines ``from tentacle.tcl_maya import ...`` loses the
+    missing-engine diagnostic silently — nothing fails, the user just gets a raw
+    ModuleNotFoundError with no fix in it.
+    """
+
+    def test_every_launcher_uses_the_guarded_import(self):
+        source = (PKG / "tcl.py").read_text(encoding="utf-8")
+        for host in ("maya", "blender", "max"):
+            with self.subTest(host=host):
+                body = source.split(f"def _launch_{host}")[1].split("\n    @")[0]
+                self.assertIn("_import_entry(", body)
+                self.assertNotIn("from tentacle.tcl_", body)
+                self.assertNotIn("from tentacle import tcl_", body)
+
+
 if __name__ == "__main__":
     unittest.main()

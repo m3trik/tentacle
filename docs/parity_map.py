@@ -982,6 +982,10 @@ DEFAULT_DELTAS = {
     # as `na`; Flip/Rotate (+ the move pad and Straighten/Mirror/Distribute) ship in the Blender
     # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
     # (no "uv" entry needed here while the panel has no other triaged deltas).
+    "uv": {
+        "cmb028.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same two modes, same item data keys: uvs / textures).",
+        "cmb024.items": "Transfer (b000) source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'); 'UV Set' is 'UV Map' in Blender's vocabulary. Same three modes, same item data keys (first / stored / uvset).",
+    },
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
     },
