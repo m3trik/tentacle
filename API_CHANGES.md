@@ -1,6 +1,6 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ ea99eb62). Generated 2026-08-19._
+_Diff vs the last release (origin/main @ ea99eb62). Generated 2026-08-20._
 
 ## Removed (11)
 
