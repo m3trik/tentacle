@@ -2,7 +2,7 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-18_
+_Generated: 2026-08-20_
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
@@ -24,11 +24,11 @@ _Generated: 2026-08-18_
 
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
-  - methods: lbl005, b003
+  - methods: b003
 
 ### `slots/_preferences.py` — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - `class PreferencesMixin`
-  - methods: cmb004_init, cmb004, cmb005_init, cmb005
+  - methods: cmb004_init, cmb004, cmb005_init, cmb005, cmb006_init, cmb006, header_init, tb000
 
 ### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - `class RenderingMixin`
@@ -44,11 +44,11 @@ _Generated: 2026-08-18_
 
 ### `slots/_settings.py` — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - `class SettingsMixin`
-  - methods: header_init, tb000, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
+  - methods: ecosystem_dists, header_init, tb000, check_for_update, b020, b021, b022, b023, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: mirror_app_state, add_slot_widget, toggle_camera_view, register_camera_view_toggle
+  - methods: mirror_app_state, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
 - `class UvMixin`
@@ -96,10 +96,10 @@ _Generated: 2026-08-18_
 ### `slots/blender/hud.py`
 - `class StatusMixin`
   - methods: insert_scene_status
-- `class SelectionMixin`
+- `class HudSelectionMixin`
   - methods: insert_selection_info, insert_component_info
 - `class WarningsMixin(HudWarningsMixin)`
-- `class HudSlots(SlotsBlender, StatusMixin, SelectionMixin, WarningsMixin)`
+- `class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin)`
   - methods: request_hud_build, construct_hud
 
 ### `slots/blender/lighting.py`
@@ -112,7 +112,7 @@ _Generated: 2026-08-18_
 
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
-  - methods: b_shader_editor, cmb002_init, cmb002, tb000_init, tb000, select_by_mat, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b006, b013, b014, b015, lbl002, lbl004, lbl006, lbl007, lbl007_global, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
+  - methods: b_shader_editor, cmb002_init, cmb002, tb000_init, tb000, select_by_mat, tb001_init, tb001, list000_init, list000, list001_init, list001, b002, b004, b006, b013, b014, b015, lbl002, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/normals.py`
 - `class Normals(SlotsBlender)`
@@ -249,10 +249,10 @@ _Generated: 2026-08-18_
 ### `slots/maya/hud.py`
 - `class StatusMixin`
   - methods: insert_scene_status
-- `class SelectionMixin`
+- `class HudSelectionMixin`
   - methods: insert_selection_info, insert_component_info
 - `class WarningsMixin(HudWarningsMixin)`
-- `class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin)`
+- `class HudSlots(SlotsMaya, ptk.PackageManager, StatusMixin, HudSelectionMixin, WarningsMixin)`
   - methods: request_hud_build, construct_hud
 
 ### `slots/maya/key.py`
@@ -274,7 +274,7 @@ _Generated: 2026-08-18_
 
 ### `slots/maya/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
-  - methods: b007, list000_init, list000, list001_init, list001, cmb002_init, lbl007, lbl007_global, tb000_init, tb000, select_by_mat, lbl002, b015, lbl004, lbl006, b002, b004, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
+  - methods: b007, list000_init, list000, list001_init, list001, cmb002_init, tb000_init, tb000, select_by_mat, lbl002, b015, lbl004, lbl006, b002, b004, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
 - `class MeshSlots(SlotsMaya)`
@@ -392,7 +392,7 @@ _Generated: 2026-08-18_
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class Tcl(_TclInternal)`
-  - methods: host, qt_key_name, resolve_key, chord_bindings, launch
+  - methods: host, declared_dists, qt_key_name, resolve_key, chord_bindings, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

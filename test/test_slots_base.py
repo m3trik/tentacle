@@ -596,5 +596,173 @@ class TestRegisterCameraViewToggle(unittest.TestCase):
         self._slot(_BareSb()).register_camera_view_toggle()  # no-op, must not raise
 
 
+class _GateSb:
+    """Switchboard double recording ``gate`` / ``recheck_gates`` calls."""
+
+    def __init__(self, available=True):
+        import logging
+
+        self.available = available
+        self.gated = []  # (widget, is_available, message)
+        self.rechecks = 0
+        self.logger = logging.getLogger("test_slots_base")
+
+    def gate(self, widget, requirement, message=None):
+        ok = bool(requirement())
+        self.gated.append((widget, ok, message))
+        return ok
+
+    def recheck_gates(self):
+        self.rechecks += 1
+        return len(self.gated)
+
+
+class _Spec:
+    """``ptk.AppSpec`` stand-in: an ``available`` probe with a droppable cache.
+
+    The real spec is a frozen dataclass whose ``path`` memoizes, so it is hashable
+    and safe in a set; this mirrors both properties without dragging pythontk in.
+    """
+
+    def __init__(self, installed=False):
+        self.installed = installed
+        self.not_found_message = "Toolbag is not installed."
+        self.refreshes = 0
+        self._cached = None
+
+    @property
+    def available(self):
+        if self._cached is None:
+            self._cached = self.installed
+        return self._cached
+
+    def refresh(self):
+        self.refreshes += 1
+        self._cached = None
+
+
+class TestGateOnApp(unittest.TestCase):
+    """``gate_on_app`` — the panel-side half of ``sb.gate`` for an optional app.
+
+    The tentacle-side glue only: uitk's own suite covers ``gate`` / ``unmet_policy``
+    / ``recheck_gates``. What is pinned here is the deferral contract (the spec is
+    reached through a CALLABLE so an unimportable engine costs its own entry a gate,
+    not the whole panel) and the registry scope that makes the re-check reachable
+    from a different panel than the one that gated.
+    """
+
+    def setUp(self):
+        # The registry is process-wide by design (see ``Slots._app_gate_specs``),
+        # so each test starts from a known-empty one and restores it after.
+        self._saved = set(Slots._app_gate_specs)
+        Slots._app_gate_specs.clear()
+        self.addCleanup(
+            lambda: (
+                Slots._app_gate_specs.clear(),
+                Slots._app_gate_specs.update(self._saved),
+            )
+        )
+
+    def _slot(self, sb):
+        slot = Slots.__new__(Slots)
+        slot.sb = sb
+        return slot
+
+    def test_an_installed_app_gates_open(self):
+        sb = _GateSb()
+        widget = object()
+        spec = _Spec(installed=True)
+        self.assertTrue(self._slot(sb).gate_on_app(widget, lambda: spec))
+        self.assertEqual(sb.gated, [(widget, True, spec.not_found_message)])
+
+    def test_a_missing_app_gates_shut_and_carries_the_message(self):
+        sb = _GateSb()
+        spec = _Spec(installed=False)
+        self.assertFalse(self._slot(sb).gate_on_app(None, lambda: spec))
+        self.assertEqual(sb.gated[0][1:], (False, spec.not_found_message))
+
+    def test_an_unresolvable_spec_leaves_the_widget_ungated(self):
+        """Reaching a bridge's ``APP`` IMPORTS its engine. A broken engine must cost
+        its own entry a gate — not take the Tools list, and every tool in it, down."""
+        sb = _GateSb()
+
+        def boom():
+            raise ImportError("no engine")
+
+        self.assertTrue(self._slot(sb).gate_on_app(object(), boom))
+        self.assertEqual(sb.gated, [], "an unresolved spec must not be gated at all")
+        self.assertEqual(Slots._app_gate_specs, set())
+
+    def test_the_requirement_is_re_asked_not_frozen(self):
+        """``sb.gate`` receives a callable, not the bool it evaluates to now — that is
+        what lets a re-check see an app that appeared mid-session."""
+        sb = _GateSb()
+        spec = _Spec(installed=False)
+        self._slot(sb).gate_on_app(object(), lambda: spec)
+        self.assertFalse(sb.gated[0][1])
+        # The same spec, re-asked after the app appears and its probe is dropped.
+        spec.installed = True
+        spec.refresh()
+        sb.gated.clear()
+        self._slot(sb).gate_on_app(object(), lambda: spec)
+        self.assertTrue(sb.gated[0][1])
+
+    def test_the_registry_is_shared_across_slot_objects(self):
+        """Materials/UV register the gates; PREFERENCES triggers the re-check. A
+        per-instance registry would leave that trigger refreshing nothing."""
+        sb = _GateSb()
+        spec = _Spec()
+        self._slot(sb).gate_on_app(object(), lambda: spec)
+        self.assertIn(spec, self._slot(sb)._app_gate_specs)
+
+
+class TestRecheckAppGates(unittest.TestCase):
+    """``recheck_app_gates`` — drop the memoized probes, THEN re-apply the gates."""
+
+    def setUp(self):
+        self._saved = set(Slots._app_gate_specs)
+        Slots._app_gate_specs.clear()
+        self.addCleanup(
+            lambda: (
+                Slots._app_gate_specs.clear(),
+                Slots._app_gate_specs.update(self._saved),
+            )
+        )
+
+    def _slot(self, sb):
+        slot = Slots.__new__(Slots)
+        slot.sb = sb
+        return slot
+
+    def test_a_mid_session_install_becomes_visible(self):
+        """The pair has to happen together: refreshing alone leaves the widgets as
+        they were, re-gating alone re-reads the same cached miss."""
+        sb = _GateSb()
+        spec = _Spec(installed=False)
+        gating = self._slot(sb)
+        gating.gate_on_app(object(), lambda: spec)
+        self.assertFalse(spec.available)
+
+        spec.installed = True  # the user installs Toolbag without restarting
+        self.assertFalse(spec.available, "the probe is memoized on purpose")
+
+        self._slot(sb).recheck_app_gates()  # a DIFFERENT panel's slots object
+        self.assertEqual(spec.refreshes, 1)
+        self.assertTrue(spec.available)
+        self.assertEqual(sb.rechecks, 1)
+
+    def test_one_bad_spec_does_not_abort_the_sweep(self):
+        sb = _GateSb()
+        good = _Spec()
+
+        class _Bad(_Spec):
+            def refresh(self):
+                raise RuntimeError("probe blew up")
+
+        Slots._app_gate_specs.update({good, _Bad()})
+        self.assertEqual(self._slot(sb).recheck_app_gates(), 0)
+        self.assertEqual(good.refreshes, 1)
+
+
 if __name__ == "__main__":
     unittest.main()

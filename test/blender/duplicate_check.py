@@ -2,7 +2,7 @@
 
 Requires a real Blender binary (``duplicate.py`` imports ``bpy`` at module scope), so it is
 **not** a CI/unittest target — the ``blender/`` subdir + non-``test_`` name keep it out of
-auto-discovery (same convention as ``materials_rename_affix_check.py``). Run against a *fresh*
+auto-discovery (same convention as ``panel_slots_check.py``). Run against a *fresh*
 Blender (never an existing session)::
 
     blender --background --factory-startup --python tentacle/test/blender/duplicate_check.py

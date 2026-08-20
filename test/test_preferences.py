@@ -455,5 +455,143 @@ class TestAppPreferencesLabelTargetsResolve(unittest.TestCase):
         self.assertEqual(self.sb.loaded_ui.preferences.b010.text(), "Preferences")
 
 
+class _StubMenu:
+    """Header-menu double: records what a ``*_init`` adds to it."""
+
+    def __init__(self):
+        self.hide_on_trigger = False
+        self.added = []  # (widget_class, kwargs)
+
+    def add(self, widget_class, **kwargs):
+        self.added.append((widget_class, kwargs))
+        return widget_class
+
+
+class _StubHeader:
+    def __init__(self):
+        self.is_initialized = False
+        self.menu = _StubMenu()
+
+
+class TestUnavailableToolsPolicy(unittest.TestCase):
+    """``cmb006`` + the header re-check — the tentacle glue over uitk's gate system.
+
+    uitk's own suite covers ``unmet_policy`` / ``gate`` / ``recheck_gates``; what is
+    unpinned without this is the ~30 lines of panel wiring: that the combo's entries
+    come from ``sb.UNMET_POLICIES`` (so a policy added upstream appears instead of
+    silently going missing — the drift the override map exists to prevent), that a
+    header-row change is a no-op rather than a write, and that the header entry
+    reaches ``Slots.recheck_app_gates``.
+
+    Real uitk ComboBox for the same reason ``TestPreferencesMixin`` uses one: the
+    contract is a label→token map written with ``add()`` and read with
+    ``currentData()``.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            from uitk.widgets.comboBox import ComboBox  # noqa: F401
+        except ImportError as error:
+            raise unittest.SkipTest(f"uitk unavailable: {error}")
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        import types
+
+        from tentacle.slots._preferences import PreferencesMixin
+        from tentacle.slots._slots import Slots
+
+        class _Prefs(PreferencesMixin, Slots):
+            pass
+
+        self.rechecks = []
+        self.slots = _Prefs.__new__(_Prefs)
+        self.slots.sb = types.SimpleNamespace(
+            UNMET_POLICIES=("hide", "disable", "show"),
+            unmet_policy="hide",
+            recheck_gates=lambda: self.rechecks.append("gates"),
+            registered_widgets=types.SimpleNamespace(PushButton="PushButton"),
+            message_box=lambda *a, **k: self.rechecks.append("message"),
+        )
+
+    def _combo(self):
+        from uitk.widgets.comboBox import ComboBox
+
+        widget = ComboBox()
+        widget.is_initialized = False
+        return widget
+
+    def test_labels_override_only_where_title_is_wrong(self):
+        """``"disable".title()`` is "Disable", which reads as an action, not a state.
+        Every other token is labelled by the shared rule."""
+        self.assertEqual(self.slots._unmet_label("disable"), "Show disabled")
+        self.assertEqual(self.slots._unmet_label("hide"), "Hide")
+        self.assertEqual(self.slots._unmet_label("show"), "Show")
+
+    def test_the_entries_come_from_the_switchboard_not_a_local_table(self):
+        """A policy added upstream must appear here automatically — a hand-maintained
+        token→label dict would silently drop it."""
+        self.slots.sb.UNMET_POLICIES = ("hide", "disable", "show", "warn")
+        widget = self._combo()
+        self.slots.cmb006_init(widget)
+        self.assertEqual(
+            [widget.itemData(i) for i in range(widget.count()) if widget.itemData(i)],
+            ["hide", "disable", "show", "warn"],
+        )
+
+    def test_init_selects_the_live_policy(self):
+        self.slots.sb.unmet_policy = "disable"
+        widget = self._combo()
+        self.slots.cmb006_init(widget)
+        self.assertEqual(widget.currentData(), "disable")
+
+    def test_a_selection_is_persisted_and_applied_immediately(self):
+        widget = self._combo()
+        self.slots.cmb006_init(widget)
+        widget.setCurrentText("Show disabled")
+        self.slots.cmb006(widget.currentIndex(), widget)
+        self.assertEqual(self.slots.sb.unmet_policy, "disable")
+        self.assertEqual(self.rechecks, ["gates"])
+
+    def test_the_header_row_writes_nothing(self):
+        """The combo carries a header, so the change signal can fire with no real item
+        selected (``currentData() is None``) — that must not write a policy."""
+        widget = self._combo()
+        self.slots.cmb006_init(widget)
+        widget.setCurrentIndex(-1)
+        self.assertIsNone(widget.currentData())
+        self.slots.cmb006(widget.currentIndex(), widget)  # must not raise
+        self.assertEqual(self.slots.sb.unmet_policy, "hide")
+        self.assertEqual(self.rechecks, [])
+
+    def test_the_header_offers_the_re_check(self):
+        """``recheck_app_gates`` is the only path that can discover a mid-session
+        install; without an affordance it is unreachable API."""
+        header = _StubHeader()
+        self.slots.header_init(header)
+        names = [kw.get("setObjectName") for _, kw in header.menu.added]
+        self.assertIn("tb000", names)
+        self.assertTrue(header.menu.hide_on_trigger)
+
+    def test_the_header_entry_re_probes_and_reports(self):
+        swept = []
+        self.slots.recheck_app_gates = lambda: (swept.append(True), 3)[1]
+        self.slots.tb000()
+        self.assertEqual(swept, [True])
+        self.assertEqual(self.rechecks, ["message"])
+
+    def test_init_repopulates_only_once(self):
+        """``*_init`` runs on every panel show; only the first fills the list."""
+        widget = self._combo()
+        self.slots.cmb006_init(widget)
+        count = widget.count()
+        widget.is_initialized = True
+        self.slots.sb.unmet_policy = "show"
+        self.slots.cmb006_init(widget)
+        self.assertEqual(widget.count(), count)
+        self.assertEqual(widget.currentData(), "show")
+
+
 if __name__ == "__main__":
     unittest.main()

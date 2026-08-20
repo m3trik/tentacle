@@ -3,10 +3,11 @@
 """GUI harness + MINIMAL REPRO: a REAL title-bar drag across a monitor DPI boundary
 permanently freezes Blender whenever a Qt (PySide6) runtime shares its GUI thread.
 
-The user-reported hard-hang gesture (2026-07-18, razer15: 1920x1080@96dpi primary +
-2560x1600@125%/120dpi secondary): title-drag the maximized Blender window (auto-restores
-mid-loop) onto the other monitor and grind it into the top Aero-snap zone. Sequence per
-leg: maximize on primary -> snap-drag to the secondary's top edge -> drag back down.
+The user-reported hard-hang gesture (2026-07-18, on a mixed-DPI dual-monitor box:
+1920x1080@96dpi primary + 2560x1600@125%/120dpi secondary): title-drag the maximized
+Blender window (auto-restores mid-loop) onto the other monitor and grind it into the top
+Aero-snap zone. Sequence per leg: maximize on primary -> snap-drag to the secondary's top
+edge -> drag back down.
 
 SOLVED (2026-07-18) — root cause and fix, after this harness's ~14 runs:
 

@@ -70,13 +70,33 @@ bl_info = {
 
 
 class _Config:
-    """Env-overridable configuration (defaults target the dev box).
+    """Env-overridable configuration (defaults derive from this file's own location).
 
     Class attributes rather than module globals so every collaborator reads one source and tests /
     harnesses can flip a knob in place — e.g. ``_Config.DEBUG = True`` to log each activation fire.
     """
 
-    MONOREPO = os.environ.get("TENTACLE_MONOREPO", r"o:\Cloud\Code\_scripts")
+    # Where the sibling package dirs (pythontk/uitk/tentacle/blendertk/extapps) live: the explicit
+    # ``TENTACLE_MONOREPO`` override, else this file's own checkout
+    # (``<root>/tentacle/tentacle/tcl_blender.py`` → ``<root>``) so any clone works unconfigured.
+    # No hardcoded fallback — this is a public repo, and a maintainer's drive layout has no business
+    # shipping in it; an unresolved root is inert because ``bootstrap_paths`` skips a falsy value and
+    # site-packages resolves the imports as usual.
+    #
+    # The probe is ``<root>/uitk/uitk``, NOT ``<root>/uitk``, because the ``uitk/uitk`` NESTING is
+    # what identifies a monorepo checkout: only there does a repo dir hold a package dir of the same
+    # name. The three ``dirname`` calls are calibrated for it
+    # (``<root>/tentacle/tentacle/tcl_blender.py`` → ``<root>``); under a pip install this file is
+    # ``<site-packages>/tentacle/tcl_blender.py``, one level shallower, so ``_SELF_ROOT`` lands on
+    # site-packages' PARENT, where neither ``uitk`` nor ``uitk/uitk`` exists and the guard correctly
+    # yields "". Probing the flat ``<root>/uitk`` instead would match a plain package dir and put
+    # uitk's own submodules (``widgets``, ``managers``, …) on the top-level import path.
+    _SELF_ROOT = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    MONOREPO = os.environ.get("TENTACLE_MONOREPO") or (
+        _SELF_ROOT if os.path.isdir(os.path.join(_SELF_ROOT, "uitk", "uitk")) else ""
+    )
     QT_DEPS = os.environ.get(
         "TENTACLE_QT_DEPS"
     )  # optional pre-staged Qt folder (skips on-demand)
@@ -113,6 +133,8 @@ class _QtBootstrap:
         # install, and without it ``ExternalAppHandler.launch`` would try a (synchronous,
         # blender.exe-targeted) pip install and wedge the UI. A pip-installed deployment finds extapps
         # in site-packages and this path-add simply no-ops (the dir guard below).
+        if not _Config.MONOREPO:
+            return  # not a monorepo checkout (pip install): site-packages already resolves these
         for pkg in ("pythontk", "uitk", "tentacle", "blendertk", "extapps"):
             path = os.path.join(_Config.MONOREPO, pkg)
             if os.path.isdir(path) and path not in sys.path:

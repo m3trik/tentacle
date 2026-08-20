@@ -51,6 +51,172 @@ class UvMixin:
     STACK_MODE_SIMILAR = "similar"
     STACK_MODE_CENTER = "center"
 
+    # ------------------------------------------------------------------
+    # Transfer tool: enablement of the option box's mode-dependent rows
+    # ------------------------------------------------------------------
+    # Both forks build the same option box and drive it from the same state, so
+    # this pair lives here rather than twice: the bodies were byte-identical and
+    # only the fork-specific *labels* differ, which are the panel's business
+    # (they are what `docs/parity_map.py` ledgers), not this logic's.
+    #
+    # Contract with each fork's ``b000_init``: it sets ``_tt_ctl`` -- the
+    # ``{role: widget}`` map named below -- plus ``_tt_src_button`` /
+    # ``_tt_clear_action`` for the Set Source row and ``_tt_sources`` for the
+    # captured meshes. Every lookup is defensive so a panel that has not built
+    # its option box yet (or a fork that grows a row later) is a no-op, not an
+    # AttributeError from inside a signal handler.
+
+    # Modes of the Transfer combo (option-box combo data), and the one place
+    # that turns the chosen mode into the passes ``b000`` runs. One combo
+    # rather than two toggles because the two are alternatives, not options
+    # that compose: the texture pass writes the maps FOR THE TARGET'S OWN
+    # layout, so a source layout copied alongside them would land in a UV set
+    # nothing references. (The combined operation that IS useful reads the
+    # TARGET's own textures -- "adopt a new layout on a textured mesh"; see
+    # .claude/BACKLOG.md.)
+    # ``auto`` defers the pick to run time: the source's materials decide
+    # (any mapped texture slot -> Textures, none -> UV Set). Still one pass
+    # per run -- Auto chooses between the alternatives, it never composes them.
+    TRANSFER_UVS = "uvs"
+    TRANSFER_TEXTURES = "textures"
+    TRANSFER_AUTO = "auto"
+
+    @classmethod
+    def _tt_passes(cls, source_mode, transfer_mode):
+        """``(do_uvs, do_textures)`` for a Source / Transfer mode pair.
+
+        The UV pass is dropped for the *same mesh, other UV set* source: there
+        is no second mesh to read a layout from, only two layouts of one mesh.
+
+        ``TRANSFER_AUTO`` here is the UNRESOLVED mode (the option box asking
+        which rows may matter): either pass could run, so both flags are on.
+        ``b000`` resolves Auto to a concrete mode via :meth:`_tt_resolve_auto`
+        before acting on the flags.
+        """
+        mode = transfer_mode or cls.TRANSFER_UVS
+        if mode == cls.TRANSFER_AUTO:
+            return source_mode != "uvset", True
+        textures = mode == cls.TRANSFER_TEXTURES
+        return not textures and source_mode != "uvset", textures
+
+    @classmethod
+    def _tt_resolve_auto(cls, texture_transfer, source_meshes):
+        """Auto's run-time decision: the concrete Transfer mode for the sources.
+
+        Textures as soon as any source material carries a mapped texture slot
+        -- read through the engine's own material lookup, so Auto agrees
+        exactly with what the texture pass would find. UV Set when none do:
+        an untextured source has no maps to move, so its layout is the thing
+        worth transferring.
+
+        Parameters:
+            texture_transfer: The engine's ``TextureTransfer`` class
+                (``mtk`` / ``btk`` -- same names, same behavior).
+            source_meshes: The resolved source mesh(es). Empty resolves to
+                the UV pass and falls through to ``b000``'s selection errors.
+        """
+        for mesh in source_meshes:
+            try:
+                materials, _ = texture_transfer.face_materials(mesh)
+            except Exception:  # noqa: BLE001 - an unreadable mesh has no maps
+                continue
+            for material in materials:
+                try:
+                    maps = texture_transfer.material_maps(material)
+                except Exception:  # noqa: BLE001 - unreadable shader = no maps
+                    continue
+                if maps:
+                    return cls.TRANSFER_TEXTURES
+        return cls.TRANSFER_UVS
+
+    @classmethod
+    def _tt_auto_note(cls, auto, do_textures, source_mode=None):
+        """The gate suffix naming Auto's pick, or ``""`` when there is none.
+
+        Auto's choice is invisible state: a gate it trips ("pick a Transfer
+        mode that includes X", "Output Name required") reads as a broken
+        combo unless the message says Auto made the pick.
+
+        The *reason* has to match how the pick was actually made. With a
+        ``uvset`` source nothing is probed at all -- there is no second mesh
+        to read a layout from, so Textures is the only pass the mode leaves
+        available -- and claiming the materials decided it would send the
+        user hunting through maps that were never consulted.
+        """
+        if not (auto and do_textures):
+            return ""
+        if source_mode == "uvset":
+            return (
+                "<br><br><i>Transfer: Auto</i> chose Textures — a second UV "
+                "set of the same mesh carries no layout to transfer."
+            )
+        return (
+            "<br><br><i>Transfer: Auto</i> chose Textures — the source's "
+            "materials carry texture maps."
+        )
+
+    def _tt_clear_source(self):
+        """Forget the stored source meshes (the geometry is untouched)."""
+        self._tt_sources = []
+        self._tt_sync_controls()
+
+    def _tt_sync_controls(self):
+        """Grey every option that the current mode makes meaningless.
+
+        Greying (not hiding) keeps the panel's shape stable, so each row is its
+        own readout: the Set Source row follows the Source combo (capture only
+        feeds the *stored sources* mode; Clear only once something is stored),
+        Scope + Similarity follow the *single source mesh* mode (the Similar
+        scopes additionally need the UV pass, which is what finds their
+        targets), and the texture rows follow the Transfer combo -- which the
+        *same mesh, other UV set* source pins to Textures, having no second
+        mesh for a UV pass to read from.
+        """
+        ctl = getattr(self, "_tt_ctl", None)
+        if ctl is None:
+            return
+        # ``.get``, per the contract above: a fork that has not built every
+        # row yet must be a no-op here, not an AttributeError raised from
+        # inside a signal handler.
+        source, transfer = ctl.get("source"), ctl.get("transfer")
+        if source is None:
+            return
+        mode = source.currentData() or "first"
+        # The same-mesh source moves textures between two of ONE mesh's
+        # layouts, so a UV pass has no second mesh to read from: the combo is
+        # pinned to Textures rather than left offering a mode that cannot run.
+        # Pinned BEFORE the passes are read -- ``setCurrentIndex`` re-enters
+        # this method through the combo's signal, and computing first would
+        # leave the outer call finishing with the pre-pin flags, re-greying
+        # every texture row the re-entrant call had just enabled.
+        same_mesh = mode == "uvset"
+        if transfer is not None:
+            index = transfer.findData(self.TRANSFER_TEXTURES)
+            if same_mesh and index >= 0 and transfer.currentIndex() != index:
+                transfer.setCurrentIndex(index)
+            transfer.setEnabled(not same_mesh)
+        uvs, textures = self._tt_passes(
+            mode, transfer.currentData() if transfer is not None else None
+        )
+        stored_mode = mode == "stored"
+        button = getattr(self, "_tt_src_button", None)
+        if button is not None:
+            button.setEnabled(stored_mode)
+        action = getattr(self, "_tt_clear_action", None)
+        if action is not None:
+            action.widget.setEnabled(stored_mode and bool(self._tt_sources))
+        scope = ctl.get("scope")
+        if scope is not None:
+            scope.setEnabled(mode == "first")
+        similarity = ctl.get("similarity")
+        if similarity is not None:
+            in_scope = (
+                (scope.currentData() or "order") if scope is not None else "order"
+            )
+            similarity.setEnabled(mode == "first" and uvs and in_scope != "order")
+        for w in ctl.get("texture_controls") or ():
+            w.setEnabled(textures)
+
     def b030_init(self, widget):
         """Stack button — non-checkable text button with the stack option box.
 

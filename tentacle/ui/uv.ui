@@ -799,12 +799,15 @@ Use the option box to choose the unwrap engine/mode.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfers UV sets from the first selected object to all other selected objects.
+            <string>Transfer UVs or textures from a source mesh onto the selected meshes.
 
-This operation applies to individual meshes or the children of selected groups.</string>
+UV Set: copy the source layout onto each target (exact for identical topology, sampled by proximity otherwise).
+Textures: re-map the source textures into each target's own layout by exact texel correspondence (no rays, no cage, no bleed; identical topology required).
+
+Source, scope and the texture options live in the option box.</string>
            </property>
            <property name="text">
-            <string>Transfer UV Sets</string>
+            <string>Transfer UVs / Textures</string>
            </property>
            <property name="autoDefault">
             <bool>true</bool>

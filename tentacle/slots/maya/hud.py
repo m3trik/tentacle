@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
-from typing import Optional
 
 import maya.cmds as cmds
 import pythontk as ptk
@@ -52,7 +51,12 @@ class StatusMixin:
         )
 
 
-class SelectionMixin:
+class HudSelectionMixin:
+    """HUD readout of what is selected — unrelated to the package-level
+    :class:`tentacle.SelectionMixin` (the shared ``selection`` panel behavior); named
+    apart so the two can't be confused at an import site.
+    """
+
     def insert_selection_info(self, hud, selection) -> None:
         if cmds.selectMode(q=True, object=True) and cmds.selectType(
             q=True, allObjects=True
@@ -206,7 +210,7 @@ class WarningsMixin(HudWarningsMixin):
 
 
 class HudSlots(
-    SlotsMaya, ptk.PackageManager, StatusMixin, SelectionMixin, WarningsMixin
+    SlotsMaya, ptk.PackageManager, StatusMixin, HudSelectionMixin, WarningsMixin
 ):
     """HUD Slots for Maya, providing scene and selection information."""
 

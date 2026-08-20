@@ -30,7 +30,48 @@ class SettingsMixin:
     # package independently), and pip's only-if-needed upgrade strategy would leave
     # an already-satisfied pin untouched — so checking tentacletk alone reports
     # "up to date" while e.g. uitk stays stale.
-    ECOSYSTEM_DISTS = ("pythontk", "uitk", "mayatk", "blendertk", "tentacletk")
+    #
+    # Fallback only. The live list is DERIVED per host by :meth:`ecosystem_dists`
+    # from the installed metadata, because the DCC engines are extras: hardcoding
+    # both here made a Maya install report the engine it cannot use as
+    # "blendertk not installed -> X.Y.Z" and pip-install it on the next update.
+    ECOSYSTEM_DISTS = ("pythontk", "uitk", "tentacletk")
+
+    @classmethod
+    def ecosystem_dists(cls, installed=None):
+        """The distributions to check for updates in THIS host.
+
+        Base dependencies + the running host's engine extra + ``tentacletk``, straight
+        from the installed metadata (see :meth:`tentacle.Tcl.declared_dists`), so the
+        set tracks ``pyproject.toml`` and never reports the other DCC's engine as
+        missing. Falls back to :attr:`ECOSYSTEM_DISTS` when metadata is unreadable — a
+        source checkout, or a vendored copy — where reporting the engine-free base beats
+        reporting nothing.
+
+        Parameters:
+            installed (dict): ``{dist: version}`` as returned by
+                    ``PackageManager.list_packages``. Any OTHER host's engine that is
+                    already present is added, so it keeps being maintained. This is not
+                    a corner case: every install made before the engines became extras
+                    hard-pinned BOTH, so the whole existing user base has the other
+                    DCC's engine sitting in its environment — and dropping it from the
+                    check would silently freeze it at its installed version forever.
+                    Present-only, so a missing engine is still never installed (that
+                    reinstall-the-wrong-engine behavior is the bug this method fixes).
+        """
+        try:
+            from tentacle import Tcl
+
+            dists = list(Tcl.declared_dists())
+            if not dists:
+                return cls.ECOSYSTEM_DISTS
+            for host in Tcl.HOSTS:
+                for dist in Tcl.engine_dists(host):
+                    if dist in (installed or ()) and dist not in dists:
+                        dists.append(dist)
+            return tuple(dists)
+        except Exception:
+            return cls.ECOSYSTEM_DISTS
 
     def header_init(self, widget):
         """Initialize header"""
@@ -68,12 +109,13 @@ class SettingsMixin:
             # "outdated", so an unknown is skipped rather than reported — but if
             # NONE of them resolved, the check itself failed and must say so
             # instead of quietly claiming everything is current.
-            latest_all = pkg_mgr.latest_versions(self.ECOSYSTEM_DISTS)
+            dists = self.ecosystem_dists(installed_all)
+            latest_all = pkg_mgr.latest_versions(dists)
             if not any(latest_all.values()):
                 raise RuntimeError("could not reach the package index")
 
             outdated = []
-            for dist in self.ECOSYSTEM_DISTS:
+            for dist in dists:
                 latest = latest_all.get(dist)
                 if not latest:
                     continue

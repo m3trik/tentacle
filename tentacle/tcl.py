@@ -21,7 +21,16 @@ both-button target. Import-safe everywhere — stdlib only, and every DCC module
 imported lazily inside the launch path (so ``import tentacle`` in a ``userSetup.py`` stays cheap
 and the heavy DCC imports happen on the deferred tick, as they did when each snippet imported its
 own class).
+
+The **DCC engine** (``mayatk`` / ``blendertk``) is an *extra*, not a hard dependency: the two
+hosts install into separate interpreters and each imports exactly one engine. Every extra in
+``pyproject.toml`` is named after its :attr:`_TclInternal.HOSTS` key, so :meth:`Tcl.host` doubles
+as the extra resolver and no second table can drift — :meth:`Tcl.declared_dists` reads the pins
+straight back out of the installed metadata, and :meth:`Tcl.engine_install_hint` turns a missing
+engine into the exact pip line that fixes it.
 """
+import os
+import re
 import sys
 import importlib
 
@@ -43,6 +52,17 @@ class _TclInternal:
     # Blender startup scripts run before the UI has settled; the Qt host needs a beat (the
     # interval the launch snippet carried before this module existed).
     BLENDER_START_DELAY = 0.5
+
+    #: Distribution this package installs as — the base of every ``[extra]`` spec. Each
+    #: extra is named after a HOSTS key above, so ``host()`` resolves which one applies.
+    DIST = "tentacletk"
+
+    # The two halves of the PEP 508 rows ``importlib.metadata.requires`` returns (see
+    # ``_requires``). Where a requirement name ends, and the ``extra ==`` clause that
+    # assigns a row to an extra — matched as a CLAUSE so a combined marker
+    # (``python_version >= "3.10" and extra == "maya"``) still resolves.
+    _REQ_BOUNDARY = re.compile(r"""[<>=!~;\[\s]""")
+    _EXTRA_CLAUSE = re.compile(r"""extra\s*==\s*["']([^"']+)["']""")
 
     @staticmethod
     def _maya_is_batch():
@@ -70,7 +90,7 @@ class _TclInternal:
             return None
 
         def build():
-            from tentacle.tcl_maya import TclMaya
+            TclMaya = cls._import_entry("maya", "tentacle.tcl_maya", "TclMaya")
 
             return TclMaya(**kwargs)
 
@@ -87,7 +107,7 @@ class _TclInternal:
         import bpy
 
         def build():
-            from tentacle import tcl_blender
+            tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
 
             tcl_blender.register(**kwargs)
             return None  # a timer returning None is unregistered — one shot, not a poll
@@ -95,12 +115,176 @@ class _TclInternal:
         bpy.app.timers.register(build, first_interval=cls.BLENDER_START_DELAY)
         return None
 
-    @staticmethod
-    def _launch_max(**kwargs):
+    @classmethod
+    def _launch_max(cls, **kwargs):
         """3ds Max: no deferral needed — its startup scripts already run against a live UI."""
-        from tentacle.tcl_max import TclMax
+        TclMax = cls._import_entry("max", "tentacle.tcl_max", "TclMax")
 
         return TclMax(**kwargs)
+
+    # ---------------------------------------------------------------- engine extras
+    @classmethod
+    def engine_dists(cls, host):
+        """Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
+
+        Read from the INSTALLED metadata rather than a second copy in code, so the pins
+        push.ps1 syncs stay the only source of truth. Returns ``()`` for an unknown host,
+        for a host with no extra (``max``, until a ``maxtk`` exists), and on a source
+        checkout with no ``.egg-info``/``.dist-info`` — where the engines are on
+        ``sys.path`` anyway and there is nothing to install.
+
+        The ``if host`` guard is load-bearing: ``_requires(extra=None)`` means "the BASE
+        set", so a falsy host would answer "this host's engine is pythontk and uitk" —
+        and ``host()`` returns None outside any DCC.
+        """
+        return cls._requires(extra=host) if host else ()
+
+    @classmethod
+    def _requires(cls, extra=None):
+        """Distribution names from :attr:`DIST`'s metadata: the base set, or one *extra*'s.
+
+        ``importlib.metadata.requires`` hands back raw PEP 508 strings
+        (``'mayatk>=0.13.53; extra == "maya"'``). Base rows carry no ``extra ==`` clause;
+        an extra's rows carry exactly theirs.
+
+        Parsed here rather than with ``packaging`` (not guaranteed inside a DCC
+        interpreter) or uitk's ``split_requirement``: this method already parses the
+        marker half of the same PEP 508 string, so delegating only the name half would
+        split one parse across two packages for no gain — the two halves read different
+        fields and cannot drift into disagreement. Keeping it local also means TOTAL:
+        nothing here can raise, which matters because :meth:`_import_entry` calls into
+        it from inside an ``except ImportError`` handler.
+        """
+        try:
+            from importlib.metadata import requires
+
+            lines = requires(cls.DIST)
+        except Exception:  # not installed (source checkout), or metadata unreadable
+            return ()
+        if not lines:
+            return ()
+
+        names = []
+        for line in lines:
+            spec, _, marker = line.partition(";")
+            # Match the CLAUSE, not the whole marker. setuptools writes a lone
+            # ``extra == "maya"`` today, but a combined marker
+            # (``python_version >= "3.10" and extra == "maya"``) is legal — and an
+            # exact-string compare would silently drop that engine, leaving the
+            # launcher with no diagnostic and the updater blind to it.
+            clause = cls._EXTRA_CLAUSE.search(marker)
+            if extra is None:
+                if clause:  # an extra's row is not part of the base set
+                    continue
+            elif not clause or clause.group(1) != extra:
+                continue
+            name = cls._REQ_BOUNDARY.split(spec.strip(), maxsplit=1)[0].strip()
+            if name:
+                names.append(name)
+        return tuple(names)
+
+    @classmethod
+    def _import_entry(cls, host, module, attr=None):
+        """Import a DCC entry module, re-raising a MISSING ENGINE with the fix.
+
+        The engine is an extra, so the one import error a user can actually hit here is
+        "you installed ``tentacletk`` without its engine". Only a ``ModuleNotFoundError``
+        for a distribution this host's extra DECLARES is rewritten — a missing ``PIL``
+        propagates untouched (the check is against the declared names, not merely "an
+        ImportError happened"), and so does a ``from mayatk import Gone``, which raises a
+        PLAIN ImportError whose ``.name`` is still ``mayatk``: there the engine IS
+        installed and a symbol it exports moved, so a pip line would reinstall what is
+        already there and hide the rename.
+
+        Deliberately does NOT pip-install: driving pip from a DCC's startup tick blocks
+        the host on network I/O, and Blender's bundled interpreter keeps user-site off
+        ``sys.path`` so the obvious install would not even be importable (see
+        ``blendertk.CoreUtils.ensure_packages``). A precise, actionable error beats a
+        frozen DCC — the install line is right there to paste.
+        """
+        package, _, leaf = module.rpartition(".")
+        try:
+            # ``from <package> import <leaf>`` semantics, NOT ``import_module(module)``:
+            # this package resolves submodules through ``bootstrap_package``'s lazy
+            # ATTRIBUTE hook, and the suite patches the entry module onto
+            # ``tentacle.__dict__`` (see ``_as_blender``) precisely because attribute
+            # lookup wins over ``sys.modules``. Going straight to ``import_module``
+            # bypassed both and imported the real Blender/Qt stack mid-test.
+            parent = importlib.import_module(package) if package else None
+            imported = getattr(parent, leaf, None) if parent is not None else None
+            if imported is None:
+                imported = importlib.import_module(module)
+        except ImportError as error:
+            missing = getattr(error, "name", None) or ""
+            # ``import mayatk.foo`` failing reports ``mayatk.foo``; match the root too.
+            root = missing.split(".")[0]
+            # ModuleNotFoundError ONLY: a plain ImportError carrying the same ``name``
+            # is ``from mayatk import Gone`` — the engine IS installed and a symbol it
+            # exports moved. That is the cascade break, and answering it with a pip
+            # line for an already-installed dist buries the real cause.
+            if (
+                root
+                and isinstance(error, ModuleNotFoundError)
+                and root in cls.engine_dists(host)
+            ):
+                raise ImportError(
+                    f"tentacle: the {host} engine ({root}) is not installed. "
+                    f"{cls.engine_install_hint(host)}"
+                ) from error
+            raise
+        return getattr(imported, attr) if attr else imported
+
+    @classmethod
+    def engine_install_hint(cls, host=None):
+        """The pip line that installs *host*'s engine, naming the interpreter to use.
+
+        Quoted because ``[maya]`` is a glob character class in POSIX shells; harmless in
+        cmd/PowerShell, which pass it through literally.
+
+        The interpreter is named ONLY when uitk blesses one. ``pip_python`` returns None
+        for a DCC host binary with no sibling python, and ``sys.executable`` is then
+        ``maya.exe`` / ``blender.exe`` — pip driven through the host routes into its
+        ``-c`` handler and HANGS it (see ``OptionalPackageManager.default_install``), so
+        falling back to it would hand the user a command that freezes their DCC. Better
+        to describe the interpreter than to name a fatal one.
+        """
+        host = host or cls.host()
+        # A host that declares no engine has no extra to install — ``"tentacletk[max]"``
+        # resolves to nothing and pip merely warns. Fall through to the hostless branch,
+        # which names the hosts that DO ship one. Gated on metadata being readable: on a
+        # source checkout every host reads as engine-less, and demoting a real Maya user
+        # there would cost them the interpreter-specific pip line for nothing.
+        if host and cls._requires() and not cls.engine_dists(host):
+            host = None
+        spec = f'"{cls.DIST}[{host}]"'
+        if not host:  # asked outside any DCC — name the hosts rather than "[None]"
+            # Only hosts that actually DECLARE an extra: offering ``[max]``, which
+            # ships no engine, sends the reader to a pip line that resolves to nothing.
+            hosts = [h for h in cls.HOSTS if cls.engine_dists(h)] or list(cls.HOSTS)
+            spec = " / ".join(f'"{cls.DIST}[{h}]"' for h in hosts)
+            return f"Install it with:  python -m pip install {spec}"
+
+        python = None
+        try:  # the sibling that can actually run pip (maya.exe -> mayapy.exe)
+            from uitk.managers.optional_package_manager import OptionalPackageManager
+
+            python = OptionalPackageManager.pip_python()
+        except Exception:
+            # uitk unreachable — NOT exotic: ``pip_python`` imports ``ExternalAppHandler``,
+            # which pulls qtpy, which raises when no Qt binding is installed (a bare venv,
+            # CI). Fall back only on a positive match — an interpreter literally named
+            # ``python*`` cannot be a DCC host binary, and that covers the venv/CI case
+            # plus Blender's bundled ``<prefix>/bin/python.exe``. Deliberately an
+            # ALLOWLIST: "not a known host" would name the host binary of any DCC whose
+            # probe module failed to import, and that command hangs the session.
+            name = os.path.basename(sys.executable or "").lower()
+            python = sys.executable if name.startswith("python") else None
+        if not python:
+            return (
+                f"Install it into this DCC's own Python (mayapy.exe, or Blender's "
+                f"bundled python.exe) with:  -m pip install {spec}"
+            )
+        return f'Install it with:  "{python}" -m pip install {spec}'
 
 
 class Tcl(_TclInternal):
@@ -132,6 +316,36 @@ class Tcl(_TclInternal):
             except ImportError:
                 continue
         return None
+
+    @classmethod
+    def declared_dists(cls, host=None, include_self=True):
+        """Every ecosystem distribution THIS install actually uses, for *host*.
+
+        The base dependencies plus, when *host* names one, that host's engine extra —
+        so a Maya install reports ``mayatk`` and never ``blendertk``, and a package the
+        host cannot use can't be reported stale (or silently reinstalled) by the updater
+        in ``slots/_settings.py``, which is this method's caller.
+
+        Read from installed metadata, so it tracks ``pyproject.toml`` with no second
+        copy. Returns ``()`` on a source checkout with no metadata — a caller that must
+        degrade gracefully should treat empty as "unknown", not as "nothing installed".
+
+        Parameters:
+            host (str): A :attr:`HOSTS` key. ``None`` (default) resolves the running
+                    host via :meth:`host`; pass a name explicitly to ask about another.
+            include_self (bool): Append :attr:`DIST` itself.
+
+        Returns:
+            tuple: Distribution names, base first, engine next, self last.
+        """
+        host = cls.host() if host is None else host
+        dists = list(cls._requires())
+        if not dists:  # no metadata — nothing trustworthy to report
+            return ()
+        dists += [d for d in cls.engine_dists(host) if d not in dists]
+        if include_self and cls.DIST not in dists:
+            dists.append(cls.DIST)
+        return tuple(dists)
 
     @classmethod
     def qt_key_name(cls, key_show=None):

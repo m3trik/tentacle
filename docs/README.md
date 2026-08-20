@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-805%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-855%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
@@ -14,19 +14,25 @@ Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widg
 
 Install from a command prompt, into your DCC's own Python (not a system install). The commands below name specific versions — adjust the paths to match yours.
 
+**Name your DCC in the brackets.** Each host installs its own engine — `tentacletk[maya]` brings `mayatk`, `tentacletk[blender]` brings `blendertk` — so a Maya install carries no Blender code and vice versa. Plain `tentacletk` installs the framework with **no** engine and the menu will not start; if you land there, the error names the exact command to fix it.
+
 **Maya** (2025+) — install into `mayapy`:
 
 ```bash
-"C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe" -m pip install tentacletk
+"C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe" -m pip install "tentacletk[maya]"
 ```
 
 **Blender** (4.x+) — same package, into Blender's bundled Python:
 
 ```bash
-"C:/Program Files/Blender Foundation/Blender 5.1/5.1/python/bin/python.exe" -m pip install tentacletk
+"C:/Program Files/Blender Foundation/Blender 5.1/5.1/python/bin/python.exe" -m pip install "tentacletk[blender]"
 ```
 
-Prefer a menu? Download and run the package manager for your DCC — [mayapy-package-manager.bat](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) / [blenderpy-package-manager.bat](https://github.com/m3trik/blendertk/blob/master/blendertk/env_utils/blenderpy-package-manager.bat) — pick your DCC version, choose *Install Package*, type `tentacletk`.
+The quotes matter in bash/zsh, where `[maya]` is a glob pattern; cmd and PowerShell pass it through either way.
+
+Prefer a menu? Download and run the package manager for your DCC — [mayapy-package-manager.bat](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) / [blenderpy-package-manager.bat](https://github.com/m3trik/blendertk/blob/master/blendertk/env_utils/blenderpy-package-manager.bat) — pick your DCC version, choose *Install Package*, type `tentacletk[maya]` (or `tentacletk[blender]`).
+
+Already installed the plain package? Adding the extra is the same command — pip installs the missing engine and leaves everything else alone.
 
 ## Launch
 

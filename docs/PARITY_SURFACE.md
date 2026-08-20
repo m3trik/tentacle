@@ -36,7 +36,7 @@
 | ReferenceManager | 0 | 0 | 13 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 0 | 0 | 0 | OK |
+| SceneExporter | 0 | 0 | 2 | 0 | OK |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -47,7 +47,7 @@
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
-| TexturePathEditor | 0 | 0 | 1 | 4 | OK |
+| TexturePathEditor | 0 | 0 | 1 | 5 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 0 | OK |
@@ -89,6 +89,7 @@
 #### TexturePathEditor
 **property deltas (review)**
   - `btn_open_source_images.setText` maya=`'Open Source Images'` blender=`'Open Textures Folder'`
+  - `chk_dest_sourceimages.setText` maya=`'Always Relocate To sourceimages'` blender=`'Always Relocate To The Textures Folder'`
   - `chk_stem.setText` maya=`'Stem  — exact name, different extension'` blender=`'Stem  — exact name, any extension'`
   - `delete_file_node.setText` maya=`'Delete File Node'` blender=`'Delete Image'`
   - `row_show_in_hypershade.setText` maya=`'Show in Hypershade'` blender=`'Show in Shader Editor'`
@@ -190,6 +191,11 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 #### transform.py
 **default/property deltas (review — a flipped default changes first-use behavior)**
   - `s023.setValue` maya=`0` blender=`None`
+
+#### uv.py
+**combo item deltas (review)**
+  - `cmb024` 3->3 items; missing=['Source: First Selected Mesh', 'Source: UV Set On Same Mesh'] extra=['Source: Active Mesh', 'Source: UV Map On Same Mesh']
+  - `cmb028` 3->3 items; missing=['Transfer: UV Set'] extra=['Transfer: UV Map']
 
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 

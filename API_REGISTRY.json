@@ -1,7 +1,7 @@
 {
   "name": "tentacle",
   "source_root": "tentacle/tentacle",
-  "generated_at": "2026-08-18",
+  "generated_at": "2026-08-20",
   "modules": [
     {
       "relpath": "__init__.py",
@@ -158,25 +158,16 @@
         {
           "name": "MaterialsMixin",
           "summary": "DCC-agnostic ``materials`` slot behavior.",
-          "line": 66,
+          "line": 58,
           "bases": [],
           "members": [
-            {
-              "name": "lbl005",
-              "qualname": "MaterialsMixin.lbl005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rename the current material.",
-              "line": 258,
-              "deprecated": false
-            },
             {
               "name": "b003",
               "qualname": "MaterialsMixin.b003",
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get + Select (submenu): adopt the selection's material, then select its users.",
-              "line": 383,
+              "line": 241,
               "deprecated": false
             }
           ]
@@ -191,7 +182,7 @@
         {
           "name": "PreferencesMixin",
           "summary": "DCC-agnostic ``preferences`` slot behavior.",
-          "line": 17,
+          "line": 18,
           "bases": [],
           "members": [
             {
@@ -200,7 +191,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marking-menu (radial startmenu / submenu) window theme.",
-              "line": 50,
+              "line": 60,
               "deprecated": false
             },
             {
@@ -209,7 +200,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Apply the marking-menu theme (persists + re-themes live windows).",
-              "line": 56,
+              "line": 66,
               "deprecated": false
             },
             {
@@ -218,7 +209,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Standalone tool-window theme.",
-              "line": 60,
+              "line": 70,
               "deprecated": false
             },
             {
@@ -227,7 +218,43 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Apply the standalone-window theme (persists + re-themes live windows).",
-              "line": 66,
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "cmb006_init",
+              "qualname": "PreferencesMixin.cmb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Presentation for tools whose external app / plugin isn't installed.",
+              "line": 91,
+              "deprecated": false
+            },
+            {
+              "name": "cmb006",
+              "qualname": "PreferencesMixin.cmb006",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Persist the chosen presentation policy and re-present the live gates.",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "PreferencesMixin.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu — the manual re-probe that pairs with ``cmb006``.",
+              "line": 125,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "PreferencesMixin.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-check installed tools: drop the cached probes, then re-apply the gates.",
+              "line": 148,
               "deprecated": false
             }
           ]
@@ -335,7 +362,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Convert To: category rows that convert on click and expand on hover.",
-              "line": 107,
+              "line": 111,
               "deprecated": false
             }
           ]
@@ -354,12 +381,21 @@
           "bases": [],
           "members": [
             {
+              "name": "ecosystem_dists",
+              "qualname": "SettingsMixin.ecosystem_dists",
+              "kind": "classmethod",
+              "signature": "(cls, installed=None)",
+              "summary": "The distributions to check for updates in THIS host.",
+              "line": 41,
+              "deprecated": false
+            },
+            {
               "name": "header_init",
               "qualname": "SettingsMixin.header_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize header",
-              "line": 35,
+              "line": 76,
               "deprecated": false
             },
             {
@@ -368,7 +404,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Package",
-              "line": 57,
+              "line": 98,
               "deprecated": false
             },
             {
@@ -377,7 +413,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check the whole ecosystem for updates and upgrade what's outdated.",
-              "line": 61,
+              "line": 102,
               "deprecated": false
             },
             {
@@ -386,7 +422,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "UI Style Editor",
-              "line": 118,
+              "line": 160,
               "deprecated": false
             },
             {
@@ -395,7 +431,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shortcut Editor",
-              "line": 122,
+              "line": 164,
               "deprecated": false
             },
             {
@@ -404,7 +440,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
-              "line": 126,
+              "line": 168,
               "deprecated": false
             },
             {
@@ -413,7 +449,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Global Shortcuts: open the shortcut editor focused on the global",
-              "line": 130,
+              "line": 172,
               "deprecated": false
             },
             {
@@ -422,7 +458,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Default menu (activation key only).",
-              "line": 183,
+              "line": 225,
               "deprecated": false
             },
             {
@@ -431,7 +467,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Left mouse button.",
-              "line": 188,
+              "line": 230,
               "deprecated": false
             },
             {
@@ -440,7 +476,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Middle mouse button.",
-              "line": 195,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -449,7 +485,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Right mouse button.",
-              "line": 202,
+              "line": 244,
               "deprecated": false
             },
             {
@@ -458,7 +494,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Left + Right mouse buttons.",
-              "line": 209,
+              "line": 251,
               "deprecated": false
             },
             {
@@ -467,7 +503,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
-              "line": 216,
+              "line": 258,
               "deprecated": false
             }
           ]
@@ -506,12 +542,30 @@
               "deprecated": false
             },
             {
+              "name": "gate_on_app",
+              "qualname": "Slots.gate_on_app",
+              "kind": "method",
+              "signature": "(self, widget, resolve_spec) -> bool",
+              "summary": "Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.",
+              "line": 144,
+              "deprecated": false
+            },
+            {
+              "name": "recheck_app_gates",
+              "qualname": "Slots.recheck_app_gates",
+              "kind": "method",
+              "signature": "(self) -> int",
+              "summary": "Re-probe every gated app and re-present its widgets.",
+              "line": 190,
+              "deprecated": false
+            },
+            {
               "name": "toggle_camera_view",
               "qualname": "Slots.toggle_camera_view",
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two viewport-camera views in slot history.",
-              "line": 144,
+              "line": 212,
               "deprecated": false
             },
             {
@@ -520,7 +574,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
-              "line": 175,
+              "line": 243,
               "deprecated": false
             }
           ]
@@ -544,7 +598,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack button — non-checkable text button with the stack option box.",
-              "line": 54,
+              "line": 220,
               "deprecated": false
             }
           ]
@@ -1896,27 +1950,27 @@
           ]
         },
         {
-          "name": "SelectionMixin",
-          "summary": "",
+          "name": "HudSelectionMixin",
+          "summary": "HUD readout of what is selected — unrelated to the package-level",
           "line": 40,
           "bases": [],
           "members": [
             {
               "name": "insert_selection_info",
-              "qualname": "SelectionMixin.insert_selection_info",
+              "qualname": "HudSelectionMixin.insert_selection_info",
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 62,
+              "line": 67,
               "deprecated": false
             },
             {
               "name": "insert_component_info",
-              "qualname": "SelectionMixin.insert_component_info",
+              "qualname": "HudSelectionMixin.insert_component_info",
               "kind": "method",
               "signature": "(self, hud, active) -> None",
               "summary": "Selected/total component counts for the mesh being edited (cheap:",
-              "line": 89,
+              "line": 94,
               "deprecated": false
             }
           ]
@@ -1924,7 +1978,7 @@
         {
           "name": "WarningsMixin",
           "summary": "Blender HUD warnings — the framework lives in the shared",
-          "line": 107,
+          "line": 112,
           "bases": [
             "HudWarningsMixin"
           ],
@@ -1933,11 +1987,11 @@
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Blender, providing scene and selection information.",
-          "line": 168,
+          "line": 173,
           "bases": [
             "SlotsBlender",
             "StatusMixin",
-            "SelectionMixin",
+            "HudSelectionMixin",
             "WarningsMixin"
           ],
           "members": [
@@ -1947,7 +2001,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 179,
+              "line": 184,
               "deprecated": false
             },
             {
@@ -1956,7 +2010,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 199,
+              "line": 204,
               "deprecated": false
             }
           ]
@@ -2061,7 +2115,7 @@
         {
           "name": "MaterialsSlots",
           "summary": "Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against",
-          "line": 9,
+          "line": 8,
           "bases": [
             "MaterialsMixin",
             "SlotsBlender"
@@ -2073,7 +2127,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Editor — Blender's analogue of Maya's Hypershade.",
-              "line": 121,
+              "line": 120,
               "deprecated": false
             },
             {
@@ -2082,7 +2136,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Materials combo: scene materials with color swatches + option box (Cleanup) + a",
-              "line": 126,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -2091,7 +2145,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Current Material (selection only — assignment is on the b-buttons).",
-              "line": 193,
+              "line": 186,
               "deprecated": false
             },
             {
@@ -2100,7 +2154,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 242,
+              "line": 235,
               "deprecated": false
             },
             {
@@ -2109,7 +2163,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material — the option box supplies the parameters.",
-              "line": 273,
+              "line": 266,
               "deprecated": false
             },
             {
@@ -2118,7 +2172,7 @@
               "kind": "method",
               "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
               "summary": "Select the geometry carrying the current material.",
-              "line": 284,
+              "line": 277,
               "deprecated": false
             },
             {
@@ -2127,7 +2181,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 423,
+              "line": 416,
               "deprecated": false
             },
             {
@@ -2136,7 +2190,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the text-view dialog.",
-              "line": 457,
+              "line": 450,
               "deprecated": false
             },
             {
@@ -2145,7 +2199,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: assign-current root + New / Random + scene materials.",
-              "line": 517,
+              "line": 510,
               "deprecated": false
             },
             {
@@ -2154,7 +2208,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Assign list: root assigns the current material;",
-              "line": 546,
+              "line": 539,
               "deprecated": false
             },
             {
@@ -2163,7 +2217,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list (Setup tools with a native Blender op).",
-              "line": 580,
+              "line": 591,
               "deprecated": false
             },
             {
@@ -2172,7 +2226,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 608,
+              "line": 622,
               "deprecated": false
             },
             {
@@ -2181,7 +2235,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Get Material: set the combo to the selection's material.",
-              "line": 638,
+              "line": 652,
               "deprecated": false
             },
             {
@@ -2190,7 +2244,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign Random",
-              "line": 643,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -2199,7 +2253,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Assign New Material",
-              "line": 662,
+              "line": 676,
               "deprecated": false
             },
             {
@@ -2208,7 +2262,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Scene Textures",
-              "line": 673,
+              "line": 687,
               "deprecated": false
             },
             {
@@ -2217,7 +2271,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Duplicate Materials",
-              "line": 679,
+              "line": 693,
               "deprecated": false
             },
             {
@@ -2226,7 +2280,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Delete All Unused Materials",
-              "line": 690,
+              "line": 704,
               "deprecated": false
             },
             {
@@ -2235,7 +2289,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete the current material.",
-              "line": 697,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -2244,7 +2298,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select Node — select the object(s) using the current material.",
-              "line": 705,
+              "line": 719,
               "deprecated": false
             },
             {
@@ -2253,25 +2307,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 718,
-              "deprecated": false
-            },
-            {
-              "name": "lbl007",
-              "qualname": "MaterialsSlots.lbl007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rename the current material by stripping trailing integers/underscores.",
-              "line": 729,
-              "deprecated": false
-            },
-            {
-              "name": "lbl007_global",
-              "qualname": "MaterialsSlots.lbl007_global",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Strip trailing ints/underscores from ALL scene materials (skips on-collision).",
-              "line": 748,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -2280,7 +2316,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 766,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -2289,7 +2325,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
-              "line": 772,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -2298,7 +2334,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 777,
+              "line": 755,
               "deprecated": false
             },
             {
@@ -2307,7 +2343,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Emissive Groups — co-located blendertk panel (named face groups a game engine gates at",
-              "line": 782,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -2316,7 +2352,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 787,
+              "line": 765,
               "deprecated": false
             },
             {
@@ -2325,7 +2361,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 792,
+              "line": 770,
               "deprecated": false
             },
             {
@@ -2334,7 +2370,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 829,
+              "line": 807,
               "deprecated": false
             },
             {
@@ -2343,7 +2379,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 833,
+              "line": 811,
               "deprecated": false
             },
             {
@@ -2352,7 +2388,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 837,
+              "line": 815,
               "deprecated": false
             },
             {
@@ -2361,7 +2397,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 841,
+              "line": 819,
               "deprecated": false
             },
             {
@@ -2370,7 +2406,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 845,
+              "line": 823,
               "deprecated": false
             },
             {
@@ -2379,7 +2415,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 849,
+              "line": 827,
               "deprecated": false
             },
             {
@@ -2388,7 +2424,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 858,
+              "line": 836,
               "deprecated": false
             },
             {
@@ -2397,7 +2433,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 862,
+              "line": 840,
               "deprecated": false
             }
           ]
@@ -4653,7 +4689,7 @@
         {
           "name": "Uv",
           "summary": "Blender port of the shared ``uv`` menu.",
-          "line": 10,
+          "line": 12,
           "bases": [
             "UvMixin",
             "SlotsBlender"
@@ -4665,7 +4701,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 33,
+              "line": 35,
               "deprecated": false
             },
             {
@@ -4674,7 +4710,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 112,
+              "line": 114,
               "deprecated": false
             },
             {
@@ -4683,7 +4719,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target",
-              "line": 191,
+              "line": 206,
               "deprecated": false
             },
             {
@@ -4692,7 +4728,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 231,
+              "line": 252,
               "deprecated": false
             },
             {
@@ -4701,7 +4737,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap (Smart UV Project, or an external unwrapping engine).",
-              "line": 293,
+              "line": 322,
               "deprecated": false
             },
             {
@@ -4710,7 +4746,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 319,
+              "line": 352,
               "deprecated": false
             },
             {
@@ -4719,7 +4755,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold (unwrap, then optionally relax, axis-align, and stack similar shells).",
-              "line": 354,
+              "line": 404,
               "deprecated": false
             },
             {
@@ -4728,7 +4764,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 377,
+              "line": 429,
               "deprecated": false
             },
             {
@@ -4737,7 +4773,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder — seam by crease angle, then unfold.",
-              "line": 399,
+              "line": 461,
               "deprecated": false
             },
             {
@@ -4746,7 +4782,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs (mark seam on selected edges)",
-              "line": 428,
+              "line": 490,
               "deprecated": false
             },
             {
@@ -4755,7 +4791,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs (clear seam on selected edges)",
-              "line": 433,
+              "line": 495,
               "deprecated": false
             },
             {
@@ -4764,7 +4800,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 438,
+              "line": 500,
               "deprecated": false
             },
             {
@@ -4773,7 +4809,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,",
-              "line": 448,
+              "line": 513,
               "deprecated": false
             },
             {
@@ -4782,7 +4818,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).",
-              "line": 479,
+              "line": 559,
               "deprecated": false
             },
             {
@@ -4791,7 +4827,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,",
-              "line": 511,
+              "line": 595,
               "deprecated": false
             },
             {
@@ -4800,7 +4836,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Create UV Snapshot — export the active mesh's UV layout to an image.",
-              "line": 528,
+              "line": 623,
               "deprecated": false
             },
             {
@@ -4809,7 +4845,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 537,
+              "line": 632,
               "deprecated": false
             },
             {
@@ -4817,8 +4853,8 @@
               "qualname": "Uv.b000_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Transfer UVs option box — scope + similarity tolerance (mirror of Maya's;",
-              "line": 543,
+              "summary": "Initialize the Transfer option box.",
+              "line": 639,
               "deprecated": false
             },
             {
@@ -4826,8 +4862,8 @@
               "qualname": "Uv.b000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Transfer UVs — from the active mesh, to the other selected meshes (Selection",
-              "line": 591,
+              "summary": "Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).",
+              "line": 1057,
               "deprecated": false
             },
             {
@@ -4836,7 +4872,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 634,
+              "line": 1246,
               "deprecated": false
             },
             {
@@ -4845,7 +4881,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 643,
+              "line": 1255,
               "deprecated": false
             },
             {
@@ -4854,7 +4890,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 652,
+              "line": 1264,
               "deprecated": false
             },
             {
@@ -4863,7 +4899,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 660,
+              "line": 1272,
               "deprecated": false
             },
             {
@@ -4872,7 +4908,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 679,
+              "line": 1292,
               "deprecated": false
             },
             {
@@ -4881,7 +4917,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 705,
+              "line": 1328,
               "deprecated": false
             },
             {
@@ -4890,7 +4926,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 732,
+              "line": 1355,
               "deprecated": false
             },
             {
@@ -4899,7 +4935,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 775,
+              "line": 1400,
               "deprecated": false
             },
             {
@@ -4908,7 +4944,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 780,
+              "line": 1405,
               "deprecated": false
             },
             {
@@ -4917,7 +4953,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 788,
+              "line": 1413,
               "deprecated": false
             },
             {
@@ -4926,7 +4962,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 793,
+              "line": 1418,
               "deprecated": false
             }
           ]
@@ -6475,7 +6511,7 @@
         {
           "name": "StatusMixin",
           "summary": "",
-          "line": 12,
+          "line": 11,
           "bases": [],
           "members": [
             {
@@ -6484,33 +6520,33 @@
               "kind": "method",
               "signature": "(self, hud) -> None",
               "summary": "",
-              "line": 13,
+              "line": 12,
               "deprecated": false
             }
           ]
         },
         {
-          "name": "SelectionMixin",
-          "summary": "",
-          "line": 55,
+          "name": "HudSelectionMixin",
+          "summary": "HUD readout of what is selected — unrelated to the package-level",
+          "line": 54,
           "bases": [],
           "members": [
             {
               "name": "insert_selection_info",
-              "qualname": "SelectionMixin.insert_selection_info",
+              "qualname": "HudSelectionMixin.insert_selection_info",
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 56,
+              "line": 60,
               "deprecated": false
             },
             {
               "name": "insert_component_info",
-              "qualname": "SelectionMixin.insert_component_info",
+              "qualname": "HudSelectionMixin.insert_component_info",
               "kind": "method",
               "signature": "(self, hud, selection) -> None",
               "summary": "",
-              "line": 103,
+              "line": 107,
               "deprecated": false
             }
           ]
@@ -6518,7 +6554,7 @@
         {
           "name": "WarningsMixin",
           "summary": "Maya HUD warnings — the framework lives in the shared",
-          "line": 128,
+          "line": 132,
           "bases": [
             "HudWarningsMixin"
           ],
@@ -6527,12 +6563,12 @@
         {
           "name": "HudSlots",
           "summary": "HUD Slots for Maya, providing scene and selection information.",
-          "line": 208,
+          "line": 212,
           "bases": [
             "SlotsMaya",
             "ptk.PackageManager",
             "StatusMixin",
-            "SelectionMixin",
+            "HudSelectionMixin",
             "WarningsMixin"
           ],
           "members": [
@@ -6542,7 +6578,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 224,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -6551,7 +6587,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 244,
+              "line": 248,
               "deprecated": false
             }
           ]
@@ -6704,7 +6740,7 @@
         {
           "name": "MaterialsSlots",
           "summary": "",
-          "line": 12,
+          "line": 11,
           "bases": [
             "MaterialsMixin",
             "SlotsMaya"
@@ -6716,7 +6752,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hypershade Editor",
-              "line": 124,
+              "line": 123,
               "deprecated": false
             },
             {
@@ -6725,7 +6761,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 130,
+              "line": 129,
               "deprecated": false
             },
             {
@@ -6734,7 +6770,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Assign list selection.",
-              "line": 172,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -6743,7 +6779,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Conversion / External (mirrors prior header sections).",
-              "line": 238,
+              "line": 252,
               "deprecated": false
             },
             {
@@ -6752,7 +6788,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 273,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -6761,25 +6797,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Materials",
-              "line": 293,
-              "deprecated": false
-            },
-            {
-              "name": "lbl007",
-              "qualname": "MaterialsSlots.lbl007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rename the current material by stripping trailing integers and underscores.",
-              "line": 579,
-              "deprecated": false
-            },
-            {
-              "name": "lbl007_global",
-              "qualname": "MaterialsSlots.lbl007_global",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rename ALL scene materials by stripping trailing integers and underscores.",
-              "line": 636,
+              "line": 310,
               "deprecated": false
             },
             {
@@ -6788,7 +6806,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 667,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -6797,7 +6815,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select By Material — the option box supplies the parameters.",
-              "line": 711,
+              "line": 529,
               "deprecated": false
             },
             {
@@ -6806,7 +6824,7 @@
               "kind": "method",
               "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
               "summary": "Select the geometry carrying the current material.",
-              "line": 722,
+              "line": 540,
               "deprecated": false
             },
             {
@@ -6815,7 +6833,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Delete Material",
-              "line": 793,
+              "line": 611,
               "deprecated": false
             },
             {
@@ -6824,7 +6842,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Unused Materials",
-              "line": 801,
+              "line": 619,
               "deprecated": false
             },
             {
@@ -6833,7 +6851,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 806,
+              "line": 624,
               "deprecated": false
             },
             {
@@ -6842,7 +6860,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open material in editor",
-              "line": 814,
+              "line": 632,
               "deprecated": false
             },
             {
@@ -6851,7 +6869,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material: Change the index to match the current material selection.",
-              "line": 839,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -6860,7 +6878,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign Random",
-              "line": 843,
+              "line": 661,
               "deprecated": false
             },
             {
@@ -6869,7 +6887,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Assign: New Material",
-              "line": 882,
+              "line": 700,
               "deprecated": false
             },
             {
@@ -6878,7 +6896,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Packer",
-              "line": 893,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -6887,7 +6905,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Game Shader",
-              "line": 899,
+              "line": 717,
               "deprecated": false
             },
             {
@@ -6896,7 +6914,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 903,
+              "line": 721,
               "deprecated": false
             },
             {
@@ -6905,7 +6923,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Emissive Groups",
-              "line": 908,
+              "line": 726,
               "deprecated": false
             },
             {
@@ -6914,7 +6932,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Texture Path Editor",
-              "line": 912,
+              "line": 730,
               "deprecated": false
             },
             {
@@ -6923,7 +6941,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Shader Templates",
-              "line": 916,
+              "line": 734,
               "deprecated": false
             },
             {
@@ -6932,7 +6950,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reload Textures and Reset Viewport",
-              "line": 920,
+              "line": 738,
               "deprecated": false
             },
             {
@@ -6941,7 +6959,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove and Reassign Duplicates",
-              "line": 927,
+              "line": 745,
               "deprecated": false
             },
             {
@@ -6950,7 +6968,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 934,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -6959,7 +6977,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 992,
+              "line": 810,
               "deprecated": false
             },
             {
@@ -6968,7 +6986,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — option box.",
-              "line": 1003,
+              "line": 821,
               "deprecated": false
             },
             {
@@ -6977,7 +6995,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 1074,
+              "line": 892,
               "deprecated": false
             },
             {
@@ -6986,7 +7004,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Enable Viewport Opacity — option box.",
-              "line": 1192,
+              "line": 1010,
               "deprecated": false
             },
             {
@@ -6995,7 +7013,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Enable Viewport Opacity — wire opacity maps for the chosen scope.",
-              "line": 1222,
+              "line": 1040,
               "deprecated": false
             },
             {
@@ -7004,7 +7022,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Image to Plane",
-              "line": 1261,
+              "line": 1079,
               "deprecated": false
             },
             {
@@ -7013,7 +7031,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Marmoset Bridge",
-              "line": 1265,
+              "line": 1083,
               "deprecated": false
             },
             {
@@ -7022,7 +7040,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Substance Bridge",
-              "line": 1269,
+              "line": 1087,
               "deprecated": false
             },
             {
@@ -7031,7 +7049,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Map Compositor",
-              "line": 1273,
+              "line": 1091,
               "deprecated": false
             },
             {
@@ -7040,7 +7058,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Metashape Workflow",
-              "line": 1277,
+              "line": 1095,
               "deprecated": false
             },
             {
@@ -7049,7 +7067,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "RealityCapture Workflow",
-              "line": 1281,
+              "line": 1099,
               "deprecated": false
             },
             {
@@ -7058,7 +7076,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Brush Splat Workflow",
-              "line": 1285,
+              "line": 1103,
               "deprecated": false
             }
           ]
@@ -9678,7 +9696,7 @@
         {
           "name": "UvSlots",
           "summary": "",
-          "line": 11,
+          "line": 14,
           "bases": [
             "UvMixin",
             "SlotsMaya"
@@ -9690,7 +9708,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 35,
+              "line": 38,
               "deprecated": false
             },
             {
@@ -9699,7 +9717,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV Menu Header",
-              "line": 39,
+              "line": 42,
               "deprecated": false
             },
             {
@@ -9708,7 +9726,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize UV packing tool interface.",
-              "line": 65,
+              "line": 75,
               "deprecated": false
             },
             {
@@ -9717,7 +9735,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pack UVs with specified settings.",
-              "line": 620,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -9726,7 +9744,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap.",
-              "line": 860,
+              "line": 878,
               "deprecated": false
             },
             {
@@ -9735,7 +9753,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap: automatically unwrap UVs for the selected objects.",
-              "line": 937,
+              "line": 955,
               "deprecated": false
             },
             {
@@ -9744,7 +9762,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 992,
+              "line": 1016,
               "deprecated": false
             },
             {
@@ -9753,7 +9771,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold: relax/unfold the selected UVs to reduce stretch and distortion.",
-              "line": 1042,
+              "line": 1066,
               "deprecated": false
             },
             {
@@ -9762,7 +9780,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 1134,
+              "line": 1158,
               "deprecated": false
             },
             {
@@ -9771,7 +9789,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 1180,
+              "line": 1204,
               "deprecated": false
             },
             {
@@ -9780,7 +9798,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 1238,
+              "line": 1262,
               "deprecated": false
             },
             {
@@ -9789,7 +9807,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1356,
+              "line": 1380,
               "deprecated": false
             },
             {
@@ -9798,7 +9816,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1403,
+              "line": 1427,
               "deprecated": false
             },
             {
@@ -9807,7 +9825,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1408,
+              "line": 1432,
               "deprecated": false
             },
             {
@@ -9815,8 +9833,8 @@
               "qualname": "UvSlots.b000_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Initialize Transfer UVs option box — scope + similarity tolerance.",
-              "line": 1412,
+              "summary": "Initialize the Transfer option box.",
+              "line": 1439,
               "deprecated": false
             },
             {
@@ -9824,8 +9842,8 @@
               "qualname": "UvSlots.b000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Transfer UV's",
-              "line": 1459,
+              "summary": "Transfer UVs OR textures -- one pass per run (see ``b000_init``).",
+              "line": 1861,
               "deprecated": false
             },
             {
@@ -9834,7 +9852,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1518,
+              "line": 2052,
               "deprecated": false
             },
             {
@@ -9843,7 +9861,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1529,
+              "line": 2063,
               "deprecated": false
             },
             {
@@ -9852,7 +9870,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1540,
+              "line": 2074,
               "deprecated": false
             },
             {
@@ -9861,7 +9879,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1575,
+              "line": 2109,
               "deprecated": false
             },
             {
@@ -9870,7 +9888,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1604,
+              "line": 2138,
               "deprecated": false
             },
             {
@@ -9879,7 +9897,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1613,
+              "line": 2147,
               "deprecated": false
             },
             {
@@ -9888,7 +9906,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1648,
+              "line": 2182,
               "deprecated": false
             },
             {
@@ -9897,7 +9915,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1685,
+              "line": 2219,
               "deprecated": false
             },
             {
@@ -9906,7 +9924,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1694,
+              "line": 2228,
               "deprecated": false
             },
             {
@@ -9915,7 +9933,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle).",
-              "line": 1718,
+              "line": 2252,
               "deprecated": false
             },
             {
@@ -9924,7 +9942,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1820,
+              "line": 2354,
               "deprecated": false
             },
             {
@@ -9933,7 +9951,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1824,
+              "line": 2358,
               "deprecated": false
             },
             {
@@ -9942,7 +9960,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 1828,
+              "line": 2362,
               "deprecated": false
             }
           ]
@@ -9989,7 +10007,7 @@
         {
           "name": "Tcl",
           "summary": "Launch tentacle in whichever DCC is hosting this process.",
-          "line": 106,
+          "line": 290,
           "bases": [
             "_TclInternal"
           ],
@@ -10000,7 +10018,16 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.",
-              "line": 118,
+              "line": 302,
+              "deprecated": false
+            },
+            {
+              "name": "declared_dists",
+              "qualname": "Tcl.declared_dists",
+              "kind": "classmethod",
+              "signature": "(cls, host=None, include_self=True)",
+              "summary": "Every ecosystem distribution THIS install actually uses, for *host*.",
+              "line": 321,
               "deprecated": false
             },
             {
@@ -10009,7 +10036,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None)",
               "summary": "Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.",
-              "line": 137,
+              "line": 351,
               "deprecated": false
             },
             {
@@ -10018,7 +10045,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, context_tags=None)",
               "summary": "The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.",
-              "line": 147,
+              "line": 361,
               "deprecated": false
             },
             {
@@ -10027,7 +10054,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 175,
+              "line": 389,
               "deprecated": false
             },
             {
@@ -10036,7 +10063,25 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 195,
+              "line": 409,
+              "deprecated": false
+            },
+            {
+              "name": "engine_dists",
+              "qualname": "Tcl.engine_dists",
+              "kind": "classmethod",
+              "signature": "(cls, host)",
+              "summary": "Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.",
+              "line": 127,
+              "deprecated": false
+            },
+            {
+              "name": "engine_install_hint",
+              "qualname": "Tcl.engine_install_hint",
+              "kind": "classmethod",
+              "signature": "(cls, host=None)",
+              "summary": "The pip line that installs *host*'s engine, naming the interpreter to use.",
+              "line": 238,
               "deprecated": false
             }
           ]
@@ -10053,7 +10098,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2088,
+          "line": 2110,
           "deprecated": false
         },
         {
@@ -10062,7 +10107,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2093,
+          "line": 2115,
           "deprecated": false
         },
         {
@@ -10071,7 +10116,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2098,
+          "line": 2120,
           "deprecated": false
         },
         {
@@ -10080,7 +10125,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2103,
+          "line": 2125,
           "deprecated": false
         },
         {
@@ -10089,7 +10134,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2108,
+          "line": 2130,
           "deprecated": false
         },
         {
@@ -10098,7 +10143,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2113,
+          "line": 2135,
           "deprecated": false
         },
         {
@@ -10107,7 +10152,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2118,
+          "line": 2140,
           "deprecated": false
         },
         {
@@ -10116,7 +10161,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2123,
+          "line": 2145,
           "deprecated": false
         },
         {
@@ -10125,7 +10170,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2128,
+          "line": 2150,
           "deprecated": false
         },
         {
@@ -10134,7 +10179,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2133,
+          "line": 2155,
           "deprecated": false
         },
         {
@@ -10143,7 +10188,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2138,
+          "line": 2160,
           "deprecated": false
         }
       ],
@@ -10151,7 +10196,7 @@
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 1369,
+          "line": 1391,
           "bases": [
             "MarkingMenu"
           ],
@@ -10162,7 +10207,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1523,
+              "line": 1545,
               "deprecated": false
             },
             {
@@ -10171,7 +10216,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1572,
+              "line": 1594,
               "deprecated": false
             },
             {
@@ -10180,7 +10225,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1603,
+              "line": 1625,
               "deprecated": false
             },
             {
@@ -10189,7 +10234,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1614,
+              "line": 1636,
               "deprecated": false
             },
             {
@@ -10198,7 +10243,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1632,
+              "line": 1654,
               "deprecated": false
             }
           ]
@@ -10206,7 +10251,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1852,
+          "line": 1874,
           "bases": [],
           "members": [
             {
@@ -10215,7 +10260,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1857,
+              "line": 1879,
               "deprecated": false
             }
           ]
@@ -10223,7 +10268,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 1967,
+          "line": 1989,
           "bases": [],
           "members": [
             {
@@ -10232,7 +10277,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 1973,
+              "line": 1995,
               "deprecated": false
             },
             {
@@ -10241,7 +10286,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 1992,
+              "line": 2014,
               "deprecated": false
             },
             {
@@ -10250,7 +10295,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 2025,
+              "line": 2047,
               "deprecated": false
             },
             {
@@ -10259,7 +10304,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2030,
+              "line": 2052,
               "deprecated": false
             }
           ]
