@@ -74,8 +74,12 @@ class UvMixin:
     # nothing references. (The combined operation that IS useful reads the
     # TARGET's own textures -- "adopt a new layout on a textured mesh"; see
     # .claude/BACKLOG.md.)
+    # ``auto`` defers the pick to run time: the source's materials decide
+    # (any mapped texture slot -> Textures, none -> UV Set). Still one pass
+    # per run -- Auto chooses between the alternatives, it never composes them.
     TRANSFER_UVS = "uvs"
     TRANSFER_TEXTURES = "textures"
+    TRANSFER_AUTO = "auto"
 
     @classmethod
     def _tt_passes(cls, source_mode, transfer_mode):
@@ -83,9 +87,73 @@ class UvMixin:
 
         The UV pass is dropped for the *same mesh, other UV set* source: there
         is no second mesh to read a layout from, only two layouts of one mesh.
+
+        ``TRANSFER_AUTO`` here is the UNRESOLVED mode (the option box asking
+        which rows may matter): either pass could run, so both flags are on.
+        ``b000`` resolves Auto to a concrete mode via :meth:`_tt_resolve_auto`
+        before acting on the flags.
         """
-        textures = (transfer_mode or cls.TRANSFER_UVS) == cls.TRANSFER_TEXTURES
+        mode = transfer_mode or cls.TRANSFER_UVS
+        if mode == cls.TRANSFER_AUTO:
+            return source_mode != "uvset", True
+        textures = mode == cls.TRANSFER_TEXTURES
         return not textures and source_mode != "uvset", textures
+
+    @classmethod
+    def _tt_resolve_auto(cls, texture_transfer, source_meshes):
+        """Auto's run-time decision: the concrete Transfer mode for the sources.
+
+        Textures as soon as any source material carries a mapped texture slot
+        -- read through the engine's own material lookup, so Auto agrees
+        exactly with what the texture pass would find. UV Set when none do:
+        an untextured source has no maps to move, so its layout is the thing
+        worth transferring.
+
+        Parameters:
+            texture_transfer: The engine's ``TextureTransfer`` class
+                (``mtk`` / ``btk`` -- same names, same behavior).
+            source_meshes: The resolved source mesh(es). Empty resolves to
+                the UV pass and falls through to ``b000``'s selection errors.
+        """
+        for mesh in source_meshes:
+            try:
+                materials, _ = texture_transfer.face_materials(mesh)
+            except Exception:  # noqa: BLE001 - an unreadable mesh has no maps
+                continue
+            for material in materials:
+                try:
+                    maps = texture_transfer.material_maps(material)
+                except Exception:  # noqa: BLE001 - unreadable shader = no maps
+                    continue
+                if maps:
+                    return cls.TRANSFER_TEXTURES
+        return cls.TRANSFER_UVS
+
+    @classmethod
+    def _tt_auto_note(cls, auto, do_textures, source_mode=None):
+        """The gate suffix naming Auto's pick, or ``""`` when there is none.
+
+        Auto's choice is invisible state: a gate it trips ("pick a Transfer
+        mode that includes X", "Output Name required") reads as a broken
+        combo unless the message says Auto made the pick.
+
+        The *reason* has to match how the pick was actually made. With a
+        ``uvset`` source nothing is probed at all -- there is no second mesh
+        to read a layout from, so Textures is the only pass the mode leaves
+        available -- and claiming the materials decided it would send the
+        user hunting through maps that were never consulted.
+        """
+        if not (auto and do_textures):
+            return ""
+        if source_mode == "uvset":
+            return (
+                "<br><br><i>Transfer: Auto</i> chose Textures — a second UV "
+                "set of the same mesh carries no layout to transfer."
+            )
+        return (
+            "<br><br><i>Transfer: Auto</i> chose Textures — the source's "
+            "materials carry texture maps."
+        )
 
     def _tt_clear_source(self):
         """Forget the stored source meshes (the geometry is untouched)."""

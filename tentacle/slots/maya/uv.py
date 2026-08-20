@@ -1447,7 +1447,9 @@ class UvSlots(UvMixin, SlotsMaya):
         exact texel correspondence, so it never bleeds the way a ray-cast bake
         does where a mesh touches itself). They do not compose -- the texture
         pass keeps the target's UV set, so a source layout copied alongside its
-        maps would land in a UV set nothing references.
+        maps would land in a UV set nothing references. The Auto mode defers
+        the pick to run time: a source whose materials carry texture maps
+        transfers them; an untextured source transfers its layout.
         """
         menu = widget.option_box.menu
         menu.setTitle("Transfer UVs / Textures")
@@ -1562,6 +1564,9 @@ class UvSlots(UvMixin, SlotsMaya):
                     "each target's OWN layout by exact texel correspondence: a "
                     "repacked atlas, a material consolidation, or another "
                     "uv set on the same mesh. No rays, no cage, no bleed.",
+                    "<b>Auto</b> — decided per run from the source's "
+                    "materials: Textures when any of them carries a texture "
+                    "map, UV Set when none do.",
                 ],
                 notes=[
                     "Textures need identical topology (same faces and vertex "
@@ -1572,6 +1577,10 @@ class UvSlots(UvMixin, SlotsMaya):
         for text, data in [
             ("Transfer: UV Set", "uvs"),
             ("Transfer: Textures", "textures"),
+            # Auto rides LAST, not first where an Auto usually sits: the
+            # combo's state persists by index, so inserting above the existing
+            # rows would silently remap every saved choice.
+            ("Transfer: Auto", "auto"),
         ]:
             cmb028.addItem(text, data)
         t_tt_src_uvset = menu.add(
@@ -1854,7 +1863,29 @@ class UvSlots(UvMixin, SlotsMaya):
         menu = widget.option_box.menu
         mode = menu.cmb024.currentData() or "first"
         scope = menu.cmb014.currentData() or "order"
-        do_uvs, do_textures = self._tt_passes(mode, menu.cmb028.currentData())
+        ordered = cmds.ls(orderedSelection=True, long=True, type="transform") or []
+        if not ordered:
+            ordered = cmds.ls(selection=True, long=True, type="transform") or []
+        transfer_mode = menu.cmb028.currentData()
+        auto = transfer_mode == self.TRANSFER_AUTO
+        # Source candidates, resolved ONCE and reused by the mode branches
+        # below: Auto's probe and the pass must read the SAME meshes, or the
+        # probe could decide from meshes the run then doesn't use.
+        first_source = self._tt_meshes(ordered[:1])
+        stored_sources = [
+            s for s in getattr(self, "_tt_sources", []) if cmds.objExists(s)
+        ]
+        if auto and mode != "uvset":
+            # Resolved BEFORE the pass-dependent gates below (Output Name, the
+            # Similar-scope check): what Auto decides is what they must ask
+            # for. An empty probe resolves to the UV pass and falls through to
+            # the same selection errors a manual mode would hit.
+            transfer_mode = self._tt_resolve_auto(
+                mtk.TextureTransfer,
+                first_source if mode == "first" else stored_sources,
+            )
+        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
+        auto_note = self._tt_auto_note(auto, do_textures, mode)
         if not (do_uvs or do_textures):
             return self.sb.message_box(
                 "<b>Nothing to transfer.</b><br>The <i>UV Set On Same Mesh</i> "
@@ -1869,11 +1900,8 @@ class UvSlots(UvMixin, SlotsMaya):
         if do_textures and not out_name:
             return self.sb.message_box(
                 "<b>Output Name required.</b><br>Open the option box and name "
-                "the result — it names the new material and its maps."
+                "the result — it names the new material and its maps." + auto_note
             )
-        ordered = cmds.ls(orderedSelection=True, long=True, type="transform") or []
-        if not ordered:
-            ordered = cmds.ls(selection=True, long=True, type="transform") or []
 
         # ---- resolve source(s) and targets -------------------------------
         # pairs: [(source, target), ...] for the UV pass (None = found by scope)
@@ -1890,7 +1918,7 @@ class UvSlots(UvMixin, SlotsMaya):
                 return self.sb.message_box(
                     "<b>Select the source mesh first, then the target mesh(es).</b>"
                 )
-            source = self._tt_meshes(ordered[:1])
+            source = first_source
             if scope == "order":
                 targets = self._tt_meshes(ordered[1:])
                 pairs = [(source[0], t) for t in targets]
@@ -1900,10 +1928,11 @@ class UvSlots(UvMixin, SlotsMaya):
                         "<b>The Similar scopes need a Transfer mode that "
                         "includes UV Set</b> -- the UV pass is what finds their "
                         "targets. Use Selection Order to transfer textures alone."
+                        + auto_note
                     )
                 targets = None  # found by transfer_uvs_to_similar below
         else:
-            source = [s for s in getattr(self, "_tt_sources", []) if cmds.objExists(s)]
+            source = stored_sources
             if not source:
                 return self.sb.message_box(
                     "<b>No stored source meshes.</b><br>Open the option box and use "

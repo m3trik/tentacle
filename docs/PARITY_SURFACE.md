@@ -36,7 +36,7 @@
 | ReferenceManager | 0 | 0 | 13 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 0 | 0 | 0 | OK |
+| SceneExporter | 0 | 0 | 2 | 0 | OK |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -195,7 +195,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 #### uv.py
 **combo item deltas (review)**
   - `cmb024` 3->3 items; missing=['Source: First Selected Mesh', 'Source: UV Set On Same Mesh'] extra=['Source: Active Mesh', 'Source: UV Map On Same Mesh']
-  - `cmb028` 2->2 items; missing=['Transfer: UV Set'] extra=['Transfer: UV Map']
+  - `cmb028` 3->3 items; missing=['Transfer: UV Set'] extra=['Transfer: UV Map']
 
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 

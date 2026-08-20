@@ -123,7 +123,7 @@ class _FakeB000Widget:
         menu.cmb024 = self._Combo(mode)  # Source
         menu.cmb014 = self._Combo(scope)  # Scope
         menu.d000 = self._Spin(tolerance)  # Similarity
-        menu.cmb028 = self._Combo(transfer)  # Transfer: uvs / textures / both
+        menu.cmb028 = self._Combo(transfer)  # Transfer: uvs / textures / auto
         # Texture-pass rows -- read even when the pass is off.
         menu.t_tt_name = self._Text(output_name)
         menu.t_tt_src_uvset = self._Text("")
@@ -321,6 +321,79 @@ class TestB000TransferUVsGate(unittest.TestCase):
         message = args[0]
         self.assertIn("2", message)  # both pairs counted, not just the last
         self.assertIn("proximity", message.lower())
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB000TransferAuto(unittest.TestCase):
+    """Transfer: Auto -- b000 picks the pass from the SOURCE's materials."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+
+        # Capture mtk.transfer_uvs so the UV pass is observable without
+        # touching real UVs (mirrors TestB000TransferUVsGate's harness).
+        import mayatk as mtk
+
+        self._original = mtk.transfer_uvs
+        self.captured = []
+
+        def fake_transfer(frm, to, **kwargs):
+            self.captured.append((frm, to, kwargs))
+            sources = frm if isinstance(frm, (list, tuple)) else [frm]
+            targets = to if isinstance(to, (list, tuple)) else [to]
+            return [(s, t, "topology") for s, t in zip(sources * len(targets), targets)]
+
+        mtk.transfer_uvs = fake_transfer
+
+    def tearDown(self):
+        import mayatk as mtk
+
+        mtk.transfer_uvs = self._original
+        cmds.file(new=True, force=True)
+
+    def test_a_mapped_source_resolves_to_the_texture_pass(self):
+        """A source whose material carries a map has textures to move, so Auto
+        must pick the texture pass -- observed through that pass's own gate:
+        it demands an Output Name before touching anything, and the refusal
+        has to say Auto made the pick (the user never chose Textures)."""
+        src = cmds.polyCube(name="uv_auto_mapped_src")[0]
+        tgt = cmds.polyCube(name="uv_auto_mapped_tgt")[0]
+        mat = cmds.shadingNode("lambert", asShader=True, name="uv_auto_mat")
+        sg = cmds.sets(
+            renderable=True, noSurfaceShader=True, empty=True, name="uv_auto_sg"
+        )
+        cmds.connectAttr(f"{mat}.outColor", f"{sg}.surfaceShader")
+        file_node = cmds.shadingNode("file", asTexture=True)
+        cmds.setAttr(
+            f"{file_node}.fileTextureName",
+            "sourceimages/uv_auto_map.png",
+            type="string",
+        )
+        cmds.connectAttr(f"{file_node}.outColor", f"{mat}.color")
+        cmds.sets(src, edit=True, forceElement=sg)
+        cmds.select([src, tgt])
+
+        self.instance.b000(widget=_FakeB000Widget(transfer="auto", output_name=""))
+
+        self.assertEqual(self.captured, [])  # no UV pass ran
+        message = "".join(str(m) for m in self.instance.sb.messages)
+        self.assertIn("Output Name required", message)
+        self.assertIn("Auto", message)
+
+    def test_an_unmapped_source_resolves_to_the_uv_pass(self):
+        """No maps on the source's materials: nothing for the texture pass to
+        read, so Auto transfers the layout instead -- with no Output Name
+        demanded, since no texture is written."""
+        a = cmds.polyCube(name="uv_auto_plain_a")[0]
+        b = cmds.polyCube(name="uv_auto_plain_b")[0]
+        cmds.select([a, b])
+
+        self.instance.b000(widget=_FakeB000Widget(transfer="auto", output_name=""))
+
+        self.assertEqual(len(self.captured), 1)
+        self.assertIn("Working: Transfer UV Set", self.instance.sb.progress_texts)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -1653,7 +1726,7 @@ class _FakeCheck(_FakeButton):
 
 
 class _FakeTransferCombo:
-    """The Transfer combo (uvs / textures), enough of it for the sync.
+    """The Transfer combo (uvs / textures / auto), enough of it for the sync.
 
     ``setCurrentIndex`` re-enters the sync exactly as the real combo's
     ``currentIndexChanged`` does -- the pin path is only correct because the
@@ -1661,7 +1734,7 @@ class _FakeTransferCombo:
     signal could not catch that.
     """
 
-    ITEMS = ("uvs", "textures")
+    ITEMS = ("uvs", "textures", "auto")
 
     def __init__(self, data="uvs", on_change=None):
         self._index = self.ITEMS.index(data)
@@ -1886,6 +1959,11 @@ class TestTransferSyncControls(unittest.TestCase):
         self.instance._tt_ctl["transfer"] = _FakeTransferCombo("textures")
         self._sync()
         self.assertTrue(row.enabled)
+        # Auto may resolve to the texture pass at run time, so its rows (the
+        # Output Name above all) must stay editable while it is selected.
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("auto")
+        self._sync()
+        self.assertTrue(row.enabled)
 
 
 class TestTransferPasses(unittest.TestCase):
@@ -1917,6 +1995,107 @@ class TestTransferPasses(unittest.TestCase):
         """currentData() is None before the combo is populated; the default
         must be the non-destructive pass, not a texture write."""
         self.assertEqual(self._passes("first", None), (True, False))
+
+    def test_auto_is_unresolved_here_so_both_passes_stay_possible(self):
+        """Auto is resolved by b000 (``_tt_resolve_auto``) before the flags
+        are acted on; for control enablement either pass could still run, so
+        both halves of the option box must stay live."""
+        self.assertEqual(self._passes("first", "auto"), (True, True))
+        self.assertEqual(self._passes("stored", "auto"), (True, True))
+        # The same-mesh source still has no second mesh for a UV pass to read.
+        self.assertEqual(self._passes("uvset", "auto"), (False, True))
+
+
+class _FakeTextureTransferEngine:
+    """Engine double for ``_tt_resolve_auto``.
+
+    A mesh is its material list; a material is its own ``{channel: path}``
+    map dict -- the only two lookups the resolver makes.
+    """
+
+    @staticmethod
+    def face_materials(mesh):
+        if mesh == "raises":
+            raise RuntimeError("no shape")
+        return list(mesh), None
+
+    @staticmethod
+    def material_maps(material):
+        if material == "raises":
+            raise RuntimeError("unreadable shader")
+        return material
+
+
+class TestTransferResolveAuto(unittest.TestCase):
+    """``UvMixin._tt_resolve_auto`` -- Auto's run-time decision.
+
+    DCC-free: the decision is panel logic over the engine's material lookup
+    (both engines expose the same two calls), so it is pinned against a
+    double that runs without either DCC.
+    """
+
+    def _resolve(self, source_meshes):
+        from tentacle.slots._uv import UvMixin
+
+        return UvMixin._tt_resolve_auto(_FakeTextureTransferEngine, source_meshes)
+
+    def test_a_mapped_source_material_picks_the_texture_pass(self):
+        result = self._resolve([[{}, {"baseColor": "map.png"}]])
+        self.assertEqual(result, "textures")
+
+    def test_unmapped_source_materials_pick_the_uv_pass(self):
+        """An untextured source has no maps to move -- its layout is the
+        thing worth transferring."""
+        self.assertEqual(self._resolve([[{}, {}]]), "uvs")
+
+    def test_any_source_mesh_with_a_map_is_enough(self):
+        result = self._resolve([[{}], [{"normal": "map.png"}]])
+        self.assertEqual(result, "textures")
+
+    def test_an_empty_probe_resolves_to_the_uv_pass(self):
+        """b000 probes before its selection gates run; an empty probe must
+        resolve (to the non-destructive pass) and let those gates report."""
+        self.assertEqual(self._resolve([]), "uvs")
+
+    def test_an_unreadable_mesh_or_shader_contributes_no_maps(self):
+        """A shader the manifest cannot read must not crash the slot from
+        inside the probe -- it simply has no maps to offer."""
+        self.assertEqual(self._resolve(["raises", ["raises"]]), "uvs")
+        self.assertEqual(
+            self._resolve(["raises", [{"baseColor": "map.png"}]]), "textures"
+        )
+
+
+class TestTransferAutoNote(unittest.TestCase):
+    """``UvMixin._tt_auto_note`` -- the gate suffix must name the real reason.
+
+    DCC-free: pure message logic, identical in both forks.
+    """
+
+    @staticmethod
+    def note(*args):
+        from tentacle.slots._uv import UvMixin
+
+        return UvMixin._tt_auto_note(*args)
+
+    def test_no_note_unless_auto_actually_chose_textures(self):
+        self.assertEqual(self.note(False, True, "first"), "")
+        self.assertEqual(self.note(True, False, "first"), "")
+
+    def test_a_probed_pick_cites_the_source_materials(self):
+        self.assertIn("materials carry texture maps", self.note(True, True, "first"))
+        self.assertIn("materials carry texture maps", self.note(True, True, "stored"))
+
+    def test_a_uvset_source_must_not_claim_the_materials_decided(self):
+        """With a ``uvset`` source nothing is probed at all -- the UV pass is
+        structurally unavailable (there is no second mesh to read a layout
+        from), so Textures is the only reading Auto has. Citing materials
+        that were never consulted sends the user hunting for maps that may
+        not exist.
+        """
+        message = self.note(True, True, "uvset")
+        self.assertNotIn("materials", message)
+        self.assertIn("no layout", message.replace("carries no layout", "no layout"))
 
 
 if __name__ == "__main__":

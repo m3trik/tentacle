@@ -598,7 +598,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack button — non-checkable text button with the stack option box.",
-              "line": 152,
+              "line": 220,
               "deprecated": false
             }
           ]
@@ -4863,7 +4863,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).",
-              "line": 1048,
+              "line": 1057,
               "deprecated": false
             },
             {
@@ -4872,7 +4872,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 1219,
+              "line": 1246,
               "deprecated": false
             },
             {
@@ -4881,7 +4881,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 1228,
+              "line": 1255,
               "deprecated": false
             },
             {
@@ -4890,7 +4890,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1237,
+              "line": 1264,
               "deprecated": false
             },
             {
@@ -4899,7 +4899,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 1245,
+              "line": 1272,
               "deprecated": false
             },
             {
@@ -4908,7 +4908,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1265,
+              "line": 1292,
               "deprecated": false
             },
             {
@@ -4917,7 +4917,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 1301,
+              "line": 1328,
               "deprecated": false
             },
             {
@@ -4926,7 +4926,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 1328,
+              "line": 1355,
               "deprecated": false
             },
             {
@@ -4935,7 +4935,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 1373,
+              "line": 1400,
               "deprecated": false
             },
             {
@@ -4944,7 +4944,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 1378,
+              "line": 1405,
               "deprecated": false
             },
             {
@@ -4953,7 +4953,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1386,
+              "line": 1413,
               "deprecated": false
             },
             {
@@ -4962,7 +4962,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1391,
+              "line": 1418,
               "deprecated": false
             }
           ]
@@ -9843,7 +9843,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (see ``b000_init``).",
-              "line": 1852,
+              "line": 1861,
               "deprecated": false
             },
             {
@@ -9852,7 +9852,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 2023,
+              "line": 2052,
               "deprecated": false
             },
             {
@@ -9861,7 +9861,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 2034,
+              "line": 2063,
               "deprecated": false
             },
             {
@@ -9870,7 +9870,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 2045,
+              "line": 2074,
               "deprecated": false
             },
             {
@@ -9879,7 +9879,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 2080,
+              "line": 2109,
               "deprecated": false
             },
             {
@@ -9888,7 +9888,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 2109,
+              "line": 2138,
               "deprecated": false
             },
             {
@@ -9897,7 +9897,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 2118,
+              "line": 2147,
               "deprecated": false
             },
             {
@@ -9906,7 +9906,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 2153,
+              "line": 2182,
               "deprecated": false
             },
             {
@@ -9915,7 +9915,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 2190,
+              "line": 2219,
               "deprecated": false
             },
             {
@@ -9924,7 +9924,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 2199,
+              "line": 2228,
               "deprecated": false
             },
             {
@@ -9933,7 +9933,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle).",
-              "line": 2223,
+              "line": 2252,
               "deprecated": false
             },
             {
@@ -9942,7 +9942,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 2325,
+              "line": 2354,
               "deprecated": false
             },
             {
@@ -9951,7 +9951,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 2329,
+              "line": 2358,
               "deprecated": false
             },
             {
@@ -9960,7 +9960,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 2333,
+              "line": 2362,
               "deprecated": false
             }
           ]

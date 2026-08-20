@@ -42,7 +42,13 @@ CONTROLS = {
     # that design was chosen over Blender's native bl_options={'PRESET'} operator-preset system).
     # b003/b004 (Add/Delete Preset) were dropped from BOTH panels 2026-08-06 -- a preset is a
     # plain file, so it is added/deleted in the preset directory b007 opens.
-    # No entry needed here anymore -- nothing to ledger.
+    # 2026-08-19: b007/b008 moved from the Settings combo's actions section onto cmb000's own
+    # option box in BOTH panels; mayatk's option box additionally carries the two directory
+    # controls below, which have no Blender counterpart by design.
+    "_scene_exporter": {
+        "b005": {"status": "na", "reason": "Set FBX Preset Directory -- Maya scans a user-configurable *.fbxexportpreset directory; blendertk's PresetStore user tier is a fixed per-user dir (user_config_root()/blendertk/fbx_presets), so there is no directory to switch"},
+        "b013": {"status": "na", "reason": "Use Default FBX Preset Directory -- same as b005: the Blender store has no directory setting to revert to"},
+    },
     # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
     # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
     # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
@@ -983,7 +989,7 @@ DEFAULT_DELTAS = {
     # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
     # (no "uv" entry needed here while the panel has no other triaged deltas).
     "uv": {
-        "cmb028.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same two modes, same item data keys: uvs / textures).",
+        "cmb028.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: uvs / textures / auto).",
         "cmb024.items": "Transfer (b000) source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'); 'UV Set' is 'UV Map' in Blender's vocabulary. Same three modes, same item data keys (first / stored / uvset).",
     },
     "scene": {

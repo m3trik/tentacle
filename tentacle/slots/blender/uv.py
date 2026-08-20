@@ -647,7 +647,9 @@ class Uv(UvMixin, SlotsBlender):
         exact texel correspondence, so it never bleeds the way a ray-cast bake
         does where a mesh touches itself). They do not compose -- the texture
         pass keeps the target's UV map, so a source layout copied alongside its
-        maps would land in a UV map nothing references.
+        maps would land in a UV map nothing references. The Auto mode defers
+        the pick to run time: a source whose materials carry texture maps
+        transfers them; an untextured source transfers its layout.
         """
         menu = widget.option_box.menu
         menu.setTitle("Transfer UVs / Textures")
@@ -761,6 +763,9 @@ class Uv(UvMixin, SlotsBlender):
                     "each target's OWN layout by exact texel correspondence: a "
                     "repacked atlas, a material consolidation, or another "
                     "uv map on the same mesh. No rays, no cage, no bleed.",
+                    "<b>Auto</b> — decided per run from the source's "
+                    "materials: Textures when any of them carries a texture "
+                    "map, UV Map when none do.",
                 ],
                 notes=[
                     "Textures need identical topology (same faces and vertex "
@@ -771,6 +776,10 @@ class Uv(UvMixin, SlotsBlender):
         for text, data in [
             ("Transfer: UV Map", "uvs"),
             ("Transfer: Textures", "textures"),
+            # Auto rides LAST, not first where an Auto usually sits: the
+            # combo's state persists by index, so inserting above the existing
+            # rows would silently remap every saved choice.
+            ("Transfer: Auto", "auto"),
         ]:
             cmb028.addItem(text, data)
         t_tt_src_uvset = menu.add(
@@ -1050,7 +1059,30 @@ class Uv(UvMixin, SlotsBlender):
         menu = widget.option_box.menu
         mode = menu.cmb024.currentData() or "first"
         scope = menu.cmb014.currentData() or "order"
-        do_uvs, do_textures = self._tt_passes(mode, menu.cmb028.currentData())
+        selected = self.selected_objects()
+        transfer_mode = menu.cmb028.currentData()
+        auto = transfer_mode == self.TRANSFER_AUTO
+        # Source candidates, resolved ONCE and reused by the mode branches
+        # below: Auto's probe and the pass must read the SAME meshes, or the
+        # probe could decide from meshes the run then doesn't use.
+        active = self.active_object()
+        stored_sources = [
+            bpy.data.objects[n]
+            for n in getattr(self, "_tt_sources", [])
+            if n in bpy.data.objects
+        ]
+        if auto and mode != "uvset":
+            # Resolved BEFORE the pass-dependent gates below (Output Name, the
+            # Similar-scope check): what Auto decides is what they must ask
+            # for. An empty probe resolves to the UV pass and falls through to
+            # the same selection errors a manual mode would hit.
+            if mode == "first":
+                probe = [active] if active is not None and active.type == "MESH" else []
+            else:
+                probe = stored_sources
+            transfer_mode = self._tt_resolve_auto(btk.TextureTransfer, probe)
+        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
+        auto_note = self._tt_auto_note(auto, do_textures, mode)
         if not (do_uvs or do_textures):
             return self.sb.message_box(
                 "<b>Nothing to transfer.</b><br>The <i>UV Map On Same Mesh</i> "
@@ -1065,9 +1097,8 @@ class Uv(UvMixin, SlotsBlender):
         if do_textures and not out_name:
             return self.sb.message_box(
                 "<b>Output Name required.</b><br>Open the option box and name "
-                "the result — it names the new material and its maps."
+                "the result — it names the new material and its maps." + auto_note
             )
-        selected = self.selected_objects()
 
         # ---- resolve source(s) and targets -------------------------------
         # pairs: [(source, target), ...] for the UV pass (None = found by scope)
@@ -1081,7 +1112,6 @@ class Uv(UvMixin, SlotsBlender):
                     "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on."
                 )
         elif mode == "first":
-            active = self.active_object()
             if active is None or active.type != "MESH":
                 return self.sb.message_box(
                     "<b>Make the source mesh active</b>"
@@ -1107,14 +1137,11 @@ class Uv(UvMixin, SlotsBlender):
                         "<b>The Similar scopes need a Transfer mode that "
                         "includes UV Map</b> -- the UV pass is what finds their "
                         "targets. Use Selection Order to transfer textures alone."
+                        + auto_note
                     )
                 targets = None  # found by transfer_uvs_to_similar below
         else:
-            source = [
-                bpy.data.objects[n]
-                for n in getattr(self, "_tt_sources", [])
-                if n in bpy.data.objects
-            ]
+            source = stored_sources
             if not source:
                 return self.sb.message_box(
                     "<b>No stored source meshes.</b><br>Open the option box and use "
