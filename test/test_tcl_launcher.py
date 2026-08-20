@@ -14,6 +14,7 @@ routes through it rather than re-hardcoding a fourth copy of the table.
 or stub ``host()``, and module stand-ins are real ``types.ModuleType`` objects (see ``_fake_bpy``).
 """
 import contextlib
+import os
 import sys
 import types
 import unittest
@@ -662,6 +663,20 @@ class TestEngineExtras(unittest.TestCase):
                     self.assertIsInstance(Tcl.engine_dists("maya"), tuple)
                     self.assertIsInstance(Tcl.declared_dists("maya"), tuple)
 
+    @staticmethod
+    def _fake_exe(name, *parents):
+        """An interpreter path in the RUNNING platform's syntax.
+
+        The allowlist reads ``os.path.basename(sys.executable)``, which is the
+        NATIVE one — so a hardcoded ``C:\\...\\python.exe`` has no separator at
+        all on a POSIX runner and arrives as one undivided basename. That fails
+        ``startswith("python")`` for the wrong reason: the "is it named python?"
+        assertions below then pass vacuously, and the one that requires the
+        interpreter to BE named fails. Exactly how these tests read green on
+        Windows and red on Linux CI (2026-08-19 → 2026-08-20).
+        """
+        return os.path.join(os.sep, *parents, name)
+
     def test_the_hint_never_names_a_dcc_host_binary(self):
         """pip driven through ``maya.exe`` routes into its ``-c`` handler and HANGS the
         host (uitk's ``default_install`` refuses for exactly this reason). ``pip_python``
@@ -669,14 +684,14 @@ class TestEngineExtras(unittest.TestCase):
         command that freezes the user's DCC, which is worse than naming no interpreter."""
         from uitk.managers.optional_package_manager import OptionalPackageManager
 
-        host_exe = r"C:\Program Files\Autodesk\Maya2025\bin\maya.exe"
+        host_exe = self._fake_exe("maya.exe", "Autodesk", "Maya2025", "bin")
 
         # (a) DCC host with no sibling python — uitk declines to bless one
         with mock.patch.object(
             OptionalPackageManager, "pip_python", staticmethod(lambda: None)
         ), mock.patch.object(sys, "executable", host_exe):
             hint = Tcl.engine_install_hint("maya")
-        self.assertNotIn("\\maya.exe", hint)
+        self.assertNotIn(f"{os.sep}maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
 
         # (b) uitk unreachable — still must not fall back to sys.executable. Not exotic:
@@ -686,16 +701,17 @@ class TestEngineExtras(unittest.TestCase):
             sys.modules, {"uitk.managers.optional_package_manager": None}
         ), mock.patch.object(sys, "executable", host_exe):
             hint = Tcl.engine_install_hint("maya")
-        self.assertNotIn("\\maya.exe", hint)
+        self.assertNotIn(f"{os.sep}maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
 
         # (c) ...but a plain `python*` interpreter IS safe to name, and should be — the
         # fallback is an allowlist, not "anything that isn't a DCC I recognise".
+        venv_exe = self._fake_exe("python.exe", "venv", "Scripts")
         with mock.patch.dict(
             sys.modules, {"uitk.managers.optional_package_manager": None}
-        ), mock.patch.object(sys, "executable", r"C:\venv\Scripts\python.exe"):
+        ), mock.patch.object(sys, "executable", venv_exe):
             hint = Tcl.engine_install_hint("maya")
-        self.assertIn(r"C:\venv\Scripts\python.exe", hint)
+        self.assertIn(venv_exe, hint)
 
     def test_the_hint_fallback_is_an_allowlist_not_a_denylist(self):
         """An unrecognised interpreter name must NOT be named. A denylist ("not one of
@@ -703,7 +719,9 @@ class TestEngineExtras(unittest.TestCase):
         module failed to import — the exact command that hangs the session."""
         with mock.patch.dict(
             sys.modules, {"uitk.managers.optional_package_manager": None}
-        ), mock.patch.object(sys, "executable", r"C:\Some\Unknown\host-app.exe"):
+        ), mock.patch.object(
+            sys, "executable", self._fake_exe("host-app.exe", "Some", "Unknown")
+        ):
             hint = Tcl.engine_install_hint("maya")
         self.assertNotIn("host-app.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
