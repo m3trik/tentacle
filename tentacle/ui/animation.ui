@@ -124,7 +124,9 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the current frame on the timeslider.</string>
+            <string>Move the playhead. The Frame value is a relative nudge from the current frame by default, not an absolute jump.
+
+Option box: switch between absolute and relative, or pick a Snap mode to re-round the current frame to a clean number instead.</string>
            </property>
            <property name="text">
             <string>Go to Frame</string>
@@ -151,7 +153,7 @@
            <property name="toolTip">
             <string>Select keyframes on the selected object(s) within a chosen time range.
 
-Use the option box to set the range, scope, and whether to add to the current selection.</string>
+Option box: pick the range (all keys, at/before/after the playhead, or an explicit start and end) and add to the existing key selection instead of replacing it.</string>
            </property>
            <property name="text">
             <string>Select Keys</string>
@@ -206,7 +208,9 @@ Use the option box to set the range, scope, and whether to add to the current se
             </size>
            </property>
            <property name="toolTip">
-            <string>Scale the keys on any selected objects by a given percentage.</string>
+            <string>Retime the keys on the selected object(s) — either a uniform time scale about a pivot, or a motion-aware speed normalization.
+
+Option box: choose Uniform or Speed mode, whether Factor is a multiplier or an absolute target, how objects are grouped for pivots, and how scaled key times are snapped back to whole frames.</string>
            </property>
            <property name="text">
             <string>Scale Keys</string>
@@ -233,7 +237,7 @@ Use the option box to set the range, scope, and whether to add to the current se
            <property name="toolTip">
             <string>Reverse the selected keyframes in time — by default, mirrored in place.
 
-Use the option box to instead copy the reversal to a different start time, and to set relative/absolute offset, value pivot, and whether to keep the original keys.</string>
+Option box: mirror key times (X), values about a pivot (Y), or both; or leave the source alone and place a reversed copy at another start time.</string>
            </property>
            <property name="text">
             <string>Invert Keys</string>
@@ -258,9 +262,9 @@ Use the option box to instead copy the reversal to a different start time, and t
             </size>
            </property>
            <property name="toolTip">
-            <string>Stagger the keyframes of selected objects with various positioning controls.
+            <string>Re-time the selected objects so their animations play one after another instead of on top of each other.
 
-If keys are selected, only those keys are staggered. If no keys are selected, all keys are staggered.</string>
+Option box: set the gap or fixed interval between blocks, group overlapping or touching objects so they move as one, and reverse the order.</string>
            </property>
            <property name="text">
             <string>Stagger Keys</string>
@@ -285,9 +289,9 @@ If keys are selected, only those keys are staggered. If no keys are selected, al
             </size>
            </property>
            <property name="toolTip">
-            <string>Push keys apart or pull them closer by a fixed frame amount.
-Every key at or after the given time shifts by the same offset.
-Supports negative values to compress timing.</string>
+            <string>Push keys apart or pull them closer by a fixed frame amount. Every key at or after the given frame shifts by the same offset, so negative amounts compress the timing.
+
+Option box: set the start frame and amount, choose which keys are in scope, and read Amount as an exact target gap instead of a distance.</string>
            </property>
            <property name="text">
             <string>Adjust Spacing</string>
@@ -312,9 +316,9 @@ Supports negative values to compress timing.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Add keys on every frame (or a percentage of frames) between existing keyframes.
+            <string>Sample extra keys between existing keyframes — for baking curves before export, locking timing down, or thinning an over-keyed curve back out.
 
-Use the option box's "Remove Intermediate Keys" checkbox to instead strip them back down to just the first and last key. Useful for baking out curves before export, locking timing, or cleaning up an over-keyed curve.</string>
+Option box: set the frame window and the sampling density (Percent), leave visibility curves alone, or flip to Remove Intermediate Keys to strip a range back to its two end keys.</string>
            </property>
            <property name="text">
             <string>Add Intermediate Keys</string>
@@ -339,9 +343,9 @@ Use the option box's "Remove Intermediate Keys" checkbox to instead strip them b
             </size>
            </property>
            <property name="toolTip">
-            <string>Move the selected keyframes to the current time (or all keys, if none are selected).
+            <string>Move keyframes to the current frame — the selected keys, or all keys on the selected objects.
 
-Use the option box to control spacing, channel-box scope, and which end of the range aligns to the target frame.</string>
+Option box: keep or collapse the spacing between objects, and choose which end of the key range lands on the playhead.</string>
            </property>
            <property name="text">
             <string>Move Keys</string>
@@ -366,9 +370,9 @@ Use the option box to control spacing, channel-box scope, and which end of the r
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfer keyframes from the first selected object to the subsequent objects.
+            <string>Transfer keyframes from the source object onto the other selected objects.
 
-Use the option box to configure relative offset, tangent transfer, and curve optimization.</string>
+Option box: offset the transferred animation onto each target's own current pose, and clean up the source before copying.</string>
            </property>
            <property name="text">
             <string>Transfer Keys</string>
@@ -423,7 +427,9 @@ Use the option box to configure relative offset, tangent transfer, and curve opt
             </size>
            </property>
            <property name="toolTip">
-            <string>Snaps keyframes with decimal time values to whole frame numbers.</string>
+            <string>Snap keyframes sitting on fractional times onto whole frames — or onto clean round numbers.
+
+Option box: choose the rounding method, and limit the snap to selected keys or to the scene's playback range.</string>
            </property>
            <property name="text">
             <string>Snap Keys</string>
@@ -448,11 +454,9 @@ Use the option box to configure relative offset, tangent transfer, and curve opt
             </size>
            </property>
            <property name="toolTip">
-            <string>Aligns the starting keyframes of selected keyframes in the graph editor across multiple objects.
+            <string>Align the selected keys of several objects so they all start on the same frame. Operates on keys picked in the graph editor.
 
-This method finds the earliest (or latest) selected keyframe across all objects and shifts
-each object's selected keyframes so they start at the same frame. Only processes selected
-keyframes from the graph editor.</string>
+Option box: align to the earliest or the latest selected key, or to an explicit frame.</string>
            </property>
            <property name="text">
             <string>Align Keys</string>
@@ -514,7 +518,7 @@ keyframes from the graph editor.</string>
              <property name="toolTip">
               <string>Copy the current keyframe/attribute values of the selected object(s) for later paste.
 
-Use the option box to choose what gets copied: auto, current frame, selected keys, or channel box.</string>
+Option box: choose what gets captured — or pick Copy + Paste to capture and apply in a single click.</string>
              </property>
              <property name="text">
               <string>Copy</string>
@@ -541,7 +545,7 @@ Use the option box to choose what gets copied: auto, current frame, selected key
              <property name="toolTip">
               <string>Paste previously copied key values onto the selection.
 
-Use the option box to choose whether to paste at the current playhead or back at the original copy frame.</string>
+Option box: paste at the playhead, or back at the frame the copy was taken from.</string>
              </property>
              <property name="text">
               <string>Paste</string>
@@ -569,7 +573,9 @@ Use the option box to choose whether to paste at the current playhead or back at
               </size>
              </property>
              <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=" font-weight:600;"&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted. Use the option box to also restrict by time range (current frame, before/after current, etc.).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>Delete every keyframe on the selected object(s).
+
+Option box: restrict the deletion to a time range instead — the current frame, or everything before or after it.</string>
              </property>
              <property name="text">
               <string>Delete</string>
@@ -599,9 +605,9 @@ Use the option box to choose whether to paste at the current playhead or back at
             </size>
            </property>
            <property name="toolTip">
-            <string>Add (tie) or remove (untie) bookend keyframes at the start/end of the playback range.
-Tying ensures every animated object has keys at the range boundaries.
-Untying removes only those bookend keys, preserving genuine animation.</string>
+            <string>Add (tie) or remove (untie) bookend keyframes at the start and end of the range. Tying guarantees every animated object has keys on the boundaries; untying removes only those bookends, leaving genuine animation intact.
+
+Option box: switch between Tie and Untie, and bookend the true keyed extent instead of the playback range.</string>
            </property>
            <property name="text">
             <string>Tie Keyframes</string>
@@ -626,9 +632,9 @@ Untying removes only those bookend keys, preserving genuine animation.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Set the tangent/interpolation type on keys.
+            <string>Set the tangent / interpolation type on animation keys.
 
-Use the option box to configure scope and type.</string>
+Option box: choose which keys are affected and which type they get.</string>
            </property>
            <property name="text">
             <string>Step Tangents</string>
@@ -653,8 +659,9 @@ Use the option box to configure scope and type.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Remove static curves, redundant flat keys, and optionally simplify curves.
-Use the option box to configure tolerance and phases.</string>
+            <string>Strip out animation data that does nothing: curves that never actually change, redundant keys inside a hold, and — optionally — keys the curve's shape does not need.
+
+Option box: pick which of those passes run, and how much value drift is acceptable.</string>
            </property>
            <property name="text">
             <string>Optimize Keys</string>
@@ -679,8 +686,9 @@ Use the option box to configure tolerance and phases.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Key the visibility attribute on/off at animation boundaries.
-Automatically detects each object's keyframe range.</string>
+            <string>Key the visibility attribute on or off at each object's animation boundaries, detected per object.
+
+Option box: choose Visible or Hidden, where in the range the key lands, a frame offset, and whether overlapping objects are keyed as one group.</string>
            </property>
            <property name="text">
             <string>Set Visibility Keys</string>

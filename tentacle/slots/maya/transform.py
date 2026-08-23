@@ -282,10 +282,16 @@ class TransformSlots(SlotsMaya):
         widget.option_box.menu.setTitle("CONSTRAINTS")
         edge_constraint = cmds.xformConstraint(q=True, type=1) == "edge"
         surface_constraint = cmds.xformConstraint(q=True, type=1) == "surface"
+        # Seeded from the LIVE surface, the way its two siblings are seeded from
+        # xformConstraint -- chk026 drives makeLive, and cmds.ls(live=True) is its
+        # query. A hardcoded True made the derived label read "Constrain: ON" on a
+        # fresh scene with nothing live, and it could never read OFF until the user
+        # toggled the box by hand. blendertk's twin reads real state for all three.
+        live_surface = bool(cmds.ls(live=True))
         values = [
             ("chk024", "Constrain: Edge", edge_constraint),
             ("chk025", "Constrain: Surface", surface_constraint),
-            ("chk026", "Make Live", True),
+            ("chk026", "Make Live", live_surface),
         ]
         for name, text, state in values:
             widget.option_box.menu.add(
@@ -295,14 +301,17 @@ class TransformSlots(SlotsMaya):
                 setChecked=state,
             )
 
-        def update_text():
-            state = any(
-                w.isChecked() for w in widget.option_box.menu.get_items("QCheckBox")
-            )
-            widget.setText("Constrain: ON" if state else "Constrain: OFF")
-
-        # Connecting signals to update_text method
-        self.sb.connect_multi(widget.menu, "chk024-26", "toggled", update_text)
+        # Self-labelling, and named sources rather than "every checkbox in this
+        # menu": the rule reads the three boxes it means, applies at wire time (so
+        # the label matches a scene that already has a constraint or a live surface,
+        # not the .ui's static text) and survives a preset load made with signals
+        # blocked.
+        self.sb.text_from(
+            widget.option_box.menu,
+            widget,
+            "chk024-26",
+            lambda *on: "Constrain: ON" if any(on) else "Constrain: OFF",
+        )
 
     def tb004_init(self, widget):
         """Snap Init"""
@@ -359,14 +368,16 @@ class TransformSlots(SlotsMaya):
             cmds.manipRotateContext("Rotate", q=1, snapValue=True)
         )
 
-        def update_text():
-            state = any(
-                w.isChecked() for w in widget.option_box.menu.get_items("CheckBox")
-            )
-            widget.setText("Snap: ON" if state else "Snap: OFF")
-
-        # Connecting signals to update_text method
-        self.sb.connect_multi(widget.menu, "chk021-23", "toggled", update_text)
+        # See tb003_init. Naming the boxes also retires a get_items call that never
+        # matched anything: it asked for the type name CheckBox, which is resolved
+        # against QtWidgets, and an unresolvable one filters every item out — so the
+        # state read was always False and "Snap: ON" was unreachable.
+        self.sb.text_from(
+            widget.option_box.menu,
+            widget,
+            "chk021-23",
+            lambda *on: "Snap: ON" if any(on) else "Snap: OFF",
+        )
 
     def tb005_init(self, widget):
         """Move To Init"""

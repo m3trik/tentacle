@@ -43,12 +43,10 @@ CONTROLS = {
     # b003/b004 (Add/Delete Preset) were dropped from BOTH panels 2026-08-06 -- a preset is a
     # plain file, so it is added/deleted in the preset directory b007 opens.
     # 2026-08-19: b007/b008 moved from the Settings combo's actions section onto cmb000's own
-    # option box in BOTH panels; mayatk's option box additionally carries the two directory
-    # controls below, which have no Blender counterpart by design.
-    "_scene_exporter": {
-        "b005": {"status": "na", "reason": "Set FBX Preset Directory -- Maya scans a user-configurable *.fbxexportpreset directory; blendertk's PresetStore user tier is a fixed per-user dir (user_config_root()/blendertk/fbx_presets), so there is no directory to switch"},
-        "b013": {"status": "na", "reason": "Use Default FBX Preset Directory -- same as b005: the Blender store has no directory setting to revert to"},
-    },
+    # option box in BOTH panels. 2026-08-20: mayatk's two directory controls (b005 Set / b013
+    # Use Default FBX Preset Directory) were removed -- the preset dir is now fixed on both
+    # sides (Maya user app dir / PresetStore user tier), so the option boxes are 1:1 and no
+    # entry is needed here anymore.
     # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
     # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
     # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
@@ -207,12 +205,14 @@ CONTROLS = {
         # ship under the SAME objectName as mayatk (verified against the current file), not the
         # "btn_reveal_hdr"/"btn_open_folder" names these entries claimed; no divergence to ledger.
     },
-    "naming_slots": {
-        "tb003_txt007": {
-            "status": "na",
-            "reason": "_LYR suffix-by-type target; Maya display layers have no Blender analogue",
-        },
-    },
+    # naming_slots: fully 1:1 as of 2026-08-22 — both panels build the same header (cmb_scope
+    # Selection/Scene/Directory/Files + chk_dry_run), output pane (txt002) and the 19 suffix-by-type
+    # fields from an identical literal SUFFIX_GROUPS table (tb003_txt000..018, same objectNames).
+    # Ten of those fields name Maya node kinds with no Blender *object* type (IK handle, constraint,
+    # cluster, skin cluster, blend shape, material, shading group, texture, display layer, set);
+    # blendertk ships them under the same objectName with setEnabled=False + an explanatory tooltip
+    # (NamingSlots._BLENDER_NA) — a same-named control the sweep matches, so no row is needed. The
+    # prior tb003_txt007 `na` row described the old display-layer-only version of this.
     # wheel_rig chk_world_space: stale `na` "always world-space" entry removed 2026-07-08 -- the
     # control EXISTS in Blender under the identical objectName (rig_utils/wheel_rig.py:299) as a
     # fully-wired toggle that DEFAULTS OFF (use_world_space=False -> transform_space='TRANSFORM_SPACE',
@@ -425,7 +425,13 @@ CONTROLS = {
         # bpy.data.images.remove after a confirm; row_show_in_hypershade graphs the row's material via
         # btk.open_editor("Shader Editor")). The capabilities were ported+relabeled, not dropped --
         # the label differences are report-only setText review deltas, not divergences to ledger.
-        "select_file_node": {"status": "na", "reason": "no separable file node in Blender (kept as a disabled structural placeholder in the Blender panel)"},
+        # select_file_node: `na` ("no separable file node in Blender") removed 2026-08-22 -- another
+        # false na. It reasoned from NAMES (a Blender image has no node-name handle) to conclude the
+        # CAPABILITY was absent. Maya's file node splits in Blender into the image datablock (owns
+        # the path) and the ShaderNodeTexImage nodes referencing it; selecting the latter is the
+        # real analogue and now ships as btk.select_image_nodes (+ the pure query
+        # image_texture_nodes), walking node groups, with Maya's replace-select semantics.
+        # Blender-verified in test_texture_path_editor.py (51/51).
         "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
     },
     # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
@@ -1063,9 +1069,14 @@ PANELS = {
     # planner, detection math, and the whole manifest (CSV/mapping/behaviors[JSON]/range) — extracted to
     # pythontk.core_utils.engines.shots so mayatk + blendertk share ONE implementation. The divergence is
     # in the ENGINE, not the UX: Blender realises shots on native primitives (fcurve key-motion,
-    # RenderOpacity fades, VSE audio). Ledgered follow-ups (not sweep gaps): sequencer AUDIO-track display
-    # + move-to-shot sequence grouping are deferred; the object-animation timeline is fully wired. The
-    # slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
+    # RenderOpacity fades, VSE audio). 2026-08-22 BEHAVIOR-PARITY PASS closed every deferred item:
+    # sequencer audio tracks (AudioSegment over VSE strips), Move-to-Shot sequence grouping, motion/hold
+    # segmentation (btk.SegmentKeys), Show Internal Holds, gap-hold stepping (CONSTANT), extend/fit,
+    # detect-next, transport/play controller, ShotEditDialog + combo context menu, native undo/redo,
+    # Graph-Editor key-selection sync; manifest behaviors/ + range_resolver facades; store save_pre
+    # flush / fps-change rescale / Detection class. The only Maya-only names left are Maya MECHANISMS
+    # (tangent snapshot/restore, DAG-path reconciliation, DG audio node binding, OpenMaya callbacks).
+    # The slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
     # WorkspaceEditorSlots (blendertk-only, the REVERSE direction — no mayatk twin by design,
     # shipped 2026-07-18): create a shared Maya/Blender project workspace and customize its
     # file rules (workspace.mel via pythontk.Workspace). Maya needs no twin panel — its native

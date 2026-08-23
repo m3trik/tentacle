@@ -25,6 +25,9 @@ class Preferences(PreferencesMixin, SlotsBlender):
     }
     _FPS_OPTIONS = [24, 25, 30, 48, 60]
 
+    #: The engine behind the shared Macros menu / Macro Manager (PreferencesMixin).
+    macros = btk.Macros
+
     def __init__(self, switchboard):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.preferences
@@ -118,7 +121,9 @@ class Preferences(PreferencesMixin, SlotsBlender):
         # to the scene before the real one was seeded.
         current = bpy.context.scene.unit_settings.length_unit
         labels = list(self._LENGTH_UNITS)
-        match = next((lbl for lbl, u in self._LENGTH_UNITS.items() if u == current), None)
+        match = next(
+            (lbl for lbl, u in self._LENGTH_UNITS.items() if u == current), None
+        )
 
         def seed():
             widget.add(self._LENGTH_UNITS)
@@ -164,7 +169,9 @@ class Preferences(PreferencesMixin, SlotsBlender):
         if not widget.is_initialized:
             widget.setValue(bpy.context.preferences.filepaths.save_version)
             widget.valueChanged.connect(
-                lambda v: setattr(bpy.context.preferences.filepaths, "save_version", int(v))
+                lambda v: setattr(
+                    bpy.context.preferences.filepaths, "save_version", int(v)
+                )
             )
 
     def s001_init(self, widget):
@@ -172,7 +179,9 @@ class Preferences(PreferencesMixin, SlotsBlender):
             fp = bpy.context.preferences.filepaths
             # 0 = disabled, like the Maya twin (maya/preferences.py s000_init) — showing
             # the live interval while autosave is off would misreport it as active.
-            widget.setValue(fp.auto_save_time if fp.use_auto_save_temporary_files else 0)
+            widget.setValue(
+                fp.auto_save_time if fp.use_auto_save_temporary_files else 0
+            )
 
             def _update(value):
                 fp.use_auto_save_temporary_files = value > 0
@@ -193,6 +202,7 @@ class Preferences(PreferencesMixin, SlotsBlender):
         user's own look is just picking their built-in/own theme back from this same list — no
         bespoke backup entry needed. See ``blendertk.ui_utils.style_setter`` and the Maya-side
         counterpart (``slots/maya/preferences.py`` ``cmb003``)."""
+
         # Same self-fire/restore hazard as cmb001/cmb002 above: `add` emits
         # currentIndexChanged (silently applying the alphabetically-first theme on panel
         # open), and a restored index re-fires cmb003 with a stale pick. Blender records
@@ -225,12 +235,6 @@ class Preferences(PreferencesMixin, SlotsBlender):
     def b010(self):
         """Settings/Preferences → Blender Preferences (Interface)."""
         self._open_preferences("INTERFACE")
-
-    def b011(self):
-        """Macro Manager — the unified shortcut editor over the blendertk macros
-        (``btk.Macros.show_editor``, 1:1 with mayatk; the bespoke panel was
-        retired)."""
-        btk.Macros.show_editor(parent=self.sb.handlers.marking_menu)
 
 
 # --------------------------------------------------------------------------------------------

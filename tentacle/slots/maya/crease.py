@@ -41,10 +41,8 @@ class Crease(SlotsMaya):
         widget.option_box.menu.chk000.toggled.connect(
             widget.option_box.menu.s004.setEnabled
         )
-        widget.setText(f"Crease {widget.option_box.menu.s003.value()}")
-        widget.option_box.menu.s003.valueChanged.connect(
-            lambda value: widget.setText(f"Crease {value}")
-        )
+        # Self-labelling: the amount lives in the option box, so the button says it.
+        self.sb.text_from(widget.option_box.menu, widget, "s003", "Crease {}".format)
 
     @mtk.undoable
     def tb000(self, widget):

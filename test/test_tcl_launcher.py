@@ -691,7 +691,7 @@ class TestEngineExtras(unittest.TestCase):
             OptionalPackageManager, "pip_python", staticmethod(lambda: None)
         ), mock.patch.object(sys, "executable", host_exe):
             hint = Tcl.engine_install_hint("maya")
-        self.assertNotIn(f"{os.sep}maya.exe", hint)
+        self.assertNotIn("maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
 
         # (b) uitk unreachable — still must not fall back to sys.executable. Not exotic:
@@ -701,7 +701,7 @@ class TestEngineExtras(unittest.TestCase):
             sys.modules, {"uitk.managers.optional_package_manager": None}
         ), mock.patch.object(sys, "executable", host_exe):
             hint = Tcl.engine_install_hint("maya")
-        self.assertNotIn(f"{os.sep}maya.exe", hint)
+        self.assertNotIn("maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
 
         # (c) ...but a plain `python*` interpreter IS safe to name, and should be — the

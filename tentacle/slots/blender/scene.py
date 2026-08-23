@@ -273,8 +273,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         FBX round-trip by default (fresh mayapy converts the scene; instancing is
         carried by the format, materials rebuilt from a texture manifest; the USD
         route — native materials / animation / visibility, instancing replayed from
-        a sidecar — is opt-in via the Reference Manager's route option or
-        ``via="usd"``). Blocking: a scene conversion
+        a sidecar — is opt-in via the Reference Manager's route option, the Export
+        Scene option box's Transfer-via combo -- read here -- or ``via="usd"``).
+        Blocking: a scene conversion
         takes tens of seconds (mayapy startup + license checkout), so a wait cursor
         covers the run. Requires a local Maya install."""
         src = self.sb.file_dialog(
@@ -288,7 +289,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         app = self.sb.QtWidgets.QApplication
         app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            imported = btk.MayaSceneImport().import_scene(src)
+            imported = btk.MayaSceneImport().import_scene(
+                src, via=self._transfer_carrier()
+            )
         except Exception as e:
             self.sb.message_box(f"Maya scene import failed: <hl>{e}</hl>")
             return
@@ -345,10 +348,14 @@ class SceneSlots(SceneMixin, SlotsBlender):
         # can read the submenu's shared options.
         tb003_kwargs = dict(
             setObjectName="tb003",
-            setText="Export Scene",
+            # Placeholder only — tb003_init's wiring relabels it from the options.
+            setText=self._default_export_button_text(),
             setToolTip=(
-                "Export the scene to FBX (and optionally GLB).\n"
-                "Click the gear icon to configure scope, included types, and save location."
+                "Export the scene or the selection — the entry's own label says\n"
+                "which, in what format, and whether it writes straight beside the\n"
+                "scene (Quick) or prompts for a location.\n"
+                "Click the gear icon to configure scope, format, included types,\n"
+                "and save location."
             ),
         )
         if submenu:
@@ -389,11 +396,15 @@ class SceneSlots(SceneMixin, SlotsBlender):
             "QComboBox", setObjectName="cmb_scope",
             setToolTip=(
                 "What to export:\n"
-                "• Entire Scene — export the full scene\n"
-                "• Selected Only — export only the current selection"
+                "• Selected Only — export only the current selection\n"
+                "• Entire Scene — export the full scene"
             ),
         )
-        for text, data in [("Entire Scene", "all"), ("Selected Only", "selected")]:
+        # By DATA, not index: Selected Only leads now, so an index persisted against
+        # the old order would silently select the other scope. A stale int no-ops on
+        # restore (findData misses) and is overwritten on the next save.
+        cmb_scope.restore_by = "data"
+        for text, data in self.EXPORT_SCOPE_ITEMS:
             cmb_scope.addItem(text, data)
 
         cmb_save = widget.option_box.menu.add(
@@ -404,10 +415,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 "• Prompt for File — choose the name and location each time"
             ),
         )
-        for text, data in [("Alongside Scene File", "scene_dir"), ("Prompt for File", "prompt")]:
+        for text, data in self.EXPORT_SAVE_ITEMS:
             cmb_save.addItem(text, data)
 
-        chk_cameras = widget.option_box.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox", setText="Include Cameras", setObjectName="chk_cameras",
             setChecked=False,
             setToolTip=(
@@ -416,7 +427,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 "(cameras export only if selected)."
             ),
         )
-        chk_lights = widget.option_box.menu.add(
+        widget.option_box.menu.add(
             "QCheckBox", setText="Include Lights", setObjectName="chk_lights",
             setChecked=False,
             setToolTip=(
@@ -452,7 +463,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         cmb_format = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_format",
+            "QComboBox", setObjectName=self.EXPORT_FORMAT_COMBO,
             setToolTip=(
                 "Output format:\n"
                 "• FBX — the interchange default\n"
@@ -460,25 +471,29 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 "• GLB — Blender's native glTF 2.0 exporter (no FBX hop; the\n"
                 "  don't-reinvent answer to Maya's FBX2glTF conversion)\n"
                 "• MA — a real Maya scene, via a fresh headless mayapy\n"
-                "  (slower; a local Maya install is required)"
+                "  (slower; a local Maya install is required)\n"
+                "• USD — Blender's native USD exporter (UsdPreviewSurface\n"
+                "  materials; animation sampled only where it moves)"
             ),
         )
         for text, data in self._export_format_items():
             cmb_format.addItem(text, data)
+        cmb_transfer = widget.option_box.menu.add(
+            "QComboBox", setObjectName=self.EXPORT_TRANSFER_COMBO,
+            setToolTip=(
+                "Transfer via — the intermediate a scene hand-off travels as:\n"
+                "• FBX — the default; carries instancing natively\n"
+                "• USD — native materials, typed scene graph, sampled animation;\n"
+                "  an instanced / linked-duplicate selection is refused (use FBX)\n"
+                "Applies to the foreign format (Blend / MA) export and to\n"
+                "Import Blender / Maya Scene; the native formats ignore it."
+            ),
+        )
+        for text, data in self.EXPORT_TRANSFER_ITEMS:
+            cmb_transfer.addItem(text, data)
 
-        # Cameras/lights are scene-level: in Selected Only mode they'd only export if
-        # explicitly selected, so the "include all" intent doesn't apply — disable them.
-        # The button label mirrors the scope so the submenu entry reads as what it will
-        # do (QSettings restore re-fires the signal, so a persisted scope re-labels on
-        # init too).
-        def _sync_scope(_idx=None):
-            whole_scene = cmb_scope.currentData() == "all"
-            chk_cameras.setEnabled(whole_scene)
-            chk_lights.setEnabled(whole_scene)
-            widget.setText("Export Scene" if whole_scene else "Export Sel")
-
-        cmb_scope.currentIndexChanged.connect(_sync_scope)
-        _sync_scope()
+        # Label + scene-only toggles follow the options (SceneMixin, shared).
+        self._wire_export_options(widget)
 
     # Triangle count at/above which an export with a mesh-cost-scaling option (tangents)
     # is slow enough on dense geometry — photogrammetry scans, sculpts — to be worth a
@@ -519,7 +534,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         return choice == "Yes"
 
     def _export_scene_native(self, export_format, out_path, options, tick):
-        """Write FBX / OBJ / GLB (SceneMixin hook).
+        """Write FBX / OBJ / GLB / USD (SceneMixin hook).
 
         Unlike Maya, Blender writes GLB natively — no FBX hop and no conversion, so
         *tick* is unused here.
@@ -529,6 +544,31 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 file_path=out_path,
                 selection_only=options["selection_only"],
                 materials=options["embed_textures"],
+            )
+            return
+
+        if export_format == "usd":
+            # Interchange set of the scene exporter's USD format, with the
+            # option-box toggles mapped to the exporter's own switches.
+            usd_options = dict(btk.SceneExporter.USD_EXPORT_OPTIONS)
+            usd_options.update(
+                export_cameras=options["include_cameras"],
+                export_lights=options["include_lights"],
+                export_armatures=options["include_skins"],
+            )
+            objects = (
+                list(bpy.context.selected_objects)
+                if options["selection_only"]
+                else list(bpy.context.scene.objects)
+            )
+            frame_range = btk.UsdUtils.sampling_frame_range(objects)
+            if frame_range:
+                usd_options["export_animation"] = True
+            btk.UsdUtils.export(
+                filepath=out_path,
+                selection_only=options["selection_only"],
+                frame_range=frame_range,
+                **usd_options,
             )
             return
 

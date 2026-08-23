@@ -139,7 +139,7 @@
     <property name="toolTip">
      <string>Paste previously copied key values onto the selection.
 
-Use the option box to choose whether to paste at the current playhead or back at the original copy frame.</string>
+Option box: paste at the playhead, or back at the frame the copy was taken from.</string>
     </property>
     <property name="text">
      <string>Paste Keys</string>
@@ -173,9 +173,9 @@ Use the option box to choose whether to paste at the current playhead or back at
      </size>
     </property>
     <property name="toolTip">
-     <string>Move the selected keyframes to the current time (or all keys, if none are selected).
+     <string>Move keyframes to the current frame — the selected keys, or all keys on the selected objects.
 
-Use the option box to control spacing, channel-box scope, and which end of the range aligns to the target frame.</string>
+Option box: keep or collapse the spacing between objects, and choose which end of the key range lands on the playhead.</string>
     </property>
     <property name="text">
      <string>Move Keys</string>
@@ -206,7 +206,9 @@ Use the option box to control spacing, channel-box scope, and which end of the r
      </size>
     </property>
     <property name="toolTip">
-     <string>Set the current frame on the timeslider.</string>
+     <string>Move the playhead. The Frame value is a relative nudge from the current frame by default, not an absolute jump.
+
+Option box: switch between absolute and relative, or pick a Snap mode to re-round the current frame to a clean number instead.</string>
     </property>
     <property name="text">
      <string>Go to Frame</string>
@@ -237,9 +239,9 @@ Use the option box to control spacing, channel-box scope, and which end of the r
      </size>
     </property>
     <property name="toolTip">
-     <string>Push keys apart or pull them closer by a fixed frame amount.
-Every key at or after the given time shifts by the same offset.
-Supports negative values to compress timing.</string>
+     <string>Push keys apart or pull them closer by a fixed frame amount. Every key at or after the given frame shifts by the same offset, so negative amounts compress the timing.
+
+Option box: set the start frame and amount, choose which keys are in scope, and read Amount as an exact target gap instead of a distance.</string>
     </property>
     <property name="text">
      <string>Adjust Spacing</string>
@@ -273,9 +275,9 @@ Supports negative values to compress timing.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>Set the tangent/interpolation type on keys.
+     <string>Set the tangent / interpolation type on animation keys.
 
-Use the option box to configure scope and type.</string>
+Option box: choose which keys are affected and which type they get.</string>
     </property>
     <property name="text">
      <string>Step Tangents</string>
@@ -312,7 +314,9 @@ Use the option box to configure scope and type.</string>
      </size>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Deletes &lt;span style=&quot; font-weight:600;&quot;&gt;ALL&lt;/span&gt; keyframes for the currently selected object(s).&lt;/p&gt;&lt;p&gt;If specific attributes are selected in the channel box, only keyframes for those attributes will be deleted. Use the option box to also restrict by time range (current frame, before/after current, etc.).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>Delete every keyframe on the selected object(s).
+
+Option box: restrict the deletion to a time range instead — the current frame, or everything before or after it.</string>
     </property>
     <property name="text">
      <string>Delete Keys</string>
@@ -351,7 +355,7 @@ Use the option box to configure scope and type.</string>
     <property name="toolTip">
      <string>Copy the current keyframe/attribute values of the selected object(s) for later paste.
 
-Use the option box to choose what gets copied: auto, current frame, selected keys, or channel box.</string>
+Option box: choose what gets captured — or pick Copy + Paste to capture and apply in a single click.</string>
     </property>
     <property name="text">
      <string>Copy Keys</string>
@@ -404,7 +408,7 @@ Use the option box to choose what gets copied: auto, current frame, selected key
      </size>
     </property>
     <property name="toolTip">
-     <string>Set the playback range to span every keyed object in the scene, from the earliest to the latest keyframe.</string>
+     <string>Set the playback range to span the keyed animation, from the earliest keyframe to the latest.</string>
     </property>
     <property name="text">
      <string>Fit Playback Range</string>

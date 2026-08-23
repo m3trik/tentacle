@@ -18,6 +18,8 @@ import ast
 import os
 import sys
 import unittest
+
+import pythontk as ptk
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -108,6 +110,8 @@ class _FakeSwitchboard:
         self.click = click  # the button the fake user presses
         self.messages = []
         self.dialogs = []
+        self.enable_rules = []
+        self.text_rules = []
 
     def progress(self, **kwargs):
         return _FakeProgress()
@@ -120,6 +124,35 @@ class _FakeSwitchboard:
 
     def text_view_dialog(self, content, *args, **kwargs):
         self.dialogs.append(content)
+
+    def enable_when(self, ui, targets, trigger, condition=True, **kwargs):
+        """Record the rule. The BEHAVIOR is uitk's (``test_switchboard_toggle.py``
+        covers late registration, preset refresh and the condition forms); what the
+        mixin owns is asking for the right one."""
+        self.enable_rules.append((targets, trigger, condition))
+
+    def text_from(self, ui, target, sources, formatter, signal=None, value=None):
+        """Record the rule, then apply it the way uitk would.
+
+        A minimal stand-in — enough to prove the MIXIN's half: that it hands over the
+        right sources in the right order, a formatter that composes them, and the
+        reader override the format combo needs. The rule's own behaviour (wire-time
+        apply, late registration, bulk refresh, patterns) is uitk's and is covered by
+        ``uitk/test/test_switchboard_toggle.py::TestTextFrom``.
+        """
+        self.text_rules.append((sources, value))
+        readers = value if isinstance(value, dict) else {}
+
+        def apply(*_):
+            values = [
+                readers[name](w) if name in readers else w.currentData()
+                for name, w in ((n, getattr(ui, n)) for n in sources)
+            ]
+            target.setText(formatter(*values))
+
+        for name in sources:
+            getattr(ui, name).currentIndexChanged.connect(apply)
+        apply()
 
 
 class _Host(SceneMixin):
@@ -441,11 +474,13 @@ class _FakeBridge:
         self.spec = _Attr(app=_Attr(name=name))
         self.save_extensions = tuple(extensions)
         self.calls = []
+        self.params = []  # the per-call params (the carrier rides here)
         self._result = result
         self._raises = raises
 
-    def save_as(self, out_path, objects=None):
+    def save_as(self, out_path, objects=None, params=None):
         self.calls.append((out_path, objects))
+        self.params.append(dict(params or {}))
         if self._raises:
             raise self._raises
         return self._result
@@ -490,18 +525,31 @@ class TestExportFormats(unittest.TestCase):
     def setUp(self):
         self.bridge = _FakeBridge()
 
-    def test_the_combo_offers_the_portable_three_plus_the_foreign_twin(self):
+    def test_the_combo_offers_the_portable_four_plus_the_foreign_twin(self):
         items = _ExportHost(self.bridge)._export_format_items()
-        self.assertEqual([d for _, d in items], ["fbx", "obj", "glb", "foreign"])
+        self.assertEqual([d for _, d in items], ["fbx", "obj", "glb", "usd", "foreign"])
         # Only the LAST label is per-fork; the data values are shared, which is
         # what lets the dispatch be shared.
         self.assertEqual(items[-1], ("Blend", "foreign"))
+
+    def test_inserting_usd_renamed_the_combo_so_stored_indices_cannot_lie(self):
+        """uitk persists a combo by INDEX: the foreign twin moved from 3 to 4, so the
+        objectName moved too (a stored "Blend" must not become "USD")."""
+        self.assertEqual(_ExportHost.EXPORT_FORMAT_COMBO, "cmb_export_format")
+        self.assertNotEqual(_ExportHost.EXPORT_FORMAT_COMBO, "cmb_format")
+
+    def test_transfer_items_are_pythontk_s_carrier_vocabulary(self):
+        self.assertEqual(
+            [d for _, d in _ExportHost.EXPORT_TRANSFER_ITEMS], list(ptk.CARRIER_EXTENSIONS)
+        )
+        self.assertEqual(_ExportHost.EXPORT_TRANSFER_ITEMS[0], ("FBX", "fbx"))
 
     def test_extensions_resolve_and_the_foreign_one_comes_off_the_bridge(self):
         host = _ExportHost(_FakeBridge(extensions=(".ma", ".mb")))
         self.assertEqual(host._export_extension("fbx"), ".fbx")
         self.assertEqual(host._export_extension("obj"), ".obj")
         self.assertEqual(host._export_extension("glb"), ".glb")
+        self.assertEqual(host._export_extension("usd"), ".usd")
         # Not a second table here -- the bridge already declares it.
         self.assertEqual(host._export_extension("foreign"), ".ma")
 
@@ -543,6 +591,186 @@ class TestExportFormats(unittest.TestCase):
         host = _ExportHost(self.bridge, picked=None)
         self.assertIsNone(host._resolve_export_path("prompt", ".fbx"))
         self.assertEqual(host.sb.messages, [])
+
+
+class _FakeSignal:
+    """The one Qt signal the option-box wiring uses."""
+
+    def __init__(self):
+        self.slots = []
+
+    def connect(self, slot):
+        self.slots.append(slot)
+
+    def emit(self, index):
+        for slot in list(self.slots):
+            slot(index)
+
+
+class _FakeCombo:
+    """A ``(label, data)`` combo that fires ``currentIndexChanged`` like the real one."""
+
+    def __init__(self, items, index=0):
+        self.items = list(items)
+        self.index = index
+        self.currentIndexChanged = _FakeSignal()
+
+    def setCurrentIndex(self, index):
+        self.index = index
+        self.currentIndexChanged.emit(index)
+
+    def currentText(self):
+        return self.items[self.index][0]
+
+    def currentData(self):
+        return self.items[self.index][1]
+
+
+class _FakeExportButton:
+    """The tb003 stand-in the wiring relabels."""
+
+    def __init__(self, menu):
+        self.text = ""
+        self.option_box = _Attr(menu=menu)
+
+    def setText(self, text):
+        self.text = text
+
+
+def _export_option_box(host):
+    """A tb003 whose combos carry the mixin's OWN item tables (so this can't drift).
+
+    No checkbox stand-ins: the cameras/lights gating is an ``sb.enable_when`` rule
+    now, recorded by the fake switchboard rather than applied to widgets here.
+    """
+    menu = _Attr(
+        cmb_scope=_FakeCombo(host.EXPORT_SCOPE_ITEMS),
+        cmb_save=_FakeCombo(host.EXPORT_SAVE_ITEMS),
+        cmb_export_format=_FakeCombo(host._export_format_items()),
+        cmb_transfer=_FakeCombo(host.EXPORT_TRANSFER_ITEMS),
+    )
+    return _FakeExportButton(menu)
+
+
+class TestExportButtonLabel(unittest.TestCase):
+    """The Export entry spells out what a click will do, from its own options."""
+
+    def setUp(self):
+        self.host = _ExportHost(_FakeBridge())
+
+    def test_the_defaults_are_a_quick_export_of_the_selection_as_fbx(self):
+        """Each combo's LEADING item — what an unconfigured option box shows."""
+        self.assertEqual(
+            self.host._default_export_button_text(), "Quick Export Sel FBX"
+        )
+
+    def test_quick_marks_the_no_prompt_route_only(self):
+        self.assertEqual(
+            self.host._export_button_text("selected", "scene_dir", "GLB"),
+            "Quick Export Sel GLB",
+        )
+        # Prompt for File stops to ask, so it is not quick.
+        self.assertEqual(
+            self.host._export_button_text("selected", "prompt", "GLB"),
+            "Export Sel GLB",
+        )
+
+    def test_the_scope_word_follows_the_scope(self):
+        self.assertEqual(
+            self.host._export_button_text("all", "scene_dir", "FBX"),
+            "Quick Export Scene FBX",
+        )
+        self.assertEqual(
+            self.host._export_button_text("all", "prompt", "FBX"), "Export Scene FBX"
+        )
+
+    def test_the_suffix_is_the_combo_label_so_the_foreign_twin_follows_the_fork(self):
+        """Not the data value: "foreign" would read as itself on both sides."""
+        self.assertEqual(
+            self.host._export_button_text("all", "prompt", "Blend"),
+            "Export Scene Blend",
+        )
+
+    def test_an_unknown_scope_falls_back_to_the_selection_word(self):
+        self.assertEqual(
+            self.host._export_button_text(None, "prompt", "OBJ"), "Export Sel OBJ"
+        )
+
+    def test_wiring_labels_the_button_from_the_options_on_init(self):
+        widget = _export_option_box(self.host)
+        self.host._wire_export_options(widget)
+        self.assertEqual(widget.text, "Quick Export Sel FBX")
+
+    def test_the_format_combo_is_the_one_source_read_by_LABEL(self):
+        """Its items carry data, and the default reader would hand the formatter
+        "fbx" where the button wants to say "FBX". Reading the combo's own label is
+        also what lets the foreign twin read "Blend" / "MA" with no table here."""
+        widget = _export_option_box(self.host)
+        self.host._wire_export_options(widget)
+        sources, value = self.host.sb.text_rules[0]
+        self.assertEqual(
+            list(sources), ["cmb_scope", "cmb_save", self.host.EXPORT_FORMAT_COMBO]
+        )
+        self.assertEqual(list(value), [self.host.EXPORT_FORMAT_COMBO])
+
+    def test_every_combo_relabels_the_button_not_just_the_scope(self):
+        widget = _export_option_box(self.host)
+        self.host._wire_export_options(widget)
+        menu = widget.option_box.menu
+
+        menu.cmb_scope.setCurrentIndex(1)  # Entire Scene
+        self.assertEqual(widget.text, "Quick Export Scene FBX")
+        menu.cmb_save.setCurrentIndex(1)  # Prompt for File
+        self.assertEqual(widget.text, "Export Scene FBX")
+        menu.cmb_export_format.setCurrentIndex(2)  # GLB
+        self.assertEqual(widget.text, "Export Scene GLB")
+        menu.cmb_export_format.setCurrentIndex(3)  # USD
+        self.assertEqual(widget.text, "Export Scene USD")
+        menu.cmb_export_format.setCurrentIndex(4)  # the fork's foreign twin
+        self.assertEqual(widget.text, "Export Scene Blend")
+
+    def test_cameras_and_lights_gate_on_the_scope_through_enable_when(self):
+        """Scene-level categories are inert in Selected Only mode (the default).
+
+        Wired as uitk's declarative rule, not a closure here: it also re-applies on
+        late registration and on a preset load made with signals blocked, which a
+        plain signal connection would miss.
+        """
+        widget = _export_option_box(self.host)
+        self.host._wire_export_options(widget)
+        self.assertEqual(
+            self.host.sb.enable_rules,
+            [("chk_cameras,chk_lights", "cmb_scope", "all")],
+        )
+
+    def test_the_transfer_combo_is_not_gated_on_the_export_format(self):
+        """The carrier lives on the Export option box but is NOT the export's alone.
+
+        Three of its four readers ignore the format combo entirely: the Export
+        list's foreign one-shot and both Import <other DCC> Scene entries, which
+        share the setting through ``_transfer_carrier()``'s panel-read fallback --
+        exactly what the combo's own tooltip promises. Gating it on "foreign" left
+        it disabled at the default format, so the USD pull route was unreachable
+        without first switching the EXPORT format to Blend / MA.
+        """
+        widget = _export_option_box(self.host)
+        self.host._wire_export_options(widget)
+        self.assertNotIn(
+            "cmb_transfer",
+            [rule[0] for rule in self.host.sb.enable_rules],
+        )
+
+    def test_both_forks_delegate_the_wiring_and_persist_the_scope_by_data(self):
+        """The scope combo's items were REORDERED (Selected Only leads), so an
+        index persisted against the old order would silently select the other
+        scope on restore — ``restore_by = "data"`` is what makes that safe."""
+        for path in (MAYA_FILE, BLENDER_FILE):
+            with self.subTest(fork=path.name):
+                src = path.read_text(encoding="utf-8")
+                self.assertIn("self._wire_export_options(widget)", src)
+                self.assertIn('cmb_scope.restore_by = "data"', src)
+                self.assertIn("for text, data in self.EXPORT_SCOPE_ITEMS:", src)
+                self.assertIn("for text, data in self.EXPORT_SAVE_ITEMS:", src)
 
 
 class TestForeignExport(unittest.TestCase):
@@ -590,7 +818,7 @@ class TestForeignExport(unittest.TestCase):
         self.assertEqual(host.cursors, [])
 
 
-def _export_widget(fmt="fbx", scope="all", save="scene_dir", **checks):
+def _export_widget(fmt="fbx", scope="all", save="scene_dir", transfer="fbx", **checks):
     """A tb003 stand-in: the option box tb003_init builds, with all boxes ticked."""
     state = dict(
         chk_cameras=True,
@@ -601,7 +829,8 @@ def _export_widget(fmt="fbx", scope="all", save="scene_dir", **checks):
     )
     state.update(checks)
     menu = _Attr(
-        cmb_format=_Attr(currentData=lambda: fmt),
+        cmb_export_format=_Attr(currentData=lambda: fmt),
+        cmb_transfer=_Attr(currentData=lambda: transfer),
         cmb_scope=_Attr(currentData=lambda: scope),
         cmb_save=_Attr(currentData=lambda: save),
         **{
@@ -716,7 +945,18 @@ class TestTb003ExportFlow(unittest.TestCase):
         host.tb003(_export_widget(fmt="foreign"))
         self.assertEqual(host.native, [])  # never touches the native writer
         self.assertEqual(bridge.calls, [("P:/proj/asset.blend", None)])
+        self.assertEqual(bridge.params, [{"CARRIER": "fbx"}])  # the default carrier
         self.assertIn("Exported", host.sb.messages[-1])
+
+    def test_the_transfer_combo_picks_the_foreign_hand_off_s_carrier(self):
+        bridge = _FakeBridge(result={"output": "P:/proj/asset.blend", "duration": 3.0})
+        host = _Tb003Host(bridge, scene_path="P:/proj/asset.ma")
+        host.tb003(_export_widget(fmt="foreign", transfer="usd"))
+        self.assertEqual(bridge.params, [{"CARRIER": "usd"}])
+
+    def test_a_host_without_a_panel_transfers_via_fbx(self):
+        """Headless callers (and the Import list before the option box exists)."""
+        self.assertEqual(_ExportHost(_FakeBridge())._transfer_carrier(), "fbx")
 
     def test_the_foreign_format_honors_the_scope_combo(self):
         bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 1.0})

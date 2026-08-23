@@ -2,11 +2,12 @@
 
 _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_registry.py`._
 
-_Generated: 2026-08-20_
+_Generated: 2026-08-23_
 
 ## Index
 
 - [`__init__.py`](#__init__)
+- [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
 - [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
@@ -119,7 +120,14 @@ _Generated: 2026-08-20_
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L49) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L55) — Format a string using preset variables.
+
+<a id="slots--_animation"></a>
+### `slots/_animation.py`
+
+Text the animation panel's Maya and Blender forks say identically.
+
+- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L32)** — Shared tooltip text for ``slots/{maya,blender}/animation.py``.
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -170,7 +178,7 @@ Shared, DCC-agnostic behavior for the ``materials`` panel.
 
 Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
-- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L18)** — DCC-agnostic ``preferences`` slot behavior.
+- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L22)** — DCC-agnostic ``preferences`` slot behavior.
   - `PreferencesMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
   - `PreferencesMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
   - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
@@ -179,6 +187,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
   - `PreferencesMixin.cmb006(self, index, widget)` — Persist the chosen presentation policy and re-present the live gates.
   - `PreferencesMixin.header_init(self, widget)` — Header menu — the manual re-probe that pairs with ``cmb006``.
   - `PreferencesMixin.tb000(self)` — Re-check installed tools: drop the cached probes, then re-apply the gates.
+  - `PreferencesMixin.b011(self)` — Macro Manager — the unified uitk shortcut editor over the engine's
 
 <a id="slots--_rendering"></a>
 ### `slots/_rendering.py`
@@ -265,7 +274,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--animation"></a>
 ### `slots/blender/animation.py`
 
-- **[`class Animation(SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
+- **[`class Animation(AnimationMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
   - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Playback / Info.
   - `Animation.list000(self, item)` — Dispatch a Tools leaf to its slot method.
   - `Animation.tb000_init(self, widget)`
@@ -602,7 +611,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `Preferences.b008(self)` — Hotkeys → Blender Preferences (Keymap).
   - `Preferences.b009(self)` — Plug-In Manager → Blender Preferences (Add-ons).
   - `Preferences.b010(self)` — Settings/Preferences → Blender Preferences (Interface).
-  - `Preferences.b011(self)` — Macro Manager — the unified shortcut editor over the blendertk macros
 
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
@@ -831,7 +839,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--animation"></a>
 ### `slots/maya/animation.py`
 
-- **[`class Animation(SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L8)**
+- **[`class Animation(AnimationMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L8)**
   - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Playback / Info.
   - `Animation.list000(self, item)` — Dispatch a Tools leaf to its slot method.
   - `Animation.b006(self)` — Repair Visibility Tangents
@@ -846,7 +854,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Animation.tb004_init(self, widget)` — Transfer Keys Init
   - `Animation.tb004(self, widget)` — Transfer Keys
   - `Animation.tb005_init(self, widget)` — Add/Remove Intermediate Keys Init
-  - `Animation.tb005(self, widget)` — Add/Remove Intermediate Keys
+  - `Animation.tb005(self, widget)` — Add/Remove Intermediate Keys.
   - `Animation.tb006_init(self, widget)` — Move Keys Init
   - `Animation.tb006(self, widget)` — Move Keys: move the selected keys in time, with optional spacing/alignment.
   - `Animation.tb007_init(self, widget)` — Align Selected Keyframes Init
@@ -1293,7 +1301,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `Preferences.cmb003_init(self, widget)` — App-style / color selector — the Maya-side counterpart to the Blender slot's ``cmb003``.
   - `Preferences.cmb003(self, index, widget)` — Apply the selected shipped style (e.g.
   - `Preferences.b008(self)` — Hotkeys: open Maya's native Hotkey Preferences window.
-  - `Preferences.b011(self)` — Macro Manager — the unified shortcut editor over the mayatk macros
   - `Preferences.b009(self)` — Plug-In Manager
   - `Preferences.b010(self)` — Settings/Preferences
 

@@ -10,6 +10,9 @@ from tentacle import PreferencesMixin, SlotsMaya
 
 
 class Preferences(PreferencesMixin, SlotsMaya):
+    #: The engine behind the shared Macros menu / Macro Manager (PreferencesMixin).
+    macros = mtk.Macros
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -28,9 +31,7 @@ class Preferences(PreferencesMixin, SlotsMaya):
             mgr.subscribe(
                 "linearUnitChanged",
                 lambda w=widget: w.setCurrentIndex(
-                    w.items.index(
-                        cmds.currentUnit(q=True, fullName=True, linear=True)
-                    )
+                    w.items.index(cmds.currentUnit(q=True, fullName=True, linear=True))
                 ),
                 owner=widget,
             )
@@ -63,9 +64,7 @@ class Preferences(PreferencesMixin, SlotsMaya):
             mgr.subscribe(
                 "timeUnitChanged",
                 lambda w=widget: w.setCurrentIndex(
-                    w.items.index(
-                        cmds.currentUnit(q=True, fullName=True, time=True)
-                    )
+                    w.items.index(cmds.currentUnit(q=True, fullName=True, time=True))
                 ),
                 owner=widget,
             )
@@ -75,7 +74,10 @@ class Preferences(PreferencesMixin, SlotsMaya):
         def seed():
             frame_rates = ptk.VidUtils.FRAME_RATES
             widget.add(
-                {f"{frame_rates.get(key)} fps {key.upper()}": key for key in frame_rates}
+                {
+                    f"{frame_rates.get(key)} fps {key.upper()}": key
+                    for key in frame_rates
+                }
             )
             widget.setCurrentIndex(
                 widget.items.index(cmds.currentUnit(q=True, fullName=True, time=True))
@@ -150,11 +152,6 @@ class Preferences(PreferencesMixin, SlotsMaya):
     def b008(self):
         """Hotkeys: open Maya's native Hotkey Preferences window."""
         mel.eval("HotkeyPreferencesWindow")
-
-    def b011(self):
-        """Macro Manager — the unified shortcut editor over the mayatk macros
-        (``mtk.Macros.show_editor``; the bespoke panel was retired)."""
-        mtk.Macros.show_editor(parent=self.sb.handlers.marking_menu)
 
     def b009(self):
         """Plug-In Manager"""

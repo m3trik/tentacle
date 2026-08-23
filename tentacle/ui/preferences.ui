@@ -170,7 +170,7 @@
            <property name="title">
             <string>Theme</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
+           <layout class="QGridLayout" name="gridLayout_theme" columnstretch="0,1">
             <property name="spacing">
              <number>1</number>
             </property>
@@ -186,7 +186,32 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
-            <item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="lbl_style">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="caption" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Style:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
              <widget class="ComboBox" name="cmb003">
               <property name="minimumSize">
                <size>
@@ -221,7 +246,32 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
               </item>
              </widget>
             </item>
-            <item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="lbl_menu">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="caption" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Menu:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
              <widget class="ComboBox" name="cmb004">
               <property name="minimumSize">
                <size>
@@ -249,7 +299,32 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
               </property>
              </widget>
             </item>
-            <item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="lbl_window">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="caption" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Window:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
              <widget class="ComboBox" name="cmb005">
               <property name="minimumSize">
                <size>
@@ -277,7 +352,32 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
               </property>
              </widget>
             </item>
-            <item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="lbl_unavailable">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="caption" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="text">
+               <string>Unavailable:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
              <widget class="ComboBox" name="cmb006">
               <property name="minimumSize">
                <size>
@@ -305,7 +405,7 @@ Mirrors the app's own theme selector, with our shipped theme plus a Default entr
               </property>
              </widget>
             </item>
-            <item>
+            <item row="4" column="0" colspan="2">
              <widget class="QPushButton" name="b001">
               <property name="minimumSize">
                <size>

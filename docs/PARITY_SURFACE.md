@@ -36,7 +36,7 @@
 | ReferenceManager | 0 | 0 | 13 | 0 | OK |
 | RenderOpacity | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 0 | 2 | 0 | OK |
+| SceneExporter | 0 | 0 | 0 | 0 | OK |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -47,7 +47,7 @@
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
-| TexturePathEditor | 0 | 0 | 1 | 5 | OK |
+| TexturePathEditor | 0 | 0 | 1 | 6 | OK |
 | TubeRig | 0 | 0 | 8 | 6 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 0 | OK |
@@ -91,8 +91,9 @@
   - `btn_open_source_images.setText` maya=`'Open Source Images'` blender=`'Open Textures Folder'`
   - `chk_dest_sourceimages.setText` maya=`'Always Relocate To sourceimages'` blender=`'Always Relocate To The Textures Folder'`
   - `chk_stem.setText` maya=`'Stem  — exact name, different extension'` blender=`'Stem  — exact name, any extension'`
-  - `delete_file_node.setText` maya=`'Delete File Node'` blender=`'Delete Image'`
+  - `delete_file_node.setText` maya=`'Delete File Node'` blender=`'Remove Texture'`
   - `row_show_in_hypershade.setText` maya=`'Show in Hypershade'` blender=`'Show in Shader Editor'`
+  - `select_file_node.setText` maya=`'Select File Node'` blender=`'Select Texture Node'`
 
 #### TubeRig
 **property deltas (review)**
