@@ -6,12 +6,16 @@ The per-panel home for logic the Maya and Blender ``Preferences`` forks share (m
 ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
 new module per feature — see the convention in ``tentacle/CLAUDE.md``.
 
-Currently: the marking-menu + standalone-window theme selectors, and the presentation
-policy for tools whose external app isn't installed. The theme selectors expose the two
-previously hard-pinned uitk window themes so the user can pick light / dark / high-contrast
-per window style; both read and write the live MarkingMenu theme properties, which persist
-per host and re-theme any already-open windows. The logic is pure uitk, so nothing is
-DCC-specific to fork.
+Currently: the marking-menu + standalone-window theme selectors, the presentation
+policy for tools whose external app isn't installed, and the Macro Manager launcher. The
+theme selectors expose the two previously hard-pinned uitk window themes so the user can
+pick light / dark / high-contrast per window style; both read and write the live
+MarkingMenu theme properties, which persist per host and re-theme any already-open
+windows. The logic is pure uitk, so nothing is DCC-specific to fork.
+
+Macros are **keyable only** — they are triggered by their DCC-native hotkey and nothing
+else, so the panel's job is binding them, not running them: ``b011`` opens the Macro
+Manager over whichever engine the fork supplies through the ``macros`` class attribute.
 """
 
 
@@ -23,7 +27,12 @@ class PreferencesMixin:
     (``sb.unmet_policy``, read by every ``sb.gate`` call).
     ``header`` > ``tb000`` — re-probe those apps (``Slots.recheck_app_gates``), so a
     mid-session install is picked up without restarting the host.
+    ``b011`` — open the Macro Manager over the fork's engine (macros are keyable only).
     """
+
+    #: The engine's macro controller (``mtk.Macros`` / ``btk.Macros``) — fork-set, so
+    #: the mixin never imports an engine. ``show_editor`` is the whole contract.
+    macros = None
 
     @staticmethod
     def _token_label(token: str) -> str:
@@ -151,3 +160,8 @@ class PreferencesMixin:
         self.sb.message_box(
             f"Re-checked installed tools — <hl>{updated}</hl> widget(s) re-presented."
         )
+
+    def b011(self):
+        """Macro Manager — the unified uitk shortcut editor over the engine's
+        macros (``Macros.show_editor``; the bespoke panel was retired)."""
+        self.macros.show_editor(parent=self.sb.handlers.marking_menu)

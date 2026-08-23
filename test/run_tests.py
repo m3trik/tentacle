@@ -145,6 +145,11 @@ class TestRunner:
         suite = self.discover_tests()
 
         # Create stream that writes to both console and buffer
+        # Deferred like the StatusBadge import below, matching this runner's
+        # convention for ecosystem imports; by the time a tentacle suite runs,
+        # pythontk is importable or nothing in it would import at all.
+        from pythontk import TeeStream
+
         stream = TeeStream(sys.stdout, self.log_buffer)
 
         # Print header
@@ -166,7 +171,22 @@ Test Directory: {self.test_dir}
         runner = unittest.TextTestRunner(
             stream=stream, verbosity=self.verbosity, resultclass=DetailedTestResult
         )
-        result = runner.run(suite)
+        # unittest writes through `stream`, but product code does not: a bare
+        # print(), or the traceback.print_exc() of a swallowed exception, goes
+        # to the REAL stdout/stderr and never reached the log, leaving a failure
+        # explained only by output nobody kept. Tee both for the duration of the
+        # run; `stream` holds the ORIGINAL stdout object, so unittest's own
+        # output is not doubled by the redirect. Mirrors pythontk's runner,
+        # where the shape is pinned by `test_run_tests.TestRunLogCapture`.
+        real_out, real_err = sys.stdout, sys.stderr
+        sys.stdout = TeeStream(real_out, self.log_buffer)
+        sys.stderr = TeeStream(real_err, self.log_buffer)
+        try:
+            result = runner.run(suite)
+        finally:
+            # In a finally so a runner crash cannot leave the process writing
+            # into a buffer nobody reads.
+            sys.stdout, sys.stderr = real_out, real_err
 
         duration = time.perf_counter() - start_time
         test_result = TestResult(result, duration)
@@ -204,25 +224,6 @@ Test Directory: {self.test_dir}
         with open(log_file, "w", encoding="utf-8") as f:
             f.write(self.log_buffer.getvalue())
         print(f"\nLog saved to: {log_file}")
-
-class TeeStream:
-    """Stream that writes to multiple outputs."""
-    def __init__(self, *streams):
-        self.streams = streams
-    def write(self, text):
-        for stream in self.streams:
-            try:
-                stream.write(text)
-            except UnicodeEncodeError:
-                # mayapy's console is cp1252 and can't encode every
-                # character a test docstring/failure message contains
-                # (arrows, em-dashes, ...). Losing those glyphs here beats
-                # crashing mid-report and discarding every other result.
-                encoding = getattr(stream, "encoding", None) or "ascii"
-                stream.write(text.encode(encoding, errors="replace").decode(encoding))
-    def flush(self):
-        for stream in self.streams:
-            stream.flush()
 
 class DetailedTestResult(unittest.TextTestResult):
     """Extended test result with better output formatting."""

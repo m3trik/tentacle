@@ -129,8 +129,8 @@ class UvMixin:
                     return cls.TRANSFER_TEXTURES
         return cls.TRANSFER_UVS
 
-    @classmethod
-    def _tt_auto_note(cls, auto, do_textures, source_mode=None):
+    @staticmethod
+    def _tt_auto_note(auto, do_textures, source_mode=None):
         """The gate suffix naming Auto's pick, or ``""`` when there is none.
 
         Auto's choice is invisible state: a gate it trips ("pick a Transfer

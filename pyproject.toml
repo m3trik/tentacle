@@ -85,6 +85,15 @@ addopts = "--ignore=test/temp_tests"
 line-length = 88
 target-version = "py39"
 
+[tool.ruff.format]
+# docs/parity_map.py is a hand-formatted ledger - one grep-able line per entry,
+# which the formatter would explode into multi-line dicts (measured: 1114 lines ->
+# 1670), breaking the greppability the sweep tools and every triage pass rely on.
+# This guards the directory walk (`ruff format .`); ruff still formats a path
+# named explicitly on the command line unless --force-exclude is passed. Lint is
+# unaffected and still runs on the file.
+exclude = ["docs/parity_map.py"]
+
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F"]
 ignore = ["E402"]  # house pattern: try-guarded DCC imports precede the other imports

@@ -616,14 +616,13 @@ class TransformSlots(SlotsBlender):
                 setChecked=state,
             )
 
-        def update_text():
-            state = any(
-                w.isChecked() for w in widget.option_box.menu.get_items("QCheckBox")
-            )
-            widget.setText("Constrain: ON" if state else "Constrain: OFF")
-
-        update_text()
-        self.sb.connect_multi(widget.menu, "chk024-26", "toggled", update_text)
+        # Self-labelling; mirrors the Maya twin (see its tb003_init note).
+        self.sb.text_from(
+            widget.option_box.menu,
+            widget,
+            "chk024-26",
+            lambda *on: "Constrain: ON" if any(on) else "Constrain: OFF",
+        )
 
     def chk024(self, state, widget):
         """Transform Constraints: Edge (snap-to-edge during move)."""

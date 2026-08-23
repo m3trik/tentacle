@@ -7,6 +7,9 @@ _Generated: 2026-08-23_
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
 
+### `slots/_animation.py` — Text the animation panel's Maya and Blender forks say identically.
+- `class AnimationMixin`
+
 ### `slots/_edit.py` — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - `class EditMixin`
   - methods: mesh_cleanup_tooltip, cleanup_popup_html, cleanup_console_report, report_cleanup_failure
@@ -28,7 +31,7 @@ _Generated: 2026-08-23_
 
 ### `slots/_preferences.py` — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - `class PreferencesMixin`
-  - methods: cmb004_init, cmb004, cmb005_init, cmb005, cmb006_init, cmb006, header_init, tb000
+  - methods: cmb004_init, cmb004, cmb005_init, cmb005, cmb006_init, cmb006, header_init, tb000, b011
 
 ### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - `class RenderingMixin`
@@ -59,7 +62,7 @@ _Generated: 2026-08-23_
   - methods: selected_objects, active_object, effective_fps, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
 
 ### `slots/blender/animation.py`
-- `class Animation(SlotsBlender)`
+- `class Animation(AnimationMixin, SlotsBlender)`
   - methods: list000_init, list000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb009_init, tb009, tb010_init, tb010, tb002_init, tb002, tb004_init, tb004, tb005_init, tb005, tb013_init, tb013, tb007_init, tb007, tb008_init, tb008, tb006_init, tb006, tb012_init, tb012, tb018_init, tb018, tb014_init, tb014, tb017_init, tb017, b005, tb011_init, tb011, tb016_init, tb016, tb019_init, tb019, tb015_init, tb015, tb020, b000, b004
 
 ### `slots/blender/blender.py`
@@ -132,7 +135,7 @@ _Generated: 2026-08-23_
 
 ### `slots/blender/preferences.py`
 - `class Preferences(PreferencesMixin, SlotsBlender)`
-  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010, b011
+  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010
 
 ### `slots/blender/rendering.py`
 - `class Rendering(RenderingMixin, SlotsBlender)`
@@ -179,7 +182,7 @@ _Generated: 2026-08-23_
   - methods: require_selection
 
 ### `slots/maya/animation.py`
-- `class Animation(SlotsMaya)`
+- `class Animation(AnimationMixin, SlotsMaya)`
   - methods: list000_init, list000, b006, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, tb010_init, tb010, tb011_init, tb011, tb013_init, tb013, tb014_init, tb014, tb015_init, tb015, tb016_init, tb016, tb017_init, tb017, tb012_init, tb012, tb018_init, tb018, tb019_init, tb019, tb020, b000, b004, b005
 
 ### `slots/maya/arnold.py`
@@ -318,7 +321,7 @@ _Generated: 2026-08-23_
 
 ### `slots/maya/preferences.py`
 - `class Preferences(PreferencesMixin, SlotsMaya)`
-  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b011, b009, b010
+  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010
 
 ### `slots/maya/render.py`
 - `class Render(SlotsMaya)`

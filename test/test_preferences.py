@@ -18,6 +18,7 @@ b002 was briefly reused 2026-07-04 for a "Match Style" push-button, then that wa
 replaced the same day by the cmb003 combo — a theme selector mirroring the app's
 native theme dropdown. See Preferences.cmb003 here and in slots/blender/preferences.py.)
 """
+
 import ast
 import os
 import unittest
@@ -70,9 +71,7 @@ class TestCmb001SetLinearUnit(unittest.TestCase):
         )
         self._orig = cmds.currentUnit
         self.calls = []
-        cmds.currentUnit = lambda **kw: (
-            self.calls.append(kw) or None
-        )
+        cmds.currentUnit = lambda **kw: self.calls.append(kw) or None
 
     def tearDown(self):
         cmds.currentUnit = self._orig
@@ -132,7 +131,9 @@ class _FakeCombo:
         self.current_index = None
 
     def add(self, mapping):
-        self.items = list(mapping.values())  # data values, matching the real ComboBox.items
+        self.items = list(
+            mapping.values()
+        )  # data values, matching the real ComboBox.items
 
     def setCurrentIndex(self, i):
         self.current_index = i
@@ -163,21 +164,29 @@ class TestCmb003StyleSelector(unittest.TestCase):
         # Tokens deliberately DIFFER from display names (as Blender's real filepath tokens do) so
         # this pins that .items holds tokens, not labels, even though nothing gets auto-selected.
         orig_list = mtk.StyleSetter.list_templates
-        mtk.StyleSetter.list_templates = staticmethod(lambda: {"Maya": "tok_maya", "Blender": "tok_blender"})
+        mtk.StyleSetter.list_templates = staticmethod(
+            lambda: {"Maya": "tok_maya", "Blender": "tok_blender"}
+        )
         try:
             widget = _FakeCombo()
             self.instance.cmb003_init(widget)
         finally:
             mtk.StyleSetter.list_templates = orig_list
-        self.assertEqual(widget.items, ["tok_maya", "tok_blender"])  # .items are DATA tokens
-        self.assertIsNone(widget.current_index)  # no auto-select — mirrors the native dropdown
+        self.assertEqual(
+            widget.items, ["tok_maya", "tok_blender"]
+        )  # .items are DATA tokens
+        self.assertIsNone(
+            widget.current_index
+        )  # no auto-select — mirrors the native dropdown
 
     def test_select_forwards_token_to_apply_template(self):
         import mayatk as mtk
 
         calls = []
         orig = mtk.StyleSetter.apply_template
-        mtk.StyleSetter.apply_template = staticmethod(lambda token, **kw: calls.append(token))
+        mtk.StyleSetter.apply_template = staticmethod(
+            lambda token, **kw: calls.append(token)
+        )
         try:
             self.instance.cmb003(1, _FakeCombo(current_data="Blender"))
         finally:
@@ -323,7 +332,9 @@ class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
     """
 
     def _bases(self, dcc):
-        tree = ast.parse((SLOTS_DIR / dcc / "preferences.py").read_text(encoding="utf-8"))
+        tree = ast.parse(
+            (SLOTS_DIR / dcc / "preferences.py").read_text(encoding="utf-8")
+        )
         cls = next(
             c
             for c in ast.walk(tree)
@@ -591,6 +602,51 @@ class TestUnavailableToolsPolicy(unittest.TestCase):
         self.slots.cmb006_init(widget)
         self.assertEqual(widget.count(), count)
         self.assertEqual(widget.currentData(), "show")
+
+
+class TestPreferencesForksSupplyTheEngine(unittest.TestCase):
+    """Each fork hands the mixin its macro engine — read via AST so neither DCC
+    needs to be importable.
+
+    ``b011`` (Macro Manager) is the mixin's, parameterised by that one attribute;
+    a fork that stopped setting it would open the wrong engine's editor, or none.
+    """
+
+    ENGINES = {"maya": "mtk.Macros", "blender": "btk.Macros"}
+
+    def _class(self, dcc):
+        tree = ast.parse(
+            (SLOTS_DIR / dcc / "preferences.py").read_text(encoding="utf-8")
+        )
+        return next(
+            c
+            for c in ast.walk(tree)
+            if isinstance(c, ast.ClassDef) and c.name == "Preferences"
+        )
+
+    def test_each_fork_sets_the_macros_engine(self):
+        for dcc, engine in self.ENGINES.items():
+            with self.subTest(dcc=dcc):
+                assigns = {
+                    t.id: ast.unparse(n.value)
+                    for n in self._class(dcc).body
+                    if isinstance(n, ast.Assign)
+                    for t in n.targets
+                    if isinstance(t, ast.Name)
+                }
+                self.assertEqual(assigns.get("macros"), engine)
+
+    def test_no_fork_keeps_its_own_macro_manager_slot(self):
+        """``b011`` moved into the mixin (it only differed by engine); a fork
+        re-defining it would shadow the shared one and drift."""
+        for dcc in self.ENGINES:
+            with self.subTest(dcc=dcc):
+                names = {
+                    n.name
+                    for n in self._class(dcc).body
+                    if isinstance(n, ast.FunctionDef)
+                }
+                self.assertNotIn("b011", names)
 
 
 if __name__ == "__main__":

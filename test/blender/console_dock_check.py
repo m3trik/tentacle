@@ -190,6 +190,16 @@ def _measure():
             f"parent={parent_now} ghost={hwnd}",
         )
 
+        # QtDock(area_header=False): the write was a silent no-op under the old override
+        # (bpy 5.1 measured) — the placeholder Info Log header sat above the console. Now
+        # assigned bare, deferred a tick when the area_split left the context windowless.
+        space = inst._dock.area.spaces.active if inst._dock.area is not None else None
+        _ck(
+            "docked area's native header is hidden (area_header=False took effect)",
+            space is not None and space.show_region_header is False,
+            f"show_region_header={getattr(space, 'show_region_header', None)}",
+        )
+
         actual = _child_rect_in_parent_client(child, hwnd)
         region = inst._dock.content_region()
         base = BlenderWindow.region_client_rect(hwnd, region) if region else None

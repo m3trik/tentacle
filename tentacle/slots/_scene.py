@@ -75,18 +75,123 @@ class SceneMixin:
     #: so the combo is "the portable three plus the other DCC" on either side and the
     #: dispatch below is shared. ``"glb"`` matches ``SceneExporter``'s own
     #: ``output_format`` vocabulary — one word for the same thing in both engines.
-    EXPORT_FORMATS = (("FBX", "fbx"), ("OBJ", "obj"), ("GLB", "glb"))
+    EXPORT_FORMATS = (("FBX", "fbx"), ("OBJ", "obj"), ("GLB", "glb"), ("USD", "usd"))
     #: Output extension per portable format (``"foreign"`` resolves from the bridge).
-    EXPORT_EXTENSIONS = {"fbx": ".fbx", "obj": ".obj", "glb": ".glb"}
+    EXPORT_EXTENSIONS = {"fbx": ".fbx", "obj": ".obj", "glb": ".glb", "usd": ".usd"}
+    #: ``(label, data)`` for the Transfer-via combo: the carrier a scene hand-off
+    #: travels as (the foreign export and the Import <other DCC> Scene pull).
+    #: pythontk's carrier vocabulary verbatim -- the bridges refuse any other.
+    EXPORT_TRANSFER_ITEMS = tuple(
+        (carrier.upper(), carrier) for carrier in ptk.CARRIER_EXTENSIONS
+    )
+    #: The Export Scene option box's combo objectNames. ``cmb_export_format`` was
+    #: ``cmb_format`` until USD was inserted in front of the foreign twin: uitk
+    #: persists a combo by INDEX, so the rename orphans a stored "Blend"/"MA"
+    #: choice rather than silently turning it into "USD" (the Reference Manager's
+    #: ``cmb_conversion_route`` precedent).
+    EXPORT_FORMAT_COMBO = "cmb_export_format"
+    EXPORT_TRANSFER_COMBO = "cmb_transfer"
     #: Combo label for the OTHER DCC's native format — "Blend" / "MA" per fork.
     FOREIGN_FORMAT_LABEL = "Foreign"
+    #: ``(label, data)`` for the Export Scene scope combo. Selected Only LEADS — the
+    #: leading item is what an unconfigured option box shows, and the export people
+    #: reach for by reflex is the current selection, not the whole scene.
+    EXPORT_SCOPE_ITEMS = (("Selected Only", "selected"), ("Entire Scene", "all"))
+    #: ``(label, data)`` for the save-location combo. Alongside Scene File leads, so
+    #: the default route is the no-prompt one the button labels "Quick".
+    EXPORT_SAVE_ITEMS = (
+        ("Alongside Scene File", "scene_dir"),
+        ("Prompt for File", "prompt"),
+    )
+    #: The button label's scope word, per ``cmb_scope`` data value.
+    EXPORT_SCOPE_LABELS = {"all": "Scene", "selected": "Sel"}
+    #: The save mode that writes without asking — the one the label marks "Quick".
+    EXPORT_QUICK_SAVE_MODE = "scene_dir"
 
     def _export_format_items(self):
-        """``[(label, data), ...]`` for the ``cmb_format`` combo, foreign twin last."""
+        """``[(label, data), ...]`` for the format combo, foreign twin last."""
         return [*self.EXPORT_FORMATS, (self.FOREIGN_FORMAT_LABEL, "foreign")]
 
+    def _transfer_carrier(self, menu=None) -> str:
+        """The Transfer-via choice (``"fbx"`` / ``"usd"``) off the Export Scene
+        option box -- *menu* when the caller holds it, else the panel's own
+        ``tb003`` (the Import list's pull entries share the setting); ``"fbx"``
+        before the option box exists."""
+        if menu is None:
+            widget = getattr(getattr(self, "ui", None), "tb003", None)
+            menu = getattr(getattr(widget, "option_box", None), "menu", None)
+        combo = getattr(menu, self.EXPORT_TRANSFER_COMBO, None)
+        return (combo.currentData() if combo is not None else None) or "fbx"
+
+    def _export_button_text(self, scope, save_mode, format_label) -> str:
+        """The Export button's label, spelled out from the options it will run with.
+
+        "Quick Export Sel GLB", "Export Scene FBX" — the entry names its own outcome
+        instead of hiding it behind a gear icon, which matters most on the marking
+        menu where the button is a one-click commit. *Quick* marks the no-prompt
+        route (``scene_dir`` writes straight beside the scene; ``prompt`` stops to
+        ask, so it is not quick). The suffix is the format combo's own LABEL, not its
+        data value, so the foreign twin reads "Blend" / "MA" per fork for free.
+        """
+        prefix = "Quick " if save_mode == self.EXPORT_QUICK_SAVE_MODE else ""
+        scope_label = self.EXPORT_SCOPE_LABELS.get(
+            scope, self.EXPORT_SCOPE_LABELS["selected"]
+        )
+        return " ".join(p for p in (f"{prefix}Export", scope_label, format_label) if p)
+
+    def _default_export_button_text(self) -> str:
+        """The label for the option defaults — each combo's LEADING item.
+
+        ``list002_init`` needs a ``setText`` before the option box exists (registering
+        the widget is what runs ``tb003_init``), and a hardcoded one would drift from
+        the combos. Built off the same tables the combos are, so it cannot.
+        """
+        return self._export_button_text(
+            self.EXPORT_SCOPE_ITEMS[0][1],
+            self.EXPORT_SAVE_ITEMS[0][1],
+            self.EXPORT_FORMATS[0][0],
+        )
+
+    def _wire_export_options(self, widget):
+        """Keep the Export button's label and the scene-only toggles in step.
+
+        Both forks build the same option box under the same objectNames (the
+        cross-DCC QSettings rule), so this wiring is shared rather than duplicated
+        per fork.
+
+        Cameras and lights are scene-level categories: in Selected Only mode they
+        would export only if explicitly selected, so the "include all" intent does
+        not apply. That half is uitk's declarative dependency rule rather than a
+        closure of our own — ``enable_when`` re-applies on late registration and on
+        a preset load applied with signals blocked, neither of which a plain signal
+        connection sees. Skins are intrinsic to the selected mesh, so no rule.
+
+        The label is its text sibling: derived from ALL THREE combos, not just the
+        scope, so the entry always reads as what a click will do. The format combo
+        opts out of the default reader — its items carry data, and the button wants
+        to say "FBX", not "fbx"; reading the combo's own label is also what makes
+        the foreign twin read "Blend" / "MA" per fork with no table here.
+        """
+        menu = widget.option_box.menu
+        self.sb.enable_when(menu, "chk_cameras,chk_lights", "cmb_scope", "all")
+        # The carrier is deliberately NOT gated on the export format. It lives on
+        # this option box, but three of its four readers never look at that combo:
+        # the Export list's foreign one-shot (:_export_foreign_scene) and both
+        # Import <other DCC> Scene entries, which share the setting through
+        # _transfer_carrier()'s panel-read fallback. Gating it on "foreign" left it
+        # disabled at the default format (FBX), so the USD pull route its own
+        # tooltip advertises was unreachable without switching the export format to
+        # Blend / MA first -- a detour with no relationship to importing.
+        self.sb.text_from(
+            menu,
+            widget,
+            ["cmb_scope", "cmb_save", self.EXPORT_FORMAT_COMBO],
+            self._export_button_text,
+            value={self.EXPORT_FORMAT_COMBO: lambda w: w.currentText()},
+        )
+
     def _export_extension(self, export_format: str) -> str:
-        """Output extension for a ``cmb_format`` data value.
+        """Output extension for a format-combo data value.
 
         The foreign one comes off the bridge rather than a second table here: it is
         already declared there (``save_extensions``), and two lists of the same fact
@@ -156,7 +261,7 @@ class SceneMixin:
         related surface's store on change (``MainWindow.sync_widget_values``).
         """
         menu = widget.option_box.menu
-        export_format = menu.cmb_format.currentData()
+        export_format = getattr(menu, self.EXPORT_FORMAT_COMBO).currentData()
         selection_only = menu.cmb_scope.currentData() == "selected"
         options = {
             "selection_only": selection_only,
@@ -190,7 +295,9 @@ class SceneMixin:
             # multi-second app launch, not a DCC-side write, so it does not belong
             # under the progress context below.
             result = self._run_foreign_export(
-                out_path, self._selected_objects() if selection_only else None
+                out_path,
+                self._selected_objects() if selection_only else None,
+                carrier=self._transfer_carrier(menu),
             )
             if result:
                 self.sb.message_box(
@@ -219,8 +326,12 @@ class SceneMixin:
         self.sb.message_box(f"Exported <hl>{ptk.format_path(out_path, 'file')}</hl>.")
 
     # ------------------------------------------------ export: the foreign format
-    def _run_foreign_export(self, out_path, objects=None):
+    def _run_foreign_export(self, out_path, objects=None, carrier: str = "fbx"):
         """Run the blocking bridge hand-off; return its result dict, or ``None``.
+
+        *carrier* is the intermediate the hand-off travels as (``"fbx"`` /
+        ``"usd"`` -- the option box's Transfer-via choice); the bridge refuses
+        what its target cannot read, and USD refuses an instanced selection.
 
         Blocking by nature — a fresh headless target app starts up, imports the
         exported FBX and saves — so a wait cursor covers the run and the destination
@@ -234,7 +345,7 @@ class SceneMixin:
         qapp = self.sb.QtWidgets.QApplication
         qapp.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            result = bridge.save_as(out_path, objects)
+            result = bridge.save_as(out_path, objects, params={ptk.CARRIER_PARAM: carrier})
         except Exception as error:
             self.sb.message_box(f"Export to {app} failed: <hl>{error}</hl>")
             return None
@@ -274,7 +385,7 @@ class SceneMixin:
         )
         if not dest:
             return
-        result = self._run_foreign_export(dest)
+        result = self._run_foreign_export(dest, carrier=self._transfer_carrier())
         if result:
             self.sb.message_box(
                 f"Exported <hl>{ptk.format_path(result['output'], 'file')}</hl> "

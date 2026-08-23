@@ -19,13 +19,19 @@ DEFAULT_INCLUDE = {
     # Per-panel shared mixins (slots/_<panel>.py). Registered so a concrete panel
     # pulls its mixin and its DCC base from ONE package-namespace import
     # (``from tentacle import SceneMixin, SlotsMaya``) instead of two deep module
-    # paths. They are deliberately NOT folded into the DCC bases: every mixin
-    # defines widget-named slot methods (SceneMixin.tb002, MaterialsMixin.b003,
-    # PreferencesMixin.cmb004/cmb005), and those objectNames are reused across
-    # panels — 12 .ui files carry a ``tb002``, only 8 Maya slot files define one.
-    # Inherited from a shared base, the panels that DON'T define their own would
-    # silently bind their widget to another panel's slot. Mixing in per panel keeps
-    # each name owned by exactly the panels that opted in.
+    # paths. They are deliberately NOT folded into the DCC bases: nearly every
+    # mixin defines widget-named slot methods (SceneMixin.tb002,
+    # MaterialsMixin.b003, PreferencesMixin.cmb004/cmb005), and those
+    # objectNames are reused across panels — 12 .ui files carry a ``tb002``,
+    # only 8 Maya slot files define one. Inherited from a shared base, the
+    # panels that DON'T define their own would silently bind their widget to
+    # another panel's slot. Mixing in per panel keeps each name owned by exactly
+    # the panels that opted in.
+    # AnimationMixin is the exception: it carries only the tooltip text its two
+    # forks say identically and defines NO widget-named names, so it could not
+    # capture a widget even from a shared base. It is registered here anyway so
+    # its panels import it the same way as every other.
+    "slots._animation": "AnimationMixin",
     "slots._edit": "EditMixin",
     "slots._hud_warnings": "HudWarningsMixin",
     "slots._lighting": "LightingMixin",

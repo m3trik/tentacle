@@ -16,8 +16,11 @@ pinning at this layer:
   routing across move/scale/rotate contexts.
 """
 import unittest
+from pathlib import Path
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+
+ROOT = Path(__file__).resolve().parent.parent
 
 cmds = maya_module("maya.cmds")
 transform_module = maya_module("tentacle.slots.maya.transform")
@@ -66,6 +69,93 @@ class _RecordedSb:
     def message_box(self, *args, **kwargs):
         self.messages.append((args, kwargs))
 
+
+class TestSelfLabellingButtonsWireToTheOptionBoxMenu(unittest.TestCase):
+    """tb003 (Constrain) / tb004 (Snap) rename themselves from their own checkboxes.
+
+    DCC-free source pins, because the failure they guard has no exception to catch.
+    Both forks used to hand-wire this and both got it wrong: the connection named
+    ``widget.menu`` while the checkboxes were added to ``widget.option_box.menu``,
+    and those are two different Menus by design (uitk's option box deliberately does
+    not reuse the ``MenuMixin`` context menu). ``connect_multi`` resolves its pattern
+    against whatever menu it is handed and iterates the result, so an empty
+    resolution connected nothing and warned about nothing — the button simply kept
+    whatever text it was last given. Probed live offscreen to be sure:
+    ``PushButton().menu is not PushButton().option_box.menu``, and a checkbox added
+    to the option box is absent from the context menu.
+
+    Both are now ``sb.text_from`` rules, which take the menu as an explicit argument
+    and apply at wire time by construction — so what is pinned here is that neither
+    fork drifts back to hand-wiring. The rule's own behaviour is uitk's
+    (``test_switchboard_toggle.TestTextFrom``), including the warning a rule now
+    raises when it resolves nothing against a container that can never deliver more
+    — the diagnostic whose absence let this survive.
+
+    The third defect, Snap's ``get_items("CheckBox")`` (a type NAME resolved against
+    QtWidgets, so it matched nothing and filtered every item out), has no pin here:
+    the migration removed the state read entirely, so a pin would assert the absence
+    of a string this code can no longer produce. It is guarded where it can actually
+    recur — ``Menu.get_items`` now reports an unresolvable type name
+    (``test_menu.TestMenuGetItems``).
+    """
+
+    FORKS = (
+        ROOT / "tentacle" / "slots" / "maya" / "transform.py",
+        ROOT / "tentacle" / "slots" / "blender" / "transform.py",
+    )
+
+    #: Wrapping is a formatter's business, so the source is matched with every run
+    #: of whitespace flattened AND the padding inside parens removed — the same call
+    #: reads identically whether ruff kept it on one line or split it. The MENU is
+    #: matched only in the negative: pinning the positive spelling would fail the
+    #: moment a fork adopts the panel-wide ``m = widget.option_box.menu`` idiom.
+    CONTEXT_MENU = "widget.menu"
+    RULE = "text_from("
+    #: Self-labelling buttons per fork: Maya has Constrain + Snap, Blender Constrain.
+    EXPECTED = {"maya": 2, "blender": 1}
+    #: Same forks, addressable by name for the per-fork assertions below.
+    FORKS_BY_NAME = {p.parent.name: p for p in FORKS}
+
+    @staticmethod
+    def _flat(path):
+        flat = " ".join(path.read_text(encoding="utf-8").split())
+        return flat.replace("( ", "(").replace(" )", ")")
+
+    def test_each_fork_declares_every_self_labeller_as_a_rule(self):
+        for path in self.FORKS:
+            with self.subTest(fork=path.name):
+                expected = self.EXPECTED[path.parent.name]
+                self.assertEqual(self._flat(path).count(self.RULE), expected)
+
+    def test_no_fork_hand_wires_a_label_off_the_context_menu(self):
+        for path in self.FORKS:
+            with self.subTest(fork=path.name):
+                flat = self._flat(path)
+                for call in ("connect_multi(", "text_from("):
+                    self.assertFalse(
+                        call + self.CONTEXT_MENU in flat,
+                        f"{path.name}: {call}{self.CONTEXT_MENU} — that is the "
+                        "MenuMixin context menu, an empty Menu here, so the wiring "
+                        "binds nothing",
+                    )
+
+
+    def test_no_constraint_checkbox_is_seeded_from_a_literal(self):
+        """Every Constrain box must be seeded from the HOST, not a constant.
+
+        A self-labelling button derives its text from these three, so a hardcoded
+        seed makes the label lie about the scene: "Make Live" was literal True, so
+        a fresh Maya with no constraint and nothing live still read "Constrain: ON",
+        and could not read OFF until the box was toggled by hand. The Blender fork
+        reads real state for all three; this pins that Maya does too.
+        """
+        flat = self._flat(self.FORKS_BY_NAME["maya"])
+        for name in ("chk024", "chk025", "chk026"):
+            seed = flat.split(f'("{name}", "', 1)[1].split(")", 1)[0]
+            self.assertFalse(
+                seed.rstrip().endswith("True") or seed.rstrip().endswith("False"),
+                f"{name} is seeded from a literal ({seed!r}) rather than the host",
+            )
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb002FreezeConnectionStrategy(unittest.TestCase):
