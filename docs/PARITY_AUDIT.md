@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 221, Blender 223 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **86%** (390/454) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1040/1894 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1041/1895 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 55% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -28,7 +28,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 162 | 73 | 51 | 31% |
 | display_utils | 38 | 43 | 18 | 47% |
-| edit_utils | 168 | 172 | 119 | 71% |
+| edit_utils | 169 | 173 | 120 | 71% |
 | env_utils | 421 | 280 | 210 | 50% |
 | light_utils | 62 | 59 | 34 | 55% |
 | mat_utils | 297 | 244 | 211 | 71% |
@@ -39,7 +39,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 72 | 86 | 32 | 44% |
 | uv_utils | 94 | 93 | 72 | 77% |
 | xform_utils | 78 | 35 | 29 | 37% |
-| **TOTAL (unique)** | **1894** | **1420** | **1040** | **55%** |
+| **TOTAL (unique)** | **1895** | **1421** | **1041** | **55%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -76,7 +76,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | TexturePathEditor | 7→5 ⚠ | 33→27 | 1→1 | 2276→1473 | 65% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 535→371 | 69% | 100% | clean |
-| LightmapBaker | 3→3 | 5→4 | 8→8 | 2369→1713 | 72% | 100% | clean |
+| LightmapBaker | 3→3 | 5→4 | 8→8 | 2402→1713 | 71% | 100% | clean |
 | HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3122→2395 | 77% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 350→287 | 82% | 100% | clean |
 | ShotSequencer | 1→1 | 15→15 | 2→2 | 3074→2601 | 85% | 100% | clean |
@@ -93,7 +93,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | ShotManifest | 2→2 | 7→7 | 5→5 | 2018→2017 | 100% | 100% | clean |
 | Shots | 4→4 | 5→5 | 14→14 | 955→961 | 101% | 100% | clean |
 | DuplicateLinear | 0→0 | 3→3 | 7→7 | 337→345 | 102% | 100% | clean |
-| Naming | 13→13 | 20→20 | 6→6 | 762→782 | 103% | 100% | clean |
+| Naming | 13→13 | 21→21 | 6→6 | 915→934 | 102% | 100% | clean |
 | SmartBake | 0→0 | 4→3 | 11→10 | 298→310 | 104% | 91% | clean |
 | SubstanceBridge | 0→0 | 0→0 | 2→2 | 307→326 | 106% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 270→289 | 107% | 100% | clean |
