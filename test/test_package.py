@@ -210,6 +210,10 @@ class TestGreeting(unittest.TestCase):
         # assertion failing rather than as the spawn being nonsense. mayapy ships
         # beside maya.exe, so the check keeps its coverage under every entry
         # point instead of skipping the one where a stray print is most likely.
+        if not sys.executable:
+            # Embedded interpreters can leave this empty, and Path("") has no
+            # name to substitute -- with_name() would raise ValueError here.
+            self.skipTest("sys.executable is empty; nothing to spawn")
         exe = Path(sys.executable)
         if not exe.stem.lower().startswith("python"):
             mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
