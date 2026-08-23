@@ -205,8 +205,10 @@ CONTROLS = {
         # ship under the SAME objectName as mayatk (verified against the current file), not the
         # "btn_reveal_hdr"/"btn_open_folder" names these entries claimed; no divergence to ledger.
     },
-    # naming_slots: fully 1:1 as of 2026-08-22 — both panels build the same header (cmb_scope
-    # Selection/Scene/Directory/Files + chk_dry_run), output pane (txt002) and the 19 suffix-by-type
+    # naming_slots: fully 1:1 as of 2026-08-23 — both panels build the same header (cmb_scope
+    # Selection/Scene/Directory/Files + chk_base_names + chk_dry_run), the same footer Apply button
+    # (armed by a dry run, hidden otherwise) from a byte-identical _run/_arm_apply block,
+    # output pane (txt002) and the 19 suffix-by-type
     # fields from an identical literal SUFFIX_GROUPS table (tb003_txt000..018, same objectNames).
     # Ten of those fields name Maya node kinds with no Blender *object* type (IK handle, constraint,
     # cluster, skin cluster, blend shape, material, shading group, texture, display layer, set);

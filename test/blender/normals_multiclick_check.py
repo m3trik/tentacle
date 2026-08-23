@@ -57,7 +57,7 @@ def _finish(tb=None):
         except Exception:
             pass
         try:
-            with open(tb._ClickDebugger.path, encoding="utf-8") as f:
+            with open(tb._ClickDebugger.log_path(), encoding="utf-8") as f:
                 tail = f.read().splitlines()[-50:]
             _log("\n--- tentacle_click_debug.log (tail) ---")
             for ln in tail:

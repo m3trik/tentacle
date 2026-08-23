@@ -50,7 +50,7 @@ jobs:
 
           # Exact-membership check: publish only if THIS version is absent
           # from PyPI. (Comparing against the latest release only re-entered
-          # the publish path — and re-fired the bump_dev/registry dispatches —
+          # the publish path — and re-fired the registry dispatch —
           # whenever main held an older-but-published version. A transient
           # network failure falls through to publish=true, which is safe:
           # twine --skip-existing dedupes the upload.)
@@ -97,15 +97,6 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: python -m twine upload dist/* --skip-existing
       
-      - name: Trigger dev bump
-        if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.REPO_DISPATCH_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"bump_dev","client_payload":{"package":"tentacle"}}'
-
       - name: Trigger API registry refresh
         if: steps.version.outputs.publish == 'true' && inputs.dry_run != true
         run: |

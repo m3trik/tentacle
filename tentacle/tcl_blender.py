@@ -969,7 +969,9 @@ class _KeymapBridge:
         for _km, kmi in cls.keymaps:
             try:
                 return kmi.type
-            except Exception:  # item removed underneath us (add-on reload, keyconfig reset)
+            except (
+                Exception
+            ):  # item removed underneath us (add-on reload, keyconfig reset)
                 return None
         return None
 
@@ -1290,7 +1292,9 @@ class _KeymapBridge:
                 # Adopt a Preferences ▸ Keymap rebind (throttled internally).
                 cls.sync_keymap_rebind(tcl)
                 vk = cls.active_vk
-                if vk is None:  # unmappable key — the keymap items still carry activation
+                if (
+                    vk is None
+                ):  # unmappable key — the keymap items still carry activation
                     return 0.02
                 down = bool(user32.GetAsyncKeyState(vk) & 0x8000)
                 if down and not cls.key_down:
@@ -1375,7 +1379,9 @@ class _KeymapBridge:
         cls.gesture_active = False
         cls.active_vk = None
         cls.key_down = False
-        cls._last_key_scan = 0.0  # the next install's first scan must not be throttled out
+        cls._last_key_scan = (
+            0.0  # the next install's first scan must not be throttled out
+        )
         cls._declined = None
         cls.uninstall_poller()
         cls.uninstall_keymap()
@@ -1684,10 +1690,41 @@ class _ClickDebugger:
     hidden system console.
     """
 
-    path = os.path.join(os.path.expanduser("~"), "tentacle_click_debug.log")
+    #: Env override for the trace sink — an explicit (absolute or ``~``-relative) path
+    #: wins over managed scratch, for a support capture that has to land somewhere known.
+    PATH_ENV = "TENTACLE_CLICK_DEBUG_LOG"
+
+    _path = None  # resolved lazily by log_path(), never at import (it sweeps a dir)
     _fh = None
     _filter = None
     _slot_patch = None  # (orig __call__, orig _invoke) saved for restore on disable
+
+    @classmethod
+    def log_path(cls):
+        """Resolve (and cache) the trace sink — managed scratch, not the user's home.
+
+        The sink used to be a hardcoded ``~/tentacle_click_debug.log``: unmanaged, never
+        reclaimed, and growing without bound in the user's home directory across support
+        captures. It goes through ``ptk.TempArtifacts`` instead, which age-sweeps stale
+        same-prefix leftovers on allocation — so an abandoned capture is collected on a
+        later run instead of leaking forever. Tagged by pid, so two Blender sessions never
+        interleave into one file. Resolution is lazy (it allocates, which scans a directory)
+        and creates nothing: only :meth:`enable` ever opens the file.
+
+        Returns:
+            (str): Absolute path of the trace log. :attr:`PATH_ENV` overrides it.
+        """
+        if cls._path is None:
+            override = os.environ.get(cls.PATH_ENV)
+            if override:
+                cls._path = os.path.abspath(os.path.expanduser(override))
+            else:
+                import pythontk as ptk
+
+                cls._path = ptk.TempArtifacts(
+                    "tentacle_click_debug", policy="detached"
+                ).path(extension=".log", name=str(os.getpid()))
+        return cls._path
 
     @staticmethod
     def _widget_id(w):
@@ -1833,13 +1870,21 @@ class _ClickDebugger:
     @classmethod
     def enable(cls):
         """Turn on click tracing — run in Blender's Python Console, reproduce the multi-click, then
-        share ``~/tentacle_click_debug.log``.
+        share the log file whose path this prints (see :meth:`log_path`).
 
         Installs an application-wide mouse-event observer (logs every press/release with the target
         widget, ``widgetAt``, grab owner, active window, foreground, and ``_activation_key_held``).
-        :meth:`disable` removes it."""
+        :meth:`disable` removes it.
+
+        Returns:
+            (str): The path being written to.
+        """
+        target = cls.log_path()
         if cls._fh is None:
-            cls._fh = open(cls.path, "a", buffering=1, encoding="utf-8")
+            parent = os.path.dirname(target)
+            if parent:
+                os.makedirs(parent, exist_ok=True)
+            cls._fh = open(target, "a", buffering=1, encoding="utf-8")
         cls._write(
             f"\n===== click-debug enabled pid={os.getpid()} t={time.time():.3f} ====="
         )
@@ -1849,10 +1894,10 @@ class _ClickDebugger:
             app.installEventFilter(cls._filter)
         cls._install_slot_trace()  # also trace whether each click's slot actually runs
         print(
-            f"tentacle: click debugging ON\n  {cls.path}\n"
+            f"tentacle: click debugging ON\n  {target}\n"
             "Reproduce the multi-click, then disable_click_debug()."
         )
-        return cls.path
+        return target
 
     @classmethod
     def disable(cls):
@@ -1958,9 +2003,7 @@ class Diagnostics:
                     Tcl.resolve_key(_Config.ACTIVATION_KEY, {"blender"})
                 ),
             )
-            shadow_note = (
-                f" (shadowing {shadowed} while installed)" if shadowed else ""
-            )
+            shadow_note = f" (shadowing {shadowed} while installed)" if shadowed else ""
             verdict = (
                 f"LIKELY WORKING: '{key}' is bound in the 3D View keymap{shadow_note}. Hover the "
                 "3D viewport and press it. If render still opens, set tcl_blender._Config.DEBUG="
@@ -2001,6 +2044,7 @@ class BlenderHost:
         so unregister→register builds fresh. ``**kwargs`` are forwarded to ``TclBlender`` (e.g.
         ``key_show``, ``log_level``) and only take effect when a new instance is built.
         """
+        Tcl.banner()  # no-op when Tcl.launch already bannered (once-per-process latch)
         app = _QtHost.ensure_qapp()
         _QtHost.ensure_widget(app)
         _QtHost.start_pump(app)
