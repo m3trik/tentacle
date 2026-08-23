@@ -29,6 +29,7 @@ as the extra resolver and no second table can drift — :meth:`Tcl.declared_dist
 straight back out of the installed metadata, and :meth:`Tcl.engine_install_hint` turns a missing
 engine into the exact pip line that fixes it.
 """
+
 import os
 import re
 import sys
@@ -40,6 +41,13 @@ class _TclInternal:
 
     # Default activation key. Bare (no ``Key_`` prefix) — normalized by ``qt_key_name``.
     DEFAULT_KEY = "Z"
+
+    #: Startup banner issued by ``Tcl.banner()`` on the launch path (see ``banner``).
+    BANNER = "Good {hr}! You are using {modver} with {pyver}."
+
+    #: Once-per-process latch for :meth:`Tcl.banner`. Written on the base class so the
+    #: latch is shared by every subclass rather than shadowed per-subclass.
+    _BANNERED = False
 
     # host name -> the module whose importability proves we're inside that DCC. Ordered:
     # the first match wins, so a mayapy that also has a pip-installed ``bpy`` still reads as Maya.
@@ -96,7 +104,9 @@ class _TclInternal:
 
         try:
             from maya.utils import executeDeferred
-        except ImportError:  # no idle queue to defer onto — interactive but unusual; build now.
+        except (
+            ImportError
+        ):  # no idle queue to defer onto — interactive but unusual; build now.
             return build()
         executeDeferred(build)
         return None
@@ -381,7 +391,9 @@ class Tcl(_TclInternal):
             from uitk import MarkingMenu
 
             stored = MarkingMenu.stored_activation_key(context_tags)
-        except Exception:  # uitk unavailable or store unreadable — fall back to the default
+        except (
+            Exception
+        ):  # uitk unavailable or store unreadable — fall back to the default
             stored = None
         return cls.qt_key_name(stored or key_show)
 
@@ -404,6 +416,41 @@ class Tcl(_TclInternal):
         if chord_target:
             bindings[f"{key}|LeftButton|RightButton"] = chord_target
         return bindings
+
+    @classmethod
+    def banner(cls, template=None, force=False):
+        """Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.
+
+        Lives on the launch path, not at package import: ``import tentacle`` must stay
+        side-effect free (root CLAUDE.md), while an actual DCC launch is exactly the moment
+        a version/interpreter line is wanted. Never raises — a banner must not be able to
+        stop a launch.
+
+        Emits ONCE per process, which is exactly what the retired import-time call gave
+        (a module body runs once). That guard is what lets every launch entry point call
+        this unconditionally: a host entered directly (``tcl_blender.launch``) banners, and
+        the same host reached through :meth:`launch` does not banner twice.
+
+        Parameters:
+            template (str): Greeting format string. Defaults to the shipped banner. See
+                    :func:`tentacle.greeting` for the available placeholders.
+            force (bool): Re-emit even if this process already bannered.
+
+        Returns:
+            (str)(None): The formatted banner, or None if already emitted or unavailable.
+        """
+        if cls._BANNERED and not force:
+            return None
+        try:  # imported here: tcl.py is bootstrapped BY the package __init__
+            from tentacle import greeting
+
+            text = greeting(template or cls.BANNER)
+        except Exception:  # a banner must never block a launch
+            return None
+        _TclInternal._BANNERED = (
+            True  # set on the base: every subclass shares the latch
+        )
+        return text
 
     @classmethod
     def launch(cls, key_show=None, **kwargs):
@@ -431,6 +478,7 @@ class Tcl(_TclInternal):
                 f"{', '.join(cls.HOSTS.values())}). Tcl.launch() must be called from inside "
                 "Maya, Blender or 3ds Max."
             )
+        cls.banner()
         if key_show is not None:
             kwargs["key_show"] = key_show
         return getattr(cls, f"_launch_{host}")(**kwargs)

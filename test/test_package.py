@@ -194,6 +194,45 @@ class TestGreeting(unittest.TestCase):
         result = tentacle.greeting("Good {hr}!", outputToConsole=False)
         self.assertIn(result, ["Good morning!", "Good afternoon!", "Good evening!"])
 
+    def test_plain_import_prints_nothing(self):
+        """``import tentacle`` must be silent — root CLAUDE.md: "Imports: no side effects."
+
+        The banner belongs to the launch path (``Tcl.launch``), not to every consumer that
+        merely imports the package (test collectors, API-registry generators, tooling).
+        """
+        import os
+        import subprocess
+
+        # Under the --in-maya dispatcher `sys.executable` is the HOST binary
+        # (maya.exe), not an interpreter: `maya.exe -c "import tentacle"` is not
+        # a valid invocation and dies in native code -- rc 1 with an
+        # unsymbolized stack trace and no Python traceback, which reads as this
+        # assertion failing rather than as the spawn being nonsense. mayapy ships
+        # beside maya.exe, so the check keeps its coverage under every entry
+        # point instead of skipping the one where a stray print is most likely.
+        exe = Path(sys.executable)
+        if not exe.stem.lower().startswith("python"):
+            mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
+            if not mayapy.exists():
+                self.skipTest(f"no standalone interpreter beside {exe.name}")
+            exe = mayapy
+
+        env = dict(os.environ)
+        env["PYTHONPATH"] = os.pathsep.join(sys.path[1:])
+        proc = subprocess.run(
+            [str(exe), "-c", "import tentacle"],
+            capture_output=True,
+            text=True,
+            env=env,
+            cwd=str(ROOT),
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(
+            proc.stdout.strip(),
+            "",
+            "'import tentacle' wrote to stdout; imports must have no side effects.",
+        )
+
     def test_greeting_python_version(self):
         import tentacle
 

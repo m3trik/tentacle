@@ -2,8 +2,6 @@
 
 _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a name; for full signatures/docs, slice [API_REGISTRY.md](API_REGISTRY.md) (never Read it whole)._
 
-_Generated: 2026-08-23_
-
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
 
@@ -395,7 +393,7 @@ _Generated: 2026-08-23_
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, qt_key_name, resolve_key, chord_bindings, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, qt_key_name, resolve_key, chord_bindings, banner, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

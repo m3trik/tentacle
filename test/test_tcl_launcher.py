@@ -13,7 +13,9 @@ routes through it rather than re-hardcoding a fourth copy of the table.
 "maya" no matter what a test injects. Tests wanting a specific host therefore narrow ``Tcl.HOSTS``
 or stub ``host()``, and module stand-ins are real ``types.ModuleType`` objects (see ``_fake_bpy``).
 """
+
 import contextlib
+import io
 import os
 import sys
 import types
@@ -71,8 +73,9 @@ def _as_blender(bpy, entry):
     """
     import tentacle
 
-    with mock.patch.dict(sys.modules, {"bpy": bpy}), mock.patch.dict(
-        tentacle.__dict__, {"tcl_blender": entry}
+    with (
+        mock.patch.dict(sys.modules, {"bpy": bpy}),
+        mock.patch.dict(tentacle.__dict__, {"tcl_blender": entry}),
     ):
         yield
 
@@ -156,8 +159,9 @@ class TestHostDetection(unittest.TestCase):
     def test_detects_the_host_from_sys_modules(self):
         for name, probe in Tcl.HOSTS.items():
             with self.subTest(host=name):
-                with mock.patch.object(Tcl, "HOSTS", {name: probe}), mock.patch.dict(
-                    sys.modules, {probe: mock.MagicMock()}
+                with (
+                    mock.patch.object(Tcl, "HOSTS", {name: probe}),
+                    mock.patch.dict(sys.modules, {probe: mock.MagicMock()}),
                 ):
                     self.assertEqual(Tcl.host(), name)
 
@@ -172,6 +176,19 @@ class TestHostDetection(unittest.TestCase):
 class TestLaunchDispatch(unittest.TestCase):
     """``launch`` — routes to the host's entry point and forwards the caller's arguments."""
 
+    def setUp(self):
+        """Clear the once-per-process banner latch.
+
+        ``Tcl.banner`` emits once per interpreter (see its docstring). Without this reset the
+        FIRST banner test to run would latch it and every later one would assert against an
+        empty buffer — or, worse, pass vacuously because ``banner()`` returns None both when
+        it is suppressed and when it fails.
+        """
+        from tentacle.tcl import _TclInternal
+
+        self.addCleanup(setattr, _TclInternal, "_BANNERED", False)
+        _TclInternal._BANNERED = False
+
     def _launch_in(self, host, **kwargs):
         """Run launch() as if hosted by ``host``, returning the kwargs its branch received.
 
@@ -181,7 +198,10 @@ class TestLaunchDispatch(unittest.TestCase):
         """
         with mock.patch.object(Tcl, "host", classmethod(lambda cls: host)):
             with mock.patch.object(Tcl, f"_launch_{host}") as launcher:
-                Tcl.launch(**kwargs)
+                # launch() banners (see Tcl.banner) — swallow it so a dispatch
+                # test doesn't scatter greetings through the suite's output.
+                with contextlib.redirect_stdout(io.StringIO()):
+                    Tcl.launch(**kwargs)
         self.assertTrue(launcher.called, f"_launch_{host} was not called")
         return launcher.call_args.kwargs
 
@@ -201,6 +221,53 @@ class TestLaunchDispatch(unittest.TestCase):
     def test_extra_kwargs_are_forwarded(self):
         kwargs = self._launch_in("maya", key_show="Z", log_level="DEBUG")
         self.assertEqual(kwargs["log_level"], "DEBUG")
+
+    def test_launch_issues_the_startup_banner(self):
+        """The banner moved off ``import tentacle`` (imports must be side-effect free) onto
+        the launch path — so a real launch must still print it."""
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            with mock.patch.object(Tcl, "host", classmethod(lambda cls: "maya")):
+                with mock.patch.object(Tcl, "_launch_maya"):
+                    Tcl.launch()
+        self.assertIn("tentacle v", buf.getvalue())
+
+    def test_banner_never_blocks_a_launch(self):
+        """A banner failure must not stop the DCC from starting."""
+        with mock.patch.object(Tcl, "BANNER", "{no_such_placeholder}"):
+            self.assertIsNone(Tcl.banner())
+
+    def test_banner_emits_once_per_process(self):
+        """The retired ``import tentacle`` call ran once per interpreter; the latch reproduces
+        that, which is what lets every entry point call ``banner()`` unconditionally."""
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            first = Tcl.banner()
+            second = Tcl.banner()
+        self.assertIsNotNone(first, "the first call must emit")
+        self.assertIsNone(second, "the second call must be suppressed")
+        self.assertEqual(buf.getvalue().count("You are using"), 1)
+
+    def test_banner_force_overrides_the_latch(self):
+        Tcl.banner()
+        with contextlib.redirect_stdout(io.StringIO()) as buf:
+            self.assertIsNotNone(Tcl.banner(force=True))
+        self.assertIn("You are using", buf.getvalue())
+
+    def test_blender_addon_entry_banners_without_going_through_launch(self):
+        """Blender's add-on contract requires module-scope entries, so ``tcl_blender.launch``
+        is reachable WITHOUT ``Tcl.launch`` — the path the in-repo console harness drives
+        (test/blender/console_dock_check.py asserts the banner reaches the captured console).
+        Pinned by source because constructing the Qt host needs a live Blender."""
+        src = (PKG / "tcl_blender.py").read_text(encoding="utf-8")
+        launch_body = src.split("    def launch(**kwargs):", 1)[1].split(
+            "    @staticmethod", 1
+        )[0]
+        self.assertIn(
+            "Tcl.banner()",
+            launch_body,
+            "BlenderHost.launch must banner: it is an entry point in its own right",
+        )
 
     def test_no_host_raises_with_a_usable_message(self):
         with mock.patch.object(Tcl, "host", classmethod(lambda cls: None)):
@@ -244,7 +311,9 @@ class TestDefaultKeyUpgradePath(unittest.TestCase):
         from uitk.widgets.marking_menu._marking_menu import MarkingMenu
         from uitk.widgets.marking_menu._resolver import MenuResolver
 
-        stored = Tcl.chord_bindings("F12", "maya#startmenu")  # an older default, persisted
+        stored = Tcl.chord_bindings(
+            "F12", "maya#startmenu"
+        )  # an older default, persisted
         defaults = Tcl.chord_bindings(Tcl.DEFAULT_KEY, "maya#startmenu")
 
         merged = MarkingMenu._reconcile_bindings(defaults, stored)
@@ -424,7 +493,9 @@ class TestBlenderKeyTranslation(unittest.TestCase):
             with mock.patch("tentacle.tcl_blender.sys.platform", "linux"):
                 bridge.rebind(None, "Key_Z")
             self.assertEqual(item.type, "Z")  # the keymap half still moved
-            self.assertIsNone(bridge.active_vk)  # the Windows-only half declined cleanly
+            self.assertIsNone(
+                bridge.active_vk
+            )  # the Windows-only half declined cleanly
         finally:
             bridge.keymaps, bridge.active_vk, bridge.key_down = before
 
@@ -687,9 +758,12 @@ class TestEngineExtras(unittest.TestCase):
         host_exe = self._fake_exe("maya.exe", "Autodesk", "Maya2025", "bin")
 
         # (a) DCC host with no sibling python — uitk declines to bless one
-        with mock.patch.object(
-            OptionalPackageManager, "pip_python", staticmethod(lambda: None)
-        ), mock.patch.object(sys, "executable", host_exe):
+        with (
+            mock.patch.object(
+                OptionalPackageManager, "pip_python", staticmethod(lambda: None)
+            ),
+            mock.patch.object(sys, "executable", host_exe),
+        ):
             hint = Tcl.engine_install_hint("maya")
         self.assertNotIn("maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
@@ -697,9 +771,12 @@ class TestEngineExtras(unittest.TestCase):
         # (b) uitk unreachable — still must not fall back to sys.executable. Not exotic:
         # pip_python imports ExternalAppHandler, which pulls qtpy, which raises with no
         # Qt binding installed (bare venv / CI).
-        with mock.patch.dict(
-            sys.modules, {"uitk.managers.optional_package_manager": None}
-        ), mock.patch.object(sys, "executable", host_exe):
+        with (
+            mock.patch.dict(
+                sys.modules, {"uitk.managers.optional_package_manager": None}
+            ),
+            mock.patch.object(sys, "executable", host_exe),
+        ):
             hint = Tcl.engine_install_hint("maya")
         self.assertNotIn("maya.exe", hint)
         self.assertIn("tentacletk[maya]", hint)
@@ -707,9 +784,12 @@ class TestEngineExtras(unittest.TestCase):
         # (c) ...but a plain `python*` interpreter IS safe to name, and should be — the
         # fallback is an allowlist, not "anything that isn't a DCC I recognise".
         venv_exe = self._fake_exe("python.exe", "venv", "Scripts")
-        with mock.patch.dict(
-            sys.modules, {"uitk.managers.optional_package_manager": None}
-        ), mock.patch.object(sys, "executable", venv_exe):
+        with (
+            mock.patch.dict(
+                sys.modules, {"uitk.managers.optional_package_manager": None}
+            ),
+            mock.patch.object(sys, "executable", venv_exe),
+        ):
             hint = Tcl.engine_install_hint("maya")
         self.assertIn(venv_exe, hint)
 
@@ -717,10 +797,13 @@ class TestEngineExtras(unittest.TestCase):
         """An unrecognised interpreter name must NOT be named. A denylist ("not one of
         the DCC binaries I know") would print the host binary of any DCC whose probe
         module failed to import — the exact command that hangs the session."""
-        with mock.patch.dict(
-            sys.modules, {"uitk.managers.optional_package_manager": None}
-        ), mock.patch.object(
-            sys, "executable", self._fake_exe("host-app.exe", "Some", "Unknown")
+        with (
+            mock.patch.dict(
+                sys.modules, {"uitk.managers.optional_package_manager": None}
+            ),
+            mock.patch.object(
+                sys, "executable", self._fake_exe("host-app.exe", "Some", "Unknown")
+            ),
         ):
             hint = Tcl.engine_install_hint("maya")
         self.assertNotIn("host-app.exe", hint)
@@ -805,9 +888,12 @@ class TestMissingEngineDiagnostic(unittest.TestCase):
                 raise error
             return real(name)
 
-        with mock.patch.object(
-            Tcl, "engine_dists", classmethod(lambda cls, host: ("mayatk",))
-        ), mock.patch.object(tcl_module.importlib, "import_module", fake):
+        with (
+            mock.patch.object(
+                Tcl, "engine_dists", classmethod(lambda cls, host: ("mayatk",))
+            ),
+            mock.patch.object(tcl_module.importlib, "import_module", fake),
+        ):
             yield
 
     def _import_maya_entry(self):

@@ -29,12 +29,33 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest qtpy PySide6
-          # --no-cache-dir + --upgrade forces a fresh resolution from PyPI
-          # for in-house deps. pip's wheel cache otherwise can return a
-          # stale upstream that lacks newly-shipped APIs.
-          pip install --no-cache-dir --upgrade pythontk uitk mayatk
-          pip install -e . --no-deps
+          # PySide6 <6.11 for the same reason uitk pins it: 6.11 segfaults during
+          # pytest cleanup on the offscreen QPA. Installed first so the editable
+          # install below keeps it (pip does not upgrade a satisfied requirement).
+          pip install pytest qtpy 'PySide6<6.11'
+          # WITH deps, in a retry loop. pip resolves the floors declared in
+          # pyproject.toml (`pythontk>=X`), so a stale PyPI CDN edge that still
+          # lists the previous release fails LOUDLY with "No matching
+          # distribution" and is retried -- instead of silently installing the
+          # old version and running this suite against code that lacks the new
+          # symbols. Measured 2026-08-23: the bare-name install resolved
+          # pythontk 0.9.28 82 s after 0.9.30 was uploaded, and the only failure
+          # was two tests importing symbols that exist only in 0.9.30.
+          # --no-cache-dir: pip's HTTP cache can hold the stale index page too.
+          for attempt in 1 2 3 4 5 6; do
+            if pip install --no-cache-dir -e ".[maya]"; then break; fi
+            if [ "$attempt" -lt 6 ]; then
+              echo "::warning::editable install attempt $attempt failed (index propagation lag?); retrying in 30s"
+              sleep 30
+            else
+              echo "::error::editable install failed after $attempt attempts"
+              exit 1
+            fi
+          done
+          # [maya] only: the [blender] extra would install blendertk, whose lazy
+          # bpy imports succeed on ubuntu and un-skip test_blender_menu_nav.py,
+          # which has never run in CI. Add it in its own PR after a headless
+          # local run of that file.
 
       - name: Compile UI files (pyside6-uic)
         # _ui.py files are gitignored build artifacts. Generate them so

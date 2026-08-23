@@ -1,13 +1,7 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ 03b23425). Generated 2026-08-23._
+_Diff vs the last release (origin/main @ a5ce2a27)._
 
-## Removed (2)
+## Added (1)
 
-- `slots/blender/preferences.py::Preferences.b011` — was `(self)`
-- `slots/maya/preferences.py::Preferences.b011` — was `(self)`
-
-## Added (2)
-
-- `slots/_animation.py::AnimationMixin(class)`
-- `slots/_preferences.py::PreferencesMixin.b011(self)`
+- `tcl.py::Tcl.banner(cls, template=None, force=False)`

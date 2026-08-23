@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.75"
+__version__ = "0.13.76"
 
 
 DEFAULT_INCLUDE = {
@@ -87,8 +87,12 @@ def greeting(string, outputToConsole=True):
 
 
 # --------------------------------------------------------------------------------------------
-
-greeting("Good {hr}! You are using {modver} with {pyver}.")
+# The startup banner is NOT issued here: ``import tentacle`` must have no side effects
+# (root CLAUDE.md), and the package is imported by test collectors, the API-registry
+# generator and other tooling that has no business printing. ``Tcl.launch`` — the
+# documented entry point for every DCC — issues it instead, so a real launch still
+# banners (and Blender's ScriptConsole capture, installed before the import, still
+# catches it: the launch call happens after).
 
 # --------------------------------------------------------------------------------------------
 # Notes
