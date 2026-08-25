@@ -5859,7 +5859,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Xray Selected.",
-              "line": 299,
+              "line": 241,
               "deprecated": false
             },
             {
@@ -5868,7 +5868,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Un-Xray All",
-              "line": 308,
+              "line": 250,
               "deprecated": false
             },
             {
@@ -5877,7 +5877,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Xray Other (uniform toggle across all non-selected shapes)",
-              "line": 313,
+              "line": 255,
               "deprecated": false
             },
             {
@@ -5886,7 +5886,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Material Override",
-              "line": 321,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -5895,7 +5895,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Component ID Display",
-              "line": 325,
+              "line": 267,
               "deprecated": false
             },
             {
@@ -5904,7 +5904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wireframe Non Active (Wireframe All But The Selected Item)",
-              "line": 329,
+              "line": 271,
               "deprecated": false
             },
             {
@@ -5913,7 +5913,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Explode View GUI",
-              "line": 335,
+              "line": 277,
               "deprecated": false
             },
             {
@@ -5922,7 +5922,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Color ID GUI",
-              "line": 339,
+              "line": 281,
               "deprecated": false
             },
             {
@@ -5931,7 +5931,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Template Selected",
-              "line": 343,
+              "line": 285,
               "deprecated": false
             },
             {
@@ -5940,7 +5940,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display UV Borders",
-              "line": 347,
+              "line": 289,
               "deprecated": false
             },
             {
@@ -5949,7 +5949,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soft Edge Display",
-              "line": 351,
+              "line": 293,
               "deprecated": false
             },
             {
@@ -5958,7 +5958,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Display Face Normals",
-              "line": 355,
+              "line": 297,
               "deprecated": false
             }
           ]
@@ -10113,7 +10113,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2154,
+          "line": 2166,
           "deprecated": false
         },
         {
@@ -10122,7 +10122,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2159,
+          "line": 2171,
           "deprecated": false
         },
         {
@@ -10131,7 +10131,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2164,
+          "line": 2176,
           "deprecated": false
         },
         {
@@ -10140,7 +10140,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2169,
+          "line": 2181,
           "deprecated": false
         },
         {
@@ -10149,7 +10149,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2174,
+          "line": 2186,
           "deprecated": false
         },
         {
@@ -10158,7 +10158,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2179,
+          "line": 2191,
           "deprecated": false
         },
         {
@@ -10167,7 +10167,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2184,
+          "line": 2196,
           "deprecated": false
         },
         {
@@ -10176,7 +10176,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2189,
+          "line": 2201,
           "deprecated": false
         },
         {
@@ -10185,7 +10185,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2194,
+          "line": 2206,
           "deprecated": false
         },
         {
@@ -10194,7 +10194,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2199,
+          "line": 2211,
           "deprecated": false
         },
         {
@@ -10203,7 +10203,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2204,
+          "line": 2216,
           "deprecated": false
         }
       ],
@@ -10211,7 +10211,7 @@
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 1397,
+          "line": 1409,
           "bases": [
             "MarkingMenu"
           ],
@@ -10222,7 +10222,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1551,
+              "line": 1563,
               "deprecated": false
             },
             {
@@ -10231,7 +10231,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1600,
+              "line": 1612,
               "deprecated": false
             },
             {
@@ -10240,7 +10240,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1631,
+              "line": 1643,
               "deprecated": false
             },
             {
@@ -10249,7 +10249,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1642,
+              "line": 1654,
               "deprecated": false
             },
             {
@@ -10258,7 +10258,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1660,
+              "line": 1672,
               "deprecated": false
             }
           ]
@@ -10266,7 +10266,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1919,
+          "line": 1931,
           "bases": [],
           "members": [
             {
@@ -10275,7 +10275,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1924,
+              "line": 1936,
               "deprecated": false
             }
           ]
@@ -10283,7 +10283,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 2032,
+          "line": 2044,
           "bases": [],
           "members": [
             {
@@ -10292,7 +10292,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 2038,
+              "line": 2050,
               "deprecated": false
             },
             {
@@ -10301,7 +10301,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 2058,
+              "line": 2070,
               "deprecated": false
             },
             {
@@ -10310,7 +10310,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 2091,
+              "line": 2103,
               "deprecated": false
             },
             {
@@ -10319,7 +10319,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2096,
+              "line": 2108,
               "deprecated": false
             }
           ]

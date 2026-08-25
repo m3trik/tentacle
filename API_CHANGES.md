@@ -1,7 +1,5 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ a5ce2a27)._
+_Diff vs the last release (origin/main @ 8cf85d6f)._
 
-## Added (1)
-
-- `tcl.py::Tcl.banner(cls, template=None, force=False)`
+No public API changes since the last release (origin/main @ 8cf85d6f).

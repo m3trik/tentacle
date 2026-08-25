@@ -152,15 +152,21 @@ class _QtBootstrap:
 
     @staticmethod
     def qt_install_dir():
-        """Where Blender's on-demand Qt deps live. Prefer Blender's *own* per-version user-modules dir
-        (``bpy.utils.user_resource('SCRIPTS', 'modules')``) — Blender creates it and already has it on
-        ``sys.path`` in a normal launch, so once installed Qt imports with no further wiring, and it's a
-        folder the user can see/clear in their Blender profile. Falls back to a non-roaming managed dir
-        when bpy isn't importable (the install itself is bpy-gated, so that branch is just the reuse-scan)."""
+        """Where Blender's on-demand Qt deps live. Prefer Blender's *own* per-version
+        ``addons/modules`` dir (``bpy.utils.user_resource('SCRIPTS', 'addons/modules')``) —
+        Blender has it on ``sys.path`` natively at TAIL precedence (after its bundled
+        site-packages), so once installed Qt imports with no further wiring and nothing
+        provisioned there can shadow a dist Blender ships. (The pre-2026-08 target was the
+        sibling ``scripts/modules``, which sits at ``sys.path`` index 0 — a copy already
+        there keeps winning imports, so existing installs stay live.) Falls back to a
+        non-roaming managed dir when bpy isn't importable (the install itself is
+        bpy-gated, so that branch is just the reuse-scan)."""
         try:
             import bpy
 
-            return bpy.utils.user_resource("SCRIPTS", path="modules", create=True)
+            return os.path.normpath(
+                bpy.utils.user_resource("SCRIPTS", path="addons/modules", create=True)
+            )
         except Exception:
             base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
             return os.path.join(
@@ -196,9 +202,9 @@ class _QtBootstrap:
         for target in (
             _Config.QT_DEPS,
             install_dir,
-        ):  # reuse a pre-staged / previously-installed dir
+        ):  # reuse a pre-staged / previously-installed dir (append: host keeps precedence)
             if target and os.path.isdir(target) and target not in sys.path:
-                sys.path.insert(0, target)
+                sys.path.append(target)
         if cls.qt_importable():
             return
         try:
@@ -218,8 +224,13 @@ class _QtBootstrap:
         try:
             os.makedirs(install_dir, exist_ok=True)
             subprocess.run([py, "-m", "ensurepip", "--upgrade"], check=False)
-            subprocess.check_call(
-                [py, "-m", "pip", "install", "--target", install_dir, "PySide6", "qtpy"]
+            # Resolver-aware, never a raw ``pip install --target``: that plans a
+            # complete standalone closure and re-downloads deps Blender already
+            # ships (this is how a shadowing ``packaging`` landed in profiles).
+            import pythontk as ptk
+
+            ptk.PackageManager(python_path=py).install_targeted(
+                ["PySide6", "qtpy"], install_dir
             )
         except Exception as error:
             print(
@@ -227,8 +238,9 @@ class _QtBootstrap:
                 "holding PySide6 + qtpy, or pip-install them into Blender's Python."
             )
             return
+        # APPEND, never insert(0): the host's bundled packages keep import precedence.
         if install_dir not in sys.path:
-            sys.path.insert(0, install_dir)
+            sys.path.append(install_dir)
 
     @classmethod
     def run(cls):
