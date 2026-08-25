@@ -28,7 +28,7 @@ Install from a command prompt, into your DCC's own Python (not a system install)
 "C:/Program Files/Blender Foundation/Blender 5.1/5.1/python/bin/python.exe" -m pip install "tentacletk[blender]"
 ```
 
-The quotes matter in bash/zsh, where `[maya]` is a glob pattern; cmd and PowerShell pass it through either way.
+The quotes matter in bash/zsh, where `[maya]` is a glob pattern; cmd and PowerShell pass it through either way. For Blender, run the command **from an Administrator prompt** — its bundled Python lives under Program Files. The package manager below needs no elevation.
 
 Prefer a menu? Download and run the package manager for your DCC — [mayapy-package-manager.bat](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) / [blenderpy-package-manager.bat](https://github.com/m3trik/blendertk/blob/master/blendertk/env_utils/blenderpy-package-manager.bat) — pick your DCC version, choose *Install Package*, type `tentacletk[maya]` (or `tentacletk[blender]`).
 

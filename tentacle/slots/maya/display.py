@@ -227,74 +227,16 @@ class DisplaySlots(SlotsMaya):
         mtk.set_visibility("mesh", True)
 
     @staticmethod
-    def _xray_shapes(nodes):
-        """Visible (non-intermediate) surface shapes at or under the given nodes.
+    def _selected_xray_shapes():
+        """The surface shapes under the current selection.
 
-        Resolves groups, transforms, shapes, and component selections
-        (``ls(objectsOnly=True)`` upstream) down to the shape level —
-        ``displaySurface`` queried on a transform returns None when the
-        transform holds multiple shapes (or is a group), and the xRay flag
-        itself lives on the shape.
+        Resolution, state and the post-op VP2 resync all live on
+        ``mtk.DisplayUtils`` -- the display-state macro reads and writes the
+        same flag and must agree with these buttons about what it means.
         """
-        if not nodes:
-            return []
-        return (
-            cmds.ls(
-                nodes,
-                dag=True,
-                leaf=True,
-                noIntermediate=True,
-                long=True,
-                type="surfaceShape",
-            )
-            or []
+        return mtk.DisplayUtils.get_surface_shapes(
+            cmds.ls(sl=True, objectsOnly=True, long=True) or []
         )
-
-    @staticmethod
-    def _xray_state(shape) -> bool:
-        result = cmds.displaySurface(shape, xRay=True, query=True)
-        return bool(result[0]) if result else False
-
-    @classmethod
-    def _selected_xray_shapes(cls):
-        return cls._xray_shapes(cmds.ls(sl=True, objectsOnly=True, long=True) or [])
-
-    @classmethod
-    def _set_xray(cls, shapes, state: bool):
-        for s in shapes:
-            cmds.displaySurface(s, xRay=state)
-        cls._resync_viewport_xray()
-
-    @classmethod
-    def _toggle_xray(cls, shapes):
-        """Uniform toggle: if ANY shape is not x-rayed, turn ALL on; only
-        when everything is already on does it turn off.
-
-        Returns:
-            (applied_state, shape_count), or None when there was nothing
-            to operate on.
-        """
-        if not shapes:
-            return None
-        target = not all(cls._xray_state(s) for s in shapes)
-        cls._set_xray(shapes, target)
-        return target, len(shapes)
-
-    @staticmethod
-    def _resync_viewport_xray():
-        """Force VP2 to re-apply every object's per-object xRay flag.
-
-        VP2 silently drops the xray draw state when it rebuilds a mesh's
-        render item (renderer reset, some topology rebuilds): the flag
-        still reads True but the mesh draws opaque. Cycling the panel-level
-        xray makes VP2 re-evaluate the per-object flags (pixel-verified,
-        Maya 2025), so after any xray operation the whole viewport is
-        consistent with the flags again.
-        """
-        for p in cmds.getPanel(type="modelPanel") or []:
-            state = cmds.modelEditor(p, query=True, xray=True)
-            cmds.modelEditor(p, edit=True, xray=(not state))
-            cmds.modelEditor(p, edit=True, xray=state)
 
     def b005(self):
         """Xray Selected.
@@ -303,12 +245,12 @@ class DisplaySlots(SlotsMaya):
         boolean/duplicate/scene reload) silently drop the flag — a blind
         per-object invert then desyncs mixed selections.
         """
-        return self._toggle_xray(self._selected_xray_shapes())
+        return mtk.DisplayUtils.toggle_xray(self._selected_xray_shapes())
 
     def b006(self):
         """Un-Xray All"""
         shapes = cmds.ls(type="surfaceShape", noIntermediate=True, long=True) or []
-        self._set_xray(shapes, False)
+        mtk.DisplayUtils.set_xray(shapes, False)
 
     def b007(self):
         """Xray Other (uniform toggle across all non-selected shapes)"""
@@ -316,7 +258,7 @@ class DisplaySlots(SlotsMaya):
             cmds.ls(type="surfaceShape", noIntermediate=True, long=True) or []
         )
         other = sorted(all_shapes - set(self._selected_xray_shapes()))
-        return self._toggle_xray(other)
+        return mtk.DisplayUtils.toggle_xray(other)
 
     def b009(self):
         """Toggle Material Override"""
