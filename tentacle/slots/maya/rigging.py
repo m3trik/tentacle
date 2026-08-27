@@ -86,7 +86,10 @@ class Rigging(SlotsMaya):
         elif text == "IK Handle":
             cmds.setToolTo("ikHandleContext")  # create ik handle
         elif text == "Lattice":  # create lattice
-            cmds.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
+            # The lattice + base lattice land at the scene root; the ffd node
+            # in the same return is a DG node and filters itself out.
+            result = cmds.lattice(divisions=[2, 5, 2], objectCentered=1, ldv=[2, 2, 2])
+            mtk.DisplayUtils.add_to_isolation_set(result)
         elif text == "Cluster":
             mel.eval("CreateCluster")  # create cluster
 

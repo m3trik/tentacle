@@ -138,6 +138,35 @@ class _FakeB000Widget:
         self.option_box.menu = menu
 
 
+class _FakeAffixField:
+    """The Material Affix field: a uitk LineEdit wearing the affix picker.
+
+    Lives in the Output Name field's option-box menu, so ``b000`` reaches it
+    through the slot's own ``_tt_affix`` handle rather than a menu proxy.
+    ``resolve_affix`` delegates to the same ``ptk.StrUtils.split_affix``
+    primitive ``AffixOption`` does, so the double cannot drift from the real
+    control's Auto / Suffix / Prefix reading.
+    """
+
+    def __init__(self, text="", mode="auto"):
+        self._text = text
+        self.option_box = _FakeUi()
+        self.option_box.affix_mode = mode
+        self.option_box.resolve_affix = self._resolve
+
+    def text(self):
+        return self._text
+
+    def _resolve(self, text=None, default="prefix"):
+        import pythontk as ptk
+
+        return ptk.StrUtils.split_affix(
+            self._text if text is None else text,
+            mode=self.option_box.affix_mode,
+            default=default,
+        )
+
+
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestGetMapSize(unittest.TestCase):
     """get_map_size casts cmb003 text to int. Used throughout the file
@@ -394,6 +423,110 @@ class TestB000TransferAuto(unittest.TestCase):
 
         self.assertEqual(len(self.captured), 1)
         self.assertIn("Working: Transfer UV Set", self.instance.sb.progress_texts)
+
+
+class _FakeShaderCombo:
+    """The Shader row of the Output Name field's option-box menu."""
+
+    def __init__(self, data):
+        self._data = data
+
+    def currentData(self):
+        return self._data
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB000MaterialAffix(unittest.TestCase):
+    """The Material Affix field reaches the engine as (prefix, suffix).
+
+    The panel only ever hands the engine two strings, so this is the whole
+    contract of the field: which side the affix lands on, and what a blank one
+    means (Auto -- the engine names the material after the Output Name).
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+
+        import mayatk as mtk
+
+        self._original = mtk.TextureTransfer
+        captured = self.captured = []
+
+        class FakeTextureTransfer:
+            def transfer(self, targets, source=None, **kwargs):
+                captured.append(kwargs)
+                return {}
+
+        mtk.TextureTransfer = FakeTextureTransfer
+
+    def tearDown(self):
+        import mayatk as mtk
+
+        mtk.TextureTransfer = self._original
+        cmds.file(new=True, force=True)
+
+    def _run(self, affix="", affix_mode="auto", shader_type=None):
+        """One texture-pass run; returns the kwargs the engine was called with."""
+        del self.captured[:]
+        self.instance._tt_affix = _FakeAffixField(affix, affix_mode)
+        if shader_type is not None:
+            self.instance._tt_shader_type = _FakeShaderCombo(shader_type)
+        a = cmds.polyCube(name="uv_affix_a")[0]
+        b = cmds.polyCube(name="uv_affix_b")[0]
+        cmds.select([a, b])
+        self.instance.b000(widget=_FakeB000Widget(transfer="textures"))
+        self.assertEqual(len(self.captured), 1, self.instance.sb.messages)
+        return self.captured[0]
+
+    def test_blank_field_leaves_the_naming_to_the_engine(self):
+        kwargs = self._run()
+        self.assertEqual(kwargs["assign_prefix"], "")
+        self.assertIsNone(kwargs["assign_suffix"])  # None = the engine's Auto
+
+    def test_auto_reads_the_underscore(self):
+        self.assertEqual(self._run(affix="_MAT")["assign_suffix"], "_MAT")
+        self.assertEqual(self._run(affix="MAT_")["assign_prefix"], "MAT_")
+
+    def test_the_picker_pins_the_side_the_spelling_does_not_declare(self):
+        kwargs = self._run(affix="MAT", affix_mode="prefix")
+        self.assertEqual(kwargs["assign_prefix"], "MAT")
+        self.assertEqual(kwargs["assign_suffix"], "")
+        kwargs = self._run(affix="MAT", affix_mode="suffix")
+        self.assertEqual(kwargs["assign_suffix"], "MAT")
+        self.assertEqual(kwargs["assign_prefix"], "")
+
+    def test_an_unbuilt_option_box_reads_as_auto(self):
+        """The field is a row of another field's option-box menu, so ``b000``
+        reads it off the slot -- a panel that never built one must fall through
+        to Auto rather than raising from inside the run."""
+        del self.captured[:]
+        a = cmds.polyCube(name="uv_affix_nobox_a")[0]
+        b = cmds.polyCube(name="uv_affix_nobox_b")[0]
+        cmds.select([a, b])
+        self.instance.b000(widget=_FakeB000Widget(transfer="textures"))
+        self.assertEqual(len(self.captured), 1, self.instance.sb.messages)
+        self.assertEqual(self.captured[0]["assign_prefix"], "")
+        self.assertIsNone(self.captured[0]["assign_suffix"])
+
+    def test_the_shader_row_reaches_the_engine(self):
+        """Same wiring as the affix -- a nested row read off the slot."""
+        self.assertEqual(
+            self._run(shader_type="stingray")["assign_shader_type"], "stingray"
+        )
+
+    def test_an_unbuilt_shader_row_keeps_the_target_s_type(self):
+        """No row (option box never built) reads as "same as target" rather
+        than raising from inside the run."""
+        self.assertIsNone(self._run()["assign_shader_type"])
+
+    def test_auto_falls_back_to_suffix_when_neither_side_is_declared(self):
+        """A bare token (no underscore) is the texture-set convention's
+        `<name>_MAT`, not a prefix -- the library default would guess prefix."""
+        kwargs = self._run(affix="MAT")
+        self.assertEqual(kwargs["assign_suffix"], "MAT")
+        self.assertEqual(kwargs["assign_prefix"], "")
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -1773,13 +1906,14 @@ class _FakeSourceCombo:
 class TestTransferTexturesSourceControls(unittest.TestCase):
     """b034's Set Source row -- the stored set is invisible state, so the row
     itself has to report it: the capture button follows the Source mode, and
-    Clear follows whether anything is stored."""
+    its Select / Clear icons follow whether anything is stored."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
         self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
         self.instance.sb = _RecordedSb()
         self.instance._tt_src_button = _FakeButton()
+        self.instance._tt_select_action = _FakeAction()
         self.instance._tt_clear_action = _FakeAction()
         self.instance._tt_sources = []
         # The control map b034_init hands the sync (``_tt_ctl``): every row it
@@ -1809,6 +1943,13 @@ class TestTransferTexturesSourceControls(unittest.TestCase):
             self.instance._tt_clear_action.widget.enabled,
         )
 
+    def _sync_select(self):
+        self.instance._tt_sync_controls()
+        return self.instance._tt_select_action.widget.enabled
+
+    def _last_message(self):
+        return " ".join(str(m) for m in self.instance.sb.messages[-1:])
+
     def test_clear_is_greyed_until_something_is_stored(self):
         self.assertEqual(self._sync(), (True, False))
         self.instance._tt_sources = ["|pCube1"]
@@ -1834,6 +1975,41 @@ class TestTransferTexturesSourceControls(unittest.TestCase):
         self.instance._tt_set_source_from_selection()
         self.assertEqual(len(self.instance._tt_sources), 1)
         self.assertTrue(self.instance._tt_clear_action.widget.enabled)
+
+    def test_select_is_greyed_until_something_is_stored(self):
+        """It rides the same state as Clear: nothing stored, nothing to show."""
+        self.assertFalse(self._sync_select())
+        self.instance._tt_sources = ["|pCube1"]
+        self.assertTrue(self._sync_select())
+
+    def test_select_selects_the_stored_meshes(self):
+        """The capture is otherwise invisible; selecting it is how you check."""
+        a = cmds.polyCube()[0]
+        b = cmds.polyCube()[0]
+        self.instance._tt_sources = cmds.ls([a, b], long=True)
+        cmds.select(clear=True)
+        self.instance._tt_select_source()
+        self.assertEqual(
+            sorted(cmds.ls(selection=True, long=True)),
+            sorted(self.instance._tt_sources),
+        )
+
+    def test_select_skips_nodes_deleted_since_the_capture(self):
+        """``b000`` drops them too -- Select must show the set a run would use."""
+        cube = cmds.polyCube()[0]
+        self.instance._tt_sources = cmds.ls(cube, long=True) + ["|goneForever"]
+        cmds.select(clear=True)
+        self.instance._tt_select_source()
+        self.assertEqual(cmds.ls(selection=True, long=True), cmds.ls(cube, long=True))
+        self.assertIn("1 no longer in the scene", self._last_message())
+
+    def test_select_with_nothing_stored_leaves_the_selection_alone(self):
+        cube = cmds.polyCube()[0]
+        cmds.select(cube, replace=True)
+        self.instance._tt_sources = []
+        self.instance._tt_select_source()
+        self.assertEqual(cmds.ls(selection=True, long=True), cmds.ls(cube, long=True))
+        self.assertIn("Nothing stored", self._last_message())
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -1893,6 +2069,7 @@ class TestTransferSyncControls(unittest.TestCase):
         self.instance = _Host()
         self.instance._tt_sources = []
         self.instance._tt_src_button = _FakeButton()
+        self.instance._tt_select_action = _FakeAction()
         self.instance._tt_clear_action = _FakeAction()
         self.instance._tt_ctl = {
             "source": _FakeSourceCombo("stored"),
@@ -1902,6 +2079,8 @@ class TestTransferSyncControls(unittest.TestCase):
                 on_change=lambda: self.instance._tt_sync_controls()
             ),
             "texture_controls": (_FakeButton(),),
+            "assign": _FakeCheck(True),
+            "assign_controls": (_FakeButton(),),
         }
         self.instance._tt_ctl["scope"].currentData = lambda: "order"
 
@@ -1964,6 +2143,22 @@ class TestTransferSyncControls(unittest.TestCase):
         self.instance._tt_ctl["transfer"] = _FakeTransferCombo("auto")
         self._sync()
         self.assertTrue(row.enabled)
+
+    def test_the_assign_rows_additionally_follow_assign_result(self):
+        """With Assign Result off no material is built, so the rows that only
+        name that material (the affix) have nothing to name."""
+        row = self.instance._tt_ctl["assign_controls"][0]
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("textures")
+        self._sync()
+        self.assertTrue(row.enabled)
+        self.instance._tt_ctl["assign"] = _FakeCheck(False)
+        self._sync()
+        self.assertFalse(row.enabled)
+        # ... and never live without the texture pass that builds it either.
+        self.instance._tt_ctl["assign"] = _FakeCheck(True)
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("uvs")
+        self._sync()
+        self.assertFalse(row.enabled)
 
 
 class TestTransferPasses(unittest.TestCase):

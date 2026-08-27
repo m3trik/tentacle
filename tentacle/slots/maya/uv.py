@@ -1494,11 +1494,19 @@ class UvSlots(UvMixin, SlotsMaya):
         # ``Menu.add`` defers register_widget (which stamps the per-widget
         # namespace) to a timer, so the proxy does not exist yet here.
         self.sb.tooltip.bind(btn_src, self._tt_source_tooltip)
-        # Clear rides the button's own option box. It greys (rather than
-        # hides) while nothing is stored, so the row doubles as the panel's
-        # only at-a-glance "is a source set?" readout -- a button that
-        # vanishes reads as a layout change, not as a state.
-        self._tt_clear_action = btn_src.option_box.set_action(
+        # Select + Clear ride the button's own option box as icons. They grey
+        # (rather than hide) while nothing is stored, so the row doubles as the
+        # panel's only at-a-glance "is a source set?" readout -- a button that
+        # vanishes reads as a layout change, not as a state. Select leads:
+        # inspecting what you captured is the common follow-up, and the
+        # destructive verb reads better last.
+        self._tt_select_action = btn_src.option_box.set_action(
+            callback=self._tt_select_source,
+            icon="select",
+            tooltip="Select the stored source meshes, so you can see what the "
+            "capture actually holds. Enabled only while something is stored.",
+        )
+        self._tt_clear_action = btn_src.option_box.add_action(
             callback=self._tt_clear_source,
             icon="clear",
             tooltip="Clear the stored source meshes. Enabled only while "
@@ -1718,11 +1726,94 @@ class UvSlots(UvMixin, SlotsMaya):
                     "its maps — which is what a second attempt wants.",
                     "A run that has to keep two UV layouts apart appends each "
                     "layout's label, so their maps cannot collide.",
+                    "Its own option box carries the assigned material's own "
+                    "settings — a <b>Material Affix</b> (a naming convention "
+                    "the maps deliberately do not follow) and its "
+                    "<b>Shader</b> type.",
                 ],
             ),
         )
         t_tt_name.restore_state = False
         t_tt_name.option_box.clear_option = True
+        # The material's naming convention, kept off the maps deliberately:
+        # the files are the deliverable's, the affix is the scene's. It rides
+        # the Output Name field's OWN option box rather than a row of its own:
+        # it modifies that name and nothing else, and the tool's option box is
+        # already long. Its picker is the shared uitk affix control -- one
+        # tri-state icon (Auto -> Suffix -> Prefix) over
+        # ptk.StrUtils.split_affix, the same one the mat_utils panels wear.
+        name_menu = t_tt_name.option_box.menu
+        name_menu.setTitle("Assigned Material")
+        t_tt_affix = name_menu.add(
+            self.sb.registered_widgets.LineEdit,
+            setPlaceholderText="Material affix (blank = none)",
+            setText="",
+            setObjectName="t_tt_affix",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Material Affix",
+                body="Affixes the ASSIGNED MATERIAL's name. The maps keep "
+                "<b>Output Name</b> as they are, so a material naming "
+                "convention never leaks into the filenames.",
+                bullets=[
+                    "<b>_MAT</b> — <i>hero_MAT</i>: a leading underscore reads "
+                    "as a suffix.",
+                    "<b>MAT_</b> — <i>MAT_hero</i>: a trailing underscore reads "
+                    "as a prefix.",
+                    "The icon button pins the side outright when the spelling "
+                    "does not say: <b>Auto</b> → <b>Suffix</b> → <b>Prefix</b>.",
+                ],
+                notes=[
+                    "Blank — the material is named exactly <b>Output Name</b>.",
+                    "Re-applied idempotently: a second run over the same result "
+                    "does not stack a second copy of the affix.",
+                    "Only meaningful with <b>Assign Result</b> on.",
+                ],
+            ),
+        )
+        t_tt_affix.option_box.clear_option = True
+        # Fourth, custom state: the shared material naming convention.
+        t_tt_affix.option_box.set_affix(default="auto", convention_key="material")
+        # The assigned material's TYPE, beside its name: the material is a copy
+        # of the target's, so left alone it lands on whatever that mesh wore --
+        # for unassigned geometry, Maya's own default shader. Items come from
+        # the converter's TARGETS (its SSoT), so a target added there appears
+        # here; "Same as target" leads and the rest follow in TARGETS order,
+        # because combo state persists by INDEX.
+        cmb_tt_shader = name_menu.add(
+            "QComboBox",
+            setObjectName="cmb_tt_shader",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Shader",
+                body="The shader type of the material the run assigns.",
+                bullets=[
+                    "<b>Same as target</b> — a copy of the target's own "
+                    "material, so every channel the transfer does not write "
+                    "keeps its look. Right for a re-bake in place.",
+                    "<b>A named type</b> — the result is rebuilt on that "
+                    "shader (maps, constants and assignments carry across). "
+                    "For a deliverable, where the target may be wearing "
+                    "nothing but Maya's default shader.",
+                ],
+                notes=[
+                    "Retyping a whole scene's materials is the <b>Material "
+                    "Updater</b>'s Shader Type option — same engine.",
+                ],
+            ),
+        )
+        # addItem, not ``add(prefix=...)``: that helper rewrites a None data
+        # value to the item's label (and title-cases the text), so the default
+        # row would reach the engine as the string "Same As Target".
+        cmb_tt_shader.addItem("Shader: Same as target", None)
+        for name, node_type in mtk.ShaderConverter.TARGETS.items():
+            cmb_tt_shader.addItem(
+                f"Shader: {mtk.ShaderConverter.TARGET_LABELS.get(name, node_type)}",
+                name,
+            )
+        # Held directly: both are rows of the NAME field's option-box menu, so
+        # the tool's own menu carries no ``menu.<name>`` proxy for ``b000`` to
+        # read (the same reason ``_tt_src_button`` is held).
+        self._tt_affix = t_tt_affix
+        self._tt_shader_type = cmb_tt_shader
         # A uitk LineEdit for the option-box affordances: the clear icon
         # shows only while there is text (ClearOption auto-hides), and the
         # browse writes back the PORTABLE spelling — relative to
@@ -1797,10 +1888,24 @@ class UvSlots(UvMixin, SlotsMaya):
                 t_tt_output,
                 chk050,
             ),
+            "assign": chk050,
+            "assign_controls": (t_tt_affix, cmb_tt_shader),
         }
         for w in (cmb024, cmb014, cmb028):
             w.currentIndexChanged.connect(lambda *_: self._tt_sync_controls())
+        chk050.toggled.connect(lambda *_: self._tt_sync_controls())
         self._tt_sync_controls()
+
+    def _tt_assign_shader_type(self):
+        """The Shader row's target type, or None for "same as target".
+
+        Read off the slot rather than a menu proxy for the same reason as the
+        affix (:meth:`UvMixin._tt_material_affix`): it is a row of the Output
+        Name field's option-box menu. Maya-only -- Blender materials are one
+        node graph, so that fork has no such row.
+        """
+        combo = getattr(self, "_tt_shader_type", None)
+        return combo.currentData() if combo is not None else None
 
     @staticmethod
     def _tt_meshes(objects):
@@ -1855,6 +1960,31 @@ class UvSlots(UvMixin, SlotsMaya):
             f"Stored <b>{len(self._tt_sources)}</b> source mesh(es) for Transfer."
             if self._tt_sources
             else "<b>Nothing selected.</b><br>Select the source meshes (or their group)."
+        )
+
+    def _tt_select_source(self):
+        """Select the stored source meshes -- the capture, made visible.
+
+        The same survivor filter ``b000`` applies, so what gets selected is
+        exactly what a run would read: a node deleted since the capture is
+        reported rather than silently dropped, because a count that no longer
+        matches what was picked needs a reason.
+        """
+        stored = getattr(self, "_tt_sources", [])
+        alive = [s for s in stored if cmds.objExists(s)]
+        if not alive:
+            return self.sb.message_box(
+                "<b>Nothing stored.</b><br>Use <i>Set Source From Selection</i> "
+                "to capture the source meshes first."
+                if not stored
+                else "<b>None of the stored source meshes are still in the "
+                "scene.</b><br>Re-capture them."
+            )
+        cmds.select(alive, replace=True)
+        missing = len(stored) - len(alive)
+        self.sb.message_box(
+            f"Selected <b>{len(alive)}</b> stored source mesh(es)."
+            + (f"<br>{missing} no longer in the scene; skipped." if missing else "")
         )
 
     @mtk.undoable
@@ -2012,6 +2142,8 @@ class UvSlots(UvMixin, SlotsMaya):
             # ---- texture pass ----------------------------------------------
             if do_textures:
                 tick(text="Working: Transfer Textures")
+                assign_prefix, assign_suffix = self._tt_material_affix()
+                assign_shader_type = self._tt_assign_shader_type()
                 try:
                     results = mtk.TextureTransfer().transfer(
                         targets,
@@ -2025,6 +2157,9 @@ class UvSlots(UvMixin, SlotsMaya):
                         output_dir=menu.t_tt_output.text().strip() or None,
                         normal_convention=menu.cmb027.currentData(),
                         assign=menu.chk050.isChecked(),
+                        assign_prefix=assign_prefix,
+                        assign_suffix=assign_suffix,
+                        assign_shader_type=assign_shader_type,
                     )
                 except ValueError as e:
                     report.append(f"<b>Transfer Textures:</b> {e}")

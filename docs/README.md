@@ -12,51 +12,31 @@ Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widg
 
 ## Install
 
-Install from a command prompt, into your DCC's own Python (not a system install). The commands below name specific versions — adjust the paths to match yours.
+Download [`tentacle_installer.py`](https://github.com/m3trik/tentacle/blob/main/tentacle/tentacle_installer.py) — one file for every DCC, no administrator rights, nothing to type:
 
-**Name your DCC in the brackets.** Each host installs its own engine — `tentacletk[maya]` brings `mayatk`, `tentacletk[blender]` brings `blendertk` — so a Maya install carries no Blender code and vice versa. Plain `tentacletk` installs the framework with **no** engine and the menu will not start; if you land there, the error names the exact command to fix it.
+| DCC | Do this |
+| --- | --- |
+| Maya 2025+ | Drag the file into the viewport. |
+| Blender 4.x+ | *Edit ▸ Preferences ▸ Add-ons ▸ Install from Disk…*, pick the file, enable **Tentacle Marking Menu**. |
 
-**Maya** (2025+) — install into `mayapy`:
+On the first start it fetches `tentacletk` and the engine for your host (`mayatk` / `blendertk`) 
 
-```bash
-"C:/Program Files/Autodesk/Maya2025/bin/mayapy.exe" -m pip install "tentacletk[maya]"
-```
+Drop the file in again to update or uninstall (Blender: the add-on's preferences). Both apply at the next start if the menu is already running.
 
-**Blender** (4.x+) — same package, into Blender's bundled Python:
+Developers: `pip install -e ./tentacle` into the DCC's own Python (see [Development](#development)), or script it - `"<mayapy>" tentacle_installer.py install|update|uninstall` and `blender --background --python tentacle_installer.py -- install|update|uninstall` (update / uninstall land at the next start). The name in brackets of the pip spec is the engine; plain `tentacletk` has none and the menu will not start.
 
-```bash
-"C:/Program Files/Blender Foundation/Blender 5.1/5.1/python/bin/python.exe" -m pip install "tentacletk[blender]"
-```
+## Activation key
 
-The quotes matter in bash/zsh, where `[maya]` is a glob pattern; cmd and PowerShell pass it through either way. For Blender, run the command **from an Administrator prompt** — its bundled Python lives under Program Files. The package manager below needs no elevation.
+`Z` by default. Change it any time from the in-app **Preferences** panel.
 
-Prefer a menu? Download and run the package manager for your DCC — [mayapy-package-manager.bat](https://github.com/m3trik/mayatk/blob/master/mayatk/env_utils/mayapy-package-manager.bat) / [blenderpy-package-manager.bat](https://github.com/m3trik/blendertk/blob/master/blendertk/env_utils/blenderpy-package-manager.bat) — pick your DCC version, choose *Install Package*, type `tentacletk[maya]` (or `tentacletk[blender]`).
-
-Already installed the plain package? Adding the extra is the same command — pip installs the missing engine and leaves everything else alone.
-
-## Launch
-
-The same two lines start Tentacle in any supported DCC — `Tcl.launch` detects the host and defers startup however that host needs:
+Starting Tentacle from your own startup script is two lines — `Tcl.launch` detects the host and defers startup however that host needs — and `key_show` names the default it starts with:
 
 ```python
 from tentacle import Tcl
-Tcl.launch(key_show="Z")
+Tcl.launch(key_show="Z")   # bare ("Z", "Space") or Qt-named ("Key_F11")
 ```
 
-`key_show` is the key you hold to open the menu. Pick one now — bare (`"Z"`, `"Space"`) or Qt-named (`"Key_F11"`) — since while Tentacle is running its key takes precedence over the DCC's own binding on that key.
-
-Naming a key sets the **default**: it applies on a first run and for as long as you haven't picked a key yourself. A key you set from the UI ([Bindings](#bindings)) is remembered and takes precedence over it from then on. With no argument the default is `Z`.
-
-Save the snippet where your DCC looks for startup code:
-
-| DCC | Put it in |
-| --- | --- |
-| Maya | `userSetup.py` (in `~/Documents/maya/<version>/scripts/`) |
-| Blender | `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\` |
-
-Restart the DCC, hover the viewport, and hold your key.
-
-`Tcl.launch` recognizes 3ds Max too and starts `TclMax` there — the menu opens, but its slot library isn't ported yet, so the panels have no behavior wired. See [Platform support](#platform-support).
+Maya: `userSetup.py` (in `~/Documents/maya/<version>/scripts/`); Blender: `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`. `Tcl.launch` recognizes 3ds Max too and starts `TclMax` there — the menu opens, but its slot library isn't ported yet, so the panels have no behavior wired. See [Platform support](#platform-support).
 
 ## Bindings
 

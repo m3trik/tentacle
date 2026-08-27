@@ -30,7 +30,7 @@
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
-| MatUpdater | 0 | 0 | 0 | 0 | OK |
+| MatUpdater | 0 | 0 | 1 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
 | ReferenceManager | 0 | 0 | 13 | 0 | OK |
@@ -47,8 +47,8 @@
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
-| TexturePathEditor | 0 | 0 | 1 | 6 | OK |
-| TubeRig | 0 | 0 | 8 | 6 | OK |
+| TexturePathEditor | 0 | 1 | 1 | 5 | open |
+| TubeRig | 0 | 3 | 8 | 6 | open |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 | WheelRig | 0 | 0 | 0 | 0 | OK |
 
@@ -89,7 +89,6 @@
 #### TexturePathEditor
 **property deltas (review)**
   - `btn_open_source_images.setText` maya=`'Open Source Images'` blender=`'Open Textures Folder'`
-  - `chk_dest_sourceimages.setText` maya=`'Always Relocate To sourceimages'` blender=`'Always Relocate To The Textures Folder'`
   - `chk_stem.setText` maya=`'Stem  — exact name, different extension'` blender=`'Stem  — exact name, any extension'`
   - `delete_file_node.setText` maya=`'Delete File Node'` blender=`'Remove Texture'`
   - `row_show_in_hypershade.setText` maya=`'Show in Hypershade'` blender=`'Show in Shader Editor'`
@@ -140,7 +139,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 10 | 0 | 1 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 3 | 18 | 0 | 0 | open |
+| uv.py | 0 | 3 | 19 | 0 | 0 | open |
 
 ### Slot deltas
 
@@ -204,6 +203,10 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
+- **TexturePathEditor** `chk_allow_missing` — optbox QCheckBox 'Allow Missing Targets'  [pending] Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there).
+- **TubeRig** `b005` — .ui widget QPushButton  [pending] Remove Rig (2026-08-25) -- TubeRigSlots.b005 tears down every rig the selection touches, via TubeRig.teardown (skinCluster, curveInfo, joints, controls set and the rig group, then unlocking the mesh display). Blender's TubeRig has no teardown surface at all yet -- the port needs the armature/modifier/constraint/collection cleanup and the same owned-node scoping that keeps a sibling rig whose name EXTENDS this one out of the sweep -- so this is real open work rather than na.
+- **TubeRig** `b006` — .ui widget QPushButton  [pending] Rename Rig (2026-08-25) -- TubeRigSlots.b006 renames an existing rig and every node under it to the Rig Name field. Rides the b005 teardown port: both need the same owned-node enumeration on the Blender side (armature, deform bones, hook/spline-IK constraints, the driver curve and the collection), which does not exist yet.
+- **TubeRig** `b007` — .ui widget QPushButton  [pending] Rebind Skin (2026-08-26) -- TubeRigSlots.b007 re-solves the bind for every rig the selection touches, including the legacy rescue that re-pairs a single orphaned mesh with a single rig whose bind was destroyed. Rides the same open work as b005/b006: blendertk's TubeRig has no teardown/rebind surface at all yet, and a Blender twin needs the armature modifier + vertex-group rebuild and the same owned-node scoping. Real open work, not na.
 - **lighting** `cmb000` — optbox QComboBox None  [pending] tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG).
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
 - **scene** `b018` — [pending] Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na.
@@ -211,4 +214,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 6 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 10 open-work items; 0 stale Maya handlers. Sweep PASSES.

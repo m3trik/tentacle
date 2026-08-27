@@ -140,6 +140,11 @@ class _QtBootstrap:
             if os.path.isdir(path) and path not in sys.path:
                 sys.path.insert(0, path)
 
+    #: What Blender's Qt-less Python needs pip-installed. ``tentacle_installer.py`` installs
+    #: the same set alongside the package so this bootstrap finds a binding and no-ops
+    #: (its copy is drift-guarded against this one by ``test_tentacle_installer.py``).
+    QT_SPECS = ("PySide6", "qtpy")
+
     @staticmethod
     def qt_importable():
         """True if qtpy can resolve a real Qt binding (Maya's bundled PySide, or Blender's installed one)."""
@@ -230,7 +235,7 @@ class _QtBootstrap:
             import pythontk as ptk
 
             ptk.PackageManager(python_path=py).install_targeted(
-                ["PySide6", "qtpy"], install_dir
+                list(cls.QT_SPECS), install_dir
             )
         except Exception as error:
             print(
