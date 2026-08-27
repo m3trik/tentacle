@@ -620,7 +620,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack button — non-checkable text button with the stack option box.",
-              "line": 220,
+              "line": 261,
               "deprecated": false
             }
           ]
@@ -4877,7 +4877,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).",
-              "line": 1057,
+              "line": 1157,
               "deprecated": false
             },
             {
@@ -4886,7 +4886,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 1246,
+              "line": 1349,
               "deprecated": false
             },
             {
@@ -4895,7 +4895,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 1255,
+              "line": 1358,
               "deprecated": false
             },
             {
@@ -4904,7 +4904,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1264,
+              "line": 1367,
               "deprecated": false
             },
             {
@@ -4913,7 +4913,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 1272,
+              "line": 1375,
               "deprecated": false
             },
             {
@@ -4922,7 +4922,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1292,
+              "line": 1395,
               "deprecated": false
             },
             {
@@ -4931,7 +4931,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 1328,
+              "line": 1431,
               "deprecated": false
             },
             {
@@ -4940,7 +4940,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 1355,
+              "line": 1458,
               "deprecated": false
             },
             {
@@ -4949,7 +4949,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 1400,
+              "line": 1503,
               "deprecated": false
             },
             {
@@ -4958,7 +4958,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 1405,
+              "line": 1508,
               "deprecated": false
             },
             {
@@ -4967,7 +4967,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1413,
+              "line": 1516,
               "deprecated": false
             },
             {
@@ -4976,7 +4976,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1418,
+              "line": 1521,
               "deprecated": false
             }
           ]
@@ -7390,7 +7390,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Revolve: sweep the selected profile curve around an axis into a surface.",
-              "line": 166,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -7399,7 +7399,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 193,
+              "line": 194,
               "deprecated": false
             },
             {
@@ -7408,7 +7408,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Loft: build a surface lofted across the selected profile curves.",
-              "line": 269,
+              "line": 270,
               "deprecated": false
             },
             {
@@ -7417,7 +7417,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extract Curve",
-              "line": 295,
+              "line": 296,
               "deprecated": false
             },
             {
@@ -7426,7 +7426,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Extrude: extrude the selected NURBS curve(s) into a surface.",
-              "line": 302,
+              "line": 303,
               "deprecated": false
             }
           ]
@@ -8256,7 +8256,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Quick Rig — our procedural rig tools plus Maya's built-in character auto-riggers.",
-              "line": 93,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -8265,7 +8265,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Quick Rig: open a procedural rig tool, or Maya's built-in Quick Rig / HumanIK.",
-              "line": 103,
+              "line": 106,
               "deprecated": false
             },
             {
@@ -8274,7 +8274,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale Joint",
-              "line": 134,
+              "line": 137,
               "deprecated": false
             },
             {
@@ -8283,7 +8283,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK",
-              "line": 139,
+              "line": 142,
               "deprecated": false
             },
             {
@@ -8292,7 +8292,7 @@
               "kind": "method",
               "signature": "(self, state, widget)",
               "summary": "Scale IK/FK",
-              "line": 144,
+              "line": 147,
               "deprecated": false
             },
             {
@@ -8301,7 +8301,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Scale Joint/IK/FK",
-              "line": 151,
+              "line": 154,
               "deprecated": false
             },
             {
@@ -8310,7 +8310,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Display Local Rotation Axes",
-              "line": 160,
+              "line": 163,
               "deprecated": false
             },
             {
@@ -8319,7 +8319,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Toggle Display Local Rotation Axes",
-              "line": 194,
+              "line": 197,
               "deprecated": false
             },
             {
@@ -8328,7 +8328,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Constraint Switch",
-              "line": 213,
+              "line": 216,
               "deprecated": false
             },
             {
@@ -8337,7 +8337,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Constraint Switch",
-              "line": 238,
+              "line": 241,
               "deprecated": false
             },
             {
@@ -8346,7 +8346,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Create Locator at Selection",
-              "line": 280,
+              "line": 283,
               "deprecated": false
             },
             {
@@ -8355,7 +8355,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Locator at Selection",
-              "line": 354,
+              "line": 357,
               "deprecated": false
             },
             {
@@ -8364,7 +8364,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Locator",
-              "line": 388,
+              "line": 391,
               "deprecated": false
             },
             {
@@ -8373,7 +8373,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Attributes",
-              "line": 397,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -8382,7 +8382,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 428,
+              "line": 431,
               "deprecated": false
             },
             {
@@ -8391,7 +8391,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Opacity",
-              "line": 463,
+              "line": 466,
               "deprecated": false
             }
           ]
@@ -9849,7 +9849,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (see ``b000_init``).",
-              "line": 1861,
+              "line": 1991,
               "deprecated": false
             },
             {
@@ -9858,7 +9858,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 2052,
+              "line": 2187,
               "deprecated": false
             },
             {
@@ -9867,7 +9867,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 2063,
+              "line": 2198,
               "deprecated": false
             },
             {
@@ -9876,7 +9876,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 2074,
+              "line": 2209,
               "deprecated": false
             },
             {
@@ -9885,7 +9885,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 2109,
+              "line": 2244,
               "deprecated": false
             },
             {
@@ -9894,7 +9894,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 2138,
+              "line": 2273,
               "deprecated": false
             },
             {
@@ -9903,7 +9903,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 2147,
+              "line": 2282,
               "deprecated": false
             },
             {
@@ -9912,7 +9912,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 2182,
+              "line": 2317,
               "deprecated": false
             },
             {
@@ -9921,7 +9921,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 2219,
+              "line": 2354,
               "deprecated": false
             },
             {
@@ -9930,7 +9930,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 2228,
+              "line": 2363,
               "deprecated": false
             },
             {
@@ -9939,7 +9939,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle).",
-              "line": 2252,
+              "line": 2387,
               "deprecated": false
             },
             {
@@ -9948,7 +9948,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 2354,
+              "line": 2489,
               "deprecated": false
             },
             {
@@ -9957,7 +9957,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 2358,
+              "line": 2493,
               "deprecated": false
             },
             {
@@ -9966,7 +9966,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 2362,
+              "line": 2497,
               "deprecated": false
             }
           ]
@@ -10113,7 +10113,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2166,
+          "line": 2171,
           "deprecated": false
         },
         {
@@ -10122,7 +10122,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2171,
+          "line": 2176,
           "deprecated": false
         },
         {
@@ -10131,7 +10131,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2176,
+          "line": 2181,
           "deprecated": false
         },
         {
@@ -10140,7 +10140,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2181,
+          "line": 2186,
           "deprecated": false
         },
         {
@@ -10149,7 +10149,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2186,
+          "line": 2191,
           "deprecated": false
         },
         {
@@ -10158,7 +10158,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2191,
+          "line": 2196,
           "deprecated": false
         },
         {
@@ -10167,7 +10167,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2196,
+          "line": 2201,
           "deprecated": false
         },
         {
@@ -10176,7 +10176,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2201,
+          "line": 2206,
           "deprecated": false
         },
         {
@@ -10185,7 +10185,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2206,
+          "line": 2211,
           "deprecated": false
         },
         {
@@ -10194,7 +10194,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2211,
+          "line": 2216,
           "deprecated": false
         },
         {
@@ -10203,7 +10203,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2216,
+          "line": 2221,
           "deprecated": false
         }
       ],
@@ -10211,7 +10211,7 @@
         {
           "name": "TclBlender",
           "summary": "Marking Menu class overridden for use with Blender.",
-          "line": 1409,
+          "line": 1414,
           "bases": [
             "MarkingMenu"
           ],
@@ -10222,7 +10222,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1563,
+              "line": 1568,
               "deprecated": false
             },
             {
@@ -10231,7 +10231,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1612,
+              "line": 1617,
               "deprecated": false
             },
             {
@@ -10240,7 +10240,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1643,
+              "line": 1648,
               "deprecated": false
             },
             {
@@ -10249,7 +10249,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1654,
+              "line": 1659,
               "deprecated": false
             },
             {
@@ -10258,7 +10258,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1672,
+              "line": 1677,
               "deprecated": false
             }
           ]
@@ -10266,7 +10266,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 1931,
+          "line": 1936,
           "bases": [],
           "members": [
             {
@@ -10275,7 +10275,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 1936,
+              "line": 1941,
               "deprecated": false
             }
           ]
@@ -10283,7 +10283,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 2044,
+          "line": 2049,
           "bases": [],
           "members": [
             {
@@ -10292,7 +10292,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 2050,
+              "line": 2055,
               "deprecated": false
             },
             {
@@ -10301,7 +10301,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 2070,
+              "line": 2075,
               "deprecated": false
             },
             {
@@ -10310,7 +10310,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 2103,
+              "line": 2108,
               "deprecated": false
             },
             {
@@ -10319,7 +10319,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2108,
+              "line": 2113,
               "deprecated": false
             }
           ]
@@ -10383,6 +10383,274 @@
             "MarkingMenu"
           ],
           "members": []
+        }
+      ]
+    },
+    {
+      "relpath": "tentacle_installer.py",
+      "summary": "Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.",
+      "functions": [
+        {
+          "name": "register",
+          "qualname": "register",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Blender add-on entry: preferences UI, then finish any pending verb / install / launch.",
+          "line": 1254,
+          "deprecated": false
+        },
+        {
+          "name": "unregister",
+          "qualname": "unregister",
+          "kind": "function",
+          "signature": "()",
+          "summary": "Blender add-on teardown.",
+          "line": 1260,
+          "deprecated": false
+        },
+        {
+          "name": "onMayaDroppedPythonFile",
+          "qualname": "onMayaDroppedPythonFile",
+          "kind": "function",
+          "signature": "(*_args)",
+          "summary": "Maya drop hook: first drop installs and launches;",
+          "line": 1266,
+          "deprecated": false
+        }
+      ],
+      "classes": [
+        {
+          "name": "TentacleInstaller",
+          "summary": "Provision tentacle into the host's per-user import dir, launch it, update or remove it.",
+          "line": 73,
+          "bases": [],
+          "members": [
+            {
+              "name": "host",
+              "qualname": "TentacleInstaller.host",
+              "kind": "staticmethod",
+              "signature": "()",
+              "summary": "``\"blender\"`` / ``\"maya\"`` for the DCC this interpreter is embedded in, else None.",
+              "line": 113,
+              "deprecated": false
+            },
+            {
+              "name": "headless",
+              "qualname": "TentacleInstaller.headless",
+              "kind": "staticmethod",
+              "signature": "(host)",
+              "summary": "True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "loaded",
+              "qualname": "TentacleInstaller.loaded",
+              "kind": "staticmethod",
+              "signature": "()",
+              "summary": "True once our code is imported in this process -- its extension modules are then",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "specs",
+              "qualname": "TentacleInstaller.specs",
+              "kind": "classmethod",
+              "signature": "(cls, host, fresh=True)",
+              "summary": "pip requirements for *host*: the package with its engine extra (+ Qt on a fresh Blender install).",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "python_exe",
+              "qualname": "TentacleInstaller.python_exe",
+              "kind": "staticmethod",
+              "signature": "(host)",
+              "summary": "The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session).",
+              "line": 159,
+              "deprecated": false
+            },
+            {
+              "name": "maya_paths",
+              "qualname": "TentacleInstaller.maya_paths",
+              "kind": "classmethod",
+              "signature": "(cls, app_dir=None, version=None)",
+              "summary": "``(module_root, mod_file)`` for this Maya -- both under the per-version prefs dir.",
+              "line": 183,
+              "deprecated": false
+            },
+            {
+              "name": "target_dir",
+              "qualname": "TentacleInstaller.target_dir",
+              "kind": "classmethod",
+              "signature": "(cls, host)",
+              "summary": "Where the packages go: a per-user dir the host imports from at tail precedence.",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "is_installed",
+              "qualname": "TentacleInstaller.is_installed",
+              "kind": "classmethod",
+              "signature": "(cls, host)",
+              "summary": "True when ``tentacle`` and the host's engine both resolve on ``sys.path``.",
+              "line": 228,
+              "deprecated": false
+            },
+            {
+              "name": "manifest_path",
+              "qualname": "TentacleInstaller.manifest_path",
+              "kind": "classmethod",
+              "signature": "(cls, target)",
+              "summary": "",
+              "line": 304,
+              "deprecated": false
+            },
+            {
+              "name": "read_manifest",
+              "qualname": "TentacleInstaller.read_manifest",
+              "kind": "classmethod",
+              "signature": "(cls, target)",
+              "summary": "The manifest dict (``{}`` when absent or unreadable).",
+              "line": 308,
+              "deprecated": false
+            },
+            {
+              "name": "write_manifest",
+              "qualname": "TentacleInstaller.write_manifest",
+              "kind": "classmethod",
+              "signature": "(cls, target, **updates)",
+              "summary": "Merge *updates* into the manifest.",
+              "line": 332,
+              "deprecated": false
+            },
+            {
+              "name": "installed_version",
+              "qualname": "TentacleInstaller.installed_version",
+              "kind": "classmethod",
+              "signature": "(cls, target, name=None)",
+              "summary": "A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.",
+              "line": 392,
+              "deprecated": false
+            },
+            {
+              "name": "install",
+              "qualname": "TentacleInstaller.install",
+              "kind": "classmethod",
+              "signature": "(cls, host, target=None, python=None, upgrade=False)",
+              "summary": "Provision (or upgrade) the host's spec set and record it;",
+              "line": 426,
+              "deprecated": false
+            },
+            {
+              "name": "update",
+              "qualname": "TentacleInstaller.update",
+              "kind": "classmethod",
+              "signature": "(cls, host, target=None, python=None)",
+              "summary": "Upgrade the package (and whatever its floors now require);",
+              "line": 465,
+              "deprecated": false
+            },
+            {
+              "name": "uninstall",
+              "qualname": "TentacleInstaller.uninstall",
+              "kind": "classmethod",
+              "signature": "(cls, host, target=None, python=None)",
+              "summary": "Remove what this installer put there;",
+              "line": 470,
+              "deprecated": false
+            },
+            {
+              "name": "request",
+              "qualname": "TentacleInstaller.request",
+              "kind": "classmethod",
+              "signature": "(cls, host, verb)",
+              "summary": "The one entry every surface calls with a verb;",
+              "line": 547,
+              "deprecated": false
+            },
+            {
+              "name": "provision",
+              "qualname": "TentacleInstaller.provision",
+              "kind": "classmethod",
+              "signature": "(cls, host, upgrade=False, target=None, python=None, specs=None)",
+              "summary": "Install *specs* into *target*;",
+              "line": 595,
+              "deprecated": false
+            },
+            {
+              "name": "launch",
+              "qualname": "TentacleInstaller.launch",
+              "kind": "classmethod",
+              "signature": "(cls, host)",
+              "summary": "Start the menu through tentacle's own host-aware entry (deferred as the host needs).",
+              "line": 705,
+              "deprecated": false
+            },
+            {
+              "name": "shutdown",
+              "qualname": "TentacleInstaller.shutdown",
+              "kind": "classmethod",
+              "signature": "(cls)",
+              "summary": "Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.",
+              "line": 737,
+              "deprecated": false
+            },
+            {
+              "name": "ensure_and_launch",
+              "qualname": "TentacleInstaller.ensure_and_launch",
+              "kind": "classmethod",
+              "signature": "(cls, host=None)",
+              "summary": "The startup entry both hosts call: finish a pending verb, install if needed, launch.",
+              "line": 745,
+              "deprecated": false
+            },
+            {
+              "name": "write_maya_module",
+              "qualname": "TentacleInstaller.write_maya_module",
+              "kind": "classmethod",
+              "signature": "(cls, source, app_dir=None, version=None)",
+              "summary": "Register the user-owned Maya module that re-runs this file at every start.",
+              "line": 1018,
+              "deprecated": false
+            },
+            {
+              "name": "dropped",
+              "qualname": "TentacleInstaller.dropped",
+              "kind": "classmethod",
+              "signature": "(cls, source)",
+              "summary": "Maya drop hook body: first drop installs;",
+              "line": 1051,
+              "deprecated": false
+            },
+            {
+              "name": "register_blender_ui",
+              "qualname": "TentacleInstaller.register_blender_ui",
+              "kind": "classmethod",
+              "signature": "(cls, addon_name)",
+              "summary": "Build and register the add-on preferences (version, Update, Uninstall) lazily --",
+              "line": 1089,
+              "deprecated": false
+            },
+            {
+              "name": "unregister_blender_ui",
+              "qualname": "TentacleInstaller.unregister_blender_ui",
+              "kind": "classmethod",
+              "signature": "(cls)",
+              "summary": "",
+              "line": 1147,
+              "deprecated": false
+            },
+            {
+              "name": "main",
+              "qualname": "TentacleInstaller.main",
+              "kind": "classmethod",
+              "signature": "(cls, argv=None)",
+              "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
+              "line": 1194,
+              "deprecated": false
+            }
+          ]
         }
       ]
     }

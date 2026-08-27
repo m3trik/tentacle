@@ -110,10 +110,15 @@ class RenderingMixin:
             )
             return
 
-        # The sidecar summary is reported, not left to the log: read nothing /
-        # matched nothing / switched off all render the same unlit preview, so
-        # without it the feature can't be debugged from the panel.
-        self.sb.message_box(
-            f"Preview v{result['version']} live at <hl>{result['url']}</hl>"
-            f"<br>{self._webxr.sidecar_summary(result)}"
-        )
+        # The sidecar and lightmap summaries are reported, not left to the
+        # log: read nothing / matched nothing / switched off all render the
+        # same unlit preview, and a bake whose maps were not found renders
+        # exactly like no bake -- so without them the feature can't be
+        # debugged from the panel. The lightmap line is empty for a scene
+        # with no committed bake.
+        lines = [
+            f"Preview v{result['version']} live at <hl>{result['url']}</hl>",
+            self._webxr.sidecar_summary(result),
+            self._webxr.lightmap_summary(result),
+        ]
+        self.sb.message_box("<br>".join(line for line in lines if line))

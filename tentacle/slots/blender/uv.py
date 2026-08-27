@@ -694,11 +694,19 @@ class Uv(UvMixin, SlotsBlender):
         # ``Menu.add`` defers register_widget (which stamps the per-widget
         # namespace) to a timer, so the proxy does not exist yet here.
         self.sb.tooltip.bind(btn_src, self._tt_source_tooltip)
-        # Clear rides the button's own option box. It greys (rather than
-        # hides) while nothing is stored, so the row doubles as the panel's
-        # only at-a-glance "is a source set?" readout -- a button that
-        # vanishes reads as a layout change, not as a state.
-        self._tt_clear_action = btn_src.option_box.set_action(
+        # Select + Clear ride the button's own option box as icons. They grey
+        # (rather than hide) while nothing is stored, so the row doubles as the
+        # panel's only at-a-glance "is a source set?" readout -- a button that
+        # vanishes reads as a layout change, not as a state. Select leads:
+        # inspecting what you captured is the common follow-up, and the
+        # destructive verb reads better last.
+        self._tt_select_action = btn_src.option_box.set_action(
+            callback=self._tt_select_source,
+            icon="select",
+            tooltip="Select the stored source meshes, so you can see what the "
+            "capture actually holds. Enabled only while something is stored.",
+        )
+        self._tt_clear_action = btn_src.option_box.add_action(
             callback=self._tt_clear_source,
             icon="clear",
             tooltip="Clear the stored source meshes. Enabled only while "
@@ -918,11 +926,56 @@ class Uv(UvMixin, SlotsBlender):
                     "its maps — which is what a second attempt wants.",
                     "A run that has to keep two UV layouts apart appends each "
                     "layout's label, so their maps cannot collide.",
+                    "Its own option box carries the <b>Material Affix</b> — a "
+                    "naming convention for the material alone, which the maps "
+                    "deliberately do not follow.",
                 ],
             ),
         )
         t_tt_name.restore_state = False
         t_tt_name.option_box.clear_option = True
+        # The material's naming convention, kept off the maps deliberately:
+        # the files are the deliverable's, the affix is the scene's. It rides
+        # the Output Name field's OWN option box rather than a row of its own:
+        # it modifies that name and nothing else, and the tool's option box is
+        # already long. Its picker is the shared uitk affix control -- one
+        # tri-state icon (Auto -> Suffix -> Prefix) over
+        # ptk.StrUtils.split_affix, the same one the mat_utils panels wear.
+        name_menu = t_tt_name.option_box.menu
+        name_menu.setTitle("Assigned Material")
+        t_tt_affix = name_menu.add(
+            self.sb.registered_widgets.LineEdit,
+            setPlaceholderText="Material affix (blank = none)",
+            setText="",
+            setObjectName="t_tt_affix",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Material Affix",
+                body="Affixes the ASSIGNED MATERIAL's name. The maps keep "
+                "<b>Output Name</b> as they are, so a material naming "
+                "convention never leaks into the filenames.",
+                bullets=[
+                    "<b>_MAT</b> — <i>hero_MAT</i>: a leading underscore reads "
+                    "as a suffix.",
+                    "<b>MAT_</b> — <i>MAT_hero</i>: a trailing underscore reads "
+                    "as a prefix.",
+                    "The icon button pins the side outright when the spelling "
+                    "does not say: <b>Auto</b> → <b>Suffix</b> → <b>Prefix</b>.",
+                ],
+                notes=[
+                    "Blank — the material is named exactly <b>Output Name</b>.",
+                    "Re-applied idempotently: a second run over the same result "
+                    "does not stack a second copy of the affix.",
+                    "Only meaningful with <b>Assign Result</b> on.",
+                ],
+            ),
+        )
+        t_tt_affix.option_box.clear_option = True
+        # Fourth, custom state: the shared material naming convention.
+        t_tt_affix.option_box.set_affix(default="auto", convention_key="material")
+        # Held directly: it is a row of the NAME field's option-box menu,
+        # so the tool's own menu carries no ``menu.t_tt_affix`` proxy for
+        # ``b000`` to read (the same reason ``_tt_src_button`` is held).
+        self._tt_affix = t_tt_affix
         # A uitk LineEdit for the option-box affordances: the clear icon
         # shows only while there is text (ClearOption auto-hides), and the
         # browse writes back the PORTABLE spelling — relative to
@@ -997,9 +1050,12 @@ class Uv(UvMixin, SlotsBlender):
                 t_tt_output,
                 chk050,
             ),
+            "assign": chk050,
+            "assign_controls": (t_tt_affix,),
         }
         for w in (cmb024, cmb014, cmb028):
             w.currentIndexChanged.connect(lambda *_: self._tt_sync_controls())
+        chk050.toggled.connect(lambda *_: self._tt_sync_controls())
         self._tt_sync_controls()
 
     @staticmethod
@@ -1051,6 +1107,50 @@ class Uv(UvMixin, SlotsBlender):
             f"Stored <b>{len(self._tt_sources)}</b> source mesh(es) for Transfer."
             if self._tt_sources
             else "<b>Nothing selected.</b><br>Select the source meshes."
+        )
+
+    def _tt_select_source(self):
+        """Select the stored source meshes -- the capture, made visible.
+
+        Mirror of the Maya slot's, with Blender's two extra refusals reported
+        rather than forced: an object outside the active view layer (an
+        excluded collection) raises from ``select_set``, and one with
+        ``hide_select`` on silently declines. Unhiding geometry behind the
+        user's back to satisfy a *select* is the one thing this must not do --
+        and a transfer reads the objects either way.
+        """
+        stored = getattr(self, "_tt_sources", [])
+        alive = [bpy.data.objects[n] for n in stored if n in bpy.data.objects]
+        if not alive:
+            return self.sb.message_box(
+                "<b>Nothing stored.</b><br>Use <i>Set Source From Selection</i> "
+                "to capture the source meshes first."
+                if not stored
+                else "<b>None of the stored source meshes are still in the "
+                "file.</b><br>Re-capture them."
+            )
+        bpy.ops.object.select_all(action="DESELECT")
+        selected = []
+        for obj in alive:
+            try:
+                obj.select_set(True)
+            except RuntimeError:  # not in the active view layer
+                continue
+            if obj.select_get():
+                selected.append(obj)
+        if selected:
+            bpy.context.view_layer.objects.active = selected[0]
+        unreachable = len(alive) - len(selected)
+        missing = len(stored) - len(alive)
+        self.sb.message_box(
+            f"Selected <b>{len(selected)}</b> stored source mesh(es)."
+            + (f"<br>{missing} no longer in the file; skipped." if missing else "")
+            + (
+                f"<br>{unreachable} not selectable (excluded collection, or "
+                f"Disable Selection is on)."
+                if unreachable
+                else ""
+            )
         )
 
     @btk.undoable
@@ -1205,6 +1305,7 @@ class Uv(UvMixin, SlotsBlender):
             # ---- texture pass ----------------------------------------------
             if do_textures:
                 tick(text="Working: Transfer Textures")
+                assign_prefix, assign_suffix = self._tt_material_affix()
                 try:
                     results = btk.TextureTransfer().transfer(
                         targets,
@@ -1218,6 +1319,8 @@ class Uv(UvMixin, SlotsBlender):
                         output_dir=menu.t_tt_output.text().strip() or None,
                         normal_convention=menu.cmb027.currentData(),
                         assign=menu.chk050.isChecked(),
+                        assign_prefix=assign_prefix,
+                        assign_suffix=assign_suffix,
                     )
                 except ValueError as e:
                     report.append(f"<b>Transfer Textures:</b> {e}")

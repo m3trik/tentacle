@@ -163,6 +163,7 @@ class Nurbs(SlotsMaya):
             setToolTip="Tolerance to build to (if useTolerance attribute is set).",
         )
 
+    @mtk.DisplayUtils.add_to_isolation
     def tb000(self, widget):
         """Revolve: sweep the selected profile curve around an axis into a surface."""
         degree = widget.option_box.menu.s002.value()

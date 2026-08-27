@@ -484,6 +484,10 @@ class _StubHeader:
         self.menu = _StubMenu()
 
 
+@unittest.skipUnless(
+    _can_create_widgets(),
+    "Maya's non-GUI Qt stub hard-crashes on QWidget construction",
+)
 class TestUnavailableToolsPolicy(unittest.TestCase):
     """``cmb006`` + the header re-check — the tentacle glue over uitk's gate system.
 

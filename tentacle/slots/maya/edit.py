@@ -700,7 +700,7 @@ class Edit(EditMixin, SlotsMaya):
             fn = self._HELPER_COMMANDS.get(text)
             if fn:
                 try:
-                    fn()
+                    mtk.DisplayUtils.add_to_isolation_set(fn())
                 except Exception as e:
                     self.sb.message_box(f"Error creating helper '{text}': {e}")
         else:

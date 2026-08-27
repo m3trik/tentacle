@@ -61,8 +61,10 @@ class UvMixin:
     #
     # Contract with each fork's ``b000_init``: it sets ``_tt_ctl`` -- the
     # ``{role: widget}`` map named below -- plus ``_tt_src_button`` /
-    # ``_tt_clear_action`` for the Set Source row and ``_tt_sources`` for the
-    # captured meshes. Every lookup is defensive so a panel that has not built
+    # ``_tt_clear_action`` for the Set Source row, ``_tt_sources`` for the
+    # captured meshes, and ``_tt_affix`` for the Material Affix field (a row of
+    # the Output Name field's own option-box menu, so the tool's menu carries no
+    # proxy for it). Every lookup is defensive so a panel that has not built
     # its option box yet (or a fork that grows a row later) is a no-op, not an
     # AttributeError from inside a signal handler.
 
@@ -155,6 +157,33 @@ class UvMixin:
             "materials carry texture maps."
         )
 
+    def _tt_material_affix(self):
+        """``(assign_prefix, assign_suffix)`` from the Material Affix field.
+
+        The field is ``_tt_affix``, a row of the Output Name field's own
+        option-box menu (each fork's ``b000_init`` builds it and holds the
+        reference -- the tool's menu has no proxy for a nested row).
+
+        Blank -> ``("", None)``: ``None`` is the engine's Auto, which names the
+        material exactly the Output Name (the tag it would otherwise append
+        exists to keep a LAYOUT-derived name apart from the material it came
+        from, and an explicit name already does that). A panel whose option box
+        has not been built yet reads the same, per this mixin's defensive
+        contract.
+
+        A typed affix is split by the field's own tri-state picker
+        (``uitk``'s ``AffixOption`` over ``ptk.StrUtils.split_affix``).
+        ``default="suffix"``: the affix on a texture-set material reads
+        ``<name>_MAT`` far more often than ``MAT_<name>``, and only a spelling
+        that declares neither side (``MAT``, no underscore) ever reaches the
+        fallback.
+        """
+        field = getattr(self, "_tt_affix", None)
+        text = (field.text() or "").strip() if field is not None else ""
+        if not text:
+            return ("", None)
+        return field.option_box.resolve_affix(text, default="suffix")
+
     def _tt_clear_source(self):
         """Forget the stored source meshes (the geometry is untouched)."""
         self._tt_sources = []
@@ -165,7 +194,8 @@ class UvMixin:
 
         Greying (not hiding) keeps the panel's shape stable, so each row is its
         own readout: the Set Source row follows the Source combo (capture only
-        feeds the *stored sources* mode; Clear only once something is stored),
+        feeds the *stored sources* mode; its Select/Clear icons only once
+        something is stored),
         Scope + Similarity follow the *single source mesh* mode (the Similar
         scopes additionally need the UV pass, which is what finds their
         targets), and the texture rows follow the Transfer combo -- which the
@@ -202,9 +232,14 @@ class UvMixin:
         button = getattr(self, "_tt_src_button", None)
         if button is not None:
             button.setEnabled(stored_mode)
-        action = getattr(self, "_tt_clear_action", None)
-        if action is not None:
-            action.widget.setEnabled(stored_mode and bool(self._tt_sources))
+        # Select + Clear both only mean something once a capture exists, and a
+        # fork that has not built one of them yet is a no-op here (same
+        # defensive contract as ``ctl.get`` above).
+        has_stored = stored_mode and bool(self._tt_sources)
+        for name in ("_tt_select_action", "_tt_clear_action"):
+            action = getattr(self, name, None)
+            if action is not None:
+                action.widget.setEnabled(has_stored)
         scope = ctl.get("scope")
         if scope is not None:
             scope.setEnabled(mode == "first")
@@ -216,6 +251,12 @@ class UvMixin:
             similarity.setEnabled(mode == "first" and uvs and in_scope != "order")
         for w in ctl.get("texture_controls") or ():
             w.setEnabled(textures)
+        # Rows that additionally need the material the texture pass builds:
+        # nothing is assigned with Assign Result off, so an affix for its name
+        # has nothing to affix.
+        assign = ctl.get("assign")
+        for w in ctl.get("assign_controls") or ():
+            w.setEnabled(textures and (assign is None or assign.isChecked()))
 
     def b030_init(self, widget):
         """Stack button — non-checkable text button with the stack option box.

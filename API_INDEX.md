@@ -420,3 +420,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `tcl_maya.py`
 - `class TclMaya(MarkingMenu)`
+
+### `tentacle_installer.py` — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
+- `register()`
+- `unregister()`
+- `onMayaDroppedPythonFile(*_args)`
+- `class TentacleInstaller`
+  - methods: host, headless, loaded, specs, python_exe, maya_paths, target_dir, is_installed, manifest_path, read_manifest, write_manifest, installed_version, install, update, uninstall, request, provision, launch, shutdown, ensure_and_launch, write_maya_module, dropped, register_blender_ui, unregister_blender_ui, main

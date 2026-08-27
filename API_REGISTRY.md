@@ -112,6 +112,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
 - [`tcl_maya.py`](#tcl_maya)
+- [`tentacle_installer.py`](#tentacle_installer) — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
 ---
 
@@ -1599,26 +1600,26 @@ The host-agnostic entry point — one launcher snippet for every DCC.
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2166) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2171) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2176) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2181) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2186) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2191) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2196) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2201) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2206) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2211) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2216) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1409)** — Marking Menu class overridden for use with Blender.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2171) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2176) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2181) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2186) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2191) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2196) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2201) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L2206) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2211) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2216) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2221) — Remove the click tracer.
+- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1414)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1931)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L1936)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2044)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2049)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.
@@ -1636,3 +1637,38 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 ### `tcl_maya.py`
 
 - **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L9)** — Marking Menu class overridden for use with Autodesk Maya.
+
+<a id="tentacle_installer"></a>
+### `tentacle_installer.py`
+
+Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
+
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1254) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1260) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1266) — Maya drop hook: first drop installs and launches;
+- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L73)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
+  - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
+  - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).
+  - `TentacleInstaller.loaded()` *(static)* — True once our code is imported in this process -- its extension modules are then
+  - `TentacleInstaller.specs(cls, host, fresh=True)` *(class)* — pip requirements for *host*: the package with its engine extra (+ Qt on a fresh Blender install).
+  - `TentacleInstaller.python_exe(host)` *(static)* — The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session).
+  - `TentacleInstaller.maya_paths(cls, app_dir=None, version=None)` *(class)* — ``(module_root, mod_file)`` for this Maya -- both under the per-version prefs dir.
+  - `TentacleInstaller.target_dir(cls, host)` *(class)* — Where the packages go: a per-user dir the host imports from at tail precedence.
+  - `TentacleInstaller.is_installed(cls, host)` *(class)* — True when ``tentacle`` and the host's engine both resolve on ``sys.path``.
+  - `TentacleInstaller.manifest_path(cls, target)` *(class)*
+  - `TentacleInstaller.read_manifest(cls, target)` *(class)* — The manifest dict (``{}`` when absent or unreadable).
+  - `TentacleInstaller.write_manifest(cls, target, **updates)` *(class)* — Merge *updates* into the manifest.
+  - `TentacleInstaller.installed_version(cls, target, name=None)` *(class)* — A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.
+  - `TentacleInstaller.install(cls, host, target=None, python=None, upgrade=False)` *(class)* — Provision (or upgrade) the host's spec set and record it;
+  - `TentacleInstaller.update(cls, host, target=None, python=None)` *(class)* — Upgrade the package (and whatever its floors now require);
+  - `TentacleInstaller.uninstall(cls, host, target=None, python=None)` *(class)* — Remove what this installer put there;
+  - `TentacleInstaller.request(cls, host, verb)` *(class)* — The one entry every surface calls with a verb;
+  - `TentacleInstaller.provision(cls, host, upgrade=False, target=None, python=None, specs=None)` *(class)* — Install *specs* into *target*;
+  - `TentacleInstaller.launch(cls, host)` *(class)* — Start the menu through tentacle's own host-aware entry (deferred as the host needs).
+  - `TentacleInstaller.shutdown(cls)` *(class)* — Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.
+  - `TentacleInstaller.ensure_and_launch(cls, host=None)` *(class)* — The startup entry both hosts call: finish a pending verb, install if needed, launch.
+  - `TentacleInstaller.write_maya_module(cls, source, app_dir=None, version=None)` *(class)* — Register the user-owned Maya module that re-runs this file at every start.
+  - `TentacleInstaller.dropped(cls, source)` *(class)* — Maya drop hook body: first drop installs;
+  - `TentacleInstaller.register_blender_ui(cls, addon_name)` *(class)* — Build and register the add-on preferences (version, Update, Uninstall) lazily --
+  - `TentacleInstaller.unregister_blender_ui(cls)` *(class)*
+  - `TentacleInstaller.main(cls, argv=None)` *(class)* — ``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.
