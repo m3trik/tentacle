@@ -360,8 +360,9 @@ class Rendering(RenderingMixin, SlotsBlender):
     # ------------------------------------------------------------------ tb002  WebXR Preview
     # Shared flow (option box + push) lives in RenderingMixin — same
     # objectNames per the cross-DCC QSettings rule. Only what is Blender's
-    # stays here: the selection read, the engine class, the log location, and
-    # the sidecar tooltip naming what Blender's FBX exporter loses.
+    # stays here: the engine class, the log location, and the sidecar tooltip
+    # naming what Blender's FBX exporter loses. Scope resolution is the
+    # engine's (``PreviewBridge.scope_objects``), not a hook passed from here.
     def tb002_init(self, widget):
         """WebXR Preview: scope and export options for the live browser preview."""
         self.webxr_init(
@@ -378,7 +379,6 @@ class Rendering(RenderingMixin, SlotsBlender):
         self.webxr_push(
             widget,
             engine=btk.WebXrPreview,
-            has_selection=lambda: bool(btk.selected_objects()),
             log_hint="script output",
         )
 

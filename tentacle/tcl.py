@@ -117,13 +117,54 @@ class _TclInternal:
         import bpy
 
         def build():
-            tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
-
-            tcl_blender.register(**kwargs)
+            try:
+                tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
+                tcl_blender.register(**kwargs)
+            except ImportError as error:
+                # A timer callback has no handler, so this would print a traceback
+                # to the SYSTEM console -- hidden by default on Windows -- and the
+                # user would see the launcher simply do nothing. The install hint
+                # is the entire value of this error, so it has to reach a surface
+                # they are looking at. Scoped to ImportError deliberately: a real
+                # bug in registration keeps its traceback rather than being dressed
+                # up as "not installed".
+                cls._report_blender_startup_error(error)
             return None  # a timer returning None is unregistered — one shot, not a poll
 
         bpy.app.timers.register(build, first_interval=cls.BLENDER_START_DELAY)
         return None
+
+    @staticmethod
+    def _report_blender_startup_error(error):
+        """Show *error* in Blender, falling back to the console.
+
+        ``popup_menu`` is the only surface available here: there is no operator to
+        ``self.report`` from, and a timer callback is not guaranteed a UI context,
+        so the call itself can raise. Both the popup and the fallback are inside
+        the guard because the thing that must not happen is the ORIGINAL error
+        escaping the callback -- Blender then reports the add-on as broken, which
+        is a worse answer than the one this exists to deliver.
+
+        The message is split on sentences rather than drawn as one label: Blender
+        does not wrap a ``layout.label``, so the pip line -- the part the user has
+        to read -- would be clipped at the popup's edge.
+        """
+        import bpy
+
+        text = str(error)
+        try:
+            # Split AFTER the terminator, keeping it: appending "." to each
+            # piece double-punctuates the last one -- and the last one is the
+            # pip line, the part that has to be readable.
+            lines = [s for s in (p.strip() for p in re.split(r"(?<=\.)\s+", text)) if s]
+
+            def draw(self, _context):
+                for line in lines:
+                    self.layout.label(text=line)
+
+            bpy.context.window_manager.popup_menu(draw, title="Tentacle", icon="ERROR")
+        except Exception:  # noqa: BLE001 -- no UI context; the console is all that is left
+            print(f"[tentacle] {text}")
 
     @classmethod
     def _launch_max(cls, **kwargs):

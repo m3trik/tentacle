@@ -1,10 +1,10 @@
 ﻿# !/usr/bin/python
 # coding=utf-8
-"""Manual GUI harness: (A) overlay transient-parenting state and (B) held-button activation â€”
+"""Manual GUI harness: (A) overlay transient-parenting state and (B) held-button activation —
 does the activation key reach tentacle while each mouse button is held BEFORE the key?
 
 Like the sibling ``gui_*_check.py`` harnesses this needs a real GUI Blender (it injects real
-input), is not a CI/unittest target, and must run against a *fresh* Blender â€” never an existing
+input), is not a CI/unittest target, and must run against a *fresh* Blender — never an existing
 session. Works in either launch mode (it ``launch()``\\ es tentacle itself if the startup module
 didn't)::
 
@@ -15,17 +15,17 @@ Phase A (passive, main thread): the live overlay's ``windowHandle().transientPar
 Win32 owner (``GWLP_HWNDPARENT``), plus the GHOST window inventory.
 Phase B: stub the live instance's press/release with recorders (no overlay ever shows), then a
 background thread injects real input (Raw-Input level: ``mouse_event``/``keybd_event``) over the
-viewport: a click-then-key positive control (keymap path), then L/M/R/LR held â€” button(s) down â†’
-key tap â†’ button(s) up â†’ ESC. Expected: control = press(None); L/M/R held = poller press with
+viewport: a click-then-key positive control (keymap path), then L/M/R/LR held — button(s) down →
+key tap → button(s) up → ESC. Expected: control = press(None); L/M/R held = poller press with
 masks 1/4/2 DURING the hold (Qt: Left=1, Right=2, Middle=4); LR (both buttons, the
-``F12|LeftButton|RightButton`` â†’ ``blender#startmenu`` chord) = mask 3; ghost_count stays 1 (a
+``F12|LeftButton|RightButton`` → ``blender#startmenu`` chord) = mask 3; ghost_count stays 1 (a
 render would open a new GHOST window).
-Phase C (watchdog): arm ``_activation_key_held`` with the key physically up â€” a simulated lost
-key-up (focus tussle ate it) â€” and expect the poll watchdog to drive the release within a tick.
-Phase D (gesture pairing): arm ``_KeymapBridge.gesture_active`` with the held flag CLEARED â€” the state uitk's
-``_show_window`` leaves when a standalone window opens mid-gesture â€” and expect the release
+Phase C (watchdog): arm ``_activation_key_held`` with the key physically up — a simulated lost
+key-up (focus tussle ate it) — and expect the poll watchdog to drive the release within a tick.
+Phase D (gesture pairing): arm ``_KeymapBridge.gesture_active`` with the held flag CLEARED — the state uitk's
+``_show_window`` leaves when a standalone window opens mid-gesture — and expect the release
 anyway (it's what clears ``_standalone_suppress`` and hides unpinned standalone windows).
-Steals foreground and moves the real mouse for ~10 s â€” throwaway instance only. Report goes to
+Steals foreground and moves the real mouse for ~10 s — throwaway instance only. Report goes to
 stdout and ``../temp_tests/held_button_activation_out.txt``.
 """
 import sys
@@ -53,7 +53,7 @@ _u = _input.user32
 _BTN = _input.BTN
 _events = []  # appended from operator stubs (main thread) and scenario markers (input thread)
 _lines = []
-_ctx = {}  # main-thread handles shared between the timer phases (tcl, â€¦)
+_ctx = {}  # main-thread handles shared between the timer phases (tcl, …)
 
 
 def _viewport_point(hwnd):
@@ -104,14 +104,14 @@ def _inject(hwnd, x, y):
             time.sleep(0.6)  # let the freshly-restored window settle before injecting
         _u.SetCursorPos(x, y)
         time.sleep(0.1)
-        # GHOST tracks hover from real mouse events â€” SetCursorPos alone leaves Blender's
+        # GHOST tracks hover from real mouse events — SetCursorPos alone leaves Blender's
         # region-under-cursor stale, so jiggle with relative moves it actually receives.
         _u.mouse_event(_input.MOUSE_MOVE, 1, 1, 0, 0)  # MOUSEEVENTF_MOVE
         time.sleep(0.05)
         _u.mouse_event(_input.MOUSE_MOVE, -1, -1, 0, 0)
         time.sleep(0.15)
         _events.append(("scenario", scenario))
-        if scenario == "control":  # click (down+up) THEN F12 â€” the proven-working gesture
+        if scenario == "control":  # click (down+up) THEN F12 — the proven-working gesture
             _u.mouse_event(_BTN["L"][0], 0, 0, 0, 0)
             _u.mouse_event(_BTN["L"][1], 0, 0, 0, 0)
             time.sleep(0.3)
@@ -121,7 +121,7 @@ def _inject(hwnd, x, y):
             time.sleep(0.12)
         if hold:
             time.sleep(0.2)
-        # Record whether the injection target actually has foreground at key-send time â€”
+        # Record whether the injection target actually has foreground at key-send time —
         # separates real dispatch failures from the flaky OS foreground grant.
         _events.append(("fg_at_key", scenario, _u.GetForegroundWindow() == hwnd))
         _u.keybd_event(_VK_F12, scan, 0, 0)
@@ -156,7 +156,7 @@ def _go():
     _phase_a(tb, tcl)
     tb._Config.DEBUG = True  # operator self-reports each fire (visible in captured stdout)
 
-    # Phase B â€” stub the interaction entry points on the LIVE instance: dispatch is measured at
+    # Phase B — stub the interaction entry points on the LIVE instance: dispatch is measured at
     # the operator/poller level; no overlay ever shows, so Blender keeps focus between
     # scenarios. Stubs mimic the real state machine's _activation_key_held arming so the
     # poller's dedup + release-safety-net branches are exercised as in production.
@@ -194,7 +194,7 @@ def _go():
 
 
 def _phase_c():
-    """Simulate a lost key-up: gesture armed but the key is physically up â€” the release
+    """Simulate a lost key-up: gesture armed but the key is physically up — the release
     watchdog (not any event) must complete the gesture."""
     _events.append(("phase_c_armed",))
     _ctx["tcl"]._activation_key_held = True
@@ -203,7 +203,7 @@ def _phase_c():
 
 def _phase_d():
     """Simulate the standalone-window aftermath: uitk's ``_show_window`` cleared the held
-    flag but the bridge-initiated gesture still owes its key-up â€” only the gesture pairing
+    flag but the bridge-initiated gesture still owes its key-up — only the gesture pairing
     (``_KeymapBridge.gesture_active``) can drive this release."""
     _events.append(("phase_d_armed",))
     _ctx["tcl"]._activation_key_held = False

@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Shared HUD warning framework (DCC-agnostic).
+"""Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 
 Lightweight pre-build checks shown as colored icons (immediately) and formatted detail
 lines (after the regular HUD-build delay). The framework — preference gating, evaluation,
@@ -16,12 +16,19 @@ Each WARNING_DEFS spec defines:
     describe  - Callable(self) -> str. Detail line shown post-delay.
 
 Adding a new check is a one-line tuple addition in the DCC subclass — no other edits needed.
+
+The trailing "Prev Command" line lives here too — it reads ``sb.prev_slot``, which is
+DCC-agnostic, so both DCC hud slots share one implementation (and one length cap).
 """
+
+import pythontk as ptk
 
 
 class HudWarningsMixin:
     WARNING_DEFS: tuple = ()
     SKIP_ON_UNSAVED_KEY = "chk_warn_skip_unsaved"
+    #: Max characters of a slot summary shown on the "Prev Command" line.
+    PREV_COMMAND_MAX_CHARS = 120
 
     def _scene_is_unsaved(self) -> bool:
         """True if no saved scene file exists on disk — DCC subclasses override."""
@@ -82,3 +89,24 @@ class HudWarningsMixin:
                 continue
             if msg:
                 hud.insertText(msg)
+
+    def insert_prev_command(self, hud, method) -> None:
+        """Insert the last-used command as a single, length-capped line.
+
+        Slot docstrings range from a one-line summary to a full ``Parameters:``
+        block, so only the leading summary is shown, and that is truncated at
+        ``PREV_COMMAND_MAX_CHARS`` — an undocumented or verbose slot must not be
+        able to push the rest of the HUD off-screen.
+
+        Parameters:
+            hud (obj): The uitk TextEdit the HUD is composed into.
+            method (obj): The previously run slot (``sb.prev_slot``), or None.
+        """
+        if not method:
+            return
+        doc = (getattr(method, "__doc__", None) or "").strip()
+        summary = next((ln.strip() for ln in doc.splitlines() if ln.strip()), "")
+        if not summary:  # undocumented slot: fall back to its name.
+            summary = getattr(method, "__name__", "") or str(method)
+        summary = ptk.StrUtils.truncate(summary, self.PREV_COMMAND_MAX_CHARS, "end")
+        hud.insertText(f'Prev Command: <font style="color: Yellow;">{summary}</font>')

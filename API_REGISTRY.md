@@ -7,7 +7,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
-- [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD warning framework (DCC-agnostic).
+- [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 - [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - [`slots/_main.py`](#slots--_main) — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
@@ -142,12 +142,13 @@ Shared, DCC-agnostic behavior for the ``edit`` panel.
 <a id="slots--_hud_warnings"></a>
 ### `slots/_hud_warnings.py`
 
-Shared HUD warning framework (DCC-agnostic).
+Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 
-- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L22)**
+- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L27)**
   - `HudWarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
+  - `HudWarningsMixin.insert_prev_command(self, hud, method) -> None` — Insert the last-used command as a single, length-capped line.
 
 <a id="slots--_lighting"></a>
 ### `slots/_lighting.py`
@@ -193,9 +194,9 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
-- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L22)** — DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).
+- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L25)** — DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).
   - `RenderingMixin.webxr_init(self, widget, sidecar_tooltip)` — Build the WebXR Preview option box (``rendering.tb002``).
-  - `RenderingMixin.webxr_push(self, widget, engine, has_selection, log_hint)` — Read the option box and push to the live preview (``rendering.tb002``).
+  - `RenderingMixin.webxr_push(self, widget, engine, log_hint)` — Read the option box and push to the live preview (``rendering.tb002``).
 
 <a id="slots--_scene"></a>
 ### `slots/_scene.py`
@@ -1584,7 +1585,7 @@ Behavior shared by the Maya and Blender UV panels.
 
 The host-agnostic entry point — one launcher snippet for every DCC.
 
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L300)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L341)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
@@ -1643,9 +1644,9 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L1254) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1260) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1266) — Maya drop hook: first drop installs and launches;
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1356) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1362) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1368) — Maya drop hook: first drop installs and launches;
 - **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L73)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).

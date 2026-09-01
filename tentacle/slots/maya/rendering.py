@@ -485,7 +485,6 @@ class Rendering(RenderingMixin, SlotsMaya):
         self.webxr_push(
             widget,
             engine=mtk.WebXrPreview,
-            has_selection=lambda: bool(cmds.ls(selection=True)),
             log_hint="script editor",
         )
 

@@ -291,10 +291,13 @@ CONTROLS = {
         # no cv2), and a per-object lightmap-UV repack into each rect (so the mesh samples the atlas
         # via UV2 — engine scaleOffset stays identity, the applied rect rides the marker's uvRect and
         # is undone by revert_lightmap). The "Atlas by Material" item is enabled (the old
-        # _disable_unsupported_packing_mode removed); the slot b000 atlas branch calls pack_atlas +
-        # commit_lightmap(uv_rects=…). Verified end-to-end headlessly (blendertk/test/
-        # test_lightmap_baker.py: 2 objects sharing a material -> 1 shared area-weighted EXR, source
-        # maps consolidated, UVs repacked into their rects, revert EXACTLY restores the 0-1 layout).
+        # _disable_unsupported_packing_mode removed). Since 2026-08-29 the slot b000 atlas
+        # branch on BOTH sides calls bake_atlas (plan the layout, bake each object at its
+        # footprint) + commit_lightmap(scale_offsets=…); the rect is the engine binding and
+        # the UVs are no longer repacked (uv_rects survives for reverting legacy markers).
+        # Verified end-to-end headlessly (blendertk/test/test_lightmap_baker.py: 2 objects
+        # sharing a material -> 1 shared area-weighted EXR, source maps consolidated, each
+        # object baked at its atlas footprint, revert EXACTLY restores the 0-1 layout).
         # cmb002 is a QComboBox present+functional on both sides -> no ledger row needed.
         # Was mis-triaged `na` ("no sourceimages workspace in Blender") until 2026-08-12 --
         # factually wrong: btk.EnvUtils.source_images_dir() exists and LightmapBakerSlots.

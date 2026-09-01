@@ -403,7 +403,9 @@ class Edit(EditMixin, SlotsMaya):
             setText="Delete Unused Nodes",
             setObjectName="chk019",
             setChecked=True,
-            setToolTip="Delete unused nodes.",
+            setToolTip="Delete unused shading nodes and orphaned empty groups.\n"
+            "Scene-wide (Maya's own MLdeleteUnused cannot be scoped) — but an\n"
+            "empty transform that anything is connected to is left alone.",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -417,6 +419,39 @@ class Edit(EditMixin, SlotsMaya):
             setObjectName="chk030",
             setToolTip="Remove unused scene objects.",
         )
+
+    # Connections that merely FILE a node somewhere — display layer and set
+    # membership. They say nothing about anything depending on the node, so
+    # they must not keep a leftover group alive: artists put whole hierarchies
+    # in layers, and counting that as a dependency would quietly retire the
+    # cleanup for exactly the scenes that need it most.
+    ORGANIZATIONAL_CONNECTION_TYPES = ("displayLayer", "objectSet")
+
+    @classmethod
+    def _is_disposable_group(cls, node) -> bool:
+        """Is this empty transform junk, or is something depending on it?
+
+        Type alone does not make an empty transform disposable. Rigs use them
+        as constraint targets, matrix sources and space-switch pivots — a
+        matrix-constrained rig is mostly empty transforms — and every one of
+        those carries a DATA connection, so anything still wired to another
+        node stays. Referenced and locked nodes are not this button's to
+        delete either.
+        """
+        try:
+            if cmds.referenceQuery(node, isNodeReferenced=True):
+                return False
+            if cmds.lockNode(node, q=True, lock=True)[0]:
+                return False
+            connected = cmds.listConnections(node, source=True, destination=True) or []
+            if not connected:
+                return True
+            organizational = set(
+                cmds.ls(connected, type=cls.ORGANIZATIONAL_CONNECTION_TYPES) or []
+            )
+            return not (set(connected) - organizational)
+        except Exception:  # a node consumed by an earlier step in this cleanup
+            return False
 
     def tb001(self, widget):
         """Delete History"""
@@ -449,6 +484,9 @@ class Edit(EditMixin, SlotsMaya):
             shapes = set(all_meshes) - intermediates
             objects = list(shapes)
 
+        # The pool the history op runs on, matching the legacy split: whole
+        # objects for the full wipe, shapes for the non-deformer bake.
+        pool = objects if deformers else sorted(shapes)
         result_msg = None
 
         # Suspend viewport refresh for the duration of the cleanup
@@ -456,43 +494,46 @@ class Edit(EditMixin, SlotsMaya):
         try:
             if unused_nodes:
                 mel.eval("MLdeleteUnused")
-                # Fast empty-group deletion via DAG path parsing
-                # A "group" is an exact-type transform with no shape children.
-                # An "empty group" is a group with no DAG children at all.
-                # allPaths=True enumerates every DAG path of instanced nodes;
-                # without it, instance siblings look like empty groups and get deleted.
-                all_dag = cmds.ls(dag=True, long=True, allPaths=True) or []
-                exact_transforms = set(
-                    cmds.ls(dag=True, exactType="transform", long=True, allPaths=True) or []
-                )
-                shape_parents = {
-                    s.rsplit("|", 1)[0]
-                    for s in (
-                        cmds.ls(dag=True, shapes=True, long=True, allPaths=True) or []
-                    )
-                }
-                dag_parents = {p.rsplit("|", 1)[0] for p in all_dag if "|" in p} - {""}
-                groups = exact_transforms - shape_parents
-                empty_groups = [g for g in groups if g not in dag_parents]
-                if empty_groups:
-                    # Re-validate existence (MLdeleteUnused may have removed some)
-                    existing = cmds.ls(empty_groups, long=True) or []
-                    if existing:
-                        cmds.delete(existing)
+                # An "empty group" is a transform with neither a shape nor any
+                # DAG child. NodeUtils.get_groups(empty=True) is the shared query
+                # for that, and it replaced a hand-rolled DAG-path sweep whose
+                # type test — `ls -dag -exactType transform` — was not exact at
+                # all: `-exactType` inherits under `-dag`, so it ALSO returned
+                # joints, ikHandles, ikEffectors and every constraint, each of
+                # them a childless, shapeless DAG node and therefore an "empty
+                # group" by that test. On a production assembly it deleted all 7
+                # ikHandles and all 224 constraints while the button had been
+                # asked only to delete history on 6 selected meshes. The
+                # primitive's `is_group` tests `objectType(n) == "transform"`,
+                # which IS exact, reads shapes with noIntermediate so an orig
+                # shape cannot disguise geometry as a group, and stays correct
+                # for instances (a shape instanced into a transform still lists
+                # as that transform's child) — measured identical to the sweep
+                # it replaces on a fixture of instanced shapes, instanced
+                # transforms and a transform carrying two DAG paths.
+                disposable = [
+                    group
+                    for group in mtk.NodeUtils.get_groups(empty=True)
+                    if self._is_disposable_group(group)
+                ]
+                if disposable:
+                    cmds.delete(disposable)
 
-            if deformers:
-                # Only report success when something was actually processed —
-                # an empty scope must not claim history was deleted.
-                if objects:
-                    cmds.delete(objects, constructionHistory=True)
-                    result_msg = "<hl>Delete history</hl>"
-            else:
-                if shapes:
-                    try:
-                        cmds.bakePartialHistory(list(shapes), prePostDeformers=True)
-                        result_msg = "<hl>Delete non-deformer history</hl>"
-                    except RuntimeError as error:
-                        print(f"Bake Partial History Failed: {error}")
+            # NodeUtils.delete_history is the shared primitive for exactly this
+            # dispatch — bakePartialHistory -prePostDeformers on a deformed
+            # object, plain `delete -ch` on an undeformed one — and it isolates
+            # a per-node failure instead of losing the whole batch to the first
+            # RuntimeError.
+            # Only report success when something was actually processed — an
+            # empty scope must not claim history was deleted.
+            if pool and mtk.NodeUtils.delete_history(
+                pool, preserve_deformers=not deformers
+            ):
+                result_msg = (
+                    "<hl>Delete history</hl>"
+                    if deformers
+                    else "<hl>Delete non-deformer history</hl>"
+                )
 
             if optimize:
                 # `OptimizeScene` == `cleanUpScene 1` == performCleanUpScene(), which pops a
@@ -515,7 +556,7 @@ class Edit(EditMixin, SlotsMaya):
 
         if result_msg:
             self.sb.message_box(result_msg)
-        elif not (objects if deformers else shapes):
+        elif not pool:
             # The pool the history op actually used (objects for full history,
             # shapes for the non-deformer bake) was empty. The scene-wide
             # sub-ops (unused nodes / optimize) may still have run above, so

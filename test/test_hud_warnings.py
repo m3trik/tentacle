@@ -6,12 +6,19 @@ Bug: warnings (e.g. autosave-off, default-framerate) fired on brand-new
 untitled scenes during initial setup, creating noise. The mixin now
 short-circuits when chk_warn_skip_unsaved is enabled (default) AND no
 scene file exists on disk yet.
+
+Bug: the "Prev Command" line printed the slot's *entire* docstring — a slot
+with a ``Parameters:`` block dumped a wall of text into the HUD (and an
+undocumented slot printed "None"). It is now the summary line only, capped at
+``PREV_COMMAND_MAX_CHARS``.
 """
+
 import os
 import tempfile
 import unittest
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from tentacle.slots._hud_warnings import HudWarningsMixin
 
 hud = maya_module("tentacle.slots.maya.hud")
 
@@ -104,17 +111,26 @@ class TestSharedMixinGating(unittest.TestCase):
         return instance
 
     def test_skip_unsaved_gate_blocks(self):
-        self.assertEqual(self._make(unsaved=True, skip_unsaved=True).evaluate_warnings(), [])
+        self.assertEqual(
+            self._make(unsaved=True, skip_unsaved=True).evaluate_warnings(), []
+        )
 
     def test_gate_off_lets_warnings_through(self):
-        self.assertEqual(len(self._make(unsaved=True, skip_unsaved=False).evaluate_warnings()), 1)
+        self.assertEqual(
+            len(self._make(unsaved=True, skip_unsaved=False).evaluate_warnings()), 1
+        )
 
     def test_saved_scene_lets_warnings_through(self):
-        self.assertEqual(len(self._make(unsaved=False, skip_unsaved=True).evaluate_warnings()), 1)
+        self.assertEqual(
+            len(self._make(unsaved=False, skip_unsaved=True).evaluate_warnings()), 1
+        )
 
     def test_disabled_warning_never_fires(self):
         self.assertEqual(
-            self._make(unsaved=False, skip_unsaved=False, dummy=False).evaluate_warnings(), []
+            self._make(
+                unsaved=False, skip_unsaved=False, dummy=False
+            ).evaluate_warnings(),
+            [],
         )
 
     def test_missing_prefs_means_disabled(self):
@@ -181,16 +197,80 @@ class TestUnsavedSceneGate(unittest.TestCase):
         """The .ui must ship chk_warn_skip_unsaved checked by default."""
         ui_path = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "tentacle", "ui", "preferences.ui",
+            "tentacle",
+            "ui",
+            "preferences.ui",
         )
         with open(ui_path, "r", encoding="utf-8") as f:
             content = f.read()
         idx = content.find('name="chk_warn_skip_unsaved"')
-        self.assertNotEqual(idx, -1, "chk_warn_skip_unsaved missing from preferences.ui")
+        self.assertNotEqual(
+            idx, -1, "chk_warn_skip_unsaved missing from preferences.ui"
+        )
         widget_end = content.find("</widget>", idx)
         widget_block = content[idx:widget_end]
-        self.assertIn("<bool>true</bool>", widget_block,
-                      "chk_warn_skip_unsaved must default to checked")
+        self.assertIn(
+            "<bool>true</bool>",
+            widget_block,
+            "chk_warn_skip_unsaved must default to checked",
+        )
+
+
+class _FakeHud:
+    """Collects the paragraphs a hud TextEdit would have appended."""
+
+    def __init__(self):
+        self.lines = []
+
+    def insertText(self, text, **kwargs):
+        self.lines.append(text)
+
+
+class _PrevCommandHarness(HudWarningsMixin):
+    """The prev-command line is DCC-agnostic, so it needs no host at all."""
+
+
+class TestPrevCommandLine(unittest.TestCase):
+    """``insert_prev_command`` shows one capped summary line, never a full docstring."""
+
+    def setUp(self):
+        self.hud = _FakeHud()
+        self.harness = _PrevCommandHarness()
+
+    @staticmethod
+    def _slot(doc):
+        def slot():
+            pass
+
+        slot.__doc__ = doc
+        return slot
+
+    def test_long_docstring_is_capped(self):
+        cap = HudWarningsMixin.PREV_COMMAND_MAX_CHARS
+        summary = "x" * (cap * 2)
+        self.harness.insert_prev_command(self.hud, self._slot(summary))
+        line = self.hud.lines[0]
+        self.assertNotIn(summary, line)
+        self.assertIn("x" * cap, line)
+        # truncate() appends its ".." marker past the cap; nothing more.
+        self.assertLessEqual(
+            len(line.split('Yellow;">')[1].split("</font>")[0]), cap + 2
+        )
+
+    def test_only_the_summary_line_is_shown(self):
+        doc = "Do The Thing: act on the selection.\n\n    Parameters:\n        x (int): nope."
+        self.harness.insert_prev_command(self.hud, self._slot(doc))
+        self.assertIn("Do The Thing: act on the selection.", self.hud.lines[0])
+        self.assertNotIn("Parameters:", self.hud.lines[0])
+
+    def test_undocumented_slot_falls_back_to_its_name(self):
+        self.harness.insert_prev_command(self.hud, self._slot(None))
+        self.assertIn("slot", self.hud.lines[0])
+        self.assertNotIn("None", self.hud.lines[0])
+
+    def test_no_prev_slot_inserts_nothing(self):
+        self.harness.insert_prev_command(self.hud, None)
+        self.assertEqual(self.hud.lines, [])
 
 
 if __name__ == "__main__":
