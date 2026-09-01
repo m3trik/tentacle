@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 221, Blender 223 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **86%** (391/456) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **45 present** pairs (of Maya's 47), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **54%** (1065/1957 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **54%** (1086/1998 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 54% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -23,23 +23,23 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
-| anim_utils | 309 | 283 | 243 | 79% |
+| anim_utils | 335 | 303 | 263 | 79% |
 | audio_utils | 66 | 32 | 15 | 23% |
 | cam_utils | 10 | 16 | 4 | 40% |
-| core_utils | 163 | 74 | 51 | 31% |
+| core_utils | 164 | 74 | 51 | 31% |
 | display_utils | 44 | 43 | 18 | 41% |
 | edit_utils | 171 | 175 | 122 | 71% |
-| env_utils | 434 | 286 | 216 | 50% |
+| env_utils | 441 | 287 | 217 | 49% |
 | light_utils | 75 | 69 | 45 | 60% |
-| mat_utils | 306 | 248 | 213 | 70% |
-| node_utils | 144 | 53 | 47 | 33% |
+| mat_utils | 307 | 244 | 210 | 68% |
+| node_utils | 145 | 53 | 47 | 32% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
-| rig_utils | 129 | 86 | 47 | 36% |
-| ui_utils | 72 | 86 | 32 | 44% |
+| rig_utils | 130 | 86 | 47 | 36% |
+| ui_utils | 72 | 90 | 33 | 46% |
 | uv_utils | 95 | 93 | 72 | 76% |
-| xform_utils | 78 | 35 | 29 | 37% |
-| **TOTAL (unique)** | **1957** | **1447** | **1065** | **54%** |
+| xform_utils | 82 | 35 | 29 | 35% |
+| **TOTAL (unique)** | **1998** | **1468** | **1086** | **54%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -58,13 +58,13 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | ArnoldBridge | 0→0 | 6→0 | 4→4 | 741→128 | 17% | 100% | clean |
-| TubeRig | 1→1 | 4→1 | 19→16 | 4524→1126 | 25% | 84% | 3 open |
-| MatUpdater | 0→0 | 13→9 | 2→2 | 1400→397 | 28% | 100% | clean |
-| GameShader | 5→5 | 4→2 | 8→7 | 2574→740 | 29% | 88% | clean |
+| TubeRig | 1→1 | 4→1 | 19→16 | 4711→1137 | 24% | 84% | 3 open |
+| GameShader | 5→5 | 4→2 | 8→7 | 2661→740 | 28% | 88% | clean |
+| MatUpdater | 0→0 | 13→9 | 2→2 | 1436→397 | 28% | 100% | clean |
 | ShaderTemplates | 0→0 | 6→5 | 5→5 | 886→330 | 37% | 100% | clean |
+| SceneExporter | 4→4 | 15→15 | 5→5 | 2180→865 | 40% | 100% | clean |
 | CurveToTube | 0→0 | 4→3 | 11→11 | 871→383 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 304→135 | 44% | 100% | clean |
-| SceneExporter | 4→4 | 15→15 | 5→5 | 1985→865 | 44% | 100% | clean |
 | Snap | 3→3 | 6→6 | 3→3 | 424→202 | 48% | 100% | clean |
 | ReferenceManager | 2→2 | 37→33 | 4→4 | 4155→2161 | 52% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3151→1713 | 54% | 100% | clean |
@@ -78,8 +78,9 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
 | LightmapBaker | 3→3 | 7→6 | 10→10 | 3331→2428 | 73% | 100% | clean |
 | HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3122→2395 | 77% | 100% | clean |
+| SubstanceBridge | 1→1 | 0→0 | 2→2 | 336→267 | 79% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 350→287 | 82% | 100% | clean |
-| ShotSequencer | 1→1 | 19→17 | 2→2 | 3477→2855 | 82% | 100% | clean |
+| ShotSequencer | 1→1 | 19→17 | 2→2 | 3647→3019 | 83% | 100% | clean |
 | TelescopeRig | 0→0 | 0→0 | 4→4 | 1115→958 | 86% | 100% | clean |
 | WheelRig | 2→2 | 2→2 | 7→7 | 714→622 | 87% | 100% | clean |
 | ShadowRig | 0→0 | 2→1 | 9→9 | 1411→1275 | 90% | 100% | clean |
@@ -88,8 +89,8 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | Bevel | 0→0 | 0→0 | 3→3 | 174→163 | 94% | 100% | clean |
 | Bridge | 0→0 | 0→0 | 5→5 | 270→255 | 94% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 283→271 | 96% | 100% | clean |
+| Shots | 5→5 | 8→8 | 17→17 | 1224→1178 | 96% | 100% | clean |
 | UnityBridge | 1→1 | 1→1 | 2→2 | 422→406 | 96% | 100% | clean |
-| Shots | 4→4 | 5→5 | 14→14 | 1021→989 | 97% | 100% | clean |
 | BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 940→918 | 98% | 100% | clean |
 | ShotManifest | 2→2 | 7→7 | 5→5 | 2018→2017 | 100% | 100% | clean |
 | DuplicateLinear | 0→0 | 3→3 | 7→7 | 337→345 | 102% | 100% | clean |
@@ -98,7 +99,6 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | SmartBake | 0→0 | 4→3 | 11→10 | 298→310 | 104% | 91% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 270→289 | 107% | 100% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 243→263 | 108% | 100% | clean |
-| SubstanceBridge | 0→0 | 0→0 | 2→2 | 317→353 | 111% | 100% | clean |
 | ColorId | 0→0 | 0→0 | 9→9 | 738→834 | 113% | 100% | clean |
 | RenderOpacity | 3→3 | 6→6 | 4→4 | 358→412 | 115% | 100% | clean |
 | EmissiveGroups | 3→3 | 15→14 | 7→7 | 1238→1433 | 116% | 100% | clean |
