@@ -469,7 +469,17 @@ class TestPush(unittest.TestCase):
         host, widget, menu = _built()
         if menu_setup:
             menu_setup(menu)
-        host.webxr_push(widget, engine=_FakeBridge, log_hint="script editor", **kwargs)
+        # Under the encoder stub, always: selecting KTX2 sends the push through
+        # the tool gate, which without this asks the MACHINE whether toktx is
+        # installed. That passed on a workstation that has it and failed on CI
+        # that does not -- the gate returned False, the push never happened,
+        # and the assertion died on an empty list two frames away from the
+        # cause. These tests are about what `push` is SENT; which encoder the
+        # host owns is TestTextureToolGate's subject, and it states it too.
+        with _ktx2_encoder():
+            host.webxr_push(
+                widget, engine=_FakeBridge, log_hint="script editor", **kwargs
+            )
         return host, menu
 
     def test_scope_reaches_the_bridge_as_objects_and_as_a_param(self):
