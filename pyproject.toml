@@ -44,7 +44,7 @@ dependencies = [
 # Engine floors track the same release as the core pins: gate_on_app reaches
 # mtk./btk.<Bridge>.APP, and the AppSpec collapse that introduced APP lands in
 # mayatk 0.13.54 / blendertk 0.5.74 -- the engines published beside this one.
-maya = ["mayatk>=0.14.12"]
+maya = ["mayatk>=0.14.13"]
 blender = ["blendertk>=0.5.86"]
 
 [project.urls]
