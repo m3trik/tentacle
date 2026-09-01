@@ -259,12 +259,7 @@ class HudSlots(
             elif cmds.selectMode(q=True, component=1):
                 self.insert_component_info(hud, selection)
 
-        method = self.sb.prev_slot
-        if method:
-            # Get button text from last used command
-            hud.insertText(
-                'Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__)
-            )
+        self.insert_prev_command(hud, self.sb.prev_slot)
 
 
 # --------------------------------------------------------------------------------------------

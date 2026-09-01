@@ -215,11 +215,7 @@ class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin):
         else:
             self.insert_scene_status(hud)
 
-        method = self.sb.prev_slot
-        if method:
-            hud.insertText(
-                'Prev Command: <font style="color: Yellow;">{}'.format(method.__doc__)
-            )
+        self.insert_prev_command(hud, self.sb.prev_slot)
 
 
 # --------------------------------------------------------------------------------------------

@@ -12,9 +12,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class EditMixin`
   - methods: mesh_cleanup_tooltip, cleanup_popup_html, cleanup_console_report, report_cleanup_failure
 
-### `slots/_hud_warnings.py` — Shared HUD warning framework (DCC-agnostic).
+### `slots/_hud_warnings.py` — Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 - `class HudWarningsMixin`
-  - methods: evaluate_warnings, insert_warning_icons, insert_warning_details
+  - methods: evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
 
 ### `slots/_lighting.py` — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - `class LightingMixin`

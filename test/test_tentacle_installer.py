@@ -502,6 +502,50 @@ class TestMayaModule(unittest.TestCase):
         request.assert_called_once_with("maya", "uninstall")
         ensure.assert_not_called()
 
+    def test_the_redrop_dialog_says_where_tentacle_actually_resolved(self):
+        """The dialog is what makes the user expect the Uninstall to remove something.
+
+        ``dropped`` writes the module first, so a re-drop on a machine whose ``tentacle``
+        comes from elsewhere (a checkout on ``PYTHONPATH``, a plain ``pip install``) hits
+        the dialog with an EMPTY site: it reported "Tentacle ? is installed in <root>",
+        the user chose Uninstall, and the only thing removed was the shell the drop had
+        just written.
+        """
+        root, mod = self.installer.maya_paths(str(self.app), "2025")
+        outside = str(TEMP / "elsewhere" / "tentacle" / "__init__.py")
+        shown = {}
+
+        def fake_ui(fn):
+            shown["message"] = fn()
+            return "Cancel"
+
+        fake_maya = types.ModuleType("maya")
+        fake_maya.cmds = mock.MagicMock()
+        fake_maya.cmds.confirmDialog.side_effect = lambda **kw: kw["message"]
+
+        with (
+            mock.patch.dict(
+                sys.modules, {"maya": fake_maya, "maya.cmds": fake_maya.cmds}
+            ),
+            mock.patch.object(self.installer, "maya_paths", return_value=(root, mod)),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "installed_version", return_value=None),
+            mock.patch.object(
+                self.installer,
+                "_origin",
+                side_effect=lambda name: outside if name == "tentacle" else None,
+            ),
+            mock.patch.object(self.installer, "_ui", side_effect=fake_ui),
+            mock.patch.object(self.installer, "request"),
+        ):
+            self.installer.dropped(str(INSTALLER))
+
+        message = shown.get("message", "")
+        self.assertNotIn(
+            "Tentacle ? is installed", message, "an empty site is not an install"
+        )
+        self.assertIn(os.path.dirname(outside), message)
+
     def test_uninstall_honours_the_target_it_was_given(self):
         """The Maya branch used to discard *target* and recompute the tree.
 
@@ -687,6 +731,7 @@ class TestFlow(unittest.TestCase):
             mock.patch.object(self.installer, "loaded", return_value=False),
             mock.patch.object(self.installer, "headless", return_value=True),
             mock.patch.object(self.installer, "uninstall", return_value=[]),
+            mock.patch.object(self.installer, "_origin", return_value=None),
             mock.patch.object(self.installer, "_say"),
         ):
             message = self.installer.request("blender", "uninstall")
@@ -700,10 +745,130 @@ class TestFlow(unittest.TestCase):
             mock.patch.object(self.installer, "loaded", return_value=False),
             mock.patch.object(self.installer, "headless", return_value=True),
             mock.patch.object(self.installer, "uninstall", return_value=[]),
+            mock.patch.object(self.installer, "_origin", return_value=None),
             mock.patch.object(self.installer, "_say"),
         ):
             message = self.installer.request("maya", "uninstall")
         self.assertEqual(message, "Tentacle uninstalled")
+
+    def test_uninstall_reports_a_copy_it_could_not_reach(self):
+        """A removal that leaves the menu running must not report a bare success.
+
+        Nothing this installer removes can touch a ``tentacle`` that resolves from
+        somewhere else on ``sys.path`` -- a dev checkout on ``PYTHONPATH``, a stale
+        plain ``pip install tentacletk`` in the user site -- so the next start brings
+        the menu straight back and the uninstall looks like it did nothing. Measured:
+        a drop-then-Uninstall on such a machine removed only the empty module shell
+        the drop had just written, said "Tentacle uninstalled", and relaunched at the
+        next start. The launch path already detects this (:meth:`_advise_shadow`);
+        the uninstall path reported success regardless.
+        """
+        outside = str(TEMP / "elsewhere" / "tentacle" / "__init__.py")
+        for host in ("maya", "blender"):
+            with self.subTest(host=host):
+                with (
+                    mock.patch.object(self.installer, "loaded", return_value=False),
+                    mock.patch.object(self.installer, "headless", return_value=True),
+                    mock.patch.object(
+                        self.installer, "uninstall", return_value=["tentacletk"]
+                    ),
+                    mock.patch.object(
+                        self.installer,
+                        "_origin",
+                        side_effect=lambda name: (
+                            outside if name == "tentacle" else None
+                        ),
+                    ),
+                    mock.patch.object(self.installer, "_say"),
+                ):
+                    message = self.installer.request(host, "uninstall")
+                self.assertIn(
+                    os.path.dirname(outside),
+                    message,
+                    "the uninstall must name the copy it could not remove",
+                )
+                self.assertIn("still", message.splitlines()[0].lower())
+
+    def test_uninstall_is_a_plain_success_when_nothing_else_resolves(self):
+        """The warning is the exception, not a permanent caveat on every uninstall."""
+        with (
+            mock.patch.object(self.installer, "loaded", return_value=False),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "uninstall", return_value=["tentacletk"]),
+            mock.patch.object(self.installer, "_origin", return_value=None),
+            mock.patch.object(self.installer, "_say"),
+        ):
+            message = self.installer.request("maya", "uninstall")
+        self.assertEqual(message, "Tentacle uninstalled (1 package(s) removed)")
+
+    def test_a_pending_uninstall_at_start_reports_the_copy_it_could_not_reach(self):
+        """The pending path is where a real Maya lands, and it built its own message."""
+        self.installer.write_manifest(str(self.target), pending="uninstall")
+        outside = str(TEMP / "elsewhere" / "tentacle" / "__init__.py")
+        with (
+            mock.patch.object(self.installer, "uninstall", return_value=[]) as remove,
+            mock.patch.object(
+                self.installer,
+                "_origin",
+                side_effect=lambda name: outside if name == "tentacle" else None,
+            ),
+            mock.patch.object(self.installer, "launch") as launch,
+            mock.patch.object(self.installer, "_say") as say,
+        ):
+            self.assertIsNone(self.installer.ensure_and_launch("maya"))
+        remove.assert_called_once_with("maya", str(self.target))
+        launch.assert_not_called()
+        self.assertIn(os.path.dirname(outside), say.call_args[0][1])
+
+    def test_outside_origins_ignores_what_lives_in_the_target(self):
+        """Its own install is not a shadow -- only a copy the removal cannot reach."""
+        inside = str(self.target / "tentacle" / "__init__.py")
+        with mock.patch.object(self.installer, "_origin", return_value=inside):
+            self.assertEqual(
+                self.installer._outside_origins("maya", str(self.target)), {}
+            )
+
+    def test_outside_origins_does_not_swallow_a_sibling_of_the_target(self):
+        """A bare prefix test reads ``<target>_old`` as inside -- it is not reachable."""
+        sibling = str(
+            self.target.parent
+            / (self.target.name + "_old")
+            / "tentacle"
+            / "__init__.py"
+        )
+        with mock.patch.object(self.installer, "_origin", return_value=sibling):
+            self.assertIn(
+                "tentacle", self.installer._outside_origins("maya", str(self.target))
+            )
+
+    def test_an_unreachable_copy_is_reported_on_the_channel_that_waits(self):
+        """Maya's success channel is a four-second fading inViewMessage.
+
+        That is the wrong carrier for the one message explaining why the menu is still
+        there, so a shadowed removal reports as an error (a dialog) instead.
+        """
+        outside = str(TEMP / "elsewhere" / "tentacle" / "__init__.py")
+        with (
+            mock.patch.object(self.installer, "loaded", return_value=False),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "uninstall", return_value=[]),
+            mock.patch.object(self.installer, "_say") as say,
+            mock.patch.object(
+                self.installer,
+                "_origin",
+                side_effect=lambda name: outside if name == "tentacle" else None,
+            ),
+        ):
+            self.installer.request("maya", "uninstall")
+            self.assertTrue(say.call_args.kwargs.get("error"), say.call_args)
+
+            say.reset_mock()
+            with mock.patch.object(self.installer, "_origin", return_value=None):
+                self.installer.request("maya", "uninstall")
+            self.assertFalse(
+                say.call_args.kwargs.get("error"),
+                "a clean removal must not report as an error",
+            )
 
     def test_a_failed_pending_update_still_launches_the_install_on_disk(self):
         """One unreachable index must not cost the artist the menu, forever.
@@ -755,6 +920,7 @@ class TestFlow(unittest.TestCase):
             mock.patch.object(
                 self.installer, "update", return_value=["tentacletk==2"]
             ) as update,
+            mock.patch.object(self.installer, "_origin", return_value=None),
             mock.patch.object(self.installer, "_report"),
             mock.patch.object(self.installer, "launch") as launch,
         ):

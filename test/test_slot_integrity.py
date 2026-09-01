@@ -131,12 +131,22 @@ class TestEditTb001Performance(unittest.TestCase):
             "tb001 should call cmds.refresh (for suspend/resume)",
         )
 
-    def test_no_per_node_pymel_groups(self):
-        """tb001 should not call mtk.get_groups (slow PyMEL per-node loop)."""
+    def test_no_flat_mtk_group_helper(self):
+        """Group detection goes through the class namespace, not mtk's flat root.
+
+        `mtk.get_groups` does resolve — mayatk's `*_utils` roots are wildcard-
+        exposed — but that flat form is legacy, so tb001 calls
+        `mtk.NodeUtils.get_groups`. The original rationale here ("slow PyMEL
+        per-node loop") is stale twice over: there is no PyMEL left in the
+        monorepo, and the primitive measures 0.08s against a hand-rolled
+        0.04s on a 5266-node production scene — noise beside the 14 lines of
+        DAG-path arithmetic it replaces, which is where the sweep's
+        rig-destroying type bug lived.
+        """
         calls = self._collect_calls(self.tb001_node)
         self.assertFalse(
             any(c == "mtk.get_groups" for c in calls),
-            "tb001 should use cmds path-parsing for empty groups, not mtk.get_groups",
+            "tb001 should call mtk.NodeUtils.get_groups, not the flat mtk.get_groups",
         )
 
     def test_no_per_node_pymel_shapes(self):
@@ -147,23 +157,36 @@ class TestEditTb001Performance(unittest.TestCase):
             "tb001 should use cmds.listRelatives for shapes, not mtk.get_shape_node",
         )
 
-    def test_uses_exact_type_for_groups(self):
-        """Empty-group detection must use exactType to avoid matching joints etc."""
-        # Look for cmds.ls calls with exactType keyword
-        has_exact_type = False
+    def test_never_combines_dag_with_exact_type(self):
+        """`ls -dag -exactType` is NOT exact — the two must never be combined.
+
+        This replaces a test that asserted the presence of `exactType`, on the
+        reasoning that it would "avoid matching joints etc." The reasoning was
+        right and the assertion did not deliver it: under `-dag` the type test
+        applies WITH inheritance, so `cmds.ls(dag=True, exactType="transform")`
+        returns joints, ikHandles, ikEffectors and every constraint as well
+        (probed mayapy 2025: 13 nodes against 7 for the `-dag`-free form). The
+        old test passed for the whole life of the bug — tb001's empty-group
+        sweep treated each of those childless, shapeless DAG nodes as junk and
+        deleted all 7 ikHandles and all 224 constraints of the VDATS assembly.
+        Asserting the token instead of the property is what let that through,
+        so this guards the trap itself; the behaviour is pinned by
+        test_edit.TestDeleteHistoryUnusedNodes.
+        """
+        offenders = []
         for child in ast.walk(self.tb001_node):
-            if isinstance(child, ast.Call) and isinstance(child.func, ast.Attribute):
-                if (
-                    isinstance(child.func.value, ast.Name)
-                    and child.func.value.id == "cmds"
-                    and child.func.attr == "ls"
-                ):
-                    for kw in child.keywords:
-                        if kw.arg == "exactType":
-                            has_exact_type = True
-        self.assertTrue(
-            has_exact_type,
-            "tb001 should use cmds.ls(exactType='transform') for group detection",
+            if not isinstance(child, ast.Call):
+                continue
+            if not (isinstance(child.func, ast.Attribute) and child.func.attr == "ls"):
+                continue
+            flags = {kw.arg for kw in child.keywords}
+            if "exactType" in flags and flags & {"dag", "dagObjects"}:
+                offenders.append(sorted(f for f in flags if f))
+        self.assertFalse(
+            offenders,
+            "cmds.ls(dag=True, exactType=...) is not exact: it matches every "
+            "transform-derived DAG node (joints, ikHandles, effectors, "
+            f"constraints). Ask without -dag. Offending call(s): {offenders}",
         )
 
     def test_message_box_outside_suspend(self):

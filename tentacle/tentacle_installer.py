@@ -213,16 +213,56 @@ class TentacleInstaller:
 
     # ------------------------------------------------------------------ state
     @staticmethod
-    def _has(name):
-        """True when *name* resolves to a REAL package on the current ``sys.path``.
+    def _origin(name):
+        """The file *name* would import from, or ``None`` when it backs no real file.
 
-        A bare folder of that name anywhere on the path (a repo checkout root, a stray
-        ``tentacle/`` next to a script) resolves as an empty namespace package -- a spec
-        with no file behind it -- which would read as "installed" and skip the install.
+        The one probe both :meth:`_has` and the shadow reports go through. A bare folder
+        of that name anywhere on the path (a repo checkout root, a stray ``tentacle/``
+        next to a script) resolves as an empty namespace package -- a spec with no file
+        behind it -- which would read as "installed" and skip the install.
         """
         importlib.invalidate_caches()
-        spec = importlib.util.find_spec(name)
-        return spec is not None and bool(spec.has_location and spec.origin)
+        try:
+            spec = importlib.util.find_spec(name)
+        except (ImportError, ValueError):
+            return None
+        if spec is None or not (spec.has_location and spec.origin):
+            return None
+        return spec.origin
+
+    @classmethod
+    def _has(cls, name):
+        """True when *name* resolves to a REAL package on the current ``sys.path``."""
+        return cls._origin(name) is not None
+
+    @classmethod
+    def _outside_origins(cls, host, target):
+        """``{name: origin}`` for our packages that import from OUTSIDE *target*.
+
+        Nothing this installer removes can reach them, which is exactly what makes a
+        removal look like it did nothing: the next start imports that copy and the menu
+        is back. A dev checkout on ``PYTHONPATH`` and a plain ``pip install tentacletk``
+        in the user site are both this.
+
+        This never raises. It runs on the pending path, straight out of ``userSetup.py``
+        / ``register()``, and now runs AFTER a removal that already succeeded -- a
+        diagnostic that can propagate there would have the host report the add-on as
+        broken over a message about the add-on. One guard here covers every caller.
+        """
+        # The separator matters: a bare prefix test also swallows a SIBLING of the
+        # target (``<target>_old``), which is a copy the removal cannot reach.
+        root = os.path.normcase(os.path.normpath(target)) + os.sep
+        found = {}
+        try:
+            for name in ("tentacle", cls.ENGINES.get(host)):
+                origin = cls._origin(name) if name else None
+                if origin and not os.path.normcase(os.path.normpath(origin)).startswith(
+                    root
+                ):
+                    found[name] = origin
+        except Exception:  # noqa: BLE001 -- see above
+            return {}
+        return found
 
     @classmethod
     def is_installed(cls, host):
@@ -565,22 +605,7 @@ class TentacleInstaller:
             cls._say(host, message)
             return message
         if verb == "uninstall":
-            names = cls.uninstall(host, target)
-            # Maya's removal is exclusive (the whole module folder is ours), so it is
-            # complete whatever the manifest said. Blender's is driven ENTIRELY by the
-            # recorded pins into a SHARED addons/modules, so no pins means nothing was
-            # removed -- and saying 'uninstalled' there, after deleting the add-on that
-            # is the only UI to retry from, is the report that hid the leftovers.
-            if host == "maya" or names:
-                removed = f" ({len(names)} package(s) removed)" if names else ""
-                message = f"Tentacle uninstalled{removed}"
-            else:
-                message = (
-                    "Nothing was recorded to remove - the add-on is gone, but any "
-                    f"packages this installer added are still in {target}"
-                )
-            cls._say(host, message)
-            return message
+            return cls._report_uninstall(host, target, cls.uninstall(host, target))
         # update, nothing loaded: like a first install, and launch when done.
         cls._ensure_on_path(target)
         if cls.headless(host):
@@ -589,6 +614,60 @@ class TentacleInstaller:
             return "Tentacle updated"
         cls._provision_async(host, True, target)
         return "Tentacle update started"
+
+    @classmethod
+    def _report_uninstall(cls, host, target, names):
+        """Show what a removal actually achieved; returns the message.
+
+        A copy of ours the removal could not reach is a problem report, not a routine
+        success, and Maya's success channel is a four-second fading ``inViewMessage`` --
+        the wrong carrier for the one message that explains why the menu is still
+        there. It goes out on the error channel instead, which is a dialog that waits.
+        """
+        outside = cls._outside_origins(host, target)
+        message = cls._uninstall_message(host, target, names, outside)
+        cls._say(host, message, error=bool(outside))
+        return message
+
+    @classmethod
+    def _uninstall_message(cls, host, target, names, outside):
+        """What a removal reports -- including any copy of ours it could not reach.
+
+        Maya's removal is exclusive (the whole module folder is ours), so it is complete
+        whatever the manifest said. Blender's is driven ENTIRELY by the recorded pins
+        into a SHARED ``addons/modules``, so no pins means nothing was removed -- and
+        saying 'uninstalled' there, after deleting the add-on that is the only UI to
+        retry from, is the report that hid the leftovers.
+
+        Neither reaches a ``tentacle`` that resolves from OUTSIDE *target*, and that copy
+        relaunches the menu at the next start -- so a complete removal still reads as
+        having done nothing. Measured on a machine carrying the repo on ``PYTHONPATH``:
+        a drop then Uninstall removed only the empty module shell the drop had just
+        written, reported "Tentacle uninstalled", and the menu was back one restart
+        later. It leads the message rather than trailing it, because Blender's popup
+        shows the first line only.
+        """
+        if host == "maya" or names:
+            removed = f" ({len(names)} package(s) removed)" if names else ""
+            message = f"Tentacle uninstalled{removed}"
+        else:
+            message = (
+                "Nothing was recorded to remove - the add-on is gone, but any "
+                f"packages this installer added are still in {target}"
+            )
+        if outside:
+            where = "; ".join(
+                f"{name} in {os.path.dirname(origin)}"
+                for name, origin in sorted(outside.items())
+            )
+            message += (
+                " - tentacle still loads from outside the install dir, so the menu "
+                "comes back at the next start."
+                f"\nFound: {where}"
+                "\nThat copy is not this installer's; remove it separately (a checkout "
+                "on PYTHONPATH, or 'pip uninstall tentacletk' in that interpreter)."
+            )
+        return message
 
     # ------------------------------------------------------------------ provisioning
     @classmethod
@@ -705,32 +784,29 @@ class TentacleInstaller:
     def launch(cls, host):
         """Start the menu through tentacle's own host-aware entry (deferred as the host needs)."""
         importlib.invalidate_caches()
-        import tentacle
         from tentacle import Tcl
 
-        cls._advise_shadow(host, tentacle)
+        cls._advise_shadow(host)
         key = os.environ.get("TENTACLE_KEY")
         return Tcl.launch(key_show=key) if key else Tcl.launch()
 
     @classmethod
-    def _advise_shadow(cls, host, module):
-        """Say so when ``tentacle`` resolved from somewhere ahead of the install dir.
+    def _advise_shadow(cls, host):
+        """Say so when anything of ours resolved from somewhere ahead of the install dir.
 
         Maya reads the user site ahead of everything (index 14 vs the module's 26-38); a stale
         ``tentacletk`` left there by a bare ``pip install`` wins every import and looks like
         an update that never took. pip cannot see that; this can.
         """
         try:
-            target = os.path.normcase(os.path.normpath(cls.target_dir(host)))
-            loaded = os.path.normcase(
-                os.path.normpath(os.path.dirname(module.__file__))
-            )
-        except Exception:
+            target = cls.target_dir(host)
+        except Exception:  # noqa: BLE001 -- cmds / bpy unavailable; nothing to compare to
             return
-        if not loaded.startswith(target):
+        for name, origin in sorted(cls._outside_origins(host, target).items()):
             print(
-                f"[tentacle] loading from {loaded}, not from the install dir {target}: "
-                "a copy earlier on sys.path outranks it (uninstall that one to use this install)."
+                f"[tentacle] {name} loads from {os.path.dirname(origin)}, not from the "
+                "install dir: a copy earlier on sys.path outranks it "
+                "(uninstall that one to use this install)."
             )
 
     @classmethod
@@ -757,8 +833,7 @@ class TentacleInstaller:
         cls._ensure_on_path(target)
         pending = cls.read_manifest(target).get("pending")
         if pending == "uninstall":
-            cls.uninstall(host, target)
-            cls._say(host, "Tentacle uninstalled")
+            cls._report_uninstall(host, target, cls.uninstall(host, target))
             return None
         upgrade = pending == "update"
         if cls.is_installed(host) and not upgrade:
@@ -1068,11 +1143,11 @@ class TentacleInstaller:
             return "install"
         from maya import cmds
 
-        version = version or "?"
+        message = cls._drop_message(root, version)
         choice = cls._ui(
             lambda: cmds.confirmDialog(
                 title="Tentacle",
-                message=f"Tentacle {version} is installed in\n{root}",
+                message=message,
                 button=["Update", "Uninstall", "Cancel"],
                 defaultButton="Cancel",
                 cancelButton="Cancel",
@@ -1083,6 +1158,33 @@ class TentacleInstaller:
         if verb in cls.VERBS:
             cls.request("maya", verb)
         return verb
+
+    @classmethod
+    def _drop_message(cls, root, version):
+        """What the re-drop dialog states about this machine before offering the verbs.
+
+        *version* is what the module's own ``site`` records, so ``None`` means this
+        module has nothing in it -- the drop just created it. Saying "Tentacle ? is
+        installed in <root>" there invited an Uninstall that could only remove that
+        empty shell, while the ``tentacle`` actually being imported (a checkout on
+        ``PYTHONPATH``, a plain ``pip install tentacletk`` in the user site) is beyond
+        this installer's reach and comes back at the next start.
+        """
+        if version:
+            message = f"Tentacle {version} is installed in\n{root}"
+        else:
+            message = f"No packages of ours are installed in\n{root}"
+        outside = cls._outside_origins("maya", os.path.join(root, "site"))
+        if outside:
+            found = "\n".join(
+                f"    {name}: {os.path.dirname(origin)}"
+                for name, origin in sorted(outside.items())
+            )
+            message += (
+                "\n\nBut Maya imports ours from outside this module:\n"
+                f"{found}\n\nUninstall cannot remove that copy - it has to go separately."
+            )
+        return message
 
     # ------------------------------------------------------------------ Blender surface
     @classmethod

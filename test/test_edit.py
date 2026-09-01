@@ -131,6 +131,87 @@ class TestDeleteHistoryUnusedNodes(unittest.TestCase):
             f"Empty group '{empty_grp}' should have been removed",
         )
 
+    def test_delete_unused_nodes_still_removes_filed_empty_group(self):
+        """Display layer / set membership is not a dependency.
+
+        The disposability guard asks whether anything depends on an empty
+        transform. Membership of a display layer or an objectSet answers
+        `listConnections`, but files the node rather than depending on it —
+        counting it would retire the cleanup for any scene whose hierarchy is
+        organised into layers, which is most of them.
+        """
+        cmds.polyCube(name="pKeepFiled")
+        layered = cmds.group(empty=True, name="grp_empty_layered")
+        layer = cmds.createDisplayLayer(name="tmpLayer", empty=True)
+        cmds.editDisplayLayerMembers(layer, layered, noRecurse=True)
+        in_set = cmds.group(empty=True, name="grp_empty_in_set")
+        cmds.sets(in_set, name="tmpSet")
+
+        self._run_tb001()
+
+        for node, label in ((layered, "display layer"), (in_set, "objectSet")):
+            self.assertFalse(
+                cmds.objExists(node),
+                f"Empty group '{node}' was spared because it is in a {label}; "
+                "membership files a node, it does not depend on it",
+            )
+
+    def test_delete_unused_nodes_preserves_rig_nodes(self):
+        """The sweep must not treat rig nodes as empty groups.
+
+        Pre-fix bug: `ls -dag -exactType transform` is NOT exact — the DAG walk
+        applies the type test with inheritance, so it also returned joints,
+        ikHandles, ikEffectors and constraints. Each is a childless, shape-less
+        DAG node, so every one matched the "empty group" test and was deleted.
+        Measured on the VDATS_ASSEMBLY production scene: deleting history on 6
+        selected meshes wiped all 7 ikHandles and all 224 constraints scene-wide.
+        """
+        cmds.polyCube(name="pKeepRig")
+        start = cmds.joint(name="jntStart", position=(0, 0, 0))
+        cmds.joint(name="jntMid", position=(0, 5, 0))
+        end = cmds.joint(name="jntEnd", position=(0, 10, 0))
+        handle, effector = cmds.ikHandle(sj=start, ee=end, solver="ikRPsolver")[:2]
+        driver = cmds.spaceLocator(name="locDriver")[0]
+        driven = cmds.spaceLocator(name="locDriven")[0]
+        constraint = cmds.parentConstraint(driver, driven, maintainOffset=False)[0]
+
+        self._run_tb001()
+
+        for node, label in (
+            (handle, "ikHandle"),
+            (effector, "ikEffector"),
+            (constraint, "parentConstraint"),
+            (end, "leaf joint"),
+        ):
+            self.assertTrue(
+                cmds.objExists(node),
+                f"{label} '{node}' was deleted by the empty-group sweep",
+            )
+
+    def test_delete_unused_nodes_preserves_connected_empty_transform(self):
+        """An empty transform that something depends on is not junk.
+
+        Matrix-driven rigs use shapeless, childless transforms as matrix
+        sources and space-switch pivots. They are structurally identical to a
+        leftover empty group, so the sweep tells them apart by connections.
+        """
+        cube = cmds.polyCube(name="pKeepMtx")[0]
+        source = cmds.group(empty=True, name="grp_matrix_source")
+        mult = cmds.createNode("multMatrix", name="mtxConsumer")
+        cmds.connectAttr(f"{source}.worldMatrix[0]", f"{mult}.matrixIn[0]")
+        # The multMatrix has to drive something: MLdeleteUnused runs first and
+        # would (rightly) remove a utility node that feeds nothing, which would
+        # orphan the source transform for real rather than exercise the guard.
+        cmds.connectAttr(f"{mult}.matrixSum", f"{cube}.offsetParentMatrix")
+
+        self._run_tb001()
+
+        self.assertTrue(
+            cmds.objExists(source),
+            f"Connected empty transform '{source}' was deleted; a matrix-driven "
+            "rig is mostly empty transforms and the sweep must leave them alone",
+        )
+
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestDeleteHistoryScope(unittest.TestCase):

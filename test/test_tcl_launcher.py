@@ -286,6 +286,69 @@ class TestLaunchDispatch(unittest.TestCase):
 
         entry.register.assert_called_once_with(key_show="Z")
 
+    def test_a_missing_engine_reaches_the_user_not_the_hidden_console(self):
+        """The install hint is the whole point of the missing-engine ImportError.
+
+        Raised from a ``bpy.app.timers`` callback it has no handler, so Blender
+        prints a traceback to the SYSTEM CONSOLE -- hidden by default on Windows
+        -- and the user sees the launcher do nothing at all. The one place the
+        hint can still be read is a popup.
+        """
+        bpy, entry = _fake_bpy(), mock.MagicMock()
+        entry.register.side_effect = ImportError(
+            "tentacle: the blender engine (blendertk) is not installed. "
+            'pip install "tentacletk[blender]".'
+        )
+        drawn = []
+
+        def _popup(draw, **_kw):
+            """Run the draw callback the way Blender does, capturing its labels."""
+            menu = mock.MagicMock()
+            menu.layout.label.side_effect = lambda text: drawn.append(text)
+            draw(menu, None)
+
+        bpy.context = mock.MagicMock()
+        bpy.context.window_manager.popup_menu.side_effect = _popup
+        with _as_blender(bpy, entry):
+            Tcl._launch_blender()
+            callback = bpy.app.timers.register.call_args.args[0]
+            self.assertIsNone(callback())  # must NOT propagate out of the timer
+
+        self.assertTrue(drawn, "the missing-engine hint never reached a popup")
+        # The pip line is the payload; splitting the message must not corrupt it.
+        # An earlier draft appended "." to every piece, which double-punctuated
+        # the last one -- i.e. exactly the line the user has to copy.
+        self.assertIn('pip install "tentacletk[blender]".', drawn)
+        self.assertEqual(
+            " ".join(drawn),
+            "tentacle: the blender engine (blendertk) is not installed. "
+            'pip install "tentacletk[blender]".',
+        )
+
+    def test_a_popup_that_cannot_render_still_does_not_escape_the_timer(self):
+        """A timer callback has no guaranteed UI context, so the popup itself can
+        raise. Falling back to the console is a poor surface; letting the original
+        ImportError out of the callback is a worse one -- Blender then unregisters
+        nothing and reports the add-on as broken instead of un-installed."""
+        bpy, entry = _fake_bpy(), mock.MagicMock()
+        entry.register.side_effect = ImportError("engine missing")
+        bpy.context = mock.MagicMock()
+        bpy.context.window_manager.popup_menu.side_effect = RuntimeError("no context")
+        with _as_blender(bpy, entry):
+            Tcl._launch_blender()
+            self.assertIsNone(bpy.app.timers.register.call_args.args[0]())
+
+    def test_a_non_import_failure_is_left_alone(self):
+        """Scoped to the ImportError that carries a fix. A real bug in registration
+        must keep its traceback rather than be dressed up as 'not installed'."""
+        bpy, entry = _fake_bpy(), mock.MagicMock()
+        entry.register.side_effect = ValueError("a real bug")
+        bpy.context = mock.MagicMock()
+        with _as_blender(bpy, entry):
+            Tcl._launch_blender()
+            with self.assertRaises(ValueError):
+                bpy.app.timers.register.call_args.args[0]()
+
     def test_blender_startup_is_deferred_not_immediate(self):
         """Blender startup scripts run before the UI settles — the entry must be called from the
         timer callback, never during launch()."""
