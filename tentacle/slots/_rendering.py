@@ -125,8 +125,12 @@ class RenderingMixin:
             setText="Include Textures",
             setObjectName="chk061",
             setChecked=True,
-            setToolTip="Embed textures in the published GLB. Unchecked is much faster "
-            "and much smaller over the wire, but the preview shows flat materials.",
+            setToolTip="Embed textures in the published GLB. Unchecked is much smaller "
+            "over the wire and skips the texture passes, but the preview shows flat "
+            "materials -- and the push is not much faster: the conversion's cost "
+            "is the animation it bakes over every node, not the images (measured: "
+            "a 12 MB textureless export of a production assembly converted in the "
+            "same minutes as the 366 MB one).",
         )
         cmb_format = menu.add(
             "QComboBox",

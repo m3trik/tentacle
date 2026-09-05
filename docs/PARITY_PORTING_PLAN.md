@@ -83,6 +83,8 @@ implementation; slot + option box mirror Maya's 1:1. **SmartBake** also shows cl
 
 ### Element-level pendings (SSoT = `parity_map.py` `pending` entries; rollup in PARITY_SURFACE)
 
+**Open 2026-09-05 — RenderOpacity (8 rows, `render_opacity_slots` in `parity_map.py`)**: the Maya panel gained the **Key Highlight Pulse** tool (`tb001` + its option box: `b_pulse_color` Colour…, `chk001` End at Playhead, `chk_auto_create_hl` Create if Missing, `s001`/`s002`/`s003` count/interval/frames) and the **channel picker** `cmb_channel` (opacity / highlight) with the 2026-09-04 RenderEffects work. blendertk's `RenderEffects` engine already ships `key_pulse` and the highlight channel, so this is a panel port: add the combo + the option-box tool to `blendertk/mat_utils/render_opacity/render_opacity.ui` + `_slots.py` (uitk `menu.add(...)` idiom, same objectNames), verify in a fresh Blender GUI harness run, then flip the eight rows to `ok`. Backlog: `.claude/BACKLOG.md` 2026-09-05 blendertk S2.
+
 **As of 2026-07-13 there are 0 open `pending` items — the sweep reports 0 open-work.** The last
 batch closed that day: **scene `b013`** Mesh Converter (extapps/mesh_convert via the shared
 `external_app` handler); **selection `cmb003`** UV Shell Border / UV Perimeter / UV Edge Loop

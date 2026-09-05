@@ -1,5 +1,8 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ f406af89)._
+_Diff vs the last release (origin/main @ 80af1757)._
 
-No public API changes since the last release (origin/main @ f406af89).
+## Added (2)
+
+- `slots/blender/animation.py::Animation.b006(self)`
+- `slots/maya/animation.py::Animation.b001(self)`

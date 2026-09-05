@@ -2,6 +2,7 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
+import pythontk as ptk
 import mayatk as mtk
 
 # From this package:
@@ -98,8 +99,12 @@ class Rigging(SlotsMaya):
         # Procedural rig tools (co-located mayatk panels) + Maya's built-in Quick Rig / HumanIK
         # character auto-riggers (the Maya analogue of Blender's Rigify items in the twin panel).
         items = [
-            "Tube Rig", "Wheel Rig", "Shadow Rig", "Telescope Rig",
-            "Quick Rig", "HumanIK",
+            "Tube Rig",
+            "Wheel Rig",
+            "Shadow Rig",
+            "Telescope Rig",
+            "Quick Rig",
+            "HumanIK",
         ]
         widget.add(items, header="Quick Rig:")
 
@@ -280,6 +285,19 @@ class Rigging(SlotsMaya):
     # tb003 — Create Locator at Selection
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _locator_child_type_key() -> str:
+        """The convention key the Scene affix state previews.
+
+        The first selected transform's own type, so the field shows "_CAM" with
+        a camera picked and "_GEO" with a mesh. Falls back to the mesh entry
+        for an empty selection or a node type the convention does not name --
+        the field must always show a real affix, never an empty lock.
+        """
+        sel = cmds.ls(sl=True, long=True, type="transform") or []
+        key = mtk.Naming.type_key(sel[0]) if sel else "mesh"
+        return key if ptk.NamingConvention.affix(key) else "mesh"
+
     def tb003_init(self, widget):
         """Init Create Locator at Selection"""
         widget.option_box.menu.setTitle("Create Locator")
@@ -295,26 +313,45 @@ class Rigging(SlotsMaya):
         )
         # Section: Naming
         widget.option_box.menu.add("Separator", setTitle="Naming")
+        # Seeded from the shared naming convention, not from literals: the GRP
+        # and the LOC are nodes this tool creates, so their type is known here.
         widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
-            setText="_GRP",
+            setText=ptk.NamingConvention.affix("group"),
             setObjectName="t002",
             setToolTip="A string appended to the end of the created group's name.",
         )
         widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
-            setText="_LOC",
+            setText=ptk.NamingConvention.affix("locator"),
             setObjectName="t000",
             setToolTip="A string appended to the end of the created locator's name.",
         )
-        widget.option_box.menu.add(
+        # The child is whatever the user selected, so its affix has no single
+        # right answer here -- a camera is not "_GEO". Same Auto/Suffix/Prefix/
+        # Scene picker as every other affix field, with Scene bound to the
+        # SELECTION's type instead of a fixed one; the field previews the first
+        # selected object and the operation resolves the rest per object.
+        obj_field = widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
-            setText="_GEO",
+            setText=ptk.NamingConvention.affix("mesh"),
             setObjectName="t001",
-            setToolTip="A string appended to the end of the existing geometry's name.",
+            setToolTip=(
+                "Affix for the existing object's name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which affixes each object for its own\n"
+                "type from the shared naming convention (mesh → _GEO,\n"
+                "camera → _CAM, ...). Edit those spellings in the Naming panel."
+            ),
+        )
+        obj_field.option_box.set_affix(
+            default="convention",
+            convention_key=self._locator_child_type_key,
+            # ``t001`` alone is far too generic to namespace on.
+            settings_key="rigging_create_locator_obj_affix",
         )
         widget.option_box.menu.add(
             "QCheckBox",
@@ -328,7 +365,12 @@ class Rigging(SlotsMaya):
             setText="Strip Suffix",
             setObjectName="chk006",
             setChecked=True,
-            setToolTip="Strip any of the defined suffixes (Group, Locator, Geometry) from the name when enabled.",
+            setToolTip=(
+                "Strip the defined suffixes (Group, Locator, Geometry) from the "
+                "name before re-suffixing it.\nIn 'Scene' mode this widens to "
+                "every affix in the shared naming convention, so an object "
+                "mis-named '_GEO' becomes '_CAM' rather than '_GEO_CAM'."
+            ),
         )
         # Section: Lock Channels
         widget.option_box.menu.add("Separator", setTitle="Lock Channels")
@@ -358,7 +400,14 @@ class Rigging(SlotsMaya):
         """Create Locator at Selection"""
         grp_suffix = widget.option_box.menu.t002.text()
         loc_suffix = widget.option_box.menu.t000.text()
-        obj_suffix = widget.option_box.menu.t001.text()
+        obj_field = widget.option_box.menu.t001
+        affix_mode = obj_field.option_box.affix_mode
+        # "Scene" hands the decision to the engine: None => resolve each object
+        # against the shared convention, which is the only correct answer for a
+        # mixed selection. The manual states are the user's literal text, placed
+        # as the picker says.
+        by_convention = affix_mode == "convention"
+        obj_suffix = None if by_convention else obj_field.text()
         loc_scale = widget.option_box.menu.s001.value()
         strip_digits = widget.option_box.menu.chk005.isChecked()
         strip_suffix = widget.option_box.menu.chk006.isChecked()
@@ -377,6 +426,7 @@ class Rigging(SlotsMaya):
                 grp_suffix=grp_suffix,
                 loc_suffix=loc_suffix,
                 obj_suffix=obj_suffix,
+                obj_affix_mode="auto" if by_convention else affix_mode,
                 strip_digits=strip_digits,
                 strip_suffix=strip_suffix,
                 lock_translate=lock_translate,
@@ -384,9 +434,7 @@ class Rigging(SlotsMaya):
                 lock_scale=lock_scale,
             )
         except Exception as e:
-            self.sb.message_box(
-                f"Could not create the locator rig.<br><hl>{e}</hl>"
-            )
+            self.sb.message_box(f"Could not create the locator rig.<br><hl>{e}</hl>")
 
     def b003(self):
         """Remove Locator"""
@@ -409,7 +457,9 @@ class Rigging(SlotsMaya):
             setToolTip="Whether the button locks or unlocks the chosen attributes.",
         )
         action.addItems(["Lock", "Unlock"])
-        action.setCurrentText("Unlock")  # preserve prior default (checkbox off = unlock)
+        action.setCurrentText(
+            "Unlock"
+        )  # preserve prior default (checkbox off = unlock)
         action.currentTextChanged.connect(widget.setText)
         widget.setText(action.currentText())
         cmb = widget.option_box.menu.add(

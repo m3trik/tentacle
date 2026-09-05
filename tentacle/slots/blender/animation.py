@@ -60,6 +60,15 @@ class Animation(AnimationMixin, SlotsBlender):
                 "scene reopen.",
             ),
         ],
+        "Stash": [
+            (
+                "Key Stash",
+                "b006",
+                "Open the Key Stash: park selected keys out of the working animation\n"
+                "(inert, not exported, kept across sessions), preview a stored range\n"
+                "on demand, and retrieve it later.",
+            ),
+        ],
         "Playback": [
             (
                 "Fit Playback Range",
@@ -79,7 +88,7 @@ class Animation(AnimationMixin, SlotsBlender):
     }
 
     def list000_init(self, widget):
-        """Tools list: Sequencing / Repair / Bake / Playback / Info.
+        """Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
 
         Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
         slot defines an ``*_init``: that init builds the option box (tb015,
@@ -144,19 +153,29 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Go To Frame")
         m.add(
-            "QSpinBox", setPrefix="Frame: ", setObjectName="s000",
-            set_limits=[-999999, 999999], setValue=0,
+            "QSpinBox",
+            setPrefix="Frame: ",
+            setObjectName="s000",
+            set_limits=[-999999, 999999],
+            setValue=0,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_GOTO_FRAME),
         )
         cmb = m.add(
-            "QComboBox", setObjectName="cmb000",
+            "QComboBox",
+            setObjectName="cmb000",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_GOTO_MODE),
         )
-        for text, data in [("Mode: Absolute", "Absolute"), ("Mode: Relative", "Relative")]:
+        for text, data in [
+            ("Mode: Absolute", "Absolute"),
+            ("Mode: Relative", "Relative"),
+        ]:
             cmb.addItem(text, data)
-        cmb.setCurrentIndex(1)  # default Relative (Maya parity — keeps chk010's ±1 a nudge, not a jump to frame ±1)
+        cmb.setCurrentIndex(
+            1
+        )  # default Relative (Maya parity — keeps chk010's ±1 a nudge, not a jump to frame ±1)
         cmb001 = m.add(
-            "QComboBox", setObjectName="cmb001",
+            "QComboBox",
+            setObjectName="cmb001",
             setToolTip=self.sb.tooltip.fmt(
                 title="Snap",
                 body="Re-round the <b>current</b> frame to a clean number. Any "
@@ -191,12 +210,19 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb001.addItem(text, data)
         m.add(
-            self.sb.registered_widgets.Label, setText="Set To Current Frame", setObjectName="lbl020",
+            self.sb.registered_widgets.Label,
+            setText="Set To Current Frame",
+            setObjectName="lbl020",
             setToolTip=self.TIP_GOTO_SET_TO_CURRENT,
         )
-        m.lbl020.clicked.connect(lambda: m.s000.setValue(bpy.context.scene.frame_current))
+        m.lbl020.clicked.connect(
+            lambda: m.s000.setValue(bpy.context.scene.frame_current)
+        )
         m.add(
-            "QCheckBox", setText="Toggle Single frame", setObjectName="chk010", setChecked=False,
+            "QCheckBox",
+            setText="Toggle Single frame",
+            setObjectName="chk010",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_GOTO_SINGLE_FRAME),
         )
         widget._previous_frame_value = 1
@@ -211,7 +237,10 @@ class Animation(AnimationMixin, SlotsBlender):
 
         m.chk010.toggled.connect(toggle_single_frame)
         m.add(
-            "QCheckBox", setText="Invert", setObjectName="chk011", setChecked=False,
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk011",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_GOTO_INVERT),
         )
 
@@ -263,14 +292,19 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Invert Keys")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb035",
+            "QComboBox",
+            setObjectName="cmb035",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_INVERT_MODE),
         )
         for text, data in self._INVERT_MODE_ITEMS:
             cmb.addItem(text, data)
         m.add(
-            self.sb.registered_widgets.SpinBox, setPrefix="Time: ", setObjectName="s001",
-            set_limits=[-100000, 100000], setValue=-1, setCustomDisplayValues={-1: "Auto"},
+            self.sb.registered_widgets.SpinBox,
+            setPrefix="Time: ",
+            setObjectName="s001",
+            set_limits=[-100000, 100000],
+            setValue=-1,
+            setCustomDisplayValues={-1: "Auto"},
             setToolTip=self.sb.tooltip.fmt(
                 title="Time",
                 bullets=[
@@ -283,16 +317,25 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Pivot: ", setObjectName="d000",
-            set_limits=[-100000, 100000], setValue=0.0,
+            "QDoubleSpinBox",
+            setPrefix="Pivot: ",
+            setObjectName="d000",
+            set_limits=[-100000, 100000],
+            setValue=0.0,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_INVERT_PIVOT),
         )
         m.add(
-            "QCheckBox", setText="Relative", setObjectName="chk002", setChecked=True,
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk002",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_INVERT_RELATIVE),
         )
         m.add(
-            "QCheckBox", setText="Delete Original", setObjectName="chk005", setChecked=False,
+            "QCheckBox",
+            setText="Delete Original",
+            setObjectName="chk005",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Delete Original",
                 body="Remove the source keys once the reversed copy is placed, "
@@ -342,8 +385,11 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Stagger Keys")
         m.add(
-            "QSpinBox", setPrefix="Start Frame: ", setObjectName="s005",
-            set_limits=[-100000, 100000], setValue=-1,
+            "QSpinBox",
+            setPrefix="Start Frame: ",
+            setObjectName="s005",
+            set_limits=[-100000, 100000],
+            setValue=-1,
             setToolTip=self.sb.tooltip.fmt(
                 title="Start Frame",
                 body="Where the first block's animation begins.",
@@ -353,16 +399,18 @@ class Animation(AnimationMixin, SlotsBlender):
         # Integer, unlike Maya's: btk.stagger_keys has no percentage-of-duration
         # mode, so a fractional value here would only produce off-grid keys.
         m.add(
-            "QSpinBox", setPrefix="Spacing: ", setObjectName="s004",
-            set_limits=[-100000, 100000], setValue=0,
+            "QSpinBox",
+            setPrefix="Spacing: ",
+            setObjectName="s004",
+            set_limits=[-100000, 100000],
+            setValue=0,
             setToolTip=self.sb.tooltip.fmt(
                 title="Spacing",
                 sections=[
                     (
                         "Sequential (Use Intervals off)",
                         [
-                            "<b>0</b> (default) — blocks run end-to-start with "
-                            "no gap.",
+                            "<b>0</b> (default) — blocks run end-to-start with no gap.",
                             "<b>Positive</b> — that many frames of gap.",
                             "<b>Negative</b> — that many frames of overlap.",
                         ],
@@ -378,7 +426,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Use Intervals", setObjectName="chk025", setChecked=False,
+            "QCheckBox",
+            setText="Use Intervals",
+            setObjectName="chk025",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Use Intervals",
                 body="Place each block on a fixed grid instead of packing them "
@@ -392,15 +443,24 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Invert", setObjectName="chk008", setChecked=False,
+            "QCheckBox",
+            setText="Invert",
+            setObjectName="chk008",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_STAGGER_INVERT),
         )
         m.add(
-            "QCheckBox", setText="Group Overlapping", setObjectName="chk014", setChecked=False,
+            "QCheckBox",
+            setText="Group Overlapping",
+            setObjectName="chk014",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_STAGGER_GROUP_OVERLAPPING),
         )
         m.add(
-            "QCheckBox", setText="Group Touching", setObjectName="chk029", setChecked=False,
+            "QCheckBox",
+            setText="Group Touching",
+            setObjectName="chk029",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Group Touching",
                 body="Widen grouping to blocks that merely <i>touch</i> — one "
@@ -415,7 +475,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Smooth Tangents", setObjectName="chk009", setChecked=False,
+            "QCheckBox",
+            setText="Smooth Tangents",
+            setObjectName="chk009",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Smooth Tangents",
                 body="Set auto-clamped bezier handles on the re-timed keys so "
@@ -460,25 +523,31 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Snap Keys to Frames")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb003",
+            "QComboBox",
+            setObjectName="cmb003",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SNAP_METHOD),
         )
         for text, data in self._SNAP_METHODS.items():
             cmb.addItem(text, data)
         m.add(
-            "QCheckBox", setText="Selected Keys Only", setObjectName="chk017", setChecked=False,
+            "QCheckBox",
+            setText="Selected Keys Only",
+            setObjectName="chk017",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Selected Keys Only",
                 bullets=[
-                    "<b>Off</b> (default) — snap every key on the selected "
-                    "objects.",
+                    "<b>Off</b> (default) — snap every key on the selected objects.",
                     "<b>On</b> — snap only the keys picked in the Dope Sheet / "
                     "Graph Editor.",
                 ],
             ),
         )
         m.add(
-            "QCheckBox", setText="Use Time Range", setObjectName="chk018", setChecked=False,
+            "QCheckBox",
+            setText="Use Time Range",
+            setObjectName="chk018",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Use Time Range",
                 body="Limit the snap to keys inside the scene's frame range "
@@ -496,7 +565,9 @@ class Animation(AnimationMixin, SlotsBlender):
             return
         m = widget.option_box.menu
         scene = bpy.context.scene
-        time_range = (scene.frame_start, scene.frame_end) if m.chk018.isChecked() else None
+        time_range = (
+            (scene.frame_start, scene.frame_end) if m.chk018.isChecked() else None
+        )
         snapped = btk.snap_keys(
             objects,
             selected_only=m.chk017.isChecked(),
@@ -510,7 +581,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Delete Keys")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb004",
+            "QComboBox",
+            setObjectName="cmb004",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_DELETE_TIME_RANGE),
         )
         for text, data in [
@@ -542,8 +614,11 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Adjust Spacing")
         m.add(
-            "QSpinBox", setPrefix="Frame: ", setObjectName="s002",
-            set_limits=[-100000, 100000], setValue=-1,
+            "QSpinBox",
+            setPrefix="Frame: ",
+            setObjectName="s002",
+            set_limits=[-100000, 100000],
+            setValue=-1,
             setToolTip=self.sb.tooltip.fmt(
                 title="Frame",
                 body="Where the shift starts. Every key at or after this time "
@@ -552,8 +627,11 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QSpinBox", setPrefix="Amount: ", setObjectName="s003",
-            set_limits=[-100000, 100000], setValue=1,
+            "QSpinBox",
+            setPrefix="Amount: ",
+            setObjectName="s003",
+            set_limits=[-100000, 100000],
+            setValue=1,
             setToolTip=self.sb.tooltip.fmt(
                 title="Amount",
                 body="How far the affected keys move.",
@@ -568,7 +646,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Relative", setObjectName="chk004", setChecked=True,
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk004",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Relative",
                 body="How <b>Frame</b> above is read — this does not change how "
@@ -581,7 +662,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Preserve Keys", setObjectName="chk003", setChecked=True,
+            "QCheckBox",
+            setText="Preserve Keys",
+            setObjectName="chk003",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Preserve Keys",
                 body="If a key already sits exactly on the start frame, re-anchor "
@@ -609,7 +693,10 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb.addItem(text, data)
         m.add(
-            "QCheckBox", setText="Exact Gap", setObjectName="chk021", setChecked=False,
+            "QCheckBox",
+            setText="Exact Gap",
+            setObjectName="chk021",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Exact Gap",
                 body="Re-reads <b>Amount</b> as the gap you want, not the "
@@ -664,12 +751,16 @@ class Animation(AnimationMixin, SlotsBlender):
         )
         widget.option_box.menu.setTitle("Transfer Keys")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Relative", setObjectName="chk006",
+            "QCheckBox",
+            setText="Relative",
+            setObjectName="chk006",
             setChecked=True,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_TRANSFER_RELATIVE),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Optimize Before Transfer", setObjectName="chk035",
+            "QCheckBox",
+            setText="Optimize Before Transfer",
+            setObjectName="chk035",
             setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Optimize Before Transfer",
@@ -692,7 +783,9 @@ class Animation(AnimationMixin, SlotsBlender):
         active = self.active_object()
         targets = [o for o in objects if o is not active]
         if not (active and targets):
-            self.sb.message_box("Select target object(s) with the source object active.")
+            self.sb.message_box(
+                "Select target object(s) with the source object active."
+            )
             return
         pasted = btk.transfer_keyframes(
             [active] + targets,
@@ -706,8 +799,11 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Intermediate Keys")
         m.add(
-            "QSpinBox", setPrefix="Start Time: ", setObjectName="s021",
-            set_limits=[-1, 100000], setValue=-1,
+            "QSpinBox",
+            setPrefix="Start Time: ",
+            setObjectName="s021",
+            set_limits=[-1, 100000],
+            setValue=-1,
             setToolTip=self.sb.tooltip.fmt(
                 title="Start Time",
                 body="First frame of the window that gets sampled.",
@@ -715,8 +811,11 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QSpinBox", setPrefix="End Time: ", setObjectName="s006",
-            set_limits=[-1, 100000], setValue=-1,
+            "QSpinBox",
+            setPrefix="End Time: ",
+            setObjectName="s006",
+            set_limits=[-1, 100000],
+            setValue=-1,
             setToolTip=self.sb.tooltip.fmt(
                 title="End Time",
                 body="Last frame of the window that gets sampled.",
@@ -724,8 +823,11 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QSpinBox", setPrefix="Percent: ", setObjectName="s007",
-            set_limits=[0, 100], setValue=5,
+            "QSpinBox",
+            setPrefix="Percent: ",
+            setObjectName="s007",
+            set_limits=[0, 100],
+            setValue=5,
             setToolTip=self.sb.tooltip.fmt(
                 title="Percent",
                 body="How densely the window is sampled — the share of the "
@@ -742,7 +844,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Ignore Visibility", setObjectName="chk028", setChecked=False,
+            "QCheckBox",
+            setText="Ignore Visibility",
+            setObjectName="chk028",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Ignore Visibility",
                 body="Leave <code>hide_viewport</code> / <code>hide_render</code> "
@@ -754,7 +859,9 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Remove Intermediate Keys", setObjectName="chk027",
+            "QCheckBox",
+            setText="Remove Intermediate Keys",
+            setObjectName="chk027",
             setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_REMOVE_INTERMEDIATE),
         )
@@ -783,7 +890,9 @@ class Animation(AnimationMixin, SlotsBlender):
             )
         else:
             count = btk.add_intermediate_keys(
-                objects, time_range=time_range, ignore_visibility=ignore_visibility,
+                objects,
+                time_range=time_range,
+                ignore_visibility=ignore_visibility,
                 percent=m.s007.value(),
             )
         if not count:
@@ -793,7 +902,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Select Keys")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb041",
+            "QComboBox",
+            setObjectName="cmb041",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SELECT_TIME_RANGE),
         )
         for text, data in [
@@ -807,17 +917,26 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb.addItem(text, data)
         m.add(
-            "QSpinBox", setPrefix="Start Frame: ", setObjectName="s012",
-            set_limits=[-10000, 10000], setValue=1,
+            "QSpinBox",
+            setPrefix="Start Frame: ",
+            setObjectName="s012",
+            set_limits=[-10000, 10000],
+            setValue=1,
             setToolTip=self.TIP_SELECT_RANGE_START,
         )
         m.add(
-            "QSpinBox", setPrefix="End Frame: ", setObjectName="s013",
-            set_limits=[-10000, 10000], setValue=100,
+            "QSpinBox",
+            setPrefix="End Frame: ",
+            setObjectName="s013",
+            set_limits=[-10000, 10000],
+            setValue=100,
             setToolTip=self.TIP_SELECT_RANGE_END,
         )
         m.add(
-            "QCheckBox", setText="Add to Selection", setObjectName="chk039", setChecked=False,
+            "QCheckBox",
+            setText="Add to Selection",
+            setObjectName="chk039",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Add to Selection",
                 body="Extend the current Dope Sheet / Graph Editor key selection "
@@ -857,7 +976,9 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Align Selected Keyframes")
         m.add(
-            "QCheckBox", setText="Use Earliest Frame", setObjectName="chk013",
+            "QCheckBox",
+            setText="Use Earliest Frame",
+            setObjectName="chk013",
             setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Use Earliest Frame",
@@ -873,8 +994,12 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QSpinBox", setPrefix="Frame: ", setObjectName="spn000",
-            setMinimum=-10000, setMaximum=10000, setValue=-1,
+            "QSpinBox",
+            setPrefix="Frame: ",
+            setObjectName="spn000",
+            setMinimum=-10000,
+            setMaximum=10000,
+            setValue=-1,
             setToolTip=self.sb.tooltip.fmt(
                 title="Frame",
                 body="Align every object's selected keys onto this exact frame.",
@@ -911,7 +1036,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m.setTitle("Set Visibility Keys")
         # Visible vs Hidden is a two-valued choice, not a modifier — name both states.
         vis = m.add(
-            "QComboBox", setObjectName="cmb_visibility",
+            "QComboBox",
+            setObjectName="cmb_visibility",
             setToolTip=self.sb.tooltip.fmt(
                 title="Visibility",
                 body="The state written at the chosen frame(s) — <b>Visible</b> "
@@ -922,7 +1048,8 @@ class Animation(AnimationMixin, SlotsBlender):
         vis.addItems(["Visible", "Hidden"])
         vis.setCurrentText("Visible")  # preserve prior default (checkbox on = visible)
         cmb = m.add(
-            "QComboBox", setObjectName="cmb002",
+            "QComboBox",
+            setObjectName="cmb002",
             setToolTip=self.sb.tooltip.fmt(
                 title="When",
                 body="Where the visibility key is written.",
@@ -950,12 +1077,18 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb.addItem(text, data)
         m.add(
-            "QSpinBox", setPrefix="Offset: ", setObjectName="s008",
-            set_limits=[-10000, 10000], setValue=0,
+            "QSpinBox",
+            setPrefix="Offset: ",
+            setObjectName="s008",
+            set_limits=[-10000, 10000],
+            setValue=0,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_VISIBILITY_OFFSET),
         )
         m.add(
-            "QCheckBox", setText="Group Overlapping", setObjectName="chk016", setChecked=False,
+            "QCheckBox",
+            setText="Group Overlapping",
+            setObjectName="chk016",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_VISIBILITY_GROUP_OVERLAPPING),
         )
 
@@ -983,7 +1116,10 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Move Keys")
         m.add(
-            "QCheckBox", setText="Move Selected Keys", setObjectName="chk031", setChecked=True,
+            "QCheckBox",
+            setText="Move Selected Keys",
+            setObjectName="chk031",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Move Selected Keys",
                 bullets=[
@@ -994,7 +1130,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Maintain Spacing", setObjectName="chk012", setChecked=True,
+            "QCheckBox",
+            setText="Maintain Spacing",
+            setObjectName="chk012",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Maintain Spacing",
                 bullets=[
@@ -1006,7 +1145,8 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         cmb = m.add(
-            "QComboBox", setObjectName="cmb_align",
+            "QComboBox",
+            setObjectName="cmb_align",
             setToolTip=self.sb.tooltip.fmt(
                 title="Align",
                 body="Which end of the moved key range lands on the current frame.",
@@ -1058,7 +1198,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Copy Keys")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb038",
+            "QComboBox",
+            setObjectName="cmb038",
             setToolTip=self.sb.tooltip.fmt(
                 title="Mode",
                 body="What gets captured from the <b>active</b> object.",
@@ -1099,7 +1240,9 @@ class Animation(AnimationMixin, SlotsBlender):
                 self.sb.message_box("The active object has no keys to copy.")
                 return
             if not targets:
-                self.sb.message_box("Select target object(s) in addition to the active object.")
+                self.sb.message_box(
+                    "Select target object(s) in addition to the active object."
+                )
                 return
             btk.paste_keys(targets, action)
             return
@@ -1112,7 +1255,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Paste Keys")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb039",
+            "QComboBox",
+            setObjectName="cmb039",
             setToolTip=self.sb.tooltip.fmt(
                 title="Paste At",
                 bullets=[
@@ -1143,7 +1287,9 @@ class Animation(AnimationMixin, SlotsBlender):
             )
         except ReferenceError:  # the copied action was deleted (e.g. file reload/purge)
             self._copied_action = None
-            self.sb.message_box("The copied keys no longer exist — use Copy Keys again.")
+            self.sb.message_box(
+                "The copied keys no longer exist — use Copy Keys again."
+            )
             return
         if not pasted:
             self.sb.message_box("Nothing pasted — select target object(s) first.")
@@ -1155,7 +1301,9 @@ class Animation(AnimationMixin, SlotsBlender):
         uniform_tooltip = self.sb.tooltip.fmt(**self.TIP_SCALE_FACTOR_UNIFORM)
         speed_tooltip = self.sb.tooltip.fmt(**self.TIP_SCALE_FACTOR_SPEED)
         cmb_mode = m.add(
-            "QComboBox", setObjectName="cmb014", block_signals_on_restore=False,
+            "QComboBox",
+            setObjectName="cmb014",
+            block_signals_on_restore=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Mode",
                 body="What <b>Factor</b> is measured against.",
@@ -1184,13 +1332,19 @@ class Animation(AnimationMixin, SlotsBlender):
             cmb_mode.addItem(text, data)
 
         m.add(
-            "QDoubleSpinBox", setPrefix="Factor: ", setObjectName="d001",
-            setMinimum=0.01, setMaximum=100000.0, setSingleStep=0.1, setValue=1.0,
+            "QDoubleSpinBox",
+            setPrefix="Factor: ",
+            setObjectName="d001",
+            setMinimum=0.01,
+            setMaximum=100000.0,
+            setSingleStep=0.1,
+            setValue=1.0,
             setDecimals=2,
             setToolTip=uniform_tooltip,
         )
         cmb_group = m.add(
-            "QComboBox", setObjectName="cmb033",
+            "QComboBox",
+            setObjectName="cmb033",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SCALE_GROUPING),
         )
         for text, data in [
@@ -1200,7 +1354,8 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb_group.addItem(text, data)
         cmb_snap = m.add(
-            "QComboBox", setObjectName="cmb034",
+            "QComboBox",
+            setObjectName="cmb034",
             setToolTip=self.sb.tooltip.fmt(
                 title="Snap",
                 body="Scaling lands keys on fractional frames; this decides how "
@@ -1227,19 +1382,29 @@ class Animation(AnimationMixin, SlotsBlender):
         ]:
             cmb_snap.addItem(text, data)
         m.add(
-            "QSpinBox", setPrefix="Samples: ", setObjectName="s014",
-            setMinimum=8, setMaximum=512, setSingleStep=8, setValue=64,
+            "QSpinBox",
+            setPrefix="Samples: ",
+            setObjectName="s014",
+            setMinimum=8,
+            setMaximum=512,
+            setSingleStep=8,
+            setValue=64,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SCALE_SAMPLES),
         )
         # Absolute vs Relative is a two-valued mode, not a modifier — name both states.
         scale_mode = m.add(
-            "QComboBox", setObjectName="cmb_scale_mode",
+            "QComboBox",
+            setObjectName="cmb_scale_mode",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SCALE_RELATIVE_ABSOLUTE),
         )
         scale_mode.addItems(["Relative", "Absolute"])
-        scale_mode.setCurrentText("Relative")  # preserve prior default (checkbox off = relative)
+        scale_mode.setCurrentText(
+            "Relative"
+        )  # preserve prior default (checkbox off = relative)
         m.add(
-            "QCheckBox", setText="Split Static Segments", setObjectName="chk_split_static",
+            "QCheckBox",
+            setText="Split Static Segments",
+            setObjectName="chk_split_static",
             setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Split Static Segments",
@@ -1255,7 +1420,9 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Group Touching", setObjectName="chk_merge_touching",
+            "QCheckBox",
+            setText="Group Touching",
+            setObjectName="chk_merge_touching",
             setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SCALE_GROUP_TOUCHING),
         )
@@ -1264,7 +1431,9 @@ class Animation(AnimationMixin, SlotsBlender):
         # cmb_scale_pivot is Blender-specific (Maya's scale option box always auto-detects the
         # block's own start; it has no pivot picker).
         m.add(
-            "QComboBox", addItems=["First Key", "Current Frame"], setObjectName="cmb_scale_pivot",
+            "QComboBox",
+            addItems=["First Key", "Current Frame"],
+            setObjectName="cmb_scale_pivot",
             setToolTip=self.sb.tooltip.fmt(
                 title="Pivot",
                 body="The frame the scale is anchored to — the one point that "
@@ -1342,7 +1511,11 @@ class Animation(AnimationMixin, SlotsBlender):
 
     # interp label -> fcurve interpolation enum (Maya's "Step Tangents" generalized to a tangent-
     # type picker). cmb_interp is Blender-specific (Maya used cmb037/cmb040 for in/out tangent).
-    _INTERP_TYPES = {"Stepped": "CONSTANT", "Linear": "LINEAR", "Smooth (Bezier)": "BEZIER"}
+    _INTERP_TYPES = {
+        "Stepped": "CONSTANT",
+        "Linear": "LINEAR",
+        "Smooth (Bezier)": "BEZIER",
+    }
 
     def tb017_init(self, widget):
         # Blender's fcurve interpolation can be set to any of the three types below
@@ -1359,7 +1532,9 @@ class Animation(AnimationMixin, SlotsBlender):
         )
         widget.option_box.menu.setTitle("Set Tangents")
         widget.option_box.menu.add(
-            "QComboBox", addItems=list(self._INTERP_TYPES), setObjectName="cmb_interp",
+            "QComboBox",
+            addItems=list(self._INTERP_TYPES),
+            setObjectName="cmb_interp",
             setToolTip=self.sb.tooltip.fmt(
                 title="Interpolation",
                 body="Applied to every key on the selection.",
@@ -1391,7 +1566,9 @@ class Animation(AnimationMixin, SlotsBlender):
         if applied is None:
             self.sb.message_box("Nothing keyed to fit the range to.")
         else:
-            self.sb.message_box(f"Playback range set to <hl>{applied[0]}-{applied[1]}</hl>.")
+            self.sb.message_box(
+                f"Playback range set to <hl>{applied[0]}-{applied[1]}</hl>."
+            )
 
     # ------------------------------------------------------------------ tb011  Tie Keyframes
     def tb011_init(self, widget):
@@ -1399,7 +1576,8 @@ class Animation(AnimationMixin, SlotsBlender):
         m.setTitle("Tie Keyframes")
         # Tie vs Untie is a two-valued choice, not a modifier — name both states.
         tie = m.add(
-            "QComboBox", setObjectName="cmb_tie",
+            "QComboBox",
+            setObjectName="cmb_tie",
             setToolTip=self.sb.tooltip.fmt(
                 title="Tie / Untie",
                 bullets=[
@@ -1413,7 +1591,10 @@ class Animation(AnimationMixin, SlotsBlender):
         tie.addItems(["Tie", "Untie"])
         tie.setCurrentText("Tie")  # preserve prior default (checkbox off = tie)
         m.add(
-            "QCheckBox", setText="Use Absolute Range", setObjectName="chk023", setChecked=False,
+            "QCheckBox",
+            setText="Use Absolute Range",
+            setObjectName="chk023",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Use Absolute Range",
                 body="Which range gets the bookend keys.",
@@ -1449,7 +1630,8 @@ class Animation(AnimationMixin, SlotsBlender):
     def tb016_init(self, widget):
         widget.option_box.menu.setTitle("Get Animation Info")
         cmb = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_scope",
+            "QComboBox",
+            setObjectName="cmb_scope",
             setToolTip=self.sb.tooltip.fmt(
                 title="Scope",
                 bullets=[
@@ -1458,14 +1640,23 @@ class Animation(AnimationMixin, SlotsBlender):
                 ],
             ),
         )
-        for label, data in [("Scope: Selected", "selected"), ("Scope: All Scene Objects", "all")]:
+        for label, data in [
+            ("Scope: Selected", "selected"),
+            ("Scope: All Scene Objects", "all"),
+        ]:
             cmb.addItem(label, data)
         widget.option_box.menu.add(
-            "QCheckBox", setText="Sort by Time", setObjectName="chk_sort_time", setChecked=False,
+            "QCheckBox",
+            setText="Sort by Time",
+            setObjectName="chk_sort_time",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_INFO_SORT_BY_TIME),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="CSV Output", setObjectName="chk_csv_output", setChecked=False,
+            "QCheckBox",
+            setText="CSV Output",
+            setObjectName="chk_csv_output",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="CSV Output",
                 body="Render the report as comma-separated rows, ready to paste "
@@ -1474,7 +1665,9 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Ignore Holds", setObjectName="chk_ignore_holds",
+            "QCheckBox",
+            setText="Ignore Holds",
+            setObjectName="chk_ignore_holds",
             setChecked=True,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_INFO_IGNORE_HOLDS),
         )
@@ -1491,7 +1684,8 @@ class Animation(AnimationMixin, SlotsBlender):
             )
             return
         records = btk.get_animation_info(
-            objects, by_time=m.chk_sort_time.isChecked(),
+            objects,
+            by_time=m.chk_sort_time.isChecked(),
             ignore_holds=m.chk_ignore_holds.isChecked(),
         )
         if not records:
@@ -1504,14 +1698,21 @@ class Animation(AnimationMixin, SlotsBlender):
             else btk.format_animation_info_html(records)
         )
         self.sb.text_view_dialog(
-            text, "Ok", title="Get Animation Info", size=(780, 520), monospace=csv_output
+            text,
+            "Ok",
+            title="Get Animation Info",
+            size=(780, 520),
+            monospace=csv_output,
         )
 
     # ------------------------------------------------------------------ tb019  Optimize Keys
     def tb019_init(self, widget):
         widget.option_box.menu.setTitle("Optimize Keys")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Remove Static Curves", setObjectName="chk000", setChecked=True,
+            "QCheckBox",
+            setText="Remove Static Curves",
+            setObjectName="chk000",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Remove Static Curves",
                 body="Delete whole curves that never change value — animation "
@@ -1523,11 +1724,17 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Remove Flat Keys", setObjectName="chk030", setChecked=True,
+            "QCheckBox",
+            setText="Remove Flat Keys",
+            setObjectName="chk030",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_OPTIMIZE_REMOVE_FLAT_KEYS),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Simplify Curves", setObjectName="chk032", setChecked=False,
+            "QCheckBox",
+            setText="Simplify Curves",
+            setObjectName="chk032",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Simplify Curves",
                 body="Also drop keys that sit on the line between their "
@@ -1535,16 +1742,19 @@ class Animation(AnimationMixin, SlotsBlender):
                 notes=[
                     "The one lossy phase — it can reshape a moving curve, not "
                     "just remove redundancy.",
-                    "Ignored while <b>Unbake</b> is on, which runs its own "
+                    "Ignored while <b>Reduce To Extremes</b> is on, which runs its own "
                     "reduction.",
                 ],
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Unbake (keep extrema)", setObjectName="chk040", setChecked=False,
+            "QCheckBox",
+            setText="Reduce To Extremes",
+            setObjectName="chk040",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
-                title="Unbake (keep extrema)",
-                body="The inverse of a per-frame bake: reduce a dense curve to "
+                title="Reduce To Extremes",
+                body="A bake thinned to its shape, not reversed: reduce a dense curve to "
                 "its endpoints, peaks, valleys and hold boundaries, then refit "
                 "the handles so the reduced curve still traces the baked motion.",
                 notes=[
@@ -1556,8 +1766,13 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QDoubleSpinBox", setPrefix="Tolerance: ", setObjectName="d017",
-            set_limits=[0.0001, 1.0], setValue=0.001, setDecimals=4, setSingleStep=0.001,
+            "QDoubleSpinBox",
+            setPrefix="Tolerance: ",
+            setObjectName="d017",
+            set_limits=[0.0001, 1.0],
+            setValue=0.001,
+            setDecimals=4,
+            setSingleStep=0.001,
             setToolTip=self.sb.tooltip.fmt(
                 title="Tolerance",
                 body="How far a value may drift before a key is considered "
@@ -1570,11 +1785,11 @@ class Animation(AnimationMixin, SlotsBlender):
                 notes=[
                     "Measured in scene units, so the same number is stricter on "
                     "a rotation curve than on a location one.",
-                    "Ignored while <b>Unbake</b> is on.",
+                    "Ignored while <b>Reduce To Extremes</b> is on.",
                 ],
             ),
         )
-        # Unbake replaces the simplify/tolerance pass outright (tb019 sends a
+        # Reduce To Extremes replaces the simplify/tolerance pass outright (tb019 sends a
         # negative tolerance as its sentinel), so both controls grey out.
         self.sb.enable_when(
             widget.option_box.menu, "chk032,d017", "chk040", invert=True
@@ -1588,7 +1803,7 @@ class Animation(AnimationMixin, SlotsBlender):
         stats = {}
         btk.optimize_keys(
             selected or None,
-            # A negative tolerance is optimize_keys' unbake sentinel.
+            # A negative tolerance is optimize_keys' extremes sentinel.
             value_tolerance=-1 if m.chk040.isChecked() else m.d017.value(),
             remove_static_curves=m.chk000.isChecked(),
             remove_flat_keys=m.chk030.isChecked(),
@@ -1605,10 +1820,10 @@ class Animation(AnimationMixin, SlotsBlender):
         )
         if kb:
             msg += f" ({(1 - ka / kb) * 100:.1f}% reduction)"
-        if "unbaked" in stats:
+        if "reduced" in stats:
             msg += (
-                f"\n  • Unbaked: {stats['unbaked']} curves, "
-                f"max deviation {stats['unbake_max_error']:.4f}"
+                f"\n  • Reduced to extremes: {stats['reduced']} curves, "
+                f"max deviation {stats['reduce_max_error']:.4f}"
             )
         self.sb.message_box(msg)
 
@@ -1617,7 +1832,10 @@ class Animation(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Repair Corrupted Curves")
         m.add(
-            "QCheckBox", setText="Delete Unfixable Curves", setObjectName="chk036", setChecked=True,
+            "QCheckBox",
+            setText="Delete Unfixable Curves",
+            setObjectName="chk036",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Delete Unfixable Curves",
                 body="Remove curves left with no usable keys once the fixes "
@@ -1629,7 +1847,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Fix Infinite Values", setObjectName="chk037", setChecked=True,
+            "QCheckBox",
+            setText="Fix Infinite Values",
+            setObjectName="chk037",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Fix Infinite Values",
                 body="Remove keys whose <i>value</i> is NaN, infinite, or past "
@@ -1637,7 +1858,10 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QCheckBox", setText="Fix Invalid Times", setObjectName="chk038", setChecked=True,
+            "QCheckBox",
+            setText="Fix Invalid Times",
+            setObjectName="chk038",
+            setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Fix Invalid Times",
                 body="Remove keys sitting at a NaN, infinite, or absurd "
@@ -1646,13 +1870,19 @@ class Animation(AnimationMixin, SlotsBlender):
             ),
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Time Threshold: ", setObjectName="d015",
-            set_limits=[1000, 999999999], setValue=100000,
+            "QDoubleSpinBox",
+            setPrefix="Time Threshold: ",
+            setObjectName="d015",
+            set_limits=[1000, 999999999],
+            setValue=100000,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_REPAIR_TIME_THRESHOLD),
         )
         m.add(
-            "QDoubleSpinBox", setPrefix="Value Threshold: ", setObjectName="d016",
-            set_limits=[1000, 999999999], setValue=1000000,
+            "QDoubleSpinBox",
+            setPrefix="Value Threshold: ",
+            setObjectName="d016",
+            set_limits=[1000, 999999999],
+            setValue=1000000,
             setToolTip=self.sb.tooltip.fmt(**self.TIP_REPAIR_VALUE_THRESHOLD),
         )
 
@@ -1671,7 +1901,9 @@ class Animation(AnimationMixin, SlotsBlender):
         )
         scope = "selected objects" if selected else "scene"
         if not r["corrupted_found"]:
-            self.sb.message_box(f"No corrupted curves found on the {scope}. Animation is clean.")
+            self.sb.message_box(
+                f"No corrupted curves found on the {scope}. Animation is clean."
+            )
             return
         msg = (
             f"Repaired {scope}:\n"
@@ -1705,6 +1937,11 @@ class Animation(AnimationMixin, SlotsBlender):
         pythontk shots core. (Replaced the pre-2026-07-11 "Maya-shot-pipeline specific" message
         box — the panel shipped in blendertk.)"""
         self.sb.handlers.marking_menu.show("shot_manifest")
+
+    def b006(self):
+        """Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:
+        park keys out of the working animation, preview a stored range, retrieve later."""
+        self.sb.handlers.marking_menu.show("key_stash")
 
 
 # --------------------------------------------------------------------------------------------

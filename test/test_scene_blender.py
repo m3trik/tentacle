@@ -18,6 +18,7 @@ so ``list002`` had to grow the same callable/op-path split ``list001`` already u
 were an operator path — the entry dies with no compile-time error, since the list dispatches
 by item text.
 """
+
 import ast
 import unittest
 from pathlib import Path
@@ -45,9 +46,56 @@ def _class_assign(class_node, name):
 
 def _method(class_node, name):
     for item in class_node.body:
-        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name == name:
+        if (
+            isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and item.name == name
+        ):
             return item
     return None
+
+
+class TestGltfImportEntry(unittest.TestCase):
+    """SceneSlots (Blender): "Import glTF" is on the Import list, natively.
+
+    Parity with the Maya fork's entry of the same name, which has to reach glTF
+    through the headless-Blender bridge (Maya ships no glTF importer). Here the
+    operator is native, so what has to hold is the LABEL — a tentacle slot must not
+    have to branch on the host to offer the same import — and that the value is the
+    op path ``list001`` knows how to dispatch, since a typo would simply drop the
+    row from the list with no error (``list001_init`` filters on ``resolve_op``).
+    """
+
+    def setUp(self):
+        self.cls = _class_node(SCENE_FILE.read_text(encoding="utf-8"), "SceneSlots")
+        self.assertIsNotNone(self.cls, "SceneSlots class not found")
+        importers = _class_assign(self.cls, "_IMPORTERS")
+        self.assertIsInstance(importers, ast.Dict, "_IMPORTERS is not a dict literal")
+        self.entries = {
+            k.value: v
+            for k, v in zip(importers.keys, importers.values)
+            if isinstance(k, ast.Constant)
+        }
+
+    def test_entry_is_registered_as_the_native_operator(self):
+        self.assertIn("Import glTF", self.entries)
+        value = self.entries["Import glTF"]
+        self.assertIsInstance(
+            value,
+            ast.Constant,
+            "the Blender entry must be a bpy.ops path, not a lambda",
+        )
+        self.assertEqual(value.value, "import_scene.gltf")
+
+    def test_label_matches_the_maya_fork(self):
+        # Reused labels are the cross-DCC contract (and QSettings key); a Blender-only
+        # spelling like "Import GLB" would break the mirror.
+        maya_file = ROOT / "tentacle" / "slots" / "maya" / "scene.py"
+        maya_cls = _class_node(maya_file.read_text(encoding="utf-8"), "SceneSlots")
+        maya_importers = _class_assign(maya_cls, "_IMPORTERS")
+        maya_labels = {
+            k.value for k in maya_importers.keys if isinstance(k, ast.Constant)
+        }
+        self.assertIn("Import glTF", maya_labels)
 
 
 class TestSceneExporterOnExportList(unittest.TestCase):
@@ -95,7 +143,9 @@ class TestSceneExporterOnExportList(unittest.TestCase):
     def test_header_no_longer_carries_the_button(self):
         # b002's removal is what makes the list the only route; a re-added method
         # would mean the button crept back onto the header menu.
-        self.assertIsNone(_method(self.cls, "b002"), "b002 is back on Blender SceneSlots")
+        self.assertIsNone(
+            _method(self.cls, "b002"), "b002 is back on Blender SceneSlots"
+        )
 
 
 if __name__ == "__main__":
