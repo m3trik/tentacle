@@ -214,6 +214,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         "Import File": lambda slot: mel.eval("Import"),
         "Import Options": lambda slot: mel.eval("ImportOptions"),
         "Import Blender Scene": lambda slot: slot._import_blender_scene(),
+        "Import glTF": lambda slot: slot._import_gltf(),
         "FBX Import Presets": lambda slot: slot._eval_fbx_uicallback(
             'editImportPresetInNewWindow" "fbx'
         ),
@@ -273,7 +274,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         )
         root = widget.add(
             "Import",
-            setToolTip="Import a file or a Blender scene, or open Import / FBX / OBJ preset options.",
+            setToolTip="Import a file, a Blender scene or a glTF, or open Import / FBX / OBJ preset options.",
         )
         root.sublist.add(list(self._IMPORTERS))
 
@@ -284,20 +285,32 @@ class SceneSlots(SceneMixin, SlotsMaya):
         if action:
             action(self)
 
-    def _import_blender_scene(self):
-        """Import a Blender scene (.blend) via ``mtk.BlenderSceneImport`` — a
-        headless-Blender FBX round-trip by default (a fresh ``blender --background``
-        converts the scene; instancing is carried by the format, materials rebuilt
-        from a texture manifest; the USD route — native materials / animation,
-        instancing replayed from a sidecar — is opt-in via the Reference Manager's
-        route option, the Export Scene option box's Transfer-via combo -- read here --
-        or ``via="usd"``). Mirror of the Blender slots' "Import Maya Scene".
-        Blocking: a scene conversion takes seconds (no license checkout — Blender is
-        free), so a wait cursor covers the run. Requires a local Blender install."""
+    def _pull_scene(self, file_types, title, filter_description, kind):
+        """Browse for a foreign scene and pull it in through ``mtk.BlenderSceneImport``.
+
+        Every entry that reaches Maya through the headless-Blender bridge shares this
+        body — only the browse filter and the wording differ — so the carrier choice,
+        the wait cursor and the failure report cannot drift between them.
+
+        The route is a headless-Blender FBX round-trip by default (a fresh
+        ``blender --background`` converts the source; instancing is carried by the
+        format, materials rebuilt from a texture manifest; the USD route — native
+        materials / animation, instancing replayed from a sidecar — is opt-in via the
+        Reference Manager's route option or the Export Scene option box's Transfer-via
+        combo, read here). Blocking: a conversion takes seconds (no license checkout —
+        Blender is free), so a wait cursor covers the run. Requires a local Blender
+        install.
+
+        Parameters:
+            file_types: Browse filter globs, e.g. ``["*.blend"]``.
+            title: File-dialog title.
+            filter_description: File-dialog filter label.
+            kind: What failed, for the error message ("Blender scene", "glTF").
+        """
         src = self.sb.file_dialog(
-            file_types=["*.blend"],
-            title="Import Blender Scene",
-            filter_description="Blender Scenes",
+            file_types=file_types,
+            title=title,
+            filter_description=filter_description,
             allow_multiple=False,
         )
         if not src:
@@ -309,7 +322,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
                 src, via=self._transfer_carrier()
             )
         except Exception as e:
-            self.sb.message_box(f"Blender scene import failed: <hl>{e}</hl>")
+            self.sb.message_box(f"{kind} import failed: <hl>{e}</hl>")
             return
         finally:
             app.restoreOverrideCursor()
@@ -317,6 +330,25 @@ class SceneSlots(SceneMixin, SlotsMaya):
             f"Imported <hl>{len(imported)}</hl> object(s) from "
             f"<hl>{os.path.basename(src)}</hl>."
         )
+
+    def _import_blender_scene(self):
+        """Import a Blender scene (.blend). Mirror of the Blender slots'
+        "Import Maya Scene"; see :meth:`_pull_scene` for the route."""
+        self._pull_scene(
+            ["*.blend"], "Import Blender Scene", "Blender Scenes", "Blender scene"
+        )
+
+    def _import_gltf(self):
+        """Import a glTF container (.glb/.gltf) — the same bridge as
+        :meth:`_import_blender_scene`, honouring the same Transfer-via choice.
+
+        Maya ships no glTF importer at all, so this is the ONLY route a .glb has into
+        a Maya scene — not a convenience wrapper over a native command like the
+        Blender fork's ``import_scene.gltf`` twin. The conversion opens the container
+        by import and unpacks its embedded images to disk first, so the packed ORM a
+        glTF carries survives into the rebuilt materials instead of arriving gray.
+        """
+        self._pull_scene(["*.glb", "*.gltf"], "Import glTF", "glTF Files", "glTF")
 
     #: Export Scene's combo label for Blender's native format (SceneMixin hook).
     FOREIGN_FORMAT_LABEL = "Blend"
@@ -720,23 +752,55 @@ class SceneSlots(SceneMixin, SlotsMaya):
     # (notably texture file IO when Textures + Pipeline + Summary +
     # Fix First are all unchecked). Keep this in section render order.
     _TB001_SECTIONS = (
-        ("summary", "Executive Summary", True,
-         "Scene-wide totals: meshes, instances, triangles, slots, GPU memory."),
-        ("fix_first", "Fix First (High Impact)", True,
-         "Prioritized remediation items based on budget overshoot."),
-        ("pareto", "Pareto View", True,
-         "Top 10 contributors to total triangles and draw calls."),
-        ("offenders", "Top Issues by Asset", True,
-         "Per-asset offender list with findings and fix plan."),
-        ("categories", "Top Offenders by Category", True,
-         "Materials correlated with high slot meshes."),
-        ("textures", "Textures", True,
-         "Dimension histogram, 4K analysis, heaviest texture files. "
-         "Unchecking this skips per-texture file-size IO — fastest win on heavy scenes."),
-        ("pipeline", "Pipeline Integrity", True,
-         "Missing project textures and their impact on top offenders."),
-        ("assumptions", "Data Assumptions", True,
-         "Methodology footnotes (compression, GPU sizing). Untick to hide the trailing assumptions block."),
+        (
+            "summary",
+            "Executive Summary",
+            True,
+            "Scene-wide totals: meshes, instances, triangles, slots, GPU memory.",
+        ),
+        (
+            "fix_first",
+            "Fix First (High Impact)",
+            True,
+            "Prioritized remediation items based on budget overshoot.",
+        ),
+        (
+            "pareto",
+            "Pareto View",
+            True,
+            "Top 10 contributors to total triangles and draw calls.",
+        ),
+        (
+            "offenders",
+            "Top Issues by Asset",
+            True,
+            "Per-asset offender list with findings and fix plan.",
+        ),
+        (
+            "categories",
+            "Top Offenders by Category",
+            True,
+            "Materials correlated with high slot meshes.",
+        ),
+        (
+            "textures",
+            "Textures",
+            True,
+            "Dimension histogram, 4K analysis, heaviest texture files. "
+            "Unchecking this skips per-texture file-size IO — fastest win on heavy scenes.",
+        ),
+        (
+            "pipeline",
+            "Pipeline Integrity",
+            True,
+            "Missing project textures and their impact on top offenders.",
+        ),
+        (
+            "assumptions",
+            "Data Assumptions",
+            True,
+            "Methodology footnotes (compression, GPU sizing). Untick to hide the trailing assumptions block.",
+        ),
     )
 
     def tb001_init(self, widget):
@@ -810,9 +874,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         if scope == "all":
             objects = cmds.ls(type="mesh", long=True, ni=True) or []
             if not objects:
-                self.sb.message_box(
-                    "<hl>No mesh geometry</hl> found in the scene."
-                )
+                self.sb.message_box("<hl>No mesh geometry</hl> found in the scene.")
                 return
         else:
             if not (cmds.ls(selection=True, long=True) or []):
@@ -943,7 +1005,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
         if not path.lower().endswith(".json"):
             path += ".json"
         ptk.FileUtils.atomic_write_text(path, text)
-        self.sb.message_box(f"Saved scene metadata to <hl>{os.path.basename(path)}</hl>.")
+        self.sb.message_box(
+            f"Saved scene metadata to <hl>{os.path.basename(path)}</hl>."
+        )
 
     def b013(self):
         """Mesh Converter (FBX -> GLB)"""
@@ -964,9 +1028,10 @@ class SceneSlots(SceneMixin, SlotsMaya):
                 try:
                     if not cmds.referenceQuery(node, isNodeReferenced=True):
                         continue
-                    ref_path = cmds.referenceQuery(
-                        node, filename=True, withoutCopyNumber=True
-                    ) or ""
+                    ref_path = (
+                        cmds.referenceQuery(node, filename=True, withoutCopyNumber=True)
+                        or ""
+                    )
                 except RuntimeError:
                     continue
                 if ref_path.lower().endswith(".fbx"):

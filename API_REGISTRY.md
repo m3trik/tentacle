@@ -275,7 +275,7 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/animation.py`
 
 - **[`class Animation(AnimationMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
-  - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Playback / Info.
+  - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
   - `Animation.list000(self, item)` — Dispatch a Tools leaf to its slot method.
   - `Animation.tb000_init(self, widget)`
   - `Animation.tb000(self, widget)` — Go To Frame (absolute, or relative offset from the current frame);
@@ -321,6 +321,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Animation.tb020(self, widget)` — Smart Bake
   - `Animation.b000(self)` — Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
   - `Animation.b004(self)` — Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
+  - `Animation.b006(self)` — Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:
 
 <a id="slots--blender--blender"></a>
 ### `slots/blender/blender.py`
@@ -840,9 +841,9 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/animation.py`
 
 - **[`class Animation(AnimationMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L8)**
-  - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Playback / Info.
+  - `Animation.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
   - `Animation.list000(self, item)` — Dispatch a Tools leaf to its slot method.
-  - `Animation.b006(self)` — Repair Visibility Tangents
+  - `Animation.b001(self)` — Repair Visibility Tangents
   - `Animation.tb000_init(self, widget)` — Go To Frame Init
   - `Animation.tb000(self, widget)` — Go To Frame: jump the time slider to the next/previous key or a snap target.
   - `Animation.tb001_init(self, widget)` — Invert Keyframes Init
@@ -887,6 +888,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Animation.b000(self)` — Open Shot Sequencer
   - `Animation.b004(self)` — Open Shot Manifest
   - `Animation.b005(self)` — Fit Playback Range
+  - `Animation.b006(self)` — Open Key Stash
 
 <a id="slots--maya--arnold"></a>
 ### `slots/maya/arnold.py`
@@ -1326,7 +1328,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--rigging"></a>
 ### `slots/maya/rigging.py`
 
-- **[`class Rigging(SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L11)**
+- **[`class Rigging(SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L12)**
   - `Rigging.header_init(self, widget)` — Init Rigging Header
   - `Rigging.b020(self)` — Rebind Skin Clusters
   - `Rigging.cmb001_init(self, widget)` — Init Create

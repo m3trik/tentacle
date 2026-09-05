@@ -29,7 +29,9 @@ class Rigging(SlotsBlender):
         # Every entry is a one-shot action — dismiss the menu once one is triggered.
         widget.menu.hide_on_trigger = True
         widget.menu.add(
-            "QPushButton", setText="Rebind Skin Clusters", setObjectName="b020",
+            "QPushButton",
+            setText="Rebind Skin Clusters",
+            setObjectName="b020",
             setToolTip="Refresh the Armature modifier binding on the selected mesh(es), preserving "
             "vertex-group weights (the Blender analogue of rebinding a skinCluster).",
         )
@@ -86,7 +88,10 @@ class Rigging(SlotsBlender):
         # the global display-scale spinbox (s000) have no Blender analogue and are excused.
         widget.option_box.menu.setTitle("Display Local Rotation Axes")
         widget.option_box.menu.add(
-            "QCheckBox", setText="Joints", setObjectName="chk000", setChecked=False,
+            "QCheckBox",
+            setText="Joints",
+            setObjectName="chk000",
+            setChecked=False,
             setToolTip="Target armature BONE axes (show_axes) instead of object axes (show_axis).",
         )
 
@@ -101,7 +106,9 @@ class Rigging(SlotsBlender):
         if widget.option_box.menu.chk000.isChecked():
             arms = [o for o in objects if o.type == "ARMATURE"]
             if not arms:
-                self.sb.message_box("No armatures selected (Joints mode targets bone axes).")
+                self.sb.message_box(
+                    "No armatures selected (Joints mode targets bone axes)."
+                )
                 return
             state = not arms[0].data.show_axes
             for a in arms:
@@ -117,16 +124,25 @@ class Rigging(SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Create Constraint Switch")
         m.add(
-            "QLineEdit", setPlaceholderText="Switch Name:", setText="switch", setObjectName="t003",
+            "QLineEdit",
+            setPlaceholderText="Switch Name:",
+            setText="switch",
+            setObjectName="t003",
             setToolTip="Name of the custom property created on the active object to drive the switch.",
         )
         m.add(
-            "QLineEdit", setPlaceholderText="Anchor Name:", setText="", setObjectName="t004",
+            "QLineEdit",
+            setPlaceholderText="Anchor Name:",
+            setText="",
+            setObjectName="t004",
             setToolTip="Optional: create an Empty at the world origin as an additional Copy-Transforms "
             "target before building the switch. Leave blank to switch only existing constraints.",
         )
         m.add(
-            "QCheckBox", setText="Weighted", setObjectName="chk003", setChecked=False,
+            "QCheckBox",
+            setText="Weighted",
+            setObjectName="chk003",
+            setChecked=False,
             setToolTip="Smooth float blend between targets (influence falls off with distance from "
             "each index) instead of a hard snap to the nearest target.",
         )
@@ -139,13 +155,17 @@ class Rigging(SlotsBlender):
         m = widget.option_box.menu
         active = bpy.context.view_layer.objects.active
         if active is None:
-            self.sb.message_box("Constraint Switch requires an active (constrained) object.")
+            self.sb.message_box(
+                "Constraint Switch requires an active (constrained) object."
+            )
             return
         switch_name = m.t003.text() or "switch"
         weighted = m.chk003.isChecked()
         anchor_name = m.t004.text().strip()
 
-        if anchor_name:  # add an anchor Empty at world origin as an extra Copy-Transforms target
+        if (
+            anchor_name
+        ):  # add an anchor Empty at world origin as an extra Copy-Transforms target
             anchor = bpy.data.objects.new(anchor_name, None)
             anchor.empty_display_type = "PLAIN_AXES"
             # scene root collection: bpy.context.collection is screen-context (AttributeError
@@ -179,7 +199,9 @@ class Rigging(SlotsBlender):
             # Only abs() is used (always in Blender's restricted driver namespace; round() isn't
             # guaranteed). Weighted = triangular falloff; snap = 1 when i is the nearest index.
             drv.expression = (
-                f"max(0.0, 1.0 - abs(s - {i}))" if weighted else f"1.0 if abs(s - {i}) < 0.5 else 0.0"
+                f"max(0.0, 1.0 - abs(s - {i}))"
+                if weighted
+                else f"1.0 if abs(s - {i}) < 0.5 else 0.0"
             )
         self.sb.message_box(
             f"Constraint Switch '<hl>{switch_name}</hl>' drives <hl>{n}</hl> constraints on "
@@ -195,43 +217,107 @@ class Rigging(SlotsBlender):
         m.setTitle("Create Locator")
         m.add("Separator", setTitle="Scale")
         m.add(
-            "QDoubleSpinBox", setPrefix="Locator Scale: ", setObjectName="s001",
-            set_limits=[0, 1000, 1, 3], setValue=1.0, setToolTip="Display size of the locator Empty.",
+            "QDoubleSpinBox",
+            setPrefix="Locator Scale: ",
+            setObjectName="s001",
+            set_limits=[0, 1000, 1, 3],
+            setValue=1.0,
+            setToolTip="Display size of the locator Empty.",
         )
         m.add("Separator", setTitle="Naming")
+        # Seeded from the shared naming convention, not from literals: the group
+        # and the locator are Empties this tool creates, so their type is known here.
         m.add(
-            "QLineEdit", setPlaceholderText="Group Suffix:", setText="_GRP", setObjectName="t002",
+            "QLineEdit",
+            setPlaceholderText="Group Suffix:",
+            setObjectName="t002",
+            setText=ptk.NamingConvention.affix("group"),
             setToolTip="Suffix appended to the created group (parent Empty) name.",
         )
         m.add(
-            "QLineEdit", setPlaceholderText="Locator Suffix:", setText="_LOC", setObjectName="t000",
+            "QLineEdit",
+            setPlaceholderText="Locator Suffix:",
+            setObjectName="t000",
+            setText=ptk.NamingConvention.affix("locator"),
             setToolTip="Suffix appended to the created locator (Empty) name.",
         )
-        m.add(
-            "QLineEdit", setPlaceholderText="Geometry Suffix:", setText="_GEO", setObjectName="t001",
-            setToolTip="Suffix appended to the existing geometry's name.",
+        # The child is whatever the user selected, so its affix has no single right
+        # answer here -- a camera is not "_GEO". Same Auto/Suffix/Prefix/Scene picker
+        # as every other affix field, with Scene bound to the SELECTION's type rather
+        # than a fixed one; the field previews the first selected object and the
+        # rename resolves the rest per object (mirrors the Maya panel).
+        obj_field = m.add(
+            "QLineEdit",
+            setPlaceholderText="Geometry Suffix:",
+            setObjectName="t001",
+            setText=ptk.NamingConvention.affix("mesh"),
+            setToolTip=(
+                "Affix for the existing object's name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which affixes each object for its own\n"
+                "type from the shared naming convention (mesh → _GEO,\n"
+                "camera → _CAM, ...). Edit those spellings in the Naming panel."
+            ),
+        )
+        obj_field.option_box.set_affix(
+            default="convention",
+            convention_key=self._locator_child_type_key,
+            # ``t001`` alone is far too generic to namespace on.
+            settings_key="rigging_create_locator_obj_affix_blender",
         )
         m.add(
-            "QCheckBox", setText="Strip Digits", setObjectName="chk005", setChecked=True,
+            "QCheckBox",
+            setText="Strip Digits",
+            setObjectName="chk005",
+            setChecked=True,
             setToolTip="Strip trailing digits from the base name before applying suffixes.",
         )
         m.add(
-            "QCheckBox", setText="Strip Suffix", setObjectName="chk006", setChecked=True,
-            setToolTip="Strip an existing Group/Locator/Geometry suffix from the base name first.",
+            "QCheckBox",
+            setText="Strip Suffix",
+            setObjectName="chk006",
+            setChecked=True,
+            setToolTip=(
+                "Strip an existing Group/Locator/Geometry suffix from the base name first.\n"
+                "In 'Scene' mode this widens to every affix in the shared naming "
+                "convention, so an object mis-named '_GEO' becomes '_CAM' rather "
+                "than '_GEO_CAM'."
+            ),
         )
         m.add("Separator", setTitle="Lock Channels")
         m.add(
-            "QCheckBox", setText="Lock Child Translate", setObjectName="chk007", setChecked=False,
+            "QCheckBox",
+            setText="Lock Child Translate",
+            setObjectName="chk007",
+            setChecked=False,
             setToolTip="Lock the geometry's location channels after parenting it to the locator.",
         )
         m.add(
-            "QCheckBox", setText="Lock Child Rotation", setObjectName="chk008", setChecked=False,
+            "QCheckBox",
+            setText="Lock Child Rotation",
+            setObjectName="chk008",
+            setChecked=False,
             setToolTip="Lock the geometry's rotation channels.",
         )
         m.add(
-            "QCheckBox", setText="Lock Child Scale", setObjectName="chk009", setChecked=False,
+            "QCheckBox",
+            setText="Lock Child Scale",
+            setObjectName="chk009",
+            setChecked=False,
             setToolTip="Lock the geometry's scale channels.",
         )
+
+    def _locator_child_type_key(self) -> str:
+        """The convention key the Scene affix state previews.
+
+        The active object's own type, so the field shows "_CAM" with a camera
+        selected and "_GEO" with a mesh. Falls back to the mesh entry for an
+        empty selection or a type the convention does not name -- the field
+        must always show a real affix, never an empty lock.
+        """
+        objects = self.selected_objects()
+        key = btk.Naming.type_key(objects[0]) if objects else "mesh"
+        return key if ptk.NamingConvention.affix(key) else "mesh"
 
     @staticmethod
     def _locator_base_name(name, suffixes, strip_digits, strip_suffix):
@@ -244,7 +330,10 @@ class Rigging(SlotsBlender):
                     base = base[: -len(suf)]
                     break
         if strip_digits:
-            base = ptk.StrUtils.format_suffix(base, strip="_", strip_trailing_ints=True) or base
+            base = (
+                ptk.StrUtils.format_suffix(base, strip="_", strip_trailing_ints=True)
+                or base
+            )
         return base
 
     @btk.undoable
@@ -258,13 +347,42 @@ class Rigging(SlotsBlender):
             bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
             return
         scale = m.s001.value()
-        grp_suffix, loc_suffix, obj_suffix = m.t002.text(), m.t000.text(), m.t001.text()
+        grp_suffix, loc_suffix = m.t002.text(), m.t000.text()
+        obj_field = m.t001
+        affix_mode = obj_field.option_box.affix_mode
+        # "Scene" ignores the field: each object is affixed for its OWN type from
+        # the shared convention (mesh -> _GEO, camera -> _CAM), the way mayatk's
+        # create_locator_at_object does with ``obj_suffix=None``. The manual states
+        # are the user's literal text, placed as the picker says.
+        by_convention = affix_mode == "convention"
+        obj_rule = (
+            None if by_convention else ptk.AffixRule(obj_field.text(), affix_mode)
+        )
+        # Literal group/locator affixes are placed by "auto", which reads "_GRP"
+        # as the suffix it looks like and "GRP_" as a prefix.
+        grp_rule = ptk.AffixRule(grp_suffix, "auto")
+        loc_rule = ptk.AffixRule(loc_suffix, "auto")
         strip_digits, strip_suffix = m.chk005.isChecked(), m.chk006.isChecked()
         lock = (m.chk007.isChecked(), m.chk008.isChecked(), m.chk009.isChecked())
-        suffixes = (grp_suffix, loc_suffix, obj_suffix)
+        # By convention, a name may carry the affix of a type it is not (a camera
+        # an earlier run wrote as "_GEO"), so the whole convention vocabulary is
+        # strippable -- longest first, since only the first match is stripped.
+        candidates = {grp_suffix, loc_suffix}
+        candidates |= (
+            set(ptk.NamingConvention.all_affixes())
+            if by_convention
+            else {obj_rule.text}
+        )
+        suffixes = tuple(
+            sorted((s for s in candidates if s), key=lambda a: (-len(a), a))
+        )
 
         for o in objects:
-            coll = o.users_collection[0] if o.users_collection else bpy.context.scene.collection
+            coll = (
+                o.users_collection[0]
+                if o.users_collection
+                else bpy.context.scene.collection
+            )
             base = self._locator_base_name(o.name, suffixes, strip_digits, strip_suffix)
             # Both parent-inverses derive from the SOURCE object's matrix_world: the loc/grp
             # empties are created in this same handler, and a fresh object's ``matrix_world``
@@ -273,13 +391,13 @@ class Rigging(SlotsBlender):
             # (world² / world³) on the next depsgraph eval. Both empties are placed AT
             # ``o.matrix_world``, so its inverse is exactly theirs.
             inv = o.matrix_world.inverted_safe()
-            loc = bpy.data.objects.new(f"{base}{loc_suffix}", None)
+            loc = bpy.data.objects.new(loc_rule.apply(base), None)
             loc.empty_display_type = "PLAIN_AXES"
             loc.empty_display_size = scale
             loc.matrix_world = o.matrix_world.copy()
             coll.objects.link(loc)
 
-            grp = bpy.data.objects.new(f"{base}{grp_suffix}", None)
+            grp = bpy.data.objects.new(grp_rule.apply(base), None)
             grp.empty_display_type = "PLAIN_AXES"
             grp.matrix_world = o.matrix_world.copy()
             coll.objects.link(grp)
@@ -289,8 +407,29 @@ class Rigging(SlotsBlender):
             # parent geometry to the locator so it follows; keep its world transform
             o.parent = loc
             o.matrix_parent_inverse = inv
-            if obj_suffix and not o.name.endswith(obj_suffix):
-                o.name = f"{base}{obj_suffix}"
+            # An Empty with children reads as a GROUP, and the group Empty created
+            # above already holds "<base>_GRP" -- affixing the child to match would
+            # only earn it a ".001". Maya's twin skips a group's rename likewise.
+            child_is_group = by_convention and btk.Naming.type_key(o) == "group"
+            if by_convention and not child_is_group:
+                # .apply honours the convention's PLACEMENT too, so a studio on
+                # prefixes gets "CAM_shot" rather than "shot_CAM". An unmapped
+                # type has no entry to follow -- keep the mesh affix over a bare
+                # rename.
+                rule = btk.Naming.affix_for(o)
+                new_name = (
+                    rule.apply(base)
+                    if rule.text
+                    else f"{base}{ptk.NamingConvention.affix('mesh')}"
+                )
+                if o.name != new_name:
+                    o.name = new_name
+            elif obj_rule is not None and obj_rule.text:
+                # .apply honours the picker's placement and is idempotent, so a
+                # name that already carries the affix is left alone.
+                new_name = obj_rule.apply(base)
+                if o.name != new_name:
+                    o.name = new_name
             o.lock_location = (lock[0],) * 3
             o.lock_rotation = (lock[1],) * 3
             o.lock_scale = (lock[2],) * 3
@@ -321,7 +460,12 @@ class Rigging(SlotsBlender):
         groups = []
         for loc in locators:
             grp = loc.parent
-            if grp is not None and grp.type == "EMPTY" and grp not in groups and grp not in locators:
+            if (
+                grp is not None
+                and grp.type == "EMPTY"
+                and grp not in groups
+                and grp not in locators
+            ):
                 groups.append(grp)
         for loc in locators:
             bpy.data.objects.remove(loc, do_unlink=True)
@@ -338,20 +482,26 @@ class Rigging(SlotsBlender):
         # Lock vs Unlock is a two-valued choice, not a modifier — a combobox names both
         # states (its item text drives the button label); extend with e.g. "Toggle" later.
         action = m.add(
-            "QComboBox", setObjectName="cmb_lock",
+            "QComboBox",
+            setObjectName="cmb_lock",
             setToolTip="Whether the button locks or unlocks the chosen channels.",
         )
         action.addItems(["Lock", "Unlock"])
-        action.setCurrentText("Unlock")  # preserve prior default (checkbox off = unlock)
+        action.setCurrentText(
+            "Unlock"
+        )  # preserve prior default (checkbox off = unlock)
         action.currentTextChanged.connect(widget.setText)
         widget.setText(action.currentText())
         cmb = m.add(
-            "QComboBox", setObjectName="cmb010",
+            "QComboBox",
+            setObjectName="cmb010",
             setToolTip="Which transform channels to affect (Blender has no channel box).",
         )
         for text, data in [
-            ("Attrs: All", "all"), ("Attrs: Translate", "translate"),
-            ("Attrs: Rotate", "rotate"), ("Attrs: Scale", "scale"),
+            ("Attrs: All", "all"),
+            ("Attrs: Translate", "translate"),
+            ("Attrs: Rotate", "rotate"),
+            ("Attrs: Scale", "scale"),
         ]:
             cmb.addItem(text, data)
 
@@ -373,7 +523,9 @@ class Rigging(SlotsBlender):
             if scope in ("all", "scale"):
                 o.lock_scale = (lock,) * 3
         action = "Locked" if lock else "Unlocked"
-        self.sb.message_box(f"{action} <hl>{scope}</hl> channels on <hl>{len(objects)}</hl> object(s).")
+        self.sb.message_box(
+            f"{action} <hl>{scope}</hl> channels on <hl>{len(objects)}</hl> object(s)."
+        )
 
     # ------------------------------------------------------------------ cmb002  Quick Rig (Rigify)
     @staticmethod
@@ -395,8 +547,15 @@ class Rigging(SlotsBlender):
         # Quick Rig + HumanIK for the same "auto-rig a character" role — different native tools,
         # so the item names diverge by design).
         widget.add(
-            ["Telescope Rig", "Wheel Rig", "Shadow Rig", "Tube Rig", "Human Meta-Rig",
-             "Basic Human Meta-Rig", "Generate Rig"],
+            [
+                "Telescope Rig",
+                "Wheel Rig",
+                "Shadow Rig",
+                "Tube Rig",
+                "Human Meta-Rig",
+                "Basic Human Meta-Rig",
+                "Generate Rig",
+            ],
             header="Quick Rig:",
         )
 
@@ -432,7 +591,9 @@ class Rigging(SlotsBlender):
                 elif text == "Generate Rig":
                     obj = bpy.context.view_layer.objects.active
                     if not obj or obj.type != "ARMATURE":
-                        self.sb.message_box("Generate Rig requires an active meta-rig armature.")
+                        self.sb.message_box(
+                            "Generate Rig requires an active meta-rig armature."
+                        )
                         return
                     bpy.ops.pose.rigify_generate()
         except (RuntimeError, AttributeError) as e:

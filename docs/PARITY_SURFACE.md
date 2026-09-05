@@ -28,6 +28,7 @@
 | HierarchySync | 0 | 0 | 0 | 0 | OK |
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
+| KeyStash | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 1 | 0 | OK |
@@ -214,4 +215,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 45 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 10 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 10 open-work items; 0 stale Maya handlers. Sweep PASSES.

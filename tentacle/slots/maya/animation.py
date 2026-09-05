@@ -32,7 +32,7 @@ class Animation(AnimationMixin, SlotsMaya):
             ("Repair Corrupted Curves", "tb015", "Repair corrupted animation curves."),
             (
                 "Repair Visibility Tangents",
-                "b006",
+                "b001",
                 "Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
             ),
         ],
@@ -44,6 +44,15 @@ class Animation(AnimationMixin, SlotsMaya):
                 "Analyzes and bakes constraints, driven keys, expressions, IK,\n"
                 "motion paths, and blend shapes — with a one-click Unbake to\n"
                 "reverse the most recent bake, even after a scene reopen.",
+            ),
+        ],
+        "Stash": [
+            (
+                "Key Stash",
+                "b006",
+                "Open the Key Stash: park selected keys out of the working animation\n"
+                "(inert, not exported, kept across sessions), preview a stored range\n"
+                "on demand, and retrieve it later.",
             ),
         ],
         "Playback": [
@@ -66,7 +75,7 @@ class Animation(AnimationMixin, SlotsMaya):
     }
 
     def list000_init(self, widget):
-        """Tools list: Sequencing / Repair / Bake / Playback / Info.
+        """Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
 
         Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
         slot defines an ``*_init``: that init builds the option box (tb015,
@@ -126,7 +135,7 @@ class Animation(AnimationMixin, SlotsMaya):
                     slot()
                 return
 
-    def b006(self):
+    def b001(self):
         """Repair Visibility Tangents"""
         mtk.Diagnostics.repair_visibility_tangents(objects=cmds.ls(sl=True) or None)
 
@@ -2263,20 +2272,20 @@ class Animation(AnimationMixin, SlotsMaya):
                     "The one lossy phase — it reshapes moving curves, not just "
                     "redundant ones. Off by default; reach for it on baked or "
                     "mocap data, not on hand-animated curves.",
-                    "Ignored while <b>Unbake</b> is on, which runs its own reduction.",
+                    "Ignored while <b>Reduce To Extremes</b> is on, which runs its own reduction.",
                 ],
             ),
         )
         widget.option_box.menu.add(
             "QCheckBox",
-            setText="Unbake (keep extrema)",
+            setText="Reduce To Extremes",
             setObjectName="chk040",
             setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
-                title="Unbake",
+                title="Reduce To Extremes",
                 body="Reduce baked curves to their endpoints, peaks, valleys and "
                 "hold boundaries, with tangents refit to trace the baked motion "
-                "— the inverse of a per-frame bake.",
+                "— a bake thinned to its shape, not reversed (that is Smart Bake's Unbake).",
                 notes=[
                     "Stepped curves get the flat-key pass instead. "
                     "<b>Simplify Curves</b> and <b>Tolerance</b> are ignored.",
@@ -2306,11 +2315,11 @@ class Animation(AnimationMixin, SlotsMaya):
                 notes=[
                     "It is measured in scene units, so the same number is "
                     "stricter on a rotation curve than on a translation one.",
-                    "Ignored while <b>Unbake</b> is on.",
+                    "Ignored while <b>Reduce To Extremes</b> is on.",
                 ],
             ),
         )
-        # Unbake replaces the simplify/tolerance pass outright (tb019 sends a
+        # Reduce To Extremes replaces the simplify/tolerance pass outright (tb019 sends a
         # negative tolerance as its sentinel, and mtk.optimize_keys drops
         # simplify_keys in that mode), so both controls grey out.
         self.sb.enable_when(
@@ -2323,7 +2332,7 @@ class Animation(AnimationMixin, SlotsMaya):
         remove_static = widget.option_box.menu.chk000.isChecked()
         remove_flat = widget.option_box.menu.chk030.isChecked()
         simplify = widget.option_box.menu.chk032.isChecked()
-        # A negative tolerance is optimize_keys' unbake sentinel.
+        # A negative tolerance is optimize_keys' extremes sentinel.
         tolerance = (
             -1
             if widget.option_box.menu.chk040.isChecked()
@@ -2362,10 +2371,10 @@ class Animation(AnimationMixin, SlotsMaya):
         if kb > 0:
             pct = (1 - ka / kb) * 100
             msg += f" ({pct:.1f}% reduction)"
-        if "unbaked" in stats:
+        if "reduced" in stats:
             msg += (
-                f"\n  \u2022 Unbaked: {stats['unbaked']} curves, "
-                f"max deviation {stats['unbake_max_error']:.4f}"
+                f"\n  \u2022 Reduced to extremes: {stats['reduced']} curves, "
+                f"max deviation {stats['reduce_max_error']:.4f}"
             )
         self.sb.message_box(msg)
 
@@ -2384,6 +2393,10 @@ class Animation(AnimationMixin, SlotsMaya):
     def b005(self):
         """Fit Playback Range"""
         mtk.AnimUtils.fit_playback_range()
+
+    def b006(self):
+        """Open Key Stash"""
+        self.sb.handlers.marking_menu.show("key_stash")
 
 
 # --------------------------------------------------------------------------------------------

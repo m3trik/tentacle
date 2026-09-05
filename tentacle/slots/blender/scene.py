@@ -37,6 +37,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
     _IMPORTERS = {
         "Import FBX": "import_scene.fbx",
         "Import OBJ": "wm.obj_import",
+        # Mirrors the Maya fork's "Import glTF" (which has to reach it through the
+        # headless-Blender bridge — Maya ships no glTF importer). Here it is native,
+        # so the parity is in the LABEL and the result, not the mechanism.
+        "Import glTF": "import_scene.gltf",
         "Import Collada": "wm.collada_import",
         "Import Maya Scene": lambda slot: slot._import_maya_scene(),
         "Append from .blend": "wm.append",
@@ -48,7 +52,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
     _SCENE_EXPORTER = "Scene Exporter"
 
     _EXPORTERS = {
-        _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show("scene_exporter"),
+        _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show(
+            "scene_exporter"
+        ),
         # Was a header-menu button (b008) — a one-shot export, so it belongs
         # with its siblings here rather than in the Tools list.
         "Export Selection": lambda slot: slot.b008(),
@@ -253,7 +259,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         )
         root = widget.add(
             "Import",
-            setToolTip="Import a file (FBX / OBJ / Maya scene …), or append/link from a .blend.",
+            setToolTip="Import a file (FBX / OBJ / glTF / Maya scene …), or append/link from a .blend.",
         )
         root.sublist.add(
             [k for k, v in self._IMPORTERS.items() if callable(v) or self.resolve_op(v)]
@@ -339,7 +345,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
             setToolTip="Export the scene or selection (FBX / OBJ / glTF …).",
         )
         one_shots = [
-            k for k, v in self._EXPORTERS.items()
+            k
+            for k, v in self._EXPORTERS.items()
             if k != self._SCENE_EXPORTER and (callable(v) or self.resolve_op(v))
         ]
         exporter_tip = "Batch-export via a configurable task/check pipeline (FBX/GLB)."
@@ -393,7 +400,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
             return
         widget.option_box.menu.setTitle("Export Options")
         cmb_scope = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_scope",
+            "QComboBox",
+            setObjectName="cmb_scope",
             setToolTip=(
                 "What to export:\n"
                 "• Selected Only — export only the current selection\n"
@@ -408,7 +416,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
             cmb_scope.addItem(text, data)
 
         cmb_save = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_save",
+            "QComboBox",
+            setObjectName="cmb_save",
             setToolTip=(
                 "Where to write the exported file(s):\n"
                 "• Alongside Scene File — same directory and basename as the open .blend\n"
@@ -419,7 +428,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             cmb_save.addItem(text, data)
 
         widget.option_box.menu.add(
-            "QCheckBox", setText="Include Cameras", setObjectName="chk_cameras",
+            "QCheckBox",
+            setText="Include Cameras",
+            setObjectName="chk_cameras",
             setChecked=False,
             setToolTip=(
                 "Include camera objects in the FBX (object_types += CAMERA).\n"
@@ -428,7 +439,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Include Lights", setObjectName="chk_lights",
+            "QCheckBox",
+            setText="Include Lights",
+            setObjectName="chk_lights",
             setChecked=False,
             setToolTip=(
                 "Include light objects in the FBX (object_types += LIGHT).\n"
@@ -437,7 +450,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Include Skins", setObjectName="chk_skins",
+            "QCheckBox",
+            setText="Include Skins",
+            setObjectName="chk_skins",
             setChecked=False,
             setToolTip=(
                 "Include armatures + skin deformation (object_types += ARMATURE).\n"
@@ -445,7 +460,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Include Tangents/Binormals", setObjectName="chk_tangents",
+            "QCheckBox",
+            setText="Include Tangents/Binormals",
+            setObjectName="chk_tangents",
             setChecked=True,
             setToolTip=(
                 "Export per-vertex tangent space (use_tspace) — needed for correct normal "
@@ -454,7 +471,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         widget.option_box.menu.add(
-            "QCheckBox", setText="Embed Textures", setObjectName="chk_embed",
+            "QCheckBox",
+            setText="Embed Textures",
+            setObjectName="chk_embed",
             setChecked=True,
             setToolTip=(
                 "Pack texture files into the FBX so it is self-contained "
@@ -463,7 +482,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
             ),
         )
         cmb_format = widget.option_box.menu.add(
-            "QComboBox", setObjectName=self.EXPORT_FORMAT_COMBO,
+            "QComboBox",
+            setObjectName=self.EXPORT_FORMAT_COMBO,
             setToolTip=(
                 "Output format:\n"
                 "• FBX — the interchange default\n"
@@ -479,7 +499,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
         for text, data in self._export_format_items():
             cmb_format.addItem(text, data)
         cmb_transfer = widget.option_box.menu.add(
-            "QComboBox", setObjectName=self.EXPORT_TRANSFER_COMBO,
+            "QComboBox",
+            setObjectName=self.EXPORT_TRANSFER_COMBO,
             setToolTip=(
                 "Transfer via — the intermediate a scene hand-off travels as:\n"
                 "• FBX — the default; carries instancing natively\n"
@@ -676,20 +697,37 @@ class SceneSlots(SceneMixin, SlotsBlender):
             return
         total = sum(removed.values())
         detail = "".join(f"<br> • {coll}: {n}" for coll, n in sorted(removed.items()))
-        self.sb.message_box(f"Scene Cleanup: purged <hl>{total}</hl> orphan(s).{detail}")
+        self.sb.message_box(
+            f"Scene Cleanup: purged <hl>{total}</hl> orphan(s).{detail}"
+        )
 
     # ------------------------------------------------------------------ tb001  Get Scene Info
     # Section toggles (key -> Maya objectName chk_section_<key>, label, default, tooltip). Mirror of
     # the Maya SceneAnalyzer sections; drives btk.analyze_scene's budgeted, sectioned audit.
     _TB001_SECTIONS = (
-        ("summary", "Executive Summary", True, "Scene-wide totals + profile + over-budget count."),
-        ("fix_first", "Fix First (High Impact)", True, "Worst meshes exceeding the triangle budget."),
+        (
+            "summary",
+            "Executive Summary",
+            True,
+            "Scene-wide totals + profile + over-budget count.",
+        ),
+        (
+            "fix_first",
+            "Fix First (High Impact)",
+            True,
+            "Worst meshes exceeding the triangle budget.",
+        ),
         ("pareto", "Pareto View", True, "Top-10 contributors to total triangles."),
         ("offenders", "Top Issues by Asset", True, "Per-asset over-budget table."),
         ("categories", "Top Offenders by Category", True, "Multi-material meshes."),
         ("textures", "Textures", True, "Texture dimension histogram (1K/2K/4K+)."),
         ("pipeline", "Pipeline Integrity", True, "Missing referenced texture files."),
-        ("assumptions", "Data Assumptions", True, "Methodology footnotes (budget, triangulation)."),
+        (
+            "assumptions",
+            "Data Assumptions",
+            True,
+            "Methodology footnotes (budget, triangulation).",
+        ),
     )
 
     def tb001_init(self, widget):
@@ -697,25 +735,34 @@ class SceneSlots(SceneMixin, SlotsBlender):
         m = widget.option_box.menu
         m.setTitle("Get Scene Info")
         cmb = m.add(
-            "QComboBox", setObjectName="cmb_scope1",
+            "QComboBox",
+            setObjectName="cmb_scope1",
             setToolTip="Selected Objects: audit only the selection.\nEntire Scene: audit every object.",
         )
         for label, data in [("Selected Objects", "selection"), ("Entire Scene", "all")]:
             cmb.addItem(label, data)
         cmb_profile = m.add(
-            "QComboBox", setObjectName="cmb_profile",
+            "QComboBox",
+            setObjectName="cmb_profile",
             setToolTip="Adaptive (Game Ready): per-mesh triangle budget scaled by object size.\n"
             "Generic: a flat 100k triangle budget across all meshes.",
         )
         for label, data in [("Adaptive (Game Ready)", True), ("Generic", False)]:
             cmb_profile.addItem(label, data)
         m.add(
-            self.sb.registered_widgets.Label, setText="Sections:", setObjectName="lbl_sections",
+            self.sb.registered_widgets.Label,
+            setText="Sections:",
+            setObjectName="lbl_sections",
             setToolTip="Pick which report sections to render.",
         )
         for key, label, default_on, tooltip in self._TB001_SECTIONS:
-            m.add("QCheckBox", setText=label, setObjectName=f"chk_section_{key}",
-                  setChecked=default_on, setToolTip=tooltip)
+            m.add(
+                "QCheckBox",
+                setText=label,
+                setObjectName=f"chk_section_{key}",
+                setChecked=default_on,
+                setToolTip=tooltip,
+            )
 
     def tb001(self, widget):
         """Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer."""
@@ -733,16 +780,21 @@ class SceneSlots(SceneMixin, SlotsBlender):
         adaptive = m.cmb_profile.currentData()
         adaptive = True if adaptive is None else bool(adaptive)
         sections = [
-            key for key, _l, _d, _t in self._TB001_SECTIONS
+            key
+            for key, _l, _d, _t in self._TB001_SECTIONS
             if getattr(m, f"chk_section_{key}").isChecked()
         ]
         if not sections:
-            self.sb.message_box("<hl>No sections selected</hl> — tick at least one section.")
+            self.sb.message_box(
+                "<hl>No sections selected</hl> — tick at least one section."
+            )
             return
         report = btk.analyze_scene(objects, adaptive=adaptive, sections=sections)
         # Named report_html (not ``html``) so the module-level ``import html`` used by
         # b017's ``html.escape`` stays reachable — a bare ``html`` local would shadow it.
-        report_html = "".join(report.get(key, "") for key, _l, _d, _t in self._TB001_SECTIONS)
+        report_html = "".join(
+            report.get(key, "") for key, _l, _d, _t in self._TB001_SECTIONS
+        )
         if not report_html:
             self.sb.message_box("<hl>No scene info</hl> available.")
             return
@@ -793,8 +845,12 @@ class SceneSlots(SceneMixin, SlotsBlender):
 
         dlg = self.sb.text_view_dialog(
             f"<pre>{html.escape(report)}</pre>",
-            "Save", "Ok",
-            title="Scene Metadata", size=(720, 560), monospace=True, word_wrap=False,
+            "Save",
+            "Ok",
+            title="Scene Metadata",
+            size=(720, 560),
+            monospace=True,
+            word_wrap=False,
         )
         # "Save" is an Accept-role button (it closes the viewer); wire the export via the
         # sanctioned realtime hook so the same click writes the file.
@@ -807,7 +863,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         if button.text().replace("&", "") != "Save":
             return
         blend_path = bpy.data.filepath or ""
-        base = (os.path.splitext(os.path.basename(blend_path))[0] or "untitled") + "_scene_metadata.json"
+        base = (
+            os.path.splitext(os.path.basename(blend_path))[0] or "untitled"
+        ) + "_scene_metadata.json"
         start = os.path.join(os.path.dirname(blend_path), base)
         picked, _ = self.sb.QtWidgets.QFileDialog.getSaveFileName(
             self.ui, "Save Scene Metadata As", start, "JSON (*.json)"
@@ -817,7 +875,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         if not picked.lower().endswith(".json"):
             picked += ".json"
         ptk.FileUtils.atomic_write_text(picked, text)
-        self.sb.message_box(f"Saved scene metadata to <hl>{ptk.format_path(picked, 'file')}</hl>.")
+        self.sb.message_box(
+            f"Saved scene metadata to <hl>{ptk.format_path(picked, 'file')}</hl>."
+        )
 
 
 # --------------------------------------------------------------------------------------------

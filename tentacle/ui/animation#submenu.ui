@@ -421,11 +421,6 @@ Option box: choose what gets captured — or pick Copy + Paste to capture and ap
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MenuButton</class>
-   <extends>QPushButton</extends>
-   <header>widgets.menubutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>widgets.pushbutton.h</header>
@@ -435,6 +430,11 @@ Option box: choose what gets captured — or pick Copy + Paste to capture and ap
    <extends>QWidget</extends>
    <header>widgets.expandablelist.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MenuButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets.menubutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

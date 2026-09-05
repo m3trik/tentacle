@@ -10,6 +10,7 @@ covers the units with branching logic:
 - _resolve_workspace_text — env fallback
 - _confirm_dense_export   — dense-mesh tangent-export confirmation gate
 """
+
 import unittest
 from types import SimpleNamespace as NS
 
@@ -228,6 +229,61 @@ class TestSceneExporterOnExportList(unittest.TestCase):
     def test_unknown_label_is_a_noop(self):
         self.inst.list002(self._Item("Export"))  # the category row
         self.assertEqual(self.shown, [])
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestGltfImportEntry(unittest.TestCase):
+    """ "Import glTF" on the Import list, and the pull path it shares with .blend.
+
+    Maya ships no glTF importer, so this entry is the ONLY route a .glb has into a
+    Maya scene -- and it reaches it through the same ``mtk.BlenderSceneImport`` bridge
+    the .blend entry uses. Both therefore run one body (``_pull_scene``): the carrier
+    choice, the wait cursor and the failure report cannot be allowed to drift between
+    two hand-copied methods. list001 looks the label up by text, so a typo'd key would
+    strand the entry with no compile-time error.
+    """
+
+    class _Item:
+        def __init__(self, text):
+            self._text = text
+
+        def item_text(self):
+            return self._text
+
+    def setUp(self):
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+        self.calls = []
+        self.inst._pull_scene = lambda *a, **kw: self.calls.append((a, kw))
+
+    def test_entry_is_registered(self):
+        self.assertIn("Import glTF", scene_module.SceneSlots._IMPORTERS)
+
+    def test_entry_dispatches_to_the_gltf_pull(self):
+        self.inst.list001(self._Item("Import glTF"))
+        self.assertEqual(len(self.calls), 1)
+        globs = self.calls[0][0][0]
+        self.assertEqual(sorted(globs), ["*.glb", "*.gltf"])
+
+    def test_blend_entry_shares_the_same_pull(self):
+        self.inst.list001(self._Item("Import Blender Scene"))
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.calls[0][0][0], ["*.blend"])
+
+    def test_unknown_label_is_a_noop(self):
+        self.inst.list001(self._Item("Import"))  # the category row
+        self.assertEqual(self.calls, [])
+
+    def test_carrier_choice_is_read_once_in_the_shared_body(self):
+        # The Transfer-via combo must reach BOTH entries. If a future edit
+        # re-inlines one of them, this catches the copy that forgot the carrier.
+        import inspect
+
+        src = inspect.getsource(scene_module.SceneSlots._pull_scene)
+        self.assertIn("_transfer_carrier()", src)
+        for name in ("_import_gltf", "_import_blender_scene"):
+            body = inspect.getsource(getattr(scene_module.SceneSlots, name))
+            self.assertIn("_pull_scene", body)
+            self.assertNotIn("import_scene(", body)
 
 
 if __name__ == "__main__":
