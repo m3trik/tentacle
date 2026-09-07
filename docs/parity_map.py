@@ -352,18 +352,11 @@ CONTROLS = {
         # segments order by distance from the ACTIVE object. Verified headless
         # (test_telescope_rig.py 73/73). No delta.
     },
-    "render_opacity_slots": {
-        # RenderOpacity panel, Maya side ahead since the 2026-09-04 RenderEffects work: the
-        # Key Highlight Pulse tool (tb001 + its option box) and the channel picker. Engine
-        # parity is done (btk.RenderEffects.key_pulse / highlight channel); panel port pending.
-        "tb001": {"status": "pending", "reason": "PushButton + option box: the Key Highlight Pulse tool itself. Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "b_pulse_color": {"status": "pending", "reason": "option-box 'Colour...' picker for the pulse colour. Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "chk001": {"status": "pending", "reason": "option-box 'End at Playhead'. Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "chk_auto_create_hl": {"status": "pending", "reason": "option-box 'Create if Missing' (create the highlight channel on objects that lack it). Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "s001": {"status": "pending", "reason": "option-box QSpinBox (pulse count). Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "s002": {"status": "pending", "reason": "option-box QDoubleSpinBox (pulse interval). Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "s003": {"status": "pending", "reason": "option-box QSpinBox (pulse frames). Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
-        "cmb_channel": {"status": "pending", "reason": "channel picker (opacity / highlight) the panel's controls act on. Key Highlight Pulse (2026-09-05) -- Maya's RenderOpacity panel gained the pulse tool with the 2026-09-04 RenderEffects work; btk.RenderEffects.key_pulse and the highlight channel exist and are tested, the Blender PANEL controls are the port (PARITY_PORTING_PLAN 'Open 2026-09-05'; BACKLOG 2026-09-05 blendertk S2)"},
+    "render_effects_slots": {
+        # Render Effects panel (renamed from render_opacity 2026-09-05): two key tools, each
+        # creating its channel on demand, with a remove action in its option box. Ported 1:1
+        # by objectName (tb000/tb001 option boxes; the header's Viewport Preview
+        # was retired 2026-09-05 on both sides); nothing pending.
     },
     "tube_rig": {
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options

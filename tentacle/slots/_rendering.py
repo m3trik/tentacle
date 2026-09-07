@@ -251,6 +251,35 @@ class RenderingMixin:
             self.sb.message_box(f"Installed KTX-Software (toktx): <hl>{installed}</hl>")
         return True
 
+    def _ffmpeg_ready(self) -> bool:
+        """Guarantee ffmpeg for an encoded playblast output, offering the
+        managed install when it is missing (``rendering.tb000``).
+
+        The playblast twin of :meth:`_webxr_texture_tool_ready`: MP4/MOV are
+        encoded by ffmpeg from a viewport capture that takes minutes, and the
+        engine's own pre-flight can only *refuse* -- a panel must *offer*. One
+        primitive (``ptk.VidUtils.ensure_ffmpeg``) answers the environment the
+        same way for every host; only the modal differs.
+
+        Returns:
+            True when an encode can proceed; False after the user declined or
+            the install failed (the reason has been shown).
+        """
+        import pythontk as ptk
+
+        try:
+            installed = ptk.VidUtils.ensure_ffmpeg(
+                prompt=lambda question: (
+                    self.sb.message_box(question, "Yes", "No") == "Yes"
+                )
+            )
+        except FileNotFoundError as e:
+            self.sb.message_box(str(e))
+            return False
+        if installed:
+            self.sb.message_box(f"Installed FFmpeg: <hl>{installed}</hl>")
+        return True
+
     def webxr_push(self, widget, engine, log_hint):
         """Read the option box and push to the live preview (``rendering.tb002``).
 

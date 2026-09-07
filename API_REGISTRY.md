@@ -126,7 +126,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 Text the animation panel's Maya and Blender forks say identically.
 
-- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L32)** — Shared tooltip text for ``slots/{maya,blender}/animation.py``.
+- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L37)** — Shared tooltip text for ``slots/{maya,blender}/animation.py``.
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -318,6 +318,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `Animation.tb019(self, widget)` — Optimize Keys — remove redundant animation data.
   - `Animation.tb015_init(self, widget)`
   - `Animation.tb015(self, widget)` — Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;
+  - `Animation.tb021_init(self, widget)`
+  - `Animation.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
   - `Animation.tb020(self, widget)` — Smart Bake
   - `Animation.b000(self)` — Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
   - `Animation.b004(self)` — Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
@@ -641,12 +643,11 @@ Behavior shared by the Maya and Blender UV panels.
   - `Rigging.tb001(self, widget)` — Constraint Switch — drive the active object's constraints' influence from a single custom
   - `Rigging.tb003_init(self, widget)`
   - `Rigging.tb003(self, widget)` — Create Locator at Selection — an Empty (locator) at each selected object's origin,
-  - `Rigging.b003(self)` — Remove Locator — dissolve each selected locator (Empty) the way mayatk's
   - `Rigging.tb004_init(self, widget)`
   - `Rigging.tb004(self, widget)` — Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).
   - `Rigging.cmb002_init(self, widget)`
   - `Rigging.cmb002(self, index, widget)` — Quick Rig — a procedural rig opens its panel (mayatk parity);
-  - `Rigging.b004(self)` — Render Opacity — co-located blendertk panel (keyable per-object ``opacity`` prop driving
+  - `Rigging.b004(self)` — Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled
 
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
@@ -874,6 +875,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `Animation.tb014(self, widget)` — Scale Keys: scale the selected keys in time about a pivot.
   - `Animation.tb015_init(self, widget)` — Repair Corrupted Curves - Initialize option box
   - `Animation.tb015(self, widget)` — Repair Corrupted Curves
+  - `Animation.tb021_init(self, widget)` — Snap Fractional Key Times — initialize the option box.
+  - `Animation.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
   - `Animation.tb016_init(self, widget)` — Get Animation Info — option box.
   - `Animation.tb016(self, widget)` — Get Animation Info — render the report to the viewer dialog.
   - `Animation.tb017_init(self, widget)` — Step Tangents Init
@@ -1345,10 +1348,9 @@ Behavior shared by the Maya and Blender UV panels.
   - `Rigging.tb001(self, widget)` — Constraint Switch
   - `Rigging.tb003_init(self, widget)` — Init Create Locator at Selection
   - `Rigging.tb003(self, widget)` — Create Locator at Selection
-  - `Rigging.b003(self)` — Remove Locator
   - `Rigging.tb004_init(self, widget)` — Init Lock/Unlock Attributes
   - `Rigging.tb004(self, widget)` — Lock/Unlock Attributes
-  - `Rigging.b004(self)` — Render Opacity
+  - `Rigging.b004(self)` — Render Effects
 
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`

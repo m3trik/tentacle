@@ -11,6 +11,7 @@ import tempfile
 import unittest
 from unittest import mock
 
+import pythontk as ptk
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
 cmds = maya_module("maya.cmds")
@@ -724,6 +725,10 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
         # Real TARGETS read before the swap — the fake mirrors the registry.
         _FakeExporter.TARGETS = rendering_module.mtk.PlayblastExporter.TARGETS
         self._patch_exporter(_FakeExporter)
+        # ffmpeg present, no dialog: the consent seam has its own tests below.
+        ffmpeg = mock.patch.object(ptk.VidUtils, "ensure_ffmpeg", return_value=None)
+        ffmpeg.start()
+        self.addCleanup(ffmpeg.stop)
 
     def _widget(self, tmpdir):
         menu = _Menu()
@@ -784,6 +789,46 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
         finally:
             import shutil
 
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_missing_ffmpeg_is_offered_before_any_capture(self):
+        """An encoded output with no ffmpeg goes through the consent seam
+        before the exporter is even built; a decline stops the run with the
+        reason shown (never a folder of frames beside an error afterwards)."""
+        import shutil
+
+        tmpdir = tempfile.mkdtemp(prefix="rh_ffmpeg_")
+        try:
+            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst.sb = _SB()
+            with mock.patch.object(
+                ptk.VidUtils,
+                "ensure_ffmpeg",
+                side_effect=FileNotFoundError("FFmpeg ... the download was declined"),
+            ) as ensure:
+                inst.tb000(self._widget(tmpdir))
+            ensure.assert_called_once()
+            self.assertFalse(_FakeExporter.instances, "export must not run")
+            self.assertIn("FFmpeg", inst.sb.messages[-1])
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def test_sequence_only_outputs_never_ask_for_ffmpeg(self):
+        import shutil
+
+        tmpdir = tempfile.mkdtemp(prefix="rh_seq_")
+        try:
+            widget = self._widget(tmpdir)
+            widget.option_box.menu.cmb050.addItems(["PNG Sequence"])
+            widget.option_box.menu.cmb050.setItemData(1, ["png_sequence"])
+            widget.option_box.menu.cmb050._idx = 1
+            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst.sb = _SB()
+            with mock.patch.object(ptk.VidUtils, "ensure_ffmpeg") as ensure:
+                inst.tb000(widget)
+            ensure.assert_not_called()
+            self.assertEqual(len(_FakeExporter.instances), 1)
+        finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
     def test_inverted_custom_range_blocks(self):

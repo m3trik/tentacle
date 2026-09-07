@@ -49,6 +49,14 @@ class Animation(AnimationMixin, SlotsBlender):
                 "Remove corrupted keyframes (NaN/infinite values, absurd key times) and "
                 "delete curves left with no valid keys.\nUse the option box to choose which fixes apply.",
             ),
+            (
+                "Snap Fractional Key Times",
+                "tb021",
+                "Put every key sitting on a fractional frame back onto a whole one.\n"
+                "Scoped like the rest of this section: the selected objects, or\n"
+                "the whole scene when nothing is selected.\n"
+                "Use the option box to choose the rounding method.",
+            ),
         ],
         "Bake": [
             (
@@ -508,17 +516,6 @@ class Animation(AnimationMixin, SlotsBlender):
             smooth_tangents=m.chk009.isChecked(),
         )
 
-    # Rounding method combo shared with Scale Keys' cmb034 vocabulary (cross-DCC QSettings rule:
-    # objectName cmb003 reused verbatim from Maya).
-    _SNAP_METHODS = {
-        "Nearest": "nearest",
-        "Floor": "floor",
-        "Ceil": "ceil",
-        "Half Up": "half_up",
-        "Preferred": "preferred",
-        "Aggressive Preferred": "aggressive_preferred",
-    }
-
     def tb009_init(self, widget):
         m = widget.option_box.menu
         m.setTitle("Snap Keys to Frames")
@@ -527,7 +524,10 @@ class Animation(AnimationMixin, SlotsBlender):
             setObjectName="cmb003",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SNAP_METHOD),
         )
-        for text, data in self._SNAP_METHODS.items():
+        # Rounding vocabulary shared with Scale Keys' cmb034 and with the Repair
+        # list's tb021, hoisted to AnimationMixin (cross-DCC QSettings rule:
+        # objectName cmb003 and the item ORDER are reused verbatim from Maya).
+        for text, data in self.SNAP_METHODS.items():
             cmb.addItem(text, data)
         m.add(
             "QCheckBox",
@@ -1917,6 +1917,42 @@ class Animation(AnimationMixin, SlotsBlender):
             if len(r["details"]) > 3:
                 msg += f"\n  … and {len(r['details']) - 3} more"
         self.sb.message_box(msg)
+
+    # ------------------------------------------------------------------ tb021  Snap Fractional Key Times
+    def tb021_init(self, widget):
+        m = widget.option_box.menu
+        m.setTitle("Snap Fractional Key Times")
+        cmb = m.add(
+            "QComboBox",
+            setObjectName="cmb042",
+            setToolTip=self.sb.tooltip.fmt(**self.TIP_SNAP_METHOD),
+        )
+        for text, data in self.SNAP_METHODS.items():
+            cmb.addItem(text, data)
+
+    @btk.undoable
+    def tb021(self, widget):
+        """Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
+
+        tb009 is the artist edit: it acts on the objects in hand and refuses to run
+        without a selection. This one takes the scope the rest of the Repair section
+        takes — the selected objects, or every scene object when nothing is selected
+        (``btk.snap_keys``' own ``objects=None``, the same default
+        ``repair_corrupted_curves`` above uses).
+
+        Maya's fork also folds in each selected object's descendants; Blender hangs
+        animation on the object itself rather than inheriting it down a DAG, so there
+        is no hierarchy to walk here.
+        """
+        objects = self.selected_objects() or None
+        scope = "the selected objects" if objects else "the scene"
+        snapped = btk.snap_keys(
+            objects, method=widget.option_box.menu.cmb042.currentData()
+        )
+        if not snapped:
+            self.sb.message_box(f"No keys on {scope} sit on a fractional frame.")
+            return
+        self.sb.message_box(f"Snapped {snapped} fractional key(s) on {scope}.")
 
     # ------------------------------------------------------------------ tb020  Smart Bake
     def tb020(self, widget):
