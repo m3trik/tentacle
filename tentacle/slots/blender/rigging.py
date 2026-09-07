@@ -208,7 +208,7 @@ class Rigging(SlotsBlender):
             f"{active.name}."
         )
 
-    # ------------------------------------------------------------------ tb003/b003  Locators (Empties)
+    # ------------------------------------------------------------------ tb003  Locators (Empties)
     def tb003_init(self, widget):
         # s001 / t000 / t001 / t002 / chk005 / chk006 / chk007 / chk008 / chk009 reuse the Maya
         # names + labels for the SAME options. Locators are Empties; the GRP/LOC/GEO hierarchy maps
@@ -227,25 +227,48 @@ class Rigging(SlotsBlender):
         m.add("Separator", setTitle="Naming")
         # Seeded from the shared naming convention, not from literals: the group
         # and the locator are Empties this tool creates, so their type is known here.
-        m.add(
+        grp_field = m.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
             setObjectName="t002",
             setText=ptk.NamingConvention.affix("group"),
-            setToolTip="Suffix appended to the created group (parent Empty) name.",
+            setToolTip=(
+                "Affix for the created group (parent Empty) name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which takes the shared naming\n"
+                "convention's group entry, spelling and placement both.\n"
+                "Edit that spelling in the Naming panel."
+            ),
         )
-        m.add(
+        grp_field.option_box.set_affix(
+            default="convention",
+            convention_key="group",
+            # ``t002`` alone is far too generic to namespace on.
+            settings_key="rigging_create_locator_grp_affix_blender",
+        )
+        loc_field = m.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
             setObjectName="t000",
             setText=ptk.NamingConvention.affix("locator"),
-            setToolTip="Suffix appended to the created locator (Empty) name.",
+            setToolTip=(
+                "Affix for the created locator (Empty) name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which takes the shared naming\n"
+                "convention's locator entry, spelling and placement both.\n"
+                "Edit that spelling in the Naming panel."
+            ),
         )
-        # The child is whatever the user selected, so its affix has no single right
-        # answer here -- a camera is not "_GEO". Same Auto/Suffix/Prefix/Scene picker
-        # as every other affix field, with Scene bound to the SELECTION's type rather
-        # than a fixed one; the field previews the first selected object and the
-        # rename resolves the rest per object (mirrors the Maya panel).
+        loc_field.option_box.set_affix(
+            default="convention",
+            convention_key="locator",
+            settings_key="rigging_create_locator_loc_affix_blender",
+        )
+        # Same picker as the two fields above, with one difference: the child is
+        # whatever the user selected, so its Scene state is bound to the SELECTION's
+        # type rather than a fixed one -- a camera is not "_GEO". The field previews
+        # the first selected object and the rename resolves the rest per object
+        # (mirrors the Maya panel).
         obj_field = m.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
@@ -306,6 +329,35 @@ class Rigging(SlotsBlender):
             setChecked=False,
             setToolTip="Lock the geometry's scale channels.",
         )
+        # Remove is an action, not a setting -- it rides the option box as an
+        # icon button beside the options (the Render Effects panel's idiom),
+        # in place of the panel's former standalone "Remove Locator" button.
+        widget.option_box.set_action(
+            callback=self._remove_locator,
+            icon="circle_remove",
+            tooltip=self.sb.tooltip.fmt(
+                title="Remove Locator",
+                body="Dissolve the locator rig on the selection: unlock the "
+                "child channels, un-parent the children to world (transforms "
+                "kept), then delete the locator Empty -- and its group Empty, "
+                "when that is left childless.",
+                notes=["Select the locator Empty, not the rigged geometry."],
+            ),
+        )
+
+    @staticmethod
+    def _affix_rule(field, convention_key: str) -> "ptk.AffixRule":
+        """The rule a fixed-type suffix field resolves to.
+
+        Scene mode hands the decision to the shared convention -- spelling AND
+        placement -- which is what the Maya twin gets by passing ``None`` to
+        ``create_locator_at_object``. Every other state is the user's literal
+        text placed as the picker says.
+        """
+        mode = field.option_box.affix_mode
+        if mode == "convention":
+            return ptk.NamingConvention.get(convention_key)
+        return ptk.AffixRule(field.text(), mode)
 
     def _locator_child_type_key(self) -> str:
         """The convention key the Scene affix state previews.
@@ -347,7 +399,12 @@ class Rigging(SlotsBlender):
             bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
             return
         scale = m.s001.value()
-        grp_suffix, loc_suffix = m.t002.text(), m.t000.text()
+        # The group and the locator are Empties this tool creates, so their type is
+        # fixed and known; Scene mode therefore resolves against the convention here
+        # rather than per object.
+        grp_rule = self._affix_rule(m.t002, "group")
+        loc_rule = self._affix_rule(m.t000, "locator")
+        grp_suffix, loc_suffix = grp_rule.text, loc_rule.text
         obj_field = m.t001
         affix_mode = obj_field.option_box.affix_mode
         # "Scene" ignores the field: each object is affixed for its OWN type from
@@ -358,10 +415,6 @@ class Rigging(SlotsBlender):
         obj_rule = (
             None if by_convention else ptk.AffixRule(obj_field.text(), affix_mode)
         )
-        # Literal group/locator affixes are placed by "auto", which reads "_GRP"
-        # as the suffix it looks like and "GRP_" as a prefix.
-        grp_rule = ptk.AffixRule(grp_suffix, "auto")
-        loc_rule = ptk.AffixRule(loc_suffix, "auto")
         strip_digits, strip_suffix = m.chk005.isChecked(), m.chk006.isChecked()
         lock = (m.chk007.isChecked(), m.chk008.isChecked(), m.chk009.isChecked())
         # By convention, a name may carry the affix of a type it is not (a camera
@@ -435,12 +488,13 @@ class Rigging(SlotsBlender):
             o.lock_scale = (lock[2],) * 3
 
     @btk.undoable
-    def b003(self):
-        """Remove Locator — dissolve each selected locator (Empty) the way mayatk's
-        ``remove_locator`` does: unlock the child channels tb003 locked (chk007-9),
-        unparent the children to world *preserving* their transforms (a bare delete pops
-        them back to their raw local matrix), then delete the locator and — when it is left
-        childless — its paired group Empty (tb003's _GRP)."""
+    def _remove_locator(self):
+        """Remove Locator (tb003's option-box action) — dissolve each selected
+        locator (Empty) the way mayatk's ``remove_locator`` does: unlock the child
+        channels tb003 locked (chk007-9), unparent the children to world
+        *preserving* their transforms (a bare delete pops them back to their raw
+        local matrix), then delete the locator and — when it is left childless —
+        its paired group Empty (tb003's _GRP)."""
         locators = [o for o in self.selected_objects() if o.type == "EMPTY"]
         if not locators:
             self.sb.message_box("No Empties selected.")
@@ -601,10 +655,10 @@ class Rigging(SlotsBlender):
 
     # ------------------------------------------------------------------ deferred
     def b004(self):
-        """Render Opacity — co-located blendertk panel (keyable per-object ``opacity`` prop driving
-        Principled Alpha; ``key_fade`` dual-keys opacity + render visibility for the Maya→Unity
-        parity invariant). Mirrors Maya's rigging b004."""
-        self.sb.handlers.marking_menu.show("render_opacity")
+        """Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled
+        Alpha + ``highlight`` pulses driving Emission; ``key_fade`` dual-keys opacity + render
+        visibility for the Maya→Unity parity invariant). Mirrors Maya\'s rigging b004."""
+        self.sb.handlers.marking_menu.show("render_effects")
 
 
 # --------------------------------------------------------------------------------------------

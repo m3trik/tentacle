@@ -23,6 +23,11 @@ slot module may not import uitk (``test_dcc_invariants.TestSlotImportDiscipline`
 own with ``self.sb.tooltip.fmt(**self.TIP_X)``. The three one-line entries are
 plain text and are used as-is. That also keeps this module dependency-free.
 
+One non-tooltip table lives here for the same reason: ``SNAP_METHODS``, the
+rounding vocabulary both forks' snap entry points offer. It is a combo's item
+ORDER, which the cross-DCC QSettings rule pins by index, so a second copy left
+to drift would repoint every stored choice in the other host.
+
 This mixin deliberately defines NO widget-named slots (see the DEFAULT_INCLUDE
 note in ``tentacle/__init__.py``): it carries text, so mixing it in cannot
 capture another panel's ``tb###``.
@@ -31,6 +36,20 @@ capture another panel's ``tb###``.
 
 class AnimationMixin:
     """Shared tooltip text for ``slots/{maya,blender}/animation.py``."""
+
+    #: ``label -> pythontk.MathUtils.round_value mode`` for every snap combo,
+    #: in COMBO ORDER — a dict whose insertion order is load-bearing: the
+    #: combos persist by index, so rows are appended here, never reordered.
+    #: Read by Snap Keys (tb009) and the Repair list's Snap Fractional Key
+    #: Times (tb021) in both forks.
+    SNAP_METHODS = {
+        "Nearest": "nearest",
+        "Floor": "floor",
+        "Ceil": "ceil",
+        "Half Up": "half_up",
+        "Preferred": "preferred",
+        "Aggressive Preferred": "aggressive_preferred",
+    }
 
     TIP_GOTO_FRAME = {
         "title": "Frame",

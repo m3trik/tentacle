@@ -61,7 +61,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/animation.py`
 - `class Animation(AnimationMixin, SlotsBlender)`
-  - methods: list000_init, list000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb009_init, tb009, tb010_init, tb010, tb002_init, tb002, tb004_init, tb004, tb005_init, tb005, tb013_init, tb013, tb007_init, tb007, tb008_init, tb008, tb006_init, tb006, tb012_init, tb012, tb018_init, tb018, tb014_init, tb014, tb017_init, tb017, b005, tb011_init, tb011, tb016_init, tb016, tb019_init, tb019, tb015_init, tb015, tb020, b000, b004, b006
+  - methods: list000_init, list000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb009_init, tb009, tb010_init, tb010, tb002_init, tb002, tb004_init, tb004, tb005_init, tb005, tb013_init, tb013, tb007_init, tb007, tb008_init, tb008, tb006_init, tb006, tb012_init, tb012, tb018_init, tb018, tb014_init, tb014, tb017_init, tb017, b005, tb011_init, tb011, tb016_init, tb016, tb019_init, tb019, tb015_init, tb015, tb021_init, tb021, tb020, b000, b004, b006
 
 ### `slots/blender/blender.py`
 - `class Blender(SlotsBlender)`
@@ -141,7 +141,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/rigging.py`
 - `class Rigging(SlotsBlender)`
-  - methods: header_init, b020, cmb001_init, cmb001, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, cmb002_init, cmb002, b004
+  - methods: header_init, b020, cmb001_init, cmb001, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, cmb002_init, cmb002, b004
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
@@ -181,7 +181,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/animation.py`
 - `class Animation(AnimationMixin, SlotsMaya)`
-  - methods: list000_init, list000, b001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, tb010_init, tb010, tb011_init, tb011, tb013_init, tb013, tb014_init, tb014, tb015_init, tb015, tb016_init, tb016, tb017_init, tb017, tb012_init, tb012, tb018_init, tb018, tb019_init, tb019, tb020, b000, b004, b005, b006
+  - methods: list000_init, list000, b001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, tb010_init, tb010, tb011_init, tb011, tb013_init, tb013, tb014_init, tb014, tb015_init, tb015, tb021_init, tb021, tb016_init, tb016, tb017_init, tb017, tb012_init, tb012, tb018_init, tb018, tb019_init, tb019, tb020, b000, b004, b005, b006
 
 ### `slots/maya/arnold.py`
 - `class ArnoldSlots(SlotsMaya)`
@@ -330,7 +330,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/rigging.py`
 - `class Rigging(SlotsMaya)`
-  - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, b003, tb004_init, tb004, b004
+  - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, b004
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SceneMixin, SlotsMaya)`

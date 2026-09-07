@@ -31,6 +31,14 @@ class Animation(AnimationMixin, SlotsMaya):
         "Repair": [
             ("Repair Corrupted Curves", "tb015", "Repair corrupted animation curves."),
             (
+                "Snap Fractional Key Times",
+                "tb021",
+                "Put every key sitting on a fractional frame back onto a whole one.\n"
+                "Scoped like the rest of this section: the selected objects and\n"
+                "their descendants, or the whole scene when nothing is selected.\n"
+                "Use the option box to choose the rounding method.",
+            ),
+            (
                 "Repair Visibility Tangents",
                 "b001",
                 "Force 'step' tangents on visibility curves for selected objects (or all if none selected).",
@@ -1184,14 +1192,7 @@ class Animation(AnimationMixin, SlotsMaya):
             setObjectName="cmb003",
             setToolTip=self.sb.tooltip.fmt(**self.TIP_SNAP_METHOD),
         )
-        for text, data in [
-            ("Nearest", "nearest"),
-            ("Floor", "floor"),
-            ("Ceil", "ceil"),
-            ("Half Up", "half_up"),
-            ("Preferred", "preferred"),
-            ("Aggressive Preferred", "aggressive_preferred"),
-        ]:
+        for text, data in self.SNAP_METHODS.items():
             cmb.addItem(text, data)
         widget.option_box.menu.add(
             "QCheckBox",
@@ -1866,6 +1867,64 @@ class Animation(AnimationMixin, SlotsMaya):
             if len(result["details"]) > 3:
                 message += f"  ... and {len(result['details']) - 3} more"
 
+        self.sb.message_box(message)
+
+    def tb021_init(self, widget):
+        """Snap Fractional Key Times — initialize the option box."""
+        widget.option_box.menu.setTitle("Snap Fractional Key Times")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb042",
+            setToolTip=self.sb.tooltip.fmt(**self.TIP_SNAP_METHOD),
+        )
+        for text, data in self.SNAP_METHODS.items():
+            cmb.addItem(text, data)
+
+    def tb021(self, widget):
+        """Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
+
+        tb009 is the artist edit: it acts on the objects in hand and refuses
+        to run without a selection. This one takes the scope the rest of the
+        Repair section takes — the selected objects AND their descendants,
+        or the whole scene when nothing is selected — which is what a scene
+        arriving with fractional times (a retime, a scaled import) actually
+        needs, and what the exporter's ``check_floating_point_keys`` flags
+        over its own export set.
+        """
+        method = widget.option_box.menu.cmb042.currentData()
+
+        objects = cmds.ls(sl=True, flatten=True) or None
+        scope_label = "the selected objects" if objects else "the scene"
+        # Resolved to curves rather than passed as objects: only
+        # get_anim_curves recurses into children, and its objects=None means
+        # the whole scene (snap_keys_to_frames' own None means "the
+        # selection", which is the opposite of what this scope wants).
+        curves = mtk.AnimUtils.get_anim_curves(objects=objects, recursive=True)
+        # Set-driven-key (unitless) curves hold DRIVER VALUES where a time
+        # curve holds frames, so their 0.25/0.5 inbetweens read as fractional
+        # frames. snap_keys_to_frames drops them internally; the report below
+        # reads the same list, so it has to drop them here.
+        curves = cmds.ls(curves, type=list(mtk.AnimUtils.TIME_CURVE_TYPES)) or []
+        if not curves:
+            self.sb.message_box(f"No animation curves found on {scope_label}.")
+            return
+
+        snapped = mtk.AnimUtils.snap_keys_to_frames(curves, method=method)
+        if not snapped:
+            self.sb.message_box(f"No keys on {scope_label} sit on a fractional frame.")
+            return
+
+        message = f"Snapped {snapped} fractional key(s) on {scope_label}."
+        # A key whose target frame is already occupied is SKIPPED, not merged
+        # over — merging would discard the tangents of the key already
+        # there — so a partial pass is a normal outcome and has to be said
+        # out loud rather than read as a clean bill of health.
+        if any(t != int(t) for t in mtk.AnimUtils.get_keyframe_times(curves) or []):
+            message += (
+                "\n\nSome keys are still off-frame: the whole frame they would "
+                "land on is already taken, and moving them would discard the "
+                "key sitting there. Clear the blocking key and run again."
+            )
         self.sb.message_box(message)
 
     _TB016_SCOPES = (

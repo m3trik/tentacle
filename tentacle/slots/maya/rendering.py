@@ -269,6 +269,16 @@ class Rendering(RenderingMixin, SlotsMaya):
         if not targets:
             self.sb.message_box("Select an output before running the playblast.")
             return
+        # MP4/MOV need ffmpeg for a second at the END of a minutes-long capture:
+        # offer the install now, never an error after the wait.
+        # .get: a stale persisted picker entry is the exporter's ValueError to
+        # raise ("Unknown export target"), not a KeyError here.
+        registry = mtk.PlayblastExporter.TARGETS
+        needs_encoder = any(
+            getattr(registry.get(t), "kind", None) == "encode" for t in targets
+        )
+        if needs_encoder and not self._ffmpeg_ready():
+            return
 
         output_dir, output_name = self._split_output_base(menu.t000.text())
 

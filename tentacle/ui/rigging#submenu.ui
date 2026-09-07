@@ -114,34 +114,6 @@ If there are vertices selected, it creates a locator at the center of their comb
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="b003">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>250</y>
-      <width>116</width>
-      <height>19</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>0</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>16777215</width>
-      <height>19</height>
-     </size>
-    </property>
-    <property name="toolTip">
-     <string>Remove locators from the selected object(s).</string>
-    </property>
-    <property name="text">
-     <string>Remove Locator</string>
-    </property>
-   </widget>
    <widget class="MenuButton" name="i020">
     <property name="geometry">
      <rect>
@@ -192,12 +164,11 @@ If there are vertices selected, it creates a locator at the center of their comb
      </size>
     </property>
     <property name="toolTip">
-     <string>Open the Render Opacity panel.
-
-Create, keyframe-fade, and remove per-object opacity controllers.</string>
+     <string>Open the Render Effects panel.
+Key per-object opacity fades and highlight pulses (channels created on demand); each tool's option box removes its channel.</string>
     </property>
     <property name="text">
-     <string>Render Opacity</string>
+     <string>Render Effects</string>
     </property>
    </widget>
    <widget class="PushButton" name="tb004">

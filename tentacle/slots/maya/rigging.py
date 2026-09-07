@@ -286,6 +286,19 @@ class Rigging(SlotsMaya):
     # ------------------------------------------------------------------
 
     @staticmethod
+    def _affix_arg(field):
+        """``(text, mode)`` for an affix field, as the engine wants them.
+
+        Scene mode reports ``(None, "auto")``: ``None`` is how
+        ``create_locator_at_object`` is told to take the shared convention's
+        entry for that node type -- spelling AND placement -- so the mode
+        argument beside it is moot. Every other state is the user's literal
+        text placed as the picker says.
+        """
+        mode = field.option_box.affix_mode
+        return (None, "auto") if mode == "convention" else (field.text(), mode)
+
+    @staticmethod
     def _locator_child_type_key() -> str:
         """The convention key the Scene affix state previews.
 
@@ -315,25 +328,48 @@ class Rigging(SlotsMaya):
         widget.option_box.menu.add("Separator", setTitle="Naming")
         # Seeded from the shared naming convention, not from literals: the GRP
         # and the LOC are nodes this tool creates, so their type is known here.
-        widget.option_box.menu.add(
+        grp_field = widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Group Suffix:",
             setText=ptk.NamingConvention.affix("group"),
             setObjectName="t002",
-            setToolTip="A string appended to the end of the created group's name.",
+            setToolTip=(
+                "Affix for the created group's name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which takes the shared naming\n"
+                "convention's group entry, spelling and placement both.\n"
+                "Edit that spelling in the Naming panel."
+            ),
         )
-        widget.option_box.menu.add(
+        grp_field.option_box.set_affix(
+            default="convention",
+            convention_key="group",
+            # ``t002`` alone is far too generic to namespace on.
+            settings_key="rigging_create_locator_grp_affix",
+        )
+        loc_field = widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Locator Suffix:",
             setText=ptk.NamingConvention.affix("locator"),
             setObjectName="t000",
-            setToolTip="A string appended to the end of the created locator's name.",
+            setToolTip=(
+                "Affix for the created locator's name.\n"
+                "The button beside the field sets placement — Auto / Suffix /\n"
+                "Prefix — or 'Scene', which takes the shared naming\n"
+                "convention's locator entry, spelling and placement both.\n"
+                "Edit that spelling in the Naming panel."
+            ),
         )
-        # The child is whatever the user selected, so its affix has no single
-        # right answer here -- a camera is not "_GEO". Same Auto/Suffix/Prefix/
-        # Scene picker as every other affix field, with Scene bound to the
-        # SELECTION's type instead of a fixed one; the field previews the first
-        # selected object and the operation resolves the rest per object.
+        loc_field.option_box.set_affix(
+            default="convention",
+            convention_key="locator",
+            settings_key="rigging_create_locator_loc_affix",
+        )
+        # Same picker as the two fields above, with one difference: the child is
+        # whatever the user selected, so its Scene state is bound to the
+        # SELECTION's type rather than a fixed one -- a camera is not "_GEO".
+        # The field previews the first selected object and the operation
+        # resolves the rest per object.
         obj_field = widget.option_box.menu.add(
             "QLineEdit",
             setPlaceholderText="Geometry Suffix:",
@@ -394,26 +430,40 @@ class Rigging(SlotsMaya):
             setObjectName="chk009",
             setToolTip="Lock the scale values of the child object.",
         )
+        # Remove is an action, not a setting -- it rides the option box as an
+        # icon button beside the options (the Render Effects panel's idiom),
+        # in place of the panel's former standalone "Remove Locator" button.
+        widget.option_box.set_action(
+            callback=self._remove_locator,
+            icon="circle_remove",
+            tooltip=self.sb.tooltip.fmt(
+                title="Remove Locator",
+                body="Dissolve the locator rig on the selection: unlock the "
+                "child channels, re-parent the children onto the locator's "
+                "own parent (world transforms kept), then delete the locator "
+                "-- and its group, when that is left childless.",
+                notes=["Select the locator(s), not the rigged geometry."],
+            ),
+        )
 
     @mtk.undoable
     def tb003(self, widget):
         """Create Locator at Selection"""
-        grp_suffix = widget.option_box.menu.t002.text()
-        loc_suffix = widget.option_box.menu.t000.text()
-        obj_field = widget.option_box.menu.t001
-        affix_mode = obj_field.option_box.affix_mode
-        # "Scene" hands the decision to the engine: None => resolve each object
-        # against the shared convention, which is the only correct answer for a
-        # mixed selection. The manual states are the user's literal text, placed
-        # as the picker says.
-        by_convention = affix_mode == "convention"
-        obj_suffix = None if by_convention else obj_field.text()
-        loc_scale = widget.option_box.menu.s001.value()
-        strip_digits = widget.option_box.menu.chk005.isChecked()
-        strip_suffix = widget.option_box.menu.chk006.isChecked()
-        lock_translate = widget.option_box.menu.chk007.isChecked()
-        lock_rotation = widget.option_box.menu.chk008.isChecked()
-        lock_scale = widget.option_box.menu.chk009.isChecked()
+        # "Scene" hands the decision to the engine: None => take the shared
+        # convention's entry for that node type, spelling AND placement. For the
+        # child that is the only correct answer on a mixed selection (it resolves
+        # per object); for the group and the locator the type is fixed and known.
+        # The manual states are the user's literal text, placed as the picker says.
+        menu = widget.option_box.menu
+        grp_suffix, grp_affix_mode = self._affix_arg(menu.t002)
+        loc_suffix, loc_affix_mode = self._affix_arg(menu.t000)
+        obj_suffix, obj_affix_mode = self._affix_arg(menu.t001)
+        loc_scale = menu.s001.value()
+        strip_digits = menu.chk005.isChecked()
+        strip_suffix = menu.chk006.isChecked()
+        lock_translate = menu.chk007.isChecked()
+        lock_rotation = menu.chk008.isChecked()
+        lock_scale = menu.chk009.isChecked()
 
         selection = cmds.ls(sl=True) or []
         if not selection:
@@ -424,9 +474,11 @@ class Rigging(SlotsMaya):
                 selection,
                 loc_scale=loc_scale,
                 grp_suffix=grp_suffix,
+                grp_affix_mode=grp_affix_mode,
                 loc_suffix=loc_suffix,
+                loc_affix_mode=loc_affix_mode,
                 obj_suffix=obj_suffix,
-                obj_affix_mode="auto" if by_convention else affix_mode,
+                obj_affix_mode=obj_affix_mode,
                 strip_digits=strip_digits,
                 strip_suffix=strip_suffix,
                 lock_translate=lock_translate,
@@ -436,9 +488,19 @@ class Rigging(SlotsMaya):
         except Exception as e:
             self.sb.message_box(f"Could not create the locator rig.<br><hl>{e}</hl>")
 
-    def b003(self):
-        """Remove Locator"""
+    def _remove_locator(self):
+        """Remove Locator -- tb003's option-box action.
+
+        Undoes what tb003 built: the children move out to the locator's own
+        parent with their world transforms intact, the locator is deleted, and
+        its group follows when that is left childless.
+        """
         selection = cmds.ls(selection=True) or []
+        if not selection:
+            self.sb.message_box(
+                "<strong>Nothing selected</strong>.<br>Select the locator(s) to remove."
+            )
+            return
         mtk.remove_locator(selection)
 
     # ------------------------------------------------------------------
@@ -514,8 +576,8 @@ class Rigging(SlotsMaya):
         )
 
     def b004(self):
-        """Render Opacity"""
-        self.sb.handlers.marking_menu.show("render_opacity")
+        """Render Effects"""
+        self.sb.handlers.marking_menu.show("render_effects")
 
 
 # --------------------------------------------------------------------------------------------
