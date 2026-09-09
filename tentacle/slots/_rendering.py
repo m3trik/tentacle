@@ -154,7 +154,9 @@ class RenderingMixin:
             setObjectName="chk064",
             setChecked=False,
             setToolTip="Bake the scene's animation into the pushed GLB so the "
-            "preview can play it (the page grows a clip picker and transport). "
+            "preview can play it (the page grows a clip picker and transport, "
+            "and an Export Playblast button that records the selected clip — or "
+            "the whole shot sequence — to a movie beside the deliverable). "
             "Off by default because baking samples every frame of the scene "
             "range, which costs push time and file size on a scene you are "
             "previewing for its look. A scene with shots declared ships its "
