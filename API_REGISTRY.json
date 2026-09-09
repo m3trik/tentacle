@@ -318,7 +318,7 @@
               "kind": "method",
               "signature": "(self, widget, engine, log_hint)",
               "summary": "Read the option box and push to the live preview (``rendering.tb002``).",
-              "line": 283,
+              "line": 285,
               "deprecated": false
             }
           ]
