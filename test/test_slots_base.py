@@ -306,7 +306,7 @@ class TestAddSlotWidget(unittest.TestCase):
             "an unparented widget defers its option-box wrap to a retry timer",
         )
 
-    def test_option_box_wrap_removes_widget_from_item_set(self):
+    def test_option_box_wrap_leaves_the_row_clickable(self):
         """An *_init that builds an option box leaves the entry click-through."""
         def _init(widget):
             widget.option_box.menu.add("QComboBox", setObjectName="cmb_scope")
@@ -318,11 +318,30 @@ class TestAddSlotWidget(unittest.TestCase):
         w = slot.add_slot_widget(root.sublist, setObjectName="tb003")
 
         self.assertTrue(w.option_box._is_wrapped, "wrap must complete during *_init")
-        self.assertNotIn(
-            w,
-            root.sublist.get_items(),
-            "the wrap must swap the widget for its container — while it remains an "
-            "item the list consumes its release and clicked never fires",
+
+        # Asserted by CLICKING, not by membership in get_items(). This used to
+        # read `assertNotIn(w, root.sublist.get_items())`, which was a proxy:
+        # the list consumes the release of anything it drives, and a wrapped
+        # row used to be absent from that set. uitk 1.3.102 made get_items()
+        # report the ROW inside the wrap (it is what a caller added, and what
+        # carries a value), and the release filter it fed then consumed
+        # that row's release -- so the proxy broke while the behaviour it
+        # stood for broke too. So assert the behaviour directly and
+        # let uitk own where the membership lives.
+        from qtpy.QtTest import QTest
+
+        fired = []
+        w.clicked.connect(lambda *_: fired.append(True))
+        lst.show()
+        self.addCleanup(lst.hide)
+        QtWidgets.QApplication.processEvents()
+        QTest.mouseClick(w, QtCore.Qt.LeftButton, pos=w.rect().center())
+        QtWidgets.QApplication.processEvents()
+
+        self.assertTrue(
+            fired,
+            "an option-box row must still emit clicked — while the list treats "
+            "it as its own item it consumes the release and clicked never fires",
         )
 
     def test_widget_without_option_box_stays_an_item(self):
