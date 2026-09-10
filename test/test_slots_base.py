@@ -324,9 +324,9 @@ class TestAddSlotWidget(unittest.TestCase):
         # the list consumes the release of anything it drives, and a wrapped
         # row used to be absent from that set. uitk 1.3.102 made get_items()
         # report the ROW inside the wrap (it is what a caller added, and what
-        # carries a value) and moved the driven set to _driven_items() -- at
-        # which point the proxy broke while the behaviour it stood for was
-        # still the thing that matters. So assert the behaviour directly and
+        # carries a value), and the release filter it fed then consumed
+        # that row's release -- so the proxy broke while the behaviour it
+        # stood for broke too. So assert the behaviour directly and
         # let uitk own where the membership lives.
         from qtpy.QtTest import QTest
 
