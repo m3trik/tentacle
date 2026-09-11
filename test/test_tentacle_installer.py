@@ -462,6 +462,72 @@ class TestMayaModule(unittest.TestCase):
         self.assertFalse(manifest.exists())
         self.assertFalse(corrupt.exists(), "the .corrupt breadcrumb was left behind")
 
+    def test_an_unrecorded_package_in_the_shared_dir_is_NAMED(self):
+        """The removal is driven ENTIRELY by recorded pins, and the on-demand
+        Qt bootstrap installs by a path that records none.
+
+        `_QtBootstrap` puts PySide6/qtpy into the installer's own target dir
+        through its own route, so nothing lands in the manifest, the uninstall
+        removes none of it, and until now said nothing about it either.
+        Measured on this machine: PySide6, qtpy, shiboken6, PIL, a pillow
+        dist-info and a bin folder, with no manifest beside them.
+        """
+        target = self.app / "addons_modules"
+        (target / "PySide6").mkdir(parents=True)
+        (target / "qtpy").mkdir(parents=True)
+
+        message = self.installer._uninstall_message("blender", str(target), [], {})
+
+        self.assertIn("PySide6", message)
+        self.assertIn("qtpy", message)
+
+    def test_naming_a_leftover_never_deletes_it(self):
+        """Report, never remove: `addons/modules` is SHARED with every other
+        add-on, the Qt may predate tentacle entirely, and deleting an
+        unrecorded PySide6 can break somebody else's tool."""
+        target = self.app / "addons_modules"
+        (target / "PySide6").mkdir(parents=True)
+
+        self.installer._uninstall_message("blender", str(target), [], {})
+
+        self.assertTrue((target / "PySide6").is_dir(), "the report deleted it")
+
+    def test_an_EMPTY_shared_dir_is_not_reported_as_holding_leftovers(self):
+        """Pre-existing overclaim, reachable now that the contents are read:
+        with no pins the message asserted packages "are still in" the target
+        without ever looking. Blender's popup shows the first line only, so
+        that assertion was the entire report.
+        """
+        target = self.app / "addons_modules_empty"
+        target.mkdir(parents=True, exist_ok=True)
+
+        message = self.installer._uninstall_message("blender", str(target), [], {})
+
+        self.assertIn("nothing is left", message)
+        self.assertNotIn("are still in", message)
+
+    def test_a_package_the_manifest_DID_account_for_is_not_listed(self):
+        """A recorded pin was removed by the uninstall, so it is not a leftover."""
+        target = self.app / "addons_modules"
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "leftover_thing").mkdir()
+
+        message = self.installer._uninstall_message(
+            "blender", str(target), ["leftover_thing"], {}
+        )
+
+        self.assertNotIn("leftover_thing", message.split("recorded by nothing")[-1])
+
+    def test_maya_reports_no_leftovers_because_its_removal_is_exclusive(self):
+        """The whole module folder is ours there, so the removal is complete
+        whatever the manifest said -- listing its contents would be noise."""
+        target = self.app / "maya_module"
+        (target / "PySide6").mkdir(parents=True)
+
+        message = self.installer._uninstall_message("maya", str(target), [], {})
+
+        self.assertNotIn("PySide6", message)
+
     def test_a_redrop_after_a_failed_first_install_offers_uninstall(self):
         """The module is written BEFORE provisioning, so a failed first install
         left a permanent startup hook whose own userSetup.py tells the user to

@@ -2115,21 +2115,25 @@ class BlenderHost:
 
         ``bpy.ops.script.reload()`` would tear down the Qt host with it; this instead tears down
         tentacle's own surface (keymap / operator / poller; the event pump retires itself via its
-        generation token), reloads the monorepo packages in dependency order via
-        ``ptk.reload_package`` (Qt bindings are never touched), and re-registers from the freshly
-        loaded module on the next timer tick — after the stale frames (including the slot that
+        generation token) on top of the shared ``Tcl.prepare_reload``, reloads the monorepo
+        packages in dependency order via ``Tcl.reload_packages`` (Qt bindings are never touched),
+        and re-registers from the freshly loaded module on the next timer tick — after the stale frames (including the slot that
         called this) have unwound. Returns the number of modules reloaded.
         """
         import importlib
 
         import bpy
-        import pythontk as ptk
 
-        if _KeymapBridge.tcl is not None:
-            try:
-                _KeymapBridge.tcl.hide()
-            except Exception:
-                pass
+        from tentacle.tcl import Tcl
+
+        # Shared, DCC-agnostic teardown, FIRST — retiring hides the menu (ending any
+        # live gesture) while the keymap and poller that drive it are still installed,
+        # which is the order the bridge expects. It also retires the activation
+        # shortcut, which would otherwise keep servicing the gesture from pre-reload
+        # code, and resets blendertk's ScriptJobManager, whose handles to its
+        # registered scene callbacks the reload would drop while Blender still holds
+        # the callbacks themselves.
+        retired = Tcl.prepare_reload("blender")
         _KeymapBridge.teardown()
         # Tear down the Script Output console from the OLD module before reloading: its
         # draw-handler glue, liveness watchdog, embedded widget, stdout tee and docked
@@ -2146,17 +2150,13 @@ class BlenderHost:
                     console.teardown()
             except Exception:
                 pass
-        # import_missing=False: refresh only the modules actually loaded in this session —
-        # discovery-importing the rest would pull in the OTHER DCCs' slot packages
-        # (tentacle.slots.maya imports maya and would raise here).
-        reloaded = ptk.reload_package(
-            "tentacle",
-            dependencies_first=("pythontk", "blendertk", "uitk"),
-            import_missing=False,
-        )
+        reloaded = Tcl.reload_packages("blender")
 
         def _re_register():
-            importlib.import_module("tentacle.tcl_blender").register()
+            try:
+                importlib.import_module("tentacle.tcl_blender").register()
+            finally:
+                Tcl.dispose_retired(retired)
             return None
 
         bpy.app.timers.register(_re_register, first_interval=0.2)

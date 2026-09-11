@@ -630,6 +630,48 @@ class TentacleInstaller:
         return message
 
     @classmethod
+    def _unrecorded_in(cls, target, names):
+        """Top-level entries in *target* that no removed pin accounts for.
+
+        Blender's target is ``addons/modules``, SHARED with every other add-on,
+        and the removal is driven entirely by recorded pins -- so anything that
+        arrived by another route is invisible to it. The on-demand Qt bootstrap
+        is exactly that route: ``_QtBootstrap`` installs PySide6/qtpy into this
+        same directory through its own path and records no pin.
+
+        Deliberately keyed on what is PRESENT rather than on a list of names
+        this class would have to keep in step with ``_QtBootstrap.QT_SPECS``.
+        Importing that constant would couple the installer to ``tcl_blender``,
+        which is a standalone drop-in and absent in monorepo mode, and copying
+        it here would be one more pair of lists to drift -- while the directory
+        itself cannot be out of date about its own contents.
+
+        Returns:
+            list: Entry names, sorted. Empty when the directory is unreadable.
+        """
+        try:
+            present = sorted(os.listdir(target))
+        except OSError:  # never existed, or already gone with the add-on
+            return []
+        accounted = {cls._dist_key(name) for name in (names or ())}
+        manifest = os.path.basename(cls.manifest_path(target))
+        skip = {manifest, manifest + ".corrupt", "__pycache__"}
+        left = []
+        for entry in present:
+            if entry.startswith(".") or entry in skip:
+                continue
+            stem = entry.split(".dist-info")[0].split(".egg-info")[0].split("-")[0]
+            if cls._dist_key(stem) in accounted:
+                continue
+            left.append(entry)
+        return left
+
+    @staticmethod
+    def _dist_key(name):
+        """Compare distribution names the way packaging does (PEP 503-ish)."""
+        return name.lower().replace("-", "_")
+
+    @classmethod
     def _uninstall_message(cls, host, target, names, outside):
         """What a removal reports -- including any copy of ours it could not reach.
 
@@ -641,19 +683,48 @@ class TentacleInstaller:
 
         Neither reaches a ``tentacle`` that resolves from OUTSIDE *target*, and that copy
         relaunches the menu at the next start -- so a complete removal still reads as
-        having done nothing. Measured on a machine carrying the repo on ``PYTHONPATH``:
+        having done nothing.
+
+        Anything in *target* that no removed pin accounts for is NAMED rather than
+        deleted (:meth:`_unrecorded_in`), which is the only safe answer for a shared
+        directory: the Qt bootstrap's own install records nothing, so it survived
+        every uninstall unmentioned, while deleting an unrecorded PySide6 could break
+        an add-on that is not ours.
+
+        Measured on a machine carrying the repo on ``PYTHONPATH``:
         a drop then Uninstall removed only the empty module shell the drop had just
         written, reported "Tentacle uninstalled", and the menu was back one restart
         later. It leads the message rather than trailing it, because Blender's popup
         shows the first line only.
         """
+        # Maya's removal is exclusive -- the whole module folder is ours and it
+        # is gone -- so listing what used to be in it would be noise. Computed
+        # BEFORE the message because the no-pins line used to assert leftovers
+        # without ever looking, and that line is the whole report in Blender.
+        left = cls._unrecorded_in(target, names) if host != "maya" else []
         if host == "maya" or names:
             removed = f" ({len(names)} package(s) removed)" if names else ""
             message = f"Tentacle uninstalled{removed}"
+        elif left:
+            # "may have added": a shared folder cannot prove ownership, which is
+            # the same reason nothing here is deleted.
+            message = (
+                "Nothing was recorded to remove - the add-on is gone, but "
+                f"packages this installer may have added are still in {target}"
+            )
         else:
             message = (
-                "Nothing was recorded to remove - the add-on is gone, but any "
-                f"packages this installer added are still in {target}"
+                "Nothing was recorded to remove - the add-on is gone, and "
+                f"nothing is left in {target}"
+            )
+        if left:
+            message += (
+                f"\nStill in {target}, recorded by nothing: {', '.join(left)}."
+                "\nLeft in place ON PURPOSE: that folder is SHARED with every other "
+                "add-on, so a package there may predate tentacle or belong to another "
+                "tool, and removing it could break that tool. The Qt this add-on "
+                "installs on demand goes in by a route that records no pin, so it "
+                "will be in this list -- remove by hand if nothing else needs it."
             )
         if outside:
             where = "; ".join(

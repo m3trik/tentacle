@@ -428,7 +428,9 @@ class Rendering(RenderingMixin, SlotsMaya):
         def _sync(_=None):
             renderer = menu.cmb003.currentData()
             _gate(menu.chk000, renderer == "arnold")  # Arnold-only preview network
-            _gate(menu.chk001, bool(renderer) and mtk.RenderUtils.supports_ipr(renderer))
+            _gate(
+                menu.chk001, bool(renderer) and mtk.RenderUtils.supports_ipr(renderer)
+            )
 
         menu.cmb003.currentIndexChanged.connect(_sync)
         _sync()
@@ -471,32 +473,34 @@ class Rendering(RenderingMixin, SlotsMaya):
             mtk.RenderUtils.render_camera(camera)
             self._last_render_key = key
 
-    # ------------------------------------------------------------------ tb002  WebXR Preview
-    # Deliberately its own button rather than an option on tb001: a WebXR preview
-    # publishes geometry to a browser, it does not raster a frame, so every option
-    # tb001 carries (camera, renderer, Arnold network, IPR, smart redo) is
-    # meaningless to it — the sign the two don't belong on one control.
-    # Shared flow lives in RenderingMixin; only what is Maya's stays here.
-    def tb002_init(self, widget):
-        """WebXR Preview: scope and export options for the live browser preview."""
-        self.webxr_init(
-            widget,
-            sidecar_tooltip="Carry extended scene setup the FBX cannot express, applied "
-            "to the preview after conversion. Today: emissive and base colour — Maya's "
-            "FBX exporter maps both only for lambert/blinn/phong, so aiStandardSurface, "
-            "StingrayPBS and openPBR are read from the material instead. Uncheck to "
-            "preview exactly what the FBX itself carried — the way to tell something "
-            "the exporter dropped from something it mistranslated.",
-        )
-
-    @SlotsMaya.Cancelable(600)
-    def tb002(self, widget):
-        """Push the selection to the live WebXR preview."""
-        self.webxr_push(
-            widget,
-            engine=mtk.WebXrPreview,
-            log_hint="script editor",
-        )
+    # ------------------------------------------------------------------ b000  WebXR Preview
+    # A LAUNCH, not a slot with an option box. The preview's settings, its push
+    # and its live status (which version is up, whether anything is watching)
+    # are one panel now -- ``extapps``'s ``webxr_preview`` -- because the option
+    # box was duplicated per fork and drifted, and because a transient menu had
+    # nowhere to put state that outlives a click. This fork supplies only what
+    # is Maya's: the bridge class.
+    #
+    # ``show=False`` then ``marking_menu.show`` is the house pattern for a
+    # host-fed external app (see the Map Packer / Map Converter slots): the
+    # handler returns the widget after import and reparenting so context can be
+    # injected, and the marking menu reveals it at the cursor -- so this costs
+    # what opening any other menu page costs. The handler caches the widget, so
+    # the second press raises the panel the user already configured.
+    #
+    # RENAMED tb002 -> b000 with that change. The ``tb`` prefix means a tool
+    # BUTTON -- a control that carries an option box -- and this one no longer
+    # does, so it takes the plain ``b`` prefix. The name is the only signal of
+    # which kind a slot is, since both are ``PushButton`` in the .ui and the
+    # option box is attached at run time by the ``_init`` hook.
+    def b000(self, widget):
+        """WebXR Preview — open the live preview panel, wired to this scene."""
+        ui = self.sb.handlers.external_app.launch("webxr_preview", show=False)
+        # The CLASS, not an instance: the panel builds it lazily and keeps it,
+        # and its deliverer is a class attribute, so the port and any page
+        # already open survive both the panel and this slot being rebuilt.
+        ui.slots.engine = mtk.WebXrPreview
+        self.sb.handlers.marking_menu.show(ui)
 
     def b001(self):
         """Open Render Settings Window"""

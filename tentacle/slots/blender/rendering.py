@@ -25,7 +25,9 @@ class Rendering(RenderingMixin, SlotsBlender):
             for ident in ("BLENDER_EEVEE", "BLENDER_EEVEE_NEXT")
             if any(
                 item.identifier == ident
-                for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items
+                for item in bpy.types.RenderSettings.bl_rna.properties[
+                    "engine"
+                ].enum_items
             )
         ),
         "BLENDER_EEVEE",
@@ -60,20 +62,42 @@ class Rendering(RenderingMixin, SlotsBlender):
     # quality drive the tested btk.configure_render_output engine; the rest is capture-time scene
     # override (restored), including chk057 driving the active 3D viewport's overlay visibility.
     _RESOLUTIONS = [
-        ("3840 x 2160", (3840, 2160)), ("2560 x 1440", (2560, 1440)),
-        ("1920 x 1080", (1920, 1080)), ("1280 x 720", (1280, 720)),
-        ("960 x 540", (960, 540)), ("640 x 360", (640, 360)),
+        ("3840 x 2160", (3840, 2160)),
+        ("2560 x 1440", (2560, 1440)),
+        ("1920 x 1080", (1920, 1080)),
+        ("1280 x 720", (1280, 720)),
+        ("960 x 540", (960, 540)),
+        ("640 x 360", (640, 360)),
     ]
     _QUALITIES = [
-        ("Draft (20)", 20), ("Preview (50)", 50), ("Low (70)", 70),
-        ("Medium (80)", 80), ("High (90)", 90), ("Maximum (100)", 100),
+        ("Draft (20)", 20),
+        ("Preview (50)", 50),
+        ("Low (70)", 70),
+        ("Medium (80)", 80),
+        ("High (90)", 90),
+        ("Maximum (100)", 100),
     ]
     # label -> (configure_render_output kwargs, is_movie, is_still). Blender-appropriate formats
     # (the Maya Arnold/IFF/"All" presets have no Blender analogue).
     _FORMATS = [
-        ("MP4 (H.264)", {"file_format": "FFMPEG", "container": "MPEG4", "codec": "H264"}, True, False),
-        ("MOV (H.264)", {"file_format": "FFMPEG", "container": "QUICKTIME", "codec": "H264"}, True, False),
-        ("AVI (FFV1)", {"file_format": "FFMPEG", "container": "AVI", "codec": "FFV1"}, True, False),
+        (
+            "MP4 (H.264)",
+            {"file_format": "FFMPEG", "container": "MPEG4", "codec": "H264"},
+            True,
+            False,
+        ),
+        (
+            "MOV (H.264)",
+            {"file_format": "FFMPEG", "container": "QUICKTIME", "codec": "H264"},
+            True,
+            False,
+        ),
+        (
+            "AVI (FFV1)",
+            {"file_format": "FFMPEG", "container": "AVI", "codec": "FFV1"},
+            True,
+            False,
+        ),
         ("PNG Sequence", {"file_format": "PNG"}, False, False),
         ("PNG Still", {"file_format": "PNG"}, False, True),
         ("JPEG Sequence", {"file_format": "JPEG"}, False, False),
@@ -92,9 +116,14 @@ class Rendering(RenderingMixin, SlotsBlender):
             return scene.frame_current, scene.frame_current
         if mode_index == 3:  # Custom Range
             return int(menu.s010.value()), int(menu.s011.value())
-        if mode_index == 0 and scene.use_preview_range:  # Playback Range (preview range)
+        if (
+            mode_index == 0 and scene.use_preview_range
+        ):  # Playback Range (preview range)
             return scene.frame_preview_start, scene.frame_preview_end
-        return scene.frame_start, scene.frame_end  # Playback (no preview) / Animation Range
+        return (
+            scene.frame_start,
+            scene.frame_end,
+        )  # Playback (no preview) / Animation Range
 
     @staticmethod
     def _camera_objects():
@@ -106,52 +135,80 @@ class Rendering(RenderingMixin, SlotsBlender):
         menu = widget.option_box.menu
         menu.setTitle("Playblast")
         menu.add(
-            "QLineEdit", setPlaceholderText="Output base path (without extension)",
-            setText=scene.render.filepath, setObjectName="t000",
+            "QLineEdit",
+            setPlaceholderText="Output base path (without extension)",
+            setText=scene.render.filepath,
+            setObjectName="t000",
             setToolTip="Output base filepath. The format's extension (and frame numbers for "
             "sequences) are appended automatically; '//' is a .blend-relative path.",
         )
         menu.add(
             "QComboBox",
-            addItems=["Playback Range", "Animation Range", "Current Frame", "Custom Range"],
-            setObjectName="cmb010", setCurrentIndex=0, setToolTip="Frame range to capture.",
+            addItems=[
+                "Playback Range",
+                "Animation Range",
+                "Current Frame",
+                "Custom Range",
+            ],
+            setObjectName="cmb010",
+            setCurrentIndex=0,
+            setToolTip="Frame range to capture.",
         )
         menu.add(
-            "QSpinBox", setPrefix="Custom Start Frame: ", setObjectName="s010",
-            setMinimum=-1000000, setMaximum=1000000, setValue=scene.frame_start,
+            "QSpinBox",
+            setPrefix="Custom Start Frame: ",
+            setObjectName="s010",
+            setMinimum=-1000000,
+            setMaximum=1000000,
+            setValue=scene.frame_start,
             setToolTip="First frame captured when using Custom Range.",
         )
         menu.add(
-            "QSpinBox", setPrefix="Custom End Frame: ", setObjectName="s011",
-            setMinimum=-1000000, setMaximum=1000000, setValue=scene.frame_end,
+            "QSpinBox",
+            setPrefix="Custom End Frame: ",
+            setObjectName="s011",
+            setMinimum=-1000000,
+            setMaximum=1000000,
+            setValue=scene.frame_end,
             setToolTip="Last frame captured when using Custom Range.",
         )
         menu.add(
-            "QSpinBox", setPrefix="Frame Padding: ", setObjectName="s012",
-            setMinimum=1, setMaximum=10, setValue=4,
+            "QSpinBox",
+            setPrefix="Frame Padding: ",
+            setObjectName="s012",
+            setMinimum=1,
+            setMaximum=10,
+            setValue=4,
             setToolTip="Digits used for image-sequence frame numbers (encoded as '#' in the path).",
         )
         cmb040 = menu.add(
-            "QComboBox", setObjectName="cmb040",
+            "QComboBox",
+            setObjectName="cmb040",
             setToolTip="Resolution preset applied during capture (restored afterward).",
         )
         for label, data in self._RESOLUTIONS:
             cmb040.addItem(label, data)
         cmb040.setCurrentIndex(2)  # 1920 x 1080
         menu.add(
-            "QSpinBox", setPrefix="Scale %: ", setObjectName="s015",
-            setMinimum=1, setMaximum=100, setValue=100,
+            "QSpinBox",
+            setPrefix="Scale %: ",
+            setObjectName="s015",
+            setMinimum=1,
+            setMaximum=100,
+            setValue=100,
             setToolTip="Resolution percentage applied during capture.",
         )
         cmb016 = menu.add(
-            "QComboBox", setObjectName="cmb016",
+            "QComboBox",
+            setObjectName="cmb016",
             setToolTip="Quality for movie/JPEG outputs (FFMPEG constant-rate-factor / JPEG quality).",
         )
         for label, data in self._QUALITIES:
             cmb016.addItem(label, data)
         cmb016.setCurrentIndex(5)  # Maximum
         cmb041 = menu.add(
-            "QComboBox", setObjectName="cmb041",
+            "QComboBox",
+            setObjectName="cmb041",
             setToolTip="Camera used for the capture. 'Active Viewport' captures the viewport view; "
             "otherwise the chosen camera is made the scene camera for the capture (restored after).",
         )
@@ -160,24 +217,35 @@ class Rendering(RenderingMixin, SlotsBlender):
             cmb041.addItem(cam.name, cam)
         cmb041.setCurrentIndex(0)
         cmb050 = menu.add(
-            "QComboBox", setObjectName="cmb050", setMaxVisibleItems=12,
+            "QComboBox",
+            setObjectName="cmb050",
+            setMaxVisibleItems=12,
             setToolTip="Output format. Movie formats write one file; sequences write one image "
             "per frame; 'PNG Still' captures a single frame.",
         )
         for label, kwargs, is_movie, is_still in self._FORMATS:
             cmb050.addItem(label, (kwargs, is_movie, is_still))
         menu.add(
-            "QCheckBox", setText="Show Ornaments", setObjectName="chk057", setChecked=True,
+            "QCheckBox",
+            setText="Show Ornaments",
+            setObjectName="chk057",
+            setChecked=True,
             setToolTip="Include viewport overlays (grid, gizmos, empties, HUD) in the capture; "
             "unchecked renders the clean geometry only.",
         )
         menu.add(
-            "QCheckBox", setText="Open When Done", setObjectName="chk058", setChecked=False,
+            "QCheckBox",
+            setText="Open When Done",
+            setObjectName="chk058",
+            setChecked=False,
             setToolTip="Play the rendered output (Blender's animation player) when the "
             "playblast finishes.",
         )
         menu.add(
-            "QCheckBox", setText="Include Audio", setObjectName="chk060", setChecked=False,
+            "QCheckBox",
+            setText="Include Audio",
+            setObjectName="chk060",
+            setChecked=False,
             setToolTip=self.sb.tooltip.fmt(
                 title="Include Audio",
                 body="Mux the scene's audio — VSE strips and speakers — into "
@@ -227,12 +295,19 @@ class Rendering(RenderingMixin, SlotsBlender):
         view3d_ctx = btk.get_view3d_context()
         view3d_space = view3d_ctx["area"].spaces.active if view3d_ctx else None
         snap = {
-            "fs": scene.frame_start, "fe": scene.frame_end, "cam": scene.camera,
-            "rx": render.resolution_x, "ry": render.resolution_y,
-            "pct": render.resolution_percentage, "path": render.filepath,
+            "fs": scene.frame_start,
+            "fe": scene.frame_end,
+            "cam": scene.camera,
+            "rx": render.resolution_x,
+            "ry": render.resolution_y,
+            "pct": render.resolution_percentage,
+            "path": render.filepath,
             "media": imgs.media_type if has_media_type else None,
-            "fmt": imgs.file_format, "q": imgs.quality,
-            "ffmt": ff.format, "fcodec": ff.codec, "fcrf": ff.constant_rate_factor,
+            "fmt": imgs.file_format,
+            "q": imgs.quality,
+            "ffmt": ff.format,
+            "fcodec": ff.codec,
+            "fcrf": ff.constant_rate_factor,
             "faudio": ff.audio_codec,
             "overlays": view3d_space.overlay.show_overlays if view3d_space else None,
         }
@@ -243,7 +318,9 @@ class Rendering(RenderingMixin, SlotsBlender):
                 m.t000.text(), int(m.s012.value()), is_movie or is_still
             )
             out_path = render.filepath  # the finally below restores render.filepath
-            btk.configure_render_output(scene, quality=m.cmb016.currentData(), **fmt_kwargs)
+            btk.configure_render_output(
+                scene, quality=m.cmb016.currentData(), **fmt_kwargs
+            )
             if is_movie:  # Include Audio — mux scene audio into the FFMPEG container
                 ff.audio_codec = "AAC" if m.chk060.isChecked() else "NONE"
             cam = m.cmb041.currentData()
@@ -260,11 +337,15 @@ class Rendering(RenderingMixin, SlotsBlender):
             # the real VIEW_3D area (region may be None — drop it, as set_viewport_tool
             # does), under a live window (the Qt-pump state has neither).
             override = (
-                {k: v for k, v in view3d_ctx.items() if v is not None} if view3d_ctx else {}
+                {k: v for k, v in view3d_ctx.items() if v is not None}
+                if view3d_ctx
+                else {}
             )
             with btk.window_context_override(), bpy.context.temp_override(**override):
                 bpy.ops.render.opengl(
-                    animation=animation, write_still=write_still, view_context=view_context,
+                    animation=animation,
+                    write_still=write_still,
+                    view_context=view_context,
                 )
         # ReferenceError: the cmb041 combo (built at init, not refreshed) can hold a camera that
         # was since deleted; TypeError: a missing/empty combo datum.
@@ -272,13 +353,23 @@ class Rendering(RenderingMixin, SlotsBlender):
             self.sb.message_box(str(e))
             return
         finally:  # restore every scene/viewport setting the capture borrowed
-            scene.frame_start, scene.frame_end, scene.camera = snap["fs"], snap["fe"], snap["cam"]
+            scene.frame_start, scene.frame_end, scene.camera = (
+                snap["fs"],
+                snap["fe"],
+                snap["cam"],
+            )
             render.resolution_x, render.resolution_y = snap["rx"], snap["ry"]
             render.resolution_percentage, render.filepath = snap["pct"], snap["path"]
-            if has_media_type:  # restore before file_format (media_type gates its valid values)
+            if (
+                has_media_type
+            ):  # restore before file_format (media_type gates its valid values)
                 imgs.media_type = snap["media"]
             imgs.file_format, imgs.quality = snap["fmt"], snap["q"]
-            ff.format, ff.codec, ff.constant_rate_factor = snap["ffmt"], snap["fcodec"], snap["fcrf"]
+            ff.format, ff.codec, ff.constant_rate_factor = (
+                snap["ffmt"],
+                snap["fcodec"],
+                snap["fcrf"],
+            )
             ff.audio_codec = snap["faudio"]
             if view3d_space is not None:
                 view3d_space.overlay.show_overlays = snap["overlays"]
@@ -288,7 +379,9 @@ class Rendering(RenderingMixin, SlotsBlender):
                 # window override: the player launch reads its paths from screen context.
                 with btk.window_context_override():
                     bpy.ops.render.play_rendered_anim()
-            except RuntimeError as e:  # no external player / headless — file still written
+            except (
+                RuntimeError
+            ) as e:  # no external player / headless — file still written
                 self.sb.message_box(f"Playblast viewer failed: <hl>{e}</hl>")
 
     @staticmethod
@@ -317,7 +410,8 @@ class Rendering(RenderingMixin, SlotsBlender):
         menu = widget.option_box.menu
         menu.setTitle("Render")
         cmb002 = menu.add(
-            "QComboBox", setObjectName="cmb002",
+            "QComboBox",
+            setObjectName="cmb002",
             setToolTip="Camera to render. 'Active Camera' uses the scene's current camera; "
             "any other choice is made the scene camera before rendering.",
         )
@@ -326,7 +420,8 @@ class Rendering(RenderingMixin, SlotsBlender):
             cmb002.addItem(cam.name, cam)
 
         cmb003 = menu.add(
-            "QComboBox", setObjectName="cmb003",
+            "QComboBox",
+            setObjectName="cmb003",
             setToolTip="Renderer to use (Cycles/EEVEE/Workbench, or an installed add-on "
             "engine), applied to the scene before rendering.",
         )
@@ -334,9 +429,9 @@ class Rendering(RenderingMixin, SlotsBlender):
         current = bpy.context.scene.render.engine
         for ident, label in engines:
             cmb003.addItem(label, ident)
-        cmb003.setCurrentIndex(next(
-            (i for i, (ident, _) in enumerate(engines) if ident == current), 0
-        ))
+        cmb003.setCurrentIndex(
+            next((i for i, (ident, _) in enumerate(engines) if ident == current), 0)
+        )
 
     def tb001(self, widget):
         """Render Current Frame"""
@@ -357,30 +452,34 @@ class Rendering(RenderingMixin, SlotsBlender):
         except (RuntimeError, TypeError, ReferenceError) as e:
             self.sb.message_box(str(e))
 
-    # ------------------------------------------------------------------ tb002  WebXR Preview
-    # Shared flow (option box + push) lives in RenderingMixin — same
-    # objectNames per the cross-DCC QSettings rule. Only what is Blender's
-    # stays here: the engine class, the log location, and the sidecar tooltip
-    # naming what Blender's FBX exporter loses. Scope resolution is the
-    # engine's (``PreviewBridge.scope_objects``), not a hook passed from here.
-    def tb002_init(self, widget):
-        """WebXR Preview: scope and export options for the live browser preview."""
-        self.webxr_init(
-            widget,
-            sidecar_tooltip="Carry extended scene setup the FBX cannot express, applied "
-            "to the preview after conversion. Today: emissive (the FBX clamps colour × "
-            "strength to LDR) and constant base colours, both read from the Principled "
-            "BSDF instead. Uncheck to preview exactly what the FBX itself carried — the "
-            "way to tell something the exporter dropped from something it mistranslated.",
-        )
-
-    def tb002(self, widget):
-        """Push the selection to the live WebXR preview."""
-        self.webxr_push(
-            widget,
-            engine=btk.WebXrPreview,
-            log_hint="script output",
-        )
+    # ------------------------------------------------------------------ b000  WebXR Preview
+    # A LAUNCH, not a slot with an option box. The preview's settings, its push
+    # and its live status (which version is up, whether anything is watching)
+    # are one panel now -- ``extapps``'s ``webxr_preview`` -- because the option
+    # box was duplicated per fork and drifted, and because a transient menu had
+    # nowhere to put state that outlives a click. This fork supplies only what
+    # is Blender's: the bridge class.
+    #
+    # ``show=False`` then ``marking_menu.show`` is the house pattern for a
+    # host-fed external app (see the Map Packer / Map Converter slots): the
+    # handler returns the widget after import and reparenting so context can be
+    # injected, and the marking menu reveals it at the cursor -- so this costs
+    # what opening any other menu page costs. The handler caches the widget, so
+    # the second press raises the panel the user already configured.
+    #
+    # RENAMED tb002 -> b000 with that change. The ``tb`` prefix means a tool
+    # BUTTON -- a control that carries an option box -- and this one no longer
+    # does, so it takes the plain ``b`` prefix. The name is the only signal of
+    # which kind a slot is, since both are ``PushButton`` in the .ui and the
+    # option box is attached at run time by the ``_init`` hook.
+    def b000(self, widget):
+        """WebXR Preview — open the live preview panel, wired to this scene."""
+        ui = self.sb.handlers.external_app.launch("webxr_preview", show=False)
+        # The CLASS, not an instance: the panel builds it lazily and keeps it,
+        # and its deliverer is a class attribute, so the port and any page
+        # already open survive both the panel and this slot being rebuilt.
+        ui.slots.engine = btk.WebXrPreview
+        self.sb.handlers.marking_menu.show(ui)
 
     # ------------------------------------------------------------------ b-slots
     def b001(self):

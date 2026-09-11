@@ -704,7 +704,25 @@ def main():
             "See m3trik/docs/TEST_BADGE_STANDARD.md"
         )
 
-    sys.exit(0 if result.success else 1)
+    code = 0 if result.success else 1
+
+    # A run that booted maya.standalone must NOT exit through interpreter
+    # teardown: Maya's own static destructors fault at DLL_PROCESS_DETACH, so
+    # an ordinary green exit files a crash minidump and an
+    # `untitled[Recovered-...].ma` beside it -- litter that reads as a real
+    # crash (measured 2026-09-10; `os._exit` does not avoid it on Windows,
+    # because it routes to ExitProcess which still runs the detach callbacks).
+    # Only --include-slots initializes Maya here; the plain and --in-maya paths
+    # have nothing hostile to tear down, so they keep normal exit semantics.
+    # Guarded: the log is already written, and a missing pythontk must not turn
+    # a finished run into a traceback.
+    if args.include_slots:
+        try:
+            from pythontk import ProcessExit
+        except Exception:
+            sys.exit(code)
+        ProcessExit.hard_exit(code)
+    sys.exit(code)
 
 if __name__ == "__main__":
     main()

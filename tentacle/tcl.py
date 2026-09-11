@@ -61,6 +61,11 @@ class _TclInternal:
     # interval the launch snippet carried before this module existed).
     BLENDER_START_DELAY = 0.5
 
+    #: host -> the engine package holding HOST-OWNED state that an in-place reload
+    #: would orphan (registered scriptJobs / OpenMaya callbacks). ``max`` has no
+    #: engine yet, so it contributes nothing to :meth:`Tcl.prepare_reload`.
+    ENGINES = {"maya": "mayatk", "blender": "blendertk"}
+
     #: Distribution this package installs as — the base of every ``[extra]`` spec. Each
     #: extra is named after a HOSTS key above, so ``host()`` resolves which one applies.
     DIST = "tentacletk"
@@ -189,6 +194,17 @@ class _TclInternal:
         and ``host()`` returns None outside any DCC.
         """
         return cls._requires(extra=host) if host else ()
+
+    @classmethod
+    def _engine_module(cls, host):
+        """This host's already-imported engine package, or None.
+
+        ``sys.modules`` only — never an import: the engine is being torn down,
+        not stood up, and a host with no engine (``max``) must answer None
+        rather than raise.
+        """
+        name = cls.ENGINES.get(host)
+        return sys.modules.get(name) if name else None
 
     @classmethod
     def _requires(cls, extra=None):
@@ -397,6 +413,122 @@ class Tcl(_TclInternal):
         if include_self and cls.DIST not in dists:
             dists.append(cls.DIST)
         return tuple(dists)
+
+    @classmethod
+    def prepare_reload(cls, host=None):
+        """Release the host resources an in-place reload would ORPHAN.
+
+        ``Settings > Reload Scripts`` re-executes the ecosystem packages through
+        ``ptk.reload_package``. That rebinds module globals, but everything the
+        DCC itself is still holding — a registered ``scriptJob``, an OpenMaya
+        callback, an armed activation shortcut — keeps pointing at the code from
+        before the reload, while the handle needed to cancel it is dropped on the
+        floor with the old class object. Two consequences, both reported from live
+        sessions: the reload appears to do nothing (the pre-reload marking menu
+        still owns the activation key), and the DCC dies later, when a scene event
+        fires a callback whose widget has since been destroyed.
+
+        So the teardown has to happen HERE, before the reload, while the handles
+        are still reachable:
+
+        * every live ``MarkingMenu`` is retired (activation shortcut disposed);
+        * the engine's ``ScriptJobManager`` singleton is reset, which kills its
+          scriptJobs and removes its OpenMaya callbacks.
+
+        Each step is guarded through ``sys.modules`` and tolerates an engine that
+        does not offer it — a reload must never be blocked by a version skew in
+        the thing it is about to replace.
+
+        Parameters:
+            host (str): A :attr:`HOSTS` key. ``None`` (default) resolves the
+                    running host via :meth:`host`.
+
+        Returns:
+            list: The retired marking-menu instances. Hand them to
+            :meth:`dispose_retired` once their replacement is up.
+        """
+        host = cls.host() if host is None else host
+
+        retired = []
+        # Through uitk's PUBLIC surface, never a private module path: the Maya
+        # fork's previous teardown reached for internals (``MarkingMenu._instances``,
+        # ``reset_instance``) that uitk had since dropped, and because every step
+        # was guarded it no-opped in silence for as long as that skew lasted.
+        uitk = sys.modules.get("uitk")
+        if uitk is not None:
+            try:
+                # Normalized inside the guard: a skewed uitk whose retire_all
+                # answers a COUNT would otherwise hand dispose_retired an int to
+                # iterate, and that raises from inside the caller's finally. The
+                # menus are retired by then either way, so degrading to "retired
+                # but not disposed" costs a leak, not the reload.
+                retired = list(uitk.MarkingMenu.retire_all() or ())
+            except Exception as error:
+                print(f"# Warning: tentacle: marking-menu teardown skipped: {error} #")
+
+        engine = cls._engine_module(host)
+        if engine is not None:
+            try:
+                engine.ScriptJobManager.reset()
+            except Exception as error:
+                print(f"# Warning: tentacle: scriptJob teardown skipped: {error} #")
+
+        return retired
+
+    @classmethod
+    def reload_packages(cls, host=None):
+        """Re-execute the ecosystem packages in dependency order, in place.
+
+        The half of the reload both DCCs share, so the dependency order and the
+        ``import_missing`` policy have one home rather than a copy per host.
+        Call :meth:`prepare_reload` first and rebuild DEFERRED afterwards — see
+        those two for why neither belongs in the same frame as the reload.
+
+        ``import_missing=False`` restricts the refresh to what this session
+        actually loaded: discovery-importing the rest would pull in the OTHER
+        DCC's slot package, which imports a host that is not running.
+
+        ``ptk.reload_package`` does not abort on a module that raises — it
+        records the failure and carries on — so failures are printed here.
+        Leaving part of the ecosystem on the old code IS the "reload did
+        nothing" report, one module at a time.
+
+        Parameters:
+            host (str): A :attr:`HOSTS` key. ``None`` (default) resolves the
+                    running host via :meth:`host`.
+
+        Returns:
+            ptk.ReloadReport: The modules reloaded (a ``list``), carrying
+            ``failed`` and ``skipped`` details.
+        """
+        import pythontk as ptk
+
+        host = cls.host() if host is None else host
+        engine = cls.ENGINES.get(host)
+        report = ptk.reload_package(
+            "tentacle",
+            dependencies_first=tuple(d for d in ("pythontk", engine, "uitk") if d),
+            import_missing=False,
+        )
+        for name, error in getattr(report, "failed", ()):
+            print(f"# Error: tentacle: {name} did not reload: {error} #")
+        return report
+
+    @staticmethod
+    def dispose_retired(instances):
+        """Schedule deletion of the pre-reload marking menus in *instances*.
+
+        Retiring makes an instance inert but leaves the widget tree parented to
+        the DCC's main window, so without this every reload in a session stacks
+        up another full UI. Deferred (``deleteLater``), and called only once the
+        replacement has been asked for, so nothing is destroyed while Qt is still
+        dispatching the click that started the reload.
+        """
+        for instance in instances or ():
+            try:
+                instance.deleteLater()
+            except Exception:  # already gone — nothing to schedule
+                pass
 
     @classmethod
     def qt_key_name(cls, key_show=None):
