@@ -11,7 +11,7 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 220, Blender 222 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **86%** (392/457) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 48), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 9 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1168/2112 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1174/2118 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 55% with 1 module(s) absent (render_utils); 0 panel ports open.
 
@@ -23,7 +23,8 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
-| anim_utils | 360 | 328 | 286 | 79% |
+| __init__.py | 0 | 0 | 0 | — |
+| anim_utils | 361 | 329 | 287 | 80% |
 | audio_utils | 66 | 32 | 15 | 23% |
 | cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 165 | 74 | 51 | 31% |
@@ -31,7 +32,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | edit_utils | 172 | 176 | 123 | 72% |
 | env_utils | 453 | 292 | 221 | 49% |
 | light_utils | 75 | 69 | 45 | 60% |
-| mat_utils | 320 | 251 | 217 | 68% |
+| mat_utils | 325 | 254 | 220 | 68% |
 | node_utils | 147 | 53 | 47 | 32% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
@@ -39,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 72 | 90 | 33 | 46% |
 | uv_utils | 103 | 93 | 72 | 70% |
 | xform_utils | 82 | 35 | 29 | 35% |
-| **TOTAL (unique)** | **2112** | **1557** | **1168** | **55%** |
+| **TOTAL (unique)** | **2118** | **1561** | **1174** | **55%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -58,7 +59,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | ArnoldBridge | 0→0 | 6→0 | 4→4 | 734→128 | 17% | 100% | clean |
-| TubeRig | 1→1 | 4→1 | 19→16 | 4918→1137 | 23% | 84% | 3 open |
+| TubeRig | 1→1 | 4→1 | 19→16 | 5009→1233 | 25% | 84% | 3 open |
 | GameShader | 5→5 | 4→2 | 8→7 | 2661→740 | 28% | 88% | clean |
 | MatUpdater | 0→0 | 13→9 | 2→2 | 1563→521 | 33% | 100% | clean |
 | SceneExporter | 4→4 | 15→15 | 5→5 | 2482→823 | 33% | 100% | clean |
@@ -76,11 +77,11 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | TexturePathEditor | 6→4 ⚠ | 33→25 | 1→1 | 3441→2226 | 65% | 100% | 1 open |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 552→371 | 67% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
-| LightmapBaker | 3→3 | 7→6 | 10→10 | 3331→2428 | 73% | 100% | clean |
+| LightmapBaker | 3→3 | 7→6 | 10→10 | 3353→2428 | 72% | 100% | clean |
 | HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3121→2395 | 77% | 100% | clean |
 | SubstanceBridge | 1→1 | 0→0 | 2→2 | 336→267 | 79% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 348→287 | 82% | 100% | clean |
-| ShotSequencer | 1→1 | 39→37 | 6→6 | 4757→4097 | 86% | 100% | clean |
+| ShotSequencer | 1→1 | 39→37 | 6→6 | 4856→4118 | 85% | 100% | clean |
 | TelescopeRig | 0→0 | 0→0 | 4→4 | 1114→958 | 86% | 100% | clean |
 | WheelRig | 2→2 | 2→2 | 7→7 | 715→622 | 87% | 100% | clean |
 | ShellXform | 7→7 | 12→12 | 25→25 | 642→580 | 90% | 100% | clean |
@@ -98,7 +99,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 207→212 | 102% | 100% | clean |
 | Naming | 15→15 | 22→22 | 6→6 | 1038→1060 | 102% | 100% | clean |
 | SmartBake | 0→0 | 4→3 | 11→10 | 298→310 | 104% | 91% | clean |
-| RenderEffects | 5→5 | 11→11 | 2→2 | 505→534 | 106% | 100% | clean |
+| RenderEffects | 5→5 | 12→12 | 2→2 | 599→628 | 105% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 271→289 | 107% | 100% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 244→263 | 108% | 100% | clean |
 | EmissiveGroups | 3→3 | 15→14 | 7→7 | 1231→1394 | 113% | 100% | clean |
