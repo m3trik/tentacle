@@ -120,6 +120,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 ### `__init__.py`
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L55) — Format a string using preset variables.
+- [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -194,9 +195,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
-- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L25)** — DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).
-  - `RenderingMixin.webxr_init(self, widget, sidecar_tooltip)` — Build the WebXR Preview option box (``rendering.tb002``).
-  - `RenderingMixin.webxr_push(self, widget, engine, log_hint)` — Read the option box and push to the live preview (``rendering.tb002``).
+- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L20)** — DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard).
 
 <a id="slots--_scene"></a>
 ### `slots/_scene.py`
@@ -623,8 +622,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Rendering.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the chosen frame range / format).
   - `Rendering.tb001_init(self, widget)` — Render: pick the camera and renderer, then render the current frame.
   - `Rendering.tb001(self, widget)` — Render Current Frame
-  - `Rendering.tb002_init(self, widget)` — WebXR Preview: scope and export options for the live browser preview.
-  - `Rendering.tb002(self, widget)` — Push the selection to the live WebXR preview.
+  - `Rendering.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
   - `Rendering.b001(self)` — Render Settings (Properties editor, Render tab)
   - `Rendering.b003(self)` — Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**
   - `Rendering.b004(self)` — Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray
@@ -1322,8 +1320,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `Rendering.tb000(self, widget)` — Export Playblast
   - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, Arnold network, IPR, and smart redo.
   - `Rendering.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
-  - `Rendering.tb002_init(self, widget)` — WebXR Preview: scope and export options for the live browser preview.
-  - `Rendering.tb002(self, widget)` — Push the selection to the live WebXR preview.
+  - `Rendering.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
   - `Rendering.b001(self)` — Open Render Settings Window
   - `Rendering.b003(self)` — Editor: Render Setup
   - `Rendering.b004(self)` — Editor: Rendering Flags
@@ -1435,8 +1432,8 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--settings"></a>
 ### `slots/maya/settings.py`
 
-- **[`class Settings(SettingsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L13)** — Maya fork of the shared ``settings`` menu.
-  - `Settings.tb001(self)` — Reload Tentacle package with its dependencies.
+- **[`class Settings(SettingsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L14)** — Maya fork of the shared ``settings`` menu.
+  - `Settings.tb001(self)` — Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
@@ -1589,9 +1586,12 @@ Behavior shared by the Maya and Blender UV panels.
 
 The host-agnostic entry point — one launcher snippet for every DCC.
 
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L341)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L357)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
+  - `Tcl.prepare_reload(cls, host=None)` *(class)* — Release the host resources an in-place reload would ORPHAN.
+  - `Tcl.reload_packages(cls, host=None)` *(class)* — Re-execute the ecosystem packages in dependency order, in place.
+  - `Tcl.dispose_retired(instances)` *(static)* — Schedule deletion of the pre-reload marking menus in *instances*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
   - `Tcl.resolve_key(cls, key_show=None, context_tags=None)` *(class)* — The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
@@ -1648,9 +1648,9 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L1356) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1362) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1368) — Maya drop hook: first drop installs and launches;
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1427) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1433) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1439) — Maya drop hook: first drop installs and launches;
 - **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L73)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).

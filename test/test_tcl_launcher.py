@@ -1057,5 +1057,235 @@ class TestEntryForksRouteThroughTheGuard(unittest.TestCase):
                 self.assertNotIn("from tentacle import tcl_", body)
 
 
+class TestReloadTeardown(unittest.TestCase):
+    """``Settings > Reload Scripts`` must release what the reload would ORPHAN.
+
+    ``ptk.reload_package`` rebinds module globals, but the DCC keeps holding what
+    the old code registered with it — an armed activation shortcut, a live
+    ``scriptJob``, an OpenMaya callback — while the handle that could cancel any
+    of them goes out with the old class object. That is both reported symptoms:
+    the reload appears to do nothing (the pre-reload menu still owns the key),
+    and the host dies later when a scene event fires a callback whose widget is
+    gone. ``prepare_reload`` is the teardown that runs while those handles are
+    still reachable.
+
+    Host-independent by construction (these must also pass inside a live Maya):
+    the engine is named through a patched ``Tcl.ENGINES`` rather than by faking
+    a DCC, and the marking-menu module is a stand-in rather than the real one,
+    so a run never retires a menu another test is using.
+    """
+
+    class _Instance:
+        def __init__(self):
+            self.retired = False
+            self.deleted = False
+
+        def deleteLater(self):
+            self.deleted = True
+
+    def _uitk_module(self, instances):
+        """A stand-in for the ``uitk`` root, whose PUBLIC ``MarkingMenu`` the
+        teardown reaches for (the previous Maya teardown reached for internals
+        uitk had dropped, and no-opped in silence for as long as that lasted)."""
+        module = types.ModuleType("uitk")
+
+        class _MarkingMenu:
+            @staticmethod
+            def _live_registry():
+                return list(instances)
+
+            @staticmethod
+            def retire_all():
+                # Mirrors uitk: retires every live instance and hands them back,
+                # so the caller can dispose of them without touching the registry.
+                for instance in instances:
+                    instance.retired = True
+                return list(instances)
+
+        module.MarkingMenu = _MarkingMenu
+        return module
+
+    def _engine_module(self, reset=None):
+        module = types.ModuleType("tentacle_fake_engine")
+        if reset is not None:
+            module.ScriptJobManager = types.SimpleNamespace(reset=reset)
+        return module
+
+    @contextlib.contextmanager
+    def _patched(self, instances=(), engine=None):
+        modules = {"uitk": self._uitk_module(instances)}
+        if engine is not None:
+            modules["tentacle_fake_engine"] = engine
+        with (
+            mock.patch.dict(sys.modules, modules),
+            mock.patch.dict(
+                Tcl.ENGINES, {"testhost": "tentacle_fake_engine"}, clear=True
+            ),
+        ):
+            yield
+
+    def test_live_marking_menus_are_retired_and_returned(self):
+        instances = [self._Instance(), self._Instance()]
+        with self._patched(instances):
+            retired = Tcl.prepare_reload("testhost")
+        self.assertEqual(retired, instances)
+        self.assertTrue(all(i.retired for i in instances))
+
+    def test_the_engines_script_jobs_are_reset(self):
+        reset = mock.MagicMock()
+        with self._patched(engine=self._engine_module(reset)):
+            Tcl.prepare_reload("testhost")
+        reset.assert_called_once_with()
+
+    def test_a_host_with_no_engine_is_not_an_error(self):
+        with self._patched():
+            self.assertEqual(Tcl.prepare_reload("max"), [])
+
+    def test_the_retired_instances_come_from_uitks_public_surface(self):
+        """Not from a private module path: the Maya fork's previous teardown
+        reached for internals uitk had dropped and no-opped in SILENCE."""
+        instances = [self._Instance()]
+        with self._patched(instances):
+            self.assertIs(Tcl.prepare_reload("testhost")[0], instances[0])
+
+    def test_a_failing_teardown_never_blocks_the_reload(self):
+        """A skew in the code being REPLACED must not strand the user on it."""
+        reset = mock.MagicMock(side_effect=RuntimeError("stale engine"))
+        instances = [self._Instance()]
+        with self._patched(instances, self._engine_module(reset)):
+            with contextlib.redirect_stdout(io.StringIO()):
+                retired = Tcl.prepare_reload("testhost")
+        self.assertEqual(retired, instances)  # the menu teardown still ran
+
+    def test_a_uitk_that_answers_a_count_does_not_break_the_rebuild(self):
+        """Version skew degrades to "retired but not disposed" — a leak — never
+        to an int handed to dispose_retired to iterate, which raises from inside
+        the caller's finally and takes the rebuild with it."""
+        instances = [self._Instance()]
+        module = self._uitk_module(instances)
+        module.MarkingMenu.retire_all = staticmethod(lambda: len(instances))
+        with mock.patch.dict(sys.modules, {"uitk": module}):
+            with contextlib.redirect_stdout(io.StringIO()):
+                retired = Tcl.prepare_reload("max")
+        self.assertEqual(retired, [])
+        Tcl.dispose_retired(retired)  # must not raise
+
+    def test_dispose_retired_defers_deletion_of_the_old_menus(self):
+        instances = [self._Instance(), self._Instance()]
+        Tcl.dispose_retired(instances)
+        self.assertTrue(all(i.deleted for i in instances))
+
+    def test_dispose_retired_tolerates_an_already_dead_instance(self):
+        dead = mock.MagicMock()
+        dead.deleteLater.side_effect = RuntimeError("C++ object already deleted")
+        Tcl.dispose_retired([dead, self._Instance()])  # must not raise
+
+    def test_dispose_retired_accepts_nothing_to_dispose(self):
+        Tcl.dispose_retired(None)
+        Tcl.dispose_retired([])
+
+
+class TestReloadPackages(unittest.TestCase):
+    """The half of the reload both DCCs share: one dependency order, one
+    ``import_missing`` policy, one place that names a module which did not
+    reload. ``pythontk`` is stood in for so the real ecosystem is never
+    re-executed underneath the suite."""
+
+    class _Report(list):
+        def __init__(self, modules=(), failed=()):
+            super().__init__(modules)
+            self.failed = list(failed)
+
+    @contextlib.contextmanager
+    def _stub_ptk(self, report):
+        calls = []
+        module = types.ModuleType("pythontk")
+
+        def reload_package(package, **kwargs):
+            calls.append((package, kwargs))
+            return report
+
+        module.reload_package = reload_package
+        with mock.patch.dict(sys.modules, {"pythontk": module}):
+            yield calls
+
+    def test_the_engine_reloads_with_its_host_and_never_the_other_ones(self):
+        with self._stub_ptk(self._Report(["a"])) as calls:
+            Tcl.reload_packages("maya")
+            Tcl.reload_packages("blender")
+        self.assertEqual(
+            calls[0][1]["dependencies_first"], ("pythontk", "mayatk", "uitk")
+        )
+        self.assertEqual(
+            calls[1][1]["dependencies_first"], ("pythontk", "blendertk", "uitk")
+        )
+
+    def test_only_what_this_session_loaded_is_refreshed(self):
+        """import_missing=True would discovery-import the OTHER DCC's slot
+        package, which imports a host that is not running."""
+        with self._stub_ptk(self._Report()) as calls:
+            Tcl.reload_packages("maya")
+        self.assertIs(calls[0][1]["import_missing"], False)
+        self.assertEqual(calls[0][0], "tentacle")
+
+    def test_a_host_with_no_engine_drops_it_from_the_order(self):
+        with self._stub_ptk(self._Report()) as calls:
+            Tcl.reload_packages("max")
+        self.assertEqual(calls[0][1]["dependencies_first"], ("pythontk", "uitk"))
+
+    def test_a_module_that_did_not_reload_is_named(self):
+        """reload_package records the failure and carries on, so a partial
+        reload is the "reload did nothing" report one module at a time."""
+        report = self._Report(["a"], [("tentacle.slots.maya.uv", RuntimeError("boom"))])
+        out = io.StringIO()
+        with self._stub_ptk(report), contextlib.redirect_stdout(out):
+            returned = Tcl.reload_packages("maya")
+        self.assertIs(returned, report)
+        self.assertIn("tentacle.slots.maya.uv", out.getvalue())
+        self.assertIn("boom", out.getvalue())
+
+    def test_a_clean_reload_says_nothing(self):
+        out = io.StringIO()
+        with self._stub_ptk(self._Report(["a", "b"])), contextlib.redirect_stdout(out):
+            Tcl.reload_packages("maya")
+        self.assertEqual(out.getvalue(), "")
+
+
+class TestReloadRoutesThroughTheSharedTeardown(unittest.TestCase):
+    """Each DCC's Reload Scripts must use it — checked by source, the only way
+    without the DCC (same rationale as ``TestChordBindings``' source check)."""
+
+    def _source(self, *parts):
+        return (PKG.joinpath(*parts)).read_text(encoding="utf-8")
+
+    def test_maya_reload_tears_down_then_rebuilds_deferred(self):
+        source = self._source("slots", "maya", "settings.py")
+        self.assertIn("Tcl.prepare_reload(", source)
+        self.assertIn("executeDeferred(", source)
+        self.assertIn("dispose_retired(", source)
+
+    def test_maya_reload_rebuilds_even_when_the_reload_raises(self):
+        """The teardown has already retired the menu by then, so bailing out
+        would strand the session with no marking menu at all."""
+        source = self._source("slots", "maya", "settings.py")
+        body = source[source.index("def tb001") : source.index("def _report")]
+        handler = body[body.index("except Exception as error:") :]
+        self.assertIn("executeDeferred(rebuild)", handler)
+
+    def test_maya_reload_does_not_rebuild_inside_the_click(self):
+        """The rebuild belongs on the idle queue: this slot's own frame is in a
+        module the reload re-executes, and constructing a marking menu while Qt
+        is still delivering the click that triggered it destroys and rebuilds
+        widget trees underneath the event."""
+        source = self._source("slots", "maya", "settings.py")
+        body = source[source.index("def tb001") : source.index("def _report")]
+        self.assertNotIn("TclMaya(", body, "must not construct the menu in-frame")
+
+    def test_blender_reload_tears_down_then_rebuilds_deferred(self):
+        source = self._source("tcl_blender.py")
+        self.assertIn('Tcl.prepare_reload("blender")', source)
+        self.assertIn("dispose_retired(", source)
+
+
 if __name__ == "__main__":
     unittest.main()

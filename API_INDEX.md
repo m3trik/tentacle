@@ -4,6 +4,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
+- constants: DEFAULT_INCLUDE
 
 ### `slots/_animation.py` — Text the animation panel's Maya and Blender forks say identically.
 - `class AnimationMixin`
@@ -33,7 +34,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - `class RenderingMixin`
-  - methods: webxr_init, webxr_push
 
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
@@ -137,7 +137,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/rendering.py`
 - `class Rendering(RenderingMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b001, b003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b003, b004
 
 ### `slots/blender/rigging.py`
 - `class Rigging(SlotsBlender)`
@@ -326,7 +326,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/rendering.py`
 - `class Rendering(RenderingMixin, SlotsMaya)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b001, b003, b004
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b003, b004
 
 ### `slots/maya/rigging.py`
 - `class Rigging(SlotsMaya)`
@@ -393,7 +393,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, qt_key_name, resolve_key, chord_bindings, banner, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, chord_bindings, banner, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

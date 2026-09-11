@@ -16,7 +16,18 @@
           "deprecated": false
         }
       ],
-      "classes": []
+      "classes": [],
+      "constants": [
+        {
+          "name": "DEFAULT_INCLUDE",
+          "qualname": "DEFAULT_INCLUDE",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 11,
+          "deprecated": false
+        }
+      ]
     },
     {
       "relpath": "slots/_animation.py",
@@ -30,7 +41,8 @@
           "bases": [],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_edit.py",
@@ -81,7 +93,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_hud_warnings.py",
@@ -132,7 +145,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_lighting.py",
@@ -156,7 +170,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_main.py",
@@ -170,7 +185,8 @@
           "bases": [],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_materials.py",
@@ -194,7 +210,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_preferences.py",
@@ -290,7 +307,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_rendering.py",
@@ -299,31 +317,13 @@
       "classes": [
         {
           "name": "RenderingMixin",
-          "summary": "DCC-agnostic ``rendering`` slot behavior (WebXR Preview option box + push).",
-          "line": 25,
+          "summary": "DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard).",
+          "line": 20,
           "bases": [],
-          "members": [
-            {
-              "name": "webxr_init",
-              "qualname": "RenderingMixin.webxr_init",
-              "kind": "method",
-              "signature": "(self, widget, sidecar_tooltip)",
-              "summary": "Build the WebXR Preview option box (``rendering.tb002``).",
-              "line": 66,
-              "deprecated": false
-            },
-            {
-              "name": "webxr_push",
-              "qualname": "RenderingMixin.webxr_push",
-              "kind": "method",
-              "signature": "(self, widget, engine, log_hint)",
-              "summary": "Read the option box and push to the live preview (``rendering.tb002``).",
-              "line": 285,
-              "deprecated": false
-            }
-          ]
+          "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_scene.py",
@@ -374,7 +374,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_selection.py",
@@ -398,7 +399,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_settings.py",
@@ -539,7 +541,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_slots.py",
@@ -610,7 +613,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/_uv.py",
@@ -634,7 +638,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/_slots_blender.py",
@@ -732,7 +737,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/animation.py",
@@ -1191,7 +1197,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/blender.py",
@@ -1207,7 +1214,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/cameras.py",
@@ -1350,7 +1358,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/crease.py",
@@ -1394,7 +1403,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/deformation.py",
@@ -1429,7 +1439,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/display.py",
@@ -1491,7 +1502,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/duplicate.py",
@@ -1616,7 +1628,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/edit.py",
@@ -1778,7 +1791,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/editors.py",
@@ -1984,7 +1998,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/hud.py",
@@ -2074,7 +2089,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/lighting.py",
@@ -2128,7 +2144,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/main.py",
@@ -2164,7 +2181,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/materials.py",
@@ -2497,7 +2515,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/normals.py",
@@ -2613,7 +2632,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/nurbs.py",
@@ -2711,7 +2731,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/pivot.py",
@@ -2836,7 +2857,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/polygons.py",
@@ -3204,7 +3226,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/preferences.py",
@@ -3330,7 +3353,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/rendering.py",
@@ -3352,7 +3376,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 104,
+              "line": 133,
               "deprecated": false
             },
             {
@@ -3361,7 +3385,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast (OpenGL viewport render of the chosen frame range / format).",
-              "line": 198,
+              "line": 266,
               "deprecated": false
             },
             {
@@ -3370,7 +3394,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: pick the camera and renderer, then render the current frame.",
-              "line": 305,
+              "line": 398,
               "deprecated": false
             },
             {
@@ -3379,25 +3403,16 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render Current Frame",
-              "line": 341,
+              "line": 436,
               "deprecated": false
             },
             {
-              "name": "tb002_init",
-              "qualname": "Rendering.tb002_init",
+              "name": "b000",
+              "qualname": "Rendering.b000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "WebXR Preview: scope and export options for the live browser preview.",
-              "line": 366,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "Rendering.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Push the selection to the live WebXR preview.",
-              "line": 377,
+              "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
+              "line": 475,
               "deprecated": false
             },
             {
@@ -3406,7 +3421,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 386,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -3415,7 +3430,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 391,
+              "line": 490,
               "deprecated": false
             },
             {
@@ -3424,12 +3439,13 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 399,
+              "line": 498,
               "deprecated": false
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/rigging.py",
@@ -3581,7 +3597,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/scene.py",
@@ -3815,7 +3832,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/selection.py",
@@ -4157,7 +4175,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/settings.py",
@@ -4184,7 +4203,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/subdivision.py",
@@ -4309,7 +4329,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/symmetry.py",
@@ -4416,7 +4437,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/transform.py",
@@ -4667,7 +4689,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/utilities.py",
@@ -4720,7 +4743,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/blender/uv.py",
@@ -5008,7 +5032,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/_slots_maya.py",
@@ -5034,7 +5059,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/animation.py",
@@ -5502,7 +5528,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/arnold.py",
@@ -5518,7 +5545,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/cache.py",
@@ -5534,7 +5562,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/cameras.py",
@@ -5677,7 +5706,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/constrain.py",
@@ -5693,7 +5723,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/control.py",
@@ -5709,7 +5740,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/crease.py",
@@ -5753,7 +5785,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/curves.py",
@@ -5769,7 +5802,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/deform.py",
@@ -5785,7 +5819,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/deformation.py",
@@ -5820,7 +5855,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/display.py",
@@ -6017,7 +6053,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/duplicate.py",
@@ -6142,7 +6179,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/edit.py",
@@ -6304,7 +6342,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/edit_mesh.py",
@@ -6320,7 +6359,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/editors.py",
@@ -6490,7 +6530,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/effects.py",
@@ -6506,7 +6547,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/fields_solvers.py",
@@ -6522,7 +6564,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/fluids.py",
@@ -6538,7 +6581,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/generate.py",
@@ -6554,7 +6598,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/help.py",
@@ -6570,7 +6615,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/hud.py",
@@ -6661,7 +6707,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/key.py",
@@ -6677,7 +6724,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/lighting.py",
@@ -6731,7 +6779,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/lighting_shading.py",
@@ -6747,7 +6796,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/main.py",
@@ -6783,7 +6833,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/mash.py",
@@ -6799,7 +6850,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/materials.py",
@@ -7150,7 +7202,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/mesh.py",
@@ -7166,7 +7219,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/mesh_display.py",
@@ -7182,7 +7236,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/mesh_tools.py",
@@ -7198,7 +7253,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/ncloth.py",
@@ -7214,7 +7270,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/nconstraint.py",
@@ -7230,7 +7287,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/nhair.py",
@@ -7246,7 +7304,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/normals.py",
@@ -7362,7 +7421,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/nparticles.py",
@@ -7378,7 +7438,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/nurbs.py",
@@ -7485,7 +7546,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/pivot.py",
@@ -7610,7 +7672,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/playback.py",
@@ -7626,7 +7689,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/polygons.py",
@@ -8012,7 +8076,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/preferences.py",
@@ -8138,7 +8203,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/render.py",
@@ -8154,7 +8220,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/rendering.py",
@@ -8203,25 +8270,16 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: render the current frame through the selected camera and renderer.",
-              "line": 436,
+              "line": 438,
               "deprecated": false
             },
             {
-              "name": "tb002_init",
-              "qualname": "Rendering.tb002_init",
+              "name": "b000",
+              "qualname": "Rendering.b000",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "WebXR Preview: scope and export options for the live browser preview.",
-              "line": 480,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "Rendering.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Push the selection to the live WebXR preview.",
-              "line": 493,
+              "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
+              "line": 496,
               "deprecated": false
             },
             {
@@ -8230,7 +8288,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 501,
+              "line": 505,
               "deprecated": false
             },
             {
@@ -8239,7 +8297,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 505,
+              "line": 509,
               "deprecated": false
             },
             {
@@ -8248,12 +8306,13 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 509,
+              "line": 513,
               "deprecated": false
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/rigging.py",
@@ -8441,7 +8500,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/scene.py",
@@ -8693,7 +8753,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/select.py",
@@ -8709,7 +8770,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/selection.py",
@@ -9078,7 +9140,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/settings.py",
@@ -9088,7 +9151,7 @@
         {
           "name": "Settings",
           "summary": "Maya fork of the shared ``settings`` menu.",
-          "line": 13,
+          "line": 14,
           "bases": [
             "SettingsMixin",
             "SlotsMaya"
@@ -9099,13 +9162,14 @@
               "qualname": "Settings.tb001",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Reload Tentacle package with its dependencies.",
-              "line": 31,
+              "summary": "Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).",
+              "line": 32,
               "deprecated": false
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/skeleton.py",
@@ -9121,7 +9185,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/skin.py",
@@ -9137,7 +9202,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/stereo.py",
@@ -9153,7 +9219,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/subdivision.py",
@@ -9287,7 +9354,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/surfaces.py",
@@ -9303,7 +9371,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/symmetry.py",
@@ -9383,7 +9452,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/texturing.py",
@@ -9399,7 +9469,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/toon.py",
@@ -9415,7 +9486,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/transform.py",
@@ -9684,7 +9756,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/utilities.py",
@@ -9737,7 +9810,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/uv.py",
@@ -10016,7 +10090,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/visualize.py",
@@ -10032,7 +10107,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "slots/maya/windows.py",
@@ -10048,7 +10124,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "tcl.py",
@@ -10058,7 +10135,7 @@
         {
           "name": "Tcl",
           "summary": "Launch tentacle in whichever DCC is hosting this process.",
-          "line": 341,
+          "line": 357,
           "bases": [
             "_TclInternal"
           ],
@@ -10069,7 +10146,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.",
-              "line": 353,
+              "line": 369,
               "deprecated": false
             },
             {
@@ -10078,7 +10155,34 @@
               "kind": "classmethod",
               "signature": "(cls, host=None, include_self=True)",
               "summary": "Every ecosystem distribution THIS install actually uses, for *host*.",
-              "line": 372,
+              "line": 388,
+              "deprecated": false
+            },
+            {
+              "name": "prepare_reload",
+              "qualname": "Tcl.prepare_reload",
+              "kind": "classmethod",
+              "signature": "(cls, host=None)",
+              "summary": "Release the host resources an in-place reload would ORPHAN.",
+              "line": 418,
+              "deprecated": false
+            },
+            {
+              "name": "reload_packages",
+              "qualname": "Tcl.reload_packages",
+              "kind": "classmethod",
+              "signature": "(cls, host=None)",
+              "summary": "Re-execute the ecosystem packages in dependency order, in place.",
+              "line": 479,
+              "deprecated": false
+            },
+            {
+              "name": "dispose_retired",
+              "qualname": "Tcl.dispose_retired",
+              "kind": "staticmethod",
+              "signature": "(instances)",
+              "summary": "Schedule deletion of the pre-reload marking menus in *instances*.",
+              "line": 518,
               "deprecated": false
             },
             {
@@ -10087,7 +10191,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None)",
               "summary": "Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.",
-              "line": 402,
+              "line": 534,
               "deprecated": false
             },
             {
@@ -10096,7 +10200,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, context_tags=None)",
               "summary": "The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.",
-              "line": 412,
+              "line": 544,
               "deprecated": false
             },
             {
@@ -10105,7 +10209,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 442,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -10114,7 +10218,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 462,
+              "line": 594,
               "deprecated": false
             },
             {
@@ -10123,7 +10227,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 497,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -10132,7 +10236,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.",
-              "line": 178,
+              "line": 183,
               "deprecated": false
             },
             {
@@ -10141,12 +10245,13 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The pip line that installs *host*'s engine, naming the interpreter to use.",
-              "line": 289,
+              "line": 305,
               "deprecated": false
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "tcl_blender.py",
@@ -10369,7 +10474,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "tcl_max.py",
@@ -10413,7 +10519,8 @@
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "tcl_maya.py",
@@ -10429,7 +10536,8 @@
           ],
           "members": []
         }
-      ]
+      ],
+      "constants": []
     },
     {
       "relpath": "tentacle_installer.py",
@@ -10441,7 +10549,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on entry: preferences UI, then finish any pending verb / install / launch.",
-          "line": 1356,
+          "line": 1427,
           "deprecated": false
         },
         {
@@ -10450,7 +10558,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 1362,
+          "line": 1433,
           "deprecated": false
         },
         {
@@ -10459,7 +10567,7 @@
           "kind": "function",
           "signature": "(*_args)",
           "summary": "Maya drop hook: first drop installs and launches;",
-          "line": 1368,
+          "line": 1439,
           "deprecated": false
         }
       ],
@@ -10620,7 +10728,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, upgrade=False, target=None, python=None, specs=None)",
               "summary": "Install *specs* into *target*;",
-              "line": 674,
+              "line": 745,
               "deprecated": false
             },
             {
@@ -10629,7 +10737,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Start the menu through tentacle's own host-aware entry (deferred as the host needs).",
-              "line": 784,
+              "line": 855,
               "deprecated": false
             },
             {
@@ -10638,7 +10746,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.",
-              "line": 813,
+              "line": 884,
               "deprecated": false
             },
             {
@@ -10647,7 +10755,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The startup entry both hosts call: finish a pending verb, install if needed, launch.",
-              "line": 821,
+              "line": 892,
               "deprecated": false
             },
             {
@@ -10656,7 +10764,7 @@
               "kind": "classmethod",
               "signature": "(cls, source, app_dir=None, version=None)",
               "summary": "Register the user-owned Maya module that re-runs this file at every start.",
-              "line": 1093,
+              "line": 1164,
               "deprecated": false
             },
             {
@@ -10665,7 +10773,7 @@
               "kind": "classmethod",
               "signature": "(cls, source)",
               "summary": "Maya drop hook body: first drop installs;",
-              "line": 1126,
+              "line": 1197,
               "deprecated": false
             },
             {
@@ -10674,7 +10782,7 @@
               "kind": "classmethod",
               "signature": "(cls, addon_name)",
               "summary": "Build and register the add-on preferences (version, Update, Uninstall) lazily --",
-              "line": 1191,
+              "line": 1262,
               "deprecated": false
             },
             {
@@ -10683,7 +10791,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "",
-              "line": 1249,
+              "line": 1320,
               "deprecated": false
             },
             {
@@ -10692,12 +10800,13 @@
               "kind": "classmethod",
               "signature": "(cls, argv=None)",
               "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
-              "line": 1296,
+              "line": 1367,
               "deprecated": false
             }
           ]
         }
-      ]
+      ],
+      "constants": []
     }
   ]
 }

@@ -2,9 +2,10 @@
 # coding=utf-8
 import html
 import os
-import sys
 
+import maya.cmds as cmds
 import mayatk as mtk
+from maya.utils import executeDeferred
 
 # From this package:
 from tentacle import SettingsMixin, SlotsMaya
@@ -29,101 +30,67 @@ class Settings(SettingsMixin, SlotsMaya):
         return os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
 
     def tb001(self):
-        """Reload Tentacle package with its dependencies."""
-        state = self._teardown_tentacle_instance()
+        """Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).
 
-        # Reload dependencies first, then tentacle
-        modules = [m for m in ("pythontk", "mayatk", "uitk") if m in sys.modules]
-        modules.append("tentacle")
+        The rebuild is DEFERRED onto Maya's idle queue rather than run here: this
+        slot's own frame belongs to the module the reload is re-executing, and
+        building a new marking menu while Qt is still dispatching the click that
+        launched it destroys and constructs widget trees underneath the event
+        being delivered. ``Tcl.launch`` defers on its own, so the new instance
+        comes up on an idle tick with every stale frame unwound.
+        """
+        from tentacle import Tcl
+
+        retired = Tcl.prepare_reload("maya")
+
+        def rebuild():
+            from tentacle import Tcl as ReloadedTcl
+
+            try:
+                ReloadedTcl.launch()
+            finally:
+                Tcl.dispose_retired(retired)
+            return None
 
         try:
-            reloaded = mtk.MayaConnection.reload_modules(modules)
+            reloaded = Tcl.reload_packages("maya")
         except Exception as error:
-            print(f"Tentacle reload failed: {error}")
-            self.sb.message_box(
-                "<b>Reload failed.</b><br><small>{}</small>".format(
-                    html.escape(str(error))
-                )
+            # The teardown above already retired the menu, so returning here would
+            # strand the session with no marking menu at all — a worse place than
+            # the stale one it started from. Rebuild from whatever is loaded.
+            print(f"# Error: tentacle: reload failed: {error} #")
+            executeDeferred(rebuild)
+            self._report(f"Tentacle reload FAILED: {html.escape(str(error))}")
+            return
+
+        executeDeferred(rebuild)
+
+        # reload_packages already NAMED each failure on the console; the user-facing
+        # line only has to say that the reload was partial. Tolerant access: an
+        # older pythontk returns a plain list rather than a ReloadReport.
+        failed = getattr(reloaded, "failed", ())
+        if failed:
+            self._report(
+                f"Tentacle reloaded {len(reloaded)} modules, "
+                f"{len(failed)} FAILED (see the script editor)."
             )
-            return
+        else:
+            self._report(f"Tentacle reloaded ({len(reloaded)} modules).")
 
-        self._restore_tentacle_instance(state)
+    @staticmethod
+    def _report(message):
+        """Report through MAYA, not through the panel that is being torn down.
 
-        self.sb.message_box(
-            f"<b>Reload complete.</b><br><small>{len(reloaded)} module(s) refreshed.</small>"
-        )
-
-    def _teardown_tentacle_instance(self):
-        state = {"was_visible": False, "ui_name": None}
-
-        uitk_module = sys.modules.get("uitk.widgets.marking_menu")
-        if not uitk_module:
-            return state
-
-        MarkingMenu = getattr(uitk_module, "MarkingMenu", None)
-        if MarkingMenu is None:
-            return state
-
-        instance = getattr(MarkingMenu, "_instances", {}).get(MarkingMenu)
-        if instance is None:
-            return state
-
+        A ``message_box`` here would render on the switchboard this reload has
+        just retired, i.e. a widget tree built by the previous generation of the
+        code — exactly the stale-Qt interaction the deferral above exists to
+        avoid.
+        """
         try:
-            state["was_visible"] = instance.isVisible()
-            instance.hide()
-        except Exception:
+            cmds.inViewMessage(amg=message, pos="topCenter", fade=True)
+        except Exception:  # no viewport (batch) — the console still gets it
             pass
-
-        try:
-            current_ui = getattr(getattr(instance, "sb", None), "current_ui", None)
-            if current_ui is not None:
-                state["ui_name"] = getattr(current_ui, "objectName", lambda: None)()
-        except Exception:
-            pass
-
-        try:
-            instance.deleteLater()
-        except Exception:
-            pass
-
-        if hasattr(MarkingMenu, "_submenu_cache"):
-            try:
-                MarkingMenu._submenu_cache.clear()
-            except Exception:
-                pass
-
-        if hasattr(MarkingMenu, "reset_instance"):
-            try:
-                MarkingMenu.reset_instance()
-            except Exception:
-                pass
-
-        try:
-            MarkingMenu._instances.pop(MarkingMenu, None)
-        except Exception:
-            pass
-
-        return state
-
-    def _restore_tentacle_instance(self, state):
-        if not state.get("was_visible"):
-            return
-
-        try:
-            from tentacle import TclMaya
-        except Exception as error:
-            print(f"Tentacle restore skipped: {error}")
-            return
-
-        try:
-            new_instance = TclMaya()
-            target_ui = state.get("ui_name") or "hud#startmenu"
-            try:
-                new_instance.show(target_ui)
-            except Exception:
-                new_instance.show()
-        except Exception as error:
-            print(f"Tentacle restore failed: {error}")
+        print(f"# Result: {message} #")
 
 
 # -------------------------------------------------------------------------------------------
