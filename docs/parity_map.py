@@ -29,13 +29,28 @@ is keyed ``"<control>.<property>"``.
 
 # --------------------------------------------------------------------------- co-located panels
 CONTROLS = {
+    # Scene Exporter rows come from task_definitions.py (the panel builds them from the
+    # dict literals; the sweep reads those as controls since 2026-09-13). The engine-side
+    # twin of this list is blendertk's TaskManager.PARITY_GAPS, pinned by its suite.
+    "scene_exporter_slots": {
+        "set_workspace": {"status": "na", "reason": "no Blender project-directory switch; the .blend's folder is the workspace"},
+        "conform_shape_names": {"status": "na", "reason": "no transform/shape pair to conform in Blender, and mesh-data names never reach the FBX"},
+        "flatten_sheared_chains": {"status": "na", "reason": "a Blender object's local matrix is loc/rot/scale, so a sheared chain cannot be authored"},
+        "check_sheared_local_transforms": {"status": "na", "reason": "see flatten_sheared_chains"},
+        "check_mangled_names": {"status": "na", "reason": "the patterns are Maya import escapes (FBXASC###, __RZTMP) that Blender never writes"},
+        "check_uv_snapshots": {"status": "na", "reason": "the _uv_snap_* backup sets are mayatk Auto Unwrap temporaries, and Blender's unwrap takes none (blendertk TaskManager.PARITY_GAPS)"},
+        "check_default_materials": {"status": "pending", "reason": "not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)"},
+        "animation_write_back": {"status": "pending", "reason": "the Animation Output gate (capture the curves, edit for the write, restore after) is not ported; blendertk's key-editing tasks edit in place"},
+        "verify_deliverables": {"status": "pending", "reason": "post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass"},
+    },
     "arnold_bridge": {
         "config_buttons:menu": {"status": "na", "reason": "the panel is permanently inert (no Arnold-for-Blender integration at all); ArnoldBridgeSlots.header_init deliberately defines no menu actions -- see the file's own module docstring"},
         "config_buttons:collapse": {"status": "na", "reason": "same as config_buttons:menu"},
         "config_buttons:hide": {"status": "na", "reason": "same as config_buttons:menu"},
         "select_bridged": {"status": "na", "reason": "Cycles/EEVEE read one Principled BSDF graph -- there is no parallel Arnold-preview material to select back to (see _NOT_AVAILABLE in blendertk's arnold_bridge.py)"},
     },
-    # mayatk file stem is scene_exporter/_scene_exporter.py. Ported 2026-07-04 -- cmb000 (FBX
+    # Both panels are scene_exporter/scene_exporter_slots.py (mayatk's moved out of its
+    # engine module 2026-09-13). Ported 2026-07-04 -- cmb000 (FBX
     # export-option preset combo) and its option-box b007/b008 are real, built 1:1 by
     # objectName against a pythontk.PresetStore-backed named-JSON-dict preset engine (see
     # blendertk/blendertk/env_utils/scene_exporter/_scene_exporter.py's module docstring for why
@@ -956,6 +971,10 @@ CONTROLS_SLOTS = {
 # list, the control is a counterpart (named after its target), or the value is actually set
 # post-population (static tool can't see it). Pure drift is fixed, never accepted.
 DEFAULT_DELTAS = {
+    "scene_exporter_slots": {
+        "check_hierarchy_vs_existing_fbx.setEnabled": "blendertk ships the row as a DISABLED placeholder (setEnabled False, unchecked) until the exporter-side hierarchy diff check is ported; see TaskManager.PARITY_GAPS",
+        "check_hierarchy_vs_existing_fbx.setChecked": "same as .setEnabled: the placeholder cannot default on",
+    },
     "blendshape_animator_slots": {
         "group_name.setText": "Maya's default '_morphInbetweens_GRP' names a real transform node; the Blender counterpart is a plain Empty used purely as a parent, so the '_GRP' Maya-suffix convention is dropped -- default is '_morphInbetweens' (Targets.GROUP_NAME).",
     },

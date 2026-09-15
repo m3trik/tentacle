@@ -505,6 +505,110 @@ class SceneMixin:
         if callable(call):
             call()
 
+    # ------------------------------------------------------ b019  Check GLB / FBX
+    #: Extension -> ``ExportVerifier`` input for the files the check reads.
+    CHECK_DELIVERABLE_TYPES = {".glb": "glb", ".fbx": "fbx"}
+
+    def b019(self):
+        """Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.
+
+        The same ``pythontk.ExportVerifier`` pass the exporter's *Verify The
+        Written File* row runs after a write, for a deliverable that already
+        exists: a truncated container, a take the FBX dropped, a NaN that
+        reached an accessor, a clip whose span disagrees with its take. Any
+        number of files; a ``.glb`` and ``.fbx`` sharing a stem are checked as
+        one deliverable (the cross-file gates need both halves), and the
+        verifier finds each one's scene-data sidecar beside it -- a versioned
+        deliverable's series manifest included. Report only; nothing is written.
+        Pure pythontk, so both DCCs share it verbatim.
+        """
+        picked = self.sb.file_dialog(
+            file_types=["*" + ext for ext in self.CHECK_DELIVERABLE_TYPES],
+            title="Check GLB / FBX",
+            start_dir=os.path.dirname(self._current_scene_path())
+            or self._resolve_workspace_text(),
+            filter_description="Deliverables",
+            allow_multiple=True,
+        )
+        if not picked:
+            return
+        groups = self._deliverable_groups([picked] if isinstance(picked, str) else picked)
+        if not groups:
+            self.sb.message_box(
+                "Pick a <hl>.glb</hl> or <hl>.fbx</hl> deliverable to check."
+            )
+            return
+
+        results = []
+        with self.sb.progress(text="Checking deliverables…") as tick:
+            for inputs in groups:
+                path = inputs["glb"] or inputs["fbx"]
+                tick(text=f"Checking {os.path.basename(path)}…")
+                try:
+                    verifier = ptk.ExportVerifier(**inputs)
+                    results.append((inputs, verifier.sidecar_path, verifier.run()))
+                except Exception as error:  # noqa: BLE001 - one bad file never hides the rest
+                    results.append((inputs, None, error))
+
+        self.sb.text_view_dialog(
+            self._format_deliverable_checks(results),
+            "Ok",
+            title="Check GLB / FBX",
+            size=(820, 560),
+            monospace=True,
+            word_wrap=True,
+        )
+
+    @classmethod
+    def _deliverable_groups(cls, paths):
+        """``[{"glb": path | None, "fbx": path | None}, ...]`` in pick order.
+
+        Files pair by folder + stem (a GLB beside the FBX it was converted
+        from); anything that is not a deliverable is dropped.
+        """
+        groups = {}
+        for path in paths:
+            stem, ext = os.path.splitext(path)
+            kind = cls.CHECK_DELIVERABLE_TYPES.get(ext.lower())
+            if kind:
+                groups.setdefault(os.path.normcase(stem), {"glb": None, "fbx": None})[
+                    kind
+                ] = path
+        return list(groups.values())
+
+    @staticmethod
+    def _format_deliverable_checks(results):
+        """Render ``[(inputs, sidecar, report | exception), ...]`` as report HTML.
+
+        A headline counts the verdicts; each deliverable then states its files,
+        the sidecar its gates read (or that there was none, so those SKIP) and
+        the verifier's own summary. A WARN does not fail a deliverable.
+        """
+        unread = sum(isinstance(r, Exception) for _, _, r in results)
+        failed = sum(not isinstance(r, Exception) and not r.ok for _, _, r in results)
+        headline = (
+            f"{len(results)} deliverable(s) checked: "
+            f"{len(results) - failed - unread} passed, {failed} failed"
+        )
+        if unread:
+            headline += f", {unread} could not be checked"
+
+        lines = [headline]
+        for inputs, sidecar, report in results:
+            files = [p for p in (inputs["glb"], inputs["fbx"]) if p]
+            stem = os.path.splitext(os.path.basename(files[0]))[0]
+            kinds = " + ".join(os.path.splitext(p)[1].lower() for p in files)
+            lines += ["", f"== {stem}  ({kinds}) ==", f"folder:  {os.path.dirname(files[0])}"]
+            if isinstance(report, Exception):
+                lines.append(f"could not check: {report}")
+                continue
+            lines.append(
+                "sidecar: "
+                + (os.path.basename(sidecar) if sidecar else "none found (its gates skip)")
+            )
+            lines.append(report.summary())
+        return "<pre>{}</pre>".format(html.escape("\n".join(lines)))
+
     # --------------------------------------------------- tb002  fix non-orthogonal
     # What freezing/baking actually does to the object in this DCC — shown in
     # the confirmation so the user knows the side effect before committing.

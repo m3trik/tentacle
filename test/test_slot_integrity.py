@@ -9,6 +9,7 @@
 The DCC-agnostic invariants (package/base wiring, one base-subclass per file, unique
 objectNames) moved to the parametrized ``test_dcc_invariants.py`` (plan M1).
 """
+
 import ast
 import sys
 import unittest
@@ -60,9 +61,7 @@ class TestNoPymelImports(unittest.TestCase):
                     if (node.module or "").split(".")[0] == "pymel":
                         offenders.append(f.name)
                         break
-        self.assertEqual(
-            offenders, [], f"Slot files re-introduced pymel: {offenders}"
-        )
+        self.assertEqual(offenders, [], f"Slot files re-introduced pymel: {offenders}")
 
 
 class TestEditTb001Performance(unittest.TestCase):
@@ -168,7 +167,7 @@ class TestEditTb001Performance(unittest.TestCase):
         (probed mayapy 2025: 13 nodes against 7 for the `-dag`-free form). The
         old test passed for the whole life of the bug — tb001's empty-group
         sweep treated each of those childless, shapeless DAG nodes as junk and
-        deleted all 7 ikHandles and all 224 constraints of the VDATS assembly.
+        deleted all 7 ikHandles and all 224 constraints of a production assembly.
         Asserting the token instead of the property is what let that through,
         so this guards the trap itself; the behaviour is pinned by
         test_edit.TestDeleteHistoryUnusedNodes.

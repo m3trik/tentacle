@@ -205,6 +205,7 @@ Behavior shared by the Maya and Blender ``scene`` panels.
 - **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L34)** — Shared ``scene`` panel behavior.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
+  - `SceneMixin.b019(self)` — Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
@@ -1648,10 +1649,10 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L1427) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1433) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1439) — Maya drop hook: first drop installs and launches;
-- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L73)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1694) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1700) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1706) — Maya drop hook: first drop installs and launches;
+- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L80)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).
   - `TentacleInstaller.loaded()` *(static)* — True once our code is imported in this process -- its extension modules are then
@@ -1660,6 +1661,7 @@ Install, update or uninstall tentacle in a DCC -- one file, dropped in, no admin
   - `TentacleInstaller.maya_paths(cls, app_dir=None, version=None)` *(class)* — ``(module_root, mod_file)`` for this Maya -- both under the per-version prefs dir.
   - `TentacleInstaller.target_dir(cls, host)` *(class)* — Where the packages go: a per-user dir the host imports from at tail precedence.
   - `TentacleInstaller.is_installed(cls, host)` *(class)* — True when ``tentacle`` and the host's engine both resolve on ``sys.path``.
+  - `TentacleInstaller.lock_path(cls, target)` *(class)*
   - `TentacleInstaller.manifest_path(cls, target)` *(class)*
   - `TentacleInstaller.read_manifest(cls, target)` *(class)* — The manifest dict (``{}`` when absent or unreadable).
   - `TentacleInstaller.write_manifest(cls, target, **updates)` *(class)* — Merge *updates* into the manifest.

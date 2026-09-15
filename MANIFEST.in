@@ -1,4 +1,4 @@
-include LICENSE
-include README.md
+include COPYING.LESSER
+include docs/README.md
 include pyproject.toml
-recursive-include tentacle *.ui *.png *.json
+recursive-include tentacle *.ui *.json

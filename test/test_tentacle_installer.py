@@ -15,11 +15,13 @@ import ast
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import textwrap
 import threading
+import time
 import types
 import unittest
 from pathlib import Path
@@ -192,6 +194,58 @@ class TestStructure(unittest.TestCase):
         with self.assertRaises(ValueError):
             installer.request("maya", "reinstall")
 
+    def test_blender_popup_shows_every_line(self):
+        """Blender's popup showed the first line only, so "could not be installed:"
+        arrived without the reason that followed it on the next line."""
+        installer = _load().TentacleInstaller
+        labels = []
+
+        def popup_menu(draw, title, icon):
+            menu = mock.MagicMock()
+            menu.layout.label.side_effect = lambda **kw: labels.append(kw["text"])
+            draw(menu, None)
+
+        fake_bpy = types.ModuleType("bpy")
+        fake_bpy.context = mock.MagicMock()
+        fake_bpy.context.window_manager.popup_menu.side_effect = popup_menu
+        with (
+            mock.patch.dict(sys.modules, {"bpy": fake_bpy}),
+            mock.patch.object(installer, "headless", return_value=False),
+        ):
+            installer._say(
+                "blender",
+                "Tentacle could not be installed:\nno route to PyPI",
+                error=True,
+            )
+        self.assertEqual(
+            labels, ["Tentacle could not be installed:", "no route to PyPI"]
+        )
+
+    def test_blender_preferences_say_when_an_install_is_running(self):
+        """Blender has no progress window: while the worker runs, the add-on's own
+        preferences panel is the one place that can say so."""
+        installer = _load().TentacleInstaller
+        fake_bpy = types.ModuleType("bpy")
+        fake_bpy.types = types.SimpleNamespace(
+            Operator=type("Operator", (), {}),
+            AddonPreferences=type("AddonPreferences", (), {}),
+        )
+        fake_bpy.utils = types.SimpleNamespace(register_class=lambda cls: None)
+        fake_bpy.utils.unregister_class = lambda cls: None
+        with (
+            mock.patch.dict(sys.modules, {"bpy": fake_bpy}),
+            mock.patch.object(installer, "target_dir", return_value=str(TEMP)),
+            mock.patch.object(installer, "installed_version", return_value=None),
+            mock.patch.object(installer, "_in_progress", return_value=True),
+        ):
+            installer.register_blender_ui("tentacle_installer")
+            prefs = installer._blender_ui[-1]()
+            prefs.layout = mock.MagicMock()
+            prefs.draw(None)
+            installer.unregister_blender_ui()
+        texts = [kw.get("text", "") for _, kw in prefs.layout.label.call_args_list]
+        self.assertTrue(any("installing" in t.lower() for t in texts), texts)
+
 
 class TestManifest(unittest.TestCase):
     def setUp(self):
@@ -356,13 +410,14 @@ class TestMayaModule(unittest.TestCase):
             "the site dir must ride the module's PYTHONPATH",
         )
         scripts = Path(root) / "scripts"
+        startup = self.installer.MAYA_STARTUP
         self.assertEqual(
-            (scripts / "tentacle_installer.py").read_bytes(),
+            (scripts / f"{startup}.py").read_bytes(),
             INSTALLER.read_bytes(),
             "the module must carry a verbatim copy of the installer",
         )
         user_setup = (scripts / "userSetup.py").read_text(encoding="utf-8")
-        self.assertIn("import tentacle_installer", user_setup)
+        self.assertIn(f"import {startup}", user_setup)
         self.assertIn("ensure_and_launch('maya')", user_setup)
         self.assertTrue((Path(root) / "site").is_dir())
 
@@ -372,10 +427,132 @@ class TestMayaModule(unittest.TestCase):
         self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
         # Dropping the module's own copy onto the viewport must not raise on copyfile.
         self.installer.write_maya_module(
-            str(Path(root) / "scripts" / "tentacle_installer.py"), str(self.app), "2025"
+            str(Path(root) / "scripts" / f"{self.installer.MAYA_STARTUP}.py"),
+            str(self.app),
+            "2025",
         )
         second = {p: p.read_bytes() for p in Path(self.app).rglob("*") if p.is_file()}
         self.assertEqual(first, second)
+
+    def test_a_redrop_imports_the_dropped_file_not_the_startup_copy(self):
+        """Maya's drop executor is ``importlib.import_module(<file stem>)`` -- a CACHE HIT
+        once a module of that name is imported. The startup copy that the module's own
+        ``userSetup.py`` imports at every start therefore must not share the dropped
+        file's name: with installer 1.1 it did, so a re-drop of a newer file ran the
+        old copy's ``dropped()`` and the copy was never refreshed (a fix in the file
+        being dropped could never take effect on an installed machine).
+        """
+        root = self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
+        scripts = Path(root) / "scripts"
+        user_setup = (scripts / "userSetup.py").read_text(encoding="utf-8")
+        startup_name = re.search(r"^import (\w+)", user_setup, re.M).group(1)
+        downloads = self.app / "downloads"
+        downloads.mkdir()
+        newer = downloads / "tentacle_installer.py"
+        newer.write_bytes(INSTALLER.read_bytes() + b"\n# a newer build\n")
+
+        saved = {k: sys.modules.get(k) for k in (startup_name, "tentacle_installer")}
+        path_before = list(sys.path)
+        try:
+            for name in saved:
+                sys.modules.pop(name, None)
+            # 1. a Maya start: userSetup.py imports the startup copy (scripts/ is on
+            #    the path through the .mod).
+            sys.path.append(str(scripts))
+            startup = importlib.import_module(startup_name)
+            self.assertTrue(_under(startup.__file__, root))
+            # 2. a drop, exactly as maya.app.general.executeDroppedPythonFile does it.
+            sys.path.insert(0, str(downloads))
+            dropped = importlib.import_module("tentacle_installer")
+            self.assertEqual(
+                os.path.normcase(dropped.__file__),
+                os.path.normcase(str(newer)),
+                "the drop ran the cached startup copy, not the file that was dropped",
+            )
+            # 3. ...and the dropped file refreshes the startup copy with itself.
+            dropped.TentacleInstaller.write_maya_module(
+                str(newer), str(self.app), "2025"
+            )
+            self.assertEqual(
+                (scripts / f"{startup_name}.py").read_bytes(), newer.read_bytes()
+            )
+        finally:
+            sys.path[:] = path_before
+            for name, module in saved.items():
+                if module is None:
+                    sys.modules.pop(name, None)
+                else:
+                    sys.modules[name] = module
+
+    def test_a_legacy_startup_copy_is_retired(self):
+        """Installer 1.1 named the startup copy after the dropped file. Left beside the
+        new copy it is the cache-hit hazard above, one start later."""
+        root = self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
+        legacy = Path(root) / "scripts" / "tentacle_installer.py"
+        legacy.write_bytes(b"# installer 1.1\n")
+        self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
+        self.assertFalse(legacy.exists(), "the 1.1 startup copy must be removed")
+
+    def test_the_redrop_dialog_offers_install_when_nothing_is_installed(self):
+        """A failed first install leaves the module shell behind, and the re-drop
+        dialog then offered "Update" for a package that had never been installed."""
+        root, mod = self.installer.maya_paths(str(self.app), "2025")
+        self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
+        offered = []
+        fake_maya = types.ModuleType("maya")
+        fake_maya.cmds = mock.MagicMock()
+
+        def confirm(**kw):
+            offered.append(kw["button"][0])
+            return kw["button"][0]
+
+        fake_maya.cmds.confirmDialog.side_effect = confirm
+
+        def drop(version):
+            with (
+                mock.patch.dict(
+                    sys.modules, {"maya": fake_maya, "maya.cmds": fake_maya.cmds}
+                ),
+                mock.patch.object(
+                    self.installer, "maya_paths", return_value=(root, mod)
+                ),
+                mock.patch.object(self.installer, "is_installed", return_value=False),
+                mock.patch.object(self.installer, "_ui", side_effect=lambda fn: fn()),
+                mock.patch.object(
+                    self.installer, "installed_version", return_value=version
+                ),
+                mock.patch.object(self.installer, "request") as request,
+            ):
+                return self.installer.dropped(str(INSTALLER)), request
+
+        verb, request = drop(None)
+        self.assertEqual(verb, "install")
+        request.assert_called_once_with("maya", "install")
+        drop("1.0")
+        self.assertEqual(offered, ["Install", "Update"])
+
+    def test_a_drop_during_an_install_is_refused(self):
+        """A second drop while the first is provisioning used to reach the dialog and
+        could start a second pip into the same target."""
+        root, mod = self.installer.maya_paths(str(self.app), "2025")
+        said = []
+        with (
+            mock.patch.object(self.installer, "maya_paths", return_value=(root, mod)),
+            mock.patch.object(self.installer, "_in_progress", return_value=True),
+            mock.patch.object(
+                self.installer, "_say", side_effect=lambda h, m, **k: said.append(m)
+            ),
+            mock.patch.object(self.installer, "request") as request,
+            mock.patch.object(self.installer, "ensure_and_launch") as ensure,
+        ):
+            verb = self.installer.dropped(str(INSTALLER))
+        self.assertEqual(verb, "busy")
+        self.assertFalse(
+            os.path.exists(mod), "nothing is written while an install runs"
+        )
+        request.assert_not_called()
+        ensure.assert_not_called()
+        self.assertTrue(said and "install" in said[0].lower(), said)
 
     def test_rmtree_names_what_it_could_not_remove(self):
         installer = self.installer
@@ -1116,6 +1293,446 @@ class TestFlow(unittest.TestCase):
         self.assertFalse((self.target / self.installer.MANIFEST).exists())
         remove_addon.assert_called_once()
 
+    # ---------------------------------------------------------------- install lock
+    def _hold_lock(self, age=0):
+        """A lock some other process wrote *age* seconds ago (0 = its heartbeat is live)."""
+        path = self.installer.lock_path(str(self.target))
+        Path(path).write_text("999999 deadbeef", encoding="utf-8")
+        if age:
+            os.utime(path, (time.time() - age, time.time() - age))
+        return path
+
+    def test_provision_waits_for_a_concurrent_install_then_does_nothing(self):
+        """Two Mayas starting on the same pending update provisioned into the same
+        target at once (two pips writing one directory). The second now waits for the
+        first's lock and, finding the install there, runs no pip at all."""
+        lock = self._hold_lock()
+        state = {"installed": False}
+
+        def finish_other():
+            time.sleep(0.6)
+            state["installed"] = True
+            os.remove(lock)
+
+        threading.Thread(target=finish_other, daemon=True).start()
+        with (
+            mock.patch.object(
+                self.installer, "is_installed", side_effect=lambda h: state["installed"]
+            ),
+            mock.patch.object(self.installer, "_run") as run,
+            mock.patch.object(self.installer, "_run_checked") as checked,
+            mock.patch.object(self.installer, "LOCK_POLL", 0.1),
+        ):
+            pins = self.installer.provision(
+                "maya", target=str(self.target), python="PY"
+            )
+        self.assertEqual(pins, [])
+        run.assert_not_called()
+        checked.assert_not_called()
+        self.assertFalse(os.path.exists(lock), "the lock is released afterwards")
+
+    def test_a_stale_lock_is_claimed_not_waited_on(self):
+        """A DCC killed mid-install leaves its lock behind. Once its heartbeat has been
+        silent for LOCK_STALE the next install takes the lock over -- by writing its own
+        token into it (see _acquire_lock for why it is never deleted) -- and runs."""
+        target = str(self.target)
+        path = self._hold_lock(age=self.installer.LOCK_STALE + 60)
+        with (
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.05),
+            mock.patch.object(self.installer, "LOCK_POLL", 0.1),
+        ):
+            with self.installer._locked(target):
+                content = Path(path).read_text(encoding="utf-8")
+                self.assertTrue(content.startswith(f"{os.getpid()} "), content)
+                self.assertTrue(self.installer._lock_held(target))
+        self.assertFalse(os.path.exists(path), "released on exit")
+
+    def test_a_held_lock_outlives_a_long_pip(self):
+        """Liveness is the holder's heartbeat, never a PID: a pip that runs longer than
+        LOCK_STALE keeps its lock, and a lock nobody heartbeats goes stale."""
+        target = str(self.target)
+        with (
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.05),
+            mock.patch.object(self.installer, "LOCK_STALE", 0.3),
+        ):
+            with self.installer._locked(target):
+                time.sleep(0.7)
+                self.assertTrue(self.installer._lock_held(target), "heartbeat kept it")
+            self._hold_lock()
+            time.sleep(0.5)
+            self.assertFalse(self.installer._lock_held(target), "no heartbeat: stale")
+
+    def test_verbs_are_refused_while_an_install_runs(self):
+        """An uninstall or update against a target another process is still writing
+        would race its pip; only install queues (it waits on the lock, then launches)."""
+        self._hold_lock()
+        with (
+            mock.patch.object(self.installer, "loaded", return_value=False),
+            mock.patch.object(self.installer, "uninstall") as uninstall,
+            mock.patch.object(self.installer, "_provision_async") as provision,
+        ):
+            refused = self.installer.request("blender", "uninstall")
+            self.installer.request("blender", "update")
+        uninstall.assert_not_called()
+        provision.assert_not_called()
+        self.assertIn("install", refused.lower())
+        self.assertIsNone(
+            self.installer.read_manifest(str(self.target)).get("pending"),
+            "a refused verb must not be recorded as pending either",
+        )
+        with mock.patch.object(self.installer, "ensure_and_launch") as ensure:
+            self.installer.request("blender", "install")
+        ensure.assert_called_once_with("blender")
+
+    def test_a_second_process_on_one_pending_update_runs_no_pip(self):
+        """Two sessions starting on one pending update both run an upgrade provision.
+
+        The lock serialised them, but ``pending`` was cleared only once ``provision``
+        had returned -- outside the lock -- and the one early return under it covered
+        a fresh install that appeared while waiting. So the second process re-ran the
+        whole upgrade the moment the first let go. The first now clears ``pending``
+        under the lock, and a process that finds the verb it came for already done
+        runs no pip.
+        """
+        target = str(self.target)
+        self.installer.write_manifest(target, pending="update")
+        upgrades = []
+        first_inside = threading.Event()
+        second_queued = threading.Event()
+
+        class FakePackageManager:
+            def __init__(self, python_path):
+                pass
+
+            def install_targeted(self, specs, target, upgrade=False):
+                upgrades.append(upgrade)
+                first_inside.set()
+                second_queued.wait(5)  # hold the lock until the other one queues on it
+                return ["tentacletk==2"]
+
+        real_lock_held = self.installer._lock_held
+
+        def lock_held(target_dir):
+            second_queued.set()  # only a process waiting behind the holder asks this
+            return real_lock_held(target_dir)
+
+        fake_ptk = types.ModuleType("pythontk")
+        fake_ptk.PackageManager = FakePackageManager
+        pins = {}
+
+        def start(name):
+            pins[name] = self.installer.provision(
+                "maya", upgrade=True, target=target, python="PY"
+            )
+
+        with (
+            mock.patch.dict(sys.modules, {"pythontk": fake_ptk}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ) as run,
+            mock.patch.object(self.installer, "_run_checked") as checked,
+            mock.patch.object(self.installer, "_lock_held", side_effect=lock_held),
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.05),
+            mock.patch.object(self.installer, "LOCK_POLL", 0.05),
+        ):
+            first = threading.Thread(target=start, args=("first",), daemon=True)
+            first.start()
+            self.assertTrue(first_inside.wait(5), "the first upgrade never started")
+            start("second")
+            first.join(5)
+
+        self.assertEqual(upgrades, [True], "the second process ran the upgrade again")
+        self.assertEqual((pins["first"], pins["second"]), (["tentacletk==2"], []))
+        run.assert_called_once()  # the first process's ``pip --version``, nobody else's
+        checked.assert_not_called()
+        self.assertIsNone(self.installer.read_manifest(target).get("pending"))
+        self.assertFalse(os.path.exists(self.installer.lock_path(target)))
+
+    def test_a_failed_upgrade_is_run_again_by_the_process_queued_behind_it(self):
+        """A waiter skips an update only when one actually FINISHED while it waited.
+
+        ``pending`` cannot tell it that on its own: a failed upgrade that has been
+        reported clears it as well (so a dead index does not error at every start), and
+        that clear lands milliseconds after the lock is released -- before the queued
+        process gets its turn. Keyed on ``pending`` alone, the queued process read the
+        failure as done, ran nothing and reported the update as applied.
+        """
+        target = str(self.target)
+        self.installer.write_manifest(target, pending="update")
+        upgrades = []
+        first_inside = threading.Event()
+        second_queued = threading.Event()
+        first_reported = threading.Event()
+
+        class FlakyPackageManager:
+            def __init__(self, python_path):
+                pass
+
+            def install_targeted(self, specs, target, upgrade=False):
+                upgrades.append(upgrade)
+                if len(upgrades) > 1:
+                    return ["tentacletk==2"]
+                first_inside.set()
+                second_queued.wait(5)
+                raise RuntimeError("no route to PyPI")
+
+        real_acquire = self.installer._acquire_lock
+
+        def acquire(target_dir, token):
+            if threading.current_thread() is threading.main_thread():
+                second_queued.set()  # the second process has read what it came for
+                first_reported.wait(5)  # ...and gets its turn after the report
+            return real_acquire(target_dir, token)
+
+        fake_ptk = types.ModuleType("pythontk")
+        fake_ptk.PackageManager = FlakyPackageManager
+        with (
+            mock.patch.dict(sys.modules, {"pythontk": fake_ptk}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+            mock.patch.object(self.installer, "_acquire_lock", side_effect=acquire),
+            mock.patch.object(
+                self.installer, "launch", side_effect=lambda h: first_reported.set()
+            ) as launch,
+        ):
+            first = threading.Thread(
+                target=self.installer.ensure_and_launch, args=("maya",), daemon=True
+            )
+            first.start()
+            self.assertTrue(first_inside.wait(5), "the first upgrade never started")
+            pins = self.installer.provision(
+                "maya", upgrade=True, target=target, python="PY"
+            )
+            first.join(5)
+
+        launch.assert_called_once_with("maya")  # reported, then launched
+        self.assertEqual(upgrades, [True, True], "the failed upgrade was read as done")
+        self.assertEqual(pins, ["tentacletk==2"])
+        self.assertIsNone(self.installer.read_manifest(target).get("pending"))
+
+    def test_a_stale_lock_that_cannot_be_claimed_still_gives_up_at_the_deadline(self):
+        """LOCK_WAIT was checked only while a LIVE holder kept the lock.
+
+        A stale lock this process cannot write its token into (read-only, another
+        account's) never gets a fresh mtime, so every pass took the stale-claim branch,
+        which never looked at the deadline: the wait spun for good -- a start that
+        never finishes -- instead of ending in the "held for over N minutes" report.
+        """
+        target = str(self.target)
+        path = self._hold_lock(age=self.installer.LOCK_STALE + 60)
+        real_open = open
+
+        def refuse_the_claim(file, mode="r", *args, **kwargs):
+            if "w" in mode and os.path.normcase(str(file)) == os.path.normcase(path):
+                raise PermissionError(13, "Access is denied", str(file))
+            return real_open(file, mode, *args, **kwargs)
+
+        outcome = {}
+
+        def wait():
+            outcome["acquired"] = self.installer._acquire_lock(target, "token")
+
+        with (
+            mock.patch.object(
+                self.module, "open", create=True, side_effect=refuse_the_claim
+            ),
+            mock.patch.object(self.installer, "LOCK_WAIT", 0.3),
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.005),
+            mock.patch.object(self.installer, "LOCK_POLL", 0.01),
+        ):
+            waiter = threading.Thread(target=wait, daemon=True)
+            waiter.start()
+            waiter.join(5)
+            self.assertFalse(waiter.is_alive(), "the wait ran on past LOCK_WAIT")
+        self.assertIs(outcome.get("acquired"), False)
+
+    def test_a_lock_windows_refuses_to_create_is_waited_on_like_a_held_one(self):
+        """``os.open(O_CREAT | O_EXCL)`` answers PermissionError on Windows, not
+        FileExistsError, for a lock another process is deleting or has open (a sharing
+        violation). Only FileExistsError was caught, so that moment of contention
+        crashed the start instead of being waited out."""
+        target = str(self.target)
+        path = self.installer.lock_path(target)
+        real_os_open = os.open
+        refused = []
+
+        def refuse_once(file, flags, *args, **kwargs):
+            if not refused and os.path.normcase(str(file)) == os.path.normcase(path):
+                refused.append(file)
+                raise PermissionError(13, "Access is denied", str(file))
+            return real_os_open(file, flags, *args, **kwargs)
+
+        with (
+            mock.patch.object(self.module.os, "open", side_effect=refuse_once),
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.005),
+            mock.patch.object(self.installer, "LOCK_POLL", 0.01),
+        ):
+            self.assertTrue(self.installer._acquire_lock(target, "token"))
+        self.assertEqual(len(refused), 1)
+        self.assertEqual(Path(path).read_text(encoding="utf-8"), "token")
+
+    def test_a_lock_that_stays_refused_is_an_error_not_a_wait(self):
+        """A refusal outlasting LOCK_STALE is no lock state -- nothing takes that long
+        to delete -- but a folder this user cannot write (a read-only scripts share).
+        It raises that error instead of waiting out LOCK_WAIT and then blaming
+        "another install" for a lock that was never there."""
+        target = str(self.target)
+        path = self.installer.lock_path(target)
+        real_os_open = os.open
+
+        def refuse(file, flags, *args, **kwargs):
+            if os.path.normcase(str(file)) == os.path.normcase(path):
+                raise PermissionError(13, "Access is denied", str(file))
+            return real_os_open(file, flags, *args, **kwargs)
+
+        started = time.time()
+        with (
+            mock.patch.object(self.module.os, "open", side_effect=refuse),
+            mock.patch.object(self.installer, "LOCK_STALE", 0.05),
+            mock.patch.object(self.installer, "LOCK_WAIT", 3),
+            mock.patch.object(self.installer, "LOCK_BEAT", 0.005),
+            mock.patch.object(self.installer, "LOCK_POLL", 0.01),
+        ):
+            with self.assertRaises(PermissionError):
+                self.installer._acquire_lock(target, "token")
+        self.assertLess(time.time() - started, 2, "waited instead of raising")
+        self.assertFalse(os.path.exists(path))
+
+    # ---------------------------------------------------------------- pending verbs
+    def test_a_direct_update_keeps_an_uninstall_queued_while_it_ran(self):
+        """A write-out clears only the verb its own process settled.
+
+        Update with nothing pending (``mayapy tentacle_installer.py update``) while
+        another session, menu loaded, chooses Uninstall: both writes that follow the
+        pip -- under the lock, then in ``install`` -- blanked ``pending``, and that
+        user's Uninstall silently never happened. The update is still stamped.
+        """
+        target = str(self.target)
+        installer = self.installer
+
+        class QueuingPackageManager:
+            def __init__(self, python_path):
+                pass
+
+            def install_targeted(self, specs, target_dir, upgrade=False):
+                installer.write_manifest(target_dir, pending="uninstall")
+                return ["tentacletk==2"]
+
+        fake_ptk = types.ModuleType("pythontk")
+        fake_ptk.PackageManager = QueuingPackageManager
+        with (
+            mock.patch.dict(sys.modules, {"pythontk": fake_ptk}),
+            mock.patch.object(installer, "_has", return_value=True),
+            mock.patch.object(installer, "is_installed", return_value=True),
+            mock.patch.object(
+                installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+        ):
+            self.assertEqual(installer.update("maya", target), ["tentacletk==2"])
+        data = installer.read_manifest(target)
+        self.assertEqual(data.get("pending"), "uninstall", "the Uninstall was dropped")
+        self.assertIsNotNone(data.get("updated"), "the update must be stamped anyway")
+
+    def test_install_clears_only_the_verb_it_carried_out(self):
+        """``install``'s own write-out, with provisioning stubbed: a fresh install
+        carries out no verb, so it clears none; an upgrade clears a pending update and
+        nothing else. It still clears a value that is no verb at all, and it always
+        leaves the key -- the live clean rooms read ``manifest["pending"]``."""
+        cases = (
+            # upgrade, pending at start, queued by another session meanwhile, after
+            (True, None, "uninstall", "uninstall"),
+            (False, None, "uninstall", "uninstall"),
+            (False, None, "update", "update"),
+            (True, "update", None, None),
+            (False, None, None, None),
+            (False, "no-such-verb", None, None),
+        )
+        for i, (upgrade, pending, queued, expected) in enumerate(cases):
+            with self.subTest(upgrade=upgrade, pending=pending, queued=queued):
+                target = self.target / f"case{i}"
+                target.mkdir()
+                if pending:
+                    self.installer.write_manifest(str(target), pending=pending)
+
+                def provision(host, queued=queued, **kwargs):
+                    if queued:
+                        self.installer.write_manifest(kwargs["target"], pending=queued)
+                    return ["tentacletk==2"]
+
+                with mock.patch.object(
+                    self.installer, "provision", side_effect=provision
+                ):
+                    self.installer.install(
+                        "blender", str(target), "PY", upgrade=upgrade
+                    )
+                data = self.installer.read_manifest(str(target))
+                self.assertIn("pending", data)
+                self.assertEqual(data["pending"], expected)
+
+    def test_the_headless_failure_report_clears_only_its_own_update(self):
+        """A failed update that has been reported still drops its own ``pending``
+        rather than retry it at every start -- but only that: an Uninstall another
+        session chose while the pip ran is kept."""
+        target = str(self.target)
+        self.installer.write_manifest(target, pending="update")
+
+        def failing_install(host, target_dir, upgrade=False):
+            self.installer.write_manifest(target_dir, pending="uninstall")
+            raise RuntimeError("offline")
+
+        with (
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "install", side_effect=failing_install),
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("maya")
+        launch.assert_called_once_with("maya")
+        self.assertEqual(
+            self.installer.read_manifest(target).get("pending"), "uninstall"
+        )
+
+    def test_the_gui_failure_report_clears_only_its_own_update(self):
+        """The same rule on the worker path, where ``finish`` reports the failure."""
+        target = str(self.target)
+        for queued, expected in (("uninstall", "uninstall"), (None, None)):
+            with self.subTest(queued=queued):
+                self.installer.write_manifest(target, pending="update")
+
+                def failing_install(host, target_dir, python, upgrade=False, q=queued):
+                    if q:
+                        self.installer.write_manifest(target_dir, pending=q)
+                    raise RuntimeError("offline")
+
+                def poll(host, finish):
+                    self.installer._worker.join(10)
+                    finish()
+
+                with (
+                    mock.patch.object(self.installer, "headless", return_value=False),
+                    mock.patch.object(
+                        self.installer, "is_installed", return_value=True
+                    ),
+                    mock.patch.object(
+                        self.installer, "install", side_effect=failing_install
+                    ),
+                    mock.patch.object(self.installer, "_poll", side_effect=poll),
+                    mock.patch.object(self.installer, "_feedback_begin"),
+                    mock.patch.object(self.installer, "_feedback_end"),
+                    mock.patch.object(self.installer, "launch") as launch,
+                ):
+                    self.installer.ensure_and_launch("blender")
+                launch.assert_called_once_with("blender")
+                self.assertEqual(
+                    self.installer.read_manifest(target).get("pending"), expected
+                )
+
     def test_provision_bootstraps_pythontk_then_delegates_to_install_targeted(self):
         calls = {}
 
@@ -1378,6 +1995,7 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         shutil.rmtree(cls.app, ignore_errors=True)
         cls.app.mkdir(parents=True)
         cls.env = _clean_env(cls.app / "userbase", MAYA_APP_DIR=str(cls.app))
+        cls.startup = _load().TentacleInstaller.MAYA_STARTUP
 
     @classmethod
     def tearDownClass(cls):
@@ -1406,7 +2024,7 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
             names = ("tentacle", "mayatk", "pythontk", "uitk", "qtpy")
             rep = {{n: (find(n).origin if find(n) else None) for n in names}}
             rep["modules"] = cmds.moduleInfo(listModules=True)
-            rep["installer_loaded"] = "tentacle_installer" in sys.modules
+            rep["startup_loaded"] = "{self.startup}" in sys.modules
             rep["version"] = cmds.about(version=True)
             {extra}
             json.dump(rep, open(r"{out_file}", "w"))
@@ -1427,23 +2045,49 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         self.assertTrue(mod.is_file() and (root / "scripts" / "userSetup.py").is_file())
 
         # 2. plain start: the .mod autoloads, userSetup launches; then an update is requested
-        #    while loaded -> pending.
+        #    while loaded -> pending. Then a NEWER installer is re-dropped the way Maya's
+        #    drop executor does it: the dropped file must be the one that runs (not the
+        #    cached startup copy), and it must refresh that copy with itself.
         out2 = self.app / "report2.json"
+        newer = self.app / "downloads" / "tentacle_installer.py"
         extra = """
-            import tentacle_installer as m
+            import __STARTUP__ as m
             rep["msg"] = m.TentacleInstaller.request("maya", "update")
-            rep["pending"] = m.TentacleInstaller.read_manifest(r'__SITE__').get("pending")
             norm = lambda p: os.path.normcase(os.path.normpath(p))
             rep["site_idx"] = [i for i, p in enumerate(sys.path) if norm(p) == norm(r'__SITE__')]
             rep["site_packages_idx"] = [i for i, p in enumerate(sys.path) if "autodesk" in norm(p) and norm(p).endswith("site-packages")]
-        """.replace("__SITE__", str(site))
+            os.makedirs(os.path.dirname(r'__NEWER__'), exist_ok=True)
+            with open(r'__INSTALLER__', 'rb') as src, open(r'__NEWER__', 'wb') as dst:
+                dst.write(src.read() + b'\\n# newer build\\n')
+            sys.path.insert(0, os.path.dirname(r'__NEWER__'))
+            dropped = importlib.import_module('tentacle_installer')
+            dropped.onMayaDroppedPythonFile(None)  # no dialog in batch -> Cancel
+            sys.path.pop(0)
+            rep["dropped_file"] = dropped.__file__
+            with open(os.path.join(os.path.dirname(r'__SITE__'), 'scripts', '__STARTUP__.py'), 'rb') as fh:
+                rep["startup_refreshed"] = fh.read().endswith(b'# newer build\\n')
+            rep["pending"] = m.TentacleInstaller.read_manifest(r'__SITE__').get("pending")
+        """
+        for token, value in (
+            ("__SITE__", str(site)),
+            ("__NEWER__", str(newer)),
+            ("__INSTALLER__", str(INSTALLER)),
+            ("__STARTUP__", self.startup),
+        ):
+            extra = extra.replace(token, value)
         rc, out = self._run(["-c", self._report(out2, extra)], timeout=600)
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out2.read_text())
         self.assertNotIn("Installing tentacle", out, "a plain start must not provision")
         self.assertIn("tentacle", rep["modules"], "Maya did not load the .mod")
+        self.assertTrue(rep["startup_loaded"], "the module's userSetup.py did not run")
+        self.assertEqual(
+            os.path.normcase(rep["dropped_file"]),
+            os.path.normcase(str(newer)),
+            "a re-drop must run the dropped file, not the cached startup copy",
+        )
         self.assertTrue(
-            rep["installer_loaded"], "the module's userSetup.py did not run"
+            rep["startup_refreshed"], "a re-drop must refresh the startup copy"
         )
         for name in ("tentacle", "mayatk", "pythontk", "uitk", "qtpy"):
             self.assertTrue(
@@ -1460,9 +2104,9 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         # 3. next start applies the update (nothing newer: fast) and launches.
         out3 = self.app / "report3.json"
         extra = """
-            import tentacle_installer as m
+            import __STARTUP__ as m
             rep["pending"] = m.TentacleInstaller.read_manifest(r'__SITE__').get("pending")
-        """.replace("__SITE__", str(site))
+        """.replace("__SITE__", str(site)).replace("__STARTUP__", self.startup)
         rc, out = self._run(["-c", self._report(out3, extra)], timeout=900)
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out3.read_text())
@@ -1485,7 +2129,7 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out5.read_text())
         self.assertNotIn("tentacle", rep["modules"])
-        self.assertFalse(rep["installer_loaded"])
+        self.assertFalse(rep["startup_loaded"])
         self.assertIsNone(rep["tentacle"])
         self.assertNotIn("[tentacle]", out)
 

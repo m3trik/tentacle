@@ -18,6 +18,7 @@ import ast
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 import pythontk as ptk
 from pathlib import Path
@@ -964,6 +965,155 @@ class TestTb003ExportFlow(unittest.TestCase):
         host.tb003(_export_widget(fmt="foreign", scope="selected"))
         # Selected Only passes the selection; whole-scene passes None.
         self.assertEqual(bridge.calls[0][1], ["cube"])
+
+
+class _CheckHost(_Host):
+    """A host wiring the Check GLB / FBX entry's hooks."""
+
+    def __init__(self, picked=None, scene_path="", **kwargs):
+        super().__init__(diagnostics=None, **kwargs)
+        self._picked = picked
+        self._scene_path = scene_path
+        self.dialog_kwargs = None
+        self.sb.file_dialog = self._file_dialog
+
+    def _file_dialog(self, **kwargs):
+        self.dialog_kwargs = kwargs
+        return self._picked
+
+    def _current_scene_path(self):
+        return self._scene_path
+
+    def _resolve_workspace_text(self):
+        return "W:/proj"
+
+
+def _fake_verifier(rows_by_file=None, raises_for=()):
+    """An ``ExportVerifier`` stand-in recording its inputs.
+
+    Each file's report carries ``rows_by_file[basename]`` (a single PASS by
+    default); a basename in *raises_for* fails to open, as a corrupt file does.
+    """
+    from pythontk.file_utils.mesh_convert.export_verify import (
+        Finding,
+        VerificationReport,
+    )
+
+    calls = []
+
+    class FakeVerifier:
+        def __init__(self, glb=None, fbx=None, **kwargs):
+            calls.append({"glb": glb, "fbx": fbx})
+            name = os.path.basename(glb or fbx)
+            if name in raises_for:
+                raise ValueError("not a GLB container")
+            self.sidecar_path = None
+            self._rows = (rows_by_file or {}).get(
+                name, [Finding("PASS", "glb_container", "ok")]
+            )
+
+        def run(self, checks=None):
+            return VerificationReport(rows=list(self._rows))
+
+    return FakeVerifier, calls
+
+
+class TestCheckDeliverables(unittest.TestCase):
+    """``b019`` -- the Scene Exporter's post-write gates, over files on disk."""
+
+    def _run(self, host, verifier):
+        with patch.object(ptk, "ExportVerifier", verifier):
+            host.b019()
+
+    def test_a_glb_and_its_fbx_are_checked_as_one_deliverable(self):
+        """The cross-file gates need both halves, so a pair sharing a stem is one
+        check; any other file is its own."""
+        fake, calls = _fake_verifier()
+        host = _CheckHost(
+            picked=["X:/out/hero_v004.glb", "X:/out/hero_v004.FBX", "X:/out/prop.glb"]
+        )
+        self._run(host, fake)
+        self.assertEqual(
+            calls,
+            [
+                {"glb": "X:/out/hero_v004.glb", "fbx": "X:/out/hero_v004.FBX"},
+                {"glb": "X:/out/prop.glb", "fbx": None},
+            ],
+        )
+        report = host.sb.dialogs[-1]
+        self.assertIn("hero_v004", report)
+        self.assertIn("prop", report)
+        self.assertIn("2 deliverable(s) checked: 2 passed, 0 failed", report)
+
+    def test_cancelling_the_browser_checks_nothing(self):
+        for picked in (None, []):
+            with self.subTest(picked=picked):
+                fake, calls = _fake_verifier()
+                host = _CheckHost(picked=picked)
+                self._run(host, fake)
+                self.assertEqual(calls, [])
+                self.assertEqual(host.sb.dialogs, [])
+                self.assertEqual(host.sb.messages, [])
+
+    def test_a_pick_holding_no_deliverable_says_so(self):
+        fake, calls = _fake_verifier()
+        host = _CheckHost(picked=["X:/notes.txt"])
+        self._run(host, fake)
+        self.assertEqual(calls, [])
+        self.assertIn(".glb", host.sb.messages[-1])
+
+    def test_the_report_names_every_failing_gate_and_counts_it(self):
+        from pythontk.file_utils.mesh_convert.export_verify import Finding
+
+        fake, _ = _fake_verifier(
+            rows_by_file={
+                "hero.glb": [
+                    Finding("FAIL", "glb_container", "truncated <chunk>"),
+                    Finding("WARN", "glb_skins", "stub skins"),
+                ]
+            }
+        )
+        host = _CheckHost(picked=["X:/hero.glb"])
+        self._run(host, fake)
+        report = host.sb.dialogs[-1]
+        # The detail is data: escaped, never read as markup.
+        self.assertIn("[FAIL] glb_container: truncated &lt;chunk&gt;", report)
+        self.assertIn("1 deliverable(s) checked: 0 passed, 1 failed", report)
+
+    def test_a_file_that_cannot_be_opened_is_reported_and_the_rest_still_run(self):
+        fake, calls = _fake_verifier(raises_for=("broken.glb",))
+        host = _CheckHost(picked=["X:/broken.glb", "X:/good.glb"])
+        self._run(host, fake)
+        self.assertEqual(len(calls), 2)
+        report = host.sb.dialogs[-1]
+        self.assertIn("not a GLB container", report)
+        self.assertIn("1 could not be checked", report)
+
+    def test_the_browser_opens_beside_the_scene_then_the_workspace(self):
+        fake, _ = _fake_verifier()
+        host = _CheckHost(scene_path="P:/proj/scenes/asset.ma")
+        self._run(host, fake)
+        self.assertEqual(host.dialog_kwargs["start_dir"], "P:/proj/scenes")
+        self.assertEqual(host.dialog_kwargs["file_types"], ["*.glb", "*.fbx"])
+        self.assertTrue(host.dialog_kwargs["allow_multiple"])
+
+        host = _CheckHost()  # unsaved scene
+        self._run(host, fake)
+        self.assertEqual(host.dialog_kwargs["start_dir"], "W:/proj")
+
+    def test_both_forks_list_the_check_under_diagnostics(self):
+        for path in (MAYA_FILE, BLENDER_FILE):
+            with self.subTest(fork=path.name):
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+                names = [
+                    entry.elts[1].value
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Dict)
+                    for key, value in zip(node.keys, node.values)
+                    if isinstance(key, ast.Constant) and key.value == "Diagnostics"
+                    for entry in value.elts
+                ]
+                self.assertIn("b019", names)
 
 
 if __name__ == "__main__":

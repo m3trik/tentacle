@@ -355,12 +355,21 @@
               "deprecated": false
             },
             {
+              "name": "b019",
+              "qualname": "SceneMixin.b019",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.",
+              "line": 512,
+              "deprecated": false
+            },
+            {
               "name": "tb002_init",
               "qualname": "SceneMixin.tb002_init",
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 522,
+              "line": 626,
               "deprecated": false
             },
             {
@@ -369,7 +378,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 566,
+              "line": 670,
               "deprecated": false
             }
           ]
@@ -3620,7 +3629,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 186,
+              "line": 195,
               "deprecated": false
             },
             {
@@ -3629,7 +3638,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 217,
+              "line": 226,
               "deprecated": false
             },
             {
@@ -3638,7 +3647,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 230,
+              "line": 239,
               "deprecated": false
             },
             {
@@ -3647,7 +3656,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 237,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -3656,7 +3665,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 246,
+              "line": 255,
               "deprecated": false
             },
             {
@@ -3665,7 +3674,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 251,
+              "line": 260,
               "deprecated": false
             },
             {
@@ -3674,7 +3683,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 269,
+              "line": 278,
               "deprecated": false
             },
             {
@@ -3683,7 +3692,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 326,
+              "line": 335,
               "deprecated": false
             },
             {
@@ -3692,7 +3701,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 378,
+              "line": 387,
               "deprecated": false
             },
             {
@@ -3701,7 +3710,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 392,
+              "line": 401,
               "deprecated": false
             },
             {
@@ -3710,7 +3719,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 632,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -3719,7 +3728,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 647,
+              "line": 658,
               "deprecated": false
             },
             {
@@ -3728,7 +3737,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 651,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -3737,7 +3746,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 655,
+              "line": 666,
               "deprecated": false
             },
             {
@@ -3746,7 +3755,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 662,
+              "line": 673,
               "deprecated": false
             },
             {
@@ -3755,7 +3764,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 668,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -3764,7 +3773,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 675,
+              "line": 686,
               "deprecated": false
             },
             {
@@ -3773,7 +3782,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 692,
+              "line": 703,
               "deprecated": false
             },
             {
@@ -3782,7 +3791,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 733,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -3791,7 +3800,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.",
-              "line": 767,
+              "line": 778,
               "deprecated": false
             },
             {
@@ -3800,7 +3809,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 805,
+              "line": 816,
               "deprecated": false
             },
             {
@@ -3809,7 +3818,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 811,
+              "line": 822,
               "deprecated": false
             },
             {
@@ -3818,7 +3827,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 822,
+              "line": 833,
               "deprecated": false
             },
             {
@@ -3827,7 +3836,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of",
-              "line": 833,
+              "line": 844,
               "deprecated": false
             }
           ]
@@ -8523,7 +8532,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 130,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -8532,7 +8541,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave",
-              "line": 181,
+              "line": 190,
               "deprecated": false
             },
             {
@@ -8541,7 +8550,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave: reopen a recent autosaved scene file.",
-              "line": 200,
+              "line": 209,
               "deprecated": false
             },
             {
@@ -8550,7 +8559,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 266,
+              "line": 275,
               "deprecated": false
             },
             {
@@ -8559,7 +8568,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import: import a file, or open import / FBX / OBJ preset options.",
-              "line": 282,
+              "line": 291,
               "deprecated": false
             },
             {
@@ -8568,7 +8577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 376,
+              "line": 385,
               "deprecated": false
             },
             {
@@ -8577,7 +8586,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 423,
+              "line": 432,
               "deprecated": false
             },
             {
@@ -8586,7 +8595,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 434,
+              "line": 443,
               "deprecated": false
             },
             {
@@ -8595,7 +8604,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 447,
+              "line": 456,
               "deprecated": false
             },
             {
@@ -8604,7 +8613,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 460,
+              "line": 469,
               "deprecated": false
             },
             {
@@ -8613,7 +8622,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 464,
+              "line": 473,
               "deprecated": false
             },
             {
@@ -8622,7 +8631,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 468,
+              "line": 477,
               "deprecated": false
             },
             {
@@ -8631,7 +8640,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 472,
+              "line": 481,
               "deprecated": false
             },
             {
@@ -8640,7 +8649,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 723,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -8649,7 +8658,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 727,
+              "line": 736,
               "deprecated": false
             },
             {
@@ -8658,7 +8667,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 731,
+              "line": 740,
               "deprecated": false
             },
             {
@@ -8667,7 +8676,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 735,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -8676,7 +8685,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box.",
-              "line": 806,
+              "line": 815,
               "deprecated": false
             },
             {
@@ -8685,7 +8694,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the audit report to the viewer dialog.",
-              "line": 849,
+              "line": 858,
               "deprecated": false
             },
             {
@@ -8694,7 +8703,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 914,
+              "line": 923,
               "deprecated": false
             },
             {
@@ -8703,7 +8712,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 918,
+              "line": 927,
               "deprecated": false
             },
             {
@@ -8712,7 +8721,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 934,
+              "line": 943,
               "deprecated": false
             },
             {
@@ -8721,7 +8730,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer.",
-              "line": 949,
+              "line": 958,
               "deprecated": false
             },
             {
@@ -8730,7 +8739,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 1012,
+              "line": 1021,
               "deprecated": false
             },
             {
@@ -8739,7 +8748,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 1046,
+              "line": 1055,
               "deprecated": false
             },
             {
@@ -8748,7 +8757,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 1090,
+              "line": 1099,
               "deprecated": false
             }
           ]
@@ -10549,7 +10558,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on entry: preferences UI, then finish any pending verb / install / launch.",
-          "line": 1427,
+          "line": 1694,
           "deprecated": false
         },
         {
@@ -10558,7 +10567,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 1433,
+          "line": 1700,
           "deprecated": false
         },
         {
@@ -10567,7 +10576,7 @@
           "kind": "function",
           "signature": "(*_args)",
           "summary": "Maya drop hook: first drop installs and launches;",
-          "line": 1439,
+          "line": 1706,
           "deprecated": false
         }
       ],
@@ -10575,7 +10584,7 @@
         {
           "name": "TentacleInstaller",
           "summary": "Provision tentacle into the host's per-user import dir, launch it, update or remove it.",
-          "line": 73,
+          "line": 80,
           "bases": [],
           "members": [
             {
@@ -10584,7 +10593,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "``\"blender\"`` / ``\"maya\"`` for the DCC this interpreter is embedded in, else None.",
-              "line": 113,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -10593,7 +10602,7 @@
               "kind": "staticmethod",
               "signature": "(host)",
               "summary": "True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).",
-              "line": 129,
+              "line": 155,
               "deprecated": false
             },
             {
@@ -10602,7 +10611,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "True once our code is imported in this process -- its extension modules are then",
-              "line": 145,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -10611,7 +10620,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, fresh=True)",
               "summary": "pip requirements for *host*: the package with its engine extra (+ Qt on a fresh Blender install).",
-              "line": 151,
+              "line": 177,
               "deprecated": false
             },
             {
@@ -10620,7 +10629,7 @@
               "kind": "staticmethod",
               "signature": "(host)",
               "summary": "The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session).",
-              "line": 159,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -10629,7 +10638,7 @@
               "kind": "classmethod",
               "signature": "(cls, app_dir=None, version=None)",
               "summary": "``(module_root, mod_file)`` for this Maya -- both under the per-version prefs dir.",
-              "line": 183,
+              "line": 209,
               "deprecated": false
             },
             {
@@ -10638,7 +10647,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Where the packages go: a per-user dir the host imports from at tail precedence.",
-              "line": 202,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -10647,7 +10656,16 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "True when ``tentacle`` and the host's engine both resolve on ``sys.path``.",
-              "line": 268,
+              "line": 294,
+              "deprecated": false
+            },
+            {
+              "name": "lock_path",
+              "qualname": "TentacleInstaller.lock_path",
+              "kind": "classmethod",
+              "signature": "(cls, target)",
+              "summary": "",
+              "line": 369,
               "deprecated": false
             },
             {
@@ -10656,7 +10674,7 @@
               "kind": "classmethod",
               "signature": "(cls, target)",
               "summary": "",
-              "line": 344,
+              "line": 504,
               "deprecated": false
             },
             {
@@ -10665,7 +10683,7 @@
               "kind": "classmethod",
               "signature": "(cls, target)",
               "summary": "The manifest dict (``{}`` when absent or unreadable).",
-              "line": 348,
+              "line": 508,
               "deprecated": false
             },
             {
@@ -10674,7 +10692,7 @@
               "kind": "classmethod",
               "signature": "(cls, target, **updates)",
               "summary": "Merge *updates* into the manifest.",
-              "line": 372,
+              "line": 532,
               "deprecated": false
             },
             {
@@ -10683,7 +10701,7 @@
               "kind": "classmethod",
               "signature": "(cls, target, name=None)",
               "summary": "A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.",
-              "line": 432,
+              "line": 609,
               "deprecated": false
             },
             {
@@ -10692,7 +10710,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None, upgrade=False)",
               "summary": "Provision (or upgrade) the host's spec set and record it;",
-              "line": 466,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -10701,7 +10719,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None)",
               "summary": "Upgrade the package (and whatever its floors now require);",
-              "line": 505,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -10710,7 +10728,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None)",
               "summary": "Remove what this installer put there;",
-              "line": 510,
+              "line": 689,
               "deprecated": false
             },
             {
@@ -10719,7 +10737,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, verb)",
               "summary": "The one entry every surface calls with a verb;",
-              "line": 587,
+              "line": 767,
               "deprecated": false
             },
             {
@@ -10728,7 +10746,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, upgrade=False, target=None, python=None, specs=None)",
               "summary": "Install *specs* into *target*;",
-              "line": 745,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -10737,7 +10755,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Start the menu through tentacle's own host-aware entry (deferred as the host needs).",
-              "line": 855,
+              "line": 1074,
               "deprecated": false
             },
             {
@@ -10746,7 +10764,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.",
-              "line": 884,
+              "line": 1103,
               "deprecated": false
             },
             {
@@ -10755,7 +10773,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The startup entry both hosts call: finish a pending verb, install if needed, launch.",
-              "line": 892,
+              "line": 1111,
               "deprecated": false
             },
             {
@@ -10764,7 +10782,7 @@
               "kind": "classmethod",
               "signature": "(cls, source, app_dir=None, version=None)",
               "summary": "Register the user-owned Maya module that re-runs this file at every start.",
-              "line": 1164,
+              "line": 1402,
               "deprecated": false
             },
             {
@@ -10773,7 +10791,7 @@
               "kind": "classmethod",
               "signature": "(cls, source)",
               "summary": "Maya drop hook body: first drop installs;",
-              "line": 1197,
+              "line": 1446,
               "deprecated": false
             },
             {
@@ -10782,7 +10800,7 @@
               "kind": "classmethod",
               "signature": "(cls, addon_name)",
               "summary": "Build and register the add-on preferences (version, Update, Uninstall) lazily --",
-              "line": 1262,
+              "line": 1524,
               "deprecated": false
             },
             {
@@ -10791,7 +10809,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "",
-              "line": 1320,
+              "line": 1587,
               "deprecated": false
             },
             {
@@ -10800,7 +10818,7 @@
               "kind": "classmethod",
               "signature": "(cls, argv=None)",
               "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
-              "line": 1367,
+              "line": 1634,
               "deprecated": false
             }
           ]
