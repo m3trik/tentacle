@@ -7,10 +7,12 @@ Maya (2025+)
     the first time it registers a user-owned Maya module
     (``<MAYA_APP_DIR>/<version>/modules/tentacle.mod`` -> ``<MAYA_APP_DIR>/<version>/tentacle/``),
     provisions ``tentacletk[maya]`` into that module's ``site`` folder and launches the menu;
-    from then on the module's own ``scripts/userSetup.py`` calls it back at every start.
-    Dropped again, it offers **Update / Uninstall**.
+    from then on the module's own ``scripts/userSetup.py`` calls it back at every start through
+    ``scripts/tentacle_startup.py`` -- a copy of this file under its own name, so a re-drop
+    always runs the file that was dropped and refreshes that copy. Dropped again, it offers
+    **Update / Uninstall** (**Install**, after a first attempt that failed).
 
-Blender (4.x+)
+Blender (4.1+)
     *Edit > Preferences > Add-ons > Install from Disk*, pick this file, enable it. Blender copies
     it into its add-ons folder and calls :func:`register` on every start; the first one provisions
     ``tentacletk[blender]`` plus a Qt binding into Blender's per-user ``scripts/addons/modules``.
@@ -42,12 +44,16 @@ DLLs) that Windows will not let pip replace or delete; both startup hooks run *b
 of ours is imported, so a request recorded in the manifest (``tentacle_installer.json`` beside the
 packages: spec, pins applied, pending verb) completes there with nothing locked. Uninstall removes
 exactly what the manifest records (Blender's ``addons/modules`` is shared with every other add-on's
-dependencies) -- for Maya the whole module folder and its ``.mod``.
+dependencies) -- for Maya the whole module folder and its ``.mod``. A lock beside the manifest
+(``tentacle_installer.lock``, kept alive by the holder's heartbeat) serialises provisioning across
+processes -- two sessions starting on one pending update wait for each other instead of running two
+pips into one directory -- and update / uninstall are refused while it is held.
 
 Nothing happens at import: the API-registry generator, Maya's drop executor and Blender's add-on
 loader all *import* this module before calling anything.
 """
 
+import contextlib
 import importlib
 import importlib.util
 import json
@@ -56,13 +62,14 @@ import shutil
 import subprocess
 import sys
 import threading
+import time
 from importlib import metadata
 
 # Blender's add-on contract -- module-scope ``bl_info`` + ``register`` / ``unregister``.
 bl_info = {
     "name": "Tentacle Marking Menu",
     "author": "m3trik",
-    "version": (1, 1, 0),
+    "version": (1, 2, 0),
     "blender": (4, 1, 0),
     "location": "3D View > activation key (default Z); Preferences > Add-ons for update / uninstall",
     "description": "Installs tentacle on first start (no admin rights) and launches its marking menu.",
@@ -90,15 +97,34 @@ class TentacleInstaller:
     QT_SPECS = ("PySide6", "qtpy")
     #: pip settings for a provisioning run: bounded waits -- pip's defaults stack to over a
     #: minute against a firewall that drops rather than refuses -- and no upgrade notice.
+    #: Two retries ride out a proxy's dropped connection on one of the ~10 wheels a fresh
+    #: install fetches, while a black-holed host still fails inside a minute.
     PIP_ENV = {
         "PIP_DISABLE_PIP_VERSION_CHECK": "1",
-        "PIP_RETRIES": "1",
+        "PIP_RETRIES": "2",
         "PIP_TIMEOUT": "15",
     }
     #: Maya module name (the ``.mod`` line and the folder under the version prefs dir).
     MAYA_MODULE = "tentacle"
-    #: The record of what this installer put in the target dir (and any pending verb).
+    #: Module name of this file's copy in ``<module>/scripts`` -- what ``userSetup.py``
+    #: imports at every start. Deliberately NOT the dropped file's name: Maya's drop
+    #: executor is ``importlib.import_module(<file stem>)``, a cache hit once a module of
+    #: that name is imported, so a copy named ``tentacle_installer`` made every re-drop
+    #: run the OLD copy and the file actually dropped never ran (installer 1.1).
+    MAYA_STARTUP = "tentacle_startup"
+    #: What this installer put in the target dir, any pending verb, the last update.
     MANIFEST = "tentacle_installer.json"
+    #: Held beside the manifest while a provisioning runs; another process waits on it.
+    LOCK = "tentacle_installer.lock"
+    #: The holder touches its lock this often (seconds), from a thread of its own, for as
+    #: long as pip runs...
+    LOCK_BEAT = 5.0
+    #: ...so a lock untouched for this long has no live holder (a DCC killed mid-install).
+    LOCK_STALE = 60.0
+    #: The longest a second process waits for a live holder before giving up (seconds).
+    LOCK_WAIT = 1800
+    #: Seconds between polls of a lock another process holds.
+    LOCK_POLL = 2.0
     VERBS = ("install", "update", "uninstall")
     #: Seconds between worker polls while a GUI provisioning runs.
     POLL_INTERVAL = 0.5
@@ -273,10 +299,9 @@ class TentacleInstaller:
     def _rmtree(path):
         """Remove a tree, or raise naming the first path that would not go.
 
-        On Windows the tree is addressed with the ``\\\\?\\`` extended-length prefix: a
-        package tree under a per-version prefs dir reaches ``MAX_PATH`` (a 260-character
-        ``__pycache__`` entry survived an ``ignore_errors`` rmtree, measured), and a
-        silently half-removed module is worse than a message.
+        Addressed through :meth:`_long_path` on Windows -- a package tree under a
+        per-version prefs dir reaches ``MAX_PATH`` -- and a silently half-removed module
+        is worse than a message.
         """
         if not os.path.isdir(path):
             return
@@ -338,6 +363,141 @@ class TentacleInstaller:
         wanted = os.path.normcase(os.path.normpath(directory))
         if wanted not in {os.path.normcase(os.path.normpath(p)) for p in sys.path if p}:
             sys.path.append(directory)
+
+    # ------------------------------------------------------------------ install lock
+    @classmethod
+    def lock_path(cls, target):
+        return os.path.join(target, cls.LOCK)
+
+    @staticmethod
+    def _worker_alive():
+        """True while a provisioning worker runs in THIS process -- any module instance.
+
+        Keyed on the thread's name rather than :attr:`_worker`: after a re-drop the
+        dropped file and the startup copy are two module objects with two ``_worker``
+        slots, and the thread list is the only thing they share.
+        """
+        return any(
+            t.name == "tentacle-installer" and t.is_alive()
+            for t in threading.enumerate()
+        )
+
+    @classmethod
+    def _lock_held(cls, target):
+        """True while *target*'s lock is kept alive by its holder's heartbeat.
+
+        Liveness is the file's mtime and nothing else: the holder touches it every
+        :attr:`LOCK_BEAT` seconds from a thread of its own for as long as pip runs, so a
+        lock :attr:`LOCK_STALE` seconds untouched belongs to a process that is gone. No
+        PIDs -- Windows recycles them fast enough that a dead holder's number can be a
+        live process (even this one) by the next start, and a PID-keyed lock then waits
+        on nothing for as long as its age cap allows.
+        """
+        try:
+            age = time.time() - os.path.getmtime(cls.lock_path(target))
+        except OSError:
+            return False
+        return age <= cls.LOCK_STALE
+
+    @classmethod
+    def _in_progress(cls, target):
+        """True while a provisioning runs -- in this process (any module instance) or another."""
+        return cls._worker_alive() or cls._lock_held(target)
+
+    @classmethod
+    def _acquire_lock(cls, target, token):
+        """Create *target*'s lock holding *token*, or take over one whose holder is gone.
+
+        Waits while a live holder keeps it, and never past :attr:`LOCK_WAIT`: the
+        deadline is checked on every pass, not only a live holder's -- a stale lock
+        this process cannot write its claim into never turns fresh, so a check on
+        that branch alone let the wait spin forever. A stale lock is CLAIMED, never
+        deleted: two processes that both find it stale would each delete it, and the
+        second delete can take the fresh lock the first has just created. The claimer
+        writes its token and reads it back a moment later -- when two claim at once
+        one sees the other's token and goes back to waiting. A claim also lets two
+        heartbeats pass first, so a holder that just woke from a system sleep gets to
+        touch its lock before it is taken. Returns False when the wait ran out.
+
+        ``PermissionError`` from the exclusive create is how Windows reports a lock
+        another process is deleting or has open (a sharing violation) -- a moment's
+        contention, waited out like a held lock. One that outlasts :attr:`LOCK_STALE`
+        is no lock state (no contention lasts that long) but a folder this user
+        cannot write, so it is raised, not waited on until :attr:`LOCK_WAIT` runs out
+        and blames "another install".
+        """
+        path = cls.lock_path(target)
+        deadline = time.time() + cls.LOCK_WAIT
+        refused = None  # since when the create has answered PermissionError
+        while True:
+            try:
+                fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+            except (FileExistsError, PermissionError) as error:
+                now = time.time()
+                if now > deadline:
+                    return False
+                if isinstance(error, PermissionError):
+                    if refused is None:
+                        refused = now
+                    elif now - refused > cls.LOCK_STALE:
+                        raise
+                    time.sleep(cls.LOCK_POLL)
+                    continue
+                refused = None
+                if cls._lock_held(target):
+                    time.sleep(cls.LOCK_POLL)
+                    continue
+                time.sleep(cls.LOCK_BEAT * 2)
+                if cls._lock_held(target):
+                    continue
+                try:
+                    with open(path, "w", encoding="utf-8") as fh:
+                        fh.write(token)
+                    time.sleep(cls.LOCK_POLL / 4)
+                    with open(path, "r", encoding="utf-8") as fh:
+                        if fh.read() == token:
+                            return True
+                except OSError:
+                    pass
+                continue
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                fh.write(token)
+            return True
+
+    @classmethod
+    @contextlib.contextmanager
+    def _locked(cls, target):
+        """Hold *target*'s lock for a ``with`` body, heartbeating it from a thread of its own."""
+        token = f"{os.getpid()} {os.urandom(8).hex()}"
+        if not cls._acquire_lock(target, token):
+            raise RuntimeError(
+                f"another install has held {cls.lock_path(target)} for over "
+                f"{cls.LOCK_WAIT // 60} minutes - if none is running, delete it and retry"
+            )
+        path = cls.lock_path(target)
+        stop = threading.Event()
+
+        def beat():
+            while not stop.wait(cls.LOCK_BEAT):
+                try:
+                    os.utime(path, None)
+                except OSError:
+                    pass
+
+        threading.Thread(
+            target=beat, name="tentacle-installer-lock", daemon=True
+        ).start()
+        try:
+            yield
+        finally:
+            stop.set()
+            try:
+                with open(path, "r", encoding="utf-8") as fh:
+                    ours = fh.read() == token
+                if ours:
+                    os.remove(path)
+            except OSError:
+                pass
 
     # ------------------------------------------------------------------ manifest
     @classmethod
@@ -429,6 +589,23 @@ class TentacleInstaller:
             pass
 
     @classmethod
+    def _settle_pending(cls, target, verb, **updates):
+        """Write *updates*, clearing ``pending`` unless it holds a verb other than *verb*.
+
+        *verb* is the one this process has just settled -- carried out, or failed and
+        reported, which drops it rather than retry it at every start -- and ``None``
+        for a fresh install, which settles none. A verb queued in another session
+        meanwhile belongs to that user: the blanket ``pending=None`` every write-out
+        used to make silently dropped an Uninstall chosen while an update ran. A value
+        that is no verb at all is still cleared, and the key is always left in place.
+        """
+        current = cls.read_manifest(target).get("pending")
+        if current == verb or current not in cls.VERBS:
+            updates["pending"] = None
+        if updates:
+            cls.write_manifest(target, **updates)
+
+    @classmethod
     def installed_version(cls, target, name=None):
         """A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.
 
@@ -484,7 +661,9 @@ class TentacleInstaller:
             # the ones that never landed.
             cls.write_manifest(target, pins=cls._spec_names(specs))
             raise
-        cls.write_manifest(target, spec=cls.specs(host)[0], pins=pins, pending=None)
+        cls._settle_pending(
+            target, "update" if upgrade else None, spec=cls.specs(host)[0], pins=pins
+        )
         return pins
 
     @staticmethod
@@ -553,6 +732,7 @@ class TentacleInstaller:
         for leftover in (
             cls.manifest_path(target),
             cls.manifest_path(target) + ".corrupt",
+            cls.lock_path(target),
         ):
             try:
                 os.remove(leftover)
@@ -589,15 +769,25 @@ class TentacleInstaller:
 
         ``install`` is :meth:`ensure_and_launch`. ``update`` / ``uninstall`` apply now when
         nothing of ours is imported yet, otherwise they are recorded as *pending* for the next
-        start (see the module docstring for why).
+        start (see the module docstring for why) -- and are refused outright while a
+        provisioning is running here or in another process, since either would race its pip.
         """
         if verb not in cls.VERBS:
             raise ValueError(f"unknown verb {verb!r}; expected one of {cls.VERBS}")
+        target = cls.target_dir(host)
+        if verb != "install" and cls._in_progress(target):
+            message = (
+                "Tentacle is still installing - wait for it to finish, then try again"
+            )
+            cls._say(host, message)
+            return message
         if verb == "install":
             cls.ensure_and_launch(host)
-            running = cls._worker is not None and cls._worker.is_alive()
-            return "Tentacle install started" if running else "Tentacle is installed"
-        target = cls.target_dir(host)
+            return (
+                "Tentacle install started"
+                if cls._worker_alive()
+                else "Tentacle is installed"
+            )
         if cls.loaded():
             cls.write_manifest(target, pending=verb)
             done = {"update": "updated", "uninstall": "uninstalled"}[verb]
@@ -655,7 +845,7 @@ class TentacleInstaller:
             return []
         accounted = {cls._dist_key(name) for name in (names or ())}
         manifest = os.path.basename(cls.manifest_path(target))
-        skip = {manifest, manifest + ".corrupt", "__pycache__"}
+        skip = {manifest, manifest + ".corrupt", cls.LOCK, "__pycache__"}
         left = []
         for entry in present:
             if entry.startswith(".") or entry in skip:
@@ -755,12 +945,41 @@ class TentacleInstaller:
         path MUST pass them: those resolve through ``cmds`` / ``bpy``, which are main-thread
         only -- ``cmds.internalVar`` called from the worker answered with a relative path and
         the packages landed beside the working directory (measured in a GUI Maya).
+
+        Runs under the target's lock (:meth:`_locked`): a second process starting on the
+        same pending verb waits here and runs no pip at all when what it came for is
+        done by then -- a fresh install importable, or an upgrade recorded in the
+        manifest (``updated``) while it waited. That record is written HERE, under the
+        lock, clearing a pending update (:meth:`_settle_pending`): the queued process
+        takes the lock the moment it goes. ``pending`` alone cannot tell it: a reported
+        failure clears it too, and after a failure the queued process runs the upgrade
+        itself. An update asked for directly, with nothing pending, always runs.
         """
         target = target or cls.target_dir(host)
         python = python or cls.python_exe(host)
         specs = list(specs or cls.specs(host, fresh=not upgrade))
         os.makedirs(target, exist_ok=True)
         cls._ensure_on_path(target)
+        had = cls.is_installed(host)
+        before = cls.read_manifest(target)  # like ``had``: read before the wait
+        with cls._locked(target):
+            importlib.invalidate_caches()
+            if not had and not upgrade and cls.is_installed(host):
+                return []  # it appeared while waiting: the other process provisioned it
+            if (
+                upgrade
+                and before.get("pending") == "update"
+                and cls.read_manifest(target).get("updated") != before.get("updated")
+            ):
+                return []  # it finished while waiting: the other process upgraded it
+            pins = cls._provision_locked(host, upgrade, target, python, specs)
+            if upgrade:
+                cls._settle_pending(target, "update", updated=time.time())
+            return pins
+
+    @classmethod
+    def _provision_locked(cls, host, upgrade, target, python, specs):
+        """The pip work of :meth:`provision`, under its lock."""
         saved = {key: os.environ.get(key) for key in cls.PIP_ENV}
         os.environ.update(cls.PIP_ENV)
         try:
@@ -918,7 +1137,7 @@ class TentacleInstaller:
             except Exception as error:
                 print(f"[tentacle] install failed: {error}")
                 if upgrade:
-                    cls.write_manifest(target, pending=None)
+                    cls._settle_pending(target, "update")
                 if not cls.is_installed(host):
                     return None
             return cls.launch(host)
@@ -945,7 +1164,7 @@ class TentacleInstaller:
         Everything the worker needs from the host (*target*, the interpreter) is resolved HERE,
         on the main thread, and handed over -- the worker never touches ``cmds`` / ``bpy``.
         """
-        if cls._worker is not None and cls._worker.is_alive():
+        if cls._worker_alive():
             return
         outcome = {}
         python = cls.python_exe(host)
@@ -969,7 +1188,7 @@ class TentacleInstaller:
                 return
 
             # The provision failed and the user has just been shown why. Two
-            # things must not survive into the next start. `pending` is cleared
+            # things must not survive into the next start. Its `pending` is cleared
             # HERE and only here -- the one branch that reported the failure --
             # because otherwise an unreachable index turns one Update click into
             # a modal error and a missing menu at EVERY start, forever, with a
@@ -977,7 +1196,7 @@ class TentacleInstaller:
             # hand-editing JSON. They can re-request from the same surface.
             if upgrade:
                 try:
-                    cls.write_manifest(target, pending=None)
+                    cls._settle_pending(target, "update")
                 except Exception as error:
                     print(f"[tentacle] could not clear the pending verb: {error}")
             # ...and an install that is already importable still gets to run.
@@ -1063,12 +1282,17 @@ class TentacleInstaller:
             def popup():
                 import bpy
 
+                # Every line, not the first: a failure's reason is on its second line.
+                lines = [line[:200] for line in message.splitlines() if line.strip()][
+                    :8
+                ]
+
+                def draw(menu, _ctx):
+                    for line in lines:
+                        menu.layout.label(text=line)
+
                 bpy.context.window_manager.popup_menu(
-                    lambda menu, _ctx: menu.layout.label(
-                        text=message.splitlines()[0][:200]
-                    ),
-                    title="Tentacle",
-                    icon="ERROR" if error else "INFO",
+                    draw, title="Tentacle", icon="ERROR" if error else "INFO"
                 )
 
             cls._ui(popup)
@@ -1120,6 +1344,8 @@ class TentacleInstaller:
             from maya import cmds
 
             cls._ui(lambda: cmds.progressWindow(edit=True, progress=n % 100))
+        elif host == "blender":
+            cls._ui(cls._redraw_blender_prefs)
 
     @classmethod
     def _feedback_end(cls, host, upgrade, outcome):
@@ -1127,6 +1353,8 @@ class TentacleInstaller:
             from maya import cmds
 
             cls._ui(lambda: cmds.progressWindow(endProgress=True))
+        elif host == "blender":
+            cls._ui(cls._redraw_blender_prefs)
         error = outcome.get("error")
         if error is None:
             done = "updated" if upgrade else "installed"
@@ -1144,6 +1372,16 @@ class TentacleInstaller:
                 f"Check that {cls.python_exe(host)} can reach PyPI (firewall / proxy), then try again.",
                 error=True,
             )
+
+    @staticmethod
+    def _redraw_blender_prefs():
+        """Repaint the Preferences editor so its "Installing..." line tracks the worker."""
+        import bpy
+
+        for window in bpy.context.window_manager.windows:
+            for area in window.screen.areas:
+                if area.type == "PREFERENCES":
+                    area.tag_redraw()
 
     @staticmethod
     def _reveal_console():
@@ -1164,29 +1402,40 @@ class TentacleInstaller:
     def write_maya_module(cls, source, app_dir=None, version=None):
         """Register the user-owned Maya module that re-runs this file at every start.
 
-        Writes ``<root>/scripts/tentacle_installer.py`` (a copy of *source*),
+        Writes ``<root>/scripts/<MAYA_STARTUP>.py`` (a copy of *source* -- see
+        :attr:`MAYA_STARTUP` for why it is not the dropped file's name),
         ``<root>/scripts/userSetup.py`` (two lines that call :meth:`ensure_and_launch`) and
         ``<mod>`` with ``PYTHONPATH +:= site``. Idempotent: rerunning rewrites the same bytes.
-        Returns the module root.
+        A copy left by installer 1.1 under the old name is removed. Returns the module root.
         """
         root, mod = cls.maya_paths(app_dir, version)
         scripts = os.path.join(root, "scripts")
         os.makedirs(scripts, exist_ok=True)
         os.makedirs(os.path.join(root, "site"), exist_ok=True)
         os.makedirs(os.path.dirname(mod), exist_ok=True)
-        copy = os.path.join(scripts, "tentacle_installer.py")
-        if os.path.normcase(os.path.abspath(source)) != os.path.normcase(
-            os.path.abspath(copy)
-        ):
-            shutil.copyfile(
-                source, copy
-            )  # the module copy itself may be what was dropped
+
+        def same(a, b):
+            return os.path.normcase(os.path.abspath(a)) == os.path.normcase(
+                os.path.abspath(b)
+            )
+
+        copy = os.path.join(scripts, f"{cls.MAYA_STARTUP}.py")
+        if not same(source, copy):  # the module's own copy may be what was dropped
+            shutil.copyfile(source, copy)
+        legacy = os.path.join(scripts, "tentacle_installer.py")
+        if os.path.isfile(legacy) and not same(source, legacy):
+            try:
+                os.remove(legacy)
+            except OSError as error:
+                print(
+                    f"[tentacle] could not remove the old startup copy {legacy}: {error}"
+                )
         with open(os.path.join(scripts, "userSetup.py"), "w", encoding="utf-8") as fh:
             fh.write(
                 "# Written by tentacle_installer.py - starts tentacle in this Maya.\n"
                 "# To remove it, drop tentacle_installer.py into the viewport and choose Uninstall.\n"
-                "import tentacle_installer\n"
-                "tentacle_installer.TentacleInstaller.ensure_and_launch('maya')\n"
+                f"import {cls.MAYA_STARTUP}\n"
+                f"{cls.MAYA_STARTUP}.TentacleInstaller.ensure_and_launch('maya')\n"
             )
         with open(mod, "w", encoding="utf-8") as fh:
             fh.write(f"+ {cls.MAYA_MODULE} {bl_info['version'][0]}.0 {root}\n")
@@ -1195,7 +1444,11 @@ class TentacleInstaller:
 
     @classmethod
     def dropped(cls, source):
-        """Maya drop hook body: first drop installs; a later drop asks Update / Uninstall."""
+        """Maya drop hook body: first drop installs; a later drop asks Update / Uninstall.
+
+        Refused while a provisioning runs (here or in another session): a second drop
+        used to reach the dialog and could start a second pip into the same target.
+        """
         # Captured BEFORE the module is written, because writing it is what makes
         # a re-drop look like a first drop forever: the .mod and scripts/userSetup.py
         # land here unconditionally, but the Update/Uninstall dialog used to be gated
@@ -1206,9 +1459,17 @@ class TentacleInstaller:
         # userSetup.py just written tells the user verbatim to drop the file in and
         # choose Uninstall.
         root, mod = cls.maya_paths()
+        site = os.path.join(root, "site")
+        if cls._in_progress(site):
+            cls._say(
+                "maya",
+                "Tentacle is still installing - wait for the progress window to close, "
+                "then drop the file again",
+            )
+            return "busy"
         existed = os.path.isfile(mod) or os.path.isdir(root)
         cls.write_maya_module(source)
-        version = cls.installed_version(os.path.join(root, "site"))
+        version = cls.installed_version(site)
         if version is None and not cls.is_installed("maya") and not existed:
             cls.ensure_and_launch("maya")
             return "install"
@@ -1219,7 +1480,8 @@ class TentacleInstaller:
             lambda: cmds.confirmDialog(
                 title="Tentacle",
                 message=message,
-                button=["Update", "Uninstall", "Cancel"],
+                # "Update" for a package that was never installed is the wrong verb.
+                button=["Update" if version else "Install", "Uninstall", "Cancel"],
                 defaultButton="Cancel",
                 cancelButton="Cancel",
                 dismissString="Cancel",
@@ -1293,6 +1555,11 @@ class TentacleInstaller:
                 manifest = installer.read_manifest(target)
                 version = installer.installed_version(target)
                 layout = self.layout
+                if installer._in_progress(target):
+                    layout.label(
+                        text="Installing tentacle... progress is in the system console",
+                        icon="TIME",
+                    )
                 if manifest.get("pending"):
                     layout.label(
                         text=f"Pending: {manifest['pending']} - restart Blender to apply",

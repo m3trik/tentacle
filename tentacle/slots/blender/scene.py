@@ -179,6 +179,15 @@ class SceneSlots(SceneMixin, SlotsBlender):
                     "(data_internal + data_export) as JSON — shot metadata, audio manifests, etc.\n"
                     "Use Save in the viewer to write it to a .json file.",
                 ),
+                (
+                    "Check GLB / FBX",
+                    "b019",
+                    "Run the Scene Exporter's post-write gates (Verify The Written "
+                    "File) over .glb / .fbx files already on disk — a truncated "
+                    "container, a dropped take, a NaN in an accessor, a clip that "
+                    "disagrees with its take.\nA .glb and .fbx sharing a name are "
+                    "checked together. Report only.",
+                ),
             ],
         }
 
@@ -601,7 +610,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             # GLB — wired for the export's lifetime, restored after, a clean no-op
             # on an unbaked scene. The export needs no knowledge of the bake; it
             # reads scene state, exactly like the Maya fork's fbx_to_glb route.
-            with btk.LightmapWebExport().wired_for_export():
+            # Given the path, it also corrects the written file's lightmap
+            # markers to what the GLB ships, as the Maya route's applier does.
+            with btk.LightmapWebExport().wired_for_export(glb_path=out_path):
                 with btk.window_context_override():
                     bpy.ops.export_scene.gltf(
                         filepath=out_path,

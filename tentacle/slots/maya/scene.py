@@ -119,6 +119,15 @@ class SceneSlots(SceneMixin, SlotsMaya):
                     "Use Save in the viewer to write it to a .json file.",
                 ),
                 (
+                    "Check GLB / FBX",
+                    "b019",
+                    "Run the Scene Exporter's post-write gates (Verify The Written "
+                    "File) over .glb / .fbx files already on disk — a truncated "
+                    "container, a dropped take, a NaN in an accessor, a clip that "
+                    "disagrees with its take.\nA .glb and .fbx sharing a name are "
+                    "checked together. Report only.",
+                ),
+                (
                     "Toggle Command Ports",
                     "b012",
                     "Toggle Maya command ports on/off (MEL :7001, Python :7002).\nUsed for external editor connections.",

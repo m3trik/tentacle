@@ -37,7 +37,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
-  - methods: tb003, list003_init, tb002_init, tb002
+  - methods: tb003, list003_init, b019, tb002_init, tb002
 
 ### `slots/_selection.py` — Behavior shared by the Maya and Blender ``selection`` panels.
 - `class SelectionMixin`
@@ -426,4 +426,4 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `unregister()`
 - `onMayaDroppedPythonFile(*_args)`
 - `class TentacleInstaller`
-  - methods: host, headless, loaded, specs, python_exe, maya_paths, target_dir, is_installed, manifest_path, read_manifest, write_manifest, installed_version, install, update, uninstall, request, provision, launch, shutdown, ensure_and_launch, write_maya_module, dropped, register_blender_ui, unregister_blender_ui, main
+  - methods: host, headless, loaded, specs, python_exe, maya_paths, target_dir, is_installed, lock_path, manifest_path, read_manifest, write_manifest, installed_version, install, update, uninstall, request, provision, launch, shutdown, ensure_and_launch, write_maya_module, dropped, register_blender_ui, unregister_blender_ui, main

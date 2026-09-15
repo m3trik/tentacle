@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-1030%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-1056%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
@@ -12,18 +12,18 @@ Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widg
 
 ## Install
 
-Download [`tentacle_installer.py`](https://github.com/m3trik/tentacle/blob/main/tentacle/tentacle_installer.py) — one file for every DCC, no administrator rights, nothing to type:
+Download [`tentacle_installer.py`](https://github.com/m3trik/tentacle/releases/latest/download/tentacle_installer.py) — one file for every DCC, no administrator rights, nothing to type:
 
 | DCC | Do this |
 | --- | --- |
 | Maya 2025+ | Drag the file into the viewport. |
-| Blender 4.x+ | *Edit ▸ Preferences ▸ Add-ons ▸ Install from Disk…*, pick the file, enable **Tentacle Marking Menu**. |
+| Blender 4.1+ | *Edit ▸ Preferences ▸ Add-ons ▸ Install from Disk…* (under the ⌄ menu; *Install…* on 4.1), pick the file, and tick **Tentacle Marking Menu** if it is not already on. |
 
-On the first start it fetches `tentacletk` and the engine for your host (`mayatk` / `blendertk`) 
+The first start fetches `tentacletk` and the engine for your host (`mayatk` / `blendertk`; Blender also gets PySide6) from PyPI — about a minute, with progress in the host — and the menu is live: hover the viewport and hold **Z**. Everything lands in a per-user folder the host already imports from (`<Maya prefs>/<version>/tentacle/`, Blender's `scripts/addons/modules/`); the DCC's own install is never touched. The DCC's Python needs to reach PyPI (proxy / firewall).
 
-Drop the file in again to update or uninstall (Blender: the add-on's preferences). Both apply at the next start if the menu is already running.
+**Update or uninstall:** drop the file in again (Maya) or open the add-on's preferences (Blender). Either applies at the next start if the menu is already running.
 
-Developers: `pip install -e ./tentacle` into the DCC's own Python (see [Development](#development)), or script it - `"<mayapy>" tentacle_installer.py install|update|uninstall` and `blender --background --python tentacle_installer.py -- install|update|uninstall` (update / uninstall land at the next start). The name in brackets of the pip spec is the engine; plain `tentacletk` has none and the menu will not start.
+**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall`. **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start.
 
 ## Activation key
 

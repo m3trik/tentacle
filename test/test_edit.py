@@ -163,7 +163,7 @@ class TestDeleteHistoryUnusedNodes(unittest.TestCase):
         applies the type test with inheritance, so it also returned joints,
         ikHandles, ikEffectors and constraints. Each is a childless, shape-less
         DAG node, so every one matched the "empty group" test and was deleted.
-        Measured on the VDATS_ASSEMBLY production scene: deleting history on 6
+        Measured on a production assembly scene: deleting history on 6
         selected meshes wiped all 7 ikHandles and all 224 constraints scene-wide.
         """
         cmds.polyCube(name="pKeepRig")

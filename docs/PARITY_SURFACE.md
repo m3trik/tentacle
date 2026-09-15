@@ -37,7 +37,7 @@
 | ReferenceManager | 0 | 0 | 13 | 0 | OK |
 | RenderEffects | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 0 | 0 | 0 | OK |
+| SceneExporter | 0 | 3 | 6 | 0 | open |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -204,6 +204,9 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
+- **SceneExporter** `animation_write_back` — task_definitions:task_definitions ComboBox 'Animation Output'  [pending] the Animation Output gate (capture the curves, edit for the write, restore after) is not ported; blendertk's key-editing tasks edit in place
+- **SceneExporter** `check_default_materials` — task_definitions:check_definitions QCheckBox 'Check For Default Materials'  [pending] not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)
+- **SceneExporter** `verify_deliverables` — task_definitions:check_definitions QCheckBox 'Verify The Written File'  [pending] post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass
 - **TexturePathEditor** `chk_allow_missing` — optbox QCheckBox 'Allow Missing Targets'  [pending] Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there).
 - **TubeRig** `b005` — .ui widget QPushButton  [pending] Remove Rig (2026-08-25) -- TubeRigSlots.b005 tears down every rig the selection touches, via TubeRig.teardown (skinCluster, curveInfo, joints, controls set and the rig group, then unlocking the mesh display). Blender's TubeRig has no teardown surface at all yet -- the port needs the armature/modifier/constraint/collection cleanup and the same owned-node scoping that keeps a sibling rig whose name EXTENDS this one out of the sweep -- so this is real open work rather than na.
 - **TubeRig** `b006` — .ui widget QPushButton  [pending] Rename Rig (2026-08-25) -- TubeRigSlots.b006 renames an existing rig and every node under it to the Rig Name field. Rides the b005 teardown port: both need the same owned-node enumeration on the Blender side (armature, deform bones, hook/spline-IK constraints, the driver curve and the collection), which does not exist yet.
@@ -215,4 +218,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 10 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.
