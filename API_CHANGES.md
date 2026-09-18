@@ -1,8 +1,5 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ a6ea1daf)._
+_Diff vs the last release (origin/main @ 4f17055d)._
 
-## Added (2)
-
-- `slots/_scene.py::SceneMixin.b019(self)`
-- `tentacle_installer.py::TentacleInstaller.lock_path(cls, target)`
+No public API changes since the last release (origin/main @ 4f17055d).
