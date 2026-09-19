@@ -651,7 +651,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
 
-- **[`class SceneSlots(SceneMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L12)** — Blender port of the shared ``scene`` menu.
+- **[`class SceneSlots(SceneMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L11)** — Blender port of the shared ``scene`` menu.
   - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
   - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
   - `SceneSlots.list000(self, item)` — Recent Files
@@ -675,7 +675,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
   - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
-  - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of
+  - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
 
 <a id="slots--blender--selection"></a>
 ### `slots/blender/selection.py`
@@ -1353,7 +1353,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
-- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
+- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L13)**
   - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
   - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
   - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
@@ -1376,7 +1376,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b011(self)` — Fix Color Spaces
   - `SceneSlots.b018(self)` — Fix Mangled Names
   - `SceneSlots.b012(self)` — Toggle Command Ports
-  - `SceneSlots.b017(self)` — Scene Metadata — dump the tool-authored data-node channels to the viewer.
+  - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)
   - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene.
   - `SceneSlots.b014(self)` — Save to Original Scene.

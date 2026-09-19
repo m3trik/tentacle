@@ -3617,7 +3617,7 @@
         {
           "name": "SceneSlots",
           "summary": "Blender port of the shared ``scene`` menu.",
-          "line": 12,
+          "line": 11,
           "bases": [
             "SceneMixin",
             "SlotsBlender"
@@ -3629,7 +3629,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 195,
+              "line": 194,
               "deprecated": false
             },
             {
@@ -3638,7 +3638,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 226,
+              "line": 225,
               "deprecated": false
             },
             {
@@ -3647,7 +3647,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 239,
+              "line": 238,
               "deprecated": false
             },
             {
@@ -3656,7 +3656,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 246,
+              "line": 245,
               "deprecated": false
             },
             {
@@ -3665,7 +3665,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 255,
+              "line": 254,
               "deprecated": false
             },
             {
@@ -3674,7 +3674,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 260,
+              "line": 259,
               "deprecated": false
             },
             {
@@ -3683,7 +3683,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 278,
+              "line": 277,
               "deprecated": false
             },
             {
@@ -3692,7 +3692,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 335,
+              "line": 334,
               "deprecated": false
             },
             {
@@ -3701,7 +3701,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 387,
+              "line": 386,
               "deprecated": false
             },
             {
@@ -3710,7 +3710,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 401,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -3719,7 +3719,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 643,
+              "line": 642,
               "deprecated": false
             },
             {
@@ -3728,7 +3728,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 658,
+              "line": 657,
               "deprecated": false
             },
             {
@@ -3737,7 +3737,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 662,
+              "line": 661,
               "deprecated": false
             },
             {
@@ -3746,7 +3746,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 666,
+              "line": 665,
               "deprecated": false
             },
             {
@@ -3755,7 +3755,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 673,
+              "line": 672,
               "deprecated": false
             },
             {
@@ -3764,7 +3764,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 679,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -3773,7 +3773,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 686,
+              "line": 685,
               "deprecated": false
             },
             {
@@ -3782,7 +3782,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 703,
+              "line": 702,
               "deprecated": false
             },
             {
@@ -3791,7 +3791,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 744,
+              "line": 743,
               "deprecated": false
             },
             {
@@ -3800,7 +3800,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.",
-              "line": 778,
+              "line": 777,
               "deprecated": false
             },
             {
@@ -3809,7 +3809,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 816,
+              "line": 813,
               "deprecated": false
             },
             {
@@ -3818,7 +3818,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 822,
+              "line": 819,
               "deprecated": false
             },
             {
@@ -3827,7 +3827,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 833,
+              "line": 830,
               "deprecated": false
             },
             {
@@ -3835,8 +3835,8 @@
               "qualname": "SceneSlots.b017",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer (mirror of",
-              "line": 844,
+              "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
+              "line": 841,
               "deprecated": false
             }
           ]
@@ -8520,7 +8520,7 @@
         {
           "name": "SceneSlots",
           "summary": "",
-          "line": 14,
+          "line": 13,
           "bases": [
             "SceneMixin",
             "SlotsMaya"
@@ -8532,7 +8532,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 139,
+              "line": 138,
               "deprecated": false
             },
             {
@@ -8541,7 +8541,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave",
-              "line": 190,
+              "line": 189,
               "deprecated": false
             },
             {
@@ -8550,7 +8550,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave: reopen a recent autosaved scene file.",
-              "line": 209,
+              "line": 208,
               "deprecated": false
             },
             {
@@ -8559,7 +8559,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 275,
+              "line": 274,
               "deprecated": false
             },
             {
@@ -8568,7 +8568,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import: import a file, or open import / FBX / OBJ preset options.",
-              "line": 291,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -8577,7 +8577,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 385,
+              "line": 384,
               "deprecated": false
             },
             {
@@ -8586,7 +8586,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 432,
+              "line": 431,
               "deprecated": false
             },
             {
@@ -8595,7 +8595,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 443,
+              "line": 442,
               "deprecated": false
             },
             {
@@ -8604,7 +8604,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 456,
+              "line": 455,
               "deprecated": false
             },
             {
@@ -8613,7 +8613,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 469,
+              "line": 468,
               "deprecated": false
             },
             {
@@ -8622,7 +8622,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 473,
+              "line": 472,
               "deprecated": false
             },
             {
@@ -8631,7 +8631,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 477,
+              "line": 476,
               "deprecated": false
             },
             {
@@ -8640,7 +8640,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 481,
+              "line": 480,
               "deprecated": false
             },
             {
@@ -8649,7 +8649,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 732,
+              "line": 731,
               "deprecated": false
             },
             {
@@ -8658,7 +8658,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 736,
+              "line": 735,
               "deprecated": false
             },
             {
@@ -8667,7 +8667,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 740,
+              "line": 739,
               "deprecated": false
             },
             {
@@ -8676,7 +8676,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 744,
+              "line": 743,
               "deprecated": false
             },
             {
@@ -8685,7 +8685,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box.",
-              "line": 815,
+              "line": 814,
               "deprecated": false
             },
             {
@@ -8694,7 +8694,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the audit report to the viewer dialog.",
-              "line": 858,
+              "line": 857,
               "deprecated": false
             },
             {
@@ -8703,7 +8703,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 923,
+              "line": 920,
               "deprecated": false
             },
             {
@@ -8712,7 +8712,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 927,
+              "line": 924,
               "deprecated": false
             },
             {
@@ -8721,7 +8721,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 943,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -8729,8 +8729,8 @@
               "qualname": "SceneSlots.b017",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Scene Metadata — dump the tool-authored data-node channels to the viewer.",
-              "line": 958,
+              "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
+              "line": 955,
               "deprecated": false
             },
             {
@@ -8739,7 +8739,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 1021,
+              "line": 972,
               "deprecated": false
             },
             {
@@ -8748,7 +8748,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 1055,
+              "line": 1006,
               "deprecated": false
             },
             {
@@ -8757,7 +8757,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 1099,
+              "line": 1050,
               "deprecated": false
             }
           ]

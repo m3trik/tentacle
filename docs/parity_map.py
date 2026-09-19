@@ -125,13 +125,12 @@ CONTROLS = {
     },
     "reference_manager": {
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
-        "cmb_unlink_namespace": {
+        # btn_unlink_import_all: renamed to Maya's exact label + objectName (2026-07-20), so it
+        # matches name-for-name. Un-Reference All is footer-only on both panels (2026-09-18).
+        "set_action": {
             "status": "na",
-            "reason": "picks what Unlink and Import does with the reference's NAMESPACE (remove / keep / keep on the top-level node only). Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between.",
+            "reason": "Maya's namespace-mode cycle beside Unlink and Import All (remove / keep / keep on the top-level node only). Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between.",
         },
-        # btn_unlink_import_all / btn_unreference_all: the Blender buttons were renamed to
-        # Maya's exact labels + objectNames (2026-07-20), so both header operations now match
-        # name-for-name and need no ledger entry.
         # Context menu flattened 2026-07-25 to a 1:1 mirror of Maya's flat list (Open / Rename /
         # Delete / Reference-Unreference / Unlink-and-Import / Open File Location). Both panels now
         # carry these row_* / btn_* twins name-for-name; the Blender-only extras (Append / Reload /

@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import os
-import html
 import shutil
 
 import maya.cmds as cmds
@@ -903,8 +902,6 @@ class SceneSlots(SceneMixin, SlotsMaya):
                 progress_callback=self.sb.progress_adapter(update),
                 sections=sections,
             )
-        # Named report_html (not ``html``) so the module-level ``import html`` used by
-        # b017's ``html.escape`` stays reachable — a bare ``html`` local would shadow it.
         report_html = "".join(html_dict.values()) if html_dict else ""
         if not report_html:
             self.sb.message_box(
@@ -956,66 +953,20 @@ class SceneSlots(SceneMixin, SlotsMaya):
         print(f"Command Ports {state}: {console_lines}")
 
     def b017(self):
-        """Scene Metadata — dump the tool-authored data-node channels to the viewer.
+        """Scene Metadata — the tool-authored data-node channels in the shared data
+        viewer (``sb.data_view_dialog``, which the Scene Exporter's data-node button
+        uses too).
 
         Renders ``mtk.DataNodes.dump`` (every channel on ``data_internal`` +
-        ``data_export``, JSON-decoded) as pretty JSON. The viewer's Save button
-        writes the same report to a ``.json`` file.
+        ``data_export``, JSON-decoded); the viewer's Save writes it to a ``.json``
+        beside the scene.
         """
-        report = mtk.DataNodes.format_dump()
-        if not report:
-            self.sb.message_box(
-                "<hl>No scene metadata</hl> is stored — this scene has no "
-                "<b>data_internal</b> / <b>data_export</b> channels yet."
-            )
-            return
-
-        dlg = self.sb.text_view_dialog(
-            f"<pre>{html.escape(report)}</pre>",
-            "Save",
-            "Ok",
+        self.sb.data_view_dialog(
+            mtk.DataNodes.dump(),
             title="Scene Metadata",
-            size=(720, 560),
-            monospace=True,
-            word_wrap=False,
-        )
-        # "Save" is an Accept-role button (it closes the viewer); wire the export
-        # via the sanctioned realtime hook so the same click writes the file.
-        dlg.button_box.clicked.connect(
-            lambda btn, text=report: self._export_scene_metadata(btn, text)
-        )
-
-    def _export_scene_metadata(self, button, text):
-        """Write the Scene Metadata report to a chosen ``.json`` (viewer Save button)."""
-        if button.text().replace("&", "") != "Save":
-            return
-        scene_path = cmds.file(query=True, sceneName=True) or ""
-        base = (
-            os.path.splitext(os.path.basename(scene_path))[0]
-            if scene_path
-            else "untitled"
-        ) + "_scene_metadata.json"
-        start_dir = (
-            os.path.dirname(scene_path)
-            if scene_path
-            else (cmds.workspace(query=True, rootDirectory=True) or "")
-        )
-        picked = cmds.fileDialog2(
-            fileMode=0,
-            caption="Save Scene Metadata As",
-            okCaption="Save",
-            fileFilter="JSON (*.json)",
-            dialogStyle=2,
-            startingDirectory=os.path.join(start_dir, base),
-        )
-        if not picked:
-            return
-        path = picked[0]
-        if not path.lower().endswith(".json"):
-            path += ".json"
-        ptk.FileUtils.atomic_write_text(path, text)
-        self.sb.message_box(
-            f"Saved scene metadata to <hl>{os.path.basename(path)}</hl>."
+            save_path=mtk.EnvUtils.scene_artifact_path("_scene_metadata.json"),
+            empty_message="<hl>No scene metadata</hl> is stored — this scene has no "
+            "<b>data_internal</b> / <b>data_export</b> channels yet.",
         )
 
     def b013(self):
