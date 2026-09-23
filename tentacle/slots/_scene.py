@@ -2,7 +2,7 @@
 # coding=utf-8
 """Behavior shared by the Maya and Blender ``scene`` panels.
 
-Three subsystems live here:
+The subsystems that live here include:
 
 * the **Fix Non-Orthogonal Axes** header entry (``tb002``): the scan, the
   report, the confirmation and the result summary are identical on both sides
@@ -18,9 +18,13 @@ Three subsystems live here:
   destination, run the blocking hand-off, report. Identical on both sides
   because the bridges are mirrors (``mtk.BlenderBridge`` ↔ ``btk.MayaBridge``)
   and the bridge itself carries everything that differs — its target app's
-  display name and the scene extensions it writes.
+  display name and the scene extensions it writes; and
+* the Import / Export lists' **pull and USD entries**: every Import entry that
+  reaches the scene through the bridge engine (the other DCC's scene, glTF on
+  Maya, USD on both) runs one browse-import-report body, and Export USD writes
+  the scene through the writer Export Scene's USD format already uses.
 
-Only the engine handle, the scope resolvers, the wording of what the fix *does*
+Only the engine handles, the scope resolvers, the wording of what the fix *does*
 to the object, which events signal a workspace change, the open scene's path and
 the foreign-format bridge are DCC-specific — those are the hooks below.
 """
@@ -69,6 +73,17 @@ class SceneMixin:
         """
         raise NotImplementedError
 
+    def _scene_import_engine(self):
+        """Return the engine that pulls a file into this scene.
+
+        ``mtk.BlenderSceneImport()`` from the Maya fork, ``btk.MayaSceneImport()``
+        from the Blender fork: its ``import_scene(src, via=...)`` converts the other
+        DCC's scene through a fresh headless app, and imports a USD file natively
+        (no conversion, *via* inert). The pull direction of
+        :meth:`_foreign_scene_bridge`.
+        """
+        raise NotImplementedError
+
     # --------------------------------------------------- export: formats + paths
     #: ``(label, data)`` for the Export Scene format combo — the formats BOTH DCCs
     #: write. The fork's foreign twin is appended from :attr:`FOREIGN_FORMAT_LABEL`,
@@ -78,6 +93,10 @@ class SceneMixin:
     EXPORT_FORMATS = (("FBX", "fbx"), ("OBJ", "obj"), ("GLB", "glb"), ("USD", "usd"))
     #: Output extension per portable format (``"foreign"`` resolves from the bridge).
     EXPORT_EXTENSIONS = {"fbx": ".fbx", "obj": ".obj", "glb": ".glb", "usd": ".usd"}
+    #: Every extension a format's writer takes, where that is more than its default:
+    #: a USD layer is text, crate or a package by its extension, and both engines'
+    #: writers pick the encoding off it (``.usdz`` packages the layer with its maps).
+    EXPORT_EXTENSION_SPELLINGS = {"usd": ptk.USD_EXTENSIONS}
     #: ``(label, data)`` for the Transfer-via combo: the carrier a scene hand-off
     #: travels as (the foreign export and the Import <other DCC> Scene pull).
     #: pythontk's carrier vocabulary verbatim -- the bridges refuse any other.
@@ -201,22 +220,41 @@ class SceneMixin:
             return self._foreign_scene_bridge().save_extensions[0]
         return self.EXPORT_EXTENSIONS[export_format]
 
-    def _resolve_export_path(self, save_mode: str, extension: str):
+    def _export_spellings(self, export_format: str):
+        """Every extension a typed name may keep for *export_format*, or ``None``.
+
+        ``None`` means the format's default alone (see
+        :attr:`EXPORT_EXTENSION_SPELLINGS`). The foreign format's come off its
+        bridge, like :meth:`_export_extension`'s default -- a Maya scene is
+        ``.ma`` or ``.mb`` -- so a typed ``shot.mb`` stays one rather than
+        becoming ``shot.mb.ma``.
+        """
+        if export_format == "foreign":
+            return tuple(self._foreign_scene_bridge().save_extensions)
+        return self.EXPORT_EXTENSION_SPELLINGS.get(export_format)
+
+    def _resolve_export_path(self, save_mode: str, extension: str, accepted=None):
         """Output path for *save_mode*, or ``None`` to cancel (reported to the user).
 
         ``"scene_dir"`` writes beside the open scene under its own name;
         ``"prompt"`` asks, pre-filled with exactly that path so the two modes agree
         on the default. An unsaved scene has no directory to write beside, so that
         combination is the one hard error — the prompt falls back to the workspace.
+
+        *accepted* are the extensions a picked name may carry as typed (default:
+        *extension* alone — see :attr:`EXPORT_EXTENSION_SPELLINGS`); any other name
+        gets *extension* appended, so a typed ``hero.usdz`` stays a package rather
+        than becoming ``hero.usdz.usd``.
         """
         scene_path = self._current_scene_path()
         base = os.path.splitext(os.path.basename(scene_path))[0] or "untitled"
         label = extension.lstrip(".").upper()
+        accepted = tuple(accepted or (extension,))
 
         if save_mode == "prompt":
             start_dir = os.path.dirname(scene_path) or self._resolve_workspace_text()
             picked = self.sb.save_file_dialog(
-                file_types=[f"*{extension}"],
+                file_types=[f"*{ext}" for ext in accepted],
                 title=f"Export {label} As",
                 # A FILE path, not a directory: it pre-fills the name box.
                 start_dir=os.path.join(start_dir, base + extension),
@@ -226,7 +264,7 @@ class SceneMixin:
                 return None
             # Qt does not reliably append the filter's suffix when the user types a
             # bare name, and the writer picks its translator off the extension.
-            return picked if picked.lower().endswith(extension) else picked + extension
+            return picked if picked.lower().endswith(accepted) else picked + extension
 
         if not scene_path:
             self.sb.message_box(
@@ -237,7 +275,7 @@ class SceneMixin:
         return os.path.splitext(scene_path)[0] + extension
 
     def _export_scene_native(self, export_format, out_path, options, tick):
-        """Write *out_path* in a NATIVE format — ``"fbx"`` / ``"obj"`` / ``"glb"``.
+        """Write *out_path* in a NATIVE format: ``"fbx"``/``"obj"``/``"glb"``/``"usd"``.
 
         The one genuinely DCC-specific step of :meth:`tb003`: everything around it
         (reading the options, the guards, resolving the path, the foreign route, the
@@ -286,7 +324,11 @@ class SceneMixin:
             return
 
         extension = self._export_extension(export_format)
-        out_path = self._resolve_export_path(menu.cmb_save.currentData(), extension)
+        out_path = self._resolve_export_path(
+            menu.cmb_save.currentData(),
+            extension,
+            self._export_spellings(export_format),
+        )
         if not out_path:
             return
 
@@ -306,21 +348,28 @@ class SceneMixin:
                 )
             return
 
-        # Every native writer is a single blocking call that scales with poly count,
-        # so on dense scenes the UI sits frozen with no feedback. Run inside the
-        # footer progress context, painting a status before the blocking step
-        # (``tick()`` pumps the event loop) so it reads as working, not hung. Let
-        # failures propagate out of the context so it suppresses its "Complete" flash
-        # on a non-clean exit.
+        self._write_native(export_format, out_path, options)
+
+    def _write_native(self, export_format, out_path, options):
+        """Run the fork's native writer for *out_path*, then report either outcome.
+
+        Every native writer is a single blocking call that scales with poly count,
+        so on dense scenes the UI sits frozen with no feedback. Run inside the
+        footer progress context, painting a status before the blocking step
+        (``tick()`` pumps the event loop) so it reads as working, not hung. Failures
+        propagate out of the context so it suppresses its "Complete" flash on a
+        non-clean exit, then land in one report. Shared by Export Scene and the
+        Export list's USD one-shot, so the two cannot disagree on either.
+        """
+        label = os.path.splitext(out_path)[1].lstrip(".").upper()
         try:
             with self.sb.progress(
-                text=f"Exporting {extension.lstrip('.').upper()}… "
-                "dense scenes can take a while"
+                text=f"Exporting {label}… dense scenes can take a while"
             ) as tick:
                 tick()  # paint the status before the blocking export
                 self._export_scene_native(export_format, out_path, options, tick)
         except Exception as error:  # noqa: BLE001 - every writer, one report
-            self.sb.message_box(f"Export failed:<br>{error}")
+            self.sb.message_box(f"Export failed:<br>{html.escape(str(error))}")
             return
 
         self.sb.message_box(f"Exported <hl>{ptk.format_path(out_path, 'file')}</hl>.")
@@ -347,7 +396,9 @@ class SceneMixin:
         try:
             result = bridge.save_as(out_path, objects, params={ptk.CARRIER_PARAM: carrier})
         except Exception as error:
-            self.sb.message_box(f"Export to {app} failed: <hl>{error}</hl>")
+            self.sb.message_box(
+                f"Export to {app} failed: <hl>{html.escape(str(error))}</hl>"
+            )
             return None
         finally:
             qapp.restoreOverrideCursor()
@@ -391,6 +442,95 @@ class SceneMixin:
                 f"Exported <hl>{ptk.format_path(result['output'], 'file')}</hl> "
                 f"({result['duration']:.1f}s)."
             )
+
+    # ------------------------------------------------------- export: USD one-shot
+    #: What an Export-list one-shot writes: the whole scene, every type. The list's
+    #: entries carry no options of their own -- Export Scene is the configured route.
+    ONE_SHOT_EXPORT_OPTIONS = {
+        "selection_only": False,
+        "include_cameras": True,
+        "include_lights": True,
+        "include_skins": True,
+        "include_tangents": True,
+        "embed_textures": True,
+    }
+
+    def _export_usd(self):
+        """Write the WHOLE scene as a USD layer (Export list entry).
+
+        The one-shot sibling of Export Scene's USD format, on the same writer
+        (:meth:`_export_scene_native` via :meth:`_write_native`) -- each engine's
+        interchange USD export, not the host's stock one -- and under the list's
+        one-shot contract, like the foreign-scene entry: the whole scene, every type,
+        and its own destination prompt, which takes any USD spelling (``.usda`` text,
+        ``.usdc`` crate, ``.usdz`` package).
+        """
+        out_path = self._resolve_export_path(
+            "prompt",
+            self._export_extension("usd"),
+            self.EXPORT_EXTENSION_SPELLINGS["usd"],
+        )
+        if out_path:
+            self._write_native("usd", out_path, dict(self.ONE_SHOT_EXPORT_OPTIONS))
+
+    # ------------------------------------------------------ import: pull a file in
+    def _pull_scene(self, file_types, title, filter_description, kind):
+        """Browse for a file and pull it in through :meth:`_scene_import_engine`.
+
+        Every Import-list entry that reaches the scene through the bridge engine
+        shares this body -- only the browse filter and the wording differ -- so the
+        carrier choice, the wait cursor and the failure report cannot drift between
+        them. The browser opens beside the open scene, else in the workspace.
+
+        The other DCC's scene converts through a fresh headless app (no license
+        checkout for Blender; mayapy takes one) and travels as the Export Scene option
+        box's Transfer-via carrier: FBX by default -- instancing carried by the
+        format, materials rebuilt from a texture manifest -- or USD, native materials /
+        animation with instancing replayed from a sidecar (opt-in there, or through
+        the Reference Manager's route option). A USD file needs no conversion: the
+        engine imports it natively and the carrier is inert. Blocking either way, so
+        a wait cursor covers the run.
+
+        Parameters:
+            file_types: Browse filter globs, e.g. ``["*.blend"]``.
+            title: File-dialog title.
+            filter_description: File-dialog filter label.
+            kind: What failed, for the error message ("Blender scene", "USD").
+        """
+        src = self.sb.file_dialog(
+            file_types=file_types,
+            title=title,
+            start_dir=os.path.dirname(self._current_scene_path())
+            or self._resolve_workspace_text(),
+            filter_description=filter_description,
+            allow_multiple=False,
+        )
+        if not src:
+            return
+        app = self.sb.QtWidgets.QApplication
+        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
+        try:
+            imported = self._scene_import_engine().import_scene(
+                src, via=self._transfer_carrier()
+            )
+        except Exception as e:  # noqa: BLE001 - every engine failure, one report
+            self.sb.message_box(f"{kind} import failed: <hl>{html.escape(str(e))}</hl>")
+            return
+        finally:
+            app.restoreOverrideCursor()
+        self.sb.message_box(
+            f"Imported <hl>{len(imported)}</hl> object(s) from "
+            f"<hl>{os.path.basename(src)}</hl>."
+        )
+
+    def _import_usd(self):
+        """Import a USD layer or package (Import list entry) -- each engine's
+        interchange import (every prim, animation read as keys, a skin the reader
+        would crash on neutralized and restored on Maya), never the host's stock
+        importer with its hostile defaults; see :meth:`_pull_scene`."""
+        self._pull_scene(
+            [f"*{ext}" for ext in ptk.USD_EXTENSIONS], "Import USD", "USD Files", "USD"
+        )
 
     # ------------------------------------------------- workspace status footer
     FOOTER_DEFAULT_TEXT = "No workspace set"

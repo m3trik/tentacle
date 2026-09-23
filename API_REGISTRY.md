@@ -202,7 +202,7 @@ Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
 Behavior shared by the Maya and Blender ``scene`` panels.
 
-- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L34)** — Shared ``scene`` panel behavior.
+- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L38)** — Shared ``scene`` panel behavior.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
   - `SceneMixin.b019(self)` — Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.

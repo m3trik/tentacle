@@ -29,7 +29,7 @@
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | KeyStash | 0 | 0 | 0 | 0 | OK |
-| LightmapBaker | 0 | 0 | 1 | 0 | OK |
+| LightmapBaker | 0 | 7 | 2 | 0 | open |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 1 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
@@ -204,6 +204,13 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
+- **LightmapBaker** `wire_combo` — wire_combo (maya x1, blender x0)  [pending] Preset combo (cmb000) became uitk's preset template in semantic mode over LightmapBaker.preset_store -- Save/Rename/Delete, a modified marker, and presets that carry the switches as well as the dials, read back by from_preset. Blender's cmb000 is still the quality-tier combo with the Custom row (_preset_for_dials + sb.value_from); the port swaps it for the same wire_combo and teaches blendertk's from_preset the switch keys.
+- **LightmapBaker** `set_toggle` — set_toggle (maya x1, blender x0)  [pending] the panel's four switches, each riding the option box of the field it qualifies (LightmapBakerSlots._TOGGLES, one _wire_toggle call site): Include Environment on Scope, Adaptive Sampling on Samples, Denoise on Resolution, Beside Material Textures on the Output Directory. Blender carries the first two as chk_environment / chk_denoise rows (the sweep's 'extras'), has no adaptive twin yet, and has nothing for beside-textures -- blendertk's baker needs the texture-set folder (its image filepaths) and the same place-after-bake step. Port the switch layout with them, so the two panels are read the same way.
+- **LightmapBaker** `add_action` — add_action (maya x2, blender x0)  [pending] the Exclude row's Select / Clear option-box icons (the Marmoset Bake Source row's layout); port with set_exclusions.
+- **LightmapBaker** `btn_reset_defaults` — .ui widget QPushButton  [pending] Reset to Defaults, in the action group the panel now ends with (Preset / Reset / Bake, the WebXR preview panel's grp_process shape). Pure uitk -- ResetGesture over the window's StateManager, no Maya in it -- so the Blender port is the same .ui row plus the same btn_reset_defaults_init; it ports with wire_combo, since the two share the group and the reset drops the preset pointer.
+- **LightmapBaker** `lbl_exclude` — .ui widget QLabel  [pending] the Exclude row's label, which shows the excluded mesh count; ports with set_exclusions.
+- **LightmapBaker** `set_exclusions` — .ui widget QPushButton  [pending] Exclude row: Set From Selection stores the scene's LightmapExcludeSet (mayatk.mat_utils.bake_sets), which LightmapBaker.bake_targets subtracts from every bake -- excluded objects get no map and are not reverted, but stay in the render. Blender needs the set itself (a stamped Collection, as substance_bridge.HighPolySet stores the bake source) plus bake_targets in blendertk's LightmapBaker.
+- **LightmapBaker** `spn_bounces` — .ui widget QSpinBox  [pending] Bounces (Arnold GIDiffuseDepth, the presets' gi_depth). blendertk's LightmapBaker already takes bounces= (Cycles max bounces); the Blender panel just has no widget for it yet, so its bakes run at the preset's value.
 - **SceneExporter** `animation_write_back` — task_definitions:task_definitions ComboBox 'Animation Output'  [pending] the Animation Output gate (capture the curves, edit for the write, restore after) is not ported; blendertk's key-editing tasks edit in place
 - **SceneExporter** `check_default_materials` — task_definitions:check_definitions QCheckBox 'Check For Default Materials'  [pending] not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)
 - **SceneExporter** `verify_deliverables` — task_definitions:check_definitions QCheckBox 'Verify The Written File'  [pending] post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass
@@ -218,4 +225,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 20 open-work items; 0 stale Maya handlers. Sweep PASSES.

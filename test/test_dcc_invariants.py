@@ -151,6 +151,14 @@ SCENE_HANDOFF = {
     "maya": ("Import Blender Scene", "Export .blend"),
     "blender": ("Import Maya Scene", "Export .ma"),
 }
+#: The format BOTH Scene forks read and write: the same labels on either side (a
+#: tentacle slot must not branch on the host to offer it), same rules as above.
+SCENE_USD = ("Import USD", "Export USD")
+
+
+def _scene_list_pairs(dcc):
+    """Every (Import label, Export label) pair the *dcc* Scene lists must carry."""
+    return (SCENE_HANDOFF[dcc], SCENE_USD)
 
 
 def _dict_entries(class_node, name):
@@ -175,7 +183,8 @@ def _dict_entries(class_node, name):
 
 
 class TestSceneHandoffSymmetry(unittest.TestCase):
-    """Each DCC's Scene panel can BOTH read and write the other DCC's native format.
+    """Each DCC's Scene panel can BOTH read and write the other DCC's native format --
+    and USD, the one format both read and write, under the same labels on each side.
 
     The push direction (``save_as``) exists because the pull direction alone left the
     Import list able to reach a foreign scene while the Export list could not produce
@@ -217,23 +226,29 @@ class TestSceneHandoffSymmetry(unittest.TestCase):
         return names
 
     def test_both_directions_are_registered(self):
-        for dcc, (import_label, save_label) in SCENE_HANDOFF.items():
+        for dcc in SCENE_HANDOFF:
             if dcc not in DCCS:
                 continue
             cls = self._scene_class(dcc)
-            with self.subTest(dcc=dcc):
-                self.assertIn(import_label, _dict_entries(cls, "_IMPORTERS"))
-                self.assertIn(save_label, _dict_entries(cls, "_EXPORTERS"))
+            for import_label, save_label in _scene_list_pairs(dcc):
+                with self.subTest(dcc=dcc, entry=import_label):
+                    self.assertIn(import_label, _dict_entries(cls, "_IMPORTERS"))
+                    self.assertIn(save_label, _dict_entries(cls, "_EXPORTERS"))
 
     def test_each_entry_calls_a_method_that_exists(self):
         """The lists dispatch by item TEXT, so a lambda naming a missing method dies at
         click time with no compile-time error."""
-        for dcc, labels in SCENE_HANDOFF.items():
+        for dcc in SCENE_HANDOFF:
             if dcc not in DCCS:
                 continue
             cls = self._scene_class(dcc)
             defined = self._resolvable_methods(dcc)
-            for registry, label in zip(("_IMPORTERS", "_EXPORTERS"), labels):
+            entries = [
+                (registry, label)
+                for labels in _scene_list_pairs(dcc)
+                for registry, label in zip(("_IMPORTERS", "_EXPORTERS"), labels)
+            ]
+            for registry, label in entries:
                 entry = _dict_entries(cls, registry).get(label)
                 with self.subTest(dcc=dcc, label=label):
                     self.assertIsInstance(

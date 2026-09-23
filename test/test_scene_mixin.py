@@ -43,6 +43,8 @@ HOOKS = (
     "_foreign_scene_bridge",
     "_export_scene_native",
     "_confirm_dense_export",
+    # The Import list's pull entries (the other DCC's scene, glTF, USD).
+    "_scene_import_engine",
     # The Tools list's contents — the one part of list003 that is fork-specific.
     "_tools_items",
 )
@@ -54,7 +56,16 @@ REQUIRED_ATTRS = (
 )
 #: Shared methods that must live ONLY on the mixin — a fork re-defining one is
 #: the drift this refactor removed (both forks carried byte-identical copies).
-FORK_MUST_NOT_DEFINE = ("list003_init", "_dispatch_tools_item")
+FORK_MUST_NOT_DEFINE = (
+    "list003_init",
+    "_dispatch_tools_item",
+    # The Import list's pull body: the Maya fork carried it and the Blender fork a
+    # hand copy under another name, until both became this one.
+    "_pull_scene",
+    "_import_usd",
+    "_export_usd",
+    "_write_native",
+)
 
 
 class _FakeDiagnostics:
@@ -800,6 +811,11 @@ class TestForeignExport(unittest.TestCase):
         self.assertIn("boom", host.sb.messages[-1])
         self.assertEqual(host.cursors, ["set", "restore"])
 
+    def test_a_raised_error_reaches_the_box_as_text_not_markup(self):
+        host = _ExportHost(_FakeBridge(raises=RuntimeError("bad prim </root>")))
+        host._run_foreign_export("X:/a.blend")
+        self.assertIn("bad prim &lt;/root&gt;", host.sb.messages[-1])
+
     def test_the_list_entry_prompts_then_delegates(self):
         bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 2.0})
         host = _ExportHost(
@@ -940,6 +956,12 @@ class TestTb003ExportFlow(unittest.TestCase):
         host.tb003(_export_widget())
         self.assertIn("plugin missing", host.sb.messages[-1])
 
+    def test_a_writer_error_reaches_the_box_as_text_not_markup(self):
+        """pxr's errors quote prim paths like ``</>``, which the box reads as markup."""
+        host = self._host(native_error=RuntimeError("syntax error in </>"))
+        host.tb003(_export_widget(fmt="usd"))
+        self.assertIn("syntax error in &lt;/&gt;", host.sb.messages[-1])
+
     def test_the_foreign_format_routes_through_the_bridge_not_the_writer(self):
         bridge = _FakeBridge(result={"output": "P:/proj/asset.blend", "duration": 3.0})
         host = _Tb003Host(bridge, scene_path="P:/proj/asset.ma")
@@ -965,6 +987,150 @@ class TestTb003ExportFlow(unittest.TestCase):
         host.tb003(_export_widget(fmt="foreign", scope="selected"))
         # Selected Only passes the selection; whole-scene passes None.
         self.assertEqual(bridge.calls[0][1], ["cube"])
+
+
+class _FakeEngine:
+    """Stand-in for mtk.BlenderSceneImport / btk.MayaSceneImport (``import_scene``)."""
+
+    def __init__(self, imported=("a", "b"), raises=None):
+        self.calls = []
+        self._imported = list(imported)
+        self._raises = raises
+
+    def import_scene(self, src, via="fbx"):
+        self.calls.append((src, via))
+        if self._raises:
+            raise self._raises
+        return list(self._imported)
+
+
+class _PullHost(_Tb003Host):
+    """An export host that also wires the Import list's pull hook."""
+
+    def __init__(self, *args, engine=None, opened=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.engine = engine or _FakeEngine()
+        self._opened = opened
+        self.open_kwargs = None
+        self.sb.file_dialog = self._file_dialog
+
+    def _file_dialog(self, **kwargs):
+        self.open_kwargs = kwargs
+        return self._opened
+
+    def _scene_import_engine(self):
+        return self.engine
+
+
+class TestPullScene(unittest.TestCase):
+    """``_pull_scene`` -- the one browse / import / report body every Import-list
+    bridge entry runs (the other DCC's scene, glTF, USD), in both forks."""
+
+    def test_a_pick_is_imported_with_the_transfer_carrier_and_reported(self):
+        host = _PullHost(_FakeBridge(), opened="X:/in/set.blend")
+        host._pull_scene(["*.blend"], "Import Blender Scene", "Blender Scenes", "k")
+        self.assertEqual(host.engine.calls, [("X:/in/set.blend", "fbx")])
+        self.assertIn("Imported <hl>2</hl> object(s)", host.sb.messages[-1])
+        self.assertIn("set.blend", host.sb.messages[-1])
+        self.assertEqual(host.cursors, ["set", "restore"])
+
+    def test_the_browser_opens_beside_the_scene_then_the_workspace(self):
+        host = _PullHost(_FakeBridge(), scene_path="P:/proj/scenes/asset.ma")
+        host._pull_scene(["*.blend"], "t", "d", "k")
+        self.assertEqual(host.open_kwargs["start_dir"], "P:/proj/scenes")
+        self.assertFalse(host.open_kwargs["allow_multiple"])
+        host = _PullHost(_FakeBridge())  # unsaved scene
+        host._pull_scene(["*.blend"], "t", "d", "k")
+        self.assertEqual(host.open_kwargs["start_dir"], "W:/proj")
+
+    def test_cancelling_the_browser_imports_nothing(self):
+        host = _PullHost(_FakeBridge(), opened=None)
+        host._pull_scene(["*.blend"], "t", "d", "k")
+        self.assertEqual(host.engine.calls, [])
+        self.assertEqual(host.cursors, [])
+        self.assertEqual(host.sb.messages, [])
+
+    def test_an_engine_failure_is_reported_escaped_and_the_cursor_restores(self):
+        """pxr's errors quote prim paths like ``</>``; the box reads markup."""
+        host = _PullHost(
+            _FakeBridge(),
+            opened="X:/in/damaged.usda",
+            engine=_FakeEngine(raises=RuntimeError("syntax error in </>")),
+        )
+        host._pull_scene(["*.usda"], "Import USD", "USD Files", "USD")
+        self.assertIn("USD import failed", host.sb.messages[-1])
+        self.assertIn("&lt;/&gt;", host.sb.messages[-1])
+        self.assertEqual(host.cursors, ["set", "restore"])
+
+
+class TestUsdListEntries(unittest.TestCase):
+    """Import USD / Export USD -- the Import and Export lists' USD one-shots."""
+
+    USD_GLOBS = [f"*{ext}" for ext in ptk.USD_EXTENSIONS]
+
+    def test_import_usd_browses_every_usd_spelling(self):
+        host = _PullHost(_FakeBridge(), opened="X:/in/set.usdz")
+        host._import_usd()
+        self.assertEqual(host.open_kwargs["file_types"], self.USD_GLOBS)
+        self.assertEqual(host.open_kwargs["title"], "Import USD")
+        self.assertEqual([src for src, _ in host.engine.calls], ["X:/in/set.usdz"])
+
+    def test_export_usd_writes_the_whole_scene_through_the_usd_writer(self):
+        host = _PullHost(
+            _FakeBridge(), scene_path="P:/proj/asset.ma", picked="X:/out/asset.usd"
+        )
+        host._export_usd()
+        self.assertEqual(len(host.native), 1)
+        export_format, out_path, options = host.native[0]
+        self.assertEqual((export_format, out_path), ("usd", "X:/out/asset.usd"))
+        self.assertEqual(options, host.ONE_SHOT_EXPORT_OPTIONS)
+        self.assertFalse(options["selection_only"])
+        self.assertIn("Exported", host.sb.messages[-1])
+        # Its own prompt, offering every spelling, pre-filled beside the scene.
+        self.assertEqual(host.dialog_kwargs["file_types"], self.USD_GLOBS)
+        self.assertEqual(
+            host.dialog_kwargs["start_dir"], os.path.join("P:/proj", "asset.usd")
+        )
+
+    def test_export_usd_keeps_a_typed_spelling_and_completes_a_bare_name(self):
+        for picked, written in (
+            ("X:/out/hero.usdz", "X:/out/hero.usdz"),
+            ("X:/out/hero.usda", "X:/out/hero.usda"),
+            ("X:/out/hero", "X:/out/hero.usd"),
+        ):
+            with self.subTest(picked=picked):
+                host = _PullHost(_FakeBridge(), picked=picked)
+                host._export_usd()
+                self.assertEqual(host.native[0][1], written)
+
+    def test_export_usd_cancel_writes_nothing(self):
+        host = _PullHost(_FakeBridge(), picked=None)
+        host._export_usd()
+        self.assertEqual(host.native, [])
+        self.assertEqual(host.sb.messages, [])
+
+    def test_export_scene_s_usd_prompt_takes_the_same_spellings(self):
+        """The shared path fixes Export Scene too: a typed .usdz used to come back
+        as ``hero.usdz.usd``."""
+        host = _PullHost(_FakeBridge(), picked="X:/out/hero.usdz")
+        host.tb003(_export_widget(fmt="usd", save="prompt"))
+        self.assertEqual(host.native[0][:2], ("usd", "X:/out/hero.usdz"))
+
+    def test_only_usd_has_alternate_spellings(self):
+        host = _PullHost(_FakeBridge(), picked="X:/out/hero.usdz")
+        host.tb003(_export_widget(fmt="fbx", save="prompt"))
+        self.assertEqual(host.native[0][1], "X:/out/hero.usdz.fbx")
+
+    def test_the_foreign_format_takes_every_extension_its_bridge_writes(self):
+        """A Maya scene is ``.ma`` or ``.mb``: a typed ``shot.mb`` came back as
+        ``shot.mb.ma`` (and the dialog offered ``*.ma`` alone)."""
+        bridge = _FakeBridge(name="Maya", extensions=(".ma", ".mb"))
+        host = _PullHost(bridge, picked="X:/out/shot.mb")
+        self.assertEqual(host._export_spellings("foreign"), (".ma", ".mb"))
+        spellings = host._export_spellings("foreign")
+        self.assertEqual(
+            host._resolve_export_path("prompt", ".ma", spellings), "X:/out/shot.mb"
+        )
 
 
 class _CheckHost(_Host):

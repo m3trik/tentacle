@@ -14,7 +14,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
     Recent files / autosave recovery map onto Blender's own recent-files.txt and temp-dir
     autosaves (``btk.get_recent_files`` / ``btk.get_recent_autosave``); the submenu's
     Import / Export expandable lists route through Blender's native format operators
-    (file dialogs via ``INVOKE_DEFAULT``).
+    (file dialogs via ``INVOKE_DEFAULT``) -- except USD, which goes through
+    ``btk.UsdUtils``' interchange import / export (``SceneMixin._import_usd`` /
+    ``_export_usd``): the stock importer skips hidden prims and folds single-child
+    groups away, and the stock exporter drops hidden objects in every mode.
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
     Scene Exporter and Hierarchy Sync are native blendertk panels, both 1:1 with mayatk's:
     the former (task/check pipeline, FBX or GLB) reached from the Export list — see
@@ -40,6 +43,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         # headless-Blender bridge — Maya ships no glTF importer). Here it is native,
         # so the parity is in the LABEL and the result, not the mechanism.
         "Import glTF": "import_scene.gltf",
+        # A callable, not "wm.usd_import": the stock operator's defaults skip
+        # hidden prims and fold single-child groups away (SceneMixin._import_usd).
+        "Import USD": lambda slot: slot._import_usd(),
         "Import Collada": "wm.collada_import",
         "Import Maya Scene": lambda slot: slot._import_maya_scene(),
         "Append from .blend": "wm.append",
@@ -60,6 +66,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         # The push mirror of Import's "Import Maya Scene" — same bridge, opposite
         # direction, so the two live symmetrically in the two lists.
         "Export .ma": lambda slot: slot._export_foreign_scene(),
+        # The whole scene as USD, on Export Scene's USD writer (SceneMixin) -- not
+        # "wm.usd_export", which drops hidden objects in every mode.
+        "Export USD": lambda slot: slot._export_usd(),
         "Export FBX": "export_scene.fbx",
         "Export OBJ": "wm.obj_export",
         "Export glTF": "export_scene.gltf",
@@ -267,7 +276,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         )
         root = widget.add(
             "Import",
-            setToolTip="Import a file (FBX / OBJ / glTF / Maya scene …), or append/link from a .blend.",
+            setToolTip="Import a file (FBX / OBJ / glTF / USD / Maya scene …), or append/link from a .blend.",
         )
         root.sublist.add(
             [k for k, v in self._IMPORTERS.items() if callable(v) or self.resolve_op(v)]
@@ -282,38 +291,18 @@ class SceneSlots(SceneMixin, SlotsBlender):
         elif entry:
             self.invoke_op(entry)
 
+    def _scene_import_engine(self):
+        """The engine the Import list pulls through (SceneMixin hook): a .ma / .mb
+        converts in a fresh headless mayapy (tens of seconds -- startup plus a license
+        checkout; a local Maya install is required), and a USD imports natively,
+        through the same consumer a linked USD row's bake runs."""
+        return btk.MayaSceneImport()
+
     def _import_maya_scene(self):
-        """Import a Maya scene (.ma/.mb) via ``btk.MayaSceneImport`` — a headless-Maya
-        FBX round-trip by default (fresh mayapy converts the scene; instancing is
-        carried by the format, materials rebuilt from a texture manifest; the USD
-        route — native materials / animation / visibility, instancing replayed from
-        a sidecar — is opt-in via the Reference Manager's route option, the Export
-        Scene option box's Transfer-via combo -- read here -- or ``via="usd"``).
-        Blocking: a scene conversion
-        takes tens of seconds (mayapy startup + license checkout), so a wait cursor
-        covers the run. Requires a local Maya install."""
-        src = self.sb.file_dialog(
-            file_types=["*.ma", "*.mb"],
-            title="Import Maya Scene",
-            filter_description="Maya Scenes",
-            allow_multiple=False,
-        )
-        if not src:
-            return
-        app = self.sb.QtWidgets.QApplication
-        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
-        try:
-            imported = btk.MayaSceneImport().import_scene(
-                src, via=self._transfer_carrier()
-            )
-        except Exception as e:
-            self.sb.message_box(f"Maya scene import failed: <hl>{e}</hl>")
-            return
-        finally:
-            app.restoreOverrideCursor()
-        self.sb.message_box(
-            f"Imported <hl>{len(imported)}</hl> object(s) from "
-            f"<hl>{os.path.basename(src)}</hl>."
+        """Import a Maya scene (.ma/.mb). Mirror of the Maya slots' "Import Blender
+        Scene"; see :meth:`_pull_scene` for the route."""
+        self._pull_scene(
+            ["*.ma", "*.mb"], "Import Maya Scene", "Maya Scenes", "Maya scene"
         )
 
     #: Export Scene's combo label for Maya's native format (SceneMixin hook).
@@ -350,7 +339,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add(
             "Export",
-            setToolTip="Export the scene or selection (FBX / OBJ / glTF …).",
+            setToolTip="Export the scene or selection (FBX / OBJ / glTF / USD …).",
         )
         one_shots = [
             k
