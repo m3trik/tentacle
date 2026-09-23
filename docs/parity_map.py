@@ -155,8 +155,8 @@ CONTROLS = {
         # 'Import (convert)' item (btn_import_scene / row_import) was removed 2026-07-25 and folded
         # into 'Unlink and Import' on BOTH panels, so neither control exists any more — no entry.
         # chk_hide_binary retired 2026-07-20: both panels now carry the same Include Types row
-        # (chk_include_ma / _mb / _fbx / _blend), so hiding .mb is just unchecking "mb" — the
-        # control exists on BOTH sides under identical objectNames and needs no ledger entry.
+        # (chk_include_ma / _mb / _fbx / _usd / _blend), so hiding .mb is just unchecking "mb" —
+        # the control exists on BOTH sides under identical objectNames and needs no ledger entry.
         "chk000": {"status": "renamed", "to": "chk_recursive", "reason": "Recursive Search lives on the Root Directory option box (same control/placement/default as Maya)"},
         "chk003": {
             "status": "na",
@@ -294,7 +294,7 @@ CONTROLS = {
     "image_to_plane": {  # mayatk file stem is env_utils/image_to_plane/... ; added 2026-07-08
         "cmb_mat_type": {"status": "na", "reason": "Maya shader-node-type pick (Stingray PBS realtime/DX11 vs Standard Surface Arnold/offline); Blender builds the one unified Principled BSDF for both EEVEE and Cycles, so there is no shader-node-type choice to make -- the Blender combo is disabled by design (documented in the module docstring). Same shape as game_shader.cmb004."},
     },
-    "lightmap_baker": {
+    "lightmap_baker_slots": {  # the panel file stem (lightmap_baker_slots.py)
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
         # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk
         # LightmapBaker.pack_atlas now ports mayatk's atlas consolidation — per-primary-material
@@ -323,6 +323,28 @@ CONTROLS = {
             "to": "open_output",
             "reason": "same 'open where the bakes went' action on the header menu; both resolve the Output Directory field and open it. Maya names the menu item for its project's sourceimages fallback, Blender for the resolved output dir (its texture-folder base is workspace/.blend-relative, so 'sourceimages' would name the wrong thing).",
         },
+        # 2026-09-22 Maya panel additions (mayatk CHANGELOG, docs/lightmap_baker.md). The
+        # Blender port of the pending rows is one BACKLOG entry ("blendertk lightmap baker:
+        # port the 2026-09-22 panel additions").
+        "wire_combo": {"status": "pending", "reason": "Preset combo (cmb000) became uitk's preset template in semantic mode over LightmapBaker.preset_store -- Save/Rename/Delete, a modified marker, and presets that carry the switches as well as the dials, read back by from_preset. Blender's cmb000 is still the quality-tier combo with the Custom row (_preset_for_dials + sb.value_from); the port swaps it for the same wire_combo and teaches blendertk's from_preset the switch keys."},
+        "set_exclusions": {"status": "pending", "reason": "Exclude row: Set From Selection stores the scene's LightmapExcludeSet (mayatk.mat_utils.bake_sets), which LightmapBaker.bake_targets subtracts from every bake -- excluded objects get no map and are not reverted, but stay in the render. Blender needs the set itself (a stamped Collection, as substance_bridge.HighPolySet stores the bake source) plus bake_targets in blendertk's LightmapBaker."},
+        "lbl_exclude": {"status": "pending", "reason": "the Exclude row's label, which shows the excluded mesh count; ports with set_exclusions."},
+        "add_action": {"status": "pending", "reason": "the Exclude row's Select / Clear option-box icons (the Marmoset Bake Source row's layout); port with set_exclusions."},
+        "set_toggle": {"status": "pending", "reason": "the panel's four switches, each riding the option box of the field it qualifies (LightmapBakerSlots._TOGGLES, one _wire_toggle call site): Include Environment on Scope, Adaptive Sampling on Samples, Denoise on Resolution, Beside Material Textures on the Output Directory. Blender carries the first two as chk_environment / chk_denoise rows (the sweep's 'extras'), has no adaptive twin yet, and has nothing for beside-textures -- blendertk's baker needs the texture-set folder (its image filepaths) and the same place-after-bake step. Port the switch layout with them, so the two panels are read the same way."},
+        "spn_bounces": {"status": "pending", "reason": "Bounces (Arnold GIDiffuseDepth, the presets' gi_depth). blendertk's LightmapBaker already takes bounces= (Cycles max bounces); the Blender panel just has no widget for it yet, so its bakes run at the preset's value."},
+        "spn_gi_samples": {"status": "na", "reason": "Arnold's GIDiffuseSamples (and the GPU's adaptive AA x GI ceiling). Cycles is a unified path tracer: since Cycles X (Blender 3.0) removed branched path tracing there is no per-ray-type sample count -- one Samples value covers direct and indirect light, and Blender's spn_samples already is that."},
+        # chk_adaptive row retired 2026-09-22: Maya has no Adaptive Sampling CHECKBOX any
+        # more -- it, Include Environment and Denoise became option-box switches on the
+        # fields they qualify, so the whole group ledgers as one `set_toggle` row above.
+        # Whether Blender gets an adaptive twin at all still turns on the open question
+        # from that row: does Cycles' bake honor scene.cycles.use_adaptive_sampling?
+        # chk_environment / chk_denoise now show as blendertk EXTRAS (report-only): they
+        # are the Blender twin's older FORM of two switches Maya still has, not drops.
+        # cmb_device is present on both; Maya relabelled its items Device -> Processor
+        # 2026-09-22 (a machine setting, lifted out of the Quality group). Label text only
+        # -- the objectName, the item data (AUTO/GPU/CPU) and the reader are unchanged, and
+        # the sweep compares names, so there is nothing to ledger.
+        "btn_reset_defaults": {"status": "pending", "reason": "Reset to Defaults, in the action group the panel now ends with (Preset / Reset / Bake, the WebXR preview panel's grp_process shape). Pure uitk -- ResetGesture over the window's StateManager, no Maya in it -- so the Blender port is the same .ui row plus the same btn_reset_defaults_init; it ports with wire_combo, since the two share the group and the reset drops the preset pointer."},
     },
     "mat_updater": {
         "cmb_shader_type": {"status": "na", "reason": "Shader Type (retype the materials before wiring, via mtk.ShaderConverter -> StingrayPBS / standardSurface / openPBRSurface). Blender has no shader-type axis: a material is one Principled BSDF node graph, so there is no target to convert to and blendertk ships no ShaderConverter twin. The rest of the run (texture resolution + rewire) is mirrored."},
@@ -1036,7 +1058,7 @@ DEFAULT_DELTAS = {
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
     },
-    "lightmap_baker": {
+    "lightmap_baker_slots": {
         "spn_samples.maximum": "Different renderer sample ceilings: Maya spn_samples = Arnold AA samples (max 256, sensible for Arnold); Blender spn_samples = Cycles bake samples (max 4096 — Cycles routinely uses far higher sample counts than Arnold AA). Same 'render sample count' concept, renderer-appropriate range.",
     },
 }

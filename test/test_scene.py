@@ -230,6 +230,12 @@ class TestSceneExporterOnExportList(unittest.TestCase):
         self.inst.list002(self._Item("Export"))  # the category row
         self.assertEqual(self.shown, [])
 
+    def test_usd_entry_dispatches_to_the_shared_usd_export(self):
+        calls = []
+        self.inst._export_usd = lambda: calls.append("usd")
+        self.inst.list002(self._Item("Export USD"))
+        self.assertEqual(calls, ["usd"])
+
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestGltfImportEntry(unittest.TestCase):
@@ -269,6 +275,14 @@ class TestGltfImportEntry(unittest.TestCase):
         self.assertEqual(len(self.calls), 1)
         self.assertEqual(self.calls[0][0][0], ["*.blend"])
 
+    def test_usd_entry_shares_the_same_pull(self):
+        self.inst.list001(self._Item("Import USD"))
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(
+            self.calls[0][0][0],
+            [f"*{ext}" for ext in scene_module.ptk.USD_EXTENSIONS],
+        )
+
     def test_unknown_label_is_a_noop(self):
         self.inst.list001(self._Item("Import"))  # the category row
         self.assertEqual(self.calls, [])
@@ -280,7 +294,7 @@ class TestGltfImportEntry(unittest.TestCase):
 
         src = inspect.getsource(scene_module.SceneSlots._pull_scene)
         self.assertIn("_transfer_carrier()", src)
-        for name in ("_import_gltf", "_import_blender_scene"):
+        for name in ("_import_gltf", "_import_blender_scene", "_import_usd"):
             body = inspect.getsource(getattr(scene_module.SceneSlots, name))
             self.assertIn("_pull_scene", body)
             self.assertNotIn("import_scene(", body)

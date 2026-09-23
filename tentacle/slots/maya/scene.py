@@ -223,6 +223,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
         "Import Options": lambda slot: mel.eval("ImportOptions"),
         "Import Blender Scene": lambda slot: slot._import_blender_scene(),
         "Import glTF": lambda slot: slot._import_gltf(),
+        # Through mtk.UsdUtils (SceneMixin._import_usd), not File > Import's stock
+        # translator: that reads with animation OFF and crashes on a DQ skin.
+        "Import USD": lambda slot: slot._import_usd(),
         "FBX Import Presets": lambda slot: slot._eval_fbx_uicallback(
             'editImportPresetInNewWindow" "fbx'
         ),
@@ -243,6 +246,8 @@ class SceneSlots(SceneMixin, SlotsMaya):
         # The push mirror of Import's "Import Blender Scene" — same bridge, opposite
         # direction, so the two live symmetrically in the two lists.
         "Export .blend": lambda slot: slot._export_foreign_scene(),
+        # The whole scene as USD, on Export Scene's USD writer (SceneMixin).
+        "Export USD": lambda slot: slot._export_usd(),
         "Export All": lambda slot: mel.eval("Export"),
         "Send to Unreal": lambda slot: mel.eval("SendToUnrealSelection"),
         "Send to Unity": lambda slot: mel.eval("SendToUnitySelection"),
@@ -282,7 +287,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         )
         root = widget.add(
             "Import",
-            setToolTip="Import a file, a Blender scene or a glTF, or open Import / FBX / OBJ preset options.",
+            setToolTip="Import a file, a Blender scene, a glTF or a USD, or open Import / FBX / OBJ preset options.",
         )
         root.sublist.add(list(self._IMPORTERS))
 
@@ -293,51 +298,11 @@ class SceneSlots(SceneMixin, SlotsMaya):
         if action:
             action(self)
 
-    def _pull_scene(self, file_types, title, filter_description, kind):
-        """Browse for a foreign scene and pull it in through ``mtk.BlenderSceneImport``.
-
-        Every entry that reaches Maya through the headless-Blender bridge shares this
-        body — only the browse filter and the wording differ — so the carrier choice,
-        the wait cursor and the failure report cannot drift between them.
-
-        The route is a headless-Blender FBX round-trip by default (a fresh
-        ``blender --background`` converts the source; instancing is carried by the
-        format, materials rebuilt from a texture manifest; the USD route — native
-        materials / animation, instancing replayed from a sidecar — is opt-in via the
-        Reference Manager's route option or the Export Scene option box's Transfer-via
-        combo, read here). Blocking: a conversion takes seconds (no license checkout —
-        Blender is free), so a wait cursor covers the run. Requires a local Blender
-        install.
-
-        Parameters:
-            file_types: Browse filter globs, e.g. ``["*.blend"]``.
-            title: File-dialog title.
-            filter_description: File-dialog filter label.
-            kind: What failed, for the error message ("Blender scene", "glTF").
-        """
-        src = self.sb.file_dialog(
-            file_types=file_types,
-            title=title,
-            filter_description=filter_description,
-            allow_multiple=False,
-        )
-        if not src:
-            return
-        app = self.sb.QtWidgets.QApplication
-        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
-        try:
-            imported = mtk.BlenderSceneImport().import_scene(
-                src, via=self._transfer_carrier()
-            )
-        except Exception as e:
-            self.sb.message_box(f"{kind} import failed: <hl>{e}</hl>")
-            return
-        finally:
-            app.restoreOverrideCursor()
-        self.sb.message_box(
-            f"Imported <hl>{len(imported)}</hl> object(s) from "
-            f"<hl>{os.path.basename(src)}</hl>."
-        )
+    def _scene_import_engine(self):
+        """The engine the Import list pulls through (SceneMixin hook): a .blend or a
+        glTF converts in a fresh headless Blender (a local install is required), and a
+        USD imports natively through ``mtk.UsdUtils``."""
+        return mtk.BlenderSceneImport()
 
     def _import_blender_scene(self):
         """Import a Blender scene (.blend). Mirror of the Blender slots'
@@ -399,7 +364,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add(
             "Export",
-            setToolTip="Export the scene or selection (FBX, Send To, presets).",
+            setToolTip="Export the scene or selection (FBX, USD, Send To, presets).",
         )
         one_shots = [k for k in self._EXPORTERS if k != self._SCENE_EXPORTER]
         exporter_tip = "Export scene assets with environment checks and presets."
