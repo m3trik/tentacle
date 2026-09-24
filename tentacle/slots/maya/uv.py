@@ -498,6 +498,100 @@ class UvSlots(UvMixin, SlotsMaya):
                 )
 
     @staticmethod
+    def _distribute_to_grid(uvs, u_tile, v_tile, tiles_u, tiles_v) -> None:
+        """Assign the shells of *uvs* to grid tiles, balanced by UV area.
+
+        u3dLayout's own Distribute mode (-tileAssignMode 0) deals shells to the
+        tiles by count and drops some on top of already-packed ones (measured:
+        2-400 stacked faces on mixed content, varying run to run). Its Center
+        mode (-tileAssignMode 1) instead packs each shell inside the tile its
+        center already occupies, overlap-free — so the distribution is done
+        here: largest shell first into the least-loaded tile, each moved by a
+        whole-tile offset (shells sharing an offset move in one call). A pinned
+        UV moves with its shell and keeps its pin weight.
+        """
+        import maya.api.OpenMaya as om
+        import numpy as np
+
+        sel = om.MSelectionList()
+        for comp in uvs:
+            sel.add(comp)
+        shells = []  # (area, mesh path, uv ids of the shell in scope, center)
+        for i in range(sel.length()):
+            dag, component = sel.getComponent(i)
+            fn = om.MFnMesh(dag)
+            us, vs = fn.getUVs()
+            pos = np.column_stack([us, vs])
+            _, shell_ids = fn.getUvShellsIds()
+            shell_ids = np.asarray(shell_ids)
+            # Sorted + unique, so each shell's ids below stay ascending.
+            scope = np.unique(
+                np.asarray(
+                    om.MFnSingleIndexedComponent(component).getElements()
+                    if not component.isNull()
+                    else range(len(us)),
+                    dtype=np.int64,
+                )
+            )
+            if not len(scope):
+                continue
+            # Per-shell area (shoelace over each polygon's assigned UVs).
+            counts, uv_ids = fn.getAssignedUVs()
+            counts = np.asarray(counts, dtype=np.int64)
+            uv_ids = np.asarray(uv_ids, dtype=np.int64)
+            face = np.repeat(np.arange(len(counts)), counts)
+            nxt = np.arange(len(uv_ids)) + 1
+            ends = np.cumsum(counts)
+            nxt[ends[counts > 0] - 1] = (ends - counts)[counts > 0]
+            a, b = pos[uv_ids], pos[uv_ids[nxt]]
+            twice = np.zeros(len(counts))
+            np.add.at(twice, face, a[:, 0] * b[:, 1] - a[:, 1] * b[:, 0])
+            area = np.zeros(shell_ids.max(initial=-1) + 1)
+            mapped = counts > 0
+            np.add.at(
+                area, shell_ids[uv_ids[ends[mapped] - 1]], np.abs(twice[mapped]) / 2
+            )
+            path = dag.fullPathName()
+            # One stable sort groups the scope by shell (a mask per shell is
+            # shells x UVs on a dense mesh).
+            order = np.argsort(shell_ids[scope], kind="stable")
+            scope = scope[order]
+            cuts = np.flatnonzero(np.diff(shell_ids[scope])) + 1
+            for ids in np.split(scope, cuts):
+                shell = shell_ids[ids[0]]
+                shells.append((area[shell], path, ids, pos[ids].mean(axis=0)))
+
+        load = [0.0] * (tiles_u * tiles_v)
+        moves = {}  # (du, dv) -> component strings
+        for area, path, ids, center in sorted(shells, key=lambda s: -s[0]):
+            tile = min(range(len(load)), key=load.__getitem__)
+            load[tile] += area
+            du = u_tile + tile % tiles_u - int(np.floor(center[0]))
+            dv = v_tile + tile // tiles_u - int(np.floor(center[1]))
+            if du or dv:
+                runs = np.split(ids, np.flatnonzero(np.diff(ids) != 1) + 1)
+                moves.setdefault((du, dv), []).extend(
+                    f"{path}.map[{int(r[0])}:{int(r[-1])}]" for r in runs
+                )
+        if not moves:
+            return
+        # polyEditUV honours pin weights: a pinned UV refuses to move, tearing
+        # its shell across tiles (this panel's Pin and Stack leave pins
+        # behind). Lift them for the moves and put the exact weights back.
+        comps = [c for group in moves.values() for c in group]
+        pinned = []
+        if any(cmds.polyPinUV(comps, query=True, value=True) or []):
+            flat = cmds.ls(comps, flatten=True) or []
+            weights = mtk.UvUtils.get_uv_pin_weights(flat)
+            pinned = [(uv, w) for uv, w in zip(flat, weights) if w]
+        if pinned:
+            cmds.polyPinUV([uv for uv, _ in pinned], value=0.0)
+        for (du, dv), group in moves.items():
+            cmds.polyEditUV(group, uValue=du, vValue=dv, relative=True)
+        if pinned:
+            mtk.UvUtils.set_uv_pin_weights(*zip(*pinned))
+
+    @staticmethod
     def _classify_u3d_error(error) -> str:
         """Condense an Unfold3D RuntimeError (u3dLayout / u3dUnfold / u3dOptimize)
         into a short, human-readable reason for display in a message box.
@@ -678,6 +772,9 @@ class UvSlots(UvMixin, SlotsMaya):
                 > 1, shells distribute across a grid of UDIM tiles anchored at
                 the target tile, extending right/up. Coverage is forced Full,
                 and Tiles U is clamped so the grid stays inside the UDIM row.
+                Shells are dealt to the tiles here (area-balanced) and packed
+                per tile (-tileAssignMode 1); u3dLayout's own Distribute mode
+                stacks shells.
             skip_instances (bool): chk016. When on (default), pack one
                 representative per instance group instead of every instance.
                 Object-level selection only; ignored for component selections.
@@ -736,6 +833,10 @@ class UvSlots(UvMixin, SlotsMaya):
         meshes = mtk.Components.get_components(selection, "mesh", flatten=False)
         if not meshes:
             meshes = cmds.ls(selection, type="transform", dag=True) or selection
+        # A packer's unit is a face: widen UV / edge / vertex picks (a shell
+        # chosen in the UV editor is a UV selection) to the faces they touch.
+        if any("." in str(m) for m in meshes):
+            meshes = cmds.polyListComponentConversion(meshes, toFace=True) or []
 
         # Bulk-resolve UVs in one call; keep ranges unflattened ("pCube1.map[0:23]")
         # so we don't pay to expand millions of indices into individual strings.
@@ -754,7 +855,10 @@ class UvSlots(UvMixin, SlotsMaya):
         cov_u, cov_v = (1.0, 1.0) if grid else menu.cmb015.currentData()
 
         pack_kwargs = dict(
-            resolution=map_size,
+            # -res is the packer's raster, not the texture size: Maya's own
+            # dialog caps it at 4096, and the 16k map size packed ~9x slower
+            # than 4096 (measured 86s vs 9s on 24 meshes) for no overlap gain.
+            resolution=min(map_size, 4096),
             shellSpacing=shellPadding,
             tileMargin=tilePadding,
             preScaleMode=scale,
@@ -778,6 +882,13 @@ class UvSlots(UvMixin, SlotsMaya):
         if grid:
             pack_kwargs["tileU"] = tiles_u
             pack_kwargs["tileV"] = tiles_v
+        # Distribute ourselves, then let u3dLayout pack each tile in place:
+        # its own Distribute mode stacks shells (see _distribute_to_grid).
+        # Not under Scale Mode Off -- shells keep their size there and spill
+        # past the grid, so a tile-local pack has nothing to fit into.
+        distribute = grid and scale_mode != 1
+        if distribute:
+            pack_kwargs["tileAssignMode"] = 1
 
         successful = []
         failed = []
@@ -821,6 +932,10 @@ class UvSlots(UvMixin, SlotsMaya):
                         )
                         return
                 else:
+                    if distribute:
+                        self._distribute_to_grid(
+                            all_uvs, u_tile, v_tile, tiles_u, tiles_v
+                        )
                     self._pack_u3d(all_uvs, meshes, pack_kwargs, successful, failed)
             finally:
                 cmds.refresh(suspend=False)
@@ -855,14 +970,16 @@ class UvSlots(UvMixin, SlotsMaya):
                 f"past the end of the UDIM row.</i>"
             )
 
-        # Report summary
+        # Report summary. Distinct objects, not entries: a component pick
+        # arrives as several face ranges per object.
+        packed = len({str(m).split(".", 1)[0] for m in successful})
         if failed:
             failed_list = "<br>".join(
                 f"• <b>{name}</b>: {reason}" for name, reason in failed
             )
             self.sb.message_box(
                 f"<b>UV Pack Complete</b><br><br>"
-                f"✓ Packed: {len(successful)} mesh(es)<br>"
+                f"✓ Packed: {packed} mesh(es)<br>"
                 f"✗ Skipped: {len(failed)} mesh(es)<br><br>"
                 f"{stats}<br><br>"
                 f"<b>Skipped meshes:</b><br>{failed_list}<br><br>"
@@ -871,7 +988,7 @@ class UvSlots(UvMixin, SlotsMaya):
         elif successful:
             self.sb.message_box(
                 f"<b>UV Pack Complete</b><br><br>"
-                f"✓ Successfully packed {len(successful)} mesh(es).<br><br>"
+                f"✓ Successfully packed {packed} mesh(es).<br><br>"
                 f"{stats}"
             )
 

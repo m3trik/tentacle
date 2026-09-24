@@ -1488,6 +1488,92 @@ class TestTb000Pack(unittest.TestCase):
         self.assertLess(min(u_mins), 1.0, "grid should still use the first tile")
         self.assertIn("1001-1002", self._message_text())
 
+    @staticmethod
+    def _mixed_content():
+        """16 primitives at mixed scales plus two cut meshes: the smallest
+        content found on which u3dLayout's Distribute grid mode stacks shells
+        (a cone cap and a sphere pole land on packed shells). Seeded, so the
+        scene is identical every run."""
+        import random
+
+        rng = random.Random(11)
+        makers = [
+            cmds.polySphere,
+            cmds.polyCylinder,
+            cmds.polyTorus,
+            cmds.polyCone,
+            cmds.polyCube,
+            cmds.polyPipe,
+            cmds.polyHelix,
+        ]
+        out = []
+        for _ in range(14):
+            obj = rng.choice(makers)(ch=False)[0]
+            scale = rng.uniform(0.1, 3.0)
+            cmds.xform(obj, s=(scale, scale * rng.uniform(0.3, 3), scale))
+            out.append(obj)
+        cube = cmds.polyCube(ch=False)[0]
+        cmds.polyMapCut(f"{cube}.e[*]", ch=False)
+        sphere = cmds.polySphere(sx=16, sy=12, ch=False)[0]
+        cmds.polyMapCut(cmds.ls(f"{sphere}.e[*]", flatten=True)[::4], ch=False)
+        return out + [cube, sphere]
+
+    def test_tile_grid_never_stacks_shells(self):
+        """User-reported: Pack left overlapping shells. With Tiles U/V > 1,
+        u3dLayout's own Distribute mode (-tileAssignMode 0) drops some shells
+        on top of packed ones. Every shell must land clear of the others."""
+        objs = self._mixed_content()
+        cmds.select(objs)
+
+        self.instance.tb000(
+            widget=_FakeTb000Widget(
+                s019=_FakeTb000Widget._Spin(2), s020=_FakeTb000Widget._Spin(2)
+            )
+        )
+
+        faces = cmds.polyListComponentConversion(objs, toFace=True)
+        overlapping = cmds.ls(cmds.polyUVOverlap(faces, oc=True) or [], flatten=True)
+        self.assertEqual(overlapping, [])
+        for obj in objs:
+            (u0, u1), (v0, v1) = self._bbox2d(obj)
+            self.assertGreaterEqual(min(u0, v0), 0.0)
+            self.assertLessEqual(max(u1, v1), 2.0)
+
+    def test_grid_distribution_moves_pinned_shells_whole(self):
+        """polyEditUV honours pin weights, so the whole-tile moves that deal
+        shells to a Tiles U/V grid left a shell's pinned UVs where they were:
+        the shell torn across tiles before u3dLayout ever packed it (this
+        panel's Pin and Stack buttons leave pins behind). Pins are lifted for
+        the moves and the exact weights put back."""
+        cubes = [cmds.polyCube(name=f"packPin{i}", ch=False)[0] for i in range(4)]
+        for cube in cubes:
+            cmds.polyPinUV(f"{cube}.map[0:3]", value=1.0)
+            cmds.polyPinUV(f"{cube}.map[5]", value=0.5)
+        uvs = cmds.polyListComponentConversion(cubes, fromFace=True, toUV=True)
+
+        def state(cube):
+            flat = cmds.ls(f"{cube}.map[*]", flatten=True)
+            pos = [tuple(cmds.polyEditUV(uv, query=True)) for uv in flat]
+            return pos, mtk.UvUtils.get_uv_pin_weights(flat)
+
+        before = {cube: state(cube) for cube in cubes}
+
+        # Four equal one-shell cubes over 2 x 2 tiles: one per tile, so three
+        # of them move by a whole tile.
+        uv_module.UvSlots._distribute_to_grid(uvs, 0, 0, 2, 2)
+
+        moved = 0
+        for cube in cubes:
+            (pos0, pins0), (pos1, pins1) = before[cube], state(cube)
+            offsets = {
+                (round(b[0] - a[0], 6), round(b[1] - a[1], 6))
+                for a, b in zip(pos0, pos1)
+            }
+            self.assertEqual(len(offsets), 1, f"{cube} tore: {sorted(offsets)}")
+            moved += offsets != {(0.0, 0.0)}
+            self.assertEqual(pins1, pins0, f"{cube} lost its pin weights")
+        self.assertEqual(moved, 3)
+
     def test_tile_grid_clamps_to_udim_row_end(self):
         """UDIM 1010 sits at the row end (u=9): Tiles U 2 would pack past
         u=10, outside UDIM addressing, so it clamps to 1 and says so."""
@@ -1617,6 +1703,49 @@ class TestTb000Pack(unittest.TestCase):
         }
         self.assertTrue(moved)
         self.assertTrue(moved <= scoped, "the pack reached outside the selection")
+
+    def test_standard_method_widens_uv_edge_and_vertex_selections(self):
+        """A shell picked in the UV editor is a UV selection (and edge / vertex
+        picks happen too); Standard only accepted faces and answered "No UVs
+        found on selection." for the rest. Each must pack the faces it touches
+        and nothing outside them."""
+        for pick in ("uvs", "edge", "vertex"):
+            with self.subTest(pick=pick):
+                cmds.file(new=True, force=True)
+                cube = cmds.polyCube(name="packA", ch=False)[0]
+                cmds.polyMapCut(f"{cube}.e[*]", ch=False)
+                cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)
+                before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+                selection = {
+                    "uvs": cmds.polyListComponentConversion(f"{cube}.f[0]", toUV=True),
+                    "edge": [f"{cube}.e[0]"],
+                    "vertex": [f"{cube}.vtx[0]"],
+                }[pick]
+                touched = cmds.polyListComponentConversion(selection, toFace=True)
+                scoped = {
+                    int(c.split("[")[1].rstrip("]"))
+                    for c in cmds.ls(
+                        cmds.polyListComponentConversion(touched, toUV=True),
+                        flatten=True,
+                    )
+                }
+                self.instance.sb = _RecordedSb()
+                cmds.select(selection)
+
+                self.instance.tb000(widget=_FakeTb000Widget())
+
+                after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+                moved = {
+                    i
+                    for i in range(len(before) // 2)
+                    if abs(before[2 * i] - after[2 * i]) > 1e-6
+                    or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
+                }
+                self.assertTrue(moved, self._message_text())
+                self.assertTrue(moved <= scoped, "the pack reached outside")
+                # One object, however many face ranges the pick widened to (a
+                # corner vertex touches three faces apart).
+                self.assertIn("packed 1 mesh(es)", self._message_text())
 
     def test_xatlas_missing_engine_reports_install_note(self):
         """A missing engine must message (with the install command) and leave

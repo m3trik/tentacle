@@ -125,6 +125,10 @@ class TentacleInstaller:
     LOCK_WAIT = 1800
     #: Seconds between polls of a lock another process holds.
     LOCK_POLL = 2.0
+    #: How long a manifest read or write waits out a sharing violation (seconds): Windows
+    #: answers a file an antivirus scan or a sync client holds for a moment with
+    #: PermissionError. One that lasts longer is a folder this user cannot write.
+    SHARE_WAIT = 2.0
     VERBS = ("install", "update", "uninstall")
     #: Seconds between worker polls while a GUI provisioning runs.
     POLL_INTERVAL = 0.5
@@ -521,12 +525,32 @@ class TentacleInstaller:
         path = cls.manifest_path(target)
         if not os.path.isfile(path):
             return {}
-        try:
+
+        def load():
             with open(path, "r", encoding="utf-8") as fh:
-                data = json.load(fh)
+                return json.load(fh)
+
+        try:
+            # A file held for a moment is not unreadable: that verdict makes
+            # _settle_pending clear a verb it cannot see (:meth:`_patient`).
+            data = cls._patient(load)
         except (OSError, ValueError):
             return None
         return data if isinstance(data, dict) else None
+
+    @classmethod
+    def _patient(cls, fn):
+        """``fn()``, retried while it raises ``PermissionError`` -- a sharing
+        violation, a moment's contention like the lock's -- for up to
+        :attr:`SHARE_WAIT` seconds; a refusal that outlasts that is raised."""
+        deadline = time.time() + cls.SHARE_WAIT
+        while True:
+            try:
+                return fn()
+            except PermissionError:
+                if time.time() >= deadline:
+                    raise
+                time.sleep(0.05)
 
     @classmethod
     def write_manifest(cls, target, **updates):
@@ -541,6 +565,8 @@ class TentacleInstaller:
         merged (that is what unreadable means), but the install it describes is still
         on disk, so it is moved aside to ``<manifest>.corrupt`` before the fresh record
         is written. Overwriting it outright would drop the only list of what to remove.
+        A sharing violation on the write is waited out (:meth:`_patient`): on a synced
+        folder the replace was refused within a few writes.
         """
         data = cls._read_manifest(target)
         if data is None:
@@ -557,12 +583,16 @@ class TentacleInstaller:
         os.makedirs(target, exist_ok=True)
         path = cls.manifest_path(target)
         tmp = path + ".tmp"
-        try:
+
+        def put():
             with open(tmp, "w", encoding="utf-8") as fh:
                 json.dump(data, fh, indent=1)
                 fh.flush()
                 os.fsync(fh.fileno())
             os.replace(tmp, path)
+
+        try:
+            cls._patient(put)
         finally:
             if os.path.isfile(tmp):
                 try:
