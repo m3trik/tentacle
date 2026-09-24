@@ -1319,7 +1319,7 @@ Behavior shared by the Maya and Blender UV panels.
 - **[`class Rendering(RenderingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L13)**
   - `Rendering.tb000_init(self, widget)` — Export Playblast Init
   - `Rendering.tb000(self, widget)` — Export Playblast
-  - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, Arnold network, IPR, and smart redo.
+  - `Rendering.tb001_init(self, widget)` — Render: camera, renderer, IPR, and smart redo.
   - `Rendering.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
   - `Rendering.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
   - `Rendering.b001(self)` — Open Render Settings Window
@@ -1649,9 +1649,9 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L1694) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1700) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1706) — Maya drop hook: first drop installs and launches;
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1724) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1730) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1736) — Maya drop hook: first drop installs and launches;
 - **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L80)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).

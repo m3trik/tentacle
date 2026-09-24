@@ -323,16 +323,25 @@ class _SB:
 
 
 class _FakeBridge:
-    """Records add() calls; instances tracked on the class."""
+    """Records add() calls (into ``log`` too, when set); instances tracked on
+    the class. ``game`` is what ``unrenderable_materials()`` reports."""
 
     instances = []
+    game = []
+    log = None
 
     def __init__(self):
         _FakeBridge.instances.append(self)
         self.added = "UNSET"
 
+    @classmethod
+    def unrenderable_materials(cls):
+        return list(cls.game)
+
     def add(self, materials=None, **kw):
         self.added = materials
+        if _FakeBridge.log is not None:
+            _FakeBridge.log.append(("bridge", tuple(materials or ())))
         return materials or []
 
 
@@ -377,7 +386,7 @@ class _FakeRenderUtils:
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestRenderButtonInit(unittest.TestCase):
-    """tb001_init populates camera + renderer combos and gates the Arnold option."""
+    """tb001_init populates camera + renderer combos and gates the IPR option."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -416,17 +425,11 @@ class TestRenderButtonInit(unittest.TestCase):
         self.assertIn("arnold", names)
         self.assertIn("mayaSoftware", names)
 
-    def test_arnold_option_gated_on_renderer(self):
+    def test_no_arnold_network_option(self):
+        """An Arnold render bridges the game shaders on its own (tb001), so the
+        option box asks nothing about it."""
         _, menu, _ = self._init()
-        # Default renderer (mayaSoftware) -> Add Arnold Network disabled.
-        self.assertFalse(menu.chk000.isEnabled())
-        # Selecting Arnold enables it; switching away disables + unchecks it.
-        menu.cmb003.select("arnold")
-        self.assertTrue(menu.chk000.isEnabled())
-        menu.chk000.setChecked(True)
-        menu.cmb003.select("mayaSoftware")
-        self.assertFalse(menu.chk000.isEnabled())
-        self.assertFalse(menu.chk000.isChecked())
+        self.assertFalse(hasattr(menu, "chk000"))
 
     def test_ipr_option_gated_on_renderer_support(self):
         _, menu, _ = self._init()
@@ -445,7 +448,7 @@ class TestRenderButtonInit(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestRenderButtonAction(unittest.TestCase):
-    """tb001 routes camera/renderer/network/IPR/smart-redo through RenderUtils."""
+    """tb001 routes camera/renderer/bridge/IPR/smart-redo through RenderUtils."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -454,22 +457,22 @@ class TestRenderButtonAction(unittest.TestCase):
         self.ru = _FakeRenderUtils()
         rendering_module.mtk.RenderUtils = self.ru
         rendering_module.mtk.ArnoldBridge = _FakeBridge
-        _FakeBridge.instances = []
+        _FakeBridge.instances, _FakeBridge.game = [], []
+        _FakeBridge.log = self.ru.calls  # one timeline: bridge vs render order
 
     def tearDown(self):
         rendering_module.mtk.RenderUtils = self._orig_ru
         rendering_module.mtk.ArnoldBridge = self._orig_bridge
+        _FakeBridge.log = None
         cmds.file(new=True, force=True)
 
-    def _menu(self, camera="", renderer="mayaSoftware", add_net=False,
-              ipr=False, smart=True):
+    def _menu(self, camera="", renderer="mayaSoftware", ipr=False, smart=True):
         menu = _Menu()
         menu.cmb002 = _Combo()
         menu.cmb002.addItems([camera] if camera else [])
         menu.cmb003 = _Combo()
         menu.cmb003.addItems([renderer])
         menu.cmb003.setItemData(0, renderer)
-        menu.chk000 = _Check(add_net)
         menu.chk001 = _Check(ipr)
         menu.chk002 = _Check(smart)
         w = _Widget()
@@ -519,19 +522,33 @@ class TestRenderButtonAction(unittest.TestCase):
         self.assertIn(("render_camera", cam_tf), self.ru.calls)
         self.assertFalse(any(c[0] == "redo" for c in self.ru.calls))
 
-    def test_add_arnold_network_only_for_arnold(self):
+    def test_an_arnold_render_bridges_the_game_shaders_first(self):
+        """Arnold renders a material it cannot translate as error magenta, so an
+        Arnold render bridges exactly those -- before the frame, or the IPR
+        session, starts -- and nothing else."""
         cam_tf = cmds.rename(cmds.camera()[0], "aiCam")
-        # A real scene material so get_scene_mats() has something to bridge.
-        shader = cmds.shadingNode("standardSurface", asShader=True, name="aiMat")
+        calls = self.ru.calls
+        bridged = ("bridge", ("rack_srp",))
+        _FakeBridge.game = ["rack_srp"]
         inst = self._inst()
-        inst.tb001(self._menu(camera=cam_tf, renderer="arnold", add_net=True))
-        self.assertTrue(_FakeBridge.instances, "ArnoldBridge().add should run")
-        self.assertIn(shader, _FakeBridge.instances[-1].added)
+        inst.tb001(self._menu(camera=cam_tf, renderer="arnold"))
+        self.assertLess(calls.index(bridged), calls.index(("render_camera", cam_tf)))
 
-        # Non-arnold renderer: never add the network, even with the box ticked.
-        _FakeBridge.instances = []
-        inst.tb001(self._menu(camera=cam_tf, renderer="mayaSoftware", add_net=True))
-        self.assertFalse(_FakeBridge.instances, "no Arnold network for non-arnold")
+        calls.clear()  # an IPR session renders the live scene: bridged first too
+        inst.tb001(self._menu(camera=cam_tf, renderer="arnold", ipr=True))
+        ipr = next(i for i, c in enumerate(calls) if c[0] == "ipr")
+        self.assertLess(calls.index(bridged), ipr)
+
+        # No game shader in the scene: nothing to add.
+        _FakeBridge.game, _FakeBridge.instances = [], []
+        inst.tb001(self._menu(camera=cam_tf, renderer="arnold"))
+        self.assertFalse(_FakeBridge.instances)
+
+        # Another renderer never bridges.
+        _FakeBridge.game = ["rack_srp"]
+        calls.clear()
+        inst.tb001(self._menu(camera=cam_tf, renderer="mayaSoftware"))
+        self.assertFalse(any(c[0] == "bridge" for c in calls))
 
     def test_ipr_supersedes_single_render(self):
         cam_tf = cmds.rename(cmds.camera()[0], "iprCam")

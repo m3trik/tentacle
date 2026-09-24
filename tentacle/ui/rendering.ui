@@ -133,7 +133,7 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Render the chosen camera with the selected renderer. Use the option box for camera, renderer, Arnold network, IPR, and smart redo.</string>
+            <string>Render the chosen camera with the selected renderer. Use the option box for camera, renderer, IPR, and smart redo.</string>
            </property>
            <property name="text">
             <string>Render</string>

@@ -295,6 +295,78 @@ class TestManifest(unittest.TestCase):
         strays = [f.name for f in self.target.iterdir() if f.name.endswith(".tmp")]
         self.assertEqual(strays, [])
 
+    def test_a_sharing_violation_on_the_write_is_waited_out(self):
+        """Windows answers a file an antivirus scan or a sync client holds for a
+        moment with PermissionError: on this repo's synced drive the manifest's
+        replace was refused within a few writes, and a full-suite run lost the
+        Uninstall a flow test had queued (1 run in 3). The write waits it out."""
+        t = str(self.target)
+        real = os.replace
+        refusals = []
+
+        def replace(src, dst):
+            if len(refusals) < 2:
+                refusals.append(dst)
+                raise PermissionError(5, "Access is denied")
+            return real(src, dst)
+
+        with mock.patch("os.replace", side_effect=replace):
+            self.installer.write_manifest(t, pending="uninstall")
+        self.assertEqual(len(refusals), 2)
+        self.assertEqual(self.installer.read_manifest(t).get("pending"), "uninstall")
+
+    def test_a_sharing_violation_on_the_read_is_waited_out(self):
+        """...and a held manifest is not "unreadable": ``_settle_pending`` clears
+        what it cannot see, so that verdict dropped a queued verb."""
+        module = _load()
+        installer = module.TentacleInstaller
+        t = str(self.target)
+        installer.write_manifest(t, pending="uninstall")
+        refusals = []
+
+        def held_open(path, *args, **kwargs):
+            if not refusals and str(path).endswith(installer.MANIFEST):
+                refusals.append(path)
+                raise PermissionError(13, "Permission denied")
+            return open(path, *args, **kwargs)
+
+        with mock.patch.object(module, "open", held_open, create=True):
+            data = installer._read_manifest(t)
+        self.assertTrue(refusals, "the read never met the held file")
+        self.assertIsNotNone(data, "a held manifest read as unreadable")
+        self.assertEqual(data.get("pending"), "uninstall")
+
+    def test_a_refusal_that_outlasts_the_wait_is_raised(self):
+        """A folder this user cannot write is no moment's contention."""
+        t = str(self.target)
+        with (
+            mock.patch.object(self.installer, "SHARE_WAIT", 0.1),
+            mock.patch(
+                "os.replace", side_effect=PermissionError(5, "Access is denied")
+            ),
+        ):
+            with self.assertRaises(PermissionError):
+                self.installer.write_manifest(t, pins=["a==1"])
+
+    def test_an_error_that_is_no_sharing_violation_is_raised_at_once(self):
+        """Only a sharing violation is a moment's contention: a full disk is
+        raised on the first attempt, not retried for SHARE_WAIT."""
+        t = str(self.target)
+        attempts = []
+
+        def replace(src, dst):
+            attempts.append(dst)
+            raise OSError(28, "No space left on device")
+
+        with (
+            mock.patch.object(self.installer, "SHARE_WAIT", 5.0),
+            mock.patch("os.replace", side_effect=replace),
+        ):
+            with self.assertRaises(OSError) as raised:
+                self.installer.write_manifest(t, pins=["a==1"])
+        self.assertNotIsInstance(raised.exception, PermissionError)
+        self.assertEqual(len(attempts), 1)
+
     def test_spec_names_strips_extras_and_version_pins(self):
         self.assertEqual(
             self.installer._spec_names(

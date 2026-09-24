@@ -356,7 +356,7 @@ class Rendering(RenderingMixin, SlotsMaya):
         return directory, name
 
     def tb001_init(self, widget):
-        """Render: camera, renderer, Arnold network, IPR, and smart redo."""
+        """Render: camera, renderer, IPR, and smart redo."""
         menu = widget.option_box.menu
         menu.setTitle("Render")
 
@@ -394,14 +394,6 @@ class Rendering(RenderingMixin, SlotsMaya):
 
         menu.add(
             "QCheckBox",
-            setText="Add Arnold Network",
-            setObjectName="chk000",
-            setChecked=False,
-            setToolTip="Before rendering, attach the Arnold aiStandardSurface "
-            "preview network to the scene's materials (Arnold only).",
-        )
-        menu.add(
-            "QCheckBox",
             setText="IPR (realtime)",
             setObjectName="chk001",
             setChecked=False,
@@ -427,7 +419,6 @@ class Rendering(RenderingMixin, SlotsMaya):
 
         def _sync(_=None):
             renderer = menu.cmb003.currentData()
-            _gate(menu.chk000, renderer == "arnold")  # Arnold-only preview network
             _gate(
                 menu.chk001, bool(renderer) and mtk.RenderUtils.supports_ipr(renderer)
             )
@@ -436,7 +427,11 @@ class Rendering(RenderingMixin, SlotsMaya):
         _sync()
 
     def tb001(self, widget):
-        """Render: render the current frame through the selected camera and renderer."""
+        """Render: render the current frame through the selected camera and renderer.
+
+        An Arnold render first gives each material Arnold cannot translate (the
+        game shaders) its Arnold bridge, on every shading group.
+        """
         menu = widget.option_box.menu
 
         camera = menu.cmb002.currentText()
@@ -450,11 +445,12 @@ class Rendering(RenderingMixin, SlotsMaya):
         renderer = menu.cmb003.currentData() or mtk.RenderUtils.current_renderer()
         mtk.RenderUtils.set_renderer(renderer)
 
-        # Optionally attach the Arnold preview network to the scene first.
-        # ArnoldBridge.add() already excludes its own aiStandardSurface shaders,
-        # so the raw scene-material list is safe to pass.
-        if renderer == "arnold" and menu.chk000.isChecked():
-            materials = mtk.MatUtils.get_scene_mats()
+        # Arnold renders a material it cannot translate as error magenta, so
+        # bridge those first -- and only those: a lambert or standardSurface
+        # renders as it is. The bridge stays: IPR and every other Arnold render
+        # read the same scene, and it never touches what exports (surfaceShader).
+        if renderer == "arnold":
+            materials = mtk.ArnoldBridge.unrenderable_materials()
             if materials:
                 mtk.ArnoldBridge().add(materials=materials)
 

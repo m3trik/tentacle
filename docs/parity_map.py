@@ -129,7 +129,7 @@ CONTROLS = {
         # matches name-for-name. Un-Reference All is footer-only on both panels (2026-09-18).
         "set_action": {
             "status": "na",
-            "reason": "Maya's namespace-mode cycle beside Unlink and Import All (remove / keep / keep on the top-level node only). Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between.",
+            "reason": "TWO Maya-only option-box actions. (1) The namespace-mode cycle beside Unlink and Import All (remove / keep / keep on the top-level node only): Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between. (2) The Set-Maya-Project action on the Workspaces combo (cmb000): Blender has no session-global project the way `workspace -o` is one — the panel's combo selection IS its workspace state — so there is nothing to commit it to.",
         },
         # Context menu flattened 2026-07-25 to a 1:1 mirror of Maya's flat list (Open / Rename /
         # Delete / Reference-Unreference / Unlink-and-Import / Open File Location). Both panels now
@@ -150,6 +150,7 @@ CONTROLS = {
         "btn_rename_scene": {"status": "renamed", "to": "row_rename", "reason": "context menu"},
         "btn_delete_scene": {"status": "renamed", "to": "row_delete", "reason": "context menu"},
         "btn_open_file_location": {"status": "renamed", "to": "row_location", "reason": "context menu"},
+        "btn_copy_path": {"status": "renamed", "to": "row_copy_path", "reason": "context menu ('Copy Path' — full file path to the clipboard)"},
         # Cross-DCC import (task 3): each panel lists the OTHER DCC's scenes and imports them via the
         # existing headless converter (import_blender_scene / import_maya_scene). The separate
         # 'Import (convert)' item (btn_import_scene / row_import) was removed 2026-07-25 and folded
@@ -323,28 +324,16 @@ CONTROLS = {
             "to": "open_output",
             "reason": "same 'open where the bakes went' action on the header menu; both resolve the Output Directory field and open it. Maya names the menu item for its project's sourceimages fallback, Blender for the resolved output dir (its texture-folder base is workspace/.blend-relative, so 'sourceimages' would name the wrong thing).",
         },
-        # 2026-09-22 Maya panel additions (mayatk CHANGELOG, docs/lightmap_baker.md). The
-        # Blender port of the pending rows is one BACKLOG entry ("blendertk lightmap baker:
-        # port the 2026-09-22 panel additions").
-        "wire_combo": {"status": "pending", "reason": "Preset combo (cmb000) became uitk's preset template in semantic mode over LightmapBaker.preset_store -- Save/Rename/Delete, a modified marker, and presets that carry the switches as well as the dials, read back by from_preset. Blender's cmb000 is still the quality-tier combo with the Custom row (_preset_for_dials + sb.value_from); the port swaps it for the same wire_combo and teaches blendertk's from_preset the switch keys."},
-        "set_exclusions": {"status": "pending", "reason": "Exclude row: Set From Selection stores the scene's LightmapExcludeSet (mayatk.mat_utils.bake_sets), which LightmapBaker.bake_targets subtracts from every bake -- excluded objects get no map and are not reverted, but stay in the render. Blender needs the set itself (a stamped Collection, as substance_bridge.HighPolySet stores the bake source) plus bake_targets in blendertk's LightmapBaker."},
-        "lbl_exclude": {"status": "pending", "reason": "the Exclude row's label, which shows the excluded mesh count; ports with set_exclusions."},
-        "add_action": {"status": "pending", "reason": "the Exclude row's Select / Clear option-box icons (the Marmoset Bake Source row's layout); port with set_exclusions."},
-        "set_toggle": {"status": "pending", "reason": "the panel's four switches, each riding the option box of the field it qualifies (LightmapBakerSlots._TOGGLES, one _wire_toggle call site): Include Environment on Scope, Adaptive Sampling on Samples, Denoise on Resolution, Beside Material Textures on the Output Directory. Blender carries the first two as chk_environment / chk_denoise rows (the sweep's 'extras'), has no adaptive twin yet, and has nothing for beside-textures -- blendertk's baker needs the texture-set folder (its image filepaths) and the same place-after-bake step. Port the switch layout with them, so the two panels are read the same way."},
-        "spn_bounces": {"status": "pending", "reason": "Bounces (Arnold GIDiffuseDepth, the presets' gi_depth). blendertk's LightmapBaker already takes bounces= (Cycles max bounces); the Blender panel just has no widget for it yet, so its bakes run at the preset's value."},
+        # 2026-09-22 Maya panel additions -- preset template (wire_combo), Exclude row
+        # (set_exclusions / lbl_exclude / add_action), the four option-box switches
+        # (set_toggle), Bounces and Reset to Defaults -- PORTED 2026-09-23 (blendertk
+        # CHANGELOG): same objectNames, same section layout, same _TOGGLES keys. The Exclude
+        # set is a stamped, render-neutral Collection (blendertk mat_utils/bake_sets.py). The
+        # open question the adaptive switch hung on is answered: Cycles bakes DO honor
+        # scene.cycles.use_adaptive_sampling (measured, 2.2x faster at 1024 samples after the
+        # denoise), so Blender has the switch too -- ungated by the processor, since Cycles
+        # samples adaptively on the CPU and the GPU alike.
         "spn_gi_samples": {"status": "na", "reason": "Arnold's GIDiffuseSamples (and the GPU's adaptive AA x GI ceiling). Cycles is a unified path tracer: since Cycles X (Blender 3.0) removed branched path tracing there is no per-ray-type sample count -- one Samples value covers direct and indirect light, and Blender's spn_samples already is that."},
-        # chk_adaptive row retired 2026-09-22: Maya has no Adaptive Sampling CHECKBOX any
-        # more -- it, Include Environment and Denoise became option-box switches on the
-        # fields they qualify, so the whole group ledgers as one `set_toggle` row above.
-        # Whether Blender gets an adaptive twin at all still turns on the open question
-        # from that row: does Cycles' bake honor scene.cycles.use_adaptive_sampling?
-        # chk_environment / chk_denoise now show as blendertk EXTRAS (report-only): they
-        # are the Blender twin's older FORM of two switches Maya still has, not drops.
-        # cmb_device is present on both; Maya relabelled its items Device -> Processor
-        # 2026-09-22 (a machine setting, lifted out of the Quality group). Label text only
-        # -- the objectName, the item data (AUTO/GPU/CPU) and the reader are unchanged, and
-        # the sweep compares names, so there is nothing to ledger.
-        "btn_reset_defaults": {"status": "pending", "reason": "Reset to Defaults, in the action group the panel now ends with (Preset / Reset / Bake, the WebXR preview panel's grp_process shape). Pure uitk -- ResetGesture over the window's StateManager, no Maya in it -- so the Blender port is the same .ui row plus the same btn_reset_defaults_init; it ports with wire_combo, since the two share the group and the reset drops the preset pointer."},
     },
     "mat_updater": {
         "cmb_shader_type": {"status": "na", "reason": "Shader Type (retype the materials before wiring, via mtk.ShaderConverter -> StingrayPBS / standardSurface / openPBRSurface). Blender has no shader-type axis: a material is one Principled BSDF node graph, so there is no target to convert to and blendertk ships no ShaderConverter twin. The rest of the run (texture resolution + rewire) is mirrored."},
@@ -873,7 +862,6 @@ CONTROLS_SLOTS = {
         # slot checkboxes mirror Maya's names/defaults. No delta.
     },
     "rendering": {
-        "chk000": {"status": "na", "reason": "Arnold preview-network attach (mtk.ArnoldBridge / aiStandardSurface) is Arnold/Maya-only; Blender tb001 docstring documents the drop. Added to Maya 2026-06-21 (9cc22169), same commit as the Blender tb001 port."},
         "chk001": {"status": "na", "reason": "IPR launches a Maya Render View interactive session via renderer-registered MEL procs (RenderUtils.start_ipr); Blender's interactive render is the rendered-viewport shading state, not a render-op option — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
         "chk002": {"status": "na", "reason": "Smart Redo wraps Maya Render View MEL redoPreviousRender (RenderUtils.redo_previous_render); Blender's render op has no redo-previous concept (Render Result slots are native) — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
         "chk056": {"status": "na", "reason": "Maya playblast offScreen capture-mode flag (avoid viewport-redraw issues); bpy.ops.render.opengl always renders to an offscreen buffer and exposes no such parameter, so the toggle has no Blender surface. Maya control predates the port (2025-11-15 f7547ffe; Blender port 2026-06-12 c6b601c9 carried a documented subset)."},
@@ -1060,6 +1048,8 @@ DEFAULT_DELTAS = {
     },
     "lightmap_baker_slots": {
         "spn_samples.maximum": "Different renderer sample ceilings: Maya spn_samples = Arnold AA samples (max 256, sensible for Arnold); Blender spn_samples = Cycles bake samples (max 4096 — Cycles routinely uses far higher sample counts than Arnold AA). Same 'render sample count' concept, renderer-appropriate range.",
+        "spn_samples.value": "Each panel's .ui dials ARE its own default tier (mobile), since the preset template restores only its selection and never re-applies a preset at open: Arnold mobile = 4 AA samples (squared, each spawning GI rays), Cycles mobile = 256 paths. Different units, not a drift (blendertk test: the .ui's dial defaults are the default preset's dials).",
+        "spn_bounces.value": "Each panel's .ui dials ARE its own default tier (mobile): Arnold mobile gi_depth 2, Cycles mobile bounces 4 (Cycles' own default; measured, Cycles at 4 already sits at 0.76x an Arnold depth-2 bake of the same room -- the depth numbers are not interchangeable, see blendertk LightmapBaker.from_preset).",
     },
 }
 

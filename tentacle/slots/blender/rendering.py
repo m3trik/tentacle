@@ -401,10 +401,11 @@ class Rendering(RenderingMixin, SlotsBlender):
         Blender port of the Maya render control (the shared ``rendering.ui``
         folded the old render / show-last buttons + camera combo into ``tb001``).
         ``cmb002``/``cmb003`` keep the Maya objectNames for the cross-DCC QSettings
-        rule. Maya's Arnold-network / IPR / smart-redo options have no Blender
-        analogue (Blender's interactive render is the viewport shading state, not a
-        render-op flag, and Render Result slots make a manual "redo" moot) — only
-        camera and renderer carry over. The click renders the current frame;
+        rule. Maya's IPR / smart-redo options have no Blender analogue (Blender's
+        interactive render is the viewport shading state, not a render-op flag, and
+        Render Result slots make a manual "redo" moot), nor does the Arnold bridge a
+        Maya Arnold render adds for game shaders (Cycles/EEVEE render every graph)
+        — only camera and renderer carry over. The click renders the current frame;
         Blender's Render Result window shows it.
         """
         menu = widget.option_box.menu
