@@ -136,7 +136,12 @@ class _TclInternal:
                 cls._report_blender_startup_error(error)
             return None  # a timer returning None is unregistered — one shot, not a poll
 
-        bpy.app.timers.register(build, first_interval=cls.BLENDER_START_DELAY)
+        # persistent: Blender enables add-ons (and runs startup scripts) BEFORE it opens a
+        # .blend named on the command line -- a double-clicked scene -- and a file load drops
+        # every non-persistent timer, so the menu never came up on such a start.
+        bpy.app.timers.register(
+            build, first_interval=cls.BLENDER_START_DELAY, persistent=True
+        )
         return None
 
     @staticmethod

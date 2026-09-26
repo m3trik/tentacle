@@ -27,7 +27,8 @@ Command line (deployment scripts, no UI)::
     add-on; ``update`` / ``uninstall`` run after the enabled add-on has already imported
     tentacle, so they are recorded and applied by the next start -- one more
     ``blender --background`` run completes them. Do not add ``--factory-startup``: saving
-    preferences from a factory session overwrites the user's.)
+    preferences from a factory session overwrites the user's. Exit code 0 = done or
+    recorded, 1 = failed, an install that did not take included.)
 
 Both hosts share one policy, :class:`TentacleInstaller`: everything lands in a per-user,
 per-DCC-version directory the host already imports from at TAIL precedence -- Blender's
@@ -54,10 +55,12 @@ loader all *import* this module before calling anything.
 """
 
 import contextlib
+import csv
 import importlib
 import importlib.util
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -69,7 +72,7 @@ from importlib import metadata
 bl_info = {
     "name": "Tentacle Marking Menu",
     "author": "m3trik",
-    "version": (1, 2, 0),
+    "version": (1, 3, 0),
     "blender": (4, 1, 0),
     "location": "3D View > activation key (default Z); Preferences > Add-ons for update / uninstall",
     "description": "Installs tentacle on first start (no admin rights) and launches its marking menu.",
@@ -187,27 +190,45 @@ class TentacleInstaller:
 
     @staticmethod
     def python_exe(host):
-        """The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session)."""
+        """The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session).
+
+        Never the DCC binary itself: ``maya.exe -s -m pip ...`` / ``blender -s -m pip ...``
+        starts another copy of the application, and the install worker waits on it. So
+        ``sys.executable`` is the answer only when it IS an interpreter (mayapy, a bare
+        python), and anything else found nowhere raises.
+        """
+        candidates = []
         if host == "blender":
             bindir = os.path.join(sys.prefix, "bin")
-            for name in ("python.exe", "python3.exe", "python", "python3"):
-                exe = os.path.join(bindir, name)
-                if os.path.isfile(exe):
-                    return exe
+            candidates += [
+                os.path.join(bindir, name)
+                for name in ("python.exe", "python3.exe", "python", "python3")
+            ]
             if os.path.isdir(bindir):  # mac / linux: python3.13 and friends
-                for name in sorted(os.listdir(bindir)):
-                    if name.startswith("python") and not name.endswith(
-                        (".dll", ".zip")
-                    ):
-                        return os.path.join(bindir, name)
-        if host == "maya":
-            exe = os.path.join(
-                os.path.dirname(sys.executable),
-                "mayapy.exe" if os.name == "nt" else "mayapy",
-            )
+                candidates += [
+                    os.path.join(bindir, name)
+                    for name in sorted(os.listdir(bindir))
+                    if name.startswith("python") and not name.endswith((".dll", ".zip"))
+                ]
+        elif host == "maya":
+            name = "mayapy.exe" if os.name == "nt" else "mayapy"
+            # Beside the binary on Windows / Linux. macOS keeps it apart
+            # (Maya.app/Contents/bin/mayapy vs Contents/MacOS/Maya), where MAYA_LOCATION --
+            # which Maya sets for itself -- is Maya.app/Contents.
+            candidates.append(os.path.join(os.path.dirname(sys.executable), name))
+            if os.environ.get("MAYA_LOCATION"):
+                candidates.append(
+                    os.path.join(os.environ["MAYA_LOCATION"], "bin", name)
+                )
+        for exe in candidates:
             if os.path.isfile(exe):
                 return exe
-        return sys.executable
+        if os.path.basename(sys.executable).lower().startswith(("python", "mayapy")):
+            return sys.executable
+        raise RuntimeError(
+            f"cannot find {host}'s Python interpreter to run pip with "
+            f"(looked for {', '.join(candidates) or 'nothing'}; {sys.executable} is not one)"
+        )
 
     @classmethod
     def maya_paths(cls, app_dir=None, version=None):
@@ -637,36 +658,55 @@ class TentacleInstaller:
 
     @classmethod
     def installed_version(cls, target, name=None):
-        """A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.
+        """A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import."""
+        return cls._dists(target).get(cls._dist_key(name or cls.DIST), (None, None))[1]
 
-        The cache drop is load-bearing, not hygiene. ``importlib.metadata``
-        memoizes each directory listing under ``(path, st_mtime)``, and
-        Windows' mtime resolution is coarse enough that a dist-info written in
-        the same tick as an earlier scan of that directory leaves the key
-        unchanged -- so the stale EMPTY listing is served and this reports
-        ``None`` for a package that is right there. Measured on mayapy 2025:
-        14 of 60 scan/create/scan cycles came back stale; with the drop, 0 of
-        60. That is exactly the shape of "install, then ask what is installed",
-        which is what every caller here does.
+    @classmethod
+    def _dists(cls, target):
+        """``{dist key: (name, version)}`` for the dists in *target* -- no import.
 
-        ``importlib.invalidate_caches()`` does NOT cover it (measured: 22/60
-        still stale) -- ``MetadataPathFinder`` is not reached that way. It has
-        to be this finder, and on an INSTANCE: Python 3.11 declares
-        ``invalidate_caches(cls)`` without the ``@classmethod``, so the class
-        form raises ``TypeError``.
+        Where a dist has two dist-infos the copy written LAST wins: ``pip install
+        --target --upgrade`` left the superseded one beside the one it installed until
+        pythontk's ``install_targeted`` pruned it, and name order is no tie-break
+        (``0.13.100`` sorts before ``0.13.99``).
         """
-        wanted = (name or cls.DIST).lower()
+        found = {}
+        for path, name, version in cls._dist_infos(target):
+            try:
+                stamp = os.path.getmtime(path)
+            except OSError:
+                continue
+            key = cls._dist_key(name)
+            if key not in found or stamp >= found[key][2]:
+                found[key] = (name, version, stamp)
+        return {key: (name, version) for key, (name, version, _) in found.items()}
+
+    @staticmethod
+    def _dist_infos(target):
+        """``(path, name, version)`` for EVERY ``*.dist-info`` in *target*, copies included.
+
+        A plain directory scan through ``metadata.PathDistribution``, never
+        ``metadata.distributions``: that memoizes a listing under ``(path, st_mtime)``,
+        and Windows' mtime resolution is coarse enough that a dist-info written in the
+        same tick as an earlier scan read as absent (measured on mayapy 2025: 14 of 60
+        scan/create/scan cycles) -- the shape of "install, then ask what is installed",
+        which is what every caller here does. An unreadable dir or dist-info is skipped.
+        """
         try:
-            metadata.MetadataPathFinder().invalidate_caches()
-        except Exception:  # noqa: BLE001 -- a stale read still beats no read
-            pass
-        try:
-            for dist in metadata.distributions(path=[target]):
-                if (dist.metadata["Name"] or "").lower() == wanted:
-                    return dist.version
-        except Exception:
-            pass
-        return None
+            entries = sorted(os.listdir(target))
+        except OSError:
+            return
+        for entry in entries:
+            if not entry.endswith(".dist-info"):
+                continue
+            path = os.path.join(target, entry)
+            try:
+                meta = metadata.PathDistribution(pathlib.Path(path)).metadata
+                name, version = meta["Name"], meta["Version"]
+            except Exception:  # noqa: BLE001 -- one broken dist-info hides no other
+                continue
+            if name:
+                yield path, name, version
 
     # ------------------------------------------------------------------ verbs
     @classmethod
@@ -674,41 +714,17 @@ class TentacleInstaller:
         """Provision (or upgrade) the host's spec set and record it; returns the pins applied."""
         target = target or cls.target_dir(host)
         python = python or cls.python_exe(host)
-        specs = cls.specs(host, fresh=not upgrade)
-        try:
-            pins = cls.provision(
-                host,
-                upgrade=upgrade,
-                target=target,
-                python=python,
-                specs=specs,
-            )
-        except BaseException:
-            # A part-provisioned target still has dists in it -- on Blender that is a
-            # SHARED addons/modules, so leaving them unrecorded orphans them for good
-            # (a later uninstall reads no pins and removes nothing). Record the dist
-            # names we were installing so uninstall can still name them; pip skips
-            # the ones that never landed.
-            cls.write_manifest(target, pins=cls._spec_names(specs))
-            raise
+        pins = cls.provision(
+            host,
+            upgrade=upgrade,
+            target=target,
+            python=python,
+            specs=cls.specs(host, fresh=not upgrade),
+        )
         cls._settle_pending(
             target, "update" if upgrade else None, spec=cls.specs(host)[0], pins=pins
         )
         return pins
-
-    @staticmethod
-    def _spec_names(specs):
-        """Bare dist names from requirement specs (``tentacletk[blender]==1.2`` -> ``tentacletk``)."""
-        names = []
-        for spec in specs or []:
-            name = str(spec).strip()
-            # Everything from the first extras bracket, comparison operator,
-            # marker or space onward is not part of the dist name.
-            for sep in ("[", "<", ">", "=", "!", "~", ";", " "):
-                name = name.split(sep, 1)[0]
-            if name:
-                names.append(name)
-        return sorted(set(names))
 
     @classmethod
     def update(cls, host, target=None, python=None):
@@ -720,8 +736,9 @@ class TentacleInstaller:
         """Remove what this installer put there; returns the dist names removed.
 
         Maya: the module folder (scripts + site) and its ``.mod`` -- exclusively ours. Blender:
-        ``addons/modules`` is shared, so only the dists the manifest records are removed
-        (``pip uninstall`` finds them through ``PYTHONPATH``), then the add-on removes itself.
+        ``addons/modules`` is shared, so only the dists the manifest records AND the target
+        still holds are removed (``pip uninstall`` finds them through ``PYTHONPATH``), then
+        the add-on removes itself.
 
         *target* is honoured on BOTH hosts. It used to be read for the manifest and then
         discarded on the Maya branch, which recomputed the tree from :meth:`maya_paths` --
@@ -731,7 +748,6 @@ class TentacleInstaller:
         :meth:`maya_paths` exactly in the default case.
         """
         target = target or cls.target_dir(host)
-        python = python or cls.python_exe(host)
         names = sorted(
             {pin.split("==")[0] for pin in cls.read_manifest(target).get("pins", [])}
         )
@@ -751,11 +767,30 @@ class TentacleInstaller:
             if os.path.isfile(mod):
                 os.remove(mod)
             return names
-        if names:
+        # Only what is IN the target. pip removes the first dist of a name on sys.path,
+        # the target's while it is there -- but a recorded dist that has left it resolves
+        # to the next copy, Blender's own bundled site-packages.
+        present = cls._dists(target)
+        names = [name for name in names if cls._dist_key(name) in present]
+        relocated = cls._relocated_files(target, names)  # before pip drops the RECORDs
+        # pip removes ONE dist of a name per run, and a target updated before pythontk's
+        # install_targeted pruned superseded dist-infos holds several: repeat while a
+        # recorded copy is left. Never more passes than copies -- each pass removes one
+        # or pip raises, so the bound only stops a pip that says it removed nothing.
+        keys = {cls._dist_key(name) for name in names}
+        copies = [n for _, n, _ in cls._dist_infos(target) if cls._dist_key(n) in keys]
+        pending = names
+        for _ in range(len(copies)):
+            python = python or cls.python_exe(host)
             cls._run_checked(
-                [python, "-s", "-m", "pip", "uninstall", "-y"] + names,
+                [python, "-s", "-m", "pip", "uninstall", "-y"] + pending,
                 env={**os.environ, "PYTHONPATH": target},
             )
+            left = cls._dists(target)
+            pending = [name for name in pending if cls._dist_key(name) in left]
+            if not pending:
+                break
+        cls._remove_within(target, relocated)
         # The manifest and the .corrupt breadcrumb a failed read may have left
         # beside it: addons/modules is SHARED, so an uninstall that leaves its own
         # files there is the very thing this branch exists to avoid.
@@ -770,6 +805,63 @@ class TentacleInstaller:
                 pass
         cls._remove_blender_addon()
         return names
+
+    @classmethod
+    def _relocated_files(cls, target, names):
+        """Files the dists *names* put in *target* outside their packages -- pip cannot find them.
+
+        ``pip install --target`` stages into a temp prefix and moves the result in: the
+        packages from its ``lib/python``, the rest (``bin/`` console-script launchers)
+        from its root. The RECORD keeps the staging path, ``../../bin/qtpy.exe``, which
+        ``pip uninstall`` resolves two levels ABOVE the target and never finds -- measured
+        on 5.1.2, an Uninstall left ``bin/`` with PySide6's 23 launchers and qtpy.exe in
+        the SHARED addons/modules. Mapped back here (``../../<rest>`` ->
+        ``<target>/<rest>``); a path that would land outside *target* is ignored.
+
+        Read from the RECORD text, never ``Distribution.files``: from Python 3.12 that
+        drops every entry whose file is missing where it resolves -- exactly these (under
+        Blender 5.1's 3.13 it found 0 of 24 launchers; 3.11 lists them all).
+        """
+        root = os.path.normcase(os.path.normpath(target)) + os.sep
+        keys = {cls._dist_key(name) for name in names}
+        found = []
+        for info, name, _version in cls._dist_infos(target):  # every copy's RECORD
+            if cls._dist_key(name) not in keys:
+                continue
+            try:
+                with open(
+                    os.path.join(info, "RECORD"), encoding="utf-8", newline=""
+                ) as fh:
+                    entries = [row[0] for row in csv.reader(fh) if row]
+            except (OSError, ValueError, csv.Error):  # no RECORD: nothing to map
+                continue
+            for entry in entries:
+                parts = entry.replace("\\", "/").split("/")
+                if len(parts) < 3 or parts[:2] != ["..", ".."]:
+                    continue
+                path = os.path.normpath(os.path.join(target, *parts[2:]))
+                if os.path.normcase(path).startswith(root):
+                    found.append(path)
+        return found
+
+    @staticmethod
+    def _remove_within(target, paths):
+        """Delete *paths*, then each folder that leaves empty -- never *target* itself."""
+        root = os.path.normcase(os.path.normpath(target))
+        folders = set()
+        for path in paths:
+            try:
+                os.remove(path)
+            except OSError:
+                continue
+            folders.add(os.path.dirname(path))
+        for folder in sorted(folders, key=len, reverse=True):  # deepest first
+            while os.path.normcase(os.path.normpath(folder)).startswith(root + os.sep):
+                try:
+                    os.rmdir(folder)  # refuses a folder that still holds anything
+                except OSError:
+                    break
+                folder = os.path.dirname(folder)
 
     @classmethod
     def _maya_uninstall_paths(cls, target):
@@ -813,11 +905,11 @@ class TentacleInstaller:
             return message
         if verb == "install":
             cls.ensure_and_launch(host)
-            return (
-                "Tentacle install started"
-                if cls._worker_alive()
-                else "Tentacle is installed"
-            )
+            if cls._worker_alive():
+                return "Tentacle install started"
+            if cls.is_installed(host):
+                return "Tentacle is installed"
+            return "Tentacle is not installed - see the messages above"
         if cls.loaded():
             cls.write_manifest(target, pending=verb)
             done = {"update": "updated", "uninstall": "uninstalled"}[verb]
@@ -888,8 +980,8 @@ class TentacleInstaller:
 
     @staticmethod
     def _dist_key(name):
-        """Compare distribution names the way packaging does (PEP 503-ish)."""
-        return name.lower().replace("-", "_")
+        """Compare distribution names the way packaging does (PEP 503: ``-`` ``_`` ``.`` alike)."""
+        return name.lower().replace("-", "_").replace(".", "_")
 
     @classmethod
     def _uninstall_message(cls, host, target, names, outside):
@@ -984,6 +1076,8 @@ class TentacleInstaller:
         takes the lock the moment it goes. ``pending`` alone cannot tell it: a reported
         failure clears it too, and after a failure the queued process runs the upgrade
         itself. An update asked for directly, with nothing pending, always runs.
+
+        A run that fails part-way records what it left in *target* (:meth:`_record_landed`).
         """
         target = target or cls.target_dir(host)
         python = python or cls.python_exe(host)
@@ -1002,10 +1096,38 @@ class TentacleInstaller:
                 and cls.read_manifest(target).get("updated") != before.get("updated")
             ):
                 return []  # it finished while waiting: the other process upgraded it
-            pins = cls._provision_locked(host, upgrade, target, python, specs)
+            present = cls._dists(target)  # under the lock: nobody else is writing
+            try:
+                pins = cls._provision_locked(host, upgrade, target, python, specs)
+            except BaseException:
+                cls._record_landed(target, present)
+                raise
             if upgrade:
                 cls._settle_pending(target, "update", updated=time.time())
             return pins
+
+    @classmethod
+    def _record_landed(cls, target, present):
+        """Record the dists that arrived in *target* since *present* was taken; never raise.
+
+        A provisioning that fails part-way leaves what it had applied: on Blender that is
+        the SHARED ``addons/modules``, and a dist there that no pin names is one Uninstall
+        can never remove. Recording what ARRIVED -- rather than the names that were asked
+        for -- catches every dependency that landed and claims nothing that was there
+        first: the spec-name record named PySide6 / qtpy on every fresh Blender install,
+        so a failed install followed by Uninstall removed another add-on's PySide6.
+        Swallows its own errors so the failure being handled is the one reported.
+        """
+        try:
+            landed = [
+                f"{name}=={version}"
+                for key, (name, version) in sorted(cls._dists(target).items())
+                if key not in present
+            ]
+            if landed:
+                cls.write_manifest(target, pins=landed)
+        except Exception as error:  # noqa: BLE001 -- see above
+            print(f"[tentacle] could not record what the failed install left: {error}")
 
     @classmethod
     def _provision_locked(cls, host, upgrade, target, python, specs):
@@ -1017,20 +1139,7 @@ class TentacleInstaller:
                 cls._run([python, "-m", "ensurepip", "--upgrade"])
             bootstrapped = []
             if not cls._has("pythontk"):
-                cls._run_checked(
-                    [
-                        python,
-                        "-s",
-                        "-m",
-                        "pip",
-                        "install",
-                        "--no-deps",
-                        "--upgrade",
-                        "--target",
-                        target,
-                        "pythontk",
-                    ]
-                )
+                cls._bootstrap_pythontk(python, target)
                 # Not part of install_targeted's report (already satisfied by then), so record
                 # it here or uninstall leaves it behind (measured: a pythontk dist-info survived).
                 version = cls.installed_version(target, "pythontk")
@@ -1066,6 +1175,32 @@ class TentacleInstaller:
                 f"{target}. Applied: {pins or 'nothing'}"
             )
         return pins
+
+    @classmethod
+    def _bootstrap_pythontk(cls, python, target):
+        """One ``--no-deps`` install of pythontk into *target* (pure Python: no resolver).
+
+        The target reaches pip as ``PIP_TARGET``, never ``--target <path>``: mayapy.exe
+        decodes its ANSI command line as UTF-8 -- measured on Maya 2025, an accented
+        letter arrived as a lone surrogate, Cyrillic as "???", while the environment
+        arrived intact -- so under the prefs dir of a user with such a name pip installed
+        into a DIFFERENT directory and the install died on "No module named 'pythontk'".
+        It is this file's only pip argument that can hold a user path; pythontk's own
+        calls go through ``PackageManager._run_pip``, which moves every argument.
+        """
+        cls._run_checked(
+            [
+                python,
+                "-s",
+                "-m",
+                "pip",
+                "install",
+                "--no-deps",
+                "--upgrade",
+                "pythontk",
+            ],
+            env={**os.environ, "PIP_TARGET": target},
+        )
 
     @staticmethod
     def _startupinfo():
@@ -1145,15 +1280,41 @@ class TentacleInstaller:
         missing install, provisions -- synchronously when there is no UI (batch / background,
         where a launch is a no-op anyway), on a worker thread with host-UI progress when there
         is one -- and launches when done. Otherwise it is ``import`` -> launch, no subprocess.
+
+        Nothing escapes into the host. ``register()`` and ``userSetup.py`` are its startup,
+        and Blender answers an exception out of ``register()`` by deleting the module and,
+        when the add-on is being enabled, dropping it from the preferences -- the Update and
+        Uninstall buttons with it, the one way out of whatever went wrong. A failure is
+        reported on the channel that waits instead; a failed pending uninstall stays pending.
         """
         host = host or cls.host()
         if host is None:
             raise RuntimeError("tentacle_installer: run this inside Maya or Blender.")
+        try:
+            return cls._start(host)
+        except Exception as error:  # noqa: BLE001 -- see above
+            cls._report_start_failure(host, error)
+            return None
+
+    @classmethod
+    def _start(cls, host):
+        """The body of :meth:`ensure_and_launch`, free to raise."""
         target = cls.target_dir(host)
         cls._ensure_on_path(target)
         pending = cls.read_manifest(target).get("pending")
         if pending == "uninstall":
-            cls._report_uninstall(host, target, cls.uninstall(host, target))
+            try:
+                names = cls.uninstall(host, target)
+            except Exception as error:  # noqa: BLE001 -- reported, never raised
+                message = f"Tentacle could not be uninstalled:\n{error}"
+                # Blender's manifest is untouched by a failed pip, so the verb stays
+                # pending; Maya's rmtree carries on past a locked file and can take the
+                # manifest with it, and its own message says what to do by hand.
+                if host == "blender":
+                    message += "\n\nIt will be tried again when Blender next starts."
+                cls._say(host, message, error=True)
+                return None
+            cls._report_uninstall(host, target, names)
             return None
         upgrade = pending == "update"
         if cls.is_installed(host) and not upgrade:
@@ -1180,12 +1341,41 @@ class TentacleInstaller:
         print(
             f"[tentacle] installed {', '.join(pins) if pins else 'nothing new'} into {target}"
         )
+        print(f"[tentacle] {cls._how_to_manage(host)}")
+
+    @staticmethod
+    def _how_to_manage(host):
+        """Where this host's Update / Uninstall live."""
         how = (
             "drop tentacle_installer.py into the viewport again"
             if host == "maya"
-            else "use the add-on's preferences"
+            else f"Edit > Preferences > Add-ons > {bl_info['name']}"
         )
-        print(f"[tentacle] to update or uninstall: {how}")
+        return f"To update or uninstall: {how}"
+
+    @classmethod
+    def _report_start_failure(cls, host, error):
+        """Say why tentacle did not come up, and where the way out is."""
+        cls._say(
+            host,
+            f"Tentacle could not start:\n{error}\n\n{cls._how_to_manage(host)}",
+            error=True,
+        )
+
+    @classmethod
+    def _launch_reported(cls, host):
+        """:meth:`launch`, a failure reported instead of raised.
+
+        For the host timer that finishes an install. Raised there, a failure is a
+        traceback in Maya's script editor, and in Blender -- where a timer callback's
+        error goes to the hidden system console -- nothing at all, straight after the
+        user was told the install succeeded.
+        """
+        try:
+            return cls.launch(host)
+        except Exception as error:  # noqa: BLE001 -- see above
+            cls._report_start_failure(host, error)
+            return None
 
     @classmethod
     def _provision_async(cls, host, upgrade, target):
@@ -1214,7 +1404,7 @@ class TentacleInstaller:
                 cls._report(host, outcome.get("pins"))
             cls._feedback_end(host, upgrade, outcome)
             if "error" not in outcome:
-                cls.launch(host)
+                cls._launch_reported(host)
                 return
 
             # The provision failed and the user has just been shown why. Two
@@ -1269,7 +1459,12 @@ class TentacleInstaller:
             def blender_tick():
                 return cls.POLL_INTERVAL if tick() else None
 
-            bpy.app.timers.register(blender_tick, first_interval=cls.POLL_INTERVAL)
+            # persistent: a start that opens a .blend (a double-clicked scene) loads it
+            # AFTER register() -- and a file load drops every non-persistent timer
+            # (measured on 5.1.2), so the install finished with no report and no launch.
+            bpy.app.timers.register(
+                blender_tick, first_interval=cls.POLL_INTERVAL, persistent=True
+            )
             return
         try:
             from PySide6 import QtCore
@@ -1303,6 +1498,12 @@ class TentacleInstaller:
 
         Headless, the print is all there is: a ``popup_menu`` with no window is a NATIVE
         access violation in ``blender --background`` (measured), which no ``try`` catches.
+
+        Blender's popup always goes out on a timer. It needs a window, and ``register()``
+        at start has none: measured on 5.1.2 it raised 'context "window" is None' there,
+        so the report of a pending uninstall completed at start reached only the system
+        console Windows hides. A timer callback has one (the popup renders, measured by
+        screenshot), and ``persistent`` keeps it through the .blend a start may open.
         """
         print(f"[tentacle] {message}")
         if cls.headless(host):
@@ -1325,7 +1526,16 @@ class TentacleInstaller:
                     draw, title="Tentacle", icon="ERROR" if error else "INFO"
                 )
 
-            cls._ui(popup)
+            def deferred():
+                cls._ui(popup)
+                return None  # one shot
+
+            def schedule():
+                import bpy
+
+                bpy.app.timers.register(deferred, first_interval=0.1, persistent=True)
+
+            cls._ui(schedule)
         elif host == "maya":
             from maya import cmds
             from maya.utils import executeDeferred
@@ -1396,10 +1606,14 @@ class TentacleInstaller:
                 f"Tentacle {done} - hover the viewport and hold the activation key (Z by default)",
             )
         else:
+            try:
+                python = cls.python_exe(host)
+            except RuntimeError:  # the reason itself, already in *error*
+                python = f"{host.capitalize()}'s Python"
             cls._say(
                 host,
                 f"Tentacle could not be {'updated' if upgrade else 'installed'}:\n{error}\n\n"
-                f"Check that {cls.python_exe(host)} can reach PyPI (firewall / proxy), then try again.",
+                f"Check that {python} can reach PyPI (firewall / proxy), then try again.",
                 error=True,
             )
 
@@ -1437,6 +1651,12 @@ class TentacleInstaller:
         ``<root>/scripts/userSetup.py`` (two lines that call :meth:`ensure_and_launch`) and
         ``<mod>`` with ``PYTHONPATH +:= site``. Idempotent: rerunning rewrites the same bytes.
         A copy left by installer 1.1 under the old name is removed. Returns the module root.
+
+        The ``.mod`` names the root RELATIVE to itself (``../tentacle``). Maya never resolved
+        the absolute path it used to carry once that path had a non-ASCII letter in it
+        (measured on Maya 2025, a prefs dir named "Jose Angstrom" with its accents, UTF-8
+        .mod): such a user got a working first drop and no tentacle at any start after it.
+        The relative form loaded there, with a space and plain alike, and it is pure ASCII.
         """
         root, mod = cls.maya_paths(app_dir, version)
         scripts = os.path.join(root, "scripts")
@@ -1467,8 +1687,9 @@ class TentacleInstaller:
                 f"import {cls.MAYA_STARTUP}\n"
                 f"{cls.MAYA_STARTUP}.TentacleInstaller.ensure_and_launch('maya')\n"
             )
+        relative = os.path.relpath(root, os.path.dirname(mod)).replace(os.sep, "/")
         with open(mod, "w", encoding="utf-8") as fh:
-            fh.write(f"+ {cls.MAYA_MODULE} {bl_info['version'][0]}.0 {root}\n")
+            fh.write(f"+ {cls.MAYA_MODULE} {bl_info['version'][0]}.0 {relative}\n")
             fh.write("PYTHONPATH +:= site\n")
         return root
 
@@ -1657,7 +1878,12 @@ class TentacleInstaller:
         else:
             import bpy
 
-            bpy.app.timers.register(remove, first_interval=0.5)
+            # persistent: a pending uninstall runs from register() at start, BEFORE a
+            # .blend on the command line loads -- and a file load drops every
+            # non-persistent timer (measured on 5.1.2). Dropped, the packages were gone but
+            # the add-on stayed enabled, found nothing installed at the next start, and
+            # reinstalled everything.
+            bpy.app.timers.register(remove, first_interval=0.5, persistent=True)
 
     # ------------------------------------------------------------------ command line
     @classmethod
@@ -1666,6 +1892,9 @@ class TentacleInstaller:
 
         Under mayapy this initialises Maya standalone itself, skipping ``userSetup.py`` so
         nothing of ours is imported first and the verb applies immediately.
+
+        Returns the exit code: 0 done (or recorded for the next start), 1 failed -- an
+        install that did not take included -- and 2 outside a DCC.
         """
         args = [
             a for a in (argv if argv is not None else sys.argv[1:]) if a in cls.VERBS
@@ -1707,6 +1936,11 @@ class TentacleInstaller:
                 )
             else:
                 bpy.ops.wm.save_userpref()
+            if not cls.is_installed(host):  # enabling ran the install; it reported why
+                print(
+                    f"[tentacle] add-on {stem} is enabled, but tentacle did not install"
+                )
+                return 1
             print(f"[tentacle] add-on {stem} installed and enabled")
             return 0
         try:
@@ -1714,7 +1948,8 @@ class TentacleInstaller:
         except Exception as error:
             print(f"[tentacle] {verb} failed: {error}")
             return 1
-        return 0
+        # A deployment script reads the exit code: an install that did not take is a failure.
+        return 1 if verb == "install" and not cls.is_installed(host) else 0
 
 
 # ------------------------------------------------------------------------------------------

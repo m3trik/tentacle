@@ -37,7 +37,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
-  - methods: tb003, list003_init, b019, tb002_init, tb002
+  - methods: tb003, list003_init, b019, tb001_init, tb001, tb002_init, tb002
 
 ### `slots/_selection.py` — Behavior shared by the Maya and Blender ``selection`` panels.
 - `class SelectionMixin`
@@ -145,7 +145,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
-  - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, tb001_init, tb001, b004, b003, b015, b017
+  - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, b004, b003, b015, b017
 
 ### `slots/blender/selection.py`
 - `class Selection(SelectionMixin, SlotsBlender)`
@@ -334,7 +334,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SceneMixin, SlotsMaya)`
-  - methods: list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, tb001_init, tb001, b011, b018, b012, b017, b013, b014_init, b014
+  - methods: list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, b011, b018, b012, b017, b013, b014_init, b014
 
 ### `slots/maya/select.py`
 - `class SelectSlots(SlotsMaya)`

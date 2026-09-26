@@ -22,13 +22,18 @@ The subsystems that live here include:
 * the Import / Export lists' **pull and USD entries**: every Import entry that
   reaches the scene through the bridge engine (the other DCC's scene, glTF on
   Maya, USD on both) runs one browse-import-report body, and Export USD writes
-  the scene through the writer Export Scene's USD format already uses.
+  the scene through the writer Export Scene's USD format already uses; and
+* **Get Scene Info** (``tb001``): the option box and the report run. Identical
+  on both sides because the engines are mirrors (``mtk.SceneAnalyzer`` ↔
+  ``btk.SceneAnalyzer``, ``mtk.SceneInfoSection`` ↔ ``btk.SceneInfoSection``).
 
 Only the engine handles, the scope resolvers, the wording of what the fix *does*
-to the object, which events signal a workspace change, the open scene's path and
-the foreign-format bridge are DCC-specific — those are the hooks below.
+to the object, which events signal a workspace change, the open scene's path,
+the foreign-format bridge and the report sections whose content is the DCC's own
+are DCC-specific — those are the hooks below.
 """
 
+import functools
 import os
 import html
 
@@ -83,6 +88,30 @@ class SceneMixin:
         :meth:`_foreign_scene_bridge`.
         """
         raise NotImplementedError
+
+    def _scene_analyzer(self):
+        """Return the DCC engine's ``SceneAnalyzer`` (``mtk``/``btk``) — the report
+        behind Get Scene Info (``format_audit_html``)."""
+        raise NotImplementedError
+
+    def _scene_info_sections(self):
+        """Return the DCC engine's ``SceneInfoSection`` (``mtk``/``btk``) — the
+        report's section keys (``ALL``, in render order) and headings (``LABELS``)."""
+        raise NotImplementedError
+
+    def _ui_utils(self):
+        """Return the DCC engine's ``UiUtils`` namespace (``mtk``/``btk``); its
+        ``dispatch_log_link`` answers a report's ``action://`` links."""
+        raise NotImplementedError
+
+    def _anything_selected(self) -> bool:
+        """Whether the scene holds a selection the scoped commands can resolve.
+
+        :meth:`_selected_objects` by default. A fork whose engine resolves more than
+        objects widens it (Maya's audit also takes object sets, which resolve to no
+        transform).
+        """
+        return bool(self._selected_objects())
 
     # --------------------------------------------------- export: formats + paths
     #: ``(label, data)`` for the Export Scene format combo — the formats BOTH DCCs
@@ -748,6 +777,135 @@ class SceneMixin:
             )
             lines.append(report.summary())
         return "<pre>{}</pre>".format(html.escape("\n".join(lines)))
+
+    # ------------------------------------------------------ tb001  Get Scene Info
+    #: ``(label, data)`` for the Get Scene Info scope and profile combos.
+    _TB001_SCOPES = (
+        ("Selected Objects", "selection"),
+        ("Entire Scene", "all"),
+    )
+    _TB001_PROFILES = (
+        ("Adaptive (Game Ready)", True),
+        ("Generic", False),
+    )
+
+    #: Tooltips for the section toggles, per section key. The sections themselves
+    #: -- keys, labels, render order -- are the engine's ``SceneInfoSection``, and
+    #: the analyzer skips the collection a section set does not need. The rows whose
+    #: content is the DCC's own (``overview`` / ``fix_first`` / ``pipeline``) are
+    #: worded by each fork, extending this dict.
+    _TB001_SECTION_TIPS = {
+        "summary": "Totals for the scope: rendered vs unique triangles and "
+        "vertices, draw calls, materials, texture memory against its budget.",
+        "pareto": "The meshes that carry the most rendered triangles (instances "
+        "counted), and multi-material meshes by draw calls.",
+        "offenders": "Meshes with their own issues -- over-budget triangles, "
+        "n-gons, UV sets, slots, oversized unique textures -- worst first.",
+        "materials": "Every material in scope: who wears it, its maps, max "
+        "resolution and GPU memory, transparency and missing files.",
+        "textures": "Texture memory (GPU estimate, uncompressed, on disk), the "
+        "resolution histogram and the heaviest maps.",
+        "assumptions": "How the numbers are counted: instances, draw calls, "
+        "budgets, texture compression.",
+    }
+
+    def tb001_init(self, widget):
+        """Get Scene Info — option box: scope, profile, and one toggle per section."""
+        menu = widget.option_box.menu
+        menu.setTitle("Get Scene Info")
+
+        cmb_scope = menu.add(
+            "QComboBox",
+            setObjectName="cmb_scope1",  # NOT cmb_scope — collides with tb003's scope combo
+            setToolTip=(
+                "Selected Objects: audit only what is selected — fastest.\n"
+                "Entire Scene: audit every mesh in the scene — can take "
+                "several seconds on heavy scenes."
+            ),
+        )
+        for label, data in self._TB001_SCOPES:
+            cmb_scope.addItem(label, data)
+
+        cmb_profile = menu.add(
+            "QComboBox",
+            setObjectName="cmb_profile",
+            setToolTip=(
+                "Adaptive (Game Ready): adaptive triangle budgeting based on "
+                "object size — the recommended profile for game-ready scenes.\n"
+                "Generic: a flat triangle budget across all objects."
+            ),
+        )
+        for label, data in self._TB001_PROFILES:
+            cmb_profile.addItem(label, data)
+
+        menu.add(
+            self.sb.registered_widgets.Label,
+            setText="Sections:",
+            setObjectName="lbl_sections",
+            setToolTip="Pick which report sections to query and render.",
+        )
+        sections = self._scene_info_sections()
+        for key in sections.ALL:
+            menu.add(
+                "QCheckBox",
+                # A button's "&" marks its mnemonic: "Notes & Assumptions" would
+                # lose the ampersand and bind Alt+Space. "&&" is a literal one.
+                setText=sections.LABELS[key].replace("&", "&&"),
+                setObjectName=f"chk_section_{key}",
+                setChecked=True,
+                setToolTip=self._TB001_SECTION_TIPS.get(key, ""),
+            )
+
+    def tb001(self, widget):
+        """Get Scene Info — render the sectioned audit report to the viewer dialog."""
+        menu = widget.option_box.menu
+        scope = menu.cmb_scope1.currentData() or "selection"
+        adaptive = menu.cmb_profile.currentData()
+        if adaptive is None:
+            adaptive = True  # default to game-ready when nothing's picked
+
+        sections = [
+            key
+            for key in self._scene_info_sections().ALL
+            if getattr(menu, f"chk_section_{key}").isChecked()
+        ]
+        if not sections:
+            self.sb.message_box(
+                "<hl>No sections selected</hl>. Tick at least one section in "
+                "the option menu."
+            )
+            return
+        # Entire Scene is resolved by the analyzer itself -- every mesh INSTANCE
+        # (a Maya shape-typed ls names an instanced shape once). A scene without
+        # meshes still reports (units, rig, a "no meshes" summary).
+        if scope != "all" and not self._anything_selected():
+            self.sb.message_box(
+                "<hl>Nothing selected</hl>. Select objects, or pick "
+                "'Entire Scene' from the option menu."
+            )
+            return
+
+        # ``progress_adapter`` auto-syncs the bar's max from the analyzer's
+        # ``(current, 100, message)`` callbacks on the first tick.
+        with self.sb.progress(text="Working: Get Scene Info") as update:
+            html_dict = self._scene_analyzer().format_audit_html(
+                adaptive=bool(adaptive),
+                scope=scope,
+                progress_callback=self.sb.progress_adapter(update),
+                sections=sections,
+            )
+        self.sb.text_view_dialog(
+            "".join(html_dict.values()),  # always titled: "_header" leads
+            "Ok",
+            title="Get Scene Info",
+            size=(960, 720),
+            monospace=False,
+            # Object and material names are action:// links; the logger names one
+            # deleted or renamed since the report was run.
+            link_handler=functools.partial(
+                self._ui_utils().dispatch_log_link, logger=self.sb.logger
+            ),
+        )
 
     # --------------------------------------------------- tb002  fix non-orthogonal
     # What freezing/baking actually does to the object in this DCC — shown in
