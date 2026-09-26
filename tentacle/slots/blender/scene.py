@@ -177,8 +177,13 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 (
                     "Get Scene Info",
                     "tb001",
-                    "Show an object / poly / material summary in a viewer.\n"
-                    "Use the option box to choose scope (Selected / Entire Scene).",
+                    "Show a scene report in the viewer: file, units and an object "
+                    "census; rendered vs unique triangles, draw calls, materials "
+                    "and texture memory; and a prioritized Fix First list. "
+                    "Object names select the object; material names open it in "
+                    "the Shader Editor.\n"
+                    "Scope, profile (Adaptive / Generic) and sections are set "
+                    "via the option box.",
                 ),
                 (
                     "Scene Metadata",
@@ -221,6 +226,15 @@ class SceneSlots(SceneMixin, SlotsBlender):
 
     def _selected_objects(self):
         return list(self.selected_objects())
+
+    def _scene_analyzer(self):
+        return btk.SceneAnalyzer
+
+    def _scene_info_sections(self):
+        return btk.SceneInfoSection
+
+    def _ui_utils(self):
+        return btk.UiUtils
 
     def _open_file(self, filepath):
         try:
@@ -701,103 +715,17 @@ class SceneSlots(SceneMixin, SlotsBlender):
         )
 
     # ------------------------------------------------------------------ tb001  Get Scene Info
-    # Section toggles (key -> Maya objectName chk_section_<key>, label, default, tooltip). Mirror of
-    # the Maya SceneAnalyzer sections; drives btk.analyze_scene's budgeted, sectioned audit.
-    _TB001_SECTIONS = (
-        (
-            "summary",
-            "Executive Summary",
-            True,
-            "Scene-wide totals + profile + over-budget count.",
-        ),
-        (
-            "fix_first",
-            "Fix First (High Impact)",
-            True,
-            "Worst meshes exceeding the triangle budget.",
-        ),
-        ("pareto", "Pareto View", True, "Top-10 contributors to total triangles."),
-        ("offenders", "Top Issues by Asset", True, "Per-asset over-budget table."),
-        ("categories", "Top Offenders by Category", True, "Multi-material meshes."),
-        ("textures", "Textures", True, "Texture dimension histogram (1K/2K/4K+)."),
-        ("pipeline", "Pipeline Integrity", True, "Missing referenced texture files."),
-        (
-            "assumptions",
-            "Data Assumptions",
-            True,
-            "Methodology footnotes (budget, triangulation).",
-        ),
-    )
-
-    def tb001_init(self, widget):
-        # cmb_scope1 / cmb_profile / lbl_sections / chk_section_<key> reuse the Maya names + labels.
-        m = widget.option_box.menu
-        m.setTitle("Get Scene Info")
-        cmb = m.add(
-            "QComboBox",
-            setObjectName="cmb_scope1",
-            setToolTip="Selected Objects: audit only the selection.\nEntire Scene: audit every object.",
-        )
-        for label, data in [("Selected Objects", "selection"), ("Entire Scene", "all")]:
-            cmb.addItem(label, data)
-        cmb_profile = m.add(
-            "QComboBox",
-            setObjectName="cmb_profile",
-            setToolTip="Adaptive (Game Ready): per-mesh triangle budget scaled by object size.\n"
-            "Generic: a flat 100k triangle budget across all meshes.",
-        )
-        for label, data in [("Adaptive (Game Ready)", True), ("Generic", False)]:
-            cmb_profile.addItem(label, data)
-        m.add(
-            self.sb.registered_widgets.Label,
-            setText="Sections:",
-            setObjectName="lbl_sections",
-            setToolTip="Pick which report sections to render.",
-        )
-        for key, label, default_on, tooltip in self._TB001_SECTIONS:
-            m.add(
-                "QCheckBox",
-                setText=label,
-                setObjectName=f"chk_section_{key}",
-                setChecked=default_on,
-                setToolTip=tooltip,
-            )
-
-    def tb001(self, widget):
-        """Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer."""
-        m = widget.option_box.menu
-        scope = m.cmb_scope1.currentData() or "selection"
-        if scope == "selection":
-            objects = self.selected_objects()
-            if not objects:
-                self.sb.message_box(
-                    "<hl>Nothing selected</hl> — select objects, or pick 'Entire Scene'."
-                )
-                return
-        else:
-            objects = None
-        adaptive = m.cmb_profile.currentData()
-        adaptive = True if adaptive is None else bool(adaptive)
-        sections = [
-            key
-            for key, _l, _d, _t in self._TB001_SECTIONS
-            if getattr(m, f"chk_section_{key}").isChecked()
-        ]
-        if not sections:
-            self.sb.message_box(
-                "<hl>No sections selected</hl> — tick at least one section."
-            )
-            return
-        report = btk.analyze_scene(objects, adaptive=adaptive, sections=sections)
-        report_html = "".join(
-            report.get(key, "") for key, _l, _d, _t in self._TB001_SECTIONS
-        )
-        if not report_html:
-            self.sb.message_box("<hl>No scene info</hl> available.")
-            return
-        self.sb.text_view_dialog(
-            report_html, "Ok", title="Get Scene Info", size=(640, 600), monospace=False
-        )
+    # Shared (``SceneMixin``); these sections' content is Blender's own.
+    _TB001_SECTION_TIPS = {
+        **SceneMixin._TB001_SECTION_TIPS,
+        "overview": "The file, units, frame range and an object census: meshes and "
+        "linked duplicates, rig, animation, shading, lights, libraries. Scene-wide, "
+        "whatever the scope.",
+        "fix_first": "The prioritized to-do list: missing textures, texture memory, "
+        "budgets, meshes without a material, missing libraries -- most severe first.",
+        "pipeline": "Missing texture files, meshes without a material and missing "
+        "libraries.",
+    }
 
     def b004(self):
         """Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
@@ -842,6 +770,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
             empty_message="<hl>No scene metadata</hl> is stored — this scene has no "
             "<b>data_internal</b> / <b>data_export</b> channels yet.",
         )
+
 
 # --------------------------------------------------------------------------------------------
 # Notes

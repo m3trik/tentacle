@@ -9,15 +9,56 @@ covers the units with branching logic:
 - _ensure_fbx_plugin      — graceful fail when plugin missing
 - _resolve_workspace_text — env fallback
 - _confirm_dense_export   — dense-mesh tangent-export confirmation gate
+- tb001 Get Scene Info    — the body both forks share (``SceneMixin``), driven
+  Maya-free with a stand-in engine, and the Maya fork against mayatk's
 """
 
+import ast
+import contextlib
+import functools
+import os
 import unittest
+from pathlib import Path
 from types import SimpleNamespace as NS
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")  # before any widget is built
+
+from _host import (  # noqa: E402
+    MAYA_AVAILABLE as _MAYA_AVAILABLE,
+    maya_module,
+    qt_widgets_available,
+)
+from tentacle.slots._scene import SceneMixin  # noqa: E402
 
 cmds = maya_module("maya.cmds")
 scene_module = maya_module("tentacle.slots.maya.scene")
+
+SLOTS_ROOT = Path(__file__).resolve().parent.parent / "tentacle" / "slots"
+
+
+class _Combo:
+    def __init__(self, data):
+        self.data = data
+
+    def currentData(self):
+        return self.data
+
+
+class _Check:
+    def __init__(self, on):
+        self.on = on
+
+    def isChecked(self):
+        return self.on
+
+
+def _scene_info_widget(keys, scope="all", unchecked=()):
+    """A tb001 widget whose option box answers like the one tb001_init builds."""
+    menu = NS(cmb_scope1=_Combo(scope), cmb_profile=_Combo(True))
+    for key in keys:
+        setattr(menu, f"chk_section_{key}", _Check(key not in unchecked))
+    return NS(option_box=NS(menu=menu))
 
 
 class _RecordedSb:
@@ -298,6 +339,250 @@ class TestGltfImportEntry(unittest.TestCase):
             body = inspect.getsource(getattr(scene_module.SceneSlots, name))
             self.assertIn("_pull_scene", body)
             self.assertNotIn("import_scene(", body)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestGetSceneInfo(unittest.TestCase):
+    """tb001 hands the analyzer its scope and the viewer its link handler.
+
+    Regression: Entire Scene passed ``cmds.ls(type="mesh")`` -- one name per
+    SHAPE -- so every instance past the first went uncounted, and the report's
+    object names were inert text.
+    """
+
+    class _Sb(_RecordedSb):
+        def __init__(self):
+            super().__init__()
+            self.views = []
+            self.logger = mock.Mock()
+
+        def progress(self, **kwargs):
+            return contextlib.nullcontext(lambda *a, **k: None)
+
+        def progress_adapter(self, update):
+            return None
+
+        def text_view_dialog(self, text, *buttons, **kwargs):
+            self.views.append((text, buttons, kwargs))
+
+    @staticmethod
+    def _widget(scope="all", unchecked=()):
+        return _scene_info_widget(
+            scene_module.mtk.SceneInfoSection.ALL, scope, unchecked
+        )
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+        self.inst.sb = self._Sb()
+        cube = cmds.polyCube(name="info_cube")[0]
+        cmds.instance(cube)
+        cmds.select(clear=True)
+
+    def test_entire_scene_counts_instances_and_links_names(self):
+        self.inst.tb001(self._widget("all"))
+        ((html, _buttons, kwargs),) = self.inst.sb.views
+        self.assertIn("2 instances of 1 unique shape", html)
+        self.assertIn("action://select", html)
+        # A name deleted since the report ran: the click says so, not nothing.
+        url = NS(
+            scheme=lambda: "action", host=lambda: "select", query=lambda: "node=gone"
+        )
+        self.assertFalse(kwargs["link_handler"](url))
+        self.inst.sb.logger.warning.assert_called_once_with("Object not found: gone")
+
+    def test_selection_scope_needs_a_selection(self):
+        self.inst.tb001(self._widget("selection"))
+        self.assertEqual(self.inst.sb.views, [])
+        self.assertIn("Nothing selected", self.inst.sb.messages[0][0][0])
+
+    def test_unticked_sections_are_not_rendered(self):
+        self.inst.tb001(self._widget("all", unchecked=("overview", "assumptions")))
+        html = self.inst.sb.views[0][0]
+        self.assertNotIn("Scene Overview", html)
+        self.assertNotIn("Notes &amp; Assumptions", html)
+        self.assertIn("Executive Summary", html)
+
+    def test_no_sections_is_a_message_not_a_report(self):
+        keys = tuple(scene_module.mtk.SceneInfoSection.ALL)
+        self.inst.tb001(self._widget("all", unchecked=keys))
+        self.assertEqual(self.inst.sb.views, [])
+        self.assertIn("No sections selected", self.inst.sb.messages[0][0][0])
+
+    def test_every_section_has_a_tooltip(self):
+        self.assertEqual(
+            set(scene_module.SceneSlots._TB001_SECTION_TIPS),
+            set(scene_module.mtk.SceneInfoSection.ALL),
+        )
+
+    def test_a_selected_object_set_is_a_selection(self):
+        # The audit resolves a set to its members; a set has no transform, so
+        # the shared guard must not read the Maya fork's _selected_objects.
+        cmds.select(cmds.sets("info_cube", name="info_set"), noExpand=True)
+        self.inst.tb001(self._widget("selection"))
+        self.assertEqual(self.inst.sb.messages, [])
+        self.assertEqual(len(self.inst.sb.views), 1)
+
+
+class _Sections:
+    """Stand-in for an engine's ``SceneInfoSection``: one label carries an "&"."""
+
+    ALL = ("summary", "assumptions")
+    LABELS = {"summary": "Executive Summary", "assumptions": "Notes & Assumptions"}
+
+
+class _UiUtils:
+    @staticmethod
+    def dispatch_log_link(url, logger=None):
+        return True
+
+
+class _SceneInfoHost(SceneMixin):
+    """The shared Get Scene Info body over a stand-in engine (no DCC needed)."""
+
+    def __init__(self, selected=True):
+        self.calls, self.views, self.messages, self.selected = [], [], [], selected
+        self.adapter = object()  # what the switchboard hands the analyzer
+        self.sb = NS(
+            message_box=lambda text, *a, **k: self.messages.append(text),
+            text_view_dialog=lambda text, *a, **k: self.views.append((text, k)),
+            progress=lambda **k: contextlib.nullcontext(None),
+            progress_adapter=lambda update: self.adapter,
+            logger=mock.Mock(),
+        )
+
+    def _scene_analyzer(self):
+        host = self
+
+        class _Analyzer:
+            @staticmethod
+            def format_audit_html(**kwargs):
+                host.calls.append(kwargs)
+                return {"_header": "<h1>Scene Info</h1>", "summary": "<p>ok</p>"}
+
+        return _Analyzer
+
+    def _scene_info_sections(self):
+        return _Sections
+
+    def _ui_utils(self):
+        return _UiUtils
+
+    def _selected_objects(self):
+        return ["obj"] if self.selected else []
+
+
+class TestGetSceneInfoShared(unittest.TestCase):
+    """tb001 / tb001_init live once, on ``SceneMixin``; both forks supply hooks.
+
+    Regression: the Maya and Blender forks carried near-identical copies that
+    differed only by engine namespace -- and had drifted (the Blender copy's
+    Generic tooltip claimed a 100k budget; the engine's is 20k).
+    """
+
+    FORKS = (SLOTS_ROOT / "maya" / "scene.py", SLOTS_ROOT / "blender" / "scene.py")
+    HOOKS = ("_scene_analyzer", "_scene_info_sections", "_ui_utils")
+    SHARED = ("tb001", "tb001_init", "_TB001_SCOPES", "_TB001_PROFILES")
+    #: The sections whose content is each DCC's own -- the rows a fork words.
+    FORK_TIPS = {"overview", "fix_first", "pipeline"}
+
+    @staticmethod
+    def _class(path):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        return next(
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.ClassDef) and n.name == "SceneSlots"
+        )
+
+    def test_forks_supply_the_hooks_and_carry_no_copy(self):
+        for path in self.FORKS:
+            cls = self._class(path)
+            defs = {n.name for n in cls.body if isinstance(n, ast.FunctionDef)}
+            assigned = {
+                t.id
+                for n in cls.body
+                if isinstance(n, ast.Assign)
+                for t in n.targets
+                if isinstance(t, ast.Name)
+            }
+            with self.subTest(fork=path.parent.name):
+                self.assertTrue(set(self.HOOKS) <= defs, defs)
+                self.assertFalse((defs | assigned) & set(self.SHARED))
+
+    def test_forks_extend_the_shared_tips_with_their_own_rows(self):
+        shared = set(SceneMixin._TB001_SECTION_TIPS)
+        for path in self.FORKS:
+            node = next(
+                n.value
+                for n in self._class(path).body
+                if isinstance(n, ast.Assign)
+                and any(
+                    isinstance(t, ast.Name) and t.id == "_TB001_SECTION_TIPS"
+                    for t in n.targets
+                )
+            )
+            spread = [v for k, v in zip(node.keys, node.values) if k is None]
+            own = {k.value for k in node.keys if k is not None}
+            with self.subTest(fork=path.parent.name):
+                self.assertEqual(
+                    [ast.unparse(v) for v in spread],
+                    ["SceneMixin._TB001_SECTION_TIPS"],
+                )
+                self.assertEqual(own, self.FORK_TIPS)
+                self.assertFalse(own & shared)
+
+    @unittest.skipUnless(qt_widgets_available(), "QWidget construction aborts here")
+    def test_an_ampersand_label_stays_literal_and_binds_no_mnemonic(self):
+        from qtpy import QtGui, QtWidgets
+        from uitk.widgets.label import Label
+        from uitk.widgets.menu import Menu
+
+        QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+        host = _SceneInfoHost()
+        host.sb.registered_widgets = NS(Label=Label)
+        menu = Menu()
+        host.tb001_init(NS(option_box=NS(menu=menu)))
+        box = menu.chk_section_assumptions
+        # "&&" draws one "&"; a lone "&" drew none and bound Alt+Space.
+        self.assertEqual(box.text(), "Notes && Assumptions")
+        self.assertTrue(QtGui.QKeySequence.mnemonic(box.text()).isEmpty())
+        self.assertEqual(menu.chk_section_summary.text(), "Executive Summary")
+        for key in _Sections.ALL:
+            self.assertTrue(getattr(menu, f"chk_section_{key}").toolTip(), key)
+        self.assertEqual(
+            [menu.cmb_profile.itemData(i) for i in range(menu.cmb_profile.count())],
+            [True, False],
+        )
+
+    def test_the_run_hands_the_engine_scope_sections_and_progress(self):
+        host = _SceneInfoHost()
+        host.tb001(_scene_info_widget(_Sections.ALL, "all", unchecked=("summary",)))
+        (kwargs,) = host.calls
+        self.assertEqual(kwargs["scope"], "all")
+        self.assertEqual(kwargs["sections"], ["assumptions"])
+        self.assertIs(kwargs["adaptive"], True)
+        self.assertIs(kwargs["progress_callback"], host.adapter)
+        ((html, view),) = host.views
+        self.assertTrue(html.startswith("<h1>Scene Info</h1>"))
+        handler = view["link_handler"]
+        self.assertIsInstance(handler, functools.partial)
+        self.assertIs(handler.func, _UiUtils.dispatch_log_link)
+        self.assertIs(handler.keywords["logger"], host.sb.logger)
+
+    def test_selection_scope_needs_a_selection(self):
+        host = _SceneInfoHost(selected=False)
+        host.tb001(_scene_info_widget(_Sections.ALL, "selection"))
+        self.assertEqual(host.calls, [])
+        self.assertIn("Nothing selected", host.messages[0])
+        host.tb001(_scene_info_widget(_Sections.ALL, "all"))  # Entire Scene needs none
+        self.assertEqual(len(host.calls), 1)
+
+    def test_no_sections_is_a_message_not_a_report(self):
+        host = _SceneInfoHost()
+        host.tb001(_scene_info_widget(_Sections.ALL, unchecked=_Sections.ALL))
+        self.assertEqual(host.calls, [])
+        self.assertIn("No sections selected", host.messages[0])
 
 
 if __name__ == "__main__":

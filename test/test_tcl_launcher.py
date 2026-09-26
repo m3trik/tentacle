@@ -359,6 +359,24 @@ class TestLaunchDispatch(unittest.TestCase):
             bpy.app.timers.register.call_args.args[0]()
             entry.register.assert_called_once()
 
+    def test_blender_startup_survives_the_file_the_user_opened(self):
+        """A default timer is dropped when Blender loads a .blend -- and Blender enables
+        add-ons (and runs startup scripts) BEFORE it opens the file a user double-clicked.
+
+        Measured on 5.1.2, GUI, a timer registered from an add-on's register() at start:
+        with a .blend on the command line the default timer never fired and a
+        ``persistent=True`` one did; with no file both fired. So every start that opened
+        a scene brought up no menu at all.
+        """
+        bpy, entry = _fake_bpy(), mock.MagicMock()
+        with _as_blender(bpy, entry):
+            Tcl._launch_blender()
+        self.assertIs(
+            bpy.app.timers.register.call_args.kwargs.get("persistent"),
+            True,
+            "the build timer must survive the file load that follows a start",
+        )
+
 
 class TestDefaultKeyUpgradePath(unittest.TestCase):
     """A shipped default-key change must actually reach a user who already has bindings persisted.

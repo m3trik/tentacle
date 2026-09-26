@@ -47,6 +47,11 @@ HOOKS = (
     "_scene_import_engine",
     # The Tools list's contents — the one part of list003 that is fork-specific.
     "_tools_items",
+    # Get Scene Info's engine: the analyzer, its section vocabulary, and the
+    # link dispatcher its report viewer routes action:// links to.
+    "_scene_analyzer",
+    "_scene_info_sections",
+    "_ui_utils",
 )
 #: Class attributes each fork must supply for the shared behavior above.
 REQUIRED_ATTRS = (
@@ -65,6 +70,10 @@ FORK_MUST_NOT_DEFINE = (
     "_import_usd",
     "_export_usd",
     "_write_native",
+    # Get Scene Info: the two forks' copies had drifted (a 100k Generic budget
+    # on Blender's tooltip against the engine's 20,000; no progress bar).
+    "tb001",
+    "tb001_init",
 )
 
 

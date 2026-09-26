@@ -202,10 +202,12 @@ Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
 Behavior shared by the Maya and Blender ``scene`` panels.
 
-- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L38)** — Shared ``scene`` panel behavior.
+- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L43)** — Shared ``scene`` panel behavior.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
   - `SceneMixin.b019(self)` — Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.
+  - `SceneMixin.tb001_init(self, widget)` — Get Scene Info — option box: scope, profile, and one toggle per section.
+  - `SceneMixin.tb001(self, widget)` — Get Scene Info — render the sectioned audit report to the viewer dialog.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
@@ -670,8 +672,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
-  - `SceneSlots.tb001_init(self, widget)`
-  - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the budgeted, sectioned audit (btk.analyze_scene) to the viewer.
   - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
   - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
@@ -1371,8 +1371,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b005(self)` — Open Naming Tool
   - `SceneSlots.b006(self)` — Scene Cleanup
   - `SceneSlots.b009(self)` — Fix OCIO
-  - `SceneSlots.tb001_init(self, widget)` — Get Scene Info — option box.
-  - `SceneSlots.tb001(self, widget)` — Get Scene Info — render the audit report to the viewer dialog.
   - `SceneSlots.b011(self)` — Fix Color Spaces
   - `SceneSlots.b018(self)` — Fix Mangled Names
   - `SceneSlots.b012(self)` — Toggle Command Ports
@@ -1587,7 +1585,7 @@ Behavior shared by the Maya and Blender UV panels.
 
 The host-agnostic entry point — one launcher snippet for every DCC.
 
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L357)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L362)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
   - `Tcl.prepare_reload(cls, host=None)` *(class)* — Release the host resources an in-place reload would ORPHAN.
@@ -1649,10 +1647,10 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L1724) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1730) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1736) — Maya drop hook: first drop installs and launches;
-- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L80)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L1959) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L1965) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L1971) — Maya drop hook: first drop installs and launches;
+- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L83)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).
   - `TentacleInstaller.loaded()` *(static)* — True once our code is imported in this process -- its extension modules are then

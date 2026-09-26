@@ -7,7 +7,7 @@ hard edges), polygons b043 (interactive target weld), animation
 tb002/tb004/tb007/tb008 (key spacing / transfer / align / visibility keys), transform
 chk024/chk025 (constraints -> snap elements), selection b002-b007 (one-shot constraints),
 rigging cmb002 (Rigify quick rig), nurbs b056 (image tracer), the manager-panel routing,
-main list000 (workspace browser = the current .blend's dir contents, files + folders),
+main list000 (workspace browser = the current .blend's sub-folders, as Maya's tree),
 editors buttons + list (every entry opens a real editor; no-analogue buttons relabel).
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
@@ -131,8 +131,25 @@ try:
     src.select_set(True); tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
     slot = make_slot(Uv)
-    # b000 reads its scope + similarity from the option box (Selection Order = active -> others).
-    slot.b000(option_box(cmb014=combo("order"), d000=spin(0.9)))
+    # b000 is the one Transfer tool (UVs OR textures): Source = the active mesh, Scope =
+    # Selection Order (active -> others), Transfer = the UV pass alone. It reads the Output
+    # Name before branching and wraps the pass in a footer progress task.
+    import contextlib
+
+    uv_msgs = []
+    slot.sb = NS(
+        message_box=uv_msgs.append,
+        progress=lambda **k: contextlib.nullcontext(lambda *a, **kw: None),
+    )
+    slot.b000(
+        option_box(
+            cmb024=combo("first"),
+            cmb014=combo("order"),
+            cmb028=combo(Uv.TRANSFER_UVS),
+            d000=spin(0.9),
+            t_tt_name=NS(text=lambda: ""),
+        )
+    )
 
     def min_u(o):
         bm = bmesh.new(); bm.from_mesh(o.data); uvl = bm.loops.layers.uv.active
@@ -305,12 +322,19 @@ try:
     bpy.context.view_layer.objects.active = o
     btk.freeze_transforms(o, location=True, rotation=False, scale=False)
     slot = make_slot(TransformSlots)
-    slot.b002()
+    # b002 reads which channels to restore (and whether to walk children) from its option box.
+    unfreeze = option_box(
+        chk_unfreeze_t=chk(True),
+        chk_unfreeze_r=chk(True),
+        chk_unfreeze_s=chk(True),
+        chk_unfreeze_children=chk(False),
+    )
+    slot.b002(unfreeze)
     check("transform b002 un-freezes (location restored)",
           abs(o.location.x - 4.0) < 1e-4, f"x={o.location.x:.3f}")
     msgs = []
     slot.sb = NS(message_box=msgs.append)
-    slot.b002()  # bakes consumed -> nothing-to-restore message
+    slot.b002(unfreeze)  # bakes consumed -> nothing-to-restore message
     check("transform b002 reports when nothing stored",
           msgs and "Nothing to restore" in msgs[-1])
 
@@ -629,6 +653,63 @@ try:
     check("scene b004 opens the hierarchy-sync panel",
           shown == ["hierarchy_sync"], f"{shown}")
 
+    # ---- scene tb001: Get Scene Info (SceneMixin's body over btk) -----------------------------
+    import blendertk as btk
+    from tentacle.slots.blender.scene import SceneSlots
+
+    reset()
+    base = add_cube("info_cube")
+    bpy.context.collection.objects.link(base.copy())  # a linked duplicate (shares the mesh)
+    views, msgs, warnings_logged, ticks = [], [], [], []
+    slot = make_slot(
+        SceneSlots,
+        sb=NS(
+            message_box=msgs.append,
+            text_view_dialog=lambda text, *b, **k: views.append((text, k)),
+            logger=NS(warning=warnings_logged.append, debug=lambda *a, **k: None),
+            progress=lambda **k: contextlib.nullcontext(None),
+            progress_adapter=lambda update: lambda *a: ticks.append(a),
+        ),
+    )
+    sections = {f"chk_section_{key}": chk(True) for key in btk.SceneInfoSection.ALL}
+    slot.tb001(option_box(cmb_scope1=combo("all"), cmb_profile=combo(True), **sections))
+    html, kwargs = views[0] if views else ("", {})
+    check("scene tb001 reports linked duplicates as instances",
+          "2 instances of 1 unique mesh (1 instanced)" in html, f"{msgs}")
+    check("scene tb001 drives the footer progress through the analyzer",
+          bool(ticks) and ticks[-1] == (100, 100, "Done"), f"{ticks[-3:]}")
+    handler = kwargs.get("link_handler")
+    gone = NS(scheme=lambda: "action", host=lambda: "select", query=lambda: "node=gone")
+    check("scene tb001's links go to the Blender dispatcher, which names a stale one",
+          getattr(handler, "func", None) is btk.UiUtils.dispatch_log_link
+          and handler(gone) is False and warnings_logged, f"{kwargs} | {warnings_logged}")
+    bpy.ops.object.select_all(action="DESELECT")
+    slot.tb001(option_box(cmb_scope1=combo("selection"), cmb_profile=combo(True), **sections))
+    check("scene tb001 selection scope needs a selection",
+          any("Nothing selected" in m for m in msgs), f"{msgs}")
+
+    # tb001_init on a real uitk option-box menu, with btk's real section labels.
+    from qtpy import QtGui, QtWidgets
+    from uitk.widgets.label import Label
+    from uitk.widgets.menu import Menu
+
+    QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    info_menu = Menu()
+    slot.sb.registered_widgets = NS(Label=Label)
+    slot.tb001_init(NS(option_box=NS(menu=info_menu)))
+    toggles = {key: getattr(info_menu, f"chk_section_{key}", None)
+               for key in btk.SceneInfoSection.ALL}
+    check("scene tb001_init builds one tooltipped toggle per section",
+          all(t is not None and t.toolTip() for t in toggles.values()),
+          f"{[k for k, t in toggles.items() if t is None or not t.toolTip()]}")
+    notes = toggles["assumptions"]
+    check("scene tb001's 'Notes & Assumptions' keeps its '&' and binds no mnemonic",
+          notes is not None and notes.text() == "Notes && Assumptions"
+          and QtGui.QKeySequence.mnemonic(notes.text()).isEmpty(),
+          f"{notes.text() if notes else None!r}")
+    check("scene tb001's Generic tooltip claims no budget the engine does not use",
+          "100k" not in info_menu.cmb_profile.toolTip(), info_menu.cmb_profile.toolTip())
+
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
     from tentacle.slots.blender.deformation import Deformation
 
@@ -668,15 +749,17 @@ try:
     check("main workspace resolves to the saved .blend's dir",
           btk.get_env_info("workspace") == proj, f"ws={btk.get_env_info('workspace')}")
 
-    slot = make_slot(Main)
+    # Folder rows take the "folder_filled" icon through the switchboard's IconManager.
+    slot = make_slot(
+        Main,
+        sb=NS(IconManager=NS(set_label_icon=lambda *a, **k: None)),
+    )
     root = _SubStub()
     slot._populate_dir_contents(root, proj, max_depth=2)
     names = [i.text for i in root.added]
-    check("workspace lists files alongside folders",
-          {"exports", "textures", "scene.blend", "ref.png", "notes.txt"}.issubset(names),
-          f"names={names}")
-    check("workspace lists folders before files",
-          names.index("exports") < names.index("notes.txt"), f"names={names}")
+    # Folders only, like Maya's tree -- a click opens the folder in the system browser.
+    check("workspace lists the sub-folders, not the files",
+          names == ["exports", "textures"], f"names={names}")
     nested = next((i for i in root.added if i.text == "textures"), None)
     check("workspace recurses sub-folders",
           nested is not None and [c.text for c in nested.sublist.added] == ["wood"],

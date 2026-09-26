@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-1078%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-1104%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 
@@ -21,9 +21,9 @@ Download [`tentacle_installer.py`](https://github.com/m3trik/tentacle/releases/l
 
 The first start fetches `tentacletk` and the engine for your host (`mayatk` / `blendertk`; Blender also gets PySide6) from PyPI — about a minute, with progress in the host — and the menu is live: hover the viewport and hold **Z**. Everything lands in a per-user folder the host already imports from (`<Maya prefs>/<version>/tentacle/`, Blender's `scripts/addons/modules/`); the DCC's own install is never touched. The DCC's Python needs to reach PyPI (proxy / firewall).
 
-**Update or uninstall:** drop the file in again (Maya) or open the add-on's preferences (Blender). Either applies at the next start if the menu is already running.
+**Update or uninstall:** drop the file in again (Maya) or open the add-on's preferences (Blender). Either applies at the next start if the menu is already running. In Blender use the add-on's own **Uninstall**: Blender's *Remove* button deletes only the add-on file and leaves the packages in `scripts/addons/modules/`.
 
-**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall`. **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start.
+**Scripted, no UI:** `"<mayapy>" tentacle_installer.py install|update|uninstall` · `blender --background --python tentacle_installer.py -- install|update|uninstall` (exit code 1 when the verb failed, an install that did not take included). **Developers:** `pip install "tentacletk[maya]"` / `"tentacletk[blender]"` into the DCC's own Python, or `pip install -e ./tentacle` from a checkout (see [Development](#development)); the extra in brackets is the engine — plain `tentacletk` has none and the menu will not start.
 
 ## Activation key
 

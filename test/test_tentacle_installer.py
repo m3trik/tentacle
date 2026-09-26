@@ -12,7 +12,9 @@ after any change to the installer or to ``pythontk.PackageManager.install_target
 """
 
 import ast
+import contextlib
 import importlib.util
+import io
 import json
 import os
 import re
@@ -67,6 +69,22 @@ def _under(path, root):
     )
 
 
+def _write_dist(target, name, version, record=()):
+    """A minimal dist-info for *name* in *target*, the way ``pip --target`` leaves one.
+
+    *record* lists RECORD paths as pip writes them -- staging-relative, so a console
+    script reads ``../../bin/<name>.exe``.
+    """
+    info = Path(target) / f"{name}-{version}.dist-info"
+    info.mkdir(parents=True, exist_ok=True)
+    (info / "METADATA").write_text(
+        f"Metadata-Version: 2.1\nName: {name}\nVersion: {version}\n"
+    )
+    if record:
+        (info / "RECORD").write_text("".join(f"{path},,\n" for path in record))
+    return info
+
+
 def _find_blender():
     if sys.platform != "win32":
         return None
@@ -83,6 +101,86 @@ def _find_mayapy():
     root = Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Autodesk"
     found = sorted(root.glob("Maya20*/bin/mayapy.exe")) if root.is_dir() else []
     return str(found[-1]) if found else None
+
+
+def _write_wheel(folder, name, version, files):
+    """A minimal pure-Python wheel pip will install: METADATA, WHEEL and a hashed RECORD."""
+    import base64
+    import hashlib
+    import zipfile
+
+    info = f"{name}-{version}.dist-info"
+    contents = dict(files)
+    contents[f"{info}/METADATA"] = (
+        f"Metadata-Version: 2.1\nName: {name}\nVersion: {version}\n"
+    )
+    contents[f"{info}/WHEEL"] = (
+        "Wheel-Version: 1.0\nGenerator: test\nRoot-Is-Purelib: true\nTag: py3-none-any\n"
+    )
+    record = []
+    for path, text in contents.items():
+        data = text.encode("utf-8")
+        digest = base64.urlsafe_b64encode(hashlib.sha256(data).digest()).rstrip(b"=")
+        record.append(f"{path},sha256={digest.decode()},{len(data)}")
+    record.append(f"{info}/RECORD,,")
+    wheel = Path(folder) / f"{name}-{version}-py3-none-any.whl"
+    wheel.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(wheel, "w") as zf:
+        for path, text in contents.items():
+            zf.writestr(path, text)
+        zf.writestr(f"{info}/RECORD", "\n".join(record) + "\n")
+    return wheel
+
+
+class TestBootstrapTarget(unittest.TestCase):
+    """The pythontk bootstrap hands pip its target as ``PIP_TARGET``, never on argv.
+
+    mayapy.exe decodes its ANSI command line as UTF-8: measured on Maya 2025, an
+    accented letter arrived as a lone surrogate and Cyrillic as "???", while the
+    environment arrived intact. Under the prefs dir of a user named José,
+    ``--target <site>`` sent pip to a DIFFERENT directory and the install failed with
+    "No module named 'pythontk'" (the live clean room, run under such a dir).
+    """
+
+    def setUp(self):
+        self.installer = _load().TentacleInstaller
+
+    def test_the_target_travels_in_the_environment(self):
+        target = "X:/Users/José/site"
+        with mock.patch.object(self.installer, "_run_checked") as run:
+            self.installer._bootstrap_pythontk("PY", target)
+        command, env = run.call_args.args[0], run.call_args.kwargs["env"]
+        self.assertTrue(all(part.isascii() for part in command), command)
+        self.assertNotIn("--target", command)
+        self.assertEqual(command[-1], "pythontk")
+        self.assertEqual(env["PIP_TARGET"], target)
+
+    @unittest.skipUnless(_find_mayapy(), "mayapy.exe not installed")
+    def test_mayapy_installs_into_a_non_ascii_target(self):
+        """The measured failure itself, through the real mayapy and offline: a stand-in
+        pythontk wheel lands in a site dir named like José's, and nowhere else (on the
+        argv route pip wrote a mangled sibling of that dir)."""
+        root = TEMP / "bootstrap_target"
+        shutil.rmtree(root, ignore_errors=True)
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        wheel = _write_wheel(
+            root / "wheels", "pythontk", "99.0", {"pythontk/__init__.py": "PROBE = 1\n"}
+        )
+        prefs = "José Ångström"
+        target = root / prefs / "site"
+        offline = {
+            "PIP_FIND_LINKS": str(wheel.parent),
+            "PIP_NO_INDEX": "1",
+            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+        }
+        with mock.patch.dict(os.environ, offline):
+            self.installer._bootstrap_pythontk(_find_mayapy(), str(target))
+        self.assertEqual(
+            (target / "pythontk" / "__init__.py").read_text(), "PROBE = 1\n"
+        )
+        self.assertEqual(
+            sorted(p.name for p in root.iterdir()), sorted([prefs, "wheels"])
+        )
 
 
 class TestStructure(unittest.TestCase):
@@ -208,6 +306,7 @@ class TestStructure(unittest.TestCase):
         fake_bpy = types.ModuleType("bpy")
         fake_bpy.context = mock.MagicMock()
         fake_bpy.context.window_manager.popup_menu.side_effect = popup_menu
+        fake_bpy.app = mock.MagicMock()
         with (
             mock.patch.dict(sys.modules, {"bpy": fake_bpy}),
             mock.patch.object(installer, "headless", return_value=False),
@@ -217,9 +316,99 @@ class TestStructure(unittest.TestCase):
                 "Tentacle could not be installed:\nno route to PyPI",
                 error=True,
             )
+            fake_bpy.app.timers.register.call_args.args[0]()  # the deferred popup
         self.assertEqual(
             labels, ["Tentacle could not be installed:", "no route to PyPI"]
         )
+
+    def test_a_blender_message_waits_for_a_window(self):
+        """``popup_menu`` needs a window, and ``register()`` at start has none.
+
+        Measured on 5.1.2 (GUI, called from an enabled add-on's register() at start):
+        it raised 'context "window" is None', so the report of a pending uninstall
+        completed at start -- warnings included -- reached only the system console,
+        which Windows hides. From a timer the same popup renders (measured, by
+        screenshot), so the popup always goes out on a persistent timer.
+        """
+        installer = _load().TentacleInstaller
+        fake_bpy = types.ModuleType("bpy")
+        fake_bpy.context = mock.MagicMock()
+        fake_bpy.app = mock.MagicMock()
+        with (
+            mock.patch.dict(sys.modules, {"bpy": fake_bpy}),
+            mock.patch.object(installer, "headless", return_value=False),
+        ):
+            installer._say("blender", "Tentacle uninstalled")
+            fake_bpy.context.window_manager.popup_menu.assert_not_called()
+            register = fake_bpy.app.timers.register
+            self.assertIs(register.call_args.kwargs.get("persistent"), True)
+            self.assertIsNone(register.call_args.args[0](), "a one-shot, not a poll")
+        fake_bpy.context.window_manager.popup_menu.assert_called_once()
+
+    def test_every_blender_timer_survives_a_file_load(self):
+        """A default ``bpy.app.timers`` timer is dropped when Blender loads a .blend, and
+        Blender enables add-ons BEFORE it opens the file a user double-clicked.
+
+        Measured on 5.1.2, GUI, timers registered from register() at start with a .blend
+        on the command line: the default one never fired, a ``persistent=True`` one did.
+        Here that meant no report and no launch after a first install or a pending
+        update, and a pending uninstall that removed the packages but never the add-on
+        -- which then reinstalled everything at the next start.
+        """
+        calls = [
+            node
+            for node in ast.walk(self.tree)
+            if isinstance(node, ast.Call)
+            and ast.unparse(node.func).endswith("timers.register")
+        ]
+        self.assertTrue(
+            calls, "no bpy.app.timers.register call found: the scan is stale"
+        )
+        for call in calls:
+            persistent = {kw.arg: kw.value for kw in call.keywords}.get("persistent")
+            self.assertTrue(
+                isinstance(persistent, ast.Constant) and persistent.value is True,
+                f"line {call.lineno}: {ast.unparse(call)} must pass persistent=True",
+            )
+
+    def test_mayapy_is_found_where_maya_keeps_it(self):
+        """Beside the binary on Windows and Linux; under ``MAYA_LOCATION`` on macOS, where
+        the binary is ``Maya.app/Contents/MacOS/Maya`` and mayapy ``Contents/bin/mayapy``."""
+        installer = _load().TentacleInstaller
+        name = "mayapy.exe" if os.name == "nt" else "mayapy"
+        bundle = TEMP / "maya_bundle"
+        shutil.rmtree(bundle, ignore_errors=True)
+        (bundle / "MacOS").mkdir(parents=True)
+        (bundle / "bin").mkdir()
+        (bundle / "bin" / name).write_text("")
+        self.addCleanup(shutil.rmtree, bundle, ignore_errors=True)
+        with (
+            mock.patch.object(sys, "executable", str(bundle / "MacOS" / "Maya")),
+            mock.patch.dict(os.environ, {"MAYA_LOCATION": str(bundle)}),
+        ):
+            self.assertEqual(installer.python_exe("maya"), str(bundle / "bin" / name))
+        with mock.patch.object(sys, "executable", str(bundle / "bin" / "maya.exe")):
+            self.assertEqual(installer.python_exe("maya"), str(bundle / "bin" / name))
+
+    def test_pip_never_runs_through_the_dcc_binary(self):
+        """With no interpreter found this fell back to ``sys.executable`` -- the DCC binary
+        in a GUI session -- so ``<that> -s -m pip ...`` started another copy of the
+        application and the install worker waited on it. It is an error instead."""
+        installer = _load().TentacleInstaller
+        empty = TEMP / "no_interpreter"
+        shutil.rmtree(empty, ignore_errors=True)
+        empty.mkdir(parents=True)
+        self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+        env = {k: v for k, v in os.environ.items() if k != "MAYA_LOCATION"}
+        for host, binary in (("maya", "maya.exe"), ("blender", "blender.exe")):
+            with (
+                self.subTest(host=host),
+                mock.patch.object(sys, "executable", str(empty / binary)),
+                mock.patch.object(sys, "prefix", str(empty)),
+                mock.patch.dict(os.environ, env, clear=True),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "interpreter"):
+                    installer.python_exe(host)
 
     def test_blender_preferences_say_when_an_install_is_running(self):
         """Blender has no progress window: while the worker runs, the add-on's own
@@ -367,39 +556,37 @@ class TestManifest(unittest.TestCase):
         self.assertNotIsInstance(raised.exception, PermissionError)
         self.assertEqual(len(attempts), 1)
 
-    def test_spec_names_strips_extras_and_version_pins(self):
-        self.assertEqual(
-            self.installer._spec_names(
-                ["tentacletk[blender]==1.2.3", "pythontk>=0.9", "PySide6", ""]
-            ),
-            ["PySide6", "pythontk", "tentacletk"],
-        )
+    def test_a_failed_provision_records_what_landed_and_nothing_else(self):
+        """A part-provisioned Blender target must not orphan shared dists -- nor claim any.
 
-    def test_a_failed_install_still_records_what_it_was_installing(self):
-        """A part-provisioned Blender target must not orphan shared dists.
-
-        install() only wrote the manifest AFTER provision() returned, so a provision
-        that raised left PySide6/pythontk in the shared addons/modules with nothing
-        recording them -- and a later uninstall read no pins, removed nothing, and
-        deleted the add-on that was the only way to retry.
+        install() once wrote the manifest only AFTER provision() returned, so a provision
+        that raised left dists in the shared addons/modules that nothing recorded. The
+        first repair recorded the REQUESTED spec names instead, which is wrong both ways:
+        it missed every dependency that had landed, and on a fresh Blender install it
+        claimed PySide6 / qtpy outright -- so a PySide6 another add-on had already put in
+        that shared folder was removed by the next Uninstall. What arrived during the
+        failed run is what gets recorded, and only that.
         """
         t = str(self.target)
+        path_before = list(sys.path)
+        self.addCleanup(sys.path.__setitem__, slice(None), path_before)
+        _write_dist(self.target, "PySide6", "6.8.0")  # another add-on's, there first
+
+        def partial(*_args):
+            _write_dist(self.target, "pythontk", "0.11.3")
+            _write_dist(self.target, "uitk", "1.5.1")
+            raise RuntimeError("pip blew up")
+
         with (
-            mock.patch.object(
-                self.installer, "specs", return_value=["tentacletk[blender]==1.2"]
-            ),
-            mock.patch.object(self.installer, "python_exe", return_value="PY"),
-            mock.patch.object(
-                self.installer, "provision", side_effect=RuntimeError("pip blew up")
-            ),
+            mock.patch.object(self.installer, "is_installed", return_value=False),
+            mock.patch.object(self.installer, "_provision_locked", side_effect=partial),
         ):
-            with self.assertRaises(RuntimeError):
-                self.installer.install("blender", t)
+            with self.assertRaisesRegex(RuntimeError, "pip blew up"):
+                self.installer.install("blender", t, python="PY")
 
         self.assertEqual(
             self.installer.read_manifest(t)["pins"],
-            ["tentacletk"],
-            "a failed install recorded nothing to uninstall",
+            ["pythontk==0.11.3", "uitk==1.5.1"],
         )
 
     def test_pins_accumulate_and_pending_round_trips(self):
@@ -453,6 +640,17 @@ class TestManifest(unittest.TestCase):
                 f"cycle {i}: a dist-info written after an earlier scan read as absent",
             )
 
+    def test_the_copy_an_update_wrote_last_is_the_installed_version(self):
+        """``pip install --target --upgrade`` left the superseded dist-info beside the one
+        it installed (measured, pip 23.2 under mayapy) until pythontk's install_targeted
+        pruned it -- so a target updated before that holds both. Name order is no
+        tie-break (``0.13.100`` sorts before ``0.13.99``): the copy written last is the
+        release on disk, and the re-drop dialog / preferences must name it."""
+        old = _write_dist(self.target, "tentacletk", "0.13.99")
+        _write_dist(self.target, "tentacletk", "0.13.100")
+        os.utime(old, (time.time() - 60, time.time() - 60))
+        self.assertEqual(self.installer.installed_version(str(self.target)), "0.13.100")
+
 
 class TestMayaModule(unittest.TestCase):
     """The user-owned Maya module the drop hook registers (no Maya needed)."""
@@ -473,7 +671,7 @@ class TestMayaModule(unittest.TestCase):
         text = mod.read_text(encoding="utf-8")
         self.assertRegex(
             text,
-            r"(?m)^\+ tentacle \d+\.\d+ .*[\\/]2025[\\/]tentacle\s*$",
+            r"(?m)^\+ tentacle \d+\.\d+ \.\./tentacle\s*$",
             text.splitlines()[0],
         )
         self.assertIn(
@@ -492,6 +690,27 @@ class TestMayaModule(unittest.TestCase):
         self.assertIn(f"import {startup}", user_setup)
         self.assertIn("ensure_and_launch('maya')", user_setup)
         self.assertTrue((Path(root) / "site").is_dir())
+
+    def test_the_mod_locates_its_root_relative_to_itself(self):
+        """Maya never resolved an absolute non-ASCII module path from a .mod.
+
+        Measured on Maya 2025 with a prefs dir named "José Ångström": the absolute path
+        this file used to write (UTF-8) left the module unloaded -- no ``site`` on the
+        path, no ``userSetup.py`` -- while ``../tentacle`` loaded there, and in a plain
+        dir and one with a space. A user named José got a working first drop and no
+        tentacle at any start after it. The relative form is pure ASCII.
+        """
+        app = self.app / "José Ångström"
+        root = self.installer.write_maya_module(str(INSTALLER), str(app), "2025")
+        mod = app / "2025" / "modules" / "tentacle.mod"
+        raw = mod.read_bytes()
+        self.assertTrue(raw.isascii(), raw)
+        path = raw.decode("ascii").splitlines()[0].split(" ", 3)[3]
+        self.assertFalse(os.path.isabs(path), path)
+        self.assertEqual(
+            os.path.normcase(os.path.normpath(os.path.join(mod.parent, path))),
+            os.path.normcase(os.path.normpath(root)),
+        )
 
     def test_rerun_is_idempotent_and_survives_dropping_the_copy(self):
         root = self.installer.write_maya_module(str(INSTALLER), str(self.app), "2025")
@@ -697,6 +916,7 @@ class TestMayaModule(unittest.TestCase):
         target.mkdir(parents=True, exist_ok=True)
         manifest = Path(self.installer.manifest_path(str(target)))
         manifest.write_text('{"pins": ["tentacletk==1"]}')
+        _write_dist(target, "tentacletk", "1")
         corrupt = Path(str(manifest) + ".corrupt")
         corrupt.write_text('{"pins": ["pythontk==1.0')
 
@@ -1349,6 +1569,8 @@ class TestFlow(unittest.TestCase):
         self.installer.write_manifest(
             str(self.target), pins=["blendertk==1", "PySide6==6"]
         )
+        for name, version in (("blendertk", "1"), ("PySide6", "6"), ("other", "2")):
+            _write_dist(self.target, name, version)  # "other": another add-on's
         with (
             mock.patch.object(self.installer, "_run_checked") as run_checked,
             mock.patch.object(self.installer, "_remove_blender_addon") as remove_addon,
@@ -1364,6 +1586,226 @@ class TestFlow(unittest.TestCase):
         )
         self.assertFalse((self.target / self.installer.MANIFEST).exists())
         remove_addon.assert_called_once()
+
+    def test_blender_uninstall_never_reaches_past_the_target(self):
+        """``pip uninstall`` removes the FIRST dist of that name on sys.path.
+
+        With ``PYTHONPATH=<target>`` that is the target's copy -- while it is there. A
+        recorded dist that has since left the target resolves to the next copy on the
+        path, which is Blender's own bundled site-packages (numpy, requests and
+        packaging ship there): deleted outright from a portable Blender, and from
+        Program Files a failed pip that aborted the whole uninstall.
+        """
+        t = str(self.target)
+        _write_dist(self.target, "blendertk", "0.11.0")
+        self.installer.write_manifest(t, pins=["blendertk==0.11.0", "packaging==26.0"])
+        with (
+            mock.patch.object(self.installer, "_run_checked") as run_checked,
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            self.assertEqual(self.installer.uninstall("blender", t), ["blendertk"])
+        self.assertEqual(run_checked.call_args.args[0][6:], ["blendertk"])
+
+        # Nothing recorded is left in the target: pip does not run at all.
+        shutil.rmtree(self.target / "blendertk-0.11.0.dist-info")
+        self.installer.write_manifest(t, pins=["packaging==26.0"])
+        with (
+            mock.patch.object(self.installer, "_run_checked") as run_checked,
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            self.assertEqual(self.installer.uninstall("blender", t), [])
+        run_checked.assert_not_called()
+
+    def test_blender_uninstall_removes_every_copy_an_update_left(self):
+        """pip removes ONE dist of a name per run. A target updated before pythontk's
+        install_targeted pruned superseded dist-infos holds two copies, and one pass
+        removed the stale copy (by its own RECORD) and left the current dist-info in the
+        SHARED addons/modules, named by nothing (measured: ``QtPy-2.4.3.dist-info`` stayed
+        after ``pip uninstall qtpy`` took ``QtPy-2.4.2``)."""
+        t = str(self.target)
+        _write_dist(self.target, "QtPy", "2.4.2")
+        _write_dist(self.target, "QtPy", "2.4.3")
+        self.installer.write_manifest(t, pins=["QtPy==2.4.3"])
+
+        def pip(command, env=None):  # as pip does: the first copy of each name goes
+            for name in command[6:]:
+                copies = sorted(self.target.glob(f"{name}-*.dist-info"))
+                if copies:
+                    shutil.rmtree(copies[0])
+
+        with (
+            mock.patch.object(self.installer, "_run_checked", side_effect=pip) as run,
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            self.assertEqual(self.installer.uninstall("blender", t), ["QtPy"])
+        self.assertEqual(sorted(self.target.glob("*.dist-info")), [])
+        self.assertEqual(run.call_count, 2, "one pass per copy, then stop")
+
+    def test_blender_uninstall_removes_the_launchers_pip_cannot_find(self):
+        """``pip install --target`` stages into a temp prefix and moves the result in, so a
+        dist's RECORD keeps the STAGING path of its console scripts (``../../bin/qtpy.exe``)
+        -- which ``pip uninstall`` resolves two levels above the target and never finds.
+        Measured on 5.1.2: after Uninstall, ``bin/`` with PySide6's 23 launchers and
+        qtpy.exe stayed in the SHARED addons/modules. Mapped back into the target here;
+        nothing another add-on put there, and nothing outside the target, is touched."""
+        t = str(self.target)
+        _write_dist(
+            self.target,
+            "QtPy",
+            "2.4.3",
+            record=["qtpy/__init__.py", "../../bin/qtpy.exe", "../../../escape.txt"],
+        )
+        (self.target / "bin").mkdir()
+        (self.target / "bin" / "qtpy.exe").write_text("")
+        (self.target / "bin" / "other.exe").write_text("")  # another add-on's
+        outside = self.target.parent / "escape.txt"
+        outside.write_text("not ours")
+        self.addCleanup(outside.unlink, missing_ok=True)
+        self.installer.write_manifest(t, pins=["QtPy==2.4.3"])
+        with (
+            mock.patch.object(self.installer, "_run_checked"),
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            self.installer.uninstall("blender", t)
+        self.assertFalse((self.target / "bin" / "qtpy.exe").exists())
+        self.assertTrue((self.target / "bin" / "other.exe").exists())
+        self.assertTrue(
+            outside.exists(), "a RECORD path must never reach past the target"
+        )
+
+        # From Python 3.12, Distribution.files drops every RECORD entry whose file does not
+        # exist where it RESOLVES -- exactly these launchers (measured: 0 of 24 found under
+        # Blender 5.1's 3.13, all 24 under 3.11, which is why this test once passed while
+        # the live clean room still found bin/ left behind). Emulated here on any Python.
+        (self.target / "bin" / "qtpy.exe").write_text("")
+        self.installer.write_manifest(t, pins=["QtPy==2.4.3"])
+        from importlib import metadata as md
+
+        with (
+            mock.patch.object(
+                md.PathDistribution, "files", new_callable=mock.PropertyMock
+            ) as files,
+            mock.patch.object(self.installer, "_run_checked"),
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            files.return_value = []
+            self.installer.uninstall("blender", t)
+        self.assertFalse(
+            (self.target / "bin" / "qtpy.exe").exists(),
+            "found through Distribution.files, which 3.12+ filters",
+        )
+
+        # With nothing else in it, bin/ itself goes.
+        (self.target / "bin" / "other.exe").unlink()
+        (self.target / "bin" / "qtpy.exe").write_text("")
+        self.installer.write_manifest(t, pins=["QtPy==2.4.3"])
+        with (
+            mock.patch.object(self.installer, "_run_checked"),
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            self.installer.uninstall("blender", t)
+        self.assertFalse((self.target / "bin").exists())
+
+    def test_a_startup_that_fails_never_raises_into_the_host(self):
+        """register() and userSetup.py belong to the host's own startup.
+
+        Blender answers an exception out of register() by deleting the module and, when
+        the add-on is being enabled, dropping it from the preferences -- and with it the
+        Update and Uninstall buttons that are the way out. Two shapes escaped: a pending
+        uninstall whose removal failed (a second Blender still holding PySide6's DLLs),
+        and a release whose import is broken. Each is now reported on the channel that
+        waits, and the start carries on.
+        """
+        t = str(self.target)
+        self.installer.write_manifest(t, pending="uninstall")
+        with (
+            mock.patch.object(
+                self.installer,
+                "uninstall",
+                side_effect=RuntimeError("PySide6 is in use"),
+            ),
+            mock.patch.object(self.installer, "launch") as launch,
+            mock.patch.object(self.installer, "_say") as say,
+        ):
+            self.assertIsNone(self.installer.ensure_and_launch("blender"))
+        launch.assert_not_called()
+        self.assertIn("PySide6 is in use", say.call_args.args[1])
+        self.assertTrue(say.call_args.kwargs.get("error"))
+        self.assertEqual(
+            self.installer.read_manifest(t).get("pending"),
+            "uninstall",
+            "a removal that failed is retried at the next start",
+        )
+
+        self.installer.write_manifest(t, pending=None)
+        with (
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(
+                self.installer, "launch", side_effect=ImportError("broken release")
+            ),
+            mock.patch.object(self.installer, "_say") as say,
+        ):
+            self.assertIsNone(self.installer.ensure_and_launch("blender"))
+        self.assertIn("broken release", say.call_args.args[1])
+        self.assertTrue(say.call_args.kwargs.get("error"))
+
+    def test_a_menu_that_will_not_start_after_an_install_is_reported(self):
+        """The install succeeded, the user was told so -- and then the launch raised out of
+        the host's timer: a traceback in Maya's script editor, and nothing at all in
+        Blender, where a timer callback's error goes to the hidden system console."""
+        captured = {}
+        with (
+            mock.patch.object(self.installer, "is_installed", return_value=False),
+            mock.patch.object(self.installer, "headless", return_value=False),
+            mock.patch.object(self.installer, "install", return_value=["y==2"]),
+            mock.patch.object(
+                self.installer,
+                "_poll",
+                side_effect=lambda host, finish: captured.update(finish=finish),
+            ),
+            mock.patch.object(self.installer, "_feedback_begin"),
+            mock.patch.object(self.installer, "_feedback_end"),
+            mock.patch.object(self.installer, "_report"),
+            mock.patch.object(
+                self.installer, "launch", side_effect=ImportError("no module uitk")
+            ),
+            mock.patch.object(self.installer, "_say") as say,
+        ):
+            self.installer.ensure_and_launch("blender")
+            self.installer._worker.join(10)
+            captured["finish"]()  # what the host timer calls: must not raise
+        self.assertIn("no module uitk", say.call_args.args[1])
+        self.assertTrue(say.call_args.kwargs.get("error"))
+
+    def test_a_cli_install_that_did_not_take_exits_nonzero(self):
+        """A deployment script reads the exit code. A failed provision printed 'install
+        failed', then 'Tentacle is installed', and exited 0 -- on both hosts."""
+        fake_maya = types.ModuleType("maya")
+        fake_maya.cmds = mock.MagicMock()
+        with (
+            mock.patch.dict(
+                sys.modules, {"maya": fake_maya, "maya.cmds": fake_maya.cmds}
+            ),
+            mock.patch.object(self.installer, "host", return_value="maya"),
+            mock.patch.object(self.installer, "write_maya_module"),
+            mock.patch.object(self.installer, "ensure_and_launch"),
+            mock.patch.object(self.installer, "is_installed", return_value=False),
+            contextlib.redirect_stdout(io.StringIO()) as out,
+        ):
+            self.assertEqual(self.installer.main(["install"]), 1)
+        self.assertNotIn("is installed", out.getvalue())
+
+        fake_bpy = types.ModuleType("bpy")
+        fake_bpy.ops = mock.MagicMock()
+        fake_bpy.app = types.SimpleNamespace(factory_startup=False)
+        with (
+            mock.patch.dict(sys.modules, {"bpy": fake_bpy}),
+            mock.patch.object(self.installer, "host", return_value="blender"),
+            mock.patch.object(self.installer, "is_installed", return_value=False),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(self.installer.main(["install"]), 1)
+        fake_bpy.ops.preferences.addon_enable.assert_called_once()
 
     # ---------------------------------------------------------------- install lock
     def _hold_lock(self, age=0):
@@ -1832,19 +2274,15 @@ class TestFlow(unittest.TestCase):
             pins = self.installer.provision("blender", upgrade=True)
         self.assertEqual(pins, ["blendertk==0.5.84"])
         run.assert_called_once_with(["PY", "-s", "-m", "pip", "--version"])
-        run_checked.assert_called_once_with(
-            [
-                "PY",
-                "-s",
-                "-m",
-                "pip",
-                "install",
-                "--no-deps",
-                "--upgrade",
-                "--target",
-                str(self.target),
-                "pythontk",
-            ]
+        run_checked.assert_called_once()
+        self.assertEqual(
+            run_checked.call_args.args[0],
+            ["PY", "-s", "-m", "pip", "install", "--no-deps", "--upgrade", "pythontk"],
+        )
+        self.assertEqual(
+            run_checked.call_args.kwargs["env"]["PIP_TARGET"],
+            str(self.target),
+            "the bootstrap's target rides PIP_TARGET (see TestBootstrapTarget)",
         )
         self.assertEqual(calls["python"], "PY")
         self.assertEqual(
@@ -1937,7 +2375,10 @@ class TestLiveBlenderCleanRoom(unittest.TestCase):
         cls.blender = _find_blender()
         if not cls.blender:
             raise unittest.SkipTest("blender.exe not found")
-        cls.res = TEMP / "blender_res"
+        # A space and non-ASCII letters, like the profile dir of a user named José. The
+        # dir must EXIST before Blender starts: pointed at a missing one, Blender silently
+        # falls back to the REAL user profile (measured on 5.1.2).
+        cls.res = TEMP / "blender res Jösé"
         shutil.rmtree(cls.res, ignore_errors=True)
         cls.res.mkdir(parents=True)
         cls.env = _clean_env(cls.res / "userbase", BLENDER_USER_RESOURCES=str(cls.res))
@@ -2037,6 +2478,7 @@ class TestLiveBlenderCleanRoom(unittest.TestCase):
             rep["manifest_exists"] = os.path.isfile(os.path.join(target, "tentacle_installer.json"))
             rep["addon_exists"] = os.path.isfile(os.path.join(bpy.utils.user_resource("SCRIPTS", path="addons"), "tentacle_installer.py"))
             rep["tcl_loaded"] = "tentacle.tcl_blender" in sys.modules
+            rep["left_in_target"] = sorted(os.listdir(target)) if os.path.isdir(target) else []
             json.dump(rep, open(r"{out3}", "w"))
         """)
         rc, out = self._run(expr, factory=False, timeout=600)
@@ -2049,6 +2491,11 @@ class TestLiveBlenderCleanRoom(unittest.TestCase):
             )
         self.assertFalse(
             rep["manifest_exists"] or rep["addon_exists"] or rep["tcl_loaded"], rep
+        )
+        self.assertEqual(
+            rep["left_in_target"],
+            [],
+            "the uninstall left files in the SHARED addons/modules (pip's bin/ launchers?)",
         )
 
 
@@ -2063,7 +2510,9 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         cls.mayapy = _find_mayapy()
         if not cls.mayapy:
             raise unittest.SkipTest("mayapy.exe not found")
-        cls.app = TEMP / "maya_app"
+        # A space and non-ASCII letters, like the prefs dir of a user named José: an
+        # absolute module path in the .mod never loaded there (measured on Maya 2025).
+        cls.app = TEMP / "maya app Jösé"
         shutil.rmtree(cls.app, ignore_errors=True)
         cls.app.mkdir(parents=True)
         cls.env = _clean_env(cls.app / "userbase", MAYA_APP_DIR=str(cls.app))
@@ -2073,21 +2522,26 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.app, ignore_errors=True)
 
-    def _run(self, args, timeout=LIVE_TIMEOUT):
+    def _run(self, args, timeout=LIVE_TIMEOUT, **paths):
         # cwd is the sandbox: ``-c`` puts the working directory on sys.path[0], and run from
         # the monorepo that makes every repo folder resolve as an EMPTY namespace package.
+        # *paths* reach the ``-c`` program as LIVE_<NAME> environment variables, never
+        # inside it: mayapy.exe decodes its command line as UTF-8 from the ANSI code page,
+        # so a program naming the sandbox (a non-ASCII dir) would not even parse.
+        env = {**self.env, **{f"LIVE_{k.upper()}": str(v) for k, v in paths.items()}}
         proc = subprocess.run(
             [self.mayapy] + args,
             capture_output=True,
             text=True,
             errors="replace",
-            env=self.env,
+            env=env,
             cwd=str(self.app),
             timeout=timeout,
         )
         return proc.returncode, proc.stdout + proc.stderr
 
-    def _report(self, out_file, extra=""):
+    def _report(self, extra=""):
+        """A ``-c`` program recording what this start imports into ``LIVE_OUT``."""
         return textwrap.dedent(f"""
             import maya.standalone; maya.standalone.initialize()
             import importlib.util, json, os, sys
@@ -2099,7 +2553,7 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
             rep["startup_loaded"] = "{self.startup}" in sys.modules
             rep["version"] = cmds.about(version=True)
             {extra}
-            json.dump(rep, open(r"{out_file}", "w"))
+            json.dump(rep, open(os.environ["LIVE_OUT"], "w"))
         """)
 
     def test_cli_install_autoload_update_at_next_start_then_uninstall(self):
@@ -2124,30 +2578,31 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         newer = self.app / "downloads" / "tentacle_installer.py"
         extra = """
             import __STARTUP__ as m
+            SITE, NEWER = os.environ["LIVE_SITE"], os.environ["LIVE_NEWER"]
             rep["msg"] = m.TentacleInstaller.request("maya", "update")
             norm = lambda p: os.path.normcase(os.path.normpath(p))
-            rep["site_idx"] = [i for i, p in enumerate(sys.path) if norm(p) == norm(r'__SITE__')]
+            rep["site_idx"] = [i for i, p in enumerate(sys.path) if norm(p) == norm(SITE)]
             rep["site_packages_idx"] = [i for i, p in enumerate(sys.path) if "autodesk" in norm(p) and norm(p).endswith("site-packages")]
-            os.makedirs(os.path.dirname(r'__NEWER__'), exist_ok=True)
-            with open(r'__INSTALLER__', 'rb') as src, open(r'__NEWER__', 'wb') as dst:
+            os.makedirs(os.path.dirname(NEWER), exist_ok=True)
+            with open(os.environ["LIVE_INSTALLER"], 'rb') as src, open(NEWER, 'wb') as dst:
                 dst.write(src.read() + b'\\n# newer build\\n')
-            sys.path.insert(0, os.path.dirname(r'__NEWER__'))
+            sys.path.insert(0, os.path.dirname(NEWER))
             dropped = importlib.import_module('tentacle_installer')
             dropped.onMayaDroppedPythonFile(None)  # no dialog in batch -> Cancel
             sys.path.pop(0)
             rep["dropped_file"] = dropped.__file__
-            with open(os.path.join(os.path.dirname(r'__SITE__'), 'scripts', '__STARTUP__.py'), 'rb') as fh:
+            with open(os.path.join(os.path.dirname(SITE), 'scripts', '__STARTUP__.py'), 'rb') as fh:
                 rep["startup_refreshed"] = fh.read().endswith(b'# newer build\\n')
-            rep["pending"] = m.TentacleInstaller.read_manifest(r'__SITE__').get("pending")
-        """
-        for token, value in (
-            ("__SITE__", str(site)),
-            ("__NEWER__", str(newer)),
-            ("__INSTALLER__", str(INSTALLER)),
-            ("__STARTUP__", self.startup),
-        ):
-            extra = extra.replace(token, value)
-        rc, out = self._run(["-c", self._report(out2, extra)], timeout=600)
+            rep["pending"] = m.TentacleInstaller.read_manifest(SITE).get("pending")
+        """.replace("__STARTUP__", self.startup)
+        rc, out = self._run(
+            ["-c", self._report(extra)],
+            timeout=600,
+            out=out2,
+            site=site,
+            newer=newer,
+            installer=INSTALLER,
+        )
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out2.read_text())
         self.assertNotIn("Installing tentacle", out, "a plain start must not provision")
@@ -2177,9 +2632,11 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         out3 = self.app / "report3.json"
         extra = """
             import __STARTUP__ as m
-            rep["pending"] = m.TentacleInstaller.read_manifest(r'__SITE__').get("pending")
-        """.replace("__SITE__", str(site)).replace("__STARTUP__", self.startup)
-        rc, out = self._run(["-c", self._report(out3, extra)], timeout=900)
+            rep["pending"] = m.TentacleInstaller.read_manifest(os.environ["LIVE_SITE"]).get("pending")
+        """.replace("__STARTUP__", self.startup)
+        rc, out = self._run(
+            ["-c", self._report(extra)], timeout=900, out=out3, site=site
+        )
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out3.read_text())
         self.assertIn(
@@ -2197,7 +2654,7 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
 
         # 5. a start with nothing left: no module, nothing imports, nothing printed.
         out5 = self.app / "report5.json"
-        rc, out = self._run(["-c", self._report(out5)], timeout=600)
+        rc, out = self._run(["-c", self._report()], timeout=600, out=out5)
         self.assertEqual(rc, 0, out[-3000:])
         rep = json.loads(out5.read_text())
         self.assertNotIn("tentacle", rep["modules"])
