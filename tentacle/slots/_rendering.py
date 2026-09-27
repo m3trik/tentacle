@@ -2,7 +2,7 @@
 # coding=utf-8
 """Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
-The per-panel home for logic the Maya and Blender ``Rendering`` forks share
+The per-panel home for logic the Maya and Blender ``RenderingSlots`` forks share
 (mixed in ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this
 class rather than adding a new module per feature — see the convention in
 ``tentacle/CLAUDE.md``.

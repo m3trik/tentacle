@@ -2,7 +2,7 @@
 # coding=utf-8
 """Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
-The per-panel home for logic the Maya and Blender ``Preferences`` forks share (mixed in
+The per-panel home for logic the Maya and Blender ``PreferencesSlots`` forks share (mixed in
 ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
 new module per feature — see the convention in ``tentacle/CLAUDE.md``.
 

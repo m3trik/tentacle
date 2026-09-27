@@ -70,7 +70,7 @@ class TestTb001HardnessTranslation(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
 
         # Patch mtk.Components.set_edge_hardness to capture call args.
         import mayatk as mtk
@@ -144,7 +144,7 @@ class TestTb001LockedNormalsGuard(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
         self.instance.sb = _RecordedSb()
 
         import mayatk as mtk
@@ -205,7 +205,7 @@ class TestSoftenHarden(unittest.TestCase):
     def setUp(self):
         cmds.file(new=True, force=True)
         self.cube = cmds.polyCube(name="nrm_cube")[0]
-        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
 
     def tearDown(self):
         cmds.file(new=True, force=True)
@@ -264,7 +264,7 @@ class TestB002SelectionGate(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
         self.instance.sb = _RecordedSb()
 
     def tearDown(self):
@@ -305,7 +305,7 @@ class TestTb010NormalModeMapping(unittest.TestCase):
     def setUp(self):
         cmds.file(new=True, force=True)
         self.cube = cmds.polyCube(name="nrm_rev")[0]
-        self.instance = normals_module.Normals.__new__(normals_module.Normals)
+        self.instance = normals_module.NormalsSlots.__new__(normals_module.NormalsSlots)
 
         # Patch cmds.polyNormal to capture normalMode values.
         self._original = cmds.polyNormal

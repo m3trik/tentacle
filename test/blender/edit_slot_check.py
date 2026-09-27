@@ -6,7 +6,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/edit_slot_check.py
 
-Drives the real ``Edit`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
+Drives the real ``EditSlots`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
 can't load headless): Mesh-Cleanup option routing, mode-aware Delete-Selected (FACE vs VERT
 dispatch — deleting by VERT in face mode would nuke neighboring faces), Create-Primitive and
 Convert list handlers, and the cmb000 Transfer menu (UVs / Vertex Colors / Vertex Group
@@ -75,14 +75,14 @@ try:
     import bpy
     import blendertk as btk
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.edit import Edit
+    from tentacle.slots.blender.edit import EditSlots
 
-    slot = make_slot(Edit)
+    slot = make_slot(EditSlots)
 
     # list000 Create Primitive: every mapped operator exists on bpy.ops.mesh
     missing = [
         f"{cat}/{label}"
-        for cat, items in Edit._PRIMITIVES.items()
+        for cat, items in EditSlots._PRIMITIVES.items()
         for label, op in items.items()
         if not _op_exists("mesh", op)
     ]
@@ -126,13 +126,13 @@ try:
     # these were entirely absent before). Every mapped op/preset must exist AND actually
     # create the expected object type when clicked.
     missing = [
-        f"Curve/{label}" for label, op in Edit._CURVE_PRIMITIVES.items()
+        f"Curve/{label}" for label, op in EditSlots._CURVE_PRIMITIVES.items()
         if not _op_exists("curve", op)
     ] + [
-        f"NURBS/{label}" for label, op in Edit._NURBS_SURFACES.items()
+        f"NURBS/{label}" for label, op in EditSlots._NURBS_SURFACES.items()
         if not _op_exists("surface", op)
     ] + [
-        f"Control/{label}" for label, shape in Edit._CONTROLS.items()
+        f"Control/{label}" for label, shape in EditSlots._CONTROLS.items()
         if shape not in btk.Controls.shapes()
     ]
     check("list000 curve/surface ops + control presets all exist", missing == [], f"missing={missing}")
@@ -352,7 +352,7 @@ try:
 
     # cmb000 Transfer: active object = source, other selected object = target (real data
     # copied per data type, driven through the actual combo dispatch, not the bare bpy.ops call).
-    transfer_labels = list(Edit._TRANSFER_OPS)
+    transfer_labels = list(EditSlots._TRANSFER_OPS)
     transfer_widget = NS(items=transfer_labels)
 
     def make_transfer_pair():

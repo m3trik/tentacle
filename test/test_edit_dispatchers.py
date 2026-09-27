@@ -58,7 +58,7 @@ class TestCommandTableConstants(unittest.TestCase):
     """
 
     def test_curve_commands_is_dict_of_str_to_mel_str(self):
-        commands = edit_module.Edit._CURVE_COMMANDS
+        commands = edit_module.EditSlots._CURVE_COMMANDS
         self.assertIsInstance(commands, dict)
         self.assertGreater(len(commands), 0)
         for label, mel_str in commands.items():
@@ -68,23 +68,23 @@ class TestCommandTableConstants(unittest.TestCase):
             self.assertTrue(mel_str.rstrip().endswith(";"))
 
     def test_curve_commands_includes_known_entries(self):
-        commands = edit_module.Edit._CURVE_COMMANDS
+        commands = edit_module.EditSlots._CURVE_COMMANDS
         for required in ("Ep Curve Tool", "CV Curve Tool", "Bezier Curve Tool"):
             self.assertIn(required, commands)
 
     def test_helper_commands_values_are_callable(self):
-        helpers = edit_module.Edit._HELPER_COMMANDS
+        helpers = edit_module.EditSlots._HELPER_COMMANDS
         self.assertIsInstance(helpers, dict)
         for label, fn in helpers.items():
             self.assertTrue(callable(fn), f"{label!r} must be callable")
 
     def test_helper_commands_includes_known_entries(self):
-        helpers = edit_module.Edit._HELPER_COMMANDS
+        helpers = edit_module.EditSlots._HELPER_COMMANDS
         for required in ("Null Group", "Locator", "Set"):
             self.assertIn(required, helpers)
 
     def test_convert_commands_is_dict_of_str_to_mel_str(self):
-        commands = edit_module.Edit._CONVERT_COMMANDS
+        commands = edit_module.EditSlots._CONVERT_COMMANDS
         self.assertIsInstance(commands, dict)
         self.assertGreater(len(commands), 0)
         for label, mel_str in commands.items():
@@ -93,7 +93,7 @@ class TestCommandTableConstants(unittest.TestCase):
             self.assertTrue(mel_str.rstrip().endswith(";"))
 
     def test_convert_commands_includes_known_entries(self):
-        commands = edit_module.Edit._CONVERT_COMMANDS
+        commands = edit_module.EditSlots._CONVERT_COMMANDS
         for required in (
             "NURBS to Polygons",
             "Smooth Mesh Preview to Polygons",
@@ -108,7 +108,7 @@ class TestList000Dispatch(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
 
         # Capture downstream calls.
         self.helper_calls = []
@@ -118,8 +118,8 @@ class TestList000Dispatch(unittest.TestCase):
 
         # Patch _HELPER_COMMANDS values to record invocation rather than
         # actually create scene nodes.
-        self._orig_helpers = edit_module.Edit._HELPER_COMMANDS
-        edit_module.Edit._HELPER_COMMANDS = {
+        self._orig_helpers = edit_module.EditSlots._HELPER_COMMANDS
+        edit_module.EditSlots._HELPER_COMMANDS = {
             "Null Group": lambda: self.helper_calls.append("Null Group"),
             "Locator": lambda: self.helper_calls.append("Locator"),
             "Set": lambda: self.helper_calls.append("Set"),
@@ -142,7 +142,7 @@ class TestList000Dispatch(unittest.TestCase):
         cmds.selectMode = lambda **kw: None
 
     def tearDown(self):
-        edit_module.Edit._HELPER_COMMANDS = self._orig_helpers
+        edit_module.EditSlots._HELPER_COMMANDS = self._orig_helpers
         mel.eval = self._orig_mel_eval
         import mayatk as mtk
         mtk.Primitives.create_default_primitive = self._orig_primitive
@@ -210,7 +210,7 @@ class TestList001Convert(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         self.mel_calls = []
         self._orig_mel_eval = mel.eval
         mel.eval = lambda cmd: self.mel_calls.append(cmd)
@@ -236,7 +236,7 @@ class TestList001Convert(unittest.TestCase):
 
     def test_each_known_entry_dispatches_its_mapped_mel(self):
         """Every entry in the convert table should route to exactly its MEL."""
-        for label, expected_mel in edit_module.Edit._CONVERT_COMMANDS.items():
+        for label, expected_mel in edit_module.EditSlots._CONVERT_COMMANDS.items():
             self.mel_calls.clear()
             item = _FakeItem(label)
             self.instance.list001(item)
@@ -254,7 +254,7 @@ class TestTransferOpsConstant(unittest.TestCase):
     """
 
     def test_transfer_ops_shape(self):
-        ops = edit_module.Edit._TRANSFER_OPS
+        ops = edit_module.EditSlots._TRANSFER_OPS
         self.assertIsInstance(ops, dict)
         self.assertGreater(len(ops), 0)
         for label, spec in ops.items():
@@ -267,7 +267,7 @@ class TestTransferOpsConstant(unittest.TestCase):
             self.assertIsInstance(spec["tip"], str)
 
     def test_transfer_ops_includes_known_entries(self):
-        ops = edit_module.Edit._TRANSFER_OPS
+        ops = edit_module.EditSlots._TRANSFER_OPS
         for required in ("Maps", "Attribute Values", "Shading Sets", "Vertex Order"):
             self.assertIn(required, ops)
 
@@ -300,20 +300,20 @@ class TestTransferSurfaces(unittest.TestCase):
 
     def test_preserves_selection_order(self):
         cmds.select([self.c, self.a, self.b], replace=True)
-        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["C", "A", "B"])
+        self.assertEqual(edit_module.EditSlots._transfer_surfaces(), ["C", "A", "B"])
 
     def test_resolves_components_to_owning_surface(self):
         # Verts of B (source) then whole A (target) — B must still count.
         cmds.select([self.b + ".vtx[0:3]", self.a], replace=True)
-        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["B", "A"])
+        self.assertEqual(edit_module.EditSlots._transfer_surfaces(), ["B", "A"])
 
     def test_dedupes_repeated_object(self):
         cmds.select([self.a, self.a + ".f[0]"], replace=True)
-        self.assertEqual(edit_module.Edit._transfer_surfaces(), ["A"])
+        self.assertEqual(edit_module.EditSlots._transfer_surfaces(), ["A"])
 
     def test_empty_selection_returns_empty(self):
         cmds.select(clear=True)
-        self.assertEqual(edit_module.Edit._transfer_surfaces(), [])
+        self.assertEqual(edit_module.EditSlots._transfer_surfaces(), [])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -325,7 +325,7 @@ class TestTransferDispatch(unittest.TestCase):
     """
 
     def setUp(self):
-        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         self.instance.sb = _FakeSb()
 
         self.mel_calls = []
@@ -352,14 +352,14 @@ class TestTransferDispatch(unittest.TestCase):
         return w
 
     def test_negative_index_is_noop(self):
-        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        widget = self._items_widget(list(edit_module.EditSlots._TRANSFER_OPS))
         self.instance.cmb000(-1, widget)
         self.assertEqual(self.mel_calls, [])
         self.assertEqual(self.instance.sb.messages, [])
 
     def test_insufficient_selection_aborts_with_feedback(self):
         self._surfaces = ["pSphere1"]  # one object, need 2 for Shading Sets
-        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        widget = self._items_widget(list(edit_module.EditSlots._TRANSFER_OPS))
         idx = widget.items.index("Shading Sets")
         self.instance.cmb000(idx, widget)
         self.assertEqual(self.mel_calls, [])  # never ran the transfer
@@ -372,7 +372,7 @@ class TestTransferDispatch(unittest.TestCase):
 
     def test_valid_selection_runs_command_and_reports(self):
         self._surfaces = ["src", "tgt1", "tgt2"]
-        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        widget = self._items_widget(list(edit_module.EditSlots._TRANSFER_OPS))
         idx = widget.items.index("Attribute Values")
         self.instance.cmb000(idx, widget)
         self.assertEqual(self.mel_calls, ["TransferAttributeValues"])
@@ -383,7 +383,7 @@ class TestTransferDispatch(unittest.TestCase):
 
     def test_maps_opens_without_selection(self):
         self._surfaces = []  # Maps has min=0
-        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        widget = self._items_widget(list(edit_module.EditSlots._TRANSFER_OPS))
         idx = widget.items.index("Maps")
         self.instance.cmb000(idx, widget)
         self.assertEqual(self.mel_calls, ["performSurfaceSampling 1"])
@@ -396,7 +396,7 @@ class TestTransferDispatch(unittest.TestCase):
             raise RuntimeError("kaboom")
 
         mel.eval = _boom
-        widget = self._items_widget(list(edit_module.Edit._TRANSFER_OPS))
+        widget = self._items_widget(list(edit_module.EditSlots._TRANSFER_OPS))
         idx = widget.items.index("Shading Sets")
         self.instance.cmb000(idx, widget)
         # Error surfaces in the message box (incl. the exception text); the

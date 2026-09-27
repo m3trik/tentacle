@@ -3,7 +3,7 @@
 from tentacle import SlotsBlender
 
 
-class Deformation(SlotsBlender):
+class DeformationSlots(SlotsBlender):
     """Blender port of the shared ``deformation`` menu.
 
     The single shared widget launches the Curtain Generator panel

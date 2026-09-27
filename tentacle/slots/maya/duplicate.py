@@ -3,41 +3,12 @@
 import maya.cmds as cmds
 import maya.api.OpenMaya as om
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import DuplicateMixin, SlotsMaya
 
 
-class Duplicate(SlotsMaya):
+class DuplicateSlots(DuplicateMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def header_init(self, widget):
-        """ """
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add(
-            "QPushButton",
-            setText="Mirror",
-            setObjectName="b000",
-            setToolTip="Open the mirror window.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Duplicate Linear",
-            setObjectName="b006",
-            setToolTip="Open the duplicate linear window.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Duplicate Radial",
-            setObjectName="b007",
-            setToolTip="Open the duplicate radial window.",
-        )
-        widget.menu.add(
-            "QPushButton",
-            setText="Duplicate Grid",
-            setObjectName="b008",
-            setToolTip="Open the duplicate grid window.",
-        )
 
     def tb002_init(self, widget):
         """Initialize Auto Instance — configure option-box menu."""

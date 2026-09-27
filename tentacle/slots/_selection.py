@@ -157,3 +157,19 @@ class SelectionMixin:
         op = self._CONVERT_TO_OPS.get(label)
         if op is not None:
             self._run_convert_to(label, op)
+
+    def _by_type_mode(self):
+        """The selection mode Select by Type applies, per the tb004 setting."""
+        menu = self.submenu.tb004.menu
+        return menu.cmb_bytype_mode.currentData() or "replace"
+
+    def tb004(self, widget):
+        """Select by Type settings: open the scope/mode menu.
+
+        Wired to the button's ``clicked`` (register_widget), so the marking
+        menu — which fires a menu-hosted leaf's ``clicked`` at release-dispatch
+        (``MarkingMenu._handle_widget_action``) — opens it; ``list000`` also
+        calls this for the plain event-flow path. The two paths never both fire
+        for one interaction.
+        """
+        widget.menu.show_as_popup(anchor_widget=widget, position="cursorPos")

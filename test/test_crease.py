@@ -56,7 +56,7 @@ class TestTb000Crease(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = crease_module.Crease.__new__(crease_module.Crease)
+        self.instance = crease_module.CreaseSlots.__new__(crease_module.CreaseSlots)
 
         import mayatk as mtk
         self._orig = mtk.Components.crease_edges
@@ -92,7 +92,7 @@ class TestB002TransferCreaseEdges(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = crease_module.Crease.__new__(crease_module.Crease)
+        self.instance = crease_module.CreaseSlots.__new__(crease_module.CreaseSlots)
         self.instance.sb = _RecordedSb()
 
         import mayatk as mtk

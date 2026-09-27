@@ -6,7 +6,7 @@ import blendertk as btk
 from tentacle import MainMixin, SlotsBlender
 
 
-class Main(MainMixin, SlotsBlender):
+class MainSlots(MainMixin, SlotsBlender):
     """Blender port of the shared ``main`` start menu — a workspace switcher (primary) with
     a read-only directory browser of the current workspace (secondary), mirroring Maya's
     ``list000`` at the behavior level.
@@ -125,18 +125,7 @@ class Main(MainMixin, SlotsBlender):
     def list000(self, item):
         """Workspace tab dispatch — editing actions, recent-workspace selection, and the
         directory-browser entries."""
-        data = item.item_data()
-        if data == "__set_dir__":
-            self._set_workspace_interactive()
-        elif data == "__auto__":
-            self._auto_set_workspace()
-        elif data == "__editor__":
-            self._open_workspace_editor()
-        elif isinstance(data, tuple) and data and data[0] == "__recent__":
-            self._set_workspace_from_path(data[1])
-        elif data and os.path.isdir(str(data)):
-            os.startfile(str(data))
-            self.sb.handlers.marking_menu.hide()
+        self._dispatch_workspace_item(item)
 
     # ------------------------------------------------------------------ workspace editing
 

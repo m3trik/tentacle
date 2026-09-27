@@ -3,10 +3,10 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import PivotMixin, SlotsMaya
 
 
-class Pivot(SlotsMaya):
+class PivotSlots(PivotMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -233,24 +233,6 @@ class Pivot(SlotsMaya):
                 self.sb.message_box(
                     "World-aligned <hl>object</hl> pivot set (permanent)."
                 )
-
-    def b000(self):
-        """Center Pivot: Object"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk003.setChecked(True)
-        self.ui.tb001.call_slot()
-
-    def b001(self):
-        """Center Pivot: Component"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk002.setChecked(True)
-        self.ui.tb001.call_slot()
-
-    def b002(self, widget):
-        """Center Pivot: World"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk004.setChecked(True)
-        self.ui.tb001.call_slot()
 
     def b004(self):
         """Bake Pivot: bake the manipulator pivot's position and orientation into the transform."""

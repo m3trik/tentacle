@@ -141,6 +141,31 @@ class Slots(QtCore.QObject):
         root_list.ui.register_widget(widget)
         return widget
 
+    def _dispatch_tools_row(self, item):
+        """Dispatch a Tools-list leaf to the slot its ``_TOOLS_ITEMS`` row names.
+
+        The body the Tools-list handlers share (animation ``list000``, materials
+        ``list001``). The handlers themselves stay on the forks: their
+        ``@Signals`` decorator is evaluated in the class body. ``_TOOLS_ITEMS``
+        is ``{category: [(label, slot_name, *tooltip), ...]}``; category rows
+        are navigation only, and slots vary -- some take the invoking widget,
+        some take none.
+        """
+        if getattr(item, "sublist", None) and item.sublist.get_items():
+            return
+        text = item.item_text()
+        parent = item.parent_item_text() or ""
+        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
+            if label == text:
+                slot = getattr(self, slot_name, None)
+                if not callable(slot):
+                    return
+                try:
+                    slot(item)
+                except TypeError:
+                    slot()
+                return
+
     def gate_on_app(self, widget, resolve_spec) -> bool:
         """Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
 
@@ -212,7 +237,7 @@ class Slots(QtCore.QObject):
     def toggle_camera_view(self):
         """Toggle between the last two viewport-camera views in slot history.
 
-        DCC-agnostic switchboard logic shared by the Maya and Blender ``Cameras``
+        DCC-agnostic switchboard logic shared by the Maya and Blender ``CamerasSlots``
         slots (the only slots that define the ``b000``-``b007`` viewport-camera
         methods it drives): if the last view was perspective (``b004``) it
         restores the previous non-perspective view, otherwise it switches to

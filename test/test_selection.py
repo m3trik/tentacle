@@ -94,7 +94,7 @@ class TestReorderSelectionMap(unittest.TestCase):
         """Probe by running cmb001 with each item index → captured method."""
         import mayatk as mtk
 
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         original = mtk.reorder_objects
@@ -134,7 +134,7 @@ class TestReorderSelectionMap(unittest.TestCase):
         """cmb001 with no selection should message-box and not call mtk."""
         import mayatk as mtk
 
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         original = mtk.reorder_objects
@@ -169,7 +169,7 @@ class TestSelectionToolStatic(unittest.TestCase):
         cmds.setToolTo = lambda *a, **kw: captured.append((a, kw))
 
         try:
-            selection_module.Selection.set_selection_tool("bogusContext")
+            selection_module.SelectionSlots.set_selection_tool("bogusContext")
         finally:
             cmds.setToolTo = original
 
@@ -182,7 +182,7 @@ class TestSelectionToolStatic(unittest.TestCase):
         cmds.setToolTo = lambda *a, **kw: captured.append((a, kw))
 
         try:
-            selection_module.Selection.set_selection_tool("selectSuperContext")
+            selection_module.SelectionSlots.set_selection_tool("selectSuperContext")
         finally:
             cmds.setToolTo = original
 
@@ -191,7 +191,7 @@ class TestSelectionToolStatic(unittest.TestCase):
 
     def test_get_selection_tool_returns_str(self):
         """get_selection_tool wraps cmds.currentCtx and returns a str."""
-        result = selection_module.Selection.get_selection_tool()
+        result = selection_module.SelectionSlots.get_selection_tool()
         # Maya 2025 startup default is 'selectSuperContext'. Just assert string
         # (or None on failure path).
         self.assertTrue(result is None or isinstance(result, str))
@@ -216,7 +216,7 @@ class TestByTypeScopeAndMode(unittest.TestCase):
     combo can't silently fall back to the All-Objects / Replace defaults."""
 
     def _instance_with(self, scope="all", mode="replace"):
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         menu = _FakeOptionMenu()
@@ -330,7 +330,7 @@ class TestList001ConvertToBorderEdges(unittest.TestCase):
     ``_CONVERT_TO_OPS`` table, not the helper directly."""
 
     def test_border_edges_selects_naked_edges_of_an_open_plane(self):
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         cmds.file(new=True, force=True)
@@ -349,14 +349,14 @@ class TestList001ConvertToBorderEdges(unittest.TestCase):
 
     def test_getBorderEdgeFromFace_is_truly_gone(self):
         """Confirms the ORIGINAL bug's method reference doesn't silently reappear."""
-        self.assertFalse(hasattr(selection_module.Selection, "getBorderEdgeFromFace"))
+        self.assertFalse(hasattr(selection_module.SelectionSlots, "getBorderEdgeFromFace"))
 
     def test_border_edges_empty_selection_warns_and_does_not_raise(self):
         """Regression: get_border_components() raises ValueError("No valid
         components given.") by design as an API-boundary guard, but the slot
         called it with an empty selection unguarded, crashing. Fixed 2026-07-06
         to warn via message_box and return early instead."""
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         cmds.file(new=True, force=True)
@@ -370,34 +370,34 @@ class TestList001ConvertToBorderEdges(unittest.TestCase):
         sublist of related conversions on hover; the sublist must not make it
         navigation-only (the pre-2026-08-17 dispatch skipped any row with a
         populated sublist)."""
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
         ran = []
-        original = selection_module.Selection._CONVERT_TO_OPS
-        selection_module.Selection._CONVERT_TO_OPS = {
+        original = selection_module.SelectionSlots._CONVERT_TO_OPS
+        selection_module.SelectionSlots._CONVERT_TO_OPS = {
             k: (lambda self, k=k: ran.append(k)) for k in original
         }
         try:
             instance.list001(_ConvertToRoot("Verts", ["Vertex Faces"]))
         finally:
-            selection_module.Selection._CONVERT_TO_OPS = original
+            selection_module.SelectionSlots._CONVERT_TO_OPS = original
         self.assertEqual(ran, ["Verts"])
 
     def test_root_row_is_navigation_only(self):
         """The list root ("Convert To") is not a table key; interacting with it
         must not run any conversion (a stray op on the root would fire on
         every hover-open)."""
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
         ran = []
-        original = selection_module.Selection._CONVERT_TO_OPS
-        selection_module.Selection._CONVERT_TO_OPS = {
+        original = selection_module.SelectionSlots._CONVERT_TO_OPS
+        selection_module.SelectionSlots._CONVERT_TO_OPS = {
             k: (lambda self, k=k: ran.append(k)) for k in original
         }
         try:
             instance.list001(_ConvertToRoot())
         finally:
-            selection_module.Selection._CONVERT_TO_OPS = original
+            selection_module.SelectionSlots._CONVERT_TO_OPS = original
         self.assertEqual(ran, [])
 
 
@@ -412,7 +412,7 @@ class TestList001EdgeLoop(unittest.TestCase):
     few lines below)."""
 
     def test_edge_loop_selects_the_full_border_loop(self):
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         cmds.file(new=True, force=True)
@@ -468,7 +468,7 @@ class TestConstraintButtons(unittest.TestCase):
 
     def setUp(self):
         cmds.polySelectConstraint(**self._ALL_OFF)
-        self.instance = selection_module.Selection.__new__(selection_module.Selection)
+        self.instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         self.instance.sb = _RecordedSb()
 
     def tearDown(self):
@@ -606,7 +606,7 @@ class TestTb001SelectSimilarReporting(unittest.TestCase):
         cmds.selectMode = lambda *a, **kw: True
 
     def _instance(self, tolerance=0.0, inc_orig=False, **checked):
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
 
         menu = _FakeOptionMenu()
@@ -681,7 +681,7 @@ class TestTb001SelectSimilarReporting(unittest.TestCase):
         keyword — a typo there would silently widen the comparison."""
         cmds.file(new=True, force=True)
         cube = cmds.polyCube(name="similar_flags")[0]
-        inst = selection_module.Selection
+        inst = selection_module.SelectionSlots
         for _, label, kwarg, _, _ in inst._SIMILAR_METRICS:
             with self.subTest(metric=label):
                 self.assertIsNotNone(cmds.polyEvaluate(cube, **{kwarg: True}))
@@ -716,7 +716,7 @@ class TestTb001SelectSimilarUvShells(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _instance(self, tolerance=0.0, inc_orig=False):
-        instance = selection_module.Selection.__new__(selection_module.Selection)
+        instance = selection_module.SelectionSlots.__new__(selection_module.SelectionSlots)
         instance.sb = _RecordedSb()
         menu = _FakeOptionMenu()
         menu.s000 = _FakeSpin(tolerance)

@@ -4,7 +4,7 @@ import blendertk as btk
 from tentacle import SlotsBlender
 
 
-class Subdivision(SlotsBlender):
+class SubdivisionSlots(SlotsBlender):
     """Blender port of the shared ``subdivision`` menu.
 
     Backed by ``blendertk.edit_utils``: reduce/decimate + coplanar-dissolve (Decimate modifier),

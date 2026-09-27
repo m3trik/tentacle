@@ -85,12 +85,12 @@ try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.selection import Selection
+    from tentacle.slots.blender.selection import SelectionSlots
     from tentacle.slots.blender.transform import TransformSlots
-    from tentacle.slots.blender.normals import Normals
+    from tentacle.slots.blender.normals import NormalsSlots
     from tentacle.slots.blender.polygons import PolygonsSlots
-    from tentacle.slots.blender.uv import Uv
-    from tentacle.slots.blender.animation import Animation
+    from tentacle.slots.blender.uv import UvSlots
+    from tentacle.slots.blender.animation import AnimationSlots
     import blendertk as btk
 
     # ---- selection list000: select by type --------------------------------------------------
@@ -100,7 +100,7 @@ try:
     # Labels must be real _SELECTION_CONFIG leaves (what the list actually offers) — the old
     # flat-type labels ("Mesh"/"Empty") raise ValueError and no-op, passing only vacuously.
     # list000 reads its scope from the submenu's tb004 option box (all / selected / visible).
-    slot = make_slot(Selection, submenu=NS(tb004=NS(menu=NS(
+    slot = make_slot(SelectionSlots, submenu=NS(tb004=NS(menu=NS(
         cmb_bytype_scope=combo("all"), cmb_bytype_mode=combo("replace")))))
     slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None, objectName=lambda: ""))
     sel = [o.name for o in bpy.context.selected_objects]
@@ -130,7 +130,7 @@ try:
     btk.move_uvs(src, du=2.0)
     src.select_set(True); tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
-    slot = make_slot(Uv)
+    slot = make_slot(UvSlots)
     # b000 is the one Transfer tool (UVs OR textures): Source = the active mesh, Scope =
     # Selection Order (active -> others), Transfer = the UV pass alone. It reads the Output
     # Name before branching and wraps the pass in a footer progress task.
@@ -145,7 +145,7 @@ try:
         option_box(
             cmb024=combo("first"),
             cmb014=combo("order"),
-            cmb028=combo(Uv.TRANSFER_UVS),
+            cmb028=combo(UvSlots.TRANSFER_UVS),
             d000=spin(0.9),
             t_tt_name=NS(text=lambda: ""),
         )
@@ -160,7 +160,7 @@ try:
     check("uv b000 transfers UVs (active -> selected)", min_u(tgt) >= 2.0 - 1e-4,
           f"tgt min_u={min_u(tgt):.2f}")
 
-    slot = make_slot(Normals)
+    slot = make_slot(NormalsSlots)
     slot.b002()
     check("normals b002 transfers custom split normals", tgt.data.has_custom_normals)
 
@@ -170,7 +170,7 @@ try:
     readout = {}
     ui = NS(cmb003=NS(currentText=lambda: "1024"),
             s003=NS(value=lambda: 512.0, setValue=lambda v: readout.__setitem__("d", v)))
-    slot = make_slot(Uv, ui=ui)
+    slot = make_slot(UvSlots, ui=ui)
     slot.b003()
     check("uv b003 reads density into s003", abs(readout.get("d", 0) - 1024.0) < 1e-3,
           f"d={readout.get('d')}")
@@ -186,7 +186,7 @@ try:
         bm.free()
         return n
 
-    slot = make_slot(Uv, ui=ui, _b029_pinned=False, _b029_last_selection=None)
+    slot = make_slot(UvSlots, ui=ui, _b029_pinned=False, _b029_last_selection=None)
     slot.b029(None)
     pinned_after_first = pin_count(o)
     slot.b029(None)
@@ -197,7 +197,7 @@ try:
     # ---- uv tb022: cut hard edges -------------------------------------------------------------
     reset()
     o = add_cube("Hard")  # every cube edge is 90 degrees
-    slot = make_slot(Uv, ui=ui)
+    slot = make_slot(UvSlots, ui=ui)
     slot.tb022(option_box(
         s017=spin(70.0), s018=spin(180.0), chk025=chk(False), chk026=chk(False)
     ))
@@ -235,9 +235,9 @@ try:
     # ---- crease b002: transfer crease (Data-Transfer CREASE) ----------------------------------
     reset()
     src = add_cube("CSrc"); tgt = add_cube("CTgt", (3, 0, 0))
-    from tentacle.slots.blender.crease import Crease
+    from tentacle.slots.blender.crease import CreaseSlots
 
-    cslot = make_slot(Crease)
+    cslot = make_slot(CreaseSlots)
     btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
     src.select_set(True); tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
@@ -249,9 +249,9 @@ try:
     check("crease b002 transfers edge creases", creased == 12, f"creased={creased}")
 
     # ---- subdivision b028: quad draw = poly build tool ----------------------------------------
-    from tentacle.slots.blender.subdivision import Subdivision
+    from tentacle.slots.blender.subdivision import SubdivisionSlots
 
-    sslot = make_slot(Subdivision)
+    sslot = make_slot(SubdivisionSlots)
     sslot.b028()  # headless has no tool context — must not raise (slot catches + messages)
     check("subdivision b028 poly-build activation is safe headless", True)
 
@@ -271,7 +271,7 @@ try:
     a.select_set(True); b.select_set(True)
     bpy.context.view_layer.objects.active = a
 
-    slot = make_slot(Animation)
+    slot = make_slot(AnimationSlots)
     # shift keys >= absolute frame 15 by +5 (chk004 Relative off; selected-objects scope)
     slot.tb002(option_box(s002=spin(15), s003=spin(5), chk004=chk(False), chk003=chk(True),
                           cmb036=combo("objects"), chk021=chk(False)))
@@ -416,6 +416,62 @@ try:
           f"{f0}->{len(bm.faces)}")
     bpy.ops.object.mode_set(mode="OBJECT")
 
+    # ---- polygons b009 Collapse Component routes on the SELECTION, not the select mode
+    #      (Maya parity: faces collapse each to a point, verts/edges merge at ONE center).
+    #      Several modes on at once is Blender's multi-component: loose verts must merge.
+    def collapse(select_mode, pick, grid=False):
+        reset()
+        if grid:  # 3x3 faces, 16 verts
+            bpy.ops.mesh.primitive_plane_add()
+            o = bpy.context.active_object
+        else:
+            o = add_cube("C")
+        o.select_set(True)
+        bpy.context.view_layer.objects.active = o
+        bpy.ops.object.mode_set(mode="EDIT")
+        if grid:
+            bpy.ops.mesh.select_all(action="SELECT")
+            bpy.ops.mesh.subdivide(number_cuts=2)
+        bpy.context.tool_settings.mesh_select_mode = select_mode
+        bpy.ops.mesh.select_all(action="DESELECT")
+        bm = _bm.from_edit_mesh(o.data)
+        bm.verts.ensure_lookup_table()
+        pick(bm)
+        bm.select_flush_mode()
+        _bm.update_edit_mesh(o.data)
+        make_slot(PolygonsSlots).b009()
+        n = len(_bm.from_edit_mesh(o.data).verts)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        return n
+
+    def two_loose_verts(bm):
+        a = bm.verts[0]
+        far = max(bm.verts, key=lambda v: (v.co - a.co).length)  # opposite corner
+        a.select = far.select = True
+
+    def top_and_bottom(bm):
+        for f in bm.faces:
+            if abs(abs(f.normal.z) - 1.0) < 1e-4:
+                f.select = True
+
+    def two_corner_faces(bm):  # share no verts, so no mode can flush them together
+        c = [(f.calc_center_median(), f) for f in bm.faces]
+        min(c, key=lambda t: t[0].x + t[0].y)[1].select = True
+        max(c, key=lambda t: t[0].x + t[0].y)[1].select = True
+
+    def all_verts(bm):
+        for v in bm.verts:
+            v.select = True
+
+    n = collapse((True, False, True), two_loose_verts)
+    check("polygons b009 vert+face modes: loose verts merge at one center", n == 7, f"{n}")
+    n = collapse((False, False, True), top_and_bottom)
+    check("polygons b009 face mode: each face collapses to its own point", n == 2, f"{n}")
+    n = collapse((True, False, True), two_corner_faces, grid=True)
+    check("polygons b009 vert+face modes: each selected face collapses", n == 10, f"{n}")
+    n = collapse((True, False, False), all_verts)
+    check("polygons b009 vertex mode: every picked vert merges at one center", n == 1, f"{n}")
+
     # ---- display b013/b014: route to the co-located blendertk panels -------------------------
     # (b013 stopped being an inline toggle when the Exploded View panel shipped; the explode/
     # un-explode engine round-trip is covered by blendertk/test/test_wedge_snap_explode.py)
@@ -469,7 +525,7 @@ try:
         btk.get_areas = _orig_get_areas
 
     # ---- uv tb005/tb006/b030 (shell ops through the slot readers)
-    from tentacle.slots.blender.uv import Uv
+    from tentacle.slots.blender.uv import UvSlots
 
     def uv_quads(rects, name="Q"):
         bm = _bm.new()
@@ -491,7 +547,7 @@ try:
 
     reset()
     o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.6, 0.6, 0.8, 0.8)])
-    slot = make_slot(Uv)
+    slot = make_slot(UvSlots)
     stack_w = option_box(cmb020=combo("center"), s024=spin(1.0), chk047=chk(False))
     slot.b030(stack_w)  # stack
     snap_after_stack = btk.get_uv_coords([o])
@@ -511,7 +567,7 @@ try:
         a = _math.radians(37)
         l[uvl].uv = (0.6 + x * _math.cos(a) - y * _math.sin(a), 0.55 + x * _math.sin(a) + y * _math.cos(a))
     bm.to_mesh(o.data); bm.free()
-    slot = make_slot(Uv)
+    slot = make_slot(UvSlots)
     stack_w = option_box(cmb020=combo("similar"), s024=spin(1.0), chk047=chk(True))
     before = btk.get_uv_coords([o], pins=True)[o.name]
     slot.b030(stack_w)  # stack (similar + pin)
@@ -531,7 +587,7 @@ try:
     # ---- scene b005: routes to the blendertk Naming panel; cameras b007 fails soft headless --
     # (b005 stopped driving the native Batch Rename op when the Naming panel shipped.)
     from tentacle.slots.blender.scene import SceneSlots
-    from tentacle.slots.blender.cameras import Cameras
+    from tentacle.slots.blender.cameras import CamerasSlots
 
     reset()
     shown = []
@@ -540,7 +596,7 @@ try:
     check("scene b005 opens the naming panel", shown == ["naming"], f"{shown}")
 
     msgs = []
-    slot = make_slot(Cameras)
+    slot = make_slot(CamerasSlots)
     slot.sb = NS(message_box=msgs.append)
     slot.b007()
     check("cameras b007 fails soft without a 3D view", len(msgs) == 1, f"{msgs}")
@@ -585,7 +641,7 @@ try:
     bm.verts.ensure_lookup_table()
     bm.verts[0].select = True
     _bm.update_edit_mesh(o.data)
-    slot = make_slot(Selection)
+    slot = make_slot(SelectionSlots)
     slot.b006(NS(objectName=lambda: "b006"))  # Shell -> whole connected mesh
     bm = _bm.from_edit_mesh(o.data)
     check("selection b006 (Shell) expands to the whole shell",
@@ -594,10 +650,10 @@ try:
     bpy.ops.object.mode_set(mode="OBJECT")
 
     # ---- rigging cmb002: Rigify quick rig ---------------------------------------------------
-    from tentacle.slots.blender.rigging import Rigging
+    from tentacle.slots.blender.rigging import RiggingSlots
 
     reset()
-    slot = make_slot(Rigging)
+    slot = make_slot(RiggingSlots)
     rig_items = ["Human Meta-Rig", "Basic Human Meta-Rig", "Generate Rig"]
     slot.cmb002(0, NS(items=rig_items))
     meta = bpy.context.view_layer.objects.active
@@ -616,11 +672,11 @@ try:
     check("rigging cmb002 generate without a meta-rig messages", len(msgs) == 1, f"{msgs}")
 
     # ---- nurbs b056: image tracer resolves real ops -----------------------------------------
-    from tentacle.slots.blender.nurbs import Nurbs
+    from tentacle.slots.blender.nurbs import NurbsSlots
 
     reset()
     msgs = []
-    slot = make_slot(Nurbs)
+    slot = make_slot(NurbsSlots)
     slot.sb = NS(message_box=msgs.append)
     slot.b056()  # no image empty -> SVG import path (headless: dialog may fail soft)
     check("nurbs b056 svg path resolves (no 'not available')",
@@ -632,14 +688,14 @@ try:
           all("not available" not in m for m in msgs), f"{msgs}")
 
     # ---- scene b001 / lighting b000: route to the new manager panels ------------------------
-    from tentacle.slots.blender.lighting import Lighting
+    from tentacle.slots.blender.lighting import LightingSlots
 
     shown = []
     mm = NS(marking_menu=NS(show=shown.append))
     slot = make_slot(SceneSlots)
     slot.sb = NS(handlers=mm)
     slot.b001()
-    slot = make_slot(Lighting)
+    slot = make_slot(LightingSlots)
     slot.sb = NS(handlers=mm)
     slot.b000()
     check("scene b001 / lighting b000 open the manager panels",
@@ -711,10 +767,10 @@ try:
           "100k" not in info_menu.cmb_profile.toolTip(), info_menu.cmb_profile.toolTip())
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
-    from tentacle.slots.blender.deformation import Deformation
+    from tentacle.slots.blender.deformation import DeformationSlots
 
     shown = []
-    slot = make_slot(Deformation)
+    slot = make_slot(DeformationSlots)
     slot.sb = NS(handlers=NS(marking_menu=NS(show=shown.append)))
     slot.tb001(None)
     check("deformation tb001 opens the curtain panel", shown == ["curtain"], f"{shown}")
@@ -724,7 +780,7 @@ try:
     import os as _os
     import shutil as _shutil
     import tempfile as _tempfile
-    from tentacle.slots.blender.main import Main
+    from tentacle.slots.blender.main import MainSlots
 
     class _SubStub:
         def __init__(self):
@@ -751,7 +807,7 @@ try:
 
     # Folder rows take the "folder_filled" icon through the switchboard's IconManager.
     slot = make_slot(
-        Main,
+        MainSlots,
         sb=NS(IconManager=NS(set_label_icon=lambda *a, **k: None)),
     )
     root = _SubStub()
@@ -770,12 +826,12 @@ try:
     _shutil.rmtree(proj, ignore_errors=True)
 
     # ---- editors: every button + list entry opens a REAL editor (no dead links) ------------
-    from tentacle.slots.blender.editors import Editors
+    from tentacle.slots.blender.editors import EditorsSlots
 
     valid = set(btk.get_editor_types())
-    bad_buttons = {b: e for b, e in Editors._BUTTON_EDITORS.items() if e not in valid}
+    bad_buttons = {b: e for b, e in EditorsSlots._BUTTON_EDITORS.items() if e not in valid}
     check("every editor button opens a real editor", not bad_buttons, f"{bad_buttons}")
-    bad_list = [e for items in Editors._EDITORS.values() for e in items if e not in valid]
+    bad_list = [e for items in EditorsSlots._EDITORS.values() for e in items if e not in valid]
     check("every editors-list entry opens a real editor", not bad_list, f"{bad_list}")
 
     # relabel: the five no-analogue Maya buttons show their substitute editor's name
@@ -789,19 +845,19 @@ try:
         def setToolTip(self, t):
             pass
 
-    eslot = make_slot(Editors)
+    eslot = make_slot(EditorsSlots)
     relabeled = {}
-    for bn in Editors._RELABELED:
+    for bn in EditorsSlots._RELABELED:
         btn = _Btn(bn)
         getattr(eslot, bn + "_init")(btn)
         relabeled[bn] = btn.text_
     check("substituted buttons relabel to their editor",
-          relabeled == {b: Editors._BUTTON_EDITORS[b] for b in Editors._RELABELED},
+          relabeled == {b: EditorsSlots._BUTTON_EDITORS[b] for b in EditorsSlots._RELABELED},
           f"{relabeled}")
     # each substitute editor must be unique across all 14 buttons (distinct from the kept
     # buttons AND from each other) — count==1 in the full value list proves both.
-    vals = list(Editors._BUTTON_EDITORS.values())
-    subs = [Editors._BUTTON_EDITORS[b] for b in Editors._RELABELED]
+    vals = list(EditorsSlots._BUTTON_EDITORS.values())
+    subs = [EditorsSlots._BUTTON_EDITORS[b] for b in EditorsSlots._RELABELED]
     check("each substitute editor is unique among the buttons",
           all(vals.count(e) == 1 for e in subs), f"{subs}")
 

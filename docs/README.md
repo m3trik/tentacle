@@ -1,6 +1,7 @@
-[![Tests](https://img.shields.io/badge/Tests-1104%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-1126%20passed-brightgreen.svg)](../test/)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
+![Platform](https://img.shields.io/badge/Platform-Windows%2C%20Linux-lightgrey.svg)
 
 # Tentacle
 

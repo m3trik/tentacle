@@ -36,6 +36,18 @@ import sys
 import importlib
 
 
+class QtPlatformUnavailable(RuntimeError):
+    """Qt cannot open a window in this host process, so the marking menu is off.
+
+    Raised by a host's Qt bootstrap BEFORE a QApplication is built: on Linux a Qt
+    platform plug-in that fails to load aborts the process from C++ -- in-process,
+    the DCC, with the user's unsaved work (``tcl_blender._QtHost``). Like a missing
+    engine, the message carries the fix (the system libraries to install), so the
+    launcher shows it where the user is looking (:meth:`Tcl._launch_blender`).
+    A ``RuntimeError``, so a caller that catches that keeps catching it.
+    """
+
+
 class _TclInternal:
     """Host detection data + the per-DCC startup mechanics behind :class:`Tcl`."""
 
@@ -125,14 +137,14 @@ class _TclInternal:
             try:
                 tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
                 tcl_blender.register(**kwargs)
-            except ImportError as error:
+            except (ImportError, QtPlatformUnavailable) as error:
                 # A timer callback has no handler, so this would print a traceback
                 # to the SYSTEM console -- hidden by default on Windows -- and the
-                # user would see the launcher simply do nothing. The install hint
-                # is the entire value of this error, so it has to reach a surface
-                # they are looking at. Scoped to ImportError deliberately: a real
-                # bug in registration keeps its traceback rather than being dressed
-                # up as "not installed".
+                # user would see the launcher simply do nothing. Each error carries
+                # its fix (the install line; the Qt libraries Linux lacks), which is
+                # its entire value, so it has to reach a surface they are looking
+                # at. Scoped to these two deliberately: a real bug in registration
+                # keeps its traceback rather than being dressed up as one of them.
                 cls._report_blender_startup_error(error)
             return None  # a timer returning None is unregistered — one shot, not a poll
 
@@ -155,9 +167,10 @@ class _TclInternal:
         escaping the callback -- Blender then reports the add-on as broken, which
         is a worse answer than the one this exists to deliver.
 
-        The message is split on sentences rather than drawn as one label: Blender
-        does not wrap a ``layout.label``, so the pip line -- the part the user has
-        to read -- would be clipped at the popup's edge.
+        The message is split on sentences and line breaks rather than drawn as one
+        label: Blender does not wrap a ``layout.label``, so the pip line -- the part
+        the user has to read -- would be clipped at the popup's edge, and a
+        multi-line error (the Qt preflight's) would draw its breaks inside a label.
         """
         import bpy
 
@@ -166,7 +179,9 @@ class _TclInternal:
             # Split AFTER the terminator, keeping it: appending "." to each
             # piece double-punctuates the last one -- and the last one is the
             # pip line, the part that has to be readable.
-            lines = [s for s in (p.strip() for p in re.split(r"(?<=\.)\s+", text)) if s]
+            lines = [
+                s for s in (p.strip() for p in re.split(r"(?<=\.)\s+|\n", text)) if s
+            ]
 
             def draw(self, _context):
                 for line in lines:
@@ -353,8 +368,8 @@ class _TclInternal:
             python = sys.executable if name.startswith("python") else None
         if not python:
             return (
-                f"Install it into this DCC's own Python (mayapy.exe, or Blender's "
-                f"bundled python.exe) with:  -m pip install {spec}"
+                f"Install it into this DCC's own Python (mayapy, or Blender's "
+                f"bundled python) with:  -m pip install {spec}"
             )
         return f'Install it with:  "{python}" -m pip install {spec}'
 

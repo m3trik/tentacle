@@ -120,7 +120,7 @@ def _mixin_index() -> dict[str, Path]:
     its mixin off the package namespace (``from tentacle import MaterialsMixin``),
     so the module path is no longer written at the import site. Shared,
     DCC-agnostic mixins (e.g. ``PreferencesMixin``, which supplies the
-    window-theme combos to every DCC's ``Preferences``) define slots the module
+    window-theme combos to every DCC's ``PreferencesSlots``) define slots the module
     itself doesn't — resolving them keeps those from reading as ghosts.
     """
     index: dict[str, Path] = {}

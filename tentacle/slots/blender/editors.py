@@ -4,7 +4,7 @@ import blendertk as btk
 from tentacle import SlotsBlender
 
 
-class Editors(SlotsBlender):
+class EditorsSlots(SlotsBlender):
     """Blender port of the shared ``editors`` menu.
 
     Maya's editor windows map onto Blender editor *areas* — ``btk.open_editor`` opens a new

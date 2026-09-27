@@ -4,10 +4,10 @@ import math
 
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import NurbsMixin, SlotsBlender
 
 
-class Nurbs(SlotsBlender):
+class NurbsSlots(NurbsMixin, SlotsBlender):
     """Blender port of the shared ``nurbs`` menu. Blender is mesh-centric (no Maya-grade parametric
     NURBS surfacing), so the **operations** map onto mesh equivalents — Revolve onto a Screw
     modifier, Loft onto ``btk.loft`` (a bmesh bridge of the profile curves/loops), Curve-to-Tube
@@ -175,21 +175,6 @@ class Nurbs(SlotsBlender):
         ],
     }
 
-    def list000_init(self, widget):
-        """Initialize the Nurbs expandable list (categories -> curve actions) — same
-        root -> category -> leaf structure as Maya's ``list000_init``, backed by
-        ``_LIST000_COMMANDS`` (bpy ops/props instead of MEL strings)."""
-        widget.fixed_item_height = 18
-        widget.apply_preset(
-            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
-        )
-
-        root = widget.add("Nurbs")
-
-        for category, items in self._LIST000_COMMANDS.items():
-            cat = root.sublist.add(category)
-            cat.sublist.add([label for label, _ in items])
-
     # The undoable wrap sits on the leaf handlers below, not on this dispatcher, matching
     # edit.py's list000 (Create Primitive): the dispatcher also fires for category/expand
     # clicks, which would otherwise push no-op undo steps.
@@ -223,38 +208,18 @@ class Nurbs(SlotsBlender):
         are multi-object aware, so the curves are selected together and the op runs once. A
         per-curve loop would apply the op N times to every curve (Reverse on two curves =
         double-reverse = visible no-op; Smooth = N× over-smooth). Returns the number of
-        curves the op ran on."""
-        view_layer = bpy.context.view_layer
-        prior_selection = self.selected_objects()
-        prior_active = view_layer.objects.active
-        for o in prior_selection:  # limit the multi-object Edit-Mode entry to the curves
-            o.select_set(o in curves)
-        for c in curves:
-            c.select_set(True)
-        view_layer.objects.active = curves[0]
+        curves the op ran on. ``btk.edit_mode`` is the bracket: it selects the curves alone
+        (limiting the multi-object Edit-Mode entry to them), runs the block under the window
+        override the op's multi-object gather needs, and restores the prior selection, active
+        object and mode."""
         ran = 0
         try:
-            # window override: ``mode_set``'s poll and the curve op's multi-object gather
-            # both read from *screen* context (dead in the Qt-pump state).
-            with btk.window_context_override():
-                bpy.ops.object.mode_set(mode="EDIT")
+            with btk.edit_mode(curves):
                 bpy.ops.curve.select_all(action="SELECT")
                 op()
                 ran = len(curves)
         except RuntimeError as e:
             self.sb.message_box(str(e))
-        finally:
-            with btk.window_context_override():
-                try:
-                    bpy.ops.object.mode_set(mode="OBJECT")
-                except RuntimeError:
-                    pass  # already in Object Mode (Edit-Mode entry failed)
-            for o in prior_selection:
-                o.select_set(True)
-            for c in curves:
-                c.select_set(c in prior_selection)
-            if prior_active is not None:
-                view_layer.objects.active = prior_active
         return ran
 
     @btk.undoable

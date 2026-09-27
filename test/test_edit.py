@@ -65,7 +65,7 @@ class _FakeSb:
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestDeleteHistoryUnusedNodes(unittest.TestCase):
-    """Edit.tb001 with `Delete Unused Nodes` must not destroy instance siblings.
+    """EditSlots.tb001 with `Delete Unused Nodes` must not destroy instance siblings.
 
     Pre-fix bug: the empty-group sweep used cmds.ls without allPaths=True, so
     instanced shape/transform nodes only listed one of their DAG paths. The
@@ -79,7 +79,7 @@ class TestDeleteHistoryUnusedNodes(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _run_tb001(self, *, unused_nodes=True, deformers=False, optimize=False):
-        instance = edit_module.Edit.__new__(edit_module.Edit)
+        instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         instance.sb = _FakeSb()
         widget = _FakeWidget(
             chk019=unused_nodes,
@@ -229,7 +229,7 @@ class TestDeleteHistoryScope(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _run(self, scope):
-        instance = edit_module.Edit.__new__(edit_module.Edit)
+        instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         instance.sb = _FakeSb()
         # deformers=True -> full-history delete path; unused/optimize off to isolate scope.
         widget = _FakeWidget(scope=scope, chk019=False, chk020=True, chk030=False)
@@ -281,7 +281,7 @@ class TestTb004NodeLocking(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = edit_module.Edit.__new__(edit_module.Edit)
+        self.instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         self.instance.sb = _FakeSb()
 
     def tearDown(self):
@@ -331,7 +331,7 @@ class TestOptimizeScenePopupSuppression(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _run_optimize(self):
-        instance = edit_module.Edit.__new__(edit_module.Edit)
+        instance = edit_module.EditSlots.__new__(edit_module.EditSlots)
         instance.sb = _FakeSb()
         widget = _FakeWidget(chk019=False, chk020=False, chk030=True)
         instance.tb001(widget)  # optimize=True, others off

@@ -42,7 +42,7 @@ try:
     from qtpy import QtWidgets  # noqa: F401
     from uitk import Switchboard
     from uitk.widgets.menuButton import MenuButton
-    from uitk.widgets.marking_menu._marking_menu import MarkingMenu
+    from uitk import MarkingMenu
     from blendertk.ui_utils.blender_native_menus import BlenderNativeMenus
     from blendertk.ui_utils.blender_ui_handler import BlenderUiHandler
 

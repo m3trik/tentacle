@@ -4,7 +4,7 @@ import bpy
 from tentacle import SlotsBlender
 
 
-class Utilities(SlotsBlender):
+class UtilitiesSlots(SlotsBlender):
     """Blender port of the shared ``utilities`` menu.
 
     Measure/annotate map onto Blender's builtin viewport tools (``wm.tool_set_by_id`` — the

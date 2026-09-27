@@ -2,7 +2,7 @@
 # coding=utf-8
 """Shared, DCC-agnostic behavior for the ``edit`` panel.
 
-The per-panel home for logic the Maya and Blender ``Edit`` forks share (mixed in ahead of
+The per-panel home for logic the Maya and Blender ``EditSlots`` forks share (mixed in ahead of
 their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a new module
 per feature — see the convention in ``tentacle/CLAUDE.md``.
 
@@ -80,3 +80,7 @@ class EditMixin:
         """
         self.cleanup_console_report(f"{mode_label} — FAILED", [f"scope: {scope}", str(exc)])
         self.sb.message_box(f"<hl>Mesh Cleanup failed</hl><br>{exc}")
+
+    def cmb000_init(self, widget):
+        """Initialize the Transfer operations menu."""
+        widget.add(list(self._TRANSFER_OPS), header="Transfer:")

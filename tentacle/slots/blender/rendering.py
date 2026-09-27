@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import RenderingMixin, SlotsBlender
 
 
-class Rendering(RenderingMixin, SlotsBlender):
+class RenderingSlots(RenderingMixin, SlotsBlender):
     """Blender port of the shared ``rendering`` menu.
 
     Render-frame / show-last-render map onto ``render.render`` / ``render.view_show``;

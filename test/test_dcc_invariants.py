@@ -102,6 +102,26 @@ class TestDccSlotInvariants(unittest.TestCase):
             offenders, {}, f"Slot files without exactly one base subclass: {offenders}"
         )
 
+    def test_slot_class_is_named_base_slots(self):
+        """Every slot module's <SlotsDcc> subclass is ``<Base>Slots`` (``edit.py`` ->
+        ``EditSlots``; case-insensitive, so ``ncloth.py`` -> ``NClothSlots`` passes).
+
+        Switchboard binds ``<Base>Slots`` first, and the class name keys every
+        user shortcut override (``shortcuts_<host>.<Class>.<method>``), so the
+        name is persistent state: settling it on one convention keeps a later
+        rename from being needed at all. uitk carries overrides saved under a
+        bare ``<Base>`` forward (``_slot_shortcut_key``)."""
+        offenders = {}
+        for dcc, base in DCCS.items():
+            for f in _slot_files(dcc):
+                expected = f.stem.replace("_", "") + "slots"
+                for name, bases in _parse_classes(f.read_text(encoding="utf-8")):
+                    if base in bases and name.lower() != expected:
+                        offenders[f"{dcc}/{f.name}"] = name
+        self.assertEqual(
+            offenders, {}, f"Slot classes not named <Base>Slots: {offenders}"
+        )
+
     def test_unique_object_names_per_slot(self):
         """Widget objectNames a slot adds must be unique within that slot — duplicates
         collide the StateManager/QSettings key ``<name>/<signal>`` and the cross-UI sync

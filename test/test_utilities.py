@@ -36,7 +36,7 @@ class TestB002Calculator(unittest.TestCase):
     """b002 (Calculator) is the only marking-menu-driven handler in utilities."""
 
     def test_b002_routes_to_calculator(self):
-        instance = utilities_module.Utilities.__new__(utilities_module.Utilities)
+        instance = utilities_module.UtilitiesSlots.__new__(utilities_module.UtilitiesSlots)
         instance.sb = _FakeSb()
         instance.b002()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["calculator"])

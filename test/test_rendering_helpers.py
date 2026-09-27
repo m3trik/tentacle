@@ -44,7 +44,7 @@ class TestSceneBaseName(unittest.TestCase):
                 return original(*args, **kwargs)
             cmds.file = fake_file
 
-            result = rendering_module.Rendering._scene_base_name()
+            result = rendering_module.RenderingSlots._scene_base_name()
             self.assertEqual(result, "playblast")
         finally:
             cmds.file = original
@@ -57,7 +57,7 @@ class TestSceneBaseName(unittest.TestCase):
             cmds.file(rename=scene_path)
             cmds.file(save=True, type="mayaAscii")
 
-            result = rendering_module.Rendering._scene_base_name()
+            result = rendering_module.RenderingSlots._scene_base_name()
             self.assertEqual(result, "MyShot")
         finally:
             import shutil
@@ -71,7 +71,7 @@ class TestSceneBaseName(unittest.TestCase):
             cmds.file(rename=scene_path)
             cmds.file(save=True, type="mayaAscii")
 
-            result = rendering_module.Rendering._scene_base_name()
+            result = rendering_module.RenderingSlots._scene_base_name()
             self.assertEqual(result, "v1.test")
         finally:
             import shutil
@@ -84,7 +84,7 @@ class TestDefaultPlayblastPath(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        self.instance = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
 
     def tearDown(self):
         cmds.file(new=True, force=True)
@@ -146,7 +146,7 @@ class TestCameraTransforms(unittest.TestCase):
 
     def test_default_scene_includes_persp_top_front_side(self):
         """Maya's default scene has the standard 4 cameras."""
-        result = rendering_module.Rendering._camera_transforms()
+        result = rendering_module.RenderingSlots._camera_transforms()
         # Maya creates persp, top, front, side by default.
         self.assertIn("persp", result)
         self.assertIn("top", result)
@@ -154,12 +154,12 @@ class TestCameraTransforms(unittest.TestCase):
         self.assertIn("side", result)
 
     def test_result_is_sorted(self):
-        result = rendering_module.Rendering._camera_transforms()
+        result = rendering_module.RenderingSlots._camera_transforms()
         self.assertEqual(result, sorted(result))
 
     def test_includes_user_camera(self):
         cmds.camera(name="renderCam")
-        result = rendering_module.Rendering._camera_transforms()
+        result = rendering_module.RenderingSlots._camera_transforms()
         # renderCam transform should be present
         self.assertTrue(
             any("renderCam" in name for name in result),
@@ -399,7 +399,7 @@ class TestRenderButtonInit(unittest.TestCase):
 
     def _init(self):
         cam_tf = cmds.rename(cmds.camera()[0], "renderCam")
-        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
         widget = _Widget()
         inst.tb001_init(widget)
         return inst, widget.option_box.menu, cam_tf
@@ -480,7 +480,7 @@ class TestRenderButtonAction(unittest.TestCase):
         return w
 
     def _inst(self):
-        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
         inst.sb = _SB()
         inst._last_render_key = None
         return inst
@@ -614,7 +614,7 @@ class TestExportPlayblastGuard(_ExporterPatchMixin, unittest.TestCase):
         self._patch_exporter(_spy)
 
     def _inst(self):
-        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
         inst.sb = _SB()
         return inst
 
@@ -658,7 +658,7 @@ class TestExportPlayblastInit(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def _init(self):
-        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
         widget = _Widget()
         inst.tb000_init(widget)
         return widget.option_box.menu
@@ -673,7 +673,7 @@ class TestExportPlayblastInit(unittest.TestCase):
             self.assertIn(label, labels)
             self.assertIn([name], data)
         # Bundles are appended and expand to registered target names only.
-        for _, bundle in rendering_module.Rendering._TARGET_BUNDLES:
+        for _, bundle in rendering_module.RenderingSlots._TARGET_BUNDLES:
             self.assertIn(bundle, data)
             for target in bundle:
                 self.assertIn(target, PlayblastExporter.TARGETS)
@@ -691,7 +691,7 @@ class TestExportPlayblastInit(unittest.TestCase):
     def test_split_output_base(self):
         import tempfile
 
-        inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
         tmpdir = tempfile.mkdtemp(prefix="rh_split_")
         try:
             # Existing directory -> scene-name fallback.
@@ -784,7 +784,7 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
 
         tmpdir = tempfile.mkdtemp(prefix="rh_action_")
         try:
-            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
             inst.sb = _SB()
             inst.tb000(self._widget(tmpdir))
 
@@ -816,7 +816,7 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
 
         tmpdir = tempfile.mkdtemp(prefix="rh_ffmpeg_")
         try:
-            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
             inst.sb = _SB()
             with mock.patch.object(
                 ptk.VidUtils,
@@ -839,7 +839,7 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
             widget.option_box.menu.cmb050.addItems(["PNG Sequence"])
             widget.option_box.menu.cmb050.setItemData(1, ["png_sequence"])
             widget.option_box.menu.cmb050._idx = 1
-            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
             inst.sb = _SB()
             with mock.patch.object(ptk.VidUtils, "ensure_ffmpeg") as ensure:
                 inst.tb000(widget)
@@ -856,7 +856,7 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
             widget = self._widget(tmpdir)
             widget.option_box.menu.s010.setValue(9)
             widget.option_box.menu.s011.setValue(2)
-            inst = rendering_module.Rendering.__new__(rendering_module.Rendering)
+            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
             inst.sb = _SB()
             inst.tb000(widget)
             self.assertFalse(_FakeExporter.instances, "export must not run")

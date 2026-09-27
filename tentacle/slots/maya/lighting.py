@@ -6,7 +6,7 @@ import mayatk as mtk
 from tentacle import LightingMixin, SlotsMaya
 
 
-class Lighting(LightingMixin, SlotsMaya):
+class LightingSlots(LightingMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

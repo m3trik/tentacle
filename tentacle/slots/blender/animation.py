@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import AnimationMixin, SlotsBlender
 
 
-class Animation(AnimationMixin, SlotsBlender):
+class AnimationSlots(AnimationMixin, SlotsBlender):
     """Blender port of the shared ``animation`` menu.
 
     Every key operation (invert/stagger/snap/scale/step/move/spacing/align/copy/paste/
@@ -95,66 +95,10 @@ class Animation(AnimationMixin, SlotsBlender):
         ],
     }
 
-    def list000_init(self, widget):
-        """Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
-
-        Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
-        slot defines an ``*_init``: that init builds the option box (tb015,
-        tb016), which is lost on a plain label, so those are added as real
-        slot-wired widgets carrying their original objectNames.
-
-        The submenu hosts the same list where the Shot Sequencer / Shot
-        Manifest buttons used to sit (upper-left of the radial overlay), so it
-        opens upward over itself and fans left; the panel row fans right.
-        Category order follows suit: the upward flyout is anchored at the
-        trigger's bottom edge, so its LAST-added row is the one that lands
-        under the cursor — populated in reverse there to put Sequencing (the
-        two buttons this list replaced) where those buttons used to be. The
-        panel's flyout fans right with its top row on the trigger, so it keeps
-        natural order.
-        """
-        submenu = widget.ui.has_tags("submenu")
-        widget.fixed_item_height = 18
-        widget.apply_preset("expand_overlay_up_left" if submenu else "hover_menu")
-        root = widget.add(
-            "Tools",
-            setToolTip="Sequencing, repair, bake, playback and info tools.",
-        )
-        categories = list(self._TOOLS_ITEMS.items())
-        if submenu:
-            categories.reverse()
-        for category, items in categories:
-            cat = root.sublist.add(category)
-            for label, slot_name, *rest in items:
-                tooltip = rest[0] if rest else ""
-                if slot_name and hasattr(self, f"{slot_name}_init"):
-                    self.add_slot_widget(
-                        cat.sublist,
-                        setObjectName=slot_name,
-                        setText=label,
-                        setToolTip=tooltip,
-                    )
-                else:
-                    cat.sublist.add(label, setToolTip=tooltip)
-
     @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch a Tools leaf to its slot method."""
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
-        text = item.item_text()
-        parent = item.parent_item_text() or ""
-        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
-            if label == text:
-                slot = getattr(self, slot_name, None)
-                if not callable(slot):
-                    return
-                # Slots vary: some take the invoking widget, some take none.
-                try:
-                    slot(item)
-                except TypeError:
-                    slot()
-                return
+        self._dispatch_tools_row(item)
 
     # ------------------------------------------------------------------ tb000  Go To Frame
     def tb000_init(self, widget):

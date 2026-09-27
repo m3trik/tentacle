@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.13.93"
+__version__ = "0.14.0"
 
 
 DEFAULT_INCLUDE = {
@@ -27,21 +27,27 @@ DEFAULT_INCLUDE = {
     # panels that DON'T define their own would silently bind their widget to
     # another panel's slot. Mixing in per panel keeps each name owned by exactly
     # the panels that opted in.
-    # AnimationMixin is the exception: it carries only the tooltip text its two
-    # forks say identically and defines NO widget-named names, so it could not
-    # capture a widget even from a shared base. It is registered here anyway so
-    # its panels import it the same way as every other.
+    # AnimationMixin, too, now defines a widget-named slot (``list000_init``, the
+    # Tools list both forks build identically), so it is mixed in per panel for
+    # the same reason as the rest.
     "slots._animation": "AnimationMixin",
+    "slots._display": "DisplayMixin",
+    "slots._duplicate": "DuplicateMixin",
     "slots._edit": "EditMixin",
     "slots._hud_warnings": "HudWarningsMixin",
     "slots._lighting": "LightingMixin",
     "slots._main": "MainMixin",
     "slots._materials": "MaterialsMixin",
+    "slots._normals": "NormalsMixin",
+    "slots._nurbs": "NurbsMixin",
+    "slots._pivot": "PivotMixin",
     "slots._preferences": "PreferencesMixin",
     "slots._rendering": "RenderingMixin",
+    "slots._rigging": "RiggingMixin",
     "slots._scene": "SceneMixin",
     "slots._selection": "SelectionMixin",
     "slots._settings": "SettingsMixin",
+    "slots._transform": "TransformMixin",
     "slots._uv": "UvMixin",
 }
 

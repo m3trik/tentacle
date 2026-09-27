@@ -1,10 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
-import os
 
 import maya.cmds as cmds
 import maya.mel as mel
-import pythontk as ptk
 import mayatk as mtk
 
 # From this package:
@@ -34,10 +32,6 @@ class UvSlots(UvMixin, SlotsMaya):
         self._b030_last_selection = None
         self._b030_uv_snapshot = None
         self._b030_pin_weights = None
-
-    def get_map_size(self):
-        """Get the map size from the combobox as an int. ie. 2048"""
-        return int(self.ui.cmb003.currentText())
 
     def header_init(self, widget):
         """Initialize UV Menu Header"""
@@ -458,199 +452,22 @@ class UvSlots(UvMixin, SlotsMaya):
         menu.s020.valueChanged.connect(_sync_gates)
         _sync_gates()
 
-    def _pack_u3d(self, all_uvs, meshes, pack_kwargs, successful, failed) -> None:
-        """Native u3dLayout pack with per-mesh failure isolation.
-
-        Batches all meshes into one call; on failure with several meshes,
-        probes each to isolate the bad one(s) and re-packs the survivors
-        together so they share the tile. A single mesh reports its failure
-        directly — a probe pass would just re-run the same failing call.
-        Appends to *successful* / *failed* in place.
-        """
-        try:
-            cmds.u3dLayout(all_uvs, **pack_kwargs)
-            successful.extend(str(m) for m in meshes)
-            return
-        except RuntimeError as batch_error:
-            if len(meshes) == 1:
-                failed.append((str(meshes[0]), self._classify_u3d_error(batch_error)))
-                return
-
-        good = []
-        for mesh in meshes:
-            uvs = cmds.polyListComponentConversion(mesh, fromFace=True, toUV=True) or []
-            if not uvs:
-                continue
-            try:
-                cmds.u3dLayout(uvs, **pack_kwargs)
-                good.extend(uvs)
-                successful.append(str(mesh))
-            except RuntimeError as mesh_error:
-                failed.append((str(mesh), self._classify_u3d_error(mesh_error)))
-        if good:
-            try:
-                cmds.u3dLayout(good, **pack_kwargs)
-            except RuntimeError as combine_error:
-                # Survivors packed individually (each filling the tile);
-                # combine failed, so leave them as-is and surface the cause.
-                failed.append(
-                    ("<combined re-pack>", self._classify_u3d_error(combine_error))
-                )
-
-    @staticmethod
-    def _distribute_to_grid(uvs, u_tile, v_tile, tiles_u, tiles_v) -> None:
-        """Assign the shells of *uvs* to grid tiles, balanced by UV area.
-
-        u3dLayout's own Distribute mode (-tileAssignMode 0) deals shells to the
-        tiles by count and drops some on top of already-packed ones (measured:
-        2-400 stacked faces on mixed content, varying run to run). Its Center
-        mode (-tileAssignMode 1) instead packs each shell inside the tile its
-        center already occupies, overlap-free — so the distribution is done
-        here: largest shell first into the least-loaded tile, each moved by a
-        whole-tile offset (shells sharing an offset move in one call). A pinned
-        UV moves with its shell and keeps its pin weight.
-        """
-        import maya.api.OpenMaya as om
-        import numpy as np
-
-        sel = om.MSelectionList()
-        for comp in uvs:
-            sel.add(comp)
-        shells = []  # (area, mesh path, uv ids of the shell in scope, center)
-        for i in range(sel.length()):
-            dag, component = sel.getComponent(i)
-            fn = om.MFnMesh(dag)
-            us, vs = fn.getUVs()
-            pos = np.column_stack([us, vs])
-            _, shell_ids = fn.getUvShellsIds()
-            shell_ids = np.asarray(shell_ids)
-            # Sorted + unique, so each shell's ids below stay ascending.
-            scope = np.unique(
-                np.asarray(
-                    om.MFnSingleIndexedComponent(component).getElements()
-                    if not component.isNull()
-                    else range(len(us)),
-                    dtype=np.int64,
-                )
-            )
-            if not len(scope):
-                continue
-            # Per-shell area (shoelace over each polygon's assigned UVs).
-            counts, uv_ids = fn.getAssignedUVs()
-            counts = np.asarray(counts, dtype=np.int64)
-            uv_ids = np.asarray(uv_ids, dtype=np.int64)
-            face = np.repeat(np.arange(len(counts)), counts)
-            nxt = np.arange(len(uv_ids)) + 1
-            ends = np.cumsum(counts)
-            nxt[ends[counts > 0] - 1] = (ends - counts)[counts > 0]
-            a, b = pos[uv_ids], pos[uv_ids[nxt]]
-            twice = np.zeros(len(counts))
-            np.add.at(twice, face, a[:, 0] * b[:, 1] - a[:, 1] * b[:, 0])
-            area = np.zeros(shell_ids.max(initial=-1) + 1)
-            mapped = counts > 0
-            np.add.at(
-                area, shell_ids[uv_ids[ends[mapped] - 1]], np.abs(twice[mapped]) / 2
-            )
-            path = dag.fullPathName()
-            # One stable sort groups the scope by shell (a mask per shell is
-            # shells x UVs on a dense mesh).
-            order = np.argsort(shell_ids[scope], kind="stable")
-            scope = scope[order]
-            cuts = np.flatnonzero(np.diff(shell_ids[scope])) + 1
-            for ids in np.split(scope, cuts):
-                shell = shell_ids[ids[0]]
-                shells.append((area[shell], path, ids, pos[ids].mean(axis=0)))
-
-        load = [0.0] * (tiles_u * tiles_v)
-        moves = {}  # (du, dv) -> component strings
-        for area, path, ids, center in sorted(shells, key=lambda s: -s[0]):
-            tile = min(range(len(load)), key=load.__getitem__)
-            load[tile] += area
-            du = u_tile + tile % tiles_u - int(np.floor(center[0]))
-            dv = v_tile + tile // tiles_u - int(np.floor(center[1]))
-            if du or dv:
-                runs = np.split(ids, np.flatnonzero(np.diff(ids) != 1) + 1)
-                moves.setdefault((du, dv), []).extend(
-                    f"{path}.map[{int(r[0])}:{int(r[-1])}]" for r in runs
-                )
-        if not moves:
-            return
-        # polyEditUV honours pin weights: a pinned UV refuses to move, tearing
-        # its shell across tiles (this panel's Pin and Stack leave pins
-        # behind). Lift them for the moves and put the exact weights back.
-        comps = [c for group in moves.values() for c in group]
-        pinned = []
-        if any(cmds.polyPinUV(comps, query=True, value=True) or []):
-            flat = cmds.ls(comps, flatten=True) or []
-            weights = mtk.UvUtils.get_uv_pin_weights(flat)
-            pinned = [(uv, w) for uv, w in zip(flat, weights) if w]
-        if pinned:
-            cmds.polyPinUV([uv for uv, _ in pinned], value=0.0)
-        for (du, dv), group in moves.items():
-            cmds.polyEditUV(group, uValue=du, vValue=dv, relative=True)
-        if pinned:
-            mtk.UvUtils.set_uv_pin_weights(*zip(*pinned))
-
-    @staticmethod
-    def _classify_u3d_error(error) -> str:
-        """Condense an Unfold3D RuntimeError (u3dLayout / u3dUnfold / u3dOptimize)
-        into a short, human-readable reason for display in a message box.
-        """
-        msg = str(error)
-        low = msg.lower()
-        if "non-manifold" in low:
-            return "non-manifold vertices"
-        if "overlapping" in low:
-            return "overlapping UVs"
-        return msg.split("\n")[0][:50]
-
-    @staticmethod
-    def _non_manifold_vertices(objects):
-        """Map each mesh in *objects* to its non-manifold vertices, via polyInfo.
-
-        Native ``polyInfo`` is instant, unlike ``EditUtils.find_non_manifold_vertex``
-        whose per-vertex Python scan is too slow for the heavy meshes that trip
-        Unfold. Returns ``{mesh_shape: [vertex_components]}`` (only meshes that
-        have any; empty dict when there are none).
-        """
-        by_mesh = {}
-        if not objects:
-            return by_mesh
-        for shape in cmds.ls(objects, dag=True, type="mesh", noIntermediate=True) or []:
-            verts = cmds.polyInfo(shape, nonManifoldVertices=True) or []
-            if verts:
-                by_mesh[shape] = cmds.ls(verts, flatten=True)
-        return by_mesh
-
-    def _warn_and_select_non_manifold(self, objects):
-        """Select the non-manifold vertices (or UVs) on *objects* and explain.
+    def _warn_non_manifold(self, objects):
+        """Select what blocks Unfold on *objects* and explain it.
 
         Backs the 'Warn + Select' strategy and the fallback when a repair can't
-        make the mesh unfoldable. Unfold rejects non-manifold *UVs* with the
-        same error as bad geometry, so when no vertices are flagged the UV scan
-        is what locates the problem.
+        make the mesh unfoldable. ``mtk.Diagnostics.select_non_manifold`` picks
+        the non-manifold vertices, else the non-manifold UVs (Unfold rejects
+        those with the same error as bad geometry).
         """
-        verts = [v for vs in self._non_manifold_vertices(objects).values() for v in vs]
-        uvs = [
-            uv
-            for us in mtk.Diagnostics.find_non_manifold_uvs(objects).values()
-            for uv in us
-        ]
-        if verts:
-            cmds.selectMode(component=True)
-            cmds.selectType(vertex=True)
-            cmds.select(verts, replace=True)
-        elif uvs:
-            cmds.selectMode(component=True)
-            cmds.selectType(polymeshUV=True)
-            cmds.select(uvs, replace=True)
-        if verts or not uvs:
+        kind, comps = mtk.Diagnostics.select_non_manifold(objects)
+        n = len(comps)
+        if kind != "uvs":
             kind = "geometry"
-            n = len(verts)
             selected = (
                 f"<b>{n}</b> problem {'vertex' if n == 1 else 'vertices'} "
                 "selected in vertex mode.<br><br>"
-                if verts
+                if n
                 else ""
             )
             cause = (
@@ -660,7 +477,6 @@ class UvSlots(UvMixin, SlotsMaya):
             manual = "• run <b>Mesh &gt; Cleanup</b> / <b>Merge</b> doubled verts manually.<br><br>"
         else:
             kind = "UVs"
-            n = len(uvs)
             selected = f"<b>{n}</b> problem {'UV' if n == 1 else 'UVs'} selected in UV mode.<br><br>"
             cause = (
                 "Unfold can't flatten a mesh with <b>non-manifold UVs</b> — "
@@ -678,63 +494,14 @@ class UvSlots(UvMixin, SlotsMaya):
             "<i>Then run Unfold again.</i>"
         )
 
-    def _repair_non_manifold(self, objects):
-        """Auto-repair non-manifold geometry and UVs on *objects*.
-
-        Geometry goes through Mesh Cleanup; non-manifold *UVs* (which block
-        Unfold with the same error but which Cleanup can't touch) are repaired
-        by re-mapping the affected faces. Logs a per-mesh breakdown to the
-        console and returns a summary ``{"total", "fixed", "remaining"}`` of
-        non-manifold components, so the caller can briefly mention the repair
-        in its result message.
-        """
-        before_verts = self._non_manifold_vertices(objects)
-        before_uvs = mtk.Diagnostics.find_non_manifold_uvs(objects)
-        total = sum(len(v) for v in before_verts.values()) + sum(
-            len(v) for v in before_uvs.values()
-        )
-
-        print("# Unfold: auto-repairing non-manifold geometry #")
-        for shape, verts in before_verts.items():
-            print(f"#   {shape}: {len(verts)} non-manifold vertex(es) #")
-        for shape, uvs in before_uvs.items():
-            print(f"#   {shape}: {len(uvs)} non-manifold UV(s) #")
-
-        try:
-            mtk.Diagnostics.clean_geometry(objects, repair=True, nonmanifold=True)
-        except (RuntimeError, ValueError) as exc:
-            # Cleanup itself failed — the retry will fall back to Warn + Select.
-            print(f"# Unfold: cleanup failed: {exc} #")
-
-        # Unconditional: it re-scans internally (no-op on clean meshes), and the
-        # pre-scan above can't see UV corruption the Cleanup pass just exposed.
-        try:
-            mtk.Diagnostics.repair_non_manifold_uvs(objects)
-        except (RuntimeError, ValueError) as exc:
-            print(f"# Unfold: UV repair failed: {exc} #")
-
-        remaining = sum(
-            len(v) for v in self._non_manifold_vertices(objects).values()
-        ) + sum(len(v) for v in mtk.Diagnostics.find_non_manifold_uvs(objects).values())
-        fixed = total - remaining
-        print(
-            f"# Unfold: repaired {fixed} non-manifold component(s), {remaining} remaining #"
-        )
-        return {"total": total, "fixed": fixed, "remaining": remaining}
-
     def tb000(self, widget):
         """Pack UVs with specified settings.
 
-        Performs UV packing operation on selected objects using Maya's u3dLayout command
-        with user-specified scaling, rotation, and UDIM settings.
-
-        The packing operation:
-        1. Gets UV packing parameters from UI controls
-        2. Calculates appropriate padding based on texture resolution
-        3. Packs UVs from all selected meshes together into the target UDIM tile
-           (if the batched call fails with several meshes, probes each to
-           isolate the offending one and re-packs the survivors together;
-           a single mesh reports its failure directly)
+        Reads the option box and hands the selection to ``mtk.UvUtils.pack_uvs``
+        -- engine ``"u3d"`` (Maya's u3dLayout) for Standard, ``"xatlas"`` for
+        xatlas -- which owns the padding, tile box, grid and per-mesh failure
+        isolation; this slot keeps the undo chunk, the progress marquee and the
+        summary (texel density, map size, target UDIMs, skipped meshes).
 
         Scope — objects or components: both methods pack exactly what is
         selected. Select whole objects to pack their full maps, or select faces
@@ -772,7 +539,7 @@ class UvSlots(UvMixin, SlotsMaya):
                 > 1, shells distribute across a grid of UDIM tiles anchored at
                 the target tile, extending right/up. Coverage is forced Full,
                 and Tiles U is clamped so the grid stays inside the UDIM row.
-                Shells are dealt to the tiles here (area-balanced) and packed
+                The engine deals shells to the tiles (area-balanced) and packs
                 per tile (-tileAssignMode 1); u3dLayout's own Distribute mode
                 stacks shells.
             skip_instances (bool): chk016. When on (default), pack one
@@ -788,14 +555,7 @@ class UvSlots(UvMixin, SlotsMaya):
         """
         menu = widget.option_box.menu
         method = menu.cmb019.currentData()
-        scale = menu.cmb009.currentData()
-        rotate = menu.cmb010.currentData()
         UDIM = menu.s004.value()
-        rotate_step = menu.s011.value()
-        rotate_min = menu.s012.value()
-        rotate_max = menu.s013.value()
-        mutations = menu.s014.value()
-        scale_mode = menu.cmb018.currentData()
         tiles_u = menu.s019.value()
         tiles_v = menu.s020.value()
         map_size = self.get_map_size()
@@ -803,20 +563,6 @@ class UvSlots(UvMixin, SlotsMaya):
         # a persisted spinbox value can't leak into the engine path).
         if method != "standard":
             tiles_u = tiles_v = 1
-
-        # packBox is [umin, umax, vmin, vmax], anchored at the UDIM's tile corner.
-        u_tile, v_tile = mtk.udim_to_tile(UDIM)
-        # A UDIM row is 10 tiles wide and u wraps to the next row at 10 — the
-        # tile at u=10 is NOT the next UDIM — so shells packed past the row
-        # end would be unaddressable by any UDIM texture. Clamp the grid to
-        # the columns remaining from the anchor and say so in the summary.
-        tiles_u_requested = tiles_u
-        tiles_u = min(tiles_u, 10 - u_tile)
-        # Gutters (verified): -shellSpacing is per-shell padding in UV units —
-        # adjacent shells land 2x spacing apart — and it rescales with the
-        # post-pack fit; -tileMargin is an absolute inset from the region edges.
-        shellPadding = mtk.calculate_uv_padding(map_size, normalize=True)
-        tilePadding = shellPadding / 2
 
         selection = self.require_selection()
         if selection is None:
@@ -829,117 +575,61 @@ class UvSlots(UvMixin, SlotsMaya):
         if menu.chk016.isChecked() and not any("." in str(s) for s in selection):
             selection = mtk.NodeUtils.filter_duplicate_instances(selection)
 
-        # Get unique meshes from selection (handles both object and component selection)
-        meshes = mtk.Components.get_components(selection, "mesh", flatten=False)
-        if not meshes:
-            meshes = cmds.ls(selection, type="transform", dag=True) or selection
-        # A packer's unit is a face: widen UV / edge / vertex picks (a shell
-        # chosen in the UV editor is a UV selection) to the faces they touch.
-        if any("." in str(m) for m in meshes):
-            meshes = cmds.polyListComponentConversion(meshes, toFace=True) or []
-
-        # Bulk-resolve UVs in one call; keep ranges unflattened ("pCube1.map[0:23]")
-        # so we don't pay to expand millions of indices into individual strings.
-        all_uvs = (
-            cmds.polyListComponentConversion(meshes, fromFace=True, toUV=True) or []
-        )
-        if not all_uvs:
-            self.sb.message_box("<b>No UVs found on selection.</b>")
-            return
-
-        # Fractional tile coverage shrinks the pack box from the tile's
-        # bottom-left corner; u3dLayout accepts fractional -packBox extents.
-        # A tile grid repurposes the box as its cell template (verified), so
-        # coverage is forced Full then — the UI gate mirrors this.
-        grid = tiles_u > 1 or tiles_v > 1
-        cov_u, cov_v = (1.0, 1.0) if grid else menu.cmb015.currentData()
-
-        pack_kwargs = dict(
-            # -res is the packer's raster, not the texture size: Maya's own
-            # dialog caps it at 4096, and the 16k map size packed ~9x slower
-            # than 4096 (measured 86s vs 9s on 24 meshes) for no overlap gain.
-            resolution=min(map_size, 4096),
-            shellSpacing=shellPadding,
-            tileMargin=tilePadding,
-            preScaleMode=scale,
-            preRotateMode=rotate,
-            packBox=[u_tile, u_tile + cov_u, v_tile, v_tile + cov_v],
-            multiObject=True,  # -m off causes all shells to stack at the tile center
-        )
-        # Rotate flags only when the user opts in (max > min). Maya's stock dialog
-        # follows the same pattern: it omits these unless the "Rotate" checkbox is on.
-        # Passing them with the default range (0..180) silently rotates shells even
-        # when Pre-Rotate is set to Off.
-        if rotate_max > rotate_min:
-            pack_kwargs["rotateStep"] = rotate_step
-            pack_kwargs["rotateMin"] = rotate_min
-            pack_kwargs["rotateMax"] = rotate_max
-        if mutations > 1:
-            pack_kwargs["mutations"] = mutations
-        # Omitted -layoutScaleMode == Uniform (verified), so only emit overrides.
-        if scale_mode != 2:
-            pack_kwargs["layoutScaleMode"] = scale_mode
-        if grid:
-            pack_kwargs["tileU"] = tiles_u
-            pack_kwargs["tileV"] = tiles_v
-        # Distribute ourselves, then let u3dLayout pack each tile in place:
-        # its own Distribute mode stacks shells (see _distribute_to_grid).
-        # Not under Scale Mode Off -- shells keep their size there and spill
-        # past the grid, so a tile-local pack has nothing to fit into.
-        distribute = grid and scale_mode != 1
-        if distribute:
-            pack_kwargs["tileAssignMode"] = 1
-
-        successful = []
-        failed = []
-        # What the resulting texel density is measured over. The engine path
-        # reports the components it actually packed, so a faces/shell selection
-        # is not read back as a whole-mesh density the run never produced.
-        density_scope = None
         # The pack is one bulk engine call with nothing to tick from the
         # inside, so the marquee is painted BEFORE the blocking region and torn
         # down after it. Nothing ticks while the refresh is suspended and the
         # undo chunk is open: a tick pumps the event loop, and letting the user
         # reach another slot mid-chunk is how a half-open chunk gets made.
+        # mtk.UvUtils.pack_uvs owns both engines (scope resolution, gutters,
+        # tile grid, per-mesh failure isolation); an optional engine that is
+        # not installed raises before the scene is touched, with its pip
+        # command in the message, same pattern as Auto Unwrap's engines.
+        error = None
         with self.sb.progress(text=f"Working: Pack UVs ({method})") as update:
             update()
             cmds.undoInfo(openChunk=True, chunkName="UV Pack")
             cmds.refresh(suspend=True)
             try:
-                if method == "xatlas":
-                    # External engine path: mtk.UvUtils.pack_uvs owns the whole
-                    # round-trip (density pre-pass, xatlas, per-shell undoable
-                    # write-back, per-mesh failure isolation). The engine check
-                    # runs before the scene is touched, so a missing package
-                    # surfaces as a message with the pip command, same pattern
-                    # as Auto Unwrap's engines.
-                    try:
-                        result = mtk.UvUtils.pack_uvs(
-                            meshes,
-                            map_size=map_size,
-                            udim=UDIM,
-                            coverage=(cov_u, cov_v),
-                            rotate=menu.chk044.isChecked(),
-                            brute_force=menu.chk043.isChecked(),
-                            preserve_3d=scale == 1,  # cmb009: Preserve 3D
-                        )
-                        successful = list(result.succeeded)
-                        failed = list(result.failed)
-                        density_scope = list(result.targets)
-                    except (RuntimeError, ValueError) as engine_error:
-                        self.sb.message_box(
-                            f"<b>xatlas pack unavailable.</b><br><br>{engine_error}"
-                        )
-                        return
-                else:
-                    if distribute:
-                        self._distribute_to_grid(
-                            all_uvs, u_tile, v_tile, tiles_u, tiles_v
-                        )
-                    self._pack_u3d(all_uvs, meshes, pack_kwargs, successful, failed)
+                result = mtk.UvUtils.pack_uvs(
+                    selection,
+                    engine="xatlas" if method == "xatlas" else "u3d",
+                    map_size=map_size,
+                    udim=UDIM,
+                    coverage=menu.cmb015.currentData(),
+                    preserve_3d=menu.cmb009.currentData() == 1,  # Preserve 3D
+                    rotate=menu.chk044.isChecked(),
+                    brute_force=menu.chk043.isChecked(),
+                    pre_rotate=menu.cmb010.currentData(),
+                    rotate_step=menu.s011.value(),
+                    rotate_min=menu.s012.value(),
+                    rotate_max=menu.s013.value(),
+                    mutations=menu.s014.value(),
+                    scale_mode=menu.cmb018.currentData(),
+                    tiles=(tiles_u, tiles_v),
+                )
+            except (RuntimeError, ValueError) as engine_error:
+                error = engine_error
             finally:
                 cmds.refresh(suspend=False)
                 cmds.undoInfo(closeChunk=True)
+        if error is not None:
+            self.sb.message_box(
+                f"<b>xatlas pack unavailable.</b><br><br>{error}"
+                if method == "xatlas"
+                else f"<b>{error}</b>"
+            )
+            return
+        successful = list(result.succeeded)
+        failed = list(result.failed)
+        # The grid that actually ran: Tiles U is clamped so it stays inside
+        # the UDIM row, and the summary says so.
+        tiles_u_requested = tiles_u
+        tiles_u, tiles_v = result.tiles
+        grid = tiles_u > 1 or tiles_v > 1
+        # What the resulting texel density is measured over: the components
+        # the engine actually packed, so a faces/shell selection is not read
+        # back as a whole-mesh density the run never produced.
+        density_scope = list(result.targets)
 
         # Resulting texel density across the packed meshes — a single
         # representative value (with Preserve-3D pre-scale every shell shares
@@ -1228,18 +918,18 @@ class UvSlots(UvMixin, SlotsMaya):
         except RuntimeError as error:
             if "non-manifold" not in str(error).lower():
                 self.sb.message_box(
-                    f"<b>Unfold failed:</b> {self._classify_u3d_error(error)}."
+                    f"<b>Unfold failed:</b> {mtk.UvUtils.classify_unfold3d_error(error)}."
                 )
                 return
             if nonmanifold_mode != "repair":
-                self._warn_and_select_non_manifold(objects)
+                self._warn_non_manifold(objects)
                 return
-            repair_summary = self._repair_non_manifold(objects)
+            repair_summary = mtk.Diagnostics.repair_non_manifold(objects)
             try:
                 cmds.u3dUnfold(**unfold_kwargs)
             except RuntimeError:
                 # Repair couldn't make it unfoldable — fall back to warn + select.
-                self._warn_and_select_non_manifold(objects)
+                self._warn_non_manifold(objects)
                 return
 
         if optimize:
@@ -1541,361 +1231,39 @@ class UvSlots(UvMixin, SlotsMaya):
                 "tube / turned mesh(es)."
             )
 
-    def cmb003(self, index, widget):
-        """UV Map Size — passive input; the panel's one map size, read via
-        get_map_size by Pack (both methods), Auto Unwrap, Unfold, Cut Cylinder
-        and Get/Set Texel Density. Nothing to do on change."""
-
-    def s003(self, value, widget):
-        """Texel Density — passive input; read by Get/Set Texel Density (b003/b004).
-        Nothing to do on change."""
-
     # ------------------------------------------------------------------
-    # b000  Transfer UVs / Textures
+    # b000  Transfer UVs / Textures -- the option box, its wiring and the
+    # texture pass are UvMixin's (``b000_init``, ``_tt_texture_pass``); this
+    # fork supplies its engine, its words and the Maya-only Shader row.
     # ------------------------------------------------------------------
-    def b000_init(self, widget):
-        """Initialize the Transfer option box.
+    _TT_TERMS = {
+        "set": "set",
+        "current": "current",
+        "first": "First Selected Mesh",
+        "first_who": "the first-selected object",
+        "order": ", in selection order",
+        "instances": "true instances of the source (one shape, UVs already match)",
+        "bound": "uvLink",
+        "name_note": "the assigned material's own settings — a <b>Material "
+        "Affix</b> (a naming convention the maps deliberately do not follow) and "
+        "its <b>Shader</b> type.",
+        "output_dir": "sourceimages/uv_transfer",
+        "output_rel": "a subdirectory of sourceimages",
+    }
 
-        One tool, two transfers that are ALTERNATIVES (see ``UvMixin``'s
-        Transfer modes): the source's UV layout onto the targets
-        (``mtk.transfer_uvs`` -- exact for identical topology, sampled by
-        proximity otherwise), or the source's textures re-mapped into each
-        target's OWN layout (``mtk.TextureTransfer`` over ``pythontk.UvTransfer``:
-        exact texel correspondence, so it never bleeds the way a ray-cast bake
-        does where a mesh touches itself). They do not compose -- the texture
-        pass keeps the target's UV set, so a source layout copied alongside its
-        maps would land in a UV set nothing references. The Auto mode defers
-        the pick to run time: a source whose materials carry texture maps
-        transfers them; an untextured source transfers its layout.
+    def _tt_engine(self):
+        """Maya's ``TextureTransfer`` (see ``UvMixin._tt_engine``)."""
+        return mtk.TextureTransfer
+
+    def _tt_add_assign_rows(self, name_menu):
+        """The assigned material's TYPE, beside its name (Maya-only).
+
+        The material is a copy of the target's, so left alone it lands on
+        whatever that mesh wore -- for unassigned geometry, Maya's own default
+        shader. Items come from the converter's TARGETS (its SSoT), so a target
+        added there appears here; "Same as target" leads and the rest follow in
+        TARGETS order, because combo state persists by INDEX.
         """
-        menu = widget.option_box.menu
-        menu.setTitle("Transfer UVs / Textures")
-        cmb024 = menu.add(
-            "QComboBox",
-            setObjectName="cmb024",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Source",
-                body="Where the UVs / textures come FROM. Everything else selected "
-                "at run time is a <b>target</b>.",
-                bullets=[
-                    "<b>First Selected Mesh</b> — the first-selected object is "
-                    "the source; the Scope below picks the targets.",
-                    "<b>Stored Source Meshes</b> — the meshes captured with "
-                    "<i>Set Source From Selection</i>, paired to the selected "
-                    "targets by matching name (then by order). Use for a "
-                    "re-unwrapped / repacked copy, or a many-materials-to-one "
-                    "consolidation.",
-                    "<b>UV Set On Same Mesh</b> — textures only: read them through "
-                    "the Source UV Set and write them for the Target UV Set, on "
-                    "each selected mesh.",
-                ],
-                notes=[
-                    "Textures need identical topology (same faces and vertex "
-                    "order); UVs do not.",
-                ],
-            ),
-        )
-        for text, data in [
-            ("Source: First Selected Mesh", "first"),
-            ("Source: Stored Source Meshes", "stored"),
-            ("Source: UV Set On Same Mesh", "uvset"),
-        ]:
-            cmb024.addItem(text, data)
-        btn_src = menu.add(
-            "QPushButton",
-            setText="Set Source From Selection",
-            setObjectName="btn_tt_set_source",
-        )
-        btn_src.clicked.connect(self._tt_set_source_from_selection)
-        # Bound through the switchboard rather than ``btn_src.tooltip``:
-        # ``Menu.add`` defers register_widget (which stamps the per-widget
-        # namespace) to a timer, so the proxy does not exist yet here.
-        self.sb.tooltip.bind(btn_src, self._tt_source_tooltip)
-        # Select + Clear ride the button's own option box as icons. They grey
-        # (rather than hide) while nothing is stored, so the row doubles as the
-        # panel's only at-a-glance "is a source set?" readout -- a button that
-        # vanishes reads as a layout change, not as a state. Select leads:
-        # inspecting what you captured is the common follow-up, and the
-        # destructive verb reads better last.
-        self._tt_select_action = btn_src.option_box.set_action(
-            callback=self._tt_select_source,
-            icon="select",
-            tooltip="Select the stored source meshes, so you can see what the "
-            "capture actually holds. Enabled only while something is stored.",
-        )
-        self._tt_clear_action = btn_src.option_box.add_action(
-            callback=self._tt_clear_source,
-            icon="clear",
-            tooltip="Clear the stored source meshes. Enabled only while "
-            "something is stored; the geometry itself is untouched.",
-        )
-        self._tt_src_button = btn_src
-        cmb014 = menu.add(
-            "QComboBox",
-            setObjectName="cmb014",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Scope",
-                body="Which meshes receive the transfer when the source is the "
-                "<b>First Selected Mesh</b>.",
-                bullets=[
-                    "<b>Selection Order</b> — every other selected object, in "
-                    "selection order.",
-                    "<b>Similar in Selection</b> — the selected objects that are "
-                    "geometrically similar to the source.",
-                    "<b>Similar in Scene</b> — every geometrically similar mesh "
-                    "in the scene.",
-                ],
-                notes=[
-                    "The Similar scopes find their targets by transferring UVs, "
-                    "so they need <b>Transfer UV Set</b> on; they skip true "
-                    "instances of the source (one shape, UVs already match).",
-                ],
-            ),
-        )
-        for text, data in [
-            ("Scope: Selection Order", "order"),
-            ("Scope: Similar in Selection", "selection"),
-            ("Scope: Similar in Scene", "scene"),
-        ]:
-            cmb014.addItem(text, data)
-        d000 = menu.add(
-            "QDoubleSpinBox",
-            setObjectName="d000",
-            setPrefix="Similarity: ",
-            setValue=0.9,
-            setMinimum=0.0,
-            setMaximum=1.0,
-            setSingleStep=0.05,
-            setToolTip=self.sb.tooltip.fmt(
-                title="Similarity",
-                body="The minimum score (0–1) a mesh must reach to receive UVs, "
-                "scored on bounding-box volume and vertex count.",
-                notes=["Used by the <b>Similar</b> scopes only."],
-            ),
-        )
-        cmb028 = menu.add(
-            "QComboBox",
-            setObjectName="cmb028",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Transfer",
-                body="What travels from the source to the targets — one or "
-                "the other, since the texture pass deliberately keeps the "
-                "target's own layout.",
-                bullets=[
-                    "<b>UV Set</b> — copy the source's current uv set onto each "
-                    "target, replacing its current one. Exact for identical "
-                    "topology, sampled by proximity otherwise.",
-                    "<b>Textures</b> — re-map the source's textures into "
-                    "each target's OWN layout by exact texel correspondence: a "
-                    "repacked atlas, a material consolidation, or another "
-                    "uv set on the same mesh. No rays, no cage, no bleed.",
-                    "<b>Auto</b> — decided per run from the source's "
-                    "materials: Textures when any of them carries a texture "
-                    "map, UV Set when none do.",
-                ],
-                notes=[
-                    "Textures need identical topology (same faces and vertex "
-                    "order); uv sets do not.",
-                ],
-            ),
-        )
-        for text, data in [
-            ("Transfer: UV Set", "uvs"),
-            ("Transfer: Textures", "textures"),
-            # Auto rides LAST, not first where an Auto usually sits: the
-            # combo's state persists by index, so inserting above the existing
-            # rows would silently remap every saved choice.
-            ("Transfer: Auto", "auto"),
-        ]:
-            cmb028.addItem(text, data)
-        t_tt_src_uvset = menu.add(
-            "QLineEdit",
-            setPlaceholderText="Source UV Set: Auto",
-            setText="",
-            setObjectName="t_tt_src_uvset",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Source UV Set",
-                body="The UV set the textures are READ through. Blank = <b>Auto</b>.",
-                bullets=[
-                    "<b>Mesh sources</b> — Auto is each source mesh's current UV set.",
-                    "<b>UV Set On Same Mesh</b> — Auto is the UV set the mesh's "
-                    "textures are actually bound to (uvLink), "
-                    "i.e. the layout the maps were painted for.",
-                ],
-            ),
-        )
-        t_tt_dst_uvset = menu.add(
-            "QLineEdit",
-            setPlaceholderText="Target UV Set: Auto",
-            setText="",
-            setObjectName="t_tt_dst_uvset",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Target UV Set",
-                body="The UV set the maps are WRITTEN for. Blank = <b>Auto</b>.",
-                bullets=[
-                    "<b>Mesh sources</b> — Auto is each target mesh's current UV set.",
-                    "<b>UV Set On Same Mesh</b> — Auto is the first UV set other "
-                    "than the source, so a two-set mesh needs neither named.",
-                ],
-            ),
-        )
-        cmb025 = menu.add(
-            "QComboBox",
-            setObjectName="cmb025",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Resolution",
-                body="Output size per target material.",
-                bullets=["<b>Auto</b> — the largest source map feeding it."],
-            ),
-        )
-        cmb025.addItem("Resolution: Auto", 0)
-        for n in (512, 1024, 2048, 4096, 8192):
-            cmb025.addItem(f"Resolution: {n}", n)
-        cmb026 = menu.add(
-            "QComboBox",
-            setObjectName="cmb026",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Quality",
-                body="Sub-samples per texel axis.",
-                bullets=[
-                    "<b>Fast</b> (1) — point sampling; exact for 1:1 layouts.",
-                    "<b>Standard</b> (2) — anti-aliased island edges and a box "
-                    "filter for islands packed smaller than their source.",
-                    "<b>High</b> (3) — for heavy downscaling.",
-                ],
-                notes=[
-                    "Memory: 8 bytes x quality² x resolution². 4k Standard ≈ 540 MB."
-                ],
-            ),
-        )
-        for text, data in [
-            ("Quality: Fast", 1),
-            ("Quality: Standard", 2),
-            ("Quality: High", 3),
-        ]:
-            cmb026.addItem(text, data)
-        cmb026.setCurrentIndex(1)
-        s025 = menu.add(
-            self.sb.registered_widgets.SpinBox,
-            setPrefix="Padding: ",
-            setObjectName="s025",
-            set_limits=[-1, 256],
-            setValue=-1,
-            setCustomDisplayValues={-1: "Fill"},
-            setToolTip=self.sb.tooltip.fmt(
-                title="Padding",
-                body="Gutter width in texels around each island.",
-                bullets=[
-                    "<b>Fill</b> (-1) — fill every empty texel (mip-safe, the "
-                    "usual choice)."
-                ],
-            ),
-        )
-        cmb027 = menu.add(
-            "QComboBox",
-            setObjectName="cmb027",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Normal Map Convention",
-                body="Y axis of the SOURCE normal maps. Rotated islands mix X and Y, "
-                "so this must be right.",
-                bullets=[
-                    "<b>Auto</b> — classify the filename's map-type suffix through "
-                    "the shared map registry, which knows every handedness "
-                    "spelling the pipeline emits (<i>_DX</i>, <i>DirectX</i>, "
-                    "<i>NRMLDX</i>, <i>N-dx</i> …) and ignores a trailing UDIM or "
-                    "duplicate token.",
-                ],
-                notes=[
-                    "A map with no convention tag (plain <i>_Normal</i>) is read "
-                    "as OpenGL: the convention is unknown, and flipping a guess "
-                    "inverts a map that may already be right. Override here when "
-                    "the filename does not say.",
-                ],
-            ),
-        )
-        for text, data in [
-            ("Normals: Auto", None),
-            ("Normals: OpenGL (Y+)", "opengl"),
-            ("Normals: DirectX (Y-)", "directx"),
-        ]:
-            cmb027.addItem(text, data)
-        # Required, and deliberately NOT persisted: it names ONE deliverable.
-        # ``restore_state`` is set before ``Menu.add``'s deferred
-        # ``register_widget`` runs, which is the only window in which the
-        # opt-out is read (``MainWindow.register_widget`` defaults it to True
-        # only when the attribute is absent).
-        t_tt_name = menu.add(
-            self.sb.registered_widgets.LineEdit,
-            setPlaceholderText="Output name (required)",
-            setObjectName="t_tt_name",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Output Name",
-                body="Names BOTH halves of the result: the material that gets "
-                "assigned, and every map wired to it "
-                "(<i>&lt;name&gt;_&lt;Channel&gt;.png</i>).",
-                notes=[
-                    "Required — there is no sensible default for a deliverable, "
-                    "so the texture pass is refused without one.",
-                    "Not remembered between sessions: it names one specific "
-                    "result, and a name left over from the last scene would "
-                    "overwrite that scene's material and maps without asking.",
-                    "Re-running with the same name replaces that material and "
-                    "its maps — which is what a second attempt wants.",
-                    "A run that has to keep two UV layouts apart appends each "
-                    "layout's label, so their maps cannot collide.",
-                    "Its own option box carries the assigned material's own "
-                    "settings — a <b>Material Affix</b> (a naming convention "
-                    "the maps deliberately do not follow) and its "
-                    "<b>Shader</b> type.",
-                ],
-            ),
-        )
-        t_tt_name.restore_state = False
-        t_tt_name.option_box.clear_option = True
-        # The material's naming convention, kept off the maps deliberately:
-        # the files are the deliverable's, the affix is the scene's. It rides
-        # the Output Name field's OWN option box rather than a row of its own:
-        # it modifies that name and nothing else, and the tool's option box is
-        # already long. Its picker is the shared uitk affix control -- one
-        # tri-state icon (Auto -> Suffix -> Prefix) over
-        # ptk.StrUtils.split_affix, the same one the mat_utils panels wear.
-        name_menu = t_tt_name.option_box.menu
-        name_menu.setTitle("Assigned Material")
-        t_tt_affix = name_menu.add(
-            self.sb.registered_widgets.LineEdit,
-            setPlaceholderText="Material affix (blank = none)",
-            setText="",
-            setObjectName="t_tt_affix",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Material Affix",
-                body="Affixes the ASSIGNED MATERIAL's name. The maps keep "
-                "<b>Output Name</b> as they are, so a material naming "
-                "convention never leaks into the filenames.",
-                bullets=[
-                    "<b>_MAT</b> — <i>hero_MAT</i>: a leading underscore reads "
-                    "as a suffix.",
-                    "<b>MAT_</b> — <i>MAT_hero</i>: a trailing underscore reads "
-                    "as a prefix.",
-                    "The icon button pins the side outright when the spelling "
-                    "does not say: <b>Auto</b> → <b>Suffix</b> → <b>Prefix</b>.",
-                ],
-                notes=[
-                    "Blank — the material is named exactly <b>Output Name</b>.",
-                    "Re-applied idempotently: a second run over the same result "
-                    "does not stack a second copy of the affix.",
-                    "Only meaningful with <b>Assign Result</b> on.",
-                ],
-            ),
-        )
-        t_tt_affix.option_box.clear_option = True
-        # Fourth, custom state: the shared material naming convention.
-        t_tt_affix.option_box.set_affix(default="auto", convention_key="material")
-        # The assigned material's TYPE, beside its name: the material is a copy
-        # of the target's, so left alone it lands on whatever that mesh wore --
-        # for unassigned geometry, Maya's own default shader. Items come from
-        # the converter's TARGETS (its SSoT), so a target added there appears
-        # here; "Same as target" leads and the rest follow in TARGETS order,
-        # because combo state persists by INDEX.
         cmb_tt_shader = name_menu.add(
             "QComboBox",
             setObjectName="cmb_tt_shader",
@@ -1926,92 +1294,10 @@ class UvSlots(UvMixin, SlotsMaya):
                 f"Shader: {mtk.ShaderConverter.TARGET_LABELS.get(name, node_type)}",
                 name,
             )
-        # Held directly: both are rows of the NAME field's option-box menu, so
-        # the tool's own menu carries no ``menu.<name>`` proxy for ``b000`` to
-        # read (the same reason ``_tt_src_button`` is held).
-        self._tt_affix = t_tt_affix
+        # Held directly, like the affix: a row of the NAME field's option-box
+        # menu, so the tool's own menu carries no proxy for ``b000`` to read.
         self._tt_shader_type = cmb_tt_shader
-        # A uitk LineEdit for the option-box affordances: the clear icon
-        # shows only while there is text (ClearOption auto-hides), and the
-        # browse writes back the PORTABLE spelling — relative to
-        # sourceimages when the pick is under it, which survives the project
-        # being moved. The engine reads the entry the same way
-        # (mtk.TextureTransfer.resolve_output_dir), so "relative" is a real
-        # contract rather than a UI convention.
-        t_tt_output = menu.add(
-            self.sb.registered_widgets.LineEdit,
-            setPlaceholderText="Output folder (blank = sourceimages/uv_transfer)",
-            setText="",
-            setObjectName="t_tt_output",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Output Folder",
-                body="Where the maps are written, as "
-                "<i>&lt;name&gt;_&lt;Channel&gt;.png</i>.",
-                bullets=[
-                    "<b>Blank</b> — <i>sourceimages/uv_transfer</i>.",
-                    "<b>A relative entry</b> — a subdirectory of sourceimages; "
-                    "the portable spelling, since it survives a project move.",
-                    "<b>A full path</b> — used as-is.",
-                ],
-            ),
-        )
-        t_tt_output.option_box.clear_option = True
-        t_tt_output.option_box.browse(
-            mode="directory",
-            title="Transfer output folder",
-            tooltip="Browse for the output folder…",
-            start_dir=lambda w=t_tt_output: mtk.TextureTransfer.resolve_output_dir(
-                w.text()
-            ),
-            callback=lambda picked, w=t_tt_output: w.setText(
-                ptk.FileUtils.relativize_output_dir(
-                    picked, mtk.TextureTransfer.output_base_dir()
-                )
-            ),
-        )
-        chk050 = menu.add(
-            "QCheckBox",
-            setText="Assign Result",
-            setObjectName="chk050",
-            setChecked=True,
-            setToolTip=self.sb.tooltip.fmt(
-                title="Assign Result",
-                body="Build one material per shared UV set — materials whose "
-                "islands share a set and do not overlap merge into it — wired "
-                "to the new maps and assigned to every transferred face.",
-                notes=[
-                    "Named after <b>Output Name</b>; a run that has to keep two "
-                    "layouts apart appends each layout's label.",
-                    "The original materials are never modified.",
-                ],
-            ),
-        )
-        self._tt_sources = []
-        # Direct references: ``Menu.add`` registers the ``menu.<name>`` proxies
-        # on a timer, so they are not addressable from inside this init.
-        self._tt_ctl = {
-            "source": cmb024,
-            "scope": cmb014,
-            "similarity": d000,
-            "transfer": cmb028,
-            "texture_controls": (
-                t_tt_src_uvset,
-                t_tt_dst_uvset,
-                cmb025,
-                cmb026,
-                s025,
-                cmb027,
-                t_tt_name,
-                t_tt_output,
-                chk050,
-            ),
-            "assign": chk050,
-            "assign_controls": (t_tt_affix, cmb_tt_shader),
-        }
-        for w in (cmb024, cmb014, cmb028):
-            w.currentIndexChanged.connect(lambda *_: self._tt_sync_controls())
-        chk050.toggled.connect(lambda *_: self._tt_sync_controls())
-        self._tt_sync_controls()
+        return (cmb_tt_shader,)
 
     def _tt_assign_shader_type(self):
         """The Shader row's target type, or None for "same as target".
@@ -2259,46 +1545,15 @@ class UvSlots(UvMixin, SlotsMaya):
             # ---- texture pass ----------------------------------------------
             if do_textures:
                 tick(text="Working: Transfer Textures")
-                assign_prefix, assign_suffix = self._tt_material_affix()
-                assign_shader_type = self._tt_assign_shader_type()
-                try:
-                    results = mtk.TextureTransfer().transfer(
+                report.append(
+                    self._tt_texture_pass(
                         targets,
                         source,
-                        source_uv_set=menu.t_tt_src_uvset.text().strip() or None,
-                        target_uv_set=menu.t_tt_dst_uvset.text().strip() or None,
-                        size=menu.cmb025.currentData() or None,
-                        supersample=menu.cmb026.currentData() or 2,
-                        padding=menu.s025.value(),
-                        output_name=out_name,
-                        output_dir=menu.t_tt_output.text().strip() or None,
-                        normal_convention=menu.cmb027.currentData(),
-                        assign=menu.chk050.isChecked(),
-                        assign_prefix=assign_prefix,
-                        assign_suffix=assign_suffix,
-                        assign_shader_type=assign_shader_type,
+                        menu,
+                        out_name,
+                        assign_shader_type=self._tt_assign_shader_type(),
                     )
-                except ValueError as e:
-                    report.append(f"<b>Transfer Textures:</b> {e}")
-                else:
-                    n_maps = sum(len(v) for v in results.values())
-                    folder = next(
-                        (
-                            os.path.dirname(p)
-                            for v in results.values()
-                            for p in v.values()
-                        ),
-                        "",
-                    )
-                    report.append(
-                        f"Transferred <b>{n_maps}</b> map(s) for "
-                        f"<b>{len(results)}</b> material(s)"
-                        + (
-                            f'<br><a href="action://open?path={folder}">{folder}</a>'
-                            if folder
-                            else ""
-                        )
-                    )
+                )
         self.sb.message_box("<br><br>".join(report))
 
     def b003(self):
@@ -2467,14 +1722,6 @@ class UvSlots(UvMixin, SlotsMaya):
                     cmds.u3dAutoSeam(obj, s=0, p=1)
                 except Exception as error:
                     print(error)
-
-    def b029_init(self, widget):
-        """Initialize Pin/Unpin button — non-checkable text button.
-
-        Defensively clears any `checkable` property a Qt Designer round-trip
-        may have re-added (the button's "Pin" label lives in the .ui).
-        """
-        widget.setCheckable(False)
 
     @mtk.undoable
     def b029(self, widget):

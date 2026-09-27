@@ -18,7 +18,7 @@
 
 ## Conventions
 
-- Slot classes inherit from the DCC base; slot methods are named after their widget (`tb000`, `b005`).
+- Slot classes are `<Base>Slots` (`edit.py` -> `EditSlots`; the name keys users' shortcut overrides, pinned by `test_dcc_invariants.py`) and inherit from the DCC base; slot methods are named after their widget (`tb000`, `b005`).
 - UI files pair with slot files (same basename). Enforced by `test_ui_integrity.py`.
 - **No PyMEL** (rule owned by [mayatk](../mayatk/CLAUDE.md)) — `maya.cmds` / `maya.mel` only.
 - Heavy scenes: suspend viewport refresh around bulk edits.

@@ -40,7 +40,7 @@ class _FakeSublist:
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
 class TestPopulateDirSublist(unittest.TestCase):
-    """Main._populate_dir_sublist — directory tree walker for the browser."""
+    """MainSlots._populate_dir_sublist — directory tree walker for the browser."""
 
     def setUp(self):
         self.root = tempfile.mkdtemp(prefix="main_dirwalker_")
@@ -55,7 +55,7 @@ class TestPopulateDirSublist(unittest.TestCase):
         os.makedirs(os.path.join(self.root, ".hidden"))
 
         # Bypass __init__ which needs a switchboard.
-        self.instance = main_module.Main.__new__(main_module.Main)
+        self.instance = main_module.MainSlots.__new__(main_module.MainSlots)
 
         # _populate_dir_sublist decorates every row via
         # IconManager.set_label_icon — a real-QLabel operation (reads/writes

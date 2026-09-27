@@ -14,7 +14,7 @@ Preferences window foregrounded on click 1, re-raising it even when buried (meas
 failure mode is **cross-process foreground** (user last in Maya, clicking straight onto the Qt
 panel): Windows denies GHOST the foreground transfer, the window opens/reuses fully obscured, and
 retries never raise it — an invisible success that reads as a dead button.
-``Preferences._open_preferences`` now surfaces op failures and explicitly lifts the window
+``PreferencesSlots._open_preferences`` now surfaces op failures and explicitly lifts the window
 (``_raise_ghost_window``); this harness pins the whole path.
 
 Flow: full tentacle startup, ``preferences`` shown as a standalone window holding OS foreground,
@@ -157,7 +157,7 @@ def _step():
             state["clicks"] += 1
             n = state["clicks"]
             _log(f"=== click {n} on b008 (Hotkeys) ===")
-            state["btn"].click()  # synchronous: SlotWrapper -> Preferences.b008
+            state["btn"].click()  # synchronous: SlotWrapper -> PreferencesSlots.b008
             _log_state(f"after click {n}")
             if n >= 2:
                 state["phase"] = "bury"

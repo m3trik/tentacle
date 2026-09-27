@@ -3,10 +3,10 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import TransformMixin, SlotsMaya
 
 
-class TransformSlots(SlotsMaya):
+class TransformSlots(TransformMixin, SlotsMaya):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -106,17 +106,6 @@ class TransformSlots(SlotsMaya):
         mtk.drop_to_grid(objects, align, origin, center_pivot, freeze_transforms)
         if objects:
             cmds.select(objects)  # reselect the original selection.
-
-    def tb001_init(self, widget):
-        """Scale Connected Edges Init"""
-        widget.option_box.menu.add(
-            "QDoubleSpinBox",
-            setObjectName="s001",
-            setPrefix="Scale Factor:",
-            setValue=1.1,
-            set_limits=[-999, 999, 0.1],
-            setToolTip="Scale factor to apply to scaling by as a percentage.",
-        )
 
     def tb001(self, widget):
         """Scale Connected Edges"""

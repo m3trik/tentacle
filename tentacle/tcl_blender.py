@@ -173,7 +173,15 @@ class _QtBootstrap:
                 bpy.utils.user_resource("SCRIPTS", path="addons/modules", create=True)
             )
         except Exception:
-            base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+            # Windows: LOCALAPPDATA. Linux/macOS: the XDG data dir, never loose
+            # in the home folder -- an absolute $XDG_DATA_HOME only, per the spec
+            # (ptk.UserConfig.xdg_home's rule, spelled out: this runs before the
+            # sibling packages are importable).
+            base = os.environ.get("LOCALAPPDATA")
+            if not base:
+                base = os.environ.get("XDG_DATA_HOME", "")
+                if not os.path.isabs(base):
+                    base = os.path.join(os.path.expanduser("~"), ".local", "share")
             return os.path.join(
                 base,
                 "tentacle",
@@ -260,7 +268,7 @@ from qtpy import QtWidgets, QtCore  # noqa: E402  (deferred until paths/Qt are p
 from uitk import MarkingMenu, ExternalAppHandler  # noqa: E402
 import blendertk as btk  # noqa: E402  (lazy resolver: nothing under btk.* imports yet)
 
-from tentacle.tcl import Tcl  # noqa: E402  (needs bootstrap_paths — see _QtBootstrap)
+from tentacle.tcl import QtPlatformUnavailable, Tcl  # noqa: E402  (needs bootstrap_paths)
 
 
 class _NativeWindow:
@@ -569,11 +577,64 @@ class _QtHost:
 
     @staticmethod
     def ensure_qapp():
-        """Return the process QApplication, creating one if Blender has none."""
+        """Return the process QApplication, creating one if Blender has none.
+
+        Linux: the same platform policy as a standalone uitk app (X11 first on
+        a Wayland session, :meth:`uitk.Bootstrap.configure_platform`), and a
+        one-time check that Qt can open a window at all -- a platform plug-in
+        that fails to load (xcb's system libraries missing) aborts the process
+        from C++, and in-process that is Blender, with the user's unsaved work.
+        """
         app = QtWidgets.QApplication.instance()
         if app is None:
+            if sys.platform.startswith("linux"):
+                from uitk import Bootstrap
+
+                Bootstrap.configure_platform()
+                _QtHost._preflight_platform()
             app = QtWidgets.QApplication(sys.argv or ["blender"])
         return app
+
+    @staticmethod
+    def _preflight_platform():
+        """Raise (never abort) when Qt cannot start a GUI in this environment.
+
+        Starts a QApplication in a CHILD of Blender's own python, with this
+        process's import path and platform settings: if the child dies, so would
+        Blender. The error names what Linux usually lacks.
+
+        Raises:
+            QtPlatformUnavailable: The child failed, or could not be run at all.
+                The launcher shows it in a popup (``Tcl._launch_blender``).
+        """
+        import subprocess
+
+        code = (
+            "import sys; from qtpy import QtWidgets; "
+            "QtWidgets.QApplication(sys.argv[:1]); print('ok')"
+        )
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join(p for p in sys.path if p))
+        try:
+            probe = subprocess.run(
+                [_QtBootstrap.blender_python_exe(), "-c", code],
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+        except (OSError, subprocess.SubprocessError) as e:
+            raise QtPlatformUnavailable(
+                "tentacle: could not test whether Qt can open a window here, so the "
+                f"marking menu is off: {e}"
+            ) from e
+        if probe.returncode != 0 or "ok" not in probe.stdout:
+            raise QtPlatformUnavailable(
+                "tentacle: Qt cannot open a window here, so the marking menu is off "
+                f"(QT_QPA_PLATFORM={os.environ.get('QT_QPA_PLATFORM', '')!r}).\n"
+                f"{probe.stderr.strip()[-800:]}\n"
+                "On Linux, Qt's X11 plug-in needs: libxcb-cursor0 libxkbcommon-x11-0 "
+                "libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0."
+            )
 
     @staticmethod
     def ensure_widget(app):
@@ -636,6 +697,17 @@ class _QtHost:
                 return interval
             pumping["now"] = True
             try:
+                if sys.platform.startswith("linux"):
+                    # X11/Wayland: Qt reads its OWN display connection, which
+                    # only its dispatcher services -- nothing of Blender's
+                    # dispatches Qt input, paints or timers here, so run Qt's
+                    # loop, briefly. It touches Qt's event sources alone, never
+                    # Blender's. Linux only, matching ensure_qapp: on macOS Qt
+                    # and Blender share one NSApplication event queue, so
+                    # draining it re-enters Blender -- the Windows hazard above.
+                    QtCore.QCoreApplication.processEvents(
+                        QtCore.QEventLoop.AllEvents, 5
+                    )
                 QtCore.QCoreApplication.sendPostedEvents()
                 # deleteLater() garbage: posted at a loop level no plain flush matches,
                 # so it must be requested explicitly — the plugin-embed idiom.
@@ -1262,8 +1334,25 @@ class _KeymapBridge:
         the gesture is still armed (``_activation_key_held``) **or** the overlay is visible while
         holding the mouse grab (the half-failed-press signature; the grab gate keeps programmatic
         ``show()`` — harnesses, tools — untouched), complete the release. ``drive_release``
-        is idempotent and hiding auto-releases the Qt grab."""
+        is idempotent and hiding auto-releases the Qt grab.
+
+        Off Windows there is no key-state source to poll (Wayland has none), so only the
+        throttled rebind scan runs -- a key rebound in Preferences ▸ Keymap is still adopted."""
         if sys.platform != "win32":
+            import bpy
+
+            cls.uninstall_poller()
+
+            def _rebind_scan():
+                try:
+                    cls.sync_keymap_rebind(tcl)
+                except Exception as error:  # a raising bpy timer unregisters itself
+                    if _Config.DEBUG:
+                        print(f"tentacle: rebind scan failed → {error!r}")
+                return 1.0
+
+            bpy.app.timers.register(_rebind_scan, persistent=True)
+            cls.poller = _rebind_scan
             return
         import bpy
         import ctypes

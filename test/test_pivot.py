@@ -58,7 +58,7 @@ class TestTb001CenterPivot(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
         # Capture the real xform — install the stub later, after each test
         # has built its scene, so cmds.polyCube doesn't get intercepted.
         self._original_xform = cmds.xform
@@ -127,7 +127,7 @@ class TestTb003WorldAlignedPivot(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
         # tb003 posts message_box feedback on success (added post-redesign) —
         # stub sb so the bare __new__ instance can run it headlessly.
         self.instance.sb = _FakeSb()
@@ -183,7 +183,7 @@ class TestTb002TransferPivot(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
         import mayatk as mtk
 
         self._original = mtk.transfer_pivot
@@ -235,7 +235,7 @@ class TestB004BakePivot(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
         import mayatk as mtk
         self._original = mtk.bake_pivot
         self.captured = []
@@ -314,7 +314,7 @@ class TestTb002Defaults(unittest.TestCase):
     """
 
     def setUp(self):
-        self.instance = pivot_module.Pivot.__new__(pivot_module.Pivot)
+        self.instance = pivot_module.PivotSlots.__new__(pivot_module.PivotSlots)
         self.instance.sb = _FakeSb()
         self.instance.sb.tooltip = _FakeTooltip()
         self.widget = _RecordingWidget()

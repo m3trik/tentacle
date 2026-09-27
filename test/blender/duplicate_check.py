@@ -8,7 +8,7 @@ Blender (never an existing session)::
     blender --background --factory-startup --python tentacle/test/blender/duplicate_check.py
 
 Mirrors ``test/test_duplicate.py`` (the Maya-side regression suite, real ``maya.cmds``) with
-real ``bpy.data`` objects and fake option-box widgets — no Qt needed, since ``Duplicate.__new__``
+real ``bpy.data`` objects and fake option-box widgets — no Qt needed, since ``DuplicateSlots.__new__``
 bypasses ``__init__`` (the same trick the Maya tests use).
 
 The tb001 cases exist to prove, against real ``bpy``, the exact bug class fixed on the Maya
@@ -55,10 +55,10 @@ try:
     import bpy
     import blendertk as btk
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for slot imports
-    from tentacle.slots.blender.duplicate import Duplicate
+    from tentacle.slots.blender.duplicate import DuplicateSlots
 
     def make_slot():
-        slot = Duplicate.__new__(Duplicate)
+        slot = DuplicateSlots.__new__(DuplicateSlots)
         captured = []
         slot.sb = NS(message_box=lambda *a, **k: captured.append((a, k)), messages=captured)
         return slot

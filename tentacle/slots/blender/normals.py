@@ -1,10 +1,10 @@
 # !/usr/bin/python
 # coding=utf-8
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import NormalsMixin, SlotsBlender
 
 
-class Normals(SlotsBlender):
+class NormalsSlots(NormalsMixin, SlotsBlender):
     """Blender port of the shared ``normals`` menu.
 
     Backed by ``blendertk.edit_utils`` normal/shading helpers (bmesh): soften/harden (smooth vs
@@ -116,27 +116,6 @@ class Normals(SlotsBlender):
         btk.set_shading(self.selected_objects(), smooth=False)
 
     # ------------------------------------------------------------------ tb010  Reverse Normals
-    def tb010_init(self, widget):
-        """Maya's five ``polyNormal`` modes, 1:1 (same items, same default index) — the
-        Recalculate Outside/Inside items the Blender combo used to carry instead live on in
-        Conform's engine (recalc is how consistency is built). Propagate/Conform/Extract are
-        ``btk.EditUtils`` shell-walk primitives (no native ``bpy.ops`` covers them)."""
-        if not widget.is_initialized:
-            widget.option_box.menu.setTitle("Reverse Normals")
-            widget.option_box.menu.add(
-                "QComboBox",
-                setObjectName="cmb000",
-                addItems=[
-                    "Reverse",
-                    "Propagate",
-                    "Conform",
-                    "Reverse and Extract",
-                    "Reverse and Propagate",
-                ],
-                setCurrentIndex=3,
-                setToolTip="Normal operation mode.",
-            )
-
     @btk.undoable
     def tb010(self, widget):
         """Reverse Normals (Maya polyNormal modes: Reverse / Propagate / Conform /

@@ -3,10 +3,10 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import NurbsMixin, SlotsMaya
 
 
-class Nurbs(SlotsMaya):
+class NurbsSlots(NurbsMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -53,19 +53,6 @@ class Nurbs(SlotsMaya):
             ("Extend on Surface", "ExtendCurveOnSurface"),
         ],
     }
-
-    def list000_init(self, widget):
-        """Initialize Nurbs expandable list (categories → curve actions)."""
-        widget.fixed_item_height = 18
-        widget.apply_preset(
-            "expand_overlay" if widget.ui.has_tags("submenu") else "hover_menu"
-        )
-
-        root = widget.add("Nurbs")
-
-        for category, items in self._LIST000_COMMANDS.items():
-            cat = root.sublist.add(category)
-            cat.sublist.add([label for label, _ in items])
 
     @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):

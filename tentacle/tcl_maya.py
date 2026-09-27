@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
 import mayatk as mtk
-from uitk import MarkingMenu, ExternalAppHandler
+from uitk import MarkingMenu, ExternalAppHandler, ShortcutManager
 
 from tentacle.tcl import Tcl
 
@@ -17,6 +17,9 @@ class TclMaya(MarkingMenu):
                 parent = mtk.get_main_window()
             except Exception as error:
                 print(f"Error getting main window: {error}")
+        # Maya's main window owns application-scoped shortcuts (it is always up);
+        # uitk names no host, so the host declares it.
+        ShortcutManager.register_host_window("MayaWindow")
 
         # The key the user last CHOSE (persisted) > key_show (this install's default) >
         # Tcl.DEFAULT_KEY — see Tcl.resolve_key. context_tags must match the set passed

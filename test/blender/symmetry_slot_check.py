@@ -6,7 +6,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/symmetry_slot_check.py
 
-Drives the real ``Symmetry`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
+Drives the real ``SymmetrySlots`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
 can't load headless): axis flags (``use_mirror_x/y/z``), Topo matching (``use_mirror_topology``),
 and the chk004 position radio — selecting it must clear topology matching, deselecting it must be
 a no-op (radio signal ordering: Topo handles its own activation).
@@ -62,9 +62,9 @@ def add_cube(name):
 try:
     import bpy
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.symmetry import Symmetry
+    from tentacle.slots.blender.symmetry import SymmetrySlots
 
-    slot = make_slot(Symmetry)
+    slot = make_slot(SymmetrySlots)
 
     # chk000/1/2 set the matching mirror flag on every selected mesh
     reset()

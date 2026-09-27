@@ -16,7 +16,7 @@ per-DCC panel labelling, which spans Maya *and* Blender — see
 (A prior b002 "Autosave Delete All" handler was removed 2026-07-02 as dead code;
 b002 was briefly reused 2026-07-04 for a "Match Style" push-button, then that was
 replaced the same day by the cmb003 combo — a theme selector mirroring the app's
-native theme dropdown. See Preferences.cmb003 here and in slots/blender/preferences.py.)
+native theme dropdown. See PreferencesSlots.cmb003 here and in slots/blender/preferences.py.)
 """
 
 import ast
@@ -66,8 +66,8 @@ class TestCmb001SetLinearUnit(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = preferences_module.Preferences.__new__(
-            preferences_module.Preferences
+        self.instance = preferences_module.PreferencesSlots.__new__(
+            preferences_module.PreferencesSlots
         )
         self._orig = cmds.currentUnit
         self.calls = []
@@ -95,8 +95,8 @@ class TestCmb002SetTimeUnit(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = preferences_module.Preferences.__new__(
-            preferences_module.Preferences
+        self.instance = preferences_module.PreferencesSlots.__new__(
+            preferences_module.PreferencesSlots
         )
         self._orig = cmds.currentUnit
         self.calls = []
@@ -151,8 +151,8 @@ class TestCmb003StyleSelector(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = preferences_module.Preferences.__new__(
-            preferences_module.Preferences
+        self.instance = preferences_module.PreferencesSlots.__new__(
+            preferences_module.PreferencesSlots
         )
 
     def tearDown(self):
@@ -325,7 +325,7 @@ class TestPreferencesMixin(unittest.TestCase):
 
 
 class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
-    """Both DCCs' ``Preferences`` must list ``PreferencesMixin`` as a base.
+    """Both DCCs' ``PreferencesSlots`` must list ``PreferencesMixin`` as a base.
 
     Read via AST so neither DCC needs to be importable — dropping the mixin from
     one host silently removes its two theme combos from that panel.
@@ -338,7 +338,7 @@ class TestPreferencesSlotsInheritThemeMixin(unittest.TestCase):
         cls = next(
             c
             for c in ast.walk(tree)
-            if isinstance(c, ast.ClassDef) and c.name == "Preferences"
+            if isinstance(c, ast.ClassDef) and c.name == "PreferencesSlots"
         )
         return [b.id for b in cls.bases if isinstance(b, ast.Name)]
 
@@ -364,7 +364,7 @@ def _init_label_writes(dcc):
         (
             fn
             for cls in ast.walk(tree)
-            if isinstance(cls, ast.ClassDef) and cls.name == "Preferences"
+            if isinstance(cls, ast.ClassDef) and cls.name == "PreferencesSlots"
             for fn in cls.body
             if isinstance(fn, ast.FunctionDef) and fn.name == "__init__"
         ),
@@ -625,7 +625,7 @@ class TestPreferencesForksSupplyTheEngine(unittest.TestCase):
         return next(
             c
             for c in ast.walk(tree)
-            if isinstance(c, ast.ClassDef) and c.name == "Preferences"
+            if isinstance(c, ast.ClassDef) and c.name == "PreferencesSlots"
         )
 
     def test_each_fork_sets_the_macros_engine(self):

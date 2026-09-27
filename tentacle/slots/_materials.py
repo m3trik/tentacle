@@ -262,3 +262,40 @@ class MaterialsMixin:
             )
             return self.select_by_mat(shell=True, unassigned=True)
         return self.select_by_mat(shell=True, get_first=True)
+
+    def list001_init(self, widget):
+        """Tools list: Setup / Conversion / External (mirrors prior header sections).
+
+        Uses ``expand_up`` in the submenu so the categories sublist overlays
+        the root's lower-left corner (the sublist's last item lines up with
+        the ``Tools`` trigger button), and deeper item sublists fan right.
+        In the panel the list is a body row whose flyouts fan right on hover.
+
+        Rows are plain labels dispatched by ``list001``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb001's
+        report scope/filters, tb002's scope + transparency mode), which is
+        lost on a plain label, so those are added as real slot-wired widgets.
+        """
+        widget.fixed_item_height = 18
+        widget.apply_preset(
+            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
+        )
+
+        root = widget.add("Tools")
+
+        for category, items in self._TOOLS_ITEMS.items():
+            cat = root.sublist.add(category)
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    item = self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    item = cat.sublist.add(label, setToolTip=tooltip)
+                resolve_spec = self._EXTERNAL_APP_GATES.get(slot_name)
+                if resolve_spec is not None:
+                    self.gate_on_app(item, resolve_spec)

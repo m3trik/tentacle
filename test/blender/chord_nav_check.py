@@ -201,7 +201,7 @@ def _instrument():
     """Class-level logging shims on the hover-nav pipeline — installed BEFORE the
     MarkingMenu is constructed so even the timer-connected bound methods are wrapped.
     Logs every stage of a hover so a silently-swallowed hop is attributable."""
-    from uitk.widgets.marking_menu._marking_menu import MarkingMenu
+    from uitk import MarkingMenu
 
     from qtpy import QtGui
 

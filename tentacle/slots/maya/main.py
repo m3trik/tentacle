@@ -8,7 +8,7 @@ import mayatk as mtk
 from tentacle import MainMixin, SlotsMaya
 
 
-class Main(MainMixin, SlotsMaya):
+class MainSlots(MainMixin, SlotsMaya):
     def __init__(self, switchboard):
         super().__init__(switchboard)
 
@@ -121,18 +121,7 @@ class Main(MainMixin, SlotsMaya):
     def list000(self, item):
         """Workspace tab dispatch — editing actions, recent-workspace selection,
         and directory-browser entries."""
-        data = item.item_data()
-        if data == "__set_dir__":
-            self._set_workspace_interactive()
-        elif data == "__auto__":
-            self._auto_set_workspace()
-        elif data == "__editor__":
-            self._open_workspace_editor()
-        elif isinstance(data, tuple) and data and data[0] == "__recent__":
-            self._set_workspace_from_path(data[1])
-        elif data and os.path.isdir(str(data)):
-            os.startfile(str(data))
-            self.sb.handlers.marking_menu.hide()
+        self._dispatch_workspace_item(item)
 
     # ------------------------------------------------------------------ workspace editing
 

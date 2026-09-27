@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import html
-import os
 
 import maya.cmds as cmds
 import mayatk as mtk
@@ -11,7 +10,7 @@ from maya.utils import executeDeferred
 from tentacle import SettingsMixin, SlotsMaya
 
 
-class Settings(SettingsMixin, SlotsMaya):
+class SettingsSlots(SettingsMixin, SlotsMaya):
     """Maya fork of the shared ``settings`` menu.
 
     Everything DCC-agnostic (header Package menu, the ecosystem updater, editor
@@ -27,7 +26,7 @@ class Settings(SettingsMixin, SlotsMaya):
 
     def _update_python_path(self) -> str:
         """The interpreter whose environment the updater checks and upgrades."""
-        return os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
+        return mtk.get_env_info("mayapy")
 
     def tb001(self):
         """Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).

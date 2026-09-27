@@ -131,11 +131,11 @@ try:
             bpy.data.objects.remove(o, do_unlink=True)
 
     # ================================================================ selection
-    from tentacle.slots.blender.selection import Selection
+    from tentacle.slots.blender.selection import SelectionSlots
 
     # -- chk005-007 Select Style: the reported bug --
     ui = _Ui(chk005=chk(), chk006=chk(), chk007=chk())
-    slot = make_slot(Selection, ui)
+    slot = make_slot(SelectionSlots, ui)
     for n in ("chk005", "chk006", "chk007"):  # uitk inits each registered widget
         getattr(slot, f"{n}_init")(getattr(ui, n))
     assert_quiet_init("selection chk005-7 (Select Style)", slot, ui, ("chk005", "chk006", "chk007"))
@@ -162,7 +162,7 @@ try:
         for xray, expect in ((True, False), (False, True)):
             areas[0].spaces.active.shading.show_xray = xray
             ui = _Ui(chk004=chk())
-            slot = make_slot(Selection, ui)
+            slot = make_slot(SelectionSlots, ui)
             slot.chk004_init(ui.chk004)
             check(
                 f"selection chk004: seeds Ignore-Backfacing={expect} from live show_xray={xray}",
@@ -178,11 +178,11 @@ try:
     #    ``checkable`` (for the Maya fork's toggles) must be cleared so a press can't read "on" --
     from uitk.managers.icon_manager import IconManager
 
-    row = {n: QtWidgets.QPushButton() for n in Selection._CONSTRAINT_BUTTONS}
+    row = {n: QtWidgets.QPushButton() for n in SelectionSlots._CONSTRAINT_BUTTONS}
     for b in row.values():
         b.setCheckable(True)  # as the shared selection.ui declares
     ui = _Ui(**row)
-    slot = make_slot(Selection, ui)
+    slot = make_slot(SelectionSlots, ui)
     slot.sb.IconManager = IconManager  # _init_constraint_button reaches it via sb
     for n, b in row.items():
         getattr(slot, f"{n}_init")(b)
@@ -200,7 +200,7 @@ try:
     check("selection b002-b007: init fires no slot", not ui.fired, f"{ui.fired}")
 
     # ================================================================ symmetry
-    from tentacle.slots.blender.symmetry import Symmetry
+    from tentacle.slots.blender.symmetry import SymmetrySlots
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()
@@ -212,7 +212,7 @@ try:
         for a in "xyz":
             cube.data.__setattr__(f"use_mirror_{a}", a == axis)
         ui = _Ui(chk000=chk(), chk001=chk(), chk002=chk())
-        slot = make_slot(Symmetry, ui)
+        slot = make_slot(SymmetrySlots, ui)
         for n in ("chk000", "chk001", "chk002"):
             getattr(slot, f"{n}_init")(getattr(ui, n))
         checked = [n for n in ("chk000", "chk001", "chk002") if getattr(ui, n).isChecked()]
@@ -227,7 +227,7 @@ try:
     for a in "xyz":
         cube.data.__setattr__(f"use_mirror_{a}", True)
     ui = _Ui(chk000=chk(), chk001=chk(), chk002=chk())
-    slot = make_slot(Symmetry, ui)
+    slot = make_slot(SymmetrySlots, ui)
     slot.chk000_init(ui.chk000)
     n_checked = sum(getattr(ui, n).isChecked() for n in ("chk000", "chk001", "chk002"))
     check(
@@ -240,7 +240,7 @@ try:
     for topo, expect in ((True, "chk005"), (False, "chk004")):
         cube.data.use_mirror_topology = topo
         ui = _Ui(chk004=chk(), chk005=chk())
-        slot = make_slot(Symmetry, ui)
+        slot = make_slot(SymmetrySlots, ui)
         for n in ("chk004", "chk005"):
             getattr(slot, f"{n}_init")(getattr(ui, n))
         checked = [n for n in ("chk004", "chk005") if getattr(ui, n).isChecked()]
@@ -257,9 +257,9 @@ try:
     # so a chk005_init that marked its siblings would land too late to stop chk006 restoring
     # (and toasting "Lasso Select tool active"). Same for symmetry's chk001/chk002/chk004.
     for cls, group in (
-        (Selection, ("chk005", "chk006", "chk007")),
-        (Symmetry, ("chk000", "chk001", "chk002")),
-        (Symmetry, ("chk004", "chk005")),
+        (SelectionSlots, ("chk005", "chk006", "chk007")),
+        (SymmetrySlots, ("chk000", "chk001", "chk002")),
+        (SymmetrySlots, ("chk004", "chk005")),
     ):
         for name in group:
             ui = _Ui(**{n: chk() for n in group})
@@ -273,7 +273,7 @@ try:
             )
 
     # ================================================================ subdivision
-    from tentacle.slots.blender.subdivision import Subdivision
+    from tentacle.slots.blender.subdivision import SubdivisionSlots
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()
@@ -282,7 +282,7 @@ try:
     mod.levels, mod.render_levels = 2, 4
 
     ui = _Ui(s000=QtWidgets.QSpinBox(), s001=QtWidgets.QSpinBox())
-    slot = make_slot(Subdivision, ui)
+    slot = make_slot(SubdivisionSlots, ui)
     slot.s000_init(ui.s000)
     slot.s001_init(ui.s001)
     check("subdivision s000: seeds viewport level 2 from the live SUBSURF modifier",
@@ -294,7 +294,7 @@ try:
     # No modifier -> nothing to mirror; must not invent a level or fire.
     obj.modifiers.remove(mod)
     ui = _Ui(s000=QtWidgets.QSpinBox(), s001=QtWidgets.QSpinBox())
-    slot = make_slot(Subdivision, ui)
+    slot = make_slot(SubdivisionSlots, ui)
     slot.s000_init(ui.s000)
     slot.s001_init(ui.s001)
     assert_quiet_init("subdivision (no SUBSURF modifier)", slot, ui, ("s000", "s001"))
@@ -303,6 +303,8 @@ try:
     from tentacle.slots.blender.transform import TransformSlots as Transform
 
     for snap in (True, False):
+        # chk023 mirrors the EFFECTIVE state: snapping on AND the rotate kind.
+        bpy.context.scene.tool_settings.use_snap = snap
         bpy.context.scene.tool_settings.use_snap_rotate = snap
         ui = _Ui(chk023=chk())
         slot = make_slot(Transform, ui)
@@ -315,14 +317,14 @@ try:
         assert_quiet_init(f"transform chk023 (snap={snap})", slot, ui, ("chk023",))
 
     # ================================================================ preferences
-    from tentacle.slots.blender.preferences import Preferences
+    from tentacle.slots.blender.preferences import PreferencesSlots
 
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.length_unit = "CENTIMETERS"
     bpy.context.scene.render.fps = 30
 
     ui = _Ui(cmb001=ComboBox(), cmb002=ComboBox())  # real widget — see the cmb005 note
-    slot = make_slot(Preferences, ui)
+    slot = make_slot(PreferencesSlots, ui)
     slot.cmb001_init(ui.cmb001)
     slot.cmb002_init(ui.cmb002)
     check(

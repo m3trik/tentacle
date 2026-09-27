@@ -5,7 +5,7 @@ import mayatk as mtk
 from tentacle import SlotsMaya
 
 
-class Utilities(SlotsMaya):
+class UtilitiesSlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

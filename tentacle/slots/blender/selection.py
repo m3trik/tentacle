@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import SelectionMixin, SlotsBlender
 
 
-class Selection(SelectionMixin, SlotsBlender):
+class SelectionSlots(SelectionMixin, SlotsBlender):
     """Blender port of the shared ``selection`` menu.
 
     Per the capability map (BLENDER_PORT_PLAN §5), selection maps almost entirely to **native
@@ -667,17 +667,6 @@ class Selection(SelectionMixin, SlotsBlender):
         ]:
             mode.addItem(label, data)
 
-    def tb004(self, widget):
-        """Select by Type settings: open the scope/mode menu.
-
-        Wired to the button's ``clicked`` (register_widget), so the marking
-        menu — which fires a menu-hosted leaf's ``clicked`` at release-dispatch
-        (``MarkingMenu._handle_widget_action``) — opens it; ``list000`` also
-        calls this for the plain event-flow path. The two paths never both fire
-        for one interaction.
-        """
-        widget.menu.show_as_popup(anchor_widget=widget, position="cursorPos")
-
     def _by_type_scope_objects(self):
         """The object pool Select by Type filters from, per the tb004 scope.
 
@@ -693,11 +682,6 @@ class Selection(SelectionMixin, SlotsBlender):
             vl = bpy.context.view_layer
             return [o for o in vl.objects if o.visible_get(view_layer=vl)]
         return list(bpy.data.objects)
-
-    def _by_type_mode(self):
-        """The selection mode Select by Type applies, per the tb004 setting."""
-        menu = self.submenu.tb004.menu
-        return menu.cmb_bytype_mode.currentData() or "replace"
 
     @SlotsBlender.Signals("on_item_interacted")
     def list000(self, item):

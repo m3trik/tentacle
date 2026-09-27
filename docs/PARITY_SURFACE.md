@@ -140,7 +140,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | symmetry.py | 0 | 0 | 0 | 0 | 0 | OK |
 | transform.py | 0 | 0 | 10 | 0 | 1 | OK |
 | utilities.py | 0 | 0 | 0 | 0 | 0 | OK |
-| uv.py | 0 | 3 | 19 | 0 | 0 | open |
+| uv.py | 0 | 3 | 18 | 0 | 0 | open |
 
 ### Slot deltas
 
@@ -192,11 +192,6 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 #### transform.py
 **default/property deltas (review — a flipped default changes first-use behavior)**
   - `s023.setValue` maya=`0` blender=`None`
-
-#### uv.py
-**combo item deltas (review)**
-  - `cmb024` 3->3 items; missing=['Source: First Selected Mesh', 'Source: UV Set On Same Mesh'] extra=['Source: Active Mesh', 'Source: UV Map On Same Mesh']
-  - `cmb028` 3->3 items; missing=['Transfer: UV Set'] extra=['Transfer: UV Map']
 
 **[counterpart-set OK] 33 Maya-native-menu stubs** <-> blender.py (blender#startmenu -> BlenderNativeMenus.get_menu) — Maya-native-menu Qt clones (QAction harvest); Blender menus are Python classes, so blendertk harvests each menu's draw() into an equivalent QMenu (menu_harvest) hosted in the same wrapped MainWindow — full pin-header / hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu popup wrap from 2026-06-12)
 
