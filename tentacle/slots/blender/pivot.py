@@ -2,10 +2,10 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import PivotMixin, SlotsBlender
 
 
-class Pivot(SlotsBlender):
+class PivotSlots(PivotMixin, SlotsBlender):
     """Blender port of the shared ``pivot`` menu.
 
     Blender has a single object **origin** (no separate manipulator pivot, no per-channel
@@ -80,24 +80,6 @@ class Pivot(SlotsBlender):
         btk.center_pivot(objects, mode=mode)
 
     # ------------------------------------------------------------------ b000/b001/b002 shortcuts
-    def b000(self):
-        """Center Pivot: Object"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk003.setChecked(True)
-        self.ui.tb001.call_slot()
-
-    def b001(self):
-        """Center Pivot: Component"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk002.setChecked(True)
-        self.ui.tb001.call_slot()
-
-    def b002(self, widget):
-        """Center Pivot: World"""
-        self.ui.tb001.init_slot()
-        self.ui.tb001.option_box.menu.chk004.setChecked(True)
-        self.ui.tb001.call_slot()
-
     # ------------------------------------------------------------------ tb002  Transfer Pivot
     @btk.undoable
     def tb002_init(self, widget):

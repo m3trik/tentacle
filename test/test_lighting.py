@@ -36,13 +36,13 @@ class TestB000HdrManager(unittest.TestCase):
     """b000 shows the 'hdr_manager' marking menu."""
 
     def test_b000_routes_to_hdr_manager(self):
-        instance = lighting_module.Lighting.__new__(lighting_module.Lighting)
+        instance = lighting_module.LightingSlots.__new__(lighting_module.LightingSlots)
         instance.sb = _FakeSb()
         instance.b000()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["hdr_manager"])
 
     def test_b001_routes_to_lightmap_baker(self):
-        instance = lighting_module.Lighting.__new__(lighting_module.Lighting)
+        instance = lighting_module.LightingSlots.__new__(lighting_module.LightingSlots)
         instance.sb = _FakeSb()
         instance.b001()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["lightmap_baker"])

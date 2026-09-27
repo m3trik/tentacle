@@ -2,10 +2,10 @@
 # coding=utf-8
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import DuplicateMixin, SlotsBlender
 
 
-class Duplicate(SlotsBlender):
+class DuplicateSlots(DuplicateMixin, SlotsBlender):
     """Blender port of the shared ``duplicate`` menu.
 
     Maya "instances" (transforms sharing one shape) map onto Blender **linked duplicates**
@@ -27,26 +27,6 @@ class Duplicate(SlotsBlender):
         return objects
 
     # _ensure_object_mode was promoted to SlotsBlender.ensure_object_mode (pivot needed it too).
-
-    def header_init(self, widget):
-        # Every entry is a one-shot action — dismiss the menu once one is triggered.
-        widget.menu.hide_on_trigger = True
-        widget.menu.add(
-            "QPushButton", setText="Mirror", setObjectName="b000",
-            setToolTip="Open the mirror window.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Duplicate Linear", setObjectName="b006",
-            setToolTip="Open the duplicate linear window.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Duplicate Radial", setObjectName="b007",
-            setToolTip="Open the duplicate radial window.",
-        )
-        widget.menu.add(
-            "QPushButton", setText="Duplicate Grid", setObjectName="b008",
-            setToolTip="Open the duplicate grid window.",
-        )
 
     # ------------------------------------------------------------------ tb000  Convert to Instances
     def tb000_init(self, widget):

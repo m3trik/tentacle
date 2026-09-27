@@ -629,12 +629,14 @@ class TentacleInstaller:
         Called before a fresh record replaces it. The pins inside name packages that
         are really on disk, so the file is evidence for a hand-cleanup even though it
         cannot be merged. Best effort by design: failing to preserve it must not stop
-        the install that is trying to repair the situation.
+        the install that is trying to repair the situation. A sharing violation is
+        waited out first (:meth:`_patient`, the manifest write's own retry): skipping
+        the move on a moment's hold let the fresh write destroy the file.
         """
         path = cls.manifest_path(target)
         keep = path + ".corrupt"
         try:
-            os.replace(path, keep)
+            cls._patient(lambda: os.replace(path, keep))
             print(f"[tentacle] unreadable manifest preserved as {keep}")
         except OSError:
             pass

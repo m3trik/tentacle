@@ -3,7 +3,7 @@
 from tentacle import SlotsBlender
 
 
-class Symmetry(SlotsBlender):
+class SymmetrySlots(SlotsBlender):
     """Blender port of the shared ``symmetry`` menu.
 
     Maya's ``symmetricModelling`` tool maps directly onto Blender's per-mesh symmetry flags

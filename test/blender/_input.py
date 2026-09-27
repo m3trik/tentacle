@@ -21,10 +21,19 @@ Centralizes the fiddly bits every injection harness needs:
   Qt ``app`` on the GUI thread while the click runs off-thread (delivery to a Qt-over-Blender UI).
 """
 import os
+import sys
 import time
 import ctypes
 import threading
-from ctypes import wintypes
+
+if sys.platform != "win32":
+    raise ImportError(
+        "test/blender/_input.py injects REAL input through Win32 SendInput; the "
+        "real-input harnesses built on it run on Windows only (X11 would need "
+        "XTest, and Wayland has no portable equivalent)."
+    )
+
+from ctypes import wintypes  # noqa: E402  (Windows-only, after the guard)
 
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32

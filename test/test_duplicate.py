@@ -74,7 +74,7 @@ class TestTb000ConvertToInstancesGate(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance = duplicate_module.DuplicateSlots.__new__(duplicate_module.DuplicateSlots)
         self.instance.sb = _RecordedSb()
 
         # Capture mtk.replace_with_instances calls.
@@ -148,7 +148,7 @@ class TestTb001SelectInstancedRouting(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance = duplicate_module.DuplicateSlots.__new__(duplicate_module.DuplicateSlots)
         self.instance.sb = _RecordedSb()
 
         # Capture mtk.get_instances calls.
@@ -203,7 +203,7 @@ class TestTb001SelectInstancedIncludesOriginal(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance = duplicate_module.DuplicateSlots.__new__(duplicate_module.DuplicateSlots)
         self.instance.sb = _RecordedSb()
 
     def tearDown(self):
@@ -242,7 +242,7 @@ class TestTb002AutoInstanceRouting(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = duplicate_module.Duplicate.__new__(duplicate_module.Duplicate)
+        self.instance = duplicate_module.DuplicateSlots.__new__(duplicate_module.DuplicateSlots)
         self.instance.sb = _RecordedSb()
 
         import mayatk as mtk

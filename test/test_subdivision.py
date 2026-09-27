@@ -81,8 +81,8 @@ class TestMelDispatchButtons(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = subdivision_module.Subdivision.__new__(
-            subdivision_module.Subdivision
+        self.instance = subdivision_module.SubdivisionSlots.__new__(
+            subdivision_module.SubdivisionSlots
         )
         self._orig = mel.eval
         self.mel_calls = []
@@ -115,8 +115,8 @@ class TestSmoothPreviewSpinBoxes(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = subdivision_module.Subdivision.__new__(
-            subdivision_module.Subdivision
+        self.instance = subdivision_module.SubdivisionSlots.__new__(
+            subdivision_module.SubdivisionSlots
         )
         # stub sb so the bare __new__ instance can post feedback headlessly.
         self.instance.sb = _FakeSb()
@@ -245,8 +245,8 @@ class TestDecimateComponentScope(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = subdivision_module.Subdivision.__new__(
-            subdivision_module.Subdivision
+        self.instance = subdivision_module.SubdivisionSlots.__new__(
+            subdivision_module.SubdivisionSlots
         )
         self.instance.sb = _FakeSb()
 

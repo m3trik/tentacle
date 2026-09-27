@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import LightingMixin, SlotsBlender
 
 
-class Lighting(LightingMixin, SlotsBlender):
+class LightingSlots(LightingMixin, SlotsBlender):
     """Blender port of the shared ``lighting`` menu.
 
     HDR Manager opens the world-environment panel; the Lightmap Baker opens the

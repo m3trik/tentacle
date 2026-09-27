@@ -6,7 +6,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/rendering_slot_check.py
 
-Drives the real ``Rendering`` slot methods with a stubbed option-box menu (mirrors the fake
+Drives the real ``RenderingSlots`` slot methods with a stubbed option-box menu (mirrors the fake
 ``_Menu``/``_Combo``/``_Check`` widgets in ``tentacle/test/test_rendering_helpers.py``, the Maya
 counterpart of this file) but everything downstream is live ``bpy`` state:
 
@@ -46,7 +46,11 @@ def check(name, cond, detail=""):
 def make_slot(cls):
     """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
     slot = cls.__new__(cls)
-    slot.sb = NS(message_box=lambda *a, **k: None)
+    # tb000_init formats its tooltip through the switchboard's tooltip DSL.
+    slot.sb = NS(
+        message_box=lambda *a, **k: None,
+        tooltip=NS(fmt=lambda *a, **k: ""),
+    )
     return slot
 
 
@@ -207,9 +211,9 @@ try:
     import bpy
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
     from tentacle.slots.blender import rendering as rendering_module
-    from tentacle.slots.blender.rendering import Rendering
+    from tentacle.slots.blender.rendering import RenderingSlots
 
-    slot = make_slot(Rendering)
+    slot = make_slot(RenderingSlots)
 
     # ============================================================== cmb003 Renderer picker
     reset_scene()

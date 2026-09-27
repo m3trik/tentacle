@@ -588,54 +588,10 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         "b020": lambda: btk.SubstanceBridge.APP,
     }
 
-    def list001_init(self, widget):
-        """Tools list (Setup tools with a native Blender op).
-
-        Rows are plain labels dispatched by ``list001``, EXCEPT entries whose
-        slot defines an ``*_init``: that init builds the option box (tb001's
-        report scope/filters), which is lost on a plain label, so those are
-        added as real slot-wired widgets.
-        """
-        widget.fixed_item_height = 18
-        widget.apply_preset(
-            "expand_up" if widget.ui.has_tags("submenu") else "hover_menu"
-        )
-        root = widget.add("Tools")
-        for category, items in self._TOOLS_ITEMS.items():
-            cat = root.sublist.add(category)
-            for label, slot_name, *rest in items:
-                tooltip = rest[0] if rest else ""
-                if slot_name and hasattr(self, f"{slot_name}_init"):
-                    item = self.add_slot_widget(
-                        cat.sublist,
-                        setObjectName=slot_name,
-                        setText=label,
-                        setToolTip=tooltip,
-                    )
-                else:
-                    item = cat.sublist.add(label, setToolTip=tooltip)
-                resolve_spec = self._EXTERNAL_APP_GATES.get(slot_name)
-                if resolve_spec is not None:
-                    self.gate_on_app(item, resolve_spec)
-
     @SlotsBlender.Signals("on_item_interacted")
     def list001(self, item):
         """Dispatch a Tools-list selection to its slot method."""
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
-        text = item.item_text()
-        parent = item.parent_item_text() or ""
-        for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
-            if label == text:
-                slot = getattr(self, slot_name, None)
-                if not callable(slot):
-                    return
-                # Slots vary: some take the invoking widget, some take none.
-                try:
-                    slot(item)
-                except TypeError:
-                    slot()
-                return
+        self._dispatch_tools_row(item)
 
     # ------------------------------------------------------------------ b-slots (assign / get)
     def _selection_mats(self):

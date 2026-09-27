@@ -547,7 +547,7 @@ class TestAnimationSharedText(unittest.TestCase):
                 bases = [
                     b.id
                     for node in ast.walk(_parse(path))
-                    if isinstance(node, ast.ClassDef) and node.name == "Animation"
+                    if isinstance(node, ast.ClassDef) and node.name == "AnimationSlots"
                     for b in node.bases
                     if isinstance(b, ast.Name)
                 ]
@@ -870,7 +870,7 @@ class TestTb021RepairScope(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = animation_module.Animation.__new__(animation_module.Animation)
+        self.instance = animation_module.AnimationSlots.__new__(animation_module.AnimationSlots)
         self.instance.sb = _RecordedSb()
 
     def tearDown(self):
@@ -994,7 +994,7 @@ class TestAnimationModuleImport(unittest.TestCase):
 
     def test_module_imports_cleanly(self):
         self.assertIsNotNone(animation_module)
-        self.assertTrue(hasattr(animation_module, "Animation"))
+        self.assertTrue(hasattr(animation_module, "AnimationSlots"))
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
@@ -1010,12 +1010,12 @@ class TestAnimationSlotRoster(unittest.TestCase):
     EXPECTED_B_SLOTS = ["b000", "b004", "b005"]
 
     def test_all_tb_slots_present(self):
-        cls = animation_module.Animation
+        cls = animation_module.AnimationSlots
         missing = [name for name in self.EXPECTED_TB_SLOTS if not hasattr(cls, name)]
         self.assertEqual(missing, [], f"Animation is missing tb slots: {missing}")
 
     def test_all_tb_slot_inits_present(self):
-        cls = animation_module.Animation
+        cls = animation_module.AnimationSlots
         missing = [
             f"{name}_init"
             for name in self.EXPECTED_TB_SLOTS
@@ -1024,7 +1024,7 @@ class TestAnimationSlotRoster(unittest.TestCase):
         self.assertEqual(missing, [], f"Animation is missing init handlers: {missing}")
 
     def test_all_b_slots_present(self):
-        cls = animation_module.Animation
+        cls = animation_module.AnimationSlots
         missing = [name for name in self.EXPECTED_B_SLOTS if not hasattr(cls, name)]
         self.assertEqual(missing, [], f"Animation is missing b slots: {missing}")
 
@@ -1037,7 +1037,7 @@ class TestAnimationSlotRoster(unittest.TestCase):
         (plus a non-empty roster) catches an accidental removal the same way
         the old header assertion did.
         """
-        cls = animation_module.Animation
+        cls = animation_module.AnimationSlots
         self.assertTrue(hasattr(cls, "list000_init"))
         self.assertTrue(hasattr(cls, "list000"))
         self.assertTrue(cls._TOOLS_ITEMS, "the Tools list roster must not be empty")
@@ -1061,7 +1061,7 @@ class TestTb017StepKeysModeTranslation(unittest.TestCase):
     def setUp(self):
         cmds.file(new=True, force=True)
         # Bypass __init__; just need the method bound.
-        self.instance = animation_module.Animation.__new__(animation_module.Animation)
+        self.instance = animation_module.AnimationSlots.__new__(animation_module.AnimationSlots)
         self.instance.sb = _RecordedSb()
 
         # Patch out the mtk call so we can capture its `keys` argument.

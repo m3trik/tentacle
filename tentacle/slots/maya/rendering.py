@@ -8,9 +8,10 @@ import maya.mel as mel
 
 from tentacle import RenderingMixin, SlotsMaya
 import mayatk as mtk
+import pythontk as ptk
 
 
-class Rendering(RenderingMixin, SlotsMaya):
+class RenderingSlots(RenderingMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -323,10 +324,8 @@ class Rendering(RenderingMixin, SlotsMaya):
                     movie_outputs.append(result.output)
 
         if menu.chk058.isChecked() and movie_outputs:
-            try:
-                os.startfile(os.path.normpath(movie_outputs[0]))
-            except (OSError, AttributeError):  # AttributeError: non-Windows
-                pass
+            # The OS's default player (xdg-open on Linux); best-effort.
+            ptk.FileUtils.open_explorer(os.path.normpath(movie_outputs[0]))
 
         if errors:
             self.sb.message_box(

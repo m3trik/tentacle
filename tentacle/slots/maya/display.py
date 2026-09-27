@@ -3,26 +3,15 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import DisplayMixin, SlotsMaya
 
 
-class DisplaySlots(SlotsMaya):
+class DisplaySlots(DisplayMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.ui = self.sb.loaded_ui.display
         self.submenu = self.sb.loaded_ui.display_submenu
-
-    def header_init(self, widget):
-        """Header menu: the submenu's Display expandable list — hover a row to
-        fan its flyout right (the shared list000_init applies the hover_menu
-        preset here)."""
-        # List leaves are one-shot actions — dismiss the menu once one is
-        # triggered (category rows only navigate).
-        widget.menu.hide_on_trigger = True
-        widget.menu.add(
-            self.sb.registered_widgets.ExpandableList, setObjectName="list000"
-        )
 
     # --- Display Expandable List ----------------------------------------
 
@@ -60,36 +49,10 @@ class DisplaySlots(SlotsMaya):
         ],
     }
 
-    def list000_init(self, widget):
-        """Initialize Display expandable list (categories → actions)."""
-        widget.fixed_item_height = 18
-        widget.apply_preset(
-            "expand_overlay_left" if widget.ui.has_tags("submenu") else "hover_menu"
-        )
-
-        root = widget.add("Display")
-
-        for category, items in self._LIST000_ITEMS.items():
-            cat = root.sublist.add(category)
-            cat.sublist.add([label for label, _ in items])
-
     @SlotsMaya.Signals("on_item_interacted")
     def list000(self, item):
         """Dispatch a Display action and report state via message_box."""
-        if getattr(item, "sublist", None) and item.sublist.get_items():
-            return
-
-        text = item.item_text()
-        parent = item.parent_item_text() or ""
-
-        for label, handler_name in self._LIST000_ITEMS.get(parent, ()):
-            if label == text:
-                handler = getattr(self, handler_name, None)
-                if callable(handler):
-                    msg = handler()
-                    if msg:
-                        self.sb.message_box(msg)
-                return
+        self._dispatch_display_item(item)
 
     # --- List wrappers (return formatted state message) -----------------
 

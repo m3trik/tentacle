@@ -6,7 +6,7 @@ import sys
 from tentacle import SettingsMixin, SlotsBlender
 
 
-class Settings(SettingsMixin, SlotsBlender):
+class SettingsSlots(SettingsMixin, SlotsBlender):
     """Blender fork of the shared ``settings`` menu.
 
     Everything DCC-agnostic (header Package menu, the ecosystem updater, editor

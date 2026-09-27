@@ -2,7 +2,6 @@
 # coding=utf-8
 import maya.cmds as cmds
 import maya.mel as mel
-import pythontk as ptk
 import mayatk as mtk
 from tentacle import SlotsMaya
 
@@ -146,42 +145,45 @@ class PolygonsSlots(SlotsMaya):
             setObjectName="chk002",
             setChecked=True,
             set_fixed_height=20,
-            setToolTip="Keep edges/faces together.",
+            setToolTip=(
+                "Extrude connected faces/edges as one region.<br>"
+                "Off: each face extrudes on its own, and the manip's local Z "
+                "pushes every face along its own normal."
+            ),
         )
         widget.option_box.menu.add(
             "QSpinBox",
             setPrefix="Divisions: ",
             setObjectName="s004",
-            set_limits=[0],
+            set_limits=[1],
             setValue=1,
             set_fixed_height=20,
             setToolTip="Subdivision Amount.",
         )
 
     def tb003(self, widget):
-        """Extrude: push out the selected faces, edges, or vertices."""
-        keepFacesTogether = widget.option_box.menu.chk002.isChecked()
-        divisions = widget.option_box.menu.s004.value()
+        """Extrude the selected faces, edges or vertices (an object extrudes its faces).
 
-        selection = cmds.ls(sl=1) or []
-        if not selection:
+        Runs Maya's own Extrude, which classifies the actual selection (so it
+        works under any selection mask, multi-component included), batches per
+        object, sets the pivot and leaves the extrude manip up. It reads its
+        settings from optionVars, so the option box's values are swapped in for
+        the call and Maya's own Extrude settings restored after.
+        """
+        if not cmds.ls(sl=1):
             return self.sb.message_box(
-                "<strong>Nothing selected</strong>.<br>Operation requires a component selection."
+                "<strong>Nothing selected</strong>.<br>Operation requires a mesh or component selection."
             )
-        if cmds.selectType(q=True, facet=1):  # face selection
-            cmds.polyExtrudeFacet(
-                edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
-            )
-            mel.eval("PolyExtrude")
-
-        elif cmds.selectType(q=True, edge=1):  # edge selection
-            cmds.polyExtrudeEdge(
-                edit=1, keepFacesTogether=keepFacesTogether, divisions=divisions
-            )
-            mel.eval("PolyExtrude")
-
-        elif cmds.selectType(q=True, vertex=1):  # vertex selection
-            cmds.polyExtrudeVertex(edit=1, width=0.5, length=1, divisions=divisions)
+        menu = widget.option_box.menu
+        divisions = menu.s004.value()
+        with mtk.CoreUtils.temp_option_vars(
+            {
+                "polyKeepFacetsGrouped": menu.chk002.isChecked(),
+                "polyExtrudeFaceDivisions": divisions,
+                "polyExtrudeEdgeDivisions": divisions,
+                "polyExtrudeVertexDivisions": divisions,
+            }
+        ):
             mel.eval("PolyExtrude")
 
     def tb004_init(self, widget):
@@ -561,10 +563,33 @@ class PolygonsSlots(SlotsMaya):
         cmds.targetWeldCtx("polyMergeVertexContext", edit=True, mergeToCenter=True)
         mel.eval("MergeVertexTool")
 
+    @mtk.undoable
     def b009(self):
-        """Collapse Component"""
-        if cmds.selectType(q=True, facet=1):
-            mel.eval("PolygonCollapse")
+        """Collapse Component: faces each to their own point, edges/verts to one center."""
+        # Route on the selection, not the selectType mask: the multi-component
+        # mask names no type, so faces fell through to MergeToCenter (one point
+        # for all) -- and Maya's own PolygonCollapse is mask-gated too.
+        if not cmds.filterExpand(selectionMask=(31, 32, 34), expand=False):
+            # MergeToCenter would turn an object pick into ALL of its verts.
+            return self.sb.message_box(
+                "<strong>Nothing to collapse</strong>.<br>Select faces, edges or vertices."
+            )
+        # Picks through several instances name one shape's faces more than once;
+        # fold them onto one path first, as Maya's own poly actions do.
+        if cmds.filterInstances(q=True, shapes=True):
+            cmds.select(cmds.filterInstances(shapes=True), replace=True)
+        faces = cmds.filterExpand(selectionMask=34, expand=False)
+        if faces:
+            left = cmds.filterExpand(selectionMask=(31, 32), expand=False)
+            history = cmds.constructionHistory(q=True, toggle=True)
+            by_object = mtk.Components.map_components_to_objects(faces)
+            for object_faces in by_object.values():  # refuses multi-object lists
+                cmds.polyCollapseFacet(object_faces, constructionHistory=history)
+            if left:  # read before the collapse replaced the selection
+                self.sb.message_box(
+                    "Collapsed the selected faces; the edges and vertices picked "
+                    "with them were left as they are."
+                )
         else:
             was_edge_selected = cmds.selectType(q=True, edge=True)
             mel.eval("MergeToCenter")

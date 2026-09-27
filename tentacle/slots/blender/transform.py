@@ -4,10 +4,10 @@ import math
 
 import bpy
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import TransformMixin, SlotsBlender
 
 
-class TransformSlots(SlotsBlender):
+class TransformSlots(TransformMixin, SlotsBlender):
     """Blender port of the shared ``transform`` menu.
 
     The object-transform ops (drop-to-grid, freeze/un-freeze, move-to, match-scale,
@@ -411,16 +411,6 @@ class TransformSlots(SlotsBlender):
         tb.option_box.menu.s023.setEnabled(state)
 
     # ------------------------------------------------------------------ tb001  Scale Connected Edges
-    def tb001_init(self, widget):
-        widget.option_box.menu.add(
-            "QDoubleSpinBox",
-            setObjectName="s001",
-            setPrefix="Scale Factor:",
-            setValue=1.1,
-            set_limits=[-999, 999, 0.1],
-            setToolTip="Scale factor to apply to scaling by as a percentage.",
-        )
-
     @btk.undoable
     def tb001(self, widget):
         """Scale Connected Edges (each connected set of selected edges scales about its

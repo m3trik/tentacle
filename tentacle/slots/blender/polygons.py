@@ -165,7 +165,8 @@ class PolygonsSlots(SlotsBlender):
             self.sb.message_box(str(e))
 
     def tb003_init(self, widget):
-        # chk002 / s004 reuse Maya names for the SAME options.
+        # chk002 reuses Maya's name for the same option; s004 is Offset here
+        # (Maya's s004 is Divisions).
         widget.option_box.menu.setTitle("Extrude")
         widget.option_box.menu.add(
             "QCheckBox",
@@ -504,11 +505,25 @@ class PolygonsSlots(SlotsBlender):
 
     @btk.undoable
     def b009(self):
-        """Collapse Component (Maya-twin split: a face mask collapses per-region
-        [PolygonCollapse]; verts/edges merge at one shared CENTER [MergeToCenter] —
-        COLLAPSE alone left disconnected components unmerged)."""
-        _, _, face = bpy.context.tool_settings.mesh_select_mode
-        self._edit_op(bpy.ops.mesh.merge, type="COLLAPSE" if face else "CENTER")
+        """Collapse Component: faces per region, verts/edges at one center.
+
+        Maya-twin split: faces -> PolygonCollapse, verts/edges -> MergeToCenter (COLLAPSE
+        alone left disconnected components unmerged). Routed on the selection: with vertex
+        and face modes both on (Blender's multi-component), a pick of loose verts has no
+        face and must merge at one center. Faces count only while face mode is on -- in
+        vertex mode a face whose verts are all picked reads as selected too. An edge picked
+        beside faces collapses too (COLLAPSE works per connected region); Maya's twin
+        leaves it and says so.
+        """
+        _, _, face_mode = bpy.context.tool_settings.mesh_select_mode
+        # view_layer, not objects_in_mode: that is a screen-context member, absent
+        # from a context without a screen (the Qt pump runs slots from a timer).
+        faces = face_mode and any(
+            o.data.total_face_sel
+            for o in bpy.context.view_layer.objects
+            if o.type == "MESH" and o.mode == "EDIT"
+        )
+        self._edit_op(bpy.ops.mesh.merge, type="COLLAPSE" if faces else "CENTER")
 
     def b011(self):
         """Bevel — open the bevel panel (Width / Segments / Profile + live Preview),

@@ -2,7 +2,7 @@
 # coding=utf-8
 """Shared, DCC-agnostic behavior for the ``settings`` panel.
 
-The per-panel home for logic the Maya and Blender ``Settings`` forks share (mixed in
+The per-panel home for logic the Maya and Blender ``SettingsSlots`` forks share (mixed in
 ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
 new module per feature — see the convention in ``tentacle/CLAUDE.md``.
 
@@ -18,7 +18,7 @@ import pythontk as ptk
 class SettingsMixin:
     """DCC-agnostic ``settings`` slot behavior.
 
-    ``tb000`` — ecosystem update check; ``b020``–``b023`` — uitk editors;
+    ``tb000`` — ecosystem update check; ``b020``–``b024`` — uitk editors;
     ``cmb_bind_*`` / ``b_reset_bindings`` — marking-menu route combos.
 
     Concrete slots provide ``_update_python_path()`` (the interpreter whose
@@ -175,6 +175,11 @@ class SettingsMixin:
         UI. Replaces the inline activation-key / repeat-last key-sequence editors;
         the marking-menu chord→menu targets stay in the Menu Bindings combos."""
         self.sb.editors.show("global_shortcuts")
+
+    def b024(self):
+        """Preset Editor: every tool's presets in one window — lock, group into
+        collections, back up, and import/share (uitk ``PresetEditor``)."""
+        self.sb.editors.show("presets")
 
     # -------------------------------------------------------------------------
     # Marking Menu Bindings

@@ -4,7 +4,7 @@ try:
     from pymxs import runtime as rt
 except ImportError as error:
     print(error)
-from uitk import MarkingMenu
+from uitk import MarkingMenu, ShortcutManager
 
 from tentacle.tcl import Tcl
 
@@ -16,6 +16,9 @@ class TclMax(MarkingMenu):
         if not parent:
             try:
                 parent = self.get_main_window()
+                # Max's main window owns application-scoped shortcuts (it is
+                # always up); uitk names no host, so the host declares it.
+                ShortcutManager.register_host_window(parent.objectName())
             except Exception as error:
                 print(__file__, error)
 

@@ -15,7 +15,7 @@ import unittest
 from unittest import mock
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-from uitk.widgets.mixins.tooltip_mixin import TooltipFormat
+from pythontk import TooltipFormat
 
 cmds = maya_module("maya.cmds")
 mtk = maya_module("mayatk")
@@ -675,32 +675,6 @@ class _FakeUnfoldWidget:
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestClassifyU3dError(unittest.TestCase):
-    """_classify_u3d_error condenses Unfold3D RuntimeErrors into short reasons.
-
-    Shared by tb000 (Pack) and tb004 (Unfold) for their message boxes.
-    """
-
-    def test_non_manifold(self):
-        err = RuntimeError(
-            "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
-        )
-        self.assertEqual(
-            uv_module.UvSlots._classify_u3d_error(err), "non-manifold vertices"
-        )
-
-    def test_overlapping(self):
-        err = RuntimeError("u3dLayout: overlapping UVs detected in the shell")
-        self.assertEqual(uv_module.UvSlots._classify_u3d_error(err), "overlapping UVs")
-
-    def test_other_truncates_first_line(self):
-        err = RuntimeError("Some unexpected failure\nwith trailing detail lines")
-        self.assertEqual(
-            uv_module.UvSlots._classify_u3d_error(err), "Some unexpected failure"
-        )
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTb004UnfoldGuard(unittest.TestCase):
     """tb004 (Unfold) must surface u3dUnfold's non-manifold RuntimeError as a
     message and abort, instead of letting it escape as an unhandled traceback
@@ -1085,7 +1059,7 @@ class TestTb004NonManifoldStrategy(unittest.TestCase):
         # stubbed to succeed) the unfold proceeds — no warn, no vertex re-select —
         # even though polyInfo reports the bowtie vert as non-manifold.
         self.assertTrue(  # precondition: polyInfo does flag this mesh
-            self.instance._non_manifold_vertices([self.mesh]),
+            mtk.Diagnostics.find_non_manifold_vertices([self.mesh]),
             "fixture should be polyInfo-non-manifold",
         )
         cmds.u3dUnfold = lambda *a, **k: None  # u3dUnfold tolerates it
@@ -1538,41 +1512,6 @@ class TestTb000Pack(unittest.TestCase):
             (u0, u1), (v0, v1) = self._bbox2d(obj)
             self.assertGreaterEqual(min(u0, v0), 0.0)
             self.assertLessEqual(max(u1, v1), 2.0)
-
-    def test_grid_distribution_moves_pinned_shells_whole(self):
-        """polyEditUV honours pin weights, so the whole-tile moves that deal
-        shells to a Tiles U/V grid left a shell's pinned UVs where they were:
-        the shell torn across tiles before u3dLayout ever packed it (this
-        panel's Pin and Stack buttons leave pins behind). Pins are lifted for
-        the moves and the exact weights put back."""
-        cubes = [cmds.polyCube(name=f"packPin{i}", ch=False)[0] for i in range(4)]
-        for cube in cubes:
-            cmds.polyPinUV(f"{cube}.map[0:3]", value=1.0)
-            cmds.polyPinUV(f"{cube}.map[5]", value=0.5)
-        uvs = cmds.polyListComponentConversion(cubes, fromFace=True, toUV=True)
-
-        def state(cube):
-            flat = cmds.ls(f"{cube}.map[*]", flatten=True)
-            pos = [tuple(cmds.polyEditUV(uv, query=True)) for uv in flat]
-            return pos, mtk.UvUtils.get_uv_pin_weights(flat)
-
-        before = {cube: state(cube) for cube in cubes}
-
-        # Four equal one-shell cubes over 2 x 2 tiles: one per tile, so three
-        # of them move by a whole tile.
-        uv_module.UvSlots._distribute_to_grid(uvs, 0, 0, 2, 2)
-
-        moved = 0
-        for cube in cubes:
-            (pos0, pins0), (pos1, pins1) = before[cube], state(cube)
-            offsets = {
-                (round(b[0] - a[0], 6), round(b[1] - a[1], 6))
-                for a, b in zip(pos0, pos1)
-            }
-            self.assertEqual(len(offsets), 1, f"{cube} tore: {sorted(offsets)}")
-            moved += offsets != {(0.0, 0.0)}
-            self.assertEqual(pins1, pins0, f"{cube} lost its pin weights")
-        self.assertEqual(moved, 3)
 
     def test_tile_grid_clamps_to_udim_row_end(self):
         """UDIM 1010 sits at the row end (u=9): Tiles U 2 would pack past
@@ -2328,6 +2267,101 @@ class TestTransferPasses(unittest.TestCase):
         self.assertEqual(self._passes("stored", "auto"), (True, True))
         # The same-mesh source still has no second mesh for a UV pass to read.
         self.assertEqual(self._passes("uvset", "auto"), (False, True))
+
+
+class TestTransferOptionBoxShared(unittest.TestCase):
+    """``UvMixin.b000_init`` -- ONE Transfer option box for both forks.
+
+    The forks' copies were ~0.93 similar: identical wiring, fork-specific
+    words. Each fork now supplies only ``_TT_TERMS`` (its vocabulary),
+    ``_tt_engine`` and, on Maya, ``_tt_add_assign_rows`` (the Shader row).
+    DCC-free: the terms are read from the fork sources, and the box is built
+    against a mock widget.
+    """
+
+    def _fork_terms(self, dcc):
+        import ast
+        import os
+
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "tentacle",
+            "slots",
+            dcc,
+            "uv.py",
+        )
+        with open(path, encoding="utf-8") as f:
+            tree = ast.parse(f.read())
+        return next(
+            ast.literal_eval(node.value)
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Assign)
+            and any(getattr(t, "id", None) == "_TT_TERMS" for t in node.targets)
+        )
+
+    def _build(self, terms, extra_rows=()):
+        from unittest import mock
+
+        from tentacle.slots._uv import UvMixin
+
+        class _Host(UvMixin):
+            _TT_TERMS = terms
+
+            def _tt_engine(self):
+                return mock.Mock(name="TextureTransfer")
+
+            def _tt_add_assign_rows(self, name_menu):
+                return extra_rows
+
+            def _tt_set_source_from_selection(self):
+                pass
+
+            _tt_source_tooltip = _tt_select_source = _tt_set_source_from_selection
+
+        host = _Host()
+        host.sb = mock.MagicMock()
+        host.sb.tooltip.fmt = lambda **kw: kw
+        widget = mock.MagicMock()
+        host.b000_init(widget)
+        return host, widget
+
+    def test_every_fork_defines_exactly_the_terms_the_box_reads(self):
+        import inspect
+        import re
+
+        from tentacle.slots._uv import UvMixin
+
+        used = set(re.findall(r"t\[[\"'](\w+)[\"']\]", inspect.getsource(UvMixin)))
+        self.assertIn("set", used)
+        for dcc in ("maya", "blender"):
+            with self.subTest(dcc=dcc):
+                self.assertEqual(set(self._fork_terms(dcc)), used)
+
+    def test_each_fork_s_words_reach_the_labels(self):
+        for dcc, item in (
+            ("maya", "Transfer: UV Set"),
+            ("blender", "Transfer: UV Map"),
+        ):
+            with self.subTest(dcc=dcc):
+                _, widget = self._build(self._fork_terms(dcc))
+                items = [
+                    c.args[0]
+                    for c in widget.option_box.menu.add.return_value.addItem.call_args_list
+                ]
+                self.assertIn(item, items)
+                self.assertIn(f"Source: {self._fork_terms(dcc)['first']}", items)
+
+    def test_a_fork_s_extra_assign_rows_grey_with_the_affix(self):
+        from unittest import mock
+
+        row = mock.Mock(name="cmb_tt_shader")
+        host, _ = self._build(self._fork_terms("maya"), extra_rows=(row,))
+        affix, extra = host._tt_ctl["assign_controls"]
+        self.assertIs(affix, host._tt_affix)
+        self.assertIs(extra, row)
+        row.setEnabled.assert_called()  # synced with the affix at build time
+        host, _ = self._build(self._fork_terms("blender"))
+        self.assertEqual(len(host._tt_ctl["assign_controls"]), 1)
 
 
 class _FakeTextureTransferEngine:

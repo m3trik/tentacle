@@ -125,32 +125,32 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "_create_default_workspace",
         ):
             self.assertTrue(
-                self.mod.has_method("Main", name), f"Main must define {name}"
+                self.mod.has_method("MainSlots", name), f"MainSlots must define {name}"
             )
 
     def test_does_not_reimplement_shared_flow(self):
         for name in ("_set_workspace_interactive", "_set_workspace_from_path"):
             self.assertFalse(
-                self.mod.has_method("Main", name),
+                self.mod.has_method("MainSlots", name),
                 f"{name} belongs to MainMixin — the fork must not re-implement it",
             )
-        self.assertIn("class Main(MainMixin, SlotsMaya)", self.mod.source)
+        self.assertIn("class MainSlots(MainMixin, SlotsMaya)", self.mod.source)
 
     def test_hooks_use_the_shared_template_and_native_browser(self):
         """The build hook is ``mtk.create_workspace`` (the same template Workspace
         Map ▸ New Project builds from); the browser is Maya's ``fileDialog2``."""
         self.assertIn(
             "mtk.create_workspace",
-            self.mod.method_source("Main", "_create_default_workspace"),
+            self.mod.method_source("MainSlots", "_create_default_workspace"),
         )
         self.assertIn(
-            "fileDialog2", self.mod.method_source("Main", "_browse_workspace_dir")
+            "fileDialog2", self.mod.method_source("MainSlots", "_browse_workspace_dir")
         )
 
     def test_list000_builds_store_and_actions(self):
         """list000_init must build the store, add the editing actions, render the
         store's recent values, and icon the dir-browser row."""
-        init = self.mod.method_source("Main", "list000_init")
+        init = self.mod.method_source("MainSlots", "list000_init")
         for needle in (
             "RecentValuesStore",
             "workspace_recent_projects",  # shared key → history carries over
@@ -165,29 +165,37 @@ class TestMainWorkspaceStructure(unittest.TestCase):
     def test_no_separator_between_actions_and_browser(self):
         """The old titled separator is gone — the folder icon on the dir rows is the
         differentiator now, so no Separator widget should be constructed or imported."""
-        init = self.mod.method_source("Main", "list000_init")
+        init = self.mod.method_source("MainSlots", "list000_init")
         self.assertNotIn("Separator(", init, "no Separator widget should be added")
         self.assertNotIn("widgets.separator", init, "no Separator import should remain")
 
     def test_dir_browser_rows_get_folder_icon(self):
         """Every dir-browser row (root + each nested folder) is marked with the
         folder icon so it reads as a directory, not an action."""
-        init = self.mod.method_source("Main", "list000_init")
+        init = self.mod.method_source("MainSlots", "list000_init")
         self.assertIn('set_label_icon(w, "folder_filled")', init)
-        populate = self.mod.method_source("Main", "_populate_dir_sublist")
+        populate = self.mod.method_source("MainSlots", "_populate_dir_sublist")
         self.assertIn('set_label_icon(item, "folder_filled")', populate)
 
     def test_auto_and_recents_nest_under_set_workspace(self):
         """Auto Set + Recent Workspaces live in the Set Workspace flyout, not at
         the root — the root holds only Set Workspace and the dir browser."""
-        init = self.mod.method_source("Main", "list000_init")
+        init = self.mod.method_source("MainSlots", "list000_init")
         # Both the auto action and the recents sub-flyout are added to the Set
         # Workspace sublist (captured as ``set_ws``), not directly to ``widget``.
         self.assertIn('set_ws.sublist.add("Auto Set Workspace"', init)
         self.assertIn('set_ws.sublist.add("Recent Workspaces")', init)
 
     def test_list000_dispatches_all_row_kinds(self):
-        src = self.mod.method_source("Main", "list000")
+        # The fork keeps the decorated handler; the body is MainMixin's, shared
+        # with the Blender fork.
+        self.assertIn(
+            "self._dispatch_workspace_item(item)",
+            self.mod.method_source("MainSlots", "list000"),
+        )
+        src = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8")).method_source(
+            "MainMixin", "_dispatch_workspace_item"
+        )
         for needle in (
             "_set_workspace_interactive",
             "_auto_set_workspace",
@@ -203,18 +211,20 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         project-window refresh / browser prefs behave exactly as Maya's own
         Set Project — the flow this slot replaced. (Headless it falls back to a
         plain ``workspace -o`` — ``setProject``'s ``savePrefs`` tail is GUI-only.)"""
-        src = self.mod.method_source("Main", "_switch_to_workspace")
+        src = self.mod.method_source("MainSlots", "_switch_to_workspace")
         self.assertIn('setProject "', src)
         self.assertIn("about(batch=True)", src)
 
     def test_editor_row_opens_native_project_window(self):
         """The Edit Workspace row opens Maya's native Project Window (blendertk's
         twin row opens its own workspace_editor panel)."""
-        init = self.mod.method_source("Main", "list000_init")
+        init = self.mod.method_source("MainSlots", "list000_init")
         self.assertIn('widget.add("Edit Workspace", data="__editor__")', init)
-        dispatch = self.mod.method_source("Main", "list000")
+        dispatch = ModuleAST(
+            MAIN_MIXIN_PY.read_text(encoding="utf-8")
+        ).method_source("MainMixin", "_dispatch_workspace_item")
         self.assertIn("__editor__", dispatch)
-        src = self.mod.method_source("Main", "_open_workspace_editor")
+        src = self.mod.method_source("MainSlots", "_open_workspace_editor")
         self.assertIn("ProjectWindow", src)
 
 
@@ -242,14 +252,14 @@ class _StubStore:
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestSetWorkspaceFromPath(unittest.TestCase):
-    """Main._set_workspace_from_path validates workspace.mel before switching."""
+    """MainSlots._set_workspace_from_path validates workspace.mel before switching."""
 
     def setUp(self):
         import pythontk as ptk
 
         cmds.file(new=True, force=True)
         self._before = cmds.workspace(query=True, rd=True)
-        self.inst = main_module.Main.__new__(main_module.Main)
+        self.inst = main_module.MainSlots.__new__(main_module.MainSlots)
         self.inst.sb = _StubSb()
         self.inst._workspace_store = _StubStore()
         self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")
@@ -303,7 +313,7 @@ class TestSetWorkspaceFromPath(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestSetWorkspaceInteractive(unittest.TestCase):
-    """Main._set_workspace_interactive: browse → (offer + build) → open.
+    """MainSlots._set_workspace_interactive: browse → (offer + build) → open.
 
     The directory browser is stubbed at ``main_module.cmds.fileDialog2`` (the
     slot's own reference); the offer is answered through ``_StubSb.choice``.
@@ -314,7 +324,7 @@ class TestSetWorkspaceInteractive(unittest.TestCase):
 
         cmds.file(new=True, force=True)
         self._before = cmds.workspace(query=True, rd=True)
-        self.inst = main_module.Main.__new__(main_module.Main)
+        self.inst = main_module.MainSlots.__new__(main_module.MainSlots)
         self.inst.sb = _StubSb()
         self.inst._workspace_store = _StubStore()
         self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")

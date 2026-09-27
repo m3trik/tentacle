@@ -70,9 +70,9 @@ try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.selection import Selection
+    from tentacle.slots.blender.selection import SelectionSlots
 
-    slot = make_slot(Selection)
+    slot = make_slot(SelectionSlots)
 
     class _Leaf:
         """A Convert To list leaf as ``_dispatch_convert_to`` sees it."""
@@ -97,7 +97,7 @@ try:
         "Shell", "Shell Border",
     ]
     check("_CONVERT_TO_OPS holds all 18 expected entries in order",
-          list(Selection._CONVERT_TO_OPS) == EXPECTED_CMB003, f"{list(Selection._CONVERT_TO_OPS)}")
+          list(SelectionSlots._CONVERT_TO_OPS) == EXPECTED_CMB003, f"{list(SelectionSlots._CONVERT_TO_OPS)}")
 
     # -- list001: drive every entry through the real dispatch against real geometry --
     reset()

@@ -4,6 +4,7 @@ import os
 
 import bpy
 import blendertk as btk
+import pythontk as ptk
 from tentacle import HudWarningsMixin, SlotsBlender
 
 
@@ -165,9 +166,7 @@ class WarningsMixin(HudWarningsMixin):
             bpy.context.preferences.filepaths.temporary_directory
             or tempfile.gettempdir()
         )
-        return os.path.normpath(filepath).lower().startswith(
-            os.path.normpath(temp_dir).lower()
-        )
+        return ptk.FileUtils.is_under(filepath, temp_dir)
 
 
 class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin):

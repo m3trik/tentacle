@@ -6,8 +6,8 @@ The existing test_polygons_circularize covers b000. This file fills in
 the rest of the slot's behavioral surface — the units worth pinning are
 those with conditional routing or state-toggle logic:
 
-- tb003 (Extrude): face/edge/vertex selection routes to three different
-  cmds.polyExtrude* commands.
+- tb003 (Extrude): Maya's own Extrude on the real selection (any mask),
+  with the option box's values -- and Maya's own settings left intact.
 - tb007 (Divide Facet): mode/dv/u/v/subdMethod values driven by a 3-way
   U/V/Tris checkbox state, plus an "all U+V" special case.
 - tb008 (Boolean): 3 ops × interactive matrix (6 dispatch paths).
@@ -16,7 +16,8 @@ those with conditional routing or state-toggle logic:
 - b005 (Set Distance): ValueError on != 2 vertices, falls back to default.
 - b006 (Bridge): RuntimeError fallback to bridge_connected_edges.
 - b038 (Assign Invisible): toggles based on current polyHole(q=True) state.
-- b009 (Collapse Component): face vs edge routing + selectType restore.
+- b009 (Collapse Component): faces collapse each (per object, instances folded,
+  any mask); edges/verts merge at one center; refusals named; one undo.
 - b011 / b007 marking-menu key names (drift detector).
 """
 import unittest
@@ -90,103 +91,157 @@ class _RecordedSb:
         self.messages.append((args, kwargs))
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb003ExtrudeRouting(unittest.TestCase):
-    """tb003 routes face/edge/vertex selections to different polyExtrude*.
+class _MaskNamesNoType(unittest.TestCase):
+    """Selection-type mask cleared to how multi-component mode leaves it.
 
-    The slot reads `cmds.selectType(q=True, facet=1)` etc. to determine the
-    component type. In mayapy standalone this state isn't reliably set by
-    `cmds.select`, so we mock selectType to make the routing deterministic.
+    Slots must route on the selection itself: with this mask no vertex / edge
+    / facet query is true (under mayapy standalone every query answers None).
+    The three flags are restored so the GUI suite run is left as found.
     """
 
+    MASK = ("vertex", "edge", "facet")
+
     def setUp(self):
+        self._mask = {m: cmds.selectType(q=True, **{m: True}) for m in self.MASK}
+
+    def tearDown(self):
+        for m, on in self._mask.items():
+            if on is not None:  # None: standalone keeps no mask
+                cmds.selectType(**{m: on})
+
+    def clear_mask(self):
+        cmds.selectType(**{m: False for m in self.MASK})
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb003Extrude(_MaskNamesNoType):
+    """tb003 runs Maya's own Extrude on the real selection with the option
+    box's values.
+
+    Real geometry, no command mocks. The old mocks pinned a no-op
+    ``polyExtrudeFacet(edit=1, ...)`` call: Maya's Extrude reads optionVars,
+    so the option box was silently ignored, and a ``selectType`` mask gate
+    dropped face selections made in multi-component mode.
+    """
+
+    OPTION_VARS = (
+        "polyKeepFacetsGrouped",
+        "polyExtrudeFaceDivisions",
+        "polyExtrudeEdgeDivisions",
+        "polyExtrudeVertexDivisions",
+    )
+
+    def setUp(self):
+        super().setUp()
         cmds.file(new=True, force=True)
         self.instance = polygons_module.PolygonsSlots.__new__(
             polygons_module.PolygonsSlots
         )
         self.instance.sb = _RecordedSb()
-
-        self._orig_face = cmds.polyExtrudeFacet
-        self._orig_edge = cmds.polyExtrudeEdge
-        self._orig_vert = cmds.polyExtrudeVertex
-        self._orig_select_type = cmds.selectType
-        self._orig_mel = mel.eval
-
-        self.face_calls = []
-        self.edge_calls = []
-        self.vert_calls = []
-        self.mel_calls = []
-
-        cmds.polyExtrudeFacet = lambda *a, **kw: self.face_calls.append((a, kw))
-        cmds.polyExtrudeEdge = lambda *a, **kw: self.edge_calls.append((a, kw))
-        cmds.polyExtrudeVertex = lambda *a, **kw: self.vert_calls.append((a, kw))
-        mel.eval = lambda s: self.mel_calls.append(s)
-
-        # Mode bits — flip in each test.
-        self.face_mode = False
-        self.edge_mode = False
-        self.vert_mode = False
-
-        def fake_select_type(*a, **kw):
-            if not kw.get("q"):
-                return None
-            if "facet" in kw:
-                return self.face_mode
-            if "edge" in kw:
-                return self.edge_mode
-            if "vertex" in kw:
-                return self.vert_mode
-            return None
-
-        cmds.selectType = fake_select_type
+        self._saved = {
+            n: cmds.optionVar(q=n) if cmds.optionVar(exists=n) else None
+            for n in self.OPTION_VARS
+        }
+        # Maya's own Extrude settings: the slot must neither obey nor clobber them.
+        for n in self.OPTION_VARS:
+            cmds.optionVar(intValue=(n, 1))
 
     def tearDown(self):
-        cmds.polyExtrudeFacet = self._orig_face
-        cmds.polyExtrudeEdge = self._orig_edge
-        cmds.polyExtrudeVertex = self._orig_vert
-        cmds.selectType = self._orig_select_type
-        mel.eval = self._orig_mel
+        for n, v in self._saved.items():
+            if v is None:
+                cmds.optionVar(remove=n)
+            else:
+                cmds.optionVar(intValue=(n, v))
         cmds.file(new=True, force=True)
+        super().tearDown()
 
-    def _widget(self):
-        return _FakeWidget(_FakeMenu(chk002=_FakeChk(True), s004=_FakeSpin(2)))
+    def _extrude(self, *items, keep_together=False, divisions=3):
+        cmds.select(items)
+        self.clear_mask()
+        menu = _FakeMenu(chk002=_FakeChk(keep_together), s004=_FakeSpin(divisions))
+        self.instance.tb003(_FakeWidget(menu))
+
+    def _node(self, node_type):
+        nodes = cmds.ls(type=node_type) or []
+        self.assertEqual(len(nodes), 1, f"expected one {node_type}, got {nodes}")
+        return nodes[0]
+
+    @staticmethod
+    def _center(face):
+        pts = cmds.xform(face, q=True, ws=True, t=True)
+        n = len(pts) // 3
+        return [sum(pts[i::3]) / n for i in range(3)]
 
     def test_no_selection_warns(self):
         cmds.select(clear=True)
-        self.instance.tb003(self._widget())
+        self.instance.tb003(
+            _FakeWidget(_FakeMenu(chk002=_FakeChk(True), s004=_FakeSpin(1)))
+        )
         self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(self.face_calls, [])
-        self.assertEqual(self.edge_calls, [])
-        self.assertEqual(self.vert_calls, [])
+        self.assertFalse(cmds.ls(type="polyExtrudeFace"))
 
-    def test_face_selection_routes_polyExtrudeFacet(self):
-        cube = cmds.polyCube(name="ext_face")[0]
-        cmds.select(f"{cube}.f[0]")
-        self.face_mode = True
-        self.instance.tb003(self._widget())
-        self.assertEqual(len(self.face_calls), 1)
-        self.assertEqual(self.edge_calls, [])
-        self.assertEqual(self.vert_calls, [])
-        # Divisions forwarded.
-        self.assertEqual(self.face_calls[0][1]["divisions"], 2)
+    def test_single_face_plane_uses_option_box_values(self):
+        plane = cmds.polyPlane(sx=1, sy=1)[0]
+        self._extrude(f"{plane}.f[0]", keep_together=False, divisions=3)
+        node = self._node("polyExtrudeFace")
+        self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
+        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 3)
 
-    def test_edge_selection_routes_polyExtrudeEdge(self):
-        cube = cmds.polyCube(name="ext_edge")[0]
-        cmds.select(f"{cube}.e[0]")
-        self.edge_mode = True
-        self.instance.tb003(self._widget())
-        self.assertEqual(len(self.edge_calls), 1)
-        self.assertEqual(self.face_calls, [])
-        self.assertEqual(self.vert_calls, [])
+    def test_edge_extrude_uses_option_box_values(self):
+        cube = cmds.polyCube()[0]
+        self._extrude(f"{cube}.e[0]", keep_together=False, divisions=2)
+        node = self._node("polyExtrudeEdge")
+        self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
+        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 2)
 
-    def test_vertex_selection_routes_polyExtrudeVertex(self):
-        cube = cmds.polyCube(name="ext_vert")[0]
-        cmds.select(f"{cube}.vtx[0]")
-        self.vert_mode = True
-        self.instance.tb003(self._widget())
-        self.assertEqual(len(self.vert_calls), 1)
-        self.assertEqual(self.face_calls, [])
-        self.assertEqual(self.edge_calls, [])
+    def test_vertex_extrude_uses_divisions(self):
+        cube = cmds.polyCube()[0]
+        self._extrude(f"{cube}.vtx[0]", divisions=2)
+        node = self._node("polyExtrudeVertex")
+        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 2)
+
+    def test_object_selection_extrudes_its_faces(self):
+        plane = cmds.polyPlane(sx=1, sy=1)[0]
+        self._extrude(plane)
+        self._node("polyExtrudeFace")
+
+    def test_faces_on_two_objects_extrude_each(self):
+        a = cmds.polyPlane(sx=1, sy=1)[0]
+        b = cmds.polyPlane(sx=1, sy=1)[0]
+        self._extrude(f"{a}.f[0]", f"{b}.f[0]", keep_together=False)
+        nodes = cmds.ls(type="polyExtrudeFace") or []
+        self.assertEqual(len(nodes), 2)
+        for node in nodes:
+            self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
+
+    def test_keep_together_off_pushes_each_face_along_its_own_normal(self):
+        # Adjacent faces with different normals: welded (kept together) they
+        # would share the corner verts and lean; apart, each rides its own.
+        cube = cmds.polyCube()[0]
+        faces = [f"{cube}.f[0]", f"{cube}.f[1]"]
+        normals = []
+        for f in faces:  # polyInfo's normals are unnormalized
+            v = [
+                float(c)
+                for c in cmds.polyInfo(f, faceNormals=True)[0].split(":")[1].split()
+            ]
+            length = sum(c * c for c in v) ** 0.5
+            normals.append([c / length for c in v])
+        before = [self._center(f) for f in faces]
+        self._extrude(*faces, keep_together=False, divisions=1)
+        cmds.setAttr(f"{self._node('polyExtrudeFace')}.localTranslateZ", 1.0)
+        for face, b, n in zip(faces, before, normals):
+            moved = [a - c for a, c in zip(self._center(face), b)]
+            for m, e in zip(moved, n):
+                self.assertAlmostEqual(m, e, places=4, msg=face)
+
+    def test_maya_extrude_settings_restored(self):
+        cmds.optionVar(remove="polyExtrudeVertexDivisions")  # absent stays absent
+        plane = cmds.polyPlane(sx=1, sy=1)[0]
+        self._extrude(f"{plane}.f[0]", keep_together=False, divisions=3)
+        for n in self.OPTION_VARS[:3]:
+            self.assertEqual(cmds.optionVar(q=n), 1, n)
+        self.assertFalse(cmds.optionVar(exists="polyExtrudeVertexDivisions"))
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -588,6 +643,98 @@ class TestB038AssignInvisible(unittest.TestCase):
         ]
         self.assertEqual(len(assigns), 1)
         self.assertFalse(assigns[0]["assignHole"])
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB009CollapseComponent(_MaskNamesNoType):
+    """b009 collapses each selected face to its own point; edges and vertices
+    merge to their shared center. Routed on the selection, not the mask."""
+
+    def setUp(self):
+        super().setUp()
+        cmds.file(new=True, force=True)
+        self.instance = polygons_module.PolygonsSlots.__new__(
+            polygons_module.PolygonsSlots
+        )
+        self.instance.sb = _RecordedSb()
+        self.plane = cmds.polyPlane(sx=3, sy=3)[0]  # 16 verts
+        self._history = cmds.constructionHistory(q=True, toggle=True)
+
+    def tearDown(self):
+        cmds.constructionHistory(toggle=self._history)
+        cmds.file(new=True, force=True)
+        super().tearDown()
+
+    @staticmethod
+    def _points(mesh):
+        pts = cmds.xform(f"{mesh}.vtx[*]", q=True, os=True, t=True)
+        return sorted(
+            tuple(round(c, 4) for c in pts[i : i + 3]) for i in range(0, len(pts), 3)
+        )
+
+    def _collapse(self, *components):
+        cmds.select([f"{self.plane}.{c}" for c in components])
+        self.clear_mask()
+        self.instance.b009()
+        return cmds.polyEvaluate(self.plane, vertex=True)
+
+    def test_faces_collapse_each_to_its_own_point(self):
+        # Two corner faces: 3 verts lost each. MergeToCenter would weld all
+        # 8 into ONE point (9 left).
+        self.assertEqual(self._collapse("f[0]", "f[8]"), 10)
+
+    def test_edges_merge_to_their_center(self):
+        self.assertEqual(self._collapse("e[0]"), 15)
+
+    def test_faces_on_two_instances_collapse_as_one_shape(self):
+        # Every pick names a face of ONE shape -- f[0] through both paths. A call
+        # per path collapsed f[0], then whatever face had renumbered into f[0].
+        ref = cmds.polyPlane(sx=3, sy=3)[0]
+        cmds.polyCollapseFacet([f"{ref}.f[0]", f"{ref}.f[8]"])
+        twin = cmds.instance(self.plane)[0]
+        cmds.select([f"{self.plane}.f[0]", f"{twin}.f[0]", f"{twin}.f[8]"])
+        self.clear_mask()
+        self.instance.b009()
+        self.assertEqual(self._points(self.plane), self._points(ref))
+
+    def test_object_selection_is_refused(self):
+        # MergeToCenter converts an object pick to ALL its verts in the GUI.
+        cmds.select(self.plane)
+        self.instance.b009()
+        self.assertTrue(self.instance.sb.messages)
+        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 16)
+
+    def test_no_selection_is_refused(self):
+        cmds.select(clear=True)
+        self.instance.b009()
+        self.assertTrue(self.instance.sb.messages)
+
+    def test_edges_beside_faces_are_named_not_dropped_silently(self):
+        self.assertEqual(self._collapse("f[0]", "e[20]"), 13)
+        self.assertTrue(self.instance.sb.messages)
+
+    def test_history_follows_the_toggle(self):
+        cmds.delete(self.plane, constructionHistory=True)  # Maya ignores -ch off
+        cmds.constructionHistory(toggle=False)  # on a mesh that has history
+        self._collapse("f[0]")
+        self.assertFalse(cmds.ls(type="polyCollapseF"))
+
+    def test_one_undo_restores_every_object(self):
+        other = cmds.polyPlane(sx=3, sy=3)[0]
+        cmds.select([f"{self.plane}.f[0]", f"{other}.f[4]"])
+        self.clear_mask()
+        self.instance.b009()
+        cmds.undo()
+        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 16)
+        self.assertEqual(cmds.polyEvaluate(other, vertex=True), 16)
+
+    def test_faces_on_two_objects_collapse_per_object(self):
+        other = cmds.polyPlane(sx=3, sy=3)[0]
+        cmds.select([f"{self.plane}.f[0]", f"{self.plane}.f[8]", f"{other}.f[4]"])
+        self.clear_mask()
+        self.instance.b009()  # polyCollapseFacet refuses a multi-object list
+        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 10)
+        self.assertEqual(cmds.polyEvaluate(other, vertex=True), 13)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")

@@ -2,7 +2,7 @@
 # coding=utf-8
 """GUI harness: editors ``b009`` (docked Timeline toggle) + ``b010`` (script-output skin).
 
-Drives the **real** ``Editors`` slot methods in a fresh GUI Blender so both run the way a live
+Drives the **real** ``EditorsSlots`` slot methods in a fresh GUI Blender so both run the way a live
 click does (never an existing session)::
 
     blender --factory-startup --python tentacle/test/blender/editors_toggle_check.py
@@ -94,9 +94,9 @@ def _b009():
 
         if tb._KeymapBridge.tcl is None:
             tb.launch()
-        from tentacle.slots.blender.editors import Editors
+        from tentacle.slots.blender.editors import EditorsSlots
 
-        slot = make_slot(Editors)
+        slot = make_slot(EditorsSlots)
         win0 = bpy.context.window_manager.windows[0]
 
         R["b009"]["initial_timelines"] = len(timelines())
@@ -144,7 +144,7 @@ def _main_areas():
 
 def _b010_show():
     try:
-        from tentacle.slots.blender.editors import Editors
+        from tentacle.slots.blender.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
@@ -155,7 +155,7 @@ def _b010_show():
         R["_wins_before_b010"] = len(bpy.context.window_manager.windows)
         R["_areas_before_b010"] = len(_main_areas())
 
-        make_slot(Editors).b010()  # toggle -> show (docks the Info Log into the main window)
+        make_slot(EditorsSlots).b010()  # toggle -> show (docks the Info Log into the main window)
         for _ in range(20):
             if app:
                 app.processEvents()
@@ -253,14 +253,14 @@ def _b010_measure():
 
 def _b010_hide():
     try:
-        from tentacle.slots.blender.editors import Editors
+        from tentacle.slots.blender.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
         inst = so.ScriptConsole._instance
 
-        make_slot(Editors).b010()  # toggle -> hide
+        make_slot(EditorsSlots).b010()  # toggle -> hide
         for _ in range(10):
             if app:
                 app.processEvents()
@@ -288,7 +288,7 @@ def _b010_hide():
 
 def _b010_reshow():
     try:
-        from tentacle.slots.blender.editors import Editors
+        from tentacle.slots.blender.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
@@ -296,7 +296,7 @@ def _b010_reshow():
         inst = so.ScriptConsole._instance
 
         print("EDITORS_TOGGLE_CHECK_MARKER_2 (printed before reshow — must NOT appear yet)")
-        make_slot(Editors).b010()  # toggle -> show again
+        make_slot(EditorsSlots).b010()  # toggle -> show again
         for _ in range(20):
             if app:
                 app.processEvents()
@@ -319,7 +319,7 @@ def _b010_reshow():
                "in the background)",
                R["b010"]["marker2_visible_after_reshow"])
 
-        make_slot(Editors).b010()  # toggle -> hide (cleanup)
+        make_slot(EditorsSlots).b010()  # toggle -> hide (cleanup)
         for _ in range(10):
             if app:
                 app.processEvents()

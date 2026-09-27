@@ -3,10 +3,10 @@
 import maya.cmds as cmds
 import pythontk as ptk
 import mayatk as mtk
-from tentacle import SlotsMaya
+from tentacle import NormalsMixin, SlotsMaya
 
 
-class Normals(SlotsMaya):
+class NormalsSlots(NormalsMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -141,24 +141,6 @@ class Normals(SlotsMaya):
     def b006(self):
         """Set To Face: set vertex normals to match their face normals (faceted shading)."""
         cmds.polySetToFaceNormal()
-
-    def tb010_init(self, widget):
-        """Initialize Reverse Normals"""
-        if not widget.is_initialized:
-            widget.option_box.menu.setTitle("Reverse Normals")
-            widget.option_box.menu.add(
-                "QComboBox",
-                setObjectName="cmb000",
-                addItems=[
-                    "Reverse",
-                    "Propagate",
-                    "Conform",
-                    "Reverse and Extract",
-                    "Reverse and Propagate",
-                ],
-                setCurrentIndex=3,
-                setToolTip="Normal operation mode.",
-            )
 
     def tb010(self, widget):
         """Reverse Normals"""

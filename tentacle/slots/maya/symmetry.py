@@ -4,7 +4,7 @@ import maya.cmds as cmds
 from tentacle import SlotsMaya
 
 
-class Symmetry(SlotsMaya):
+class SymmetrySlots(SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui = self.sb.loaded_ui.symmetry

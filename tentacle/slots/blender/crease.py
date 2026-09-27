@@ -4,7 +4,7 @@ import blendertk as btk
 from tentacle import SlotsBlender
 
 
-class Crease(SlotsBlender):
+class CreaseSlots(SlotsBlender):
     """Blender port of the shared ``crease`` menu.
 
     Maya edge creasing → Blender Subdivision-Surface edge crease (``crease_edge`` attribute), via

@@ -403,3 +403,45 @@ class AnimationMixin:
     TIP_SELECT_RANGE_START = "First frame of the window, in Range mode."
 
     TIP_SELECT_RANGE_END = "Last frame of the window, in Range mode."
+
+    def list000_init(self, widget):
+        """Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
+
+        Rows are plain labels dispatched by ``list000``, EXCEPT entries whose
+        slot defines an ``*_init``: that init builds the option box (tb015,
+        tb016), which is lost on a plain label, so those are added as real
+        slot-wired widgets carrying their original objectNames.
+
+        The submenu hosts the same list where the Shot Sequencer / Shot
+        Manifest buttons used to sit (upper-left of the radial overlay), so it
+        opens upward over itself and fans left; the panel row fans right.
+        Category order follows suit: the upward flyout is anchored at the
+        trigger's bottom edge, so its LAST-added row is the one that lands
+        under the cursor — populated in reverse there to put Sequencing (the
+        two buttons this list replaced) where those buttons used to be. The
+        panel's flyout fans right with its top row on the trigger, so it keeps
+        natural order.
+        """
+        submenu = widget.ui.has_tags("submenu")
+        widget.fixed_item_height = 18
+        widget.apply_preset("expand_overlay_up_left" if submenu else "hover_menu")
+        root = widget.add(
+            "Tools",
+            setToolTip="Sequencing, repair, bake, playback and info tools.",
+        )
+        categories = list(self._TOOLS_ITEMS.items())
+        if submenu:
+            categories.reverse()
+        for category, items in categories:
+            cat = root.sublist.add(category)
+            for label, slot_name, *rest in items:
+                tooltip = rest[0] if rest else ""
+                if slot_name and hasattr(self, f"{slot_name}_init"):
+                    self.add_slot_widget(
+                        cat.sublist,
+                        setObjectName=slot_name,
+                        setText=label,
+                        setToolTip=tooltip,
+                    )
+                else:
+                    cat.sublist.add(label, setToolTip=tooltip)

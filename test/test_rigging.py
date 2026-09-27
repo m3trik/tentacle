@@ -103,7 +103,7 @@ class TestCmb001Create(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
 
         # Capture cmds.setToolTo and cmds.lattice. mel.eval is harder to
         # capture without ruining other tests — leave it as a real call but
@@ -155,7 +155,7 @@ class TestCmb002QuickRigMarkingMenuNames(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
         self.instance.sb = _FakeSb()
 
     def tearDown(self):
@@ -178,7 +178,7 @@ class TestTb000ToggleLocalAxes(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
         self.instance.sb = _FakeSb()
 
     def tearDown(self):
@@ -215,7 +215,7 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
         self.instance.sb = _FakeSb()
 
         import mayatk as mtk
@@ -280,7 +280,7 @@ class TestB020RebindSkinClusters(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
         self.instance.sb = _FakeSb()
 
         import mayatk as mtk
@@ -360,7 +360,7 @@ class TestTb004LockUnlockAttributes(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rigging_module.Rigging.__new__(rigging_module.Rigging)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
         self.instance.sb = _FakeSb()
 
     def tearDown(self):

@@ -123,7 +123,7 @@ CONTROLS = {
             "reason": "only meaningful in mayatk as an alternative to use_override_layer=False base-layer bakes; blendertk has no base-layer-conversion bake mode, so chk_use_override's mute/delete choice already covers the full space",
         },
     },
-    "reference_manager": {
+    "reference_manager_slots": {  # mayatk env_utils/reference_manager/reference_manager_slots.py
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
         # btn_unlink_import_all: renamed to Maya's exact label + objectName (2026-07-20), so it
         # matches name-for-name. Un-Reference All is footer-only on both panels (2026-09-18).
@@ -223,12 +223,14 @@ CONTROLS = {
     # naming_slots: fully 1:1 as of 2026-08-23 — both panels build the same header (cmb_scope
     # Selection/Scene/Directory/Files + chk_base_names + chk_dry_run), the same footer Apply button
     # (armed by a dry run, hidden otherwise) from a byte-identical _run/_arm_apply block,
-    # output pane (txt002) and the 19 suffix-by-type
-    # fields from an identical literal SUFFIX_GROUPS table (tb003_txt000..018, same objectNames).
+    # output pane (txt002) and the 22 suffix-by-type convention rows (tb003_txt000..021, same
+    # objectNames), which since 2026-09-26 uitk's NamingConventionEditor builds for BOTH panels from
+    # identical host data (_convention_groups) -- so the sweep sees neither side's rows; the mirror
+    # is held by mayatk test_naming_convention_binding.TestHostParity instead.
     # Ten of those fields name Maya node kinds with no Blender *object* type (IK handle, constraint,
     # cluster, skin cluster, blend shape, material, shading group, texture, display layer, set);
     # blendertk ships them under the same objectName with setEnabled=False + an explanatory tooltip
-    # (NamingSlots._BLENDER_NA) — a same-named control the sweep matches, so no row is needed. The
+    # (NamingSlots.CONVENTION_DISABLED, handed to the editor as data), so no row is needed. The
     # prior tb003_txt007 `na` row described the old display-layer-only version of this.
     # wheel_rig chk_world_space: stale `na` "always world-space" entry removed 2026-07-08 -- the
     # control EXISTS in Blender under the identical objectName (rig_utils/wheel_rig.py:299) as a
@@ -352,7 +354,7 @@ CONTROLS = {
                       "sources stay in place",
         },
     },
-    "_shader_templates": {  # mayatk file stem is shader_templates/_shader_templates.py
+    "shader_templates_slots": {  # mayatk file stem is shader_templates/shader_templates_slots.py
         # b002 / lbl000 / lbl001 / lbl_open_templates_dir: stale entries removed 2026-07-03 — the
         # current file is a verbatim 1:1 objectName mirror (its own module docstring: "same
         # objectNames, same header-menu layout, same method shapes"); Save/Rename/Delete/Open-
@@ -383,7 +385,7 @@ CONTROLS = {
         # by objectName (tb000/tb001 option boxes; the header's Viewport Preview
         # was retired 2026-09-05 on both sides); nothing pending.
     },
-    "tube_rig": {
+    "tube_rig_slots": {  # mayatk rig_utils/tube_rig/tube_rig_slots.py
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
         # (num_joints/num_controls/radius/enable_stretch) built into wgt_options per mode.
         "s000": {"status": "replaced", "to": "spec:num_joints", "reason": "AttributeSpec option"},
@@ -523,7 +525,7 @@ HANDLERS = {
     "nurbs": {
         "b016": {"status": "na", "reason": "[Create Curve from Edges] widget removed from nurbs.ui 2026-05-20 (9f534ba3) but the handler is pinned by test_nurbs.py (create_curve_from_edges fallback) - retarget the test at mtk directly, then delete the handler"},
         # list000 "Nurbs actions" leaves -- code-built control keys sourced from
-        # Nurbs._LIST000_COMMANDS (tentacle/tentacle/slots/blender/nurbs.py), the Blender-idiom
+        # NurbsSlots._LIST000_COMMANDS (tentacle/tentacle/slots/blender/nurbs.py), the Blender-idiom
         # mirror of Maya's _LIST000_COMMANDS (tentacle/tentacle/slots/maya/nurbs.py). Ported
         # 2026-07-04: root->category->leaf tree structure now matches Maya 1:1
         # (Create/Modify/Surfaces/Edit), and 12 of Maya's 24 leaves are real bpy ops/props

@@ -5,7 +5,7 @@ Launch a **fresh** GUI Blender (never an existing session)::
     blender --factory-startup --python tentacle/test/blender/editors_relabel_check.py
 
 The five Maya buttons with no Blender analogue (Dependency Graph / Status Line / Shelf /
-Help Line / Tool Box) are relabeled per-DCC in ``Editors.bNNN_init`` to a substitute editor;
+Help Line / Tool Box) are relabeled per-DCC in ``EditorsSlots.bNNN_init`` to a substitute editor;
 the shared ``.ui`` keeps the Maya text for the Maya slot, so the relabel must happen live on
 the loaded widget. This shows the editors menu through the real ``tcl.show()`` path and reads
 the actual ``QPushButton.text()`` to prove the relabel took (and that kept buttons are

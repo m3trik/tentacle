@@ -39,7 +39,7 @@ class TestBackPersistentAlignCamera(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = cameras_module.Cameras.__new__(cameras_module.Cameras)
+        self.instance = cameras_module.CamerasSlots.__new__(cameras_module.CamerasSlots)
         self.sb = _FakeSb()
         self.instance.sb = self.sb
 
@@ -64,7 +64,7 @@ class TestPerViewButtons(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = cameras_module.Cameras.__new__(cameras_module.Cameras)
+        self.instance = cameras_module.CamerasSlots.__new__(cameras_module.CamerasSlots)
         # Capture mtk.switch_viewport_camera calls.
         import mayatk as mtk
         self._original = mtk.switch_viewport_camera

@@ -106,7 +106,7 @@ class TestTb000Revolve(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
 
         self._orig = cmds.revolve
         self.captured = []
@@ -175,7 +175,7 @@ class TestList000Dispatch(unittest.TestCase):
     script editor)."""
 
     def setUp(self):
-        self.instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
         self.instance.sb = _RecordedSb()
         self._orig_mel = mel.eval
 
@@ -218,7 +218,7 @@ class TestB056ImageTracer(unittest.TestCase):
     """b056 shows the 'image_tracer' marking menu."""
 
     def test_b056_routes_to_image_tracer(self):
-        instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
         instance.sb = _RecordedSb()
         instance.b056()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["image_tracer"])
@@ -230,7 +230,7 @@ class TestB016ExtractCurveFallback(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
 
         self._orig_mel = mel.eval
 
@@ -273,7 +273,7 @@ class TestTb001LoftForwardsToMtk(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = nurbs_module.Nurbs.__new__(nurbs_module.Nurbs)
+        self.instance = nurbs_module.NurbsSlots.__new__(nurbs_module.NurbsSlots)
 
         import mayatk as mtk
         self._orig = mtk.loft

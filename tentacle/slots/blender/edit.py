@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import EditMixin, SlotsBlender
 
 
-class Edit(EditMixin, SlotsBlender):
+class EditSlots(EditMixin, SlotsBlender):
     """Blender port of the shared ``edit`` menu.
 
     Mesh Cleanup is backed by ``blendertk.edit_utils.clean_geometry`` (bmesh merge/degenerate/loose/
@@ -876,10 +876,6 @@ class Edit(EditMixin, SlotsBlender):
         "Custom Normals": "_transfer_custom_normals",
         "Material Slots": "_transfer_material_slots",
     }
-
-    def cmb000_init(self, widget):
-        """Initialize the Transfer operations menu."""
-        widget.add(list(self._TRANSFER_OPS), header="Transfer:")
 
     def cmb000(self, index, widget):
         """Transfer — dispatch the selected transfer operation.

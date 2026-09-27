@@ -4,7 +4,7 @@
 
 ``duplicate.py`` imports ``bpy`` at module scope, so it can't be imported outside a real
 Blender process (there is no offline ``bpy`` stub in this repo — see
-``test_scene_blender.py``). This pins the ``Duplicate`` slot's structure the way
+``test_scene_blender.py``). This pins the ``DuplicateSlots`` slot's structure the way
 ``test_materials_blender.py`` / ``test_scene_blender.py`` do. Real-``bpy`` behavioral coverage
 (actual object-selection outcomes) lives in the manual harness
 ``test/blender/duplicate_check.py`` — not auto-discovered, run by hand against a fresh Blender.
@@ -68,7 +68,7 @@ class TestDuplicateBlenderStructure(unittest.TestCase):
 
     def setUp(self):
         self.source = DUPLICATE_FILE.read_text(encoding="utf-8")
-        self.cls = _class_node(self.source, "Duplicate")
+        self.cls = _class_node(self.source, "DuplicateSlots")
         self.assertIsNotNone(self.cls, "Duplicate class not found")
 
     def test_tb000_gates_on_fewer_than_two_objects(self):

@@ -85,22 +85,41 @@ def _write_dist(target, name, version, record=()):
     return info
 
 
+def _newest(patterns):
+    """The newest existing file among *patterns* (natural sort: 4.10 > 4.9).
+
+    Stdlib only, like the rest of this file: the installer under test is what
+    provisions pythontk.
+    """
+    import glob
+
+    found = [p for pat in patterns for p in glob.glob(os.path.expanduser(pat))]
+    natural = lambda p: [  # noqa: E731
+        int(t) if t.isdigit() else t for t in re.split(r"(\d+)", p)
+    ]
+    found = [p for p in found if os.path.isfile(p)]
+    return max(found, key=natural) if found else None
+
+
 def _find_blender():
-    if sys.platform != "win32":
-        return None
-    root = (
-        Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Blender Foundation"
-    )
-    found = sorted(root.glob("Blender */blender.exe")) if root.is_dir() else []
-    return str(found[-1]) if found else None
+    if os.path.isfile(os.environ.get("BLENDER_EXE", "")):
+        return os.environ["BLENDER_EXE"]
+    if sys.platform == "win32":
+        root = os.environ.get("ProgramFiles", r"C:\Program Files")
+        return _newest([os.path.join(root, "Blender Foundation", "Blender *", "blender.exe")])
+    return _newest(
+        ["/opt/blender*/blender", "/usr/local/blender*/blender", "~/blender-*/blender"]
+    ) or shutil.which("blender")
 
 
 def _find_mayapy():
-    if sys.platform != "win32":
-        return None
-    root = Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "Autodesk"
-    found = sorted(root.glob("Maya20*/bin/mayapy.exe")) if root.is_dir() else []
-    return str(found[-1]) if found else None
+    if sys.platform == "win32":
+        root = os.environ.get("ProgramFiles", r"C:\Program Files")
+        return _newest([os.path.join(root, "Autodesk", "Maya20*", "bin", "mayapy.exe")])
+    location = os.environ.get("MAYA_LOCATION")
+    if location and os.path.isfile(os.path.join(location, "bin", "mayapy")):
+        return os.path.join(location, "bin", "mayapy")
+    return _newest(["/usr/autodesk/maya20*/bin/mayapy"]) or shutil.which("mayapy")
 
 
 def _write_wheel(folder, name, version, files):
@@ -476,6 +495,29 @@ class TestManifest(unittest.TestCase):
         )
         self.assertIn("pythontk==1.0", kept.read_text())
         self.assertEqual(self.installer.read_manifest(t)["pins"], ["tentacletk==1.2"])
+
+    def test_a_sharing_violation_on_the_corrupt_move_is_waited_out(self):
+        """The move aside is a replace too: a moment's hold by a sync client or an
+        antivirus scan used to skip it silently, and the fresh write then destroyed
+        the only record of what to remove."""
+        t = str(self.target)
+        path = self.target / self.installer.MANIFEST
+        path.write_text('{"pins": ["pythontk==1.0", "PySide')
+        real = os.replace
+        refusals = []
+
+        def replace(src, dst):
+            if str(dst).endswith(".corrupt") and not refusals:
+                refusals.append(dst)
+                raise PermissionError(32, "The process cannot access the file")
+            return real(src, dst)
+
+        with mock.patch("os.replace", side_effect=replace):
+            self.installer.write_manifest(t, pins=["tentacletk==1.2"])
+        self.assertTrue(refusals, "the move aside never met the held file")
+        kept = self.target / (self.installer.MANIFEST + ".corrupt")
+        self.assertTrue(kept.exists(), "a held manifest was overwritten, not kept")
+        self.assertIn("pythontk==1.0", kept.read_text())
 
     def test_write_is_atomic_and_leaves_no_temp_behind(self):
         t = str(self.target)

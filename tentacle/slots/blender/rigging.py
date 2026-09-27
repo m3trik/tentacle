@@ -3,10 +3,10 @@
 import bpy
 import pythontk as ptk
 import blendertk as btk
-from tentacle import SlotsBlender
+from tentacle import RiggingMixin, SlotsBlender
 
 
-class Rigging(SlotsBlender):
+class RiggingSlots(RiggingMixin, SlotsBlender):
     """Blender port of the shared ``rigging`` menu.
 
     The most divergent domain (Maya skinCluster/joint/IK → Blender Armature + vertex groups +
@@ -345,20 +345,6 @@ class Rigging(SlotsBlender):
             ),
         )
 
-    @staticmethod
-    def _affix_rule(field, convention_key: str) -> "ptk.AffixRule":
-        """The rule a fixed-type suffix field resolves to.
-
-        Scene mode hands the decision to the shared convention -- spelling AND
-        placement -- which is what the Maya twin gets by passing ``None`` to
-        ``create_locator_at_object``. Every other state is the user's literal
-        text placed as the picker says.
-        """
-        mode = field.option_box.affix_mode
-        if mode == "convention":
-            return ptk.NamingConvention.get(convention_key)
-        return ptk.AffixRule(field.text(), mode)
-
     def _locator_child_type_key(self) -> str:
         """The convention key the Scene affix state previews.
 
@@ -371,161 +357,42 @@ class Rigging(SlotsBlender):
         key = btk.Naming.type_key(objects[0]) if objects else "mesh"
         return key if ptk.NamingConvention.affix(key) else "mesh"
 
-    @staticmethod
-    def _locator_base_name(name, suffixes, strip_digits, strip_suffix):
-        """Derive the base name for a locator set: optionally strip a known suffix then trailing
-        digits/underscores (shared pythontk string logic)."""
-        base = name
-        if strip_suffix:
-            for suf in suffixes:
-                if suf and base.endswith(suf):
-                    base = base[: -len(suf)]
-                    break
-        if strip_digits:
-            base = (
-                ptk.StrUtils.format_suffix(base, strip="_", strip_trailing_ints=True)
-                or base
-            )
-        return base
-
     @btk.undoable
     def tb003(self, widget):
         """Create Locator at Selection — an Empty (locator) at each selected object's origin,
-        parented under a group Empty, with the geometry renamed and (optionally) channel-locked.
-        A lone Empty at the cursor when nothing is selected."""
+        parented under a group Empty, with the geometry renamed and (optionally) channel-locked
+        (``btk.RigUtils.create_locator_at_object``, the mirror of mayatk's). A lone Empty at the
+        cursor when nothing is selected."""
         objects = self.selected_objects()
         m = widget.option_box.menu
         if not objects:
             bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
             return
-        scale = m.s001.value()
-        # The group and the locator are Empties this tool creates, so their type is
-        # fixed and known; Scene mode therefore resolves against the convention here
-        # rather than per object.
-        grp_rule = self._affix_rule(m.t002, "group")
-        loc_rule = self._affix_rule(m.t000, "locator")
-        grp_suffix, loc_suffix = grp_rule.text, loc_rule.text
-        obj_field = m.t001
-        affix_mode = obj_field.option_box.affix_mode
-        # "Scene" ignores the field: each object is affixed for its OWN type from
-        # the shared convention (mesh -> _GEO, camera -> _CAM), the way mayatk's
-        # create_locator_at_object does with ``obj_suffix=None``. The manual states
-        # are the user's literal text, placed as the picker says.
-        by_convention = affix_mode == "convention"
-        obj_rule = (
-            None if by_convention else ptk.AffixRule(obj_field.text(), affix_mode)
+        grp_suffix, grp_affix_mode = self._affix_arg(m.t002)
+        loc_suffix, loc_affix_mode = self._affix_arg(m.t000)
+        obj_suffix, obj_affix_mode = self._affix_arg(m.t001)
+        btk.RigUtils.create_locator_at_object(
+            objects,
+            loc_scale=m.s001.value(),
+            grp_suffix=grp_suffix,
+            grp_affix_mode=grp_affix_mode,
+            loc_suffix=loc_suffix,
+            loc_affix_mode=loc_affix_mode,
+            obj_suffix=obj_suffix,
+            obj_affix_mode=obj_affix_mode,
+            strip_digits=m.chk005.isChecked(),
+            strip_suffix=m.chk006.isChecked(),
+            lock_translate=m.chk007.isChecked(),
+            lock_rotation=m.chk008.isChecked(),
+            lock_scale=m.chk009.isChecked(),
         )
-        strip_digits, strip_suffix = m.chk005.isChecked(), m.chk006.isChecked()
-        lock = (m.chk007.isChecked(), m.chk008.isChecked(), m.chk009.isChecked())
-        # By convention, a name may carry the affix of a type it is not (a camera
-        # an earlier run wrote as "_GEO"), so the whole convention vocabulary is
-        # strippable -- longest first, since only the first match is stripped.
-        candidates = {grp_suffix, loc_suffix}
-        candidates |= (
-            set(ptk.NamingConvention.all_affixes())
-            if by_convention
-            else {obj_rule.text}
-        )
-        suffixes = tuple(
-            sorted((s for s in candidates if s), key=lambda a: (-len(a), a))
-        )
-
-        for o in objects:
-            coll = (
-                o.users_collection[0]
-                if o.users_collection
-                else bpy.context.scene.collection
-            )
-            base = self._locator_base_name(o.name, suffixes, strip_digits, strip_suffix)
-            # Both parent-inverses derive from the SOURCE object's matrix_world: the loc/grp
-            # empties are created in this same handler, and a fresh object's ``matrix_world``
-            # reads back IDENTITY until a depsgraph update — inverting *that* left identity
-            # parent-inverses under full-world basis matrices, compounding the transform
-            # (world² / world³) on the next depsgraph eval. Both empties are placed AT
-            # ``o.matrix_world``, so its inverse is exactly theirs.
-            inv = o.matrix_world.inverted_safe()
-            loc = bpy.data.objects.new(loc_rule.apply(base), None)
-            loc.empty_display_type = "PLAIN_AXES"
-            loc.empty_display_size = scale
-            loc.matrix_world = o.matrix_world.copy()
-            coll.objects.link(loc)
-
-            grp = bpy.data.objects.new(grp_rule.apply(base), None)
-            grp.empty_display_type = "PLAIN_AXES"
-            grp.matrix_world = o.matrix_world.copy()
-            coll.objects.link(grp)
-
-            loc.parent = grp
-            loc.matrix_parent_inverse = inv
-            # parent geometry to the locator so it follows; keep its world transform
-            o.parent = loc
-            o.matrix_parent_inverse = inv
-            # An Empty with children reads as a GROUP, and the group Empty created
-            # above already holds "<base>_GRP" -- affixing the child to match would
-            # only earn it a ".001". Maya's twin skips a group's rename likewise.
-            child_is_group = by_convention and btk.Naming.type_key(o) == "group"
-            if by_convention and not child_is_group:
-                # .apply honours the convention's PLACEMENT too, so a studio on
-                # prefixes gets "CAM_shot" rather than "shot_CAM". An unmapped
-                # type has no entry to follow -- keep the mesh affix over a bare
-                # rename.
-                rule = btk.Naming.affix_for(o)
-                new_name = (
-                    rule.apply(base)
-                    if rule.text
-                    else f"{base}{ptk.NamingConvention.affix('mesh')}"
-                )
-                if o.name != new_name:
-                    o.name = new_name
-            elif obj_rule is not None and obj_rule.text:
-                # .apply honours the picker's placement and is idempotent, so a
-                # name that already carries the affix is left alone.
-                new_name = obj_rule.apply(base)
-                if o.name != new_name:
-                    o.name = new_name
-            o.lock_location = (lock[0],) * 3
-            o.lock_rotation = (lock[1],) * 3
-            o.lock_scale = (lock[2],) * 3
 
     @btk.undoable
     def _remove_locator(self):
-        """Remove Locator (tb003's option-box action) — dissolve each selected
-        locator (Empty) the way mayatk's ``remove_locator`` does: unlock the child
-        channels tb003 locked (chk007-9), unparent the children to world
-        *preserving* their transforms (a bare delete pops them back to their raw
-        local matrix), then delete the locator and — when it is left childless —
-        its paired group Empty (tb003's _GRP)."""
-        locators = [o for o in self.selected_objects() if o.type == "EMPTY"]
-        if not locators:
+        """Remove Locator (tb003's option-box action) — dissolve each selected locator (Empty)
+        through ``btk.RigUtils.remove_locator``, the mirror of mayatk's."""
+        if not btk.RigUtils.remove_locator(self.selected_objects()):
             self.sb.message_box("No Empties selected.")
-            return
-        for loc in locators:
-            for child in list(loc.children):
-                if child in locators:
-                    continue  # a selected empty dies anyway — leave it parented
-                child.lock_location = (False,) * 3
-                child.lock_rotation = (False,) * 3
-                child.lock_scale = (False,) * 3
-                mw = child.matrix_world.copy()
-                child.parent = None
-                child.matrix_world = mw
-        # Paired parent-Empty groups (tb003's _GRP) — collected before the deletes below
-        # invalidate the locators' references.
-        groups = []
-        for loc in locators:
-            grp = loc.parent
-            if (
-                grp is not None
-                and grp.type == "EMPTY"
-                and grp not in groups
-                and grp not in locators
-            ):
-                groups.append(grp)
-        for loc in locators:
-            bpy.data.objects.remove(loc, do_unlink=True)
-        for grp in groups:
-            if not grp.children:  # mirror Maya: only delete a group left childless
-                bpy.data.objects.remove(grp, do_unlink=True)
 
     # ------------------------------------------------------------------ tb004  Lock/Unlock Attributes
     def tb004_init(self, widget):

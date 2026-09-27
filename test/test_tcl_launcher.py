@@ -17,6 +17,7 @@ or stub ``host()``, and module stand-ins are real ``types.ModuleType`` objects (
 import contextlib
 import io
 import os
+import subprocess
 import sys
 import types
 import unittest
@@ -378,6 +379,151 @@ class TestLaunchDispatch(unittest.TestCase):
         )
 
 
+class TestLinuxQtHost(unittest.TestCase):
+    """The Linux-only parts of ``tcl_blender._QtHost``: the platform preflight and the pump.
+
+    Preflight: a Qt platform plug-in that fails to load aborts the process from C++ -- in-process
+    that is Blender, with the user's unsaved work -- so ``_QtHost`` starts a QApplication in a
+    CHILD first and raises instead. The error carries the fix (the system libraries to
+    install), so, like the missing engine, it must reach a popup rather than the hidden system
+    console. Measured before the fix: the launcher's timer caught ImportError alone, so the
+    probe's RuntimeError escaped it and the user saw nothing.
+
+    Driven through the REAL ``tcl_blender``: only the probe's ``subprocess.run``, the platform
+    and ``bpy`` are faked -- no Blender, no child process.
+    """
+
+    ABORTED = subprocess.CompletedProcess(
+        args=[],
+        returncode=-6,
+        stdout="",
+        stderr=(
+            'qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it '
+            "was found.\nThis application failed to start because no Qt platform plugin "
+            "could be initialized."
+        ),
+    )
+
+    def setUp(self):
+        try:
+            from tentacle import tcl_blender
+        except Exception as error:  # noqa: BLE001 - any import-time miss = not testable here
+            self.skipTest(f"needs the live tcl_blender (Qt + blendertk): {error}")
+        self.tcl_blender = tcl_blender
+
+    @contextlib.contextmanager
+    def _linux_without_a_qapp(self, probe):
+        """Linux, no QApplication yet, uitk's platform policy stubbed, the probe child faked:
+        *probe* is its ``CompletedProcess``, or the exception launching it raises."""
+        import uitk
+        from qtpy import QtWidgets
+
+        run = (
+            mock.patch("subprocess.run", side_effect=probe)
+            if isinstance(probe, BaseException)
+            else mock.patch("subprocess.run", return_value=probe)
+        )
+        with (
+            mock.patch.object(sys, "platform", "linux"),
+            mock.patch.object(
+                QtWidgets.QApplication, "instance", new=staticmethod(lambda: None)
+            ),
+            mock.patch.object(
+                uitk.Bootstrap,
+                "configure_platform",
+                new=staticmethod(lambda *a, **k: False),
+            ),
+            run,
+        ):
+            yield
+
+    def test_a_failing_probe_raises_the_dedicated_error(self):
+        from tentacle.tcl import QtPlatformUnavailable
+
+        with self._linux_without_a_qapp(self.ABORTED):
+            with self.assertRaises(QtPlatformUnavailable) as ctx:
+                self.tcl_blender._QtHost.ensure_qapp()
+        # Still a RuntimeError: a caller that caught the old error keeps catching it.
+        self.assertIsInstance(ctx.exception, RuntimeError)
+        message = str(ctx.exception)
+        self.assertIn("marking menu is off", message)
+        self.assertIn('Could not load the Qt platform plugin "xcb"', message)
+        self.assertIn("libxcb-cursor0", message)
+
+    def test_a_probe_that_cannot_run_raises_it_too(self):
+        from tentacle.tcl import QtPlatformUnavailable
+
+        with self._linux_without_a_qapp(OSError("no interpreter")):
+            with self.assertRaises(QtPlatformUnavailable) as ctx:
+                self.tcl_blender._QtHost.ensure_qapp()
+        self.assertIn("marking menu is off", str(ctx.exception))
+
+    def test_a_qt_platform_that_cannot_start_reaches_the_user(self):
+        bpy, drawn = _fake_bpy(), []
+
+        def _popup(draw, **_kw):
+            """Run the draw callback the way Blender does, capturing its labels."""
+            menu = mock.MagicMock()
+            menu.layout.label.side_effect = lambda text: drawn.append(text)
+            draw(menu, None)
+
+        bpy.context = mock.MagicMock()
+        bpy.context.window_manager.popup_menu.side_effect = _popup
+        with (
+            self._linux_without_a_qapp(self.ABORTED),
+            _as_blender(bpy, self.tcl_blender),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            Tcl._launch_blender()
+            callback = bpy.app.timers.register.call_args.args[0]
+            self.assertIsNone(callback())  # must NOT propagate out of the timer
+
+        self.assertTrue(drawn, "the Qt platform error never reached a popup")
+        self.assertTrue(any("marking menu is off" in s for s in drawn), drawn)
+        self.assertTrue(any("libxcb-cursor0" in s for s in drawn), drawn)
+        # One line per label: Blender draws a label unwrapped, a newline included.
+        self.assertEqual([s for s in drawn if "\n" in s], [])
+
+    def test_the_pump_runs_qts_own_loop_on_linux_only(self):
+        """X11/Wayland: Qt owns its display connection, so the pump runs Qt's loop there.
+        Elsewhere the queue is shared with Blender -- the Windows thread queue, macOS's
+        NSApplication -- and draining it re-enters Blender (see ``start_pump``), so only
+        posted events are flushed. Measured before the fix: the gate read ``!= "win32"``,
+        so macOS drained the shared queue too."""
+        from qtpy import QtCore
+
+        host, calls = self.tcl_blender._QtHost, []
+        bpy = _fake_bpy()
+        with (
+            mock.patch.dict(sys.modules, {"bpy": bpy}),
+            mock.patch.object(host, "_pump_registered", False),
+            mock.patch.object(
+                self.tcl_blender._NativeWindow,
+                "native_modal_loop_active",
+                new=staticmethod(lambda **_kw: False),
+            ),
+            mock.patch.object(
+                QtCore.QCoreApplication,
+                "processEvents",
+                new=staticmethod(lambda *_a: calls.append("processEvents")),
+            ),
+            mock.patch.object(
+                QtCore.QCoreApplication,
+                "sendPostedEvents",
+                new=staticmethod(lambda *_a: None),
+            ),
+        ):
+            host.start_pump(types.SimpleNamespace())
+            pump = bpy.app.timers.register.call_args.args[0]
+            ran = {}
+            for platform in ("linux", "darwin", "win32"):
+                calls.clear()
+                with mock.patch.object(sys, "platform", platform):
+                    pump()
+                ran[platform] = bool(calls)
+        self.assertEqual(ran, {"linux": True, "darwin": False, "win32": False})
+
+
 class TestDefaultKeyUpgradePath(unittest.TestCase):
     """A shipped default-key change must actually reach a user who already has bindings persisted.
 
@@ -389,8 +535,7 @@ class TestDefaultKeyUpgradePath(unittest.TestCase):
     """
 
     def test_new_default_wins_over_previously_persisted_bindings(self):
-        from uitk.widgets.marking_menu._marking_menu import MarkingMenu
-        from uitk.widgets.marking_menu._resolver import MenuResolver
+        from uitk import MarkingMenu, MenuResolver
 
         stored = Tcl.chord_bindings(
             "F12", "maya#startmenu"
@@ -404,7 +549,7 @@ class TestDefaultKeyUpgradePath(unittest.TestCase):
 
     def test_chords_resolve_against_the_new_key(self):
         """Not just the bare key — the whole chord set must be reachable post-upgrade."""
-        from uitk.widgets.marking_menu._marking_menu import MarkingMenu
+        from uitk import MarkingMenu
 
         merged = MarkingMenu._reconcile_bindings(
             Tcl.chord_bindings(Tcl.DEFAULT_KEY, "maya#startmenu"),

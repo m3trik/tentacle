@@ -5,7 +5,7 @@ import blendertk as btk
 from tentacle import SlotsBlender
 
 
-class Cameras(SlotsBlender):
+class CamerasSlots(SlotsBlender):
     """Blender port of the shared ``cameras`` menu.
 
     Standard-view switching maps to ``view3d.view_axis`` (viewport ops, run under an explicit

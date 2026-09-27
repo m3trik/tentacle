@@ -2,6 +2,7 @@
 # coding=utf-8
 import os
 import shutil
+import sys
 
 import maya.cmds as cmds
 import maya.mel as mel
@@ -255,6 +256,17 @@ class SceneSlots(SceneMixin, SlotsMaya):
     # with a tooltip. Named so the dict key and that filter can't drift apart.
     _SCENE_EXPORTER = "Scene Exporter"
 
+    #: Rows for apps that exist only on Windows (ZBrush's GoZ bridge, 3ds Max):
+    #: elsewhere they could only raise a MEL error, so they are not offered.
+    _WINDOWS_ONLY_EXPORTERS = frozenset(
+        {
+            "GoZ",
+            "Send to 3dsMax: As New Scene",
+            "Send to 3dsMax: Update Current",
+            "Send to 3dsMax: Add to Current",
+        }
+    )
+
     _EXPORTERS = {
         _SCENE_EXPORTER: lambda slot: slot.sb.handlers.marking_menu.show(
             "scene_exporter"
@@ -383,7 +395,12 @@ class SceneSlots(SceneMixin, SlotsMaya):
             "Export",
             setToolTip="Export the scene or selection (FBX, USD, Send To, presets).",
         )
-        one_shots = [k for k in self._EXPORTERS if k != self._SCENE_EXPORTER]
+        one_shots = [
+            k
+            for k in self._EXPORTERS
+            if k != self._SCENE_EXPORTER
+            and (sys.platform == "win32" or k not in self._WINDOWS_ONLY_EXPORTERS)
+        ]
         exporter_tip = "Export scene assets with environment checks and presets."
         # Registration of tb003 runs tb003_init (building the option-box menu),
         # wires clicked -> tb003, and binds ui.tb003 so the panel fork's entry

@@ -153,9 +153,9 @@ def main():
             else "mode gate + active-tool id (GUI: full activation)"
         )
     )
-    from tentacle.slots.blender.subdivision import Subdivision
-    from tentacle.slots.blender.nurbs import Nurbs
-    from tentacle.slots.blender.utilities import Utilities
+    from tentacle.slots.blender.subdivision import SubdivisionSlots
+    from tentacle.slots.blender.nurbs import NurbsSlots
+    from tentacle.slots.blender.utilities import UtilitiesSlots
 
     # -- 1. the bug reproduces: knife is absent from OBJECT mode's tool list -----------------
     # It surfaces as a report WARNING (not an exception), which is why the tool silently stayed
@@ -174,7 +174,7 @@ def main():
     for cls, method, tool_id, label in (
         (PolygonsSlots, "b012", "builtin.knife", "Multi-Cut"),
         (PolygonsSlots, "b047", "builtin.loop_cut", "Insert Edgeloop"),
-        (Subdivision, "b028", "builtin.poly_build", "Quad Draw"),
+        (SubdivisionSlots, "b028", "builtin.poly_build", "Quad Draw"),
     ):
         reset()
         obj = add_cube()
@@ -194,7 +194,7 @@ def main():
     ):
         reset()
         obj = add_curve()
-        slot = make_slot(Nurbs)
+        slot = make_slot(NurbsSlots)
         getattr(slot, method)()
         landed, why = tool_landed("EDIT_CURVE", tool_id)
         check(
@@ -236,7 +236,7 @@ def main():
     # -- 6. mode-agnostic tool: works with no edit_type and forces no mode change ------------
     reset()
     obj = add_cube()
-    slot = make_slot(Utilities)
+    slot = make_slot(UtilitiesSlots)
     slot.b000()  # Measure
     landed, why = tool_landed("OBJECT", "builtin.measure")
     check(

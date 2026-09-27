@@ -6,7 +6,7 @@ import mayatk as mtk
 from tentacle import EditMixin, SlotsMaya
 
 
-class Edit(EditMixin, SlotsMaya):
+class EditSlots(EditMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -836,10 +836,6 @@ class Edit(EditMixin, SlotsMaya):
             "tip": "Click a source vertex, then the matching target vertex.",
         },
     }
-
-    def cmb000_init(self, widget):
-        """Initialize the Transfer operations menu."""
-        widget.add(list(self._TRANSFER_OPS), header="Transfer:")
 
     def cmb000(self, index, widget):
         """Transfer — dispatch the selected transfer operation."""

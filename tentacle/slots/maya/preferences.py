@@ -9,7 +9,7 @@ import pythontk as ptk
 from tentacle import PreferencesMixin, SlotsMaya
 
 
-class Preferences(PreferencesMixin, SlotsMaya):
+class PreferencesSlots(PreferencesMixin, SlotsMaya):
     #: The engine behind the shared Macros menu / Macro Manager (PreferencesMixin).
     macros = mtk.Macros
 

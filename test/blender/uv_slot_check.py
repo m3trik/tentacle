@@ -6,7 +6,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/uv_slot_check.py
 
-Drives the real ``Uv`` slot methods with a stubbed option-box menu (mirrors the fake widget
+Drives the real ``UvSlots`` slot methods with a stubbed option-box menu (mirrors the fake widget
 idiom in ``edit_slot_check.py`` / ``rendering_slot_check.py``) but everything downstream is live
 ``bpy``/bmesh state — this proves the widget objectNames the option boxes expose (tb000's
 cmb009/s004, tb004's chk022/s000, tb022's chk026) are wired to the real underlying geometry
@@ -36,8 +36,14 @@ def check(name, cond, detail=""):
 
 def make_slot(cls):
     """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
+    import contextlib
+
     slot = cls.__new__(cls)
-    slot.sb = NS(message_box=lambda *a, **k: None)
+    # progress(): the footer task marquee the long UV slots wrap their engine call in.
+    slot.sb = NS(
+        message_box=lambda *a, **k: None,
+        progress=lambda *a, **k: contextlib.nullcontext(lambda *a, **k: True),
+    )
     return slot
 
 
@@ -71,9 +77,9 @@ try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt for the slot imports
-    from tentacle.slots.blender.uv import Uv
+    from tentacle.slots.blender.uv import UvSlots
 
-    slot = make_slot(Uv)
+    slot = make_slot(UvSlots)
 
     def uv_bounds(o):
         bm = bmesh.new()
@@ -108,6 +114,7 @@ try:
     menu = NS(
         cmb009=combo(data=0),  # Pre-Scale: Preserve UV (skip the average-islands-scale pre-pass)
         s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1012),
+        cmb015=combo(data=(1.0, 1.0)),  # Tile Coverage: Full
     )
     slot.tb000(option_box(menu))
     b = uv_bounds(o)
@@ -120,7 +127,8 @@ try:
     # tb000 with the default tile (1001) leaves the pack in the 0-1 square
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(cmb009=combo(data=0), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001))
+    menu = NS(cmb009=combo(data=0), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001),
+                cmb015=combo(data=(1.0, 1.0)))
     slot.tb000(option_box(menu))
     b = uv_bounds(o)
     check(
@@ -133,7 +141,8 @@ try:
     # packing; the result still fits the 0-1 square (proves the new cmb009 branch is wired).
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(cmb009=combo(data=1), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001))
+    menu = NS(cmb009=combo(data=1), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001),
+                cmb015=combo(data=(1.0, 1.0)))
     slot.tb000(option_box(menu))
     b = uv_bounds(o)
     check(

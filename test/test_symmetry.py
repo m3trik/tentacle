@@ -50,7 +50,7 @@ class TestChkAxes(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = symmetry_module.Symmetry.__new__(symmetry_module.Symmetry)
+        self.instance = symmetry_module.SymmetrySlots.__new__(symmetry_module.SymmetrySlots)
         self.instance.sb = _RecordedSb()
 
         # Stateful stub: edits mutate state, queries read it — so the feedback popup
@@ -134,7 +134,7 @@ class TestChk005Topo(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = symmetry_module.Symmetry.__new__(symmetry_module.Symmetry)
+        self.instance = symmetry_module.SymmetrySlots.__new__(symmetry_module.SymmetrySlots)
         self.instance.sb = _RecordedSb()
         self.instance.ui = _FakeUi()
 

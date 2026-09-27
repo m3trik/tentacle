@@ -6,10 +6,10 @@ import pythontk as ptk
 import mayatk as mtk
 
 # From this package:
-from tentacle import SlotsMaya
+from tentacle import RiggingMixin, SlotsMaya
 
 
-class Rigging(SlotsMaya):
+class RiggingSlots(RiggingMixin, SlotsMaya):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -284,19 +284,6 @@ class Rigging(SlotsMaya):
     # ------------------------------------------------------------------
     # tb003 — Create Locator at Selection
     # ------------------------------------------------------------------
-
-    @staticmethod
-    def _affix_arg(field):
-        """``(text, mode)`` for an affix field, as the engine wants them.
-
-        Scene mode reports ``(None, "auto")``: ``None`` is how
-        ``create_locator_at_object`` is told to take the shared convention's
-        entry for that node type -- spelling AND placement -- so the mode
-        argument beside it is moot. Every other state is the user's literal
-        text placed as the picker says.
-        """
-        mode = field.option_box.affix_mode
-        return (None, "auto") if mode == "convention" else (field.text(), mode)
 
     @staticmethod
     def _locator_child_type_key() -> str:

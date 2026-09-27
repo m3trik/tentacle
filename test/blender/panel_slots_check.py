@@ -1,5 +1,6 @@
 """Manual harness for the Blender tool-panel slots (mirror / duplicate_linear / duplicate_radial
-/ duplicate_grid / cut_on_axis / hdr_manager / reference_manager).
+/ duplicate_grid / cut_on_axis / hdr_manager / curtain). The Reference Manager panel became a
+table mirror of mayatk's; its library round trip is ``blendertk/test/test_reference_manager.py``.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -44,6 +45,39 @@ def chk(v=False):
 
 def spin(v=0):
     return NS(value=lambda: v)
+
+
+def panel_ui(cls, **overrides):
+    """A fake ``ui`` for a co-located panel's Slots, built from the panel's OWN ``.ui``.
+
+    Every checkbox / radio button / combo / spinbox the ``.ui`` declares is present at its
+    ``.ui`` default; *overrides* set the ones a case cares about. The hand-listed fakes this
+    replaces went stale each time a panel gained a widget (mirror's Instance ``chk007``,
+    cut_on_axis's ``s002``-``s004``) and every case died on the missing attribute before
+    asserting anything. An override naming a widget the ``.ui`` lacks fails loudly instead:
+    that is the widget-name drift this harness exists to catch.
+    """
+    import xml.etree.ElementTree as ET
+
+    path = Path(sys.modules[cls.__module__].__file__).with_suffix(".ui")
+    if not path.exists():  # a tool subpackage pairs <tool>_slots.py with <tool>.ui
+        path = path.with_name(path.name.replace("_slots.ui", ".ui"))
+    fake = {}
+    for w in ET.parse(path).iter("widget"):
+        kind, name = w.get("class", ""), w.get("name", "")
+        props = {q.get("name"): q[0].text for q in w.findall("property") if len(q)}
+        if "CheckBox" in kind or "RadioButton" in kind:
+            fake[name] = chk(props.get("checked") == "true")
+        elif "ComboBox" in kind:
+            fake[name] = combo(int(props.get("currentIndex") or 0))
+        elif "SpinBox" in kind:
+            value = float(props.get("value") or 0)
+            fake[name] = spin(value if "Double" in kind else int(value))
+    unknown = sorted(set(overrides) - set(fake))
+    if unknown:
+        raise KeyError(f"{path.name} has no {unknown} (renamed or removed?)")
+    fake.update(overrides)
+    return NS(**fake)
 
 
 messages = []  # sb.message_box capture (asserted by the manager-panel checks)
@@ -94,11 +128,13 @@ try:
     # widget-name drift this file exists to catch, so the names are spelled out per case:
     #   cmb000 Pivot: 0 Manip | 1 Object | 2 World | 3 BBox (center) | 4 BBox (border)
     #   cmb001 Merge: 0 OFF   | 1 Combine | 2 Border Edges | 3 Extrude   (engine: index - 1)
+    # chk007 is Instance output: off (its .ui default) in the geometry cases, which the
+    # panel_ui fakes supply; its own path has cases of its own below.
 
     # ---- mirror: world pivot, merge OFF -> separate _mirror object
     reset()
     o = cube(x=2.0)
-    ui = NS(cmb000=combo(2), cmb001=combo(0), chk005=chk(False), chk006=chk(False))
+    ui = panel_ui(MirrorSlots, cmb000=combo(2), cmb001=combo(0), chk006=chk(False))
     slot = make_slot(MirrorSlots, ui, axis="x")
     slot.perform_operation([o])
     check("mirror slot OFF makes a _mirror object",
@@ -108,7 +144,7 @@ try:
     # ---- mirror: border merge welds in-mesh
     reset()
     o = cube(x=2.0)
-    ui = NS(cmb000=combo(4), cmb001=combo(2), chk005=chk(False), chk006=chk(False))
+    ui = panel_ui(MirrorSlots, cmb000=combo(4), cmb001=combo(2), chk006=chk(False))
     slot = make_slot(MirrorSlots, ui, axis="-x")  # BBox (border) + '-' -> min face
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
@@ -119,13 +155,33 @@ try:
     # ---- mirror: bbox-center pivot symmetrizes (keeps the +x half by UI convention)
     reset()
     o = cube()
-    ui = NS(cmb000=combo(3), cmb001=combo(0), chk005=chk(False), chk006=chk(False))
+    ui = panel_ui(MirrorSlots, cmb000=combo(3), cmb001=combo(0), chk006=chk(False))
     slot = make_slot(MirrorSlots, ui, axis="x")
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
     check("mirror slot center symmetrizes full span",
           abs(min(xs) + 1.0) < 1e-4 and abs(max(xs) - 1.0) < 1e-4,
           f"x {min(xs):.2f}..{max(xs):.2f}")
+
+    # ---- mirror: Instance output (chk007) adds a linked duplicate, reflected in its matrix
+    reset()
+    o = cube(x=2.0)
+    inst_ui = panel_ui(MirrorSlots, cmb000=combo(2), cmb001=combo(0), chk007=chk(True))
+    make_slot(MirrorSlots, inst_ui, axis="x").perform_operation([o])
+    twin = next((x for x in bpy.data.objects if x.name.endswith("_mirror")), None)
+    check("mirror slot Instance output makes a linked duplicate across the world plane",
+          twin is not None and twin.data is o.data
+          and abs(twin.matrix_world.translation.x + 2.0) < 1e-4
+          and twin.matrix_world.determinant() < 0,
+          f"{[(x.name, x.data.name if x.data else None) for x in bpy.data.objects]}")
+
+    # ---- mirror: Instance output refuses the symmetrize pivot (it cuts geometry)
+    inst_ui = panel_ui(MirrorSlots, cmb000=combo(3), cmb001=combo(0), chk007=chk(True))
+    try:
+        make_slot(MirrorSlots, inst_ui, axis="x").perform_operation([o])
+        check("mirror slot Instance + BBox(center) raises", False)
+    except ValueError:
+        check("mirror slot Instance + BBox(center) raises", True)
 
     # ---- mirror: missing axis raises the user-facing error
     try:
@@ -139,7 +195,12 @@ try:
     o = cube()
     # cut_on_axis reads cmb000 (Pivot: 0 manip | 1 object | 2 world | 3 center) — index 2
     # cuts at the world origin, which is where these cubes sit.
-    ui = NS(cmb000=combo(2), s000=spin(2), s001=spin(0.0), chk005=chk(False), chk006=chk(False))
+    # cmb001 (Interpolation) is filled in code, not the .ui, so its data is the panel's own
+    # init default ("linear"), given here.
+    ui = panel_ui(
+        CutOnAxisSlots, cmb000=combo(2), cmb001=combo(0, "linear"), s000=spin(2), s001=spin(0.0),
+        chk005=chk(False), chk006=chk(False),
+    )
     slot = make_slot(CutOnAxisSlots, ui, axis="x")
     slot.perform_operation([o])
     check("cut slot 2 cuts -> 14 faces", len(o.data.polygons) == 14, f"f={len(o.data.polygons)}")
@@ -147,7 +208,10 @@ try:
     # ---- cut_on_axis: delete clears the +x half
     reset()
     o = cube()
-    ui = NS(cmb000=combo(2), s000=spin(1), s001=spin(0.0), chk005=chk(True), chk006=chk(False))
+    ui = panel_ui(
+        CutOnAxisSlots, cmb000=combo(2), cmb001=combo(0, "linear"), s000=spin(1), s001=spin(0.0),
+        chk005=chk(True), chk006=chk(False),
+    )
     slot = make_slot(CutOnAxisSlots, ui, axis="x")
     slot.perform_operation([o])
     xs = [(o.matrix_world @ v.co).x for v in o.data.vertices]
@@ -156,7 +220,8 @@ try:
     # ---- duplicate_linear: s009 copies includes the original; linear ramp
     reset()
     o = cube()
-    ui = NS(
+    ui = panel_ui(
+        DuplicateLinearSlots,
         s000=spin(6.0), s001=spin(0.0), s002=spin(0.0),  # translate
         s003=spin(0.0), s004=spin(0.0), s005=spin(0.0),  # rotate
         s006=spin(1.0), s007=spin(1.0), s008=spin(1.0),  # scale
@@ -182,7 +247,8 @@ try:
     reset()
     o = cube(x=3.0)
     name = o.name
-    ui = NS(
+    ui = panel_ui(
+        DuplicateRadialSlots,
         s000=spin(0.0), s001=spin(0.0), s002=spin(0.0),
         s003=spin(0.0), s004=spin(0.0), s005=spin(0.0),
         s006=spin(1.0), s007=spin(1.0), s008=spin(1.0),
@@ -207,7 +273,8 @@ try:
     # ---- duplicate_grid: 2x2x1 instances under an Empty
     reset()
     o = cube(size=2.0)
-    ui = NS(
+    ui = panel_ui(
+        DuplicateGridSlots,
         s000=spin(2), s001=spin(2), s002=spin(1), s003=spin(1.0),
         cmb000=combo(1, "instance"),
     )
@@ -218,52 +285,47 @@ try:
           len(copies) == 3 and all(c.parent and c.parent.type == "EMPTY" for c in copies),
           f"n={len(copies)}")
 
-    # ---- hdr_manager: folder scan + select-applies + live levels ---------------------------
+    # ---- hdr_manager: folder scan + apply + live levels ------------------------------------
+    # Through the primitives the dropdown composes (_folder_hdrs / _set_environment /
+    # _apply_levels): cmb000's full path now re-syncs the whole panel from the scene
+    # (_sync_ui_to_scene), which a stub ui cannot stand in for.
     import tempfile
     import blendertk as btk
     from blendertk.light_utils.hdr_manager import HdrManagerSlots
 
-    def lineedit(text=""):
-        return NS(text=lambda: text)
-
-    class ComboStub:
-        def __init__(self):
-            self.added, self.data = None, None
-        def add(self, items, **kw):
-            self.added = dict(items)
-        def currentData(self):
-            return self.data
-        def blockSignals(self, state):  # _populate_maps guards its rebuild
-            pass
-
     tmp_dir = tempfile.mkdtemp(prefix="tcl_hdr_")
-    img = bpy.data.images.new("hdr_fixture", 8, 4, float_buffer=True)
+    img = bpy.data.images.new("hdr_fixture", 8, 4, float_buffer=True)  # 2:1 lat-long
     img.file_format = "HDR"
     hdr_path = os.path.join(tmp_dir, "studio.hdr")
     img.filepath_raw = hdr_path
     img.save()
     open(os.path.join(tmp_dir, "notes.txt"), "w").close()  # must be filtered out
 
-    cmb = ComboStub()
+    # No option boxes are built here: the List filters fall back to on, and the render
+    # toggle to visible -- the defaults the panel itself uses before they exist.
     ui = NS(
-        txt000=lineedit(tmp_dir), cmb000=cmb,
-        spn_intensity=spin(2.0), spn_exposure=spin(1.0),
-        slider000=spin(90), chk000=chk(True),
+        cmb000=combo(data=None),
+        spn_intensity=spin(2.0), spn_exposure=spin(1.0), slider000=spin(90),
+        spn_diffuse=spin(1.0), spn_specular=spin(1.0),
     )
     slot = make_slot(HdrManagerSlots, ui)
-    slot._populate_maps()
-    check("hdr slot scans only .hdr/.exr", cmb.added == {"studio.hdr": hdr_path},
-          f"added={cmb.added}")
+    slot._render_toggle = None
+
+    def _norm(path):
+        return os.path.normcase(os.path.abspath(path))
+
+    found = [_norm(p) for p in slot._folder_hdrs(tmp_dir)]
+    check("hdr slot scans only environment maps", found == [_norm(hdr_path)],
+          f"found={found}")
 
     messages.clear()
-    slot.cmb000(0, cmb)  # nothing picked yet -> silent no-op, world untouched
+    slot.cmb000(0, combo(data=None))  # nothing picked yet -> silent no-op, world untouched
     check("hdr slot select with no map is a no-op", len(messages) == 0
           and btk.get_world_hdri() is None)
 
-    cmb.data = hdr_path
-    slot.cmb000(0, cmb)  # selecting a map applies it (the sole apply action)
+    slot._set_environment(hdr_path)  # the apply a dropdown pick runs
     state = btk.get_world_hdri()
-    check("hdr slot select applies intensity*2^exposure", state is not None
+    check("hdr slot applies intensity*2^exposure", state is not None
           and abs(state["strength"] - 4.0) < 1e-6 and abs(state["rotation"] - 90) < 1e-4,
           f"state={state}")
 
@@ -275,62 +337,6 @@ try:
     os.remove(hdr_path)
     os.remove(os.path.join(tmp_dir, "notes.txt"))
     os.rmdir(tmp_dir)
-
-    # ---- reference_manager: link round trip (refresh / reload / remove) --------------------
-    from blendertk.env_utils.reference_manager import ReferenceManagerSlots
-
-    class ListStub:
-        def __init__(self):
-            self.items, self.row = [], -1
-        def clear(self):
-            self.items = []
-        def addItem(self, text):
-            self.items.append(text)
-        def currentRow(self):
-            return self.row
-
-    reset()
-    src = cube()
-    src.name = "LibCube"
-    lib_dir = tempfile.mkdtemp(prefix="tcl_lib_")
-    lib_path = os.path.join(lib_dir, "lib.blend")
-    bpy.data.libraries.write(lib_path, {src}, fake_user=True)
-    reset()
-    bpy.ops.wm.link(
-        filepath=os.path.join(lib_path, "Object", "LibCube"),
-        directory=os.path.join(lib_path, "Object"),
-        filename="LibCube",
-    )
-    check("library linked for the fixture", len(bpy.data.libraries) == 1,
-          f"libs={[lib.name for lib in bpy.data.libraries]}")
-
-    lst = ListStub()
-    slot = make_slot(ReferenceManagerSlots, NS(lst000=lst))
-    slot._refresh()
-    check("ref slot lists the library (no missing flag)",
-          len(lst.items) == 1 and "lib.blend" in lst.items[0]
-          and not lst.items[0].startswith("⚠"),
-          f"items={lst.items}")
-
-    messages.clear()
-    slot.b002()  # no row selected -> message
-    check("ref slot acts only on a selected row", len(messages) == 1)
-
-    lst.row = 0
-    messages.clear()
-    slot.b002()  # reload the linked library in place
-    check("ref slot reload succeeds and keeps the library",
-          len(bpy.data.libraries) == 1 and messages == ["Reloaded <hl>lib.blend</hl>."],
-          f"messages={messages}")
-
-    lst.row = 0
-    slot.b004()  # remove -> library and its objects gone
-    check("ref slot remove unlinks the library",
-          len(bpy.data.libraries) == 0 and not lst.items,
-          f"libs={len(bpy.data.libraries)} items={lst.items}")
-
-    os.remove(lib_path)
-    os.rmdir(lib_dir)
 
     # ---- curtain: generated rail + rail-from-curve through the real slot reader ---------
     from blendertk.edit_utils.curtain import CurtainSlots
@@ -347,16 +353,22 @@ try:
             chk001=chk(False), chk004=chk(False), chk005=chk(True),
         )
         base.update(over)
-        return NS(**base)
+        return panel_ui(CurtainSlots, **base)  # a field the .ui lacks fails loudly
+
+    def curtain_slot():
+        slot = make_slot(CurtainSlots, curtain_ui())
+        # The state __init__ owns (make_slot skips it): no curtain made yet, no
+        # generated driver rail.
+        slot.last_curtain, slot._driver, slot._generated = None, None, False
+        return slot
 
     reset()
-    slot = make_slot(CurtainSlots, curtain_ui())
-    slot._created = None
+    slot = curtain_slot()
     slot.perform_operation([])  # nothing selected -> rail generated from the fields
-    curtain = bpy.data.objects.get(slot._created or "")
+    curtain = bpy.data.objects.get(slot.last_curtain or "")
     check("curtain slot builds from the generated rail",
           curtain is not None and len(curtain.data.vertices) > 100,
-          f"created={slot._created}")
+          f"created={slot.last_curtain}")
     xs = [v.co.x for v in curtain.data.vertices]
     check("curtain spans the dialed width",
           abs(min(xs) + 3.0) < 0.5 and abs(max(xs) - 3.0) < 0.5,
@@ -371,10 +383,9 @@ try:
     reset()
     bpy.ops.curve.primitive_bezier_curve_add()
     curve = bpy.context.active_object
-    slot = make_slot(CurtainSlots, curtain_ui())
-    slot._created = None
+    slot = curtain_slot()
     slot.perform_operation([curve])  # selected curve becomes the rail
-    curtain = bpy.data.objects.get(slot._created or "")
+    curtain = bpy.data.objects.get(slot.last_curtain or "")
     check("curtain slot drapes from a selected curve",
           curtain is not None and len(curtain.data.vertices) > 100)
 

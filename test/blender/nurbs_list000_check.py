@@ -20,6 +20,7 @@ Verifies:
 """
 import os
 import sys
+from types import SimpleNamespace as NS
 from pathlib import Path
 
 MONO = Path(__file__).resolve().parents[3]
@@ -79,17 +80,20 @@ def _run():
     from tentacle import tcl_blender  # import-time side effect provisions Qt (qtpy/PySide6)
     from qtpy import QtWidgets
     from uitk.widgets.expandableList import ExpandableList
-    from tentacle.slots.blender.nurbs import Nurbs
+    from tentacle.slots.blender.nurbs import NurbsSlots
 
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
     check("QApplication available (needed for ExpandableList)", app is not None)
     check("Qt provisioned via tcl_blender bootstrap", hasattr(tcl_blender, "bl_info"))
 
     sb = FakeSwitchboard()
-    nurbs = Nurbs(sb)
+    nurbs = NurbsSlots(sb)
 
     # ---- tree structure ---------------------------------------------------------------
     widget = ExpandableList()
+    # list000_init reads the host menu's tags (submenu -> expand overlay); a
+    # standalone list has no host ui, so give it the startmenu's answer.
+    widget.ui = NS(has_tags=lambda *_a, **_k: False)
     nurbs.list000_init(widget)
 
     top = widget.get_items()
@@ -117,7 +121,7 @@ def _run():
 
     expected_leaves = {
         label
-        for items in Nurbs._LIST000_COMMANDS.values()
+        for items in NurbsSlots._LIST000_COMMANDS.values()
         for label, _ in items
     }
     check(
@@ -126,10 +130,11 @@ def _run():
         f"got {sorted(leaf_widgets)}",
     )
 
+    # Bend / Curl / Curvature / Straighten / Rebuild / Extend have since been
+    # ported (btk.NurbsUtils); these are the ones nurbs.py still excuses.
     excused = {
-        "Lock", "Unlock", "Bend", "Curl", "Curvature", "Straighten",
-        "Insert Isoparm", "Insert Knot", "Rebuild",
-        "Extend (Options)", "Extend", "Extend on Surface",
+        "Lock", "Unlock", "Insert Isoparm", "Insert Knot",
+        "Extend (Options)", "Extend on Surface",
     }
     check(
         "excused parametric-only leaves are absent",

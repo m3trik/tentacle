@@ -8,7 +8,7 @@ import blendertk as btk
 from tentacle import PreferencesMixin, SlotsBlender
 
 
-class Preferences(PreferencesMixin, SlotsBlender):
+class PreferencesSlots(PreferencesMixin, SlotsBlender):
     """Blender port of the shared ``preferences`` menu.
 
     Working units (length) and frame rate map onto ``scene.unit_settings`` / ``scene.render.fps``;

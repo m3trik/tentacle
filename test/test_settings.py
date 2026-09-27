@@ -15,7 +15,7 @@ centralized into uitk's ``MarkingMenu``:
 
 Those four now live on ``SettingsMixin`` (``slots/_settings.py``, shared by the
 Maya + Blender forks); the tests still drive them through the concrete Maya
-``Settings`` class, so they also pin that the mixin extraction kept the
+``SettingsSlots`` class, so they also pin that the mixin extraction kept the
 inherited behavior reachable. ``SettingsMixin.check_for_update`` is covered
 directly at the bottom of this file — it is DCC-agnostic, so those cases need
 no Maya import path.
@@ -94,7 +94,7 @@ class _FakeSb:
 
 
 def _settings_instance(sb):
-    inst = settings_module.Settings.__new__(settings_module.Settings)
+    inst = settings_module.SettingsSlots.__new__(settings_module.SettingsSlots)
     inst.sb = sb
     return inst
 

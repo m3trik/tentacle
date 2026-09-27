@@ -84,6 +84,25 @@ class MainMixin:
             start = os.path.dirname(path)
         self._switch_to_workspace(path)
 
+    def _dispatch_workspace_item(self, item):
+        """The Workspace tab's ``list000`` body: editing actions, recent-workspace
+        selection, and directory-browser entries. The forks keep the handler
+        itself (its ``@Signals`` decorator is evaluated in the class body)."""
+        import pythontk as ptk
+
+        data = item.item_data()
+        if data == "__set_dir__":
+            self._set_workspace_interactive()
+        elif data == "__auto__":
+            self._auto_set_workspace()
+        elif data == "__editor__":
+            self._open_workspace_editor()
+        elif isinstance(data, tuple) and data and data[0] == "__recent__":
+            self._set_workspace_from_path(data[1])
+        elif data and os.path.isdir(str(data)):
+            ptk.FileUtils.open_explorer(str(data))
+            self.sb.handlers.marking_menu.hide()
+
     def _set_workspace_from_path(self, path):
         """Switch to a recent workspace *path* (re-validated first)."""
         if not self._is_workspace(path):

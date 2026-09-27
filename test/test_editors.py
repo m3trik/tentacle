@@ -2,8 +2,8 @@
 # coding=utf-8
 """Regression tests for tentacle.slots.maya.editors.
 
-editors.py is dominated by a mel.eval dispatch table (list000) for every
-Maya editor window. The unit with real conditional logic worth pinning
+editors.py's list000 opens every Maya editor through the
+mtk.UiUtils.get_editor_types registry. The unit with real conditional logic worth pinning
 is b009 (Time & Range) — its 4-way visibility-state matrix decides
 which sliders to toggle.
 """
@@ -28,7 +28,7 @@ class TestB009TimeAndRange(unittest.TestCase):
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = editors_module.Editors.__new__(editors_module.Editors)
+        self.instance = editors_module.EditorsSlots.__new__(editors_module.EditorsSlots)
 
         # Mock mel.eval to drive the isUIComponentVisible queries and
         # capture toggle invocations.
@@ -86,75 +86,87 @@ class TestB009TimeAndRange(unittest.TestCase):
         )
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestList000DispatchCompleteness(unittest.TestCase):
-    """The list000 dispatcher is a 5-category × N-item dispatch table. The
-    init builds an editors_dict from string literals; list000 has a
-    matching `if text == "Foo": mel.eval(...)` chain.
+class TestList000EditorsResolve(unittest.TestCase):
+    """Every row of the editors list opens through mtk.UiUtils's registry.
 
-    Drift between the two (adding an item to the dict but forgetting the
-    branch) produces a click-does-nothing bug. We don't probe every entry
-    (would mean stubbing both halves) but we do verify the source-code
-    text references match — a static check.
+    list000 was a 132-line ``if text == ...: mel.eval(...)`` chain that had to
+    be kept in step with the init's item list by hand; both halves now read
+    ``mtk.UiUtils.get_editor_types()``. The init filters against it, so a name
+    missing from the registry would not dead-end -- it would silently vanish
+    from the list. Read by AST so this runs without Maya.
     """
 
-    def test_every_editors_dict_item_has_dispatch_branch(self):
-        """Probe by AST: every quoted item in editors_dict appears in list000
-        as a `text == "..."` comparison."""
+    def test_every_listed_editor_is_registered(self):
         import ast
         import pathlib
 
-        src = (
-            pathlib.Path(editors_module.__file__).read_text(encoding="utf-8")
-        )
-        tree = ast.parse(src)
+        import mayatk as mtk
 
-        # Find Editors class
-        editors_class = next(
-            n for n in ast.walk(tree)
-            if isinstance(n, ast.ClassDef) and n.name == "Editors"
+        path = pathlib.Path(__file__).parents[1] / "tentacle/slots/maya/editors.py"
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        editors = next(
+            n for n in ast.walk(tree) if isinstance(n, ast.ClassDef) and n.name == "EditorsSlots"
         )
+        table = next(
+            ast.literal_eval(n.value)
+            for n in editors.body
+            if isinstance(n, ast.Assign)
+            and any(getattr(t, "id", None) == "_EDITORS" for t in n.targets)
+        )
+        listed = {name for names in table.values() for name in names}
+        self.assertEqual(len(listed), 59)
+        self.assertEqual(listed - set(mtk.UiUtils.get_editor_types()), set())
 
-        # Collect editors_dict literal items from list000_init.
-        list000_init = next(
-            n for n in editors_class.body
-            if isinstance(n, ast.FunctionDef) and n.name == "list000_init"
-        )
-        dict_items: set[str] = set()
-        for node in ast.walk(list000_init):
-            if isinstance(node, ast.Dict):
-                for val in node.values:
-                    if isinstance(val, ast.List):
-                        for elt in val.elts:
-                            if isinstance(elt, ast.Constant) and isinstance(
-                                elt.value, str
-                            ):
-                                dict_items.add(elt.value)
 
-        # Collect dispatched strings from list000 (text == "...").
-        list000 = next(
-            n for n in editors_class.body
-            if isinstance(n, ast.FunctionDef) and n.name == "list000"
-        )
-        dispatched: set[str] = set()
-        for node in ast.walk(list000):
-            if (
-                isinstance(node, ast.Compare)
-                and isinstance(node.left, ast.Name)
-                and node.left.id == "text"
-                and len(node.comparators) == 1
-                and isinstance(node.comparators[0], ast.Constant)
-                and isinstance(node.comparators[0].value, str)
-            ):
-                dispatched.add(node.comparators[0].value)
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestList000Dispatch(unittest.TestCase):
+    """list000 opens the picked editor, and says so when it could not."""
 
-        # Every item declared in the init should appear in the dispatcher.
-        missing = dict_items - dispatched
-        self.assertEqual(
-            missing,
-            set(),
-            f"editors_dict declares items with no dispatch branch: {sorted(missing)}",
-        )
+    class _Item:
+        def __init__(self, text):
+            self._text = text
+
+        def item_text(self):
+            return self._text
+
+    def setUp(self):
+        from unittest import mock
+
+        self.instance = editors_module.EditorsSlots.__new__(editors_module.EditorsSlots)
+        self.messages = []
+        self.instance.sb = mock.Mock()
+        self.instance.sb.message_box.side_effect = self.messages.append
+        patcher = mock.patch.object(editors_module.mtk.UiUtils, "open_editor")
+        self.open_editor = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_an_editor_row_opens_its_editor(self):
+        self.open_editor.return_value = "TextureViewWindow"
+        self.instance.list000(self._Item("UV Editor"))
+        self.open_editor.assert_called_once_with("UV Editor")
+        self.assertEqual(self.messages, [])
+
+    def test_a_category_header_opens_nothing(self):
+        self.instance.list000(self._Item("Modeling Editors"))
+        self.open_editor.assert_not_called()
+
+    def test_a_failed_open_is_reported(self):
+        self.open_editor.return_value = None
+        self.instance.list000(self._Item("XGen Editor"))
+        self.assertTrue(self.messages)
+
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestPreRenameAlias(unittest.TestCase):
+    """``Editors`` became ``EditorsSlots``; mayatk's tests import the class by
+    module path, so the old name resolves to the same class, with a warning, for
+    one release (``ptk.Deprecation.attributes``)."""
+
+    def test_old_name_resolves_to_the_renamed_class_with_a_warning(self):
+        with self.assertWarns(DeprecationWarning):
+            old = editors_module.Editors
+        self.assertIs(old, editors_module.EditorsSlots)
 
 
 if __name__ == "__main__":

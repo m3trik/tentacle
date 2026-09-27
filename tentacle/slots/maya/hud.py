@@ -195,18 +195,13 @@ class WarningsMixin(HudWarningsMixin):
         scene = str(cmds.file(query=True, sceneName=True) or "")
         if not scene:
             return False
-        scene_norm = os.path.normpath(scene).lower()
         try:
             folders = mtk.EnvUtils.find_autosave_directories()
         except Exception:
             folders = []
-        for folder in folders:
-            try:
-                if scene_norm.startswith(os.path.normpath(folder).lower()):
-                    return True
-            except (OSError, ValueError):
-                continue
-        return False
+        # is_under: case folds only where the filesystem does, on a folder
+        # boundary (a startswith put /proj/autosave2 inside /proj/autosave).
+        return any(ptk.FileUtils.is_under(scene, folder) for folder in folders)
 
 
 class HudSlots(
@@ -218,8 +213,9 @@ class HudSlots(
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        mayapy = os.path.join(mtk.get_env_info("install_path"), "bin", "mayapy.exe")
-        self.start_version_check(package_name="tentacletk", python_path=mayapy)
+        self.start_version_check(
+            package_name="tentacletk", python_path=mtk.get_env_info("mayapy")
+        )
 
         self.ui = self.sb.loaded_ui.hud_startmenu
         self.ui.hudTextEdit.shown.connect(self.request_hud_build)
