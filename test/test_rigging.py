@@ -7,7 +7,7 @@ The dispatch units worth pinning at this layer:
 - cmb001 (Create): 4-way dispatch on widget.itemText. Each branch
   invokes a different cmds/mel call. A typo or rename would silently
   break one tool.
-- cmb002 (Quick Rig): 4 entries that drive marking_menu.show(<name>).
+- cmb002 (Quick Rig): 5 entries that drive marking_menu.show(<name>).
   The marking-menu key names must stay stable.
 - tb000 (Toggle Display LRA): no-op when scene has no joints; warns.
 - tb001 (Constraint Switch): forwards three field values to
@@ -150,8 +150,8 @@ class TestCmb001Create(unittest.TestCase):
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestCmb002QuickRigMarkingMenuNames(unittest.TestCase):
-    """cmb002 routes to marking_menu.show(<key>). The 4 keys are part
-    of a fragile string contract that we pin here."""
+    """cmb002 routes to marking_menu.show(<key>). The keys are part of a
+    fragile string contract that we pin here."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
@@ -162,13 +162,25 @@ class TestCmb002QuickRigMarkingMenuNames(unittest.TestCase):
         cmds.file(new=True, force=True)
 
     def test_each_quick_rig_routes_to_named_menu(self):
-        items = ["Tube Rig", "Wheel Rig", "Shadow Rig", "Telescope Rig"]
+        items = [
+            "Tube Rig",
+            "Articulated Rig",
+            "Wheel Rig",
+            "Shadow Rig",
+            "Telescope Rig",
+        ]
         widget = _FakeWidget(items)
 
         for idx, _ in enumerate(items):
             self.instance.cmb002(idx, widget)
 
-        expected = ["tube_rig", "wheel_rig", "shadow_rig", "telescope_rig"]
+        expected = [
+            "tube_rig",
+            "articulated_rig",
+            "wheel_rig",
+            "shadow_rig",
+            "telescope_rig",
+        ]
         self.assertEqual(self.instance.sb.handlers.marking_menu.shown, expected)
 
 

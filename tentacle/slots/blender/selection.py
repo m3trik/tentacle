@@ -407,17 +407,20 @@ class SelectionSlots(SelectionMixin, SlotsBlender):
         # re-selecting is best-effort and guarded — select_set raises on a view-layer-excluded
         # object (which view_layer.objects can still include — verified), so restore its
         # selectability but skip re-selecting it rather than aborting the loop.
-        vl = getattr(bpy.context, "view_layer", None)
-        hidden = [o for o in (vl.objects if vl else ()) if o.hide_select]
-        if not hidden:
-            self.sb.message_box("Toggle Selectability requires a selection.")
-            return
-        for o in hidden:
-            o.hide_select = False
-            try:
-                o.select_set(True)
-            except RuntimeError:
-                pass  # not in the active view layer (excluded collection) — selectability is restored regardless
+        # The window's layer: windowless, ``context.view_layer`` / ``select_set`` address the
+        # scene's default layer, not the one selected_objects reads.
+        with btk.window_context_override():
+            vl = getattr(bpy.context, "view_layer", None)
+            hidden = [o for o in (vl.objects if vl else ()) if o.hide_select]
+            if not hidden:
+                self.sb.message_box("Toggle Selectability requires a selection.")
+                return
+            for o in hidden:
+                o.hide_select = False
+                try:
+                    o.select_set(True)
+                except RuntimeError:
+                    pass  # not in the active view layer (excluded collection) — selectability is restored regardless
         self.sb.message_box(f"Selectability <hl>ON</hl> ({len(hidden)} object(s)).")
 
     # ------------------------------------------------------------------ b002-b007  Selection Constraints
@@ -562,8 +565,10 @@ class SelectionSlots(SelectionMixin, SlotsBlender):
         reordered = btk.reorder_objects(objects, method=method, reverse=reverse)
         if reordered:
             btk.SelectionOrder.set_order(reordered)
-            # Make the last-in-order object active (Blender's own "newest pick" convention).
-            bpy.context.view_layer.objects.active = reordered[-1]
+            # Make the last-in-order object active (Blender's own "newest pick" convention),
+            # on the window's layer (windowless, ``context.view_layer`` is the scene default).
+            with btk.window_context_override():
+                bpy.context.view_layer.objects.active = reordered[-1]
             self.sb.message_box(
                 f"Reordered <hl>{len(reordered)}</hl> object(s) by {selected_option}"
                 f"{' (reversed)' if reverse else ''}."
@@ -679,7 +684,8 @@ class SelectionSlots(SelectionMixin, SlotsBlender):
         if scope == "selected":
             return self.selected_objects()
         if scope == "visible":
-            vl = bpy.context.view_layer
+            with btk.window_context_override():  # the window's layer, not the default
+                vl = bpy.context.view_layer
             return [o for o in vl.objects if o.visible_get(view_layer=vl)]
         return list(bpy.data.objects)
 

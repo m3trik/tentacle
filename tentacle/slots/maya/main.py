@@ -22,8 +22,9 @@ class MainSlots(MainMixin, SlotsMaya):
         nests ``Auto Set Workspace`` and a ``Recent Workspaces`` sub-flyout),
         ``Edit Workspace`` (Maya's native Project Window), then the
         workspace-name row (the row opens the workspace root; its flyout
-        browses the dir tree). The dir-browser rows carry a folder icon that
-        sets them apart from the action rows above. Rebuilt on every show
+        browses the dir tree), then ``Scene Directory`` (opens the saved
+        scene's folder; absent for an unsaved scene). The dir-browser rows
+        carry a folder icon that sets them apart from the action rows above. Rebuilt on every show
         (``refresh_on_show``) so the dir tree and recent list stay current.
         """
         widget.clear()
@@ -85,6 +86,9 @@ class MainSlots(MainMixin, SlotsMaya):
             self.sb.IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_sublist(w.sublist, workspace, max_depth=2)
 
+        # The open scene's folder (saved scenes only) — one click to its dir.
+        self._add_scene_dir_row(widget)
+
         widget.setVisible(True)
 
     def _populate_dir_sublist(self, sublist, path, max_depth=2):
@@ -136,6 +140,12 @@ class MainSlots(MainMixin, SlotsMaya):
     # (``sp_createAndSetDefaultProject($path, false)`` — the false is createDirectories).
     def _current_workspace_root(self):
         return mtk.get_env_info("workspace") or ""
+
+    def _current_scene_path(self):
+        """The open scene, or '' when it has never been saved — through the engine,
+        not ``sceneName``: batch reports an unsaved scene as a phantom
+        ``<project>/untitled``, whose folder would pass as the scene's directory."""
+        return mtk.EnvUtils.saved_scene_path()
 
     def _browse_workspace_dir(self, start):
         """Maya's directory browser (``fileDialog2 -fileMode 3``); '' when dismissed."""

@@ -68,6 +68,7 @@ class TestMainMixinStructure(unittest.TestCase):
             # hooks — declared (raise NotImplementedError) so a fork that forgets
             # one fails loudly instead of silently inheriting a wrong default
             "_current_workspace_root",
+            "_current_scene_path",
             "_browse_workspace_dir",
             "_is_workspace",
             "_create_default_workspace",
@@ -121,6 +122,7 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "_switch_to_workspace",
             # MainMixin hooks
             "_current_workspace_root",
+            "_current_scene_path",
             "_browse_workspace_dir",
             "_create_default_workspace",
         ):
@@ -128,8 +130,27 @@ class TestMainWorkspaceStructure(unittest.TestCase):
                 self.mod.has_method("MainSlots", name), f"MainSlots must define {name}"
             )
 
+    def test_list000_adds_scene_dir_row(self):
+        self.assertIn(
+            "self._add_scene_dir_row(widget)",
+            self.mod.method_source("MainSlots", "list000_init"),
+        )
+
+    def test_scene_path_hook_ignores_batch_phantom(self):
+        """The hook reads ``mtk.EnvUtils.saved_scene_path`` (behavior pinned by
+        mayatk's ``TestSavedScenePath``), not ``sceneName``: batch Maya reports
+        an unsaved scene as a phantom ``<project>/untitled`` whose folder exists,
+        so the Scene Directory row would offer the project root."""
+        src = self.mod.method_source("MainSlots", "_current_scene_path")
+        self.assertIn("mtk.EnvUtils.saved_scene_path()", src)
+        self.assertNotIn('get_env_info("scene")', src)
+
     def test_does_not_reimplement_shared_flow(self):
-        for name in ("_set_workspace_interactive", "_set_workspace_from_path"):
+        for name in (
+            "_set_workspace_interactive",
+            "_set_workspace_from_path",
+            "_add_scene_dir_row",
+        ):
             self.assertFalse(
                 self.mod.has_method("MainSlots", name),
                 f"{name} belongs to MainMixin — the fork must not re-implement it",
@@ -220,12 +241,95 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         twin row opens its own workspace_editor panel)."""
         init = self.mod.method_source("MainSlots", "list000_init")
         self.assertIn('widget.add("Edit Workspace", data="__editor__")', init)
-        dispatch = ModuleAST(
-            MAIN_MIXIN_PY.read_text(encoding="utf-8")
-        ).method_source("MainMixin", "_dispatch_workspace_item")
+        dispatch = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8")).method_source(
+            "MainMixin", "_dispatch_workspace_item"
+        )
         self.assertIn("__editor__", dispatch)
         src = self.mod.method_source("MainSlots", "_open_workspace_editor")
         self.assertIn("ProjectWindow", src)
+
+
+class _StubRow:
+    """An ExpandableList row: what ``add()`` was given, readable back through
+    ``item_data()`` the way the dispatcher reads a clicked row."""
+
+    def __init__(self, label, data, kwargs):
+        self.label, self.data, self.kwargs = label, data, kwargs
+
+    def item_data(self):
+        return self.data
+
+
+class _StubList:
+    def __init__(self):
+        self.rows = []
+
+    def add(self, label, data=None, **kwargs):
+        row = _StubRow(label, data, kwargs)
+        self.rows.append(row)
+        return row
+
+
+class TestSceneDirRow(unittest.TestCase):
+    """``MainMixin._add_scene_dir_row`` — the Workspace tab's link to the open
+    scene's folder. Present (folder icon, full path as tooltip) only when the
+    scene is saved and its folder exists; a click opens it through the
+    dispatcher's directory branch. DCC-free: the scene comes from the fork's
+    ``_current_scene_path`` hook, stubbed here."""
+
+    def setUp(self):
+        import pythontk as ptk
+        from tentacle.slots._main import MainMixin
+
+        self.tmp = ptk.TempArtifacts("tentacle_main_scene_dir", policy="scoped")
+        self.root = self.tmp.dir_path()
+        self.icons = []
+        self.scene = ""
+        self.inst = MainMixin()
+        self.inst._current_scene_path = lambda: self.scene
+        self.inst.sb = types.SimpleNamespace(
+            IconManager=types.SimpleNamespace(
+                set_label_icon=lambda w, name: self.icons.append((w, name))
+            ),
+            handlers=types.SimpleNamespace(
+                marking_menu=types.SimpleNamespace(hide=lambda: None)
+            ),
+        )
+        self.list = _StubList()
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_saved_scene_adds_folder_row(self):
+        # Maya's ``file -q -sceneName`` is forward-slashed; the row's data must
+        # be native so the system file browser opens it reliably.
+        self.scene = os.path.join(self.root, "shot_010.ma").replace("\\", "/")
+        self.inst._add_scene_dir_row(self.list)
+        (row,) = self.list.rows
+        self.assertEqual(row.label, "Scene Directory")
+        self.assertEqual(row.data, os.path.normpath(self.root))
+        self.assertEqual(row.kwargs.get("setToolTip"), os.path.normpath(self.root))
+        self.assertEqual(self.icons, [(row, "folder_filled")])
+
+    def test_click_opens_scene_folder_in_explorer(self):
+        from unittest import mock
+
+        import pythontk as ptk
+
+        self.scene = os.path.join(self.root, "shot_010.ma")
+        self.inst._add_scene_dir_row(self.list)
+        with mock.patch.object(ptk.FileUtils, "open_explorer") as open_explorer:
+            self.inst._dispatch_workspace_item(self.list.rows[0])
+        open_explorer.assert_called_once_with(os.path.normpath(self.root))
+
+    def test_unsaved_scene_adds_nothing(self):
+        self.inst._add_scene_dir_row(self.list)
+        self.assertEqual(self.list.rows, [])
+
+    def test_missing_folder_adds_nothing(self):
+        self.scene = os.path.join(self.root, "moved_away", "shot_010.ma")
+        self.inst._add_scene_dir_row(self.list)
+        self.assertEqual(self.list.rows, [])
 
 
 class _StubSb:
@@ -356,11 +460,14 @@ class TestSetWorkspaceInteractive(unittest.TestCase):
         ws = ptk.Workspace.load(self.root)
         self.assertTrue(ws.is_marked, "workspace.mel must be written")
         rule_dirs = {
-            v for v in ptk.DEFAULT_FILE_RULES.values() if v != "." and not os.path.isabs(v)
+            v
+            for v in ptk.DEFAULT_FILE_RULES.values()
+            if v != "." and not os.path.isabs(v)
         }
         for rel in rule_dirs:
             self.assertTrue(
-                os.path.isdir(os.path.join(self.root, rel)), f"missing rule folder {rel}"
+                os.path.isdir(os.path.join(self.root, rel)),
+                f"missing rule folder {rel}",
             )
         self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
         self.assertTrue(

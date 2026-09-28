@@ -62,6 +62,7 @@ class TestMainWorkspaceStructure(unittest.TestCase):
             "_open_workspace_editor",
             # MainMixin hooks
             "_current_workspace_root",
+            "_current_scene_path",
             "_browse_workspace_dir",
             "_create_default_workspace",
         ):
@@ -69,11 +70,28 @@ class TestMainWorkspaceStructure(unittest.TestCase):
                 self.mod.has_method("MainSlots", name), f"MainSlots must define {name}"
             )
 
+    def test_list000_adds_scene_dir_row(self):
+        """Parity with Maya: the open .blend's folder gets the same link row
+        (``MainMixin._add_scene_dir_row``, behavior pinned in
+        ``test_main_workspace.py``)."""
+        self.assertIn(
+            "self._add_scene_dir_row(widget)",
+            self.mod.method_source("MainSlots", "list000_init"),
+        )
+        self.assertIn(
+            "bpy.data.filepath",
+            self.mod.method_source("MainSlots", "_current_scene_path"),
+        )
+
     def test_does_not_reimplement_shared_flow(self):
         """Set Workspace / recent selection live once in ``slots/_main.py``
         (``MainMixin``, pinned by ``test_main_workspace.py``); the fork supplies
         hooks only."""
-        for name in ("_set_workspace_interactive", "_set_workspace_from_path"):
+        for name in (
+            "_set_workspace_interactive",
+            "_set_workspace_from_path",
+            "_add_scene_dir_row",
+        ):
             self.assertFalse(
                 self.mod.has_method("MainSlots", name),
                 f"{name} belongs to MainMixin — the fork must not re-implement it",

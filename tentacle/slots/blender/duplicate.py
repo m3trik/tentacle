@@ -21,7 +21,7 @@ class DuplicateSlots(DuplicateMixin, SlotsBlender):
         """[source, *targets] with the active object as the source — matches Blender's own
         Link-Object-Data (Ctrl+L) convention where selected objects adopt the active's data."""
         objects = self.selected_objects()
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active and active in objects:
             return [active] + [o for o in objects if o is not active]
         return objects
@@ -135,18 +135,20 @@ class DuplicateSlots(DuplicateMixin, SlotsBlender):
             return
         # Deselect directly (not bpy.ops.object.select_all) — mode-independent and
         # Qt-pump-safe; the operator poll-fails in Edit Mode (same fix as blendertk
-        # color_id's select-by-color).
-        for o in bpy.context.view_layer.objects:
-            o.select_set(False)
-        selected = []
-        for o in instances:
-            try:
-                o.select_set(True)
-                selected.append(o)
-            except RuntimeError:
-                pass  # not in the active view layer (excluded collection)
-        if selected:
-            bpy.context.view_layer.objects.active = selected[0]
+        # color_id's select-by-color). Under the window override: windowless,
+        # ``select_set`` addresses the scene's default layer, not the window's.
+        with btk.window_context_override():
+            for o in list(bpy.context.view_layer.objects):
+                o.select_set(False)
+            selected = []
+            for o in instances:
+                try:
+                    o.select_set(True)
+                    selected.append(o)
+                except RuntimeError:
+                    pass  # not in the active view layer (excluded collection)
+            if selected:
+                bpy.context.view_layer.objects.active = selected[0]
 
     # ------------------------------------------------------------------ tb002  Auto Instance
     def tb002_init(self, widget):
@@ -297,17 +299,18 @@ class DuplicateSlots(DuplicateMixin, SlotsBlender):
 
         if survivors:
             # Direct deselect — mode-independent and Qt-pump-safe (see tb001).
-            for o in bpy.context.view_layer.objects:
-                o.select_set(False)
-            selected = []
-            for o in survivors:
-                try:
-                    o.select_set(True)
-                    selected.append(o)
-                except (RuntimeError, ReferenceError):
-                    pass  # not in the active view layer / removed
-            if selected:
-                bpy.context.view_layer.objects.active = selected[0]
+            with btk.window_context_override():
+                for o in list(bpy.context.view_layer.objects):
+                    o.select_set(False)
+                selected = []
+                for o in survivors:
+                    try:
+                        o.select_set(True)
+                        selected.append(o)
+                    except (RuntimeError, ReferenceError):
+                        pass  # not in the active view layer / removed
+                if selected:
+                    bpy.context.view_layer.objects.active = selected[0]
             self.sb.message_box(report_html)
         elif summary.get("matched_groups"):
             # Identical meshes were found, but the strategy instanced none of

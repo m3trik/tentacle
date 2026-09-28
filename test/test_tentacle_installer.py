@@ -2405,6 +2405,603 @@ class TestFlow(unittest.TestCase):
             self.assertEqual(self.installer.main(["update"]), 1)
 
 
+#: ``importlib.machinery.EXTENSION_SUFFIXES`` of the interpreters a profile crosses:
+#: Blender 4.x (3.11) -> 5.1 (3.13), and 5.1's on Linux. The suite itself may run on
+#: either, so every check names the IMPORTING interpreter's list, never this one's.
+PY311 = [".cp311-win_amd64.pyd", ".pyd"]
+PY313 = [".cp313-win_amd64.pyd", ".pyd"]
+PY313_LINUX = [".cpython-313-x86_64-linux-gnu.so", ".abi3.so", ".so"]
+
+
+class _TargetCase(unittest.TestCase):
+    """A fresh module and an empty target dir, with the host seams patched."""
+
+    def setUp(self):
+        self.module = _load()
+        self.installer = self.module.TentacleInstaller
+        self.target = TEMP / f"{type(self).__name__}_target"
+        shutil.rmtree(self.target, ignore_errors=True)
+        self.target.mkdir(parents=True)
+        self.t = str(self.target)
+        for patch in (
+            mock.patch.object(self.installer, "target_dir", return_value=self.t),
+            mock.patch.object(self.installer, "python_exe", return_value="PY"),
+            mock.patch.object(self.installer, "_say"),
+        ):
+            patch.start()
+            self.addCleanup(patch.stop)
+        path_before = list(sys.path)
+        self.addCleanup(sys.path.__setitem__, slice(None), path_before)
+        self.addCleanup(shutil.rmtree, self.target, True)
+
+
+class TestPythonBump(_TargetCase):
+    """A target carried to a newer Python holds compiled modules that never import there.
+
+    Blender's *Load Previous Settings* copytree's the WHOLE previous user dir, so a 4.x
+    (3.11) profile's ``addons/modules`` arrives in 5.1 (3.13) with its manifest. Measured
+    on 5.1.2: Pillow's ``_imaging.cp311-win_amd64.pyd`` failed ``from PIL import Image``,
+    and an Update planned nothing -- the dist-info says Pillow is installed.
+    """
+
+    def _carried_over(self):
+        """The 4.x install as Load Previous Settings leaves it in 5.1's profile."""
+        _write_dist(
+            self.target,
+            "pillow",
+            "12.3.0",
+            record=[
+                "PIL/__init__.py",
+                "PIL/_imaging.cp311-win_amd64.pyd",
+                "PIL/_imaging.pyi",
+                "PIL/_imagingft.cp311-win_amd64.pyd",
+            ],
+        )
+        # abi3 wheels carry a plain .pyd (and Qt's DLLs): they import on any 3.x.
+        _write_dist(
+            self.target,
+            "PySide6_Essentials",
+            "6.11.2",
+            record=["PySide6/__init__.py", "PySide6/QtCore.pyd", "PySide6/Qt6Core.dll"],
+        )
+        _write_dist(
+            self.target, "shiboken6", "6.11.2", record=["shiboken6/Shiboken.pyd"]
+        )
+        _write_dist(
+            self.target, "blendertk", "0.13.0", record=["blendertk/__init__.py"]
+        )
+        # Another add-on's, in the SHARED dir: never ours to reinstall.
+        _write_dist(self.target, "other", "1", record=["other/_x.cp311-win_amd64.pyd"])
+        self.installer.write_manifest(
+            self.t,
+            pins=[
+                "pillow==12.3.0",
+                "PySide6_Essentials==6.11.2",
+                "shiboken6==6.11.2",
+                "blendertk==0.13.0",
+            ],
+        )
+
+    def _fake_pythontk(self, plans):
+        """A pythontk whose install_targeted records what the target held when it planned."""
+        target = self.target
+
+        class FakePackageManager:
+            def __init__(self, python_path):
+                pass
+
+            def install_targeted(self, specs, target_dir, upgrade=False):
+                plans.append(sorted(p.name for p in target.glob("*.dist-info")))
+                return ["pillow==12.3.0"]
+
+        fake = types.ModuleType("pythontk")
+        fake.PackageManager = FakePackageManager
+        return fake
+
+    def _pip(self, calls):
+        """``pip uninstall``, as pip does it: the first copy of each name goes."""
+
+        def pip(command, env=None):
+            calls.append((command[4:], (env or {}).get("PYTHONPATH")))
+            for name in command[6:]:
+                copies = sorted(self.target.glob(f"{name}-*.dist-info"))
+                if copies:
+                    shutil.rmtree(copies[0])
+
+        return pip
+
+    def test_a_build_for_another_python_is_found_by_its_record(self):
+        self._carried_over()
+        foreign = self.installer._foreign_dists
+        self.assertEqual(foreign(self.t, suffixes=PY313), ["pillow"])
+        self.assertEqual(
+            foreign(self.t, suffixes=PY311),
+            [],
+            "the same RECORD is native on the Python it was built for",
+        )
+        # The default is the RUNNING interpreter -- the DCC's own, which imports them.
+        with mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313):
+            self.assertEqual(foreign(self.t), ["pillow"])
+        with mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY311):
+            self.assertEqual(foreign(self.t), [])
+
+    def test_a_module_that_also_ships_this_pythons_build_is_left_alone(self):
+        _write_dist(
+            self.target,
+            "multi",
+            "1",
+            record=["multi/_x.cp311-win_amd64.pyd", "multi/_x.cp313-win_amd64.pyd"],
+        )
+        _write_dist(
+            self.target,
+            "lin",
+            "1",
+            record=[
+                "lin/_x.cpython-311-x86_64-linux-gnu.so",
+                "lin/_y.abi3.so",
+                "lin/libz.so.1",
+            ],
+        )
+        _write_dist(
+            self.target,
+            "lin_ok",
+            "1",
+            record=["lin_ok/_x.cpython-313-x86_64-linux-gnu.so", "lin_ok/_y.abi3.so"],
+        )
+        foreign = self.installer._foreign_dists
+        self.assertEqual(foreign(self.t, ["multi"], PY313), [])
+        self.assertEqual(foreign(self.t, ["lin", "lin_ok"], PY313_LINUX), ["lin"])
+        self.assertEqual(
+            foreign(self.t, ["lin"], PY313), [], "a .so is no module on Windows"
+        )
+
+    def test_an_update_reinstalls_what_a_python_bump_left_behind(self):
+        self._carried_over()
+        calls, plans = [], []
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.dict(sys.modules, {"pythontk": self._fake_pythontk(plans)}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+            mock.patch.object(
+                self.installer, "_run_checked", side_effect=self._pip(calls)
+            ),
+        ):
+            self.installer.update("blender", self.t)
+        self.assertEqual(
+            calls,
+            [(["uninstall", "-y", "pillow"], self.t)],
+            "only the foreign dist goes, and pip must see the target's copy",
+        )
+        self.assertEqual(len(plans), 1)
+        self.assertNotIn(
+            "pillow-12.3.0.dist-info",
+            plans[0],
+            "the plan ran with the stale Pillow still recorded, so it planned nothing",
+        )
+        self.assertIn("other-1.dist-info", plans[0], "another add-on's is untouched")
+        self.assertEqual(self.installer.read_manifest(self.t)["abi"], PY313)
+
+    def test_a_start_after_a_python_bump_reinstalls_instead_of_launching(self):
+        self._carried_over()  # a manifest written before the check existed: no "abi"
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "install", return_value=[]) as install,
+            mock.patch.object(self.installer, "_report"),
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_called_once_with("blender", self.t, upgrade=False)
+        launch.assert_called_once_with("blender")
+
+        # With a UI the repair runs on the worker, like a first install.
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "headless", return_value=False),
+            mock.patch.object(self.installer, "_provision_async") as async_,
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        async_.assert_called_once_with("blender", False, self.t)
+        launch.assert_not_called()
+
+    def test_the_check_runs_once_per_python_not_at_every_start(self):
+        """A wrong verdict must cost one reinstall per interpreter, never one per start."""
+        self._carried_over()
+        # The repair's own removal fails (a file held open): the attempt still counts.
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.dict(sys.modules, {"pythontk": self._fake_pythontk([])}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+            mock.patch.object(
+                self.installer, "_run_checked", side_effect=RuntimeError("held open")
+            ),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "held open"):
+                self.installer.update("blender", self.t)
+        self.assertEqual(self.installer.read_manifest(self.t)["abi"], PY313)
+
+        # Checked for this Python: a start reads no RECORD and launches; Update retries.
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "_foreign_dists") as scan,
+            mock.patch.object(self.installer, "install") as install,
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        scan.assert_not_called()
+        install.assert_not_called()
+        launch.assert_called_once_with("blender")
+
+        # A manifest from before the check, with nothing foreign: scanned ONCE, then recorded.
+        shutil.rmtree(self.target / "pillow-12.3.0.dist-info")
+        _write_dist(
+            self.target,
+            "pillow",
+            "12.3.0",
+            record=["PIL/__init__.py", "PIL/_imaging.cp313-win_amd64.pyd"],
+        )
+        self.installer.write_manifest(self.t, abi=None)
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "install") as install,
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_not_called()
+        launch.assert_called_once_with("blender")
+        self.assertEqual(self.installer.read_manifest(self.t)["abi"], PY313)
+
+    def test_a_repair_that_removed_the_old_build_and_failed_is_retried(self):
+        """The once-per-Python bound covers the foreign CHECK only: a repair that got as
+        far as removing the old build (then lost PyPI) left a recorded dist gone, which
+        the next start repairs rather than launching without it."""
+        self._carried_over()
+
+        class OfflinePackageManager:
+            def __init__(self, python_path):
+                pass
+
+            def install_targeted(self, specs, target_dir, upgrade=False):
+                raise RuntimeError("offline")
+
+        offline = types.ModuleType("pythontk")
+        offline.PackageManager = OfflinePackageManager
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.dict(sys.modules, {"pythontk": offline}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+            mock.patch.object(
+                self.installer, "_run_checked", side_effect=self._pip([])
+            ),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "offline"):
+                self.installer.update("blender", self.t)
+        self.assertEqual(self.installer.read_manifest(self.t)["abi"], PY313)
+        self.assertFalse(list(self.target.glob("pillow-*.dist-info")))
+
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "install", return_value=[]) as install,
+            mock.patch.object(self.installer, "_report"),
+            mock.patch.object(self.installer, "launch"),
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_called_once_with("blender", self.t, upgrade=False)
+
+    def test_nothing_of_ours_recorded_writes_nothing_into_the_shared_dir(self):
+        _write_dist(self.target, "other", "1", record=["other/_x.cp311-win_amd64.pyd"])
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        launch.assert_called_once_with("blender")
+        self.assertFalse((self.target / self.installer.MANIFEST).exists())
+
+
+#: The head uitk's UiCompiler gives every ``_ui.py`` it writes (``_build_header``).
+UITK_HEADER = (
+    "# AUTO-GENERATED by uitk.compile from {ui} -- do not edit.\n"
+    "# Edit the .ui file in Qt Designer; this file is regenerated.\n\n"
+    "__source__         = '{ui}'\n"
+    "__source_hash__    = '" + "ab" * 32 + "'\n"
+)
+#: The banner pyside6-uic opens its output with (copied from a live compile, uic 6.10.1).
+UIC_BANNER = (
+    "# -*- coding: utf-8 -*-\n\n"
+    "################################################################################\n"
+    "## Form generated from reading UI file '{ui}'\n"
+    "##\n"
+    "## Created by: Qt User Interface Compiler version 6.10.1\n"
+    "##\n"
+    "## WARNING! All changes made in this file will be lost when recompiling UI file!\n"
+    "################################################################################\n"
+)
+#: uitk's own compiler, loaded by path: compile.py is stdlib-only, and importing the
+#: package would drag Qt in for a naming rule.
+UITK_COMPILE = HERE.parents[1] / "uitk" / "uitk" / "compile.py"
+
+
+class TestUninstallSweep(_TargetCase):
+    """What the runtime writes inside our packages -- pip, reading only RECORD, leaves it.
+
+    uitk compiles each packaged ``<name>.ui`` to ``<name>_ui.py`` beside it at first
+    load (none ship: ``*_ui.py`` is gitignored in every repo), and Python caches that
+    in ``__pycache__``. Measured on 5.1 (TestLiveBlenderCleanRoom): after Uninstall,
+    ``blendertk/``, ``tentacle/`` and ``uitk/`` stayed in the SHARED addons/modules
+    holding only those files.
+    """
+
+    RECORD = [
+        "tentacle/__init__.py",
+        "tentacle/ui/uv.ui",
+        "tentacle/ui/polygons#component#submenu.ui",
+        "tentacle/ui/hand.ui",
+        "tentacle/ui/shipped.ui",
+        "tentacle/ui/shipped_ui.py",
+    ]
+
+    def _installed(self):
+        _write_dist(self.target, "tentacletk", "0.14.0", record=self.RECORD)
+        for entry in self.RECORD:
+            path = self.target / entry
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("")
+        ui = self.target / "tentacle" / "ui"
+        for stem in ("uv", "polygons#component#submenu"):
+            (ui / f"{stem}_ui.py").write_text(UITK_HEADER.format(ui=f"{stem}.ui"))
+        cache = ui / "__pycache__"
+        cache.mkdir()
+        for name in ("uv_ui.cpython-313.pyc", "uv_ui.cpython-311.opt-1.pyc"):
+            (cache / name).write_bytes(b"")
+        self.installer.write_manifest(self.t, pins=["tentacletk==0.14.0"])
+
+    def _pip(self, during=None):
+        """``pip uninstall``: the RECORD's files and their .pyc, the dist-info, empty dirs.
+
+        *during* runs first, while every file is still there -- an editor's live uic
+        compiling a .ui while pip works.
+        """
+
+        def pip(command, env=None):
+            if during:
+                during()
+            for name in command[6:]:
+                infos = sorted(self.target.glob(f"{name}-*.dist-info"))
+                if not infos:
+                    continue
+                for line in (infos[0] / "RECORD").read_text().splitlines():
+                    entry = line.split(",")[0]
+                    if entry.startswith(".."):
+                        continue
+                    path = self.target / entry
+                    path.unlink(missing_ok=True)
+                    if path.suffix == ".py":
+                        for pyc in (path.parent / "__pycache__").glob(
+                            f"{path.stem}.*.pyc"
+                        ):
+                            pyc.unlink()
+                shutil.rmtree(infos[0])
+                dirs = [p for p in self.target.rglob("*") if p.is_dir()]
+                for folder in sorted(dirs, key=lambda p: len(str(p)), reverse=True):
+                    with contextlib.suppress(OSError):
+                        folder.rmdir()
+
+        return pip
+
+    def _uninstall(self, during=None):
+        with (
+            mock.patch.object(
+                self.installer, "_run_checked", side_effect=self._pip(during)
+            ),
+            mock.patch.object(self.installer, "_remove_blender_addon"),
+        ):
+            return self.installer.uninstall("blender", self.t)
+
+    def test_uninstall_removes_the_compiled_ui_files_and_their_cache(self):
+        self._installed()
+        self.assertEqual(self._uninstall(), ["tentacletk"])
+        self.assertEqual(
+            sorted(os.listdir(self.t)),
+            [],
+            "the uninstall left the runtime's compiled .ui modules in the SHARED dir",
+        )
+
+    def test_a_compile_that_lands_while_pip_runs_is_swept_too(self):
+        """Measured on this machine: VS Code's live uic compiled the .ui files an install
+        dropped into its workspace, ~0.5 s each, still going when the uninstall ran --
+        11 blendertk modules written during pip's run survived a sweep listed before it."""
+        self._installed()
+        late = self.target / "tentacle" / "ui" / "polygons#component#submenu_ui.py"
+        late.unlink()  # not compiled yet when the uninstall starts...
+
+        def compile_now():  # ...and written while pip works
+            late.write_text(UIC_BANNER.format(ui="polygons#component#submenu.ui"))
+
+        self._uninstall(during=compile_now)
+        self.assertEqual(sorted(os.listdir(self.t)), [], "a late compile survived")
+
+    def test_the_sweep_touches_nothing_it_cannot_prove_is_generated(self):
+        self._installed()
+        ui = self.target / "tentacle" / "ui"
+        record = self.target / "tentacletk-0.14.0.dist-info" / "RECORD"
+        for stem in ("raw", "copy"):
+            record.write_text(record.read_text() + f"tentacle/ui/{stem}.ui,,\n")
+            (ui / f"{stem}.ui").write_text("")
+        # Raw uic output -- an editor's live compile of a .ui it saw land, measured on
+        # this machine (VS Code's Qt for Python extension; uic 6.10.1 where Blender
+        # carries 6.11.2): no uitk header, but uic's banner names this very .ui.
+        (ui / "raw_ui.py").write_text(UIC_BANNER.format(ui="raw.ui"))
+        kept = {
+            # No uitk header and no uic banner: hand-written, whatever its name says.
+            ui / "hand_ui.py": "# mine\n",
+            # A banner, but for ANOTHER .ui: not the compile of the one recorded here.
+            ui / "copy_ui.py": UIC_BANNER.format(ui="somewhere_else.ui"),
+            # uitk's header, but no recorded other.ui beside it: not from our package.
+            ui / "other_ui.py": UITK_HEADER.format(ui="other.ui"),
+            ui / "notes.txt": "mine",
+            ui / "__pycache__" / "hand_ui.cpython-313.pyc": "",
+        }
+        for path, text in kept.items():
+            path.write_text(text)
+        # A RECORD path that climbs out of the target names nothing of ours.
+        outside = self.target.parent / "escape_ui.py"
+        outside.write_text(UITK_HEADER.format(ui="escape.ui"))
+        self.addCleanup(outside.unlink, missing_ok=True)
+        info = self.target / "tentacletk-0.14.0.dist-info" / "RECORD"
+        info.write_text(info.read_text() + "../escape.ui,,\n")
+
+        self._uninstall()
+        for path in kept:
+            self.assertTrue(
+                path.exists(), f"{path.name} is not the runtime's to remove"
+            )
+        self.assertTrue(
+            outside.exists(), "a RECORD path must never reach past the target"
+        )
+        for gone in (
+            ui / "raw_ui.py",
+            ui / "uv_ui.py",
+            ui / "polygons#component#submenu_ui.py",
+            ui / "__pycache__" / "uv_ui.cpython-313.pyc",
+            ui / "__pycache__" / "uv_ui.cpython-311.opt-1.pyc",
+        ):
+            self.assertFalse(gone.exists(), f"{gone.name} was generated by the runtime")
+
+    @unittest.skipUnless(UITK_COMPILE.is_file(), "uitk checkout not beside tentacle")
+    def test_the_compiled_name_and_mark_match_uitk(self):
+        """The installer runs before uitk exists, so it spells uitk's rule itself: pin it."""
+        spec = importlib.util.spec_from_file_location("_uitk_compile", UITK_COMPILE)
+        compiler = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(compiler)
+        uitk = compiler.UiCompiler
+        for name in ("uv.ui", "polygons#component#submenu.ui", "a.b.ui"):
+            ui = self.target / "pkg" / name
+            self.assertEqual(
+                os.path.normpath(str(uitk.compiled_path_for(ui))),
+                os.path.normpath(self.installer._compiled_ui(str(ui))),
+            )
+        meta = {
+            "base_class": "QWidget",
+            "form_class": "Form",
+            "customwidgets": [],
+            "uitk_tags": [],
+        }
+        written = self.target / "gen_ui.py"
+        written.write_text(
+            uitk._build_header(Path("gen.ui"), "PySide6", meta, "ab" * 32) + "x = 1\n",
+            encoding="utf-8",
+        )
+        ours = self.target / "fixture_ui.py"
+        ours.write_text(UITK_HEADER.format(ui="fixture.ui"), encoding="utf-8")
+        hand = self.target / "hand_ui.py"
+        hand.write_text("# mine\n__source_hash__ = 'not hex'\n", encoding="utf-8")
+        # Whatever uitk claims as its own, the sweep does -- for any .ui name.
+        for path in (written, ours, hand):
+            self.assertEqual(
+                self.installer._is_compiled_ui(str(path), "unrelated.ui"),
+                uitk.read_embedded_hash(path) is not None,
+                path.name,
+            )
+
+
+class TestRecordedDependencyGone(_TargetCase):
+    """``is_installed`` asks for tentacle and the engine only, so a start launched with a
+    recorded dependency gone from the target -- another add-on's uninstall taking a
+    shared Pillow, a hand clean-up -- and the menu broke at its first image."""
+
+    def _recorded(self, *present):
+        for name in present:
+            _write_dist(self.target, name, "1")
+        self.installer.write_manifest(
+            self.t, pins=["blendertk==1", "pillow==1"], abi=PY313
+        )
+
+    def test_a_start_with_a_recorded_dist_gone_reinstalls_instead_of_launching(self):
+        self._recorded("blendertk")
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "headless", return_value=True),
+            mock.patch.object(self.installer, "install", return_value=[]) as install,
+            mock.patch.object(self.installer, "_report"),
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_called_once_with("blender", self.t, upgrade=False)
+        launch.assert_called_once_with("blender")
+
+    def test_nothing_gone_costs_a_listing_and_no_metadata_read(self):
+        self._recorded("blendertk", "pillow")
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(
+                self.installer, "_dist_infos", side_effect=AssertionError("read")
+            ),
+            mock.patch.object(self.installer, "install") as install,
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_not_called()
+        launch.assert_called_once_with("blender")
+        # A dist-info whose folder does not spell the name the way pip escapes it is
+        # confirmed from its METADATA before it counts as gone.
+        _write_dist(self.target, "foo-bar", "1")  # folder foo-bar-1.dist-info
+        self.installer.write_manifest(self.t, pins=["foo-bar==1"])
+        self.assertEqual(self.installer._missing_dists(self.t), [])
+
+    def test_a_pin_the_plan_no_longer_installs_is_forgotten(self):
+        """Or every start would provision again for a dependency nothing needs."""
+        self._recorded("blendertk")  # pillow: recorded, gone, and no longer planned
+        fake = types.ModuleType("pythontk")
+        fake.PackageManager = type(
+            "PM",
+            (),
+            {
+                "__init__": lambda self, python_path: None,
+                "install_targeted": lambda self, specs, target, upgrade=False: [],
+            },
+        )
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.dict(sys.modules, {"pythontk": fake}),
+            mock.patch.object(self.installer, "_has", return_value=True),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(
+                self.installer, "_run", return_value=types.SimpleNamespace(returncode=0)
+            ),
+        ):
+            self.installer.install("blender", self.t)
+        self.assertEqual(self.installer.read_manifest(self.t)["pins"], ["blendertk==1"])
+        with (
+            mock.patch("importlib.machinery.EXTENSION_SUFFIXES", PY313),
+            mock.patch.object(self.installer, "is_installed", return_value=True),
+            mock.patch.object(self.installer, "install") as install,
+            mock.patch.object(self.installer, "launch") as launch,
+        ):
+            self.installer.ensure_and_launch("blender")
+        install.assert_not_called()
+        launch.assert_called_once_with("blender")
+
+
 @unittest.skipUnless(
     LIVE, "set TENTACLE_LIVE_INSTALL=1 (downloads from PyPI, PySide6 included)"
 )

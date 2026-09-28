@@ -44,7 +44,7 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
         if not meshes:
             self.sb.message_box("Rebind Skin requires selected mesh(es).")
             return
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         scene_arm = active if (active and active.type == "ARMATURE") else None
         rebound = 0
         for mesh in meshes:
@@ -153,7 +153,7 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
         property (the Blender analogue of Maya's IK/FK switch attribute). Snap (nearest index) or,
         when Weighted, a smooth float blend; an optional anchor Empty adds one more target first."""
         m = widget.option_box.menu
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active is None:
             self.sb.message_box(
                 "Constraint Switch requires an active (constrained) object."
@@ -389,10 +389,11 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
 
     @btk.undoable
     def _remove_locator(self):
-        """Remove Locator (tb003's option-box action) — dissolve each selected locator (Empty)
-        through ``btk.RigUtils.remove_locator``, the mirror of mayatk's."""
+        """Remove Locator (tb003's option-box action) — dissolve each selected locator rig
+        (its locator or its group Empty) through ``btk.RigUtils.remove_locator``, the mirror
+        of mayatk's; any other Empty is left alone."""
         if not btk.RigUtils.remove_locator(self.selected_objects()):
-            self.sb.message_box("No Empties selected.")
+            self.sb.message_box("No locator rig selected.")
 
     # ------------------------------------------------------------------ tb004  Lock/Unlock Attributes
     def tb004_init(self, widget):

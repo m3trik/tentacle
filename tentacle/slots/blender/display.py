@@ -71,8 +71,11 @@ class DisplaySlots(DisplayMixin, SlotsBlender):
     # --- List handlers (act + return a state message) -------------------
     def _hide_selected(self):
         sel = self.selected_objects()
-        for o in sel:
-            o.hide_set(True)
+        # the eye is per view layer: hide in the window's (windowless, ``hide_set``
+        # addresses the scene's default layer)
+        with btk.window_context_override():
+            for o in sel:
+                o.hide_set(True)
         return (
             f"Hide Selected: <hl>{len(sel)}</hl> object(s)"
             if sel else "Hide Selected: <hl>nothing selected</hl>"
@@ -81,8 +84,10 @@ class DisplaySlots(DisplayMixin, SlotsBlender):
     def _show_all(self):
         # view_layer.objects, not bpy.data.objects: hide_set raises for objects outside
         # the active view layer (excluded collections, other scenes), aborting the loop.
-        for o in bpy.context.view_layer.objects:
-            o.hide_set(False)
+        # The window's layer, as in _hide_selected.
+        with btk.window_context_override():
+            for o in list(bpy.context.view_layer.objects):
+                o.hide_set(False)
         return "Show All: <hl>unhidden</hl>"
 
     def _wireframe_selected(self):

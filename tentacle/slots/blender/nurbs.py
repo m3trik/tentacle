@@ -223,6 +223,10 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
         return ran
 
     @btk.undoable
+    # the whole body in the window's context: windowless, select_set / the active
+    # assignment address the scene's default view layer, not the window's the
+    # operators act on (and curve.* ops poll-fail for want of an edit object)
+    @btk.window_context_override()
     def _project_curve_on_mesh(self):
         """Project (Create): conform the selected curve(s) onto the first selected mesh by
         adding a Shrinkwrap modifier and immediately applying it (bakes the projected
@@ -251,6 +255,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
                 self.sb.message_box(str(e))
 
     @btk.undoable
+    @btk.window_context_override()  # see _project_curve_on_mesh
     def _extract_curve(self):
         """Extract (Create): a curve built from the selected mesh's edges — duplicates the
         mesh(es) first (``object.convert`` replaces data in place) so the source poly is left
@@ -282,6 +287,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
             self.sb.message_box(str(e))
 
     @btk.undoable
+    @btk.window_context_override()  # see _project_curve_on_mesh
     def _duplicate_curves(self):
         """Duplicate (Create): via ``btk.NurbsUtils.duplicate_curve`` (already shared by the
         curve tools in this package) rather than re-deriving an ``object.duplicate`` call."""
@@ -437,6 +443,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
         self.set_viewport_tool("builtin.draw", "Add Points Tool", edit_type="CURVE")
 
     @btk.undoable
+    @btk.window_context_override()  # see _project_curve_on_mesh
     def _attach_curves(self):
         """Attach (Edit): ``object.join`` the selected curves into the active one."""
         curves = self._selected_curves()
@@ -455,6 +462,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
             self.sb.message_box(str(e))
 
     @btk.undoable
+    @btk.window_context_override()  # see _project_curve_on_mesh
     def _detach_curve(self):
         """Detach (Edit): ``curve.separate`` the selected control point(s) into a new object.
         Unlike Reverse/Open-Close/Smooth this needs a specific point sub-selection (not "every
@@ -473,6 +481,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
             self.sb.message_box(str(e))
 
     @btk.undoable
+    @btk.window_context_override()  # see _project_curve_on_mesh
     def _cut_curve(self):
         """Cut (Edit): ``curve.split`` at the selected control point(s) — same Edit-Mode
         precondition as Detach (a specific point selection, not "every point")."""
@@ -539,7 +548,7 @@ class NurbsSlots(NurbsMixin, SlotsBlender):
     def b056(self):
         """Image Tracer (native wrap: trace the active image-empty to Grease Pencil,
         otherwise import an SVG as curves)."""
-        obj = bpy.context.view_layer.objects.active
+        obj = self.active_object()
         if obj and obj.type == "EMPTY" and obj.empty_display_type == "IMAGE":
             # GPv3 renamed the op; resolve whichever this Blender ships.
             op_path = next(

@@ -37,7 +37,7 @@
 | ReferenceManager | 0 | 0 | 14 | 0 | OK |
 | RenderEffects | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 3 | 6 | 0 | open |
+| SceneExporter | 0 | 2 | 6 | 0 | open |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -103,6 +103,9 @@
   - `b003.class` maya=`'QPushButton'` blender=`'PushButton'`
   - `b004.class` maya=`'QPushButton'` blender=`'PushButton'`
   - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
+
+**Open panel ports (1):**
+- **ArticulatedRig** — mayatk ArticulatedRig (2026-09-27) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin')
 
 **N/A by design (1):** WorkspaceMap (Maya workspace-tree browser; Blender SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18) and, since 2026-08-02, the workspace-template store — but the map/browser tree itself stays unported: the Reference Manager combo (which also creates + promotes projects) and the main.py Workspace tab cover discovery; port only if wanted)
 
@@ -182,7 +185,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 #### rigging.py
 **combo item deltas (review)**
-  - `cmb002` 6->7 items; missing=['Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
+  - `cmb002` 7->7 items; missing=['Articulated Rig', 'Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
   - `cmb010` 3->4 items; missing=['Attrs: Auto', 'Attrs: Channel Box'] extra=['Attrs: Translate', 'Attrs: Rotate', 'Attrs: Scale']
 
 #### subdivision.py
@@ -199,13 +202,13 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
-- **SceneExporter** `animation_write_back` — task_definitions:task_definitions ComboBox 'Animation Output'  [pending] the Animation Output gate (capture the curves, edit for the write, restore after) is not ported; blendertk's key-editing tasks edit in place
 - **SceneExporter** `check_default_materials` — task_definitions:check_definitions QCheckBox 'Check For Default Materials'  [pending] not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)
 - **SceneExporter** `verify_deliverables` — task_definitions:check_definitions QCheckBox 'Verify The Written File'  [pending] post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass
 - **TexturePathEditor** `chk_allow_missing` — optbox QCheckBox 'Allow Missing Targets'  [pending] Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there).
 - **TubeRig** `b005` — .ui widget QPushButton  [pending] Remove Rig (2026-08-25) -- TubeRigSlots.b005 tears down every rig the selection touches, via TubeRig.teardown (skinCluster, curveInfo, joints, controls set and the rig group, then unlocking the mesh display). Blender's TubeRig has no teardown surface at all yet -- the port needs the armature/modifier/constraint/collection cleanup and the same owned-node scoping that keeps a sibling rig whose name EXTENDS this one out of the sweep -- so this is real open work rather than na.
 - **TubeRig** `b006` — .ui widget QPushButton  [pending] Rename Rig (2026-08-25) -- TubeRigSlots.b006 renames an existing rig and every node under it to the Rig Name field. Rides the b005 teardown port: both need the same owned-node enumeration on the Blender side (armature, deform bones, hook/spline-IK constraints, the driver curve and the collection), which does not exist yet.
 - **TubeRig** `b007` — .ui widget QPushButton  [pending] Rebind Skin (2026-08-26) -- TubeRigSlots.b007 re-solves the bind for every rig the selection touches, including the legacy rescue that re-pairs a single orphaned mesh with a single rig whose bind was destroyed. Rides the same open work as b005/b006: blendertk's TubeRig has no teardown/rebind surface at all yet, and a Blender twin needs the armature modifier + vertex-group rebuild and the same owned-node scoping. Real open work, not na.
+- **ArticulatedRig** `panel` — mayatk ArticulatedRig (2026-09-27) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin')
 - **lighting** `cmb000` — optbox QComboBox None  [pending] tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG).
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
 - **scene** `b018` — [pending] Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na.

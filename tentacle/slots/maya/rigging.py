@@ -100,6 +100,7 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
         # character auto-riggers (the Maya analogue of Blender's Rigify items in the twin panel).
         items = [
             "Tube Rig",
+            "Articulated Rig",
             "Wheel Rig",
             "Shadow Rig",
             "Telescope Rig",
@@ -113,6 +114,8 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
         text = widget.items[index]
         if text == "Tube Rig":
             self.sb.handlers.marking_menu.show("tube_rig")
+        elif text == "Articulated Rig":
+            self.sb.handlers.marking_menu.show("articulated_rig")
         elif text == "Wheel Rig":
             self.sb.handlers.marking_menu.show("wheel_rig")
         elif text == "Shadow Rig":

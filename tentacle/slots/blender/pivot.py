@@ -119,7 +119,7 @@ class PivotSlots(PivotMixin, SlotsBlender):
         Mirror option reflects the transferred origin across the chosen world axis-plane
         (position-level mirror of mtk's; orientation stays N/A)."""
         objects = self.selected_objects()
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active is None or len(objects) < 2:
             self.sb.message_box("Select target object(s) with the source object active.")
             return
@@ -166,14 +166,15 @@ class PivotSlots(PivotMixin, SlotsBlender):
             return
         if not self.ensure_object_mode():
             return
-        view_layer = bpy.context.view_layer
-        prior_active = view_layer.objects.active
-        with btk.window_context_override():
+        # preserved_selection puts the user's selection and active object back after the
+        # bake; both it and the selection writes below address the window's view layer
+        # (windowless, ``context.view_layer`` is the scene's default layer)
+        with btk.window_context_override(), btk.CoreUtils.preserved_selection():
             # select ONLY the applyable objects (objects is a subset of prior_selection,
             # so this both selects them and deselects the rest in one pass)
             for o in prior_selection:
                 o.select_set(o in objects)
-            view_layer.objects.active = objects[0]
+            bpy.context.view_layer.objects.active = objects[0]
             try:
                 baked = btk.freeze_transforms(
                     objects,
@@ -193,10 +194,6 @@ class PivotSlots(PivotMixin, SlotsBlender):
                     )
             except RuntimeError as e:
                 self.sb.message_box(str(e))
-            for o in prior_selection:  # restore the user's prior selection / active
-                o.select_set(True)
-            if prior_active is not None:
-                view_layer.objects.active = prior_active
 
     def tb003_init(self, widget):
         # chk010 reuses Maya's objectName + label + default for the SAME option (the two

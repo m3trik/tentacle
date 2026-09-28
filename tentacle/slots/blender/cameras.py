@@ -95,11 +95,14 @@ class CamerasSlots(SlotsBlender):
             if cam:
                 # Mode-independent deselect: ``object.select_all`` is an Object-Mode op (it
                 # poll-fails in Edit Mode and from the Qt-pump context); a view-layer
-                # ``select_set`` loop is neither mode- nor window-dependent.
-                for o in bpy.context.view_layer.objects:
-                    o.select_set(False)
-                cam.select_set(True)
-                bpy.context.view_layer.objects.active = cam
+                # ``select_set`` loop is not mode-dependent. Under the window override:
+                # windowless, ``select_set`` and ``context.view_layer`` address the scene's
+                # default layer, not the one the window shows.
+                with btk.window_context_override():
+                    for o in list(bpy.context.view_layer.objects):
+                        o.select_set(False)
+                    cam.select_set(True)
+                    bpy.context.view_layer.objects.active = cam
                 bpy.context.scene.camera = cam  # make it the active (look-through) camera
                 # Actually look through it (Maya twin: cmds.lookThru) — switch the viewport
                 # into camera view, under the same override pattern as the axis views.

@@ -283,6 +283,125 @@ class TestModeGatedViewportTools(unittest.TestCase):
         )
 
 
+class TestViewLayerAccessUnderOverride(unittest.TestCase):
+    """A slot's view-layer access must run under ``btk.window_context_override``.
+
+    The slots run windowless (tentacle's Qt pump), where ``bpy.context.view_layer`` and a
+    bare ``select_set`` / ``select_get`` / ``hide_set`` / ``hide_get`` / ``visible_get``
+    address the scene's DEFAULT view layer -- while ``self.selected_objects()`` /
+    ``self.active_object()`` and every operator run under the override act on the layer
+    the window shows. In a scene whose window shows another layer, a slot that read or
+    wrote outside the override acted on objects the user never selected. Reads go through
+    ``self.active_object()`` / ``self.selected_objects()``; everything else sits inside the
+    override (a ``with`` block, or a method decorated with it) or passes ``view_layer=``.
+    The screen-context members (``bpy.context.selected_objects`` / ``active_object`` /
+    ``object`` / ``selected_editable_objects``) are empty or ABSENT windowless, and
+    ``bpy.context.evaluated_depsgraph_get()`` is the default layer's: the same rule.
+    """
+
+    _GUARDS = ("window_context_override", "temp_override", "edit_mode")
+    _CALLS = ("select_set", "select_get", "hide_set", "hide_get", "visible_get")
+    _SCREEN = (
+        "selected_objects",
+        "active_object",
+        "object",
+        "selected_editable_objects",
+    )
+    # (file, method): why the access is not an Object's view-layer state
+    _ALLOW = {("edit.py", "_reselect_faces"): "BMFace.select_set on an edit bmesh"}
+
+    def _unguarded(self, tree):
+        parents = {c: p for p in ast.walk(tree) for c in ast.iter_child_nodes(p)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Attribute) and node.attr == "view_layer":
+                kind = "bpy.context.view_layer"
+                if not _attr_chain(node.value).endswith("context") or (
+                    getattr(parents.get(node), "attr", None) == "update"
+                ):
+                    continue
+            elif (
+                isinstance(node, ast.Attribute)
+                and node.attr in self._SCREEN
+                and _attr_chain(node.value) == "bpy.context"
+            ):
+                kind = f"bpy.context.{node.attr}"
+            elif (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr in self._CALLS
+                and not any(k.arg == "view_layer" for k in node.keywords)
+            ):
+                kind = node.func.attr
+            elif isinstance(node, ast.Call) and _attr_chain(node.func) == (
+                "bpy.context.evaluated_depsgraph_get"
+            ):
+                kind = "bpy.context.evaluated_depsgraph_get()"
+            else:
+                continue
+            method, guarded, cur = None, False, node
+            while cur in parents and not guarded:
+                cur = parents[cur]
+                if isinstance(cur, ast.With):
+                    guarded = any(
+                        g in ast.unparse(i.context_expr)
+                        for i in cur.items
+                        for g in self._GUARDS
+                    )
+                elif isinstance(cur, ast.FunctionDef):
+                    method = method or cur.name
+                    guarded = any(
+                        g in ast.unparse(d)
+                        for d in cur.decorator_list
+                        for g in self._GUARDS
+                    )
+            if not guarded:
+                yield method, node.lineno, kind
+
+    def test_view_layer_access_runs_under_the_window_override(self):
+        offenders, seen = [], set()
+        for f in sorted(SLOTS_DIR.glob("*.py")):  # the base class included
+            for method, lineno, kind in self._unguarded(
+                ast.parse(f.read_text(encoding="utf-8"))
+            ):
+                if (f.name, method) in self._ALLOW:
+                    seen.add((f.name, method))
+                else:
+                    offenders.append(f"{f.name}:{lineno} {method}() {kind}")
+        self.assertEqual(
+            offenders,
+            [],
+            "Windowless, these address the scene's default view layer, not the window's "
+            "the operators act on: read via self.active_object()/selected_objects(), or "
+            f"move them under btk.window_context_override(): {offenders}",
+        )
+        self.assertEqual(set(self._ALLOW) - seen, set(), "stale allowlist entries")
+
+    def test_no_selection_write_inside_a_live_view_layer_loop(self):
+        """``for o in view_layer.objects: o.select_set(...)`` rebuilds the base list
+        mid-walk once a collection link changed around an operator earlier in the
+        callback, and the walk skips the relinked object (measured in blendertk's
+        ``test_core_utils``). Such loops walk ``list(view_layer.objects)``."""
+        offenders = []
+        for f in sorted(SLOTS_DIR.glob("*.py")):
+            for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+                it = node.iter if isinstance(node, ast.For) else None
+                if not (
+                    isinstance(it, ast.Attribute)
+                    and it.attr == "objects"
+                    and _attr_chain(it.value).endswith("view_layer")
+                ):
+                    continue
+                if any(
+                    isinstance(n, ast.Call)
+                    and isinstance(n.func, ast.Attribute)
+                    and n.func.attr in ("select_set", "hide_set")
+                    for stmt in node.body
+                    for n in ast.walk(stmt)
+                ):
+                    offenders.append(f"{f.name}:{node.lineno}")
+        self.assertEqual(offenders, [], f"walk list(...) instead: {offenders}")
+
+
 @unittest.skipUnless(
     _tcl_blender is not None, "needs a Qt binding (qtpy/PySide6) + blendertk"
 )

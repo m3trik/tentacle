@@ -64,11 +64,13 @@ class SlotsBlender(Slots):
             if not candidates:
                 return None
             obj = candidates[0]
-            bpy.context.view_layer.objects.active = obj
         # window override: ``mode_set``'s poll reads the active object from *screen* context,
         # which is dead in the Qt-pump state — a valid mesh selection still poll-failed here
-        # (no-op when a window is already active, as everywhere this wrap is used).
+        # (no-op when a window is already active, as everywhere this wrap is used). The active
+        # assignment goes inside too: windowless, ``context.view_layer`` is the scene's default
+        # layer, not the window's one ``mode_set`` acts on.
         with btk.window_context_override():
+            bpy.context.view_layer.objects.active = obj  # no-op when already active
             if obj.mode != "EDIT":
                 try:
                     bpy.ops.object.mode_set(mode="EDIT")
