@@ -10,10 +10,10 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 215, Blender 217 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (353/416) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 48), 0 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1193/2162 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 49), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1202/2200 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 55% with 1 module(s) absent (render_utils); 0 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 55% with 1 module(s) absent (render_utils); 1 panel ports open.
 
 ---
 
@@ -24,23 +24,23 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 346 | 308 | 261 | 75% |
+| anim_utils | 347 | 308 | 261 | 75% |
 | audio_utils | 68 | 32 | 16 | 24% |
 | cam_utils | 10 | 16 | 4 | 40% |
-| core_utils | 169 | 78 | 53 | 31% |
+| core_utils | 169 | 79 | 54 | 32% |
 | display_utils | 44 | 43 | 18 | 41% |
 | edit_utils | 165 | 180 | 127 | 77% |
-| env_utils | 464 | 301 | 221 | 48% |
+| env_utils | 464 | 302 | 221 | 48% |
 | light_utils | 97 | 89 | 67 | 69% |
-| mat_utils | 340 | 262 | 226 | 66% |
-| node_utils | 148 | 58 | 50 | 34% |
+| mat_utils | 340 | 267 | 231 | 68% |
+| node_utils | 149 | 59 | 51 | 34% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 7 | 0 | 0 | 0% |
-| rig_utils | 207 | 166 | 118 | 57% |
-| ui_utils | 74 | 90 | 35 | 47% |
-| uv_utils | 104 | 92 | 71 | 68% |
+| rig_utils | 245 | 166 | 118 | 48% |
+| ui_utils | 74 | 91 | 35 | 47% |
+| uv_utils | 104 | 93 | 72 | 69% |
 | xform_utils | 82 | 35 | 29 | 35% |
-| **TOTAL (unique)** | **2162** | **1597** | **1193** | **55%** |
+| **TOTAL (unique)** | **2200** | **1607** | **1202** | **55%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -62,51 +62,52 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | GameShader | 5→5 | 4→2 | 8→7 | 2677→744 | 28% | 88% | clean |
 | TubeRig | 1→1 | 0→0 | 19→8 | 1230→388 | 32% | 42% | 3 open |
 | MatUpdater | 0→0 | 13→9 | 2→2 | 1562→521 | 33% | 100% | clean |
-| CurveToTube | 0→0 | 4→3 | 11→11 | 875→386 | 44% | 100% | clean |
 | ExplodedView | 0→0 | 0→1 | 4→4 | 306→135 | 44% | 100% | clean |
-| Snap | 3→3 | 6→6 | 3→3 | 425→202 | 48% | 100% | clean |
+| CurveToTube | 0→0 | 4→3 | 11→11 | 875→391 | 45% | 100% | clean |
+| Snap | 3→3 | 6→6 | 3→3 | 425→201 | 47% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3248→1762 | 54% | 100% | clean |
-| MarmosetBridge | 0→0 | 0→0 | 2→2 | 312→171 | 55% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 18→8 | 2→6 | 824→458 | 56% | 300% | clean |
 | DuplicateRadial | 0→0 | 1→1 | 12→12 | 549→323 | 59% | 100% | clean |
 | DuplicateGrid | 0→0 | 1→1 | 7→7 | 443→271 | 61% | 100% | clean |
-| TexturePathEditor | 6→4 ⚠ | 33→25 | 1→1 | 3455→2228 | 64% | 100% | 1 open |
+| TexturePathEditor | 6→4 ⚠ | 33→25 | 1→1 | 3457→2233 | 65% | 100% | 1 open |
 | HdrManager | 3→3 | 14→13 | 4→4 | 1799→1186 | 66% | 100% | clean |
 | ImageTracer | 1→1 | 2→2 | 7→7 | 552→371 | 67% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
-| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3016→2320 | 77% | 100% | clean |
+| MarmosetBridge | 0→0 | 0→0 | 2→2 | 312→228 | 73% | 100% | clean |
+| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3016→2326 | 77% | 100% | clean |
 | SubstanceBridge | 1→1 | 0→0 | 2→2 | 336→267 | 79% | 100% | clean |
-| RizomBridge | 0→0 | 0→0 | 2→2 | 356→303 | 85% | 100% | clean |
+| RizomBridge | 0→0 | 0→0 | 2→2 | 359→311 | 87% | 100% | clean |
 | TelescopeRig | 0→0 | 0→0 | 4→4 | 1114→964 | 87% | 100% | clean |
-| WheelRig | 2→2 | 2→2 | 7→7 | 715→622 | 87% | 100% | clean |
+| WheelRig | 2→2 | 2→2 | 7→7 | 715→620 | 87% | 100% | clean |
 | ShellXform | 7→7 | 12→12 | 25→25 | 642→580 | 90% | 100% | clean |
-| SceneExporter | 5→5 | 13→13 | 5→5 | 1050→955 | 91% | 100% | 3 open |
+| SceneExporter | 5→5 | 13→13 | 5→5 | 1050→955 | 91% | 100% | 2 open |
 | Bevel | 0→0 | 0→0 | 3→3 | 177→163 | 92% | 100% | clean |
 | Bridge | 0→0 | 0→0 | 5→5 | 274→255 | 93% | 100% | clean |
 | ShotSequencer | 1→1 | 16→16 | 2→2 | 905→846 | 93% | 100% | clean |
 | ShaderTemplates | 0→0 | 5→5 | 5→5 | 351→330 | 94% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 286→271 | 95% | 100% | clean |
-| LightmapBaker | 6→6 | 2→2 | 13→12 | 1041→993 | 95% | 92% | clean |
 | UnityBridge | 0→0 | 0→0 | 2→2 | 172→163 | 95% | 100% | clean |
-| BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 939→919 | 98% | 100% | clean |
-| KeyStash | 0→0 | 2→2 | 8→8 | 320→316 | 99% | 100% | clean |
-| Naming | 13→13 | 20→20 | 6→6 | 987→996 | 101% | 100% | clean |
-| RenderEffects | 7→7 | 16→16 | 2→2 | 1299→1312 | 101% | 100% | clean |
-| ShotManifest | 2→2 | 7→7 | 5→5 | 1962→1974 | 101% | 100% | clean |
+| LightmapBaker | 6→6 | 2→2 | 13→12 | 1041→1001 | 96% | 92% | clean |
+| BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 939→925 | 99% | 100% | clean |
+| KeyStash | 0→0 | 2→2 | 8→8 | 320→320 | 100% | 100% | clean |
+| Naming | 13→13 | 20→20 | 6→6 | 987→1001 | 101% | 100% | clean |
+| RenderEffects | 7→7 | 16→16 | 2→2 | 1299→1310 | 101% | 100% | clean |
+| ShotManifest | 2→2 | 7→7 | 5→5 | 1962→1977 | 101% | 100% | clean |
 | Shots | 6→6 | 10→10 | 19→19 | 1353→1362 | 101% | 100% | clean |
 | SmartBake | 0→0 | 4→3 | 11→10 | 308→312 | 101% | 91% | clean |
 | DuplicateLinear | 0→0 | 3→3 | 7→7 | 341→348 | 102% | 100% | clean |
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 207→212 | 102% | 100% | clean |
 | ShadowRig | 1→1 | 1→1 | 15→15 | 1170→1192 | 102% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 271→289 | 107% | 100% | clean |
-| EmissiveGroups | 3→3 | 15→14 | 7→7 | 1378→1491 | 108% | 100% | clean |
-| ImageToPlane | 3→3 | 1→1 | 8→8 | 244→263 | 108% | 100% | clean |
-| Curtain | 0→0 | 0→1 | 13→13 | 482→523 | 109% | 100% | clean |
-| ColorId | 0→0 | 0→0 | 9→9 | 734→834 | 114% | 100% | clean |
-| ReferenceManager | 3→2 ⚠ | 28→31 | 4→4 | 1866→2417 | 130% | 100% | clean |
+| EmissiveGroups | 3→3 | 15→14 | 7→7 | 1378→1493 | 108% | 100% | clean |
+| Curtain | 0→0 | 0→1 | 13→13 | 482→528 | 110% | 100% | clean |
+| ImageToPlane | 3→3 | 1→1 | 8→8 | 244→268 | 110% | 100% | clean |
+| ColorId | 0→0 | 0→0 | 9→9 | 734→835 | 114% | 100% | clean |
+| ReferenceManager | 3→2 ⚠ | 28→31 | 4→4 | 1866→2461 | 132% | 100% | clean |
 
-### Open panel ports (0) — tracked in parity_map
+### Open panel ports (1) — tracked in parity_map
 
+- **ArticulatedRig** — mayatk ArticulatedRig (2026-09-27) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin').
 
 ### Not gaps (2)
 

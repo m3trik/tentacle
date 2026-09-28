@@ -122,8 +122,10 @@ class TransformSlots(TransformMixin, SlotsBlender):
         )
         if m.chk017.isChecked():
             btk.freeze_transforms(objects, location=True, rotation=False, scale=False)
-        for o in objects:
-            o.select_set(True)
+        # windowless, select_set hits the default view layer, not the window's
+        with btk.window_context_override():
+            for o in objects:
+                o.select_set(True)
 
     # ------------------------------------------------------------------ tb002  Freeze Transforms
     # chk032-34 / cmb_center_pivot / cmb_instance_strategy reuse the Maya names + labels for

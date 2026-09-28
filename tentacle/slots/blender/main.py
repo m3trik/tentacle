@@ -38,8 +38,9 @@ class MainSlots(MainMixin, SlotsBlender):
         pins it; its flyout nests ``Auto Set Workspace`` and a ``Recent Workspaces``
         sub-flyout), ``Edit Workspace`` (create / customize a workspace's file rules), then
         the workspace-name row (the row opens the workspace root; its flyout browses the dir
-        tree). The dir-browser rows carry a folder icon that sets them apart from the action
-        rows above. Rebuilt on every show (``refresh_on_show``) so the dir tree and recent
+        tree), then ``Scene Directory`` (opens the saved .blend's folder; absent for an
+        unsaved file). The dir-browser rows carry a folder icon that sets them apart from the
+        action rows above. Rebuilt on every show (``refresh_on_show``) so the dir tree and recent
         list stay current.
         """
         widget.clear()
@@ -99,6 +100,9 @@ class MainSlots(MainMixin, SlotsBlender):
             self.sb.IconManager.set_label_icon(w, "folder_filled")
             self._populate_dir_contents(w.sublist, workspace, max_depth=2)
 
+        # The open .blend's folder (saved files only) — one click to its dir.
+        self._add_scene_dir_row(widget)
+
         widget.setVisible(True)
 
     def _populate_dir_contents(self, sublist, path, max_depth=2):
@@ -142,6 +146,12 @@ class MainSlots(MainMixin, SlotsBlender):
     # ``slots/_main.py`` (Maya's twin supplies fileDialog2 / mtk.create_workspace).
     def _current_workspace_root(self):
         return btk.get_env_info("workspace") or ""
+
+    def _current_scene_path(self):
+        """The open .blend, or '' when it has never been saved."""
+        import bpy
+
+        return bpy.data.filepath
 
     def _browse_workspace_dir(self, start):
         """Qt directory browser; '' when dismissed."""

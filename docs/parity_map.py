@@ -40,7 +40,6 @@ CONTROLS = {
         "check_mangled_names": {"status": "na", "reason": "the patterns are Maya import escapes (FBXASC###, __RZTMP) that Blender never writes"},
         "check_uv_snapshots": {"status": "na", "reason": "the _uv_snap_* backup sets are mayatk Auto Unwrap temporaries, and Blender's unwrap takes none (blendertk TaskManager.PARITY_GAPS)"},
         "check_default_materials": {"status": "pending", "reason": "not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)"},
-        "animation_write_back": {"status": "pending", "reason": "the Animation Output gate (capture the curves, edit for the write, restore after) is not ported; blendertk's key-editing tasks edit in place"},
         "verify_deliverables": {"status": "pending", "reason": "post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass"},
     },
     "arnold_bridge": {
@@ -1030,7 +1029,7 @@ DEFAULT_DELTAS = {
     "rigging": {
         "chk000.setChecked": "Not a same-meaning toggle: Maya chk000 is a QRadioButton 'Joints' (checked as the default of a 3-way Joints/IK/IK-FK group driving display scales); Blender chk000 is a standalone QCheckBox opting into armature bone-axes (show_axes) — a mode Maya lacks. Defaulting True would make tb000 error ('No armatures selected') on non-armature selections. Documented in the Blender file's name-reuse comment.",
         "cmb010.items": "Deliberately different item list: Maya's Attrs scope ['Attrs: Auto','Attrs: Channel Box'] names Channel-Box-driven attribute scoping; Blender has no Channel Box, so the scope is re-expressed as the concrete transform channels ['Attrs: Translate','Attrs: Rotate','Attrs: Scale']. Documented only in the Blender slot comment previously; recorded here 2026-07-08.",
-        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's 4 items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop.",
+        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's procedural items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop. Maya adds 'Articulated Rig' (mayatk ArticulatedRig, 2026-09-27): the blendertk twin is PENDING, ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin') -- a gap, not a design divergence.",
     },
     "animation": {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
@@ -1059,6 +1058,9 @@ DEFAULT_DELTAS = {
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
     "ArnoldBridgeSlots": {"status": "na", "reason": "no Arnold in Blender (Cycles/EEVEE)"},
+    "ArticulatedRigSlots": {"status": "pending", "reason": "mayatk ArticulatedRig (2026-09-27) has no "
+                            "blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md "
+                            "('ArticulatedRig has no blendertk twin')"},
     # MarmosetBridgeSlots / SubstanceBridgeSlots: stale "no twin" rows removed 2026-07-08 -- both
     # now ship real native blendertk twins (blendertk/mat_utils/{marmoset,substance}_bridge/
     # *_bridge_slots.py -- full BlenderBridgeSlotsBase panels with co-located .ui + RPC clients +

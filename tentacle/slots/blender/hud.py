@@ -11,7 +11,7 @@ from tentacle import HudWarningsMixin, SlotsBlender
 class StatusMixin:
     def insert_scene_status(self, hud) -> None:
         # Symmetry status (per-mesh mirror flags on the active mesh)
-        active = bpy.context.view_layer.objects.active
+        active = btk.active_object()  # the window's layer, not the scene default
         if active and active.type == "MESH":
             axes = "".join(
                 axis.upper()
@@ -206,7 +206,7 @@ class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin):
         self.insert_warning_details(hud, self._active_warnings)
 
         selection = self.selected_objects()
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active and active.mode == "EDIT" and active.type == "MESH":
             self.insert_component_info(hud, active)
         elif selection:

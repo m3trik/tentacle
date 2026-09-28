@@ -414,9 +414,12 @@ class EditSlots(EditMixin, SlotsBlender):
         linked data errors)."""
         if scope == "selected":
             return [o for o in self.selected_objects() if o.type == "MESH"]
-        meshes = [o for o in bpy.context.view_layer.objects if o.type == "MESH"]
-        if scope == "visible":
-            return [o for o in meshes if o.visible_get()]
+        # the window's layer: windowless, ``context.view_layer`` / ``visible_get`` read the
+        # scene's default layer, not the one the user sees
+        with btk.window_context_override():
+            meshes = [o for o in bpy.context.view_layer.objects if o.type == "MESH"]
+            if scope == "visible":
+                return [o for o in meshes if o.visible_get()]
         return meshes
 
     @staticmethod
@@ -618,8 +621,9 @@ class EditSlots(EditMixin, SlotsBlender):
         active = btk.active_object()
         if active not in meshes:
             active = meshes[0]
-            bpy.context.view_layer.objects.active = active
         with btk.window_context_override():
+            # inside: windowless, ``context.view_layer`` is the scene's default layer
+            bpy.context.view_layer.objects.active = active
             try:
                 if active.mode != "EDIT":
                     bpy.ops.object.mode_set(mode="EDIT")
@@ -659,7 +663,7 @@ class EditSlots(EditMixin, SlotsBlender):
     @btk.undoable
     def tb002(self, widget):
         """Delete Selected (objects in object mode, components by select mode in edit mode)."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         # window override: mesh.delete / object.delete / mode_set poll their targets from
         # *screen* context — dead in the Qt-pump state (no-op when a window exists).
         with btk.window_context_override():
@@ -721,7 +725,7 @@ class EditSlots(EditMixin, SlotsBlender):
         if getattr(item, "sublist", None) and item.sublist.get_items():
             return
 
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         text = item.item_text()
         parent_text = item.parent_item_text() or ""
 
@@ -786,11 +790,13 @@ class EditSlots(EditMixin, SlotsBlender):
     def _create_control(self, shape, label):
         ctrl = btk.Controls.create(shape, name=label.replace(" ", ""))
         # view-layer deselect, not object.select_all: the op polls Object Mode and reads
-        # screen context (dead under the Qt pump); select_set is mode-independent.
-        for o in bpy.context.view_layer.objects:
-            o.select_set(False)
-        ctrl.select_set(True)
-        bpy.context.view_layer.objects.active = ctrl
+        # screen context (dead under the Qt pump); select_set is mode-independent. Under
+        # the override: windowless, it addresses the scene's default layer.
+        with btk.window_context_override():
+            for o in list(bpy.context.view_layer.objects):
+                o.select_set(False)
+            ctrl.select_set(True)
+            bpy.context.view_layer.objects.active = ctrl
 
     # ------------------------------------------------------------------ list001  Convert
     def list001_init(self, widget):
@@ -830,7 +836,7 @@ class EditSlots(EditMixin, SlotsBlender):
         # window override: convert's poll reads ``context.active_base`` and its exec reads the
         # context selection — both *screen*-context members, dead in the Qt-pump state. Force
         # Object Mode first (same guard list000 uses): convert poll-fails outside it.
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         with btk.window_context_override():
             try:
                 if active and active.mode != "OBJECT":
@@ -903,7 +909,7 @@ class EditSlots(EditMixin, SlotsBlender):
         """Vertex Colors — native Data-Transfer of the active color attribute, matched to its
         domain (point vs. face-corner) so both painted-per-vertex and painted-per-corner sets
         transfer correctly (part of Maya's Attribute Values)."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         data_type = (
             self._color_attribute_data_type(active) if active else "COLOR_VERTEX"
         )
@@ -941,7 +947,7 @@ class EditSlots(EditMixin, SlotsBlender):
         the other selected objects; Blender's counterpart to Maya's Shading Sets transfer
         (shading-group assignment)."""
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active not in objects or len(objects) < 2:
             self.sb.message_box(
                 "Select target mesh(es) with the source (shaded) mesh active."
@@ -971,7 +977,7 @@ class EditSlots(EditMixin, SlotsBlender):
     def _report_transfer(self, label):
         """Message-box + console summary shared by every Transfer op (mirrors Maya's
         ``_run_transfer`` feedback: quick popup + full source/target breakdown on the console)."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         targets = [
             o.name
             for o in self.selected_objects()
@@ -1076,7 +1082,9 @@ class EditSlots(EditMixin, SlotsBlender):
                 return
         else:
             # Unlock every object — locked ones are unselectable, so there's nothing to select.
-            targets = list(bpy.context.view_layer.objects)
+            # The window's layer (windowless, ``context.view_layer`` is the scene default).
+            with btk.window_context_override():
+                targets = list(bpy.context.view_layer.objects)
         for o in targets:
             o.hide_select = lock
         verb = "Locked" if lock else "Unlocked"

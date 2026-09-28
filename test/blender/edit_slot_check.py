@@ -446,6 +446,130 @@ try:
         f"after={[m.name if m else None for m in target.data.materials]}",
     )
 
+    # --- the Qt-pump state in a two-view-layer scene ---------------------------------------
+    # The slots run windowless, where ``bpy.context.view_layer`` is the scene's DEFAULT layer
+    # while the operators (under btk.window_context_override) act on the layer the window
+    # shows. Each case sets a different selection per layer, runs windowless, and checks the
+    # slot acted on the WINDOW's. Measured before the fix: Material Slots refused ("source
+    # mesh active" read the default layer's active), Cleanup's "visible" pool read the default
+    # layer's visibility, a created control was selected in the default layer, and
+    # ensure_edit_mode activated its fallback mesh in the default layer, so mode_set put the
+    # window's active curve into Edit Mode instead.
+    reset()
+    win = bpy.context.window_manager.windows[0]
+    default_vl = bpy.context.scene.view_layers[0]
+    win_vl = bpy.context.scene.view_layers.new("WindowLayer")
+    prior_win_vl = win.view_layer
+    win.view_layer = win_vl
+    try:
+        source, target = make_transfer_pair()
+        bpy.ops.mesh.primitive_cube_add(location=(6, 0, 0))
+        decoy = bpy.context.active_object
+        bpy.ops.curve.primitive_bezier_curve_add(location=(9, 0, 0))
+        crv = bpy.context.active_object
+
+        def layer_state(vl, selected, active):
+            for o in vl.objects:
+                o.select_set(o in selected, view_layer=vl)
+            vl.objects.active = active
+
+        def pump_state(win_sel, win_active):
+            layer_state(default_vl, [decoy], decoy)
+            layer_state(win_vl, win_sel, win_active)
+
+        def default_untouched():
+            return default_vl.objects.active == decoy and [
+                o for o in default_vl.objects if o.select_get(view_layer=default_vl)
+            ] == [decoy]
+
+        # Material Slots: the window's active source, its selected target
+        source.data.materials.append(bpy.data.materials.new("PumpMat"))
+        target.data.materials.clear()
+        pump_state([source, target], source)
+        with bpy.context.temp_override(window=None):
+            slot.cmb000(transfer_labels.index("Material Slots"), transfer_widget)
+        check(
+            "pump: cmb000 'Material Slots' reads the window layer's active source",
+            list(target.data.materials) == list(source.data.materials)
+            and default_untouched(),
+            f"target={[m.name for m in target.data.materials if m]}",
+        )
+
+        # Cleanup 'visible' pool: hidden in the window's layer only
+        pump_state([source], source)
+        target.hide_set(True, view_layer=win_vl)
+        with bpy.context.temp_override(window=None):
+            pool = slot._cleanup_pool("visible")
+        target.hide_set(False, view_layer=win_vl)
+        check(
+            "pump: Cleanup's 'visible' pool reads the window layer's visibility",
+            source in pool and target not in pool,
+            f"pool={[o.name for o in pool]}",
+        )
+
+        # Create > Control: the new control is selected + active in the window's layer
+        pump_state([source], source)
+        with bpy.context.temp_override(window=None):
+            slot._create_control("circle", "Pump Control")
+        ctrl = win_vl.objects.active
+        # (the default layer is checked on the objects it already had: a NEW object's base
+        # there is synced lazily and inherits the select flag the window layer set)
+        default_sel = [
+            o
+            for o in (source, target, decoy, crv)
+            if o.select_get(view_layer=default_vl)
+        ]
+        check(
+            "pump: a created control is selected + active in the window layer",
+            ctrl is not None
+            and ctrl not in (source, target, decoy, crv)
+            and [o for o in win_vl.objects if o.select_get(view_layer=win_vl)] == [ctrl]
+            and default_vl.objects.active == decoy
+            and default_sel == [decoy],
+            f"window active={getattr(ctrl, 'name', None)} "
+            f"default active={default_vl.objects.active.name}",
+        )
+
+        # SlotsBlender.ensure_edit_mode: the window's active is a curve, a mesh is selected
+        pump_state([crv, target], crv)
+        with bpy.context.temp_override(window=None):
+            got = slot.ensure_edit_mode("MESH")
+        modes = (target.mode, crv.mode, decoy.mode)
+        with btk.window_context_override():
+            if win_vl.objects.active and win_vl.objects.active.mode != "OBJECT":
+                bpy.ops.object.mode_set(mode="OBJECT")
+        check(
+            "pump: ensure_edit_mode activates its fallback mesh in the window layer",
+            got == target and modes == ("EDIT", "OBJECT", "OBJECT"),
+            f"(target, curve, decoy) modes={modes}",
+        )
+
+        # Pivot's World-Aligned bake (btk.CoreUtils.preserved_selection): the rotation is
+        # applied to the applyable selection, and the window layer's selection AND active
+        # come back -- the curve included, though it is not baked
+        from tentacle.slots.blender.pivot import PivotSlots
+
+        pivot = make_slot(PivotSlots)
+        source.rotation_euler = (0.0, 0.0, 0.5)
+        pump_state([source, crv], crv)
+        with bpy.context.temp_override(window=None):
+            pivot._apply_rotation("World-Aligned Pivot")
+        win_sel = sorted(
+            o.name for o in win_vl.objects if o.select_get(view_layer=win_vl)
+        )
+        check(
+            "pump: Pivot's rotation bake restores the window layer's selection + active",
+            abs(source.rotation_euler.z) < 1e-6
+            and win_sel == sorted([source.name, crv.name])
+            and win_vl.objects.active == crv
+            and default_vl.objects.active == decoy,
+            f"rot z={source.rotation_euler.z:.3f} window={win_sel} "
+            f"active={getattr(win_vl.objects.active, 'name', None)}",
+        )
+    finally:
+        win.view_layer = prior_win_vl
+        bpy.context.scene.view_layers.remove(win_vl)
+
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")
     lines.append(traceback.format_exc())

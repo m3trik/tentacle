@@ -47,14 +47,16 @@ class UvSlots(UvMixin, SlotsBlender):
     def _seam_op(self, clear):
         """Mark/clear UV seams on the user's **selected** edges (selection-based, unlike the
         whole-mesh unwrap ops — so it does not force select-all). Requires edit mode."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if not (active and active.type == "MESH"):
             self.sb.message_box("Cut/Sew UVs requires an active mesh.")
             return
         if active.mode != "EDIT":
             self.sb.message_box("Select edges in Edit Mode to cut/sew UV seams.")
             return
-        bpy.ops.mesh.mark_seam(clear=clear)
+        # window override: edit-mesh ops poll ``edit_object`` from screen context
+        with btk.window_context_override():
+            bpy.ops.mesh.mark_seam(clear=clear)
 
     @staticmethod
     def _selection_fingerprint(objects):
@@ -694,17 +696,20 @@ class UvSlots(UvMixin, SlotsBlender):
                 else "<b>None of the stored source meshes are still in the "
                 "file.</b><br>Re-capture them."
             )
-        bpy.ops.object.select_all(action="DESELECT")
-        selected = []
-        for obj in alive:
-            try:
-                obj.select_set(True)
-            except RuntimeError:  # not in the active view layer
-                continue
-            if obj.select_get():
-                selected.append(obj)
-        if selected:
-            bpy.context.view_layer.objects.active = selected[0]
+        # window override: windowless, select_all / select_set / the active write
+        # address the scene's default layer, not the one the window shows
+        with btk.window_context_override():
+            bpy.ops.object.select_all(action="DESELECT")
+            selected = []
+            for obj in alive:
+                try:
+                    obj.select_set(True)
+                except RuntimeError:  # not in the active view layer
+                    continue
+                if obj.select_get():
+                    selected.append(obj)
+            if selected:
+                bpy.context.view_layer.objects.active = selected[0]
         unreachable = len(alive) - len(selected)
         missing = len(stored) - len(alive)
         self.sb.message_box(

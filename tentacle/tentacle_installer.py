@@ -50,6 +50,13 @@ dependencies) -- for Maya the whole module folder and its ``.mod``. A lock besid
 processes -- two sessions starting on one pending update wait for each other instead of running two
 pips into one directory -- and update / uninstall are refused while it is held.
 
+**A target carried to another Python is repaired, once per interpreter.** Blender's *Load Previous
+Settings* copies the whole previous user dir, so a 4.x (3.11) ``addons/modules`` arrives in 5.1
+(3.13) with its manifest and a Pillow whose ``_imaging.cp311-win_amd64.pyd`` never imports there.
+A recorded dist whose compiled modules were all built for another Python is pip-uninstalled and
+provisioned fresh: at the first start on the new interpreter (the manifest's ``abi`` records the
+one it was checked for) and by every Update.
+
 Nothing happens at import: the API-registry generator, Maya's drop executor and Blender's add-on
 loader all *import* this module before calling anything.
 """
@@ -57,10 +64,12 @@ loader all *import* this module before calling anything.
 import contextlib
 import csv
 import importlib
+import importlib.machinery
 import importlib.util
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -72,7 +81,7 @@ from importlib import metadata
 bl_info = {
     "name": "Tentacle Marking Menu",
     "author": "m3trik",
-    "version": (1, 3, 0),
+    "version": (1, 4, 0),
     "blender": (4, 1, 0),
     "location": "3D View > activation key (default Z); Preferences > Add-ons for update / uninstall",
     "description": "Installs tentacle on first start (no admin rights) and launches its marking menu.",
@@ -601,6 +610,12 @@ class TentacleInstaller:
             pins |= set(updates.pop("pins") or [])
         data.update(updates)
         data["pins"] = sorted(pins)
+        cls._put_manifest(target, data)
+        return data
+
+    @classmethod
+    def _put_manifest(cls, target, data):
+        """Write *data* as *target*'s manifest, atomically (see :meth:`write_manifest`)."""
         os.makedirs(target, exist_ok=True)
         path = cls.manifest_path(target)
         tmp = path + ".tmp"
@@ -620,7 +635,6 @@ class TentacleInstaller:
                     os.remove(tmp)
                 except OSError:
                     pass
-        return data
 
     @classmethod
     def _preserve_corrupt_manifest(cls, target):
@@ -710,6 +724,313 @@ class TentacleInstaller:
             if name:
                 yield path, name, version
 
+    @staticmethod
+    def _record_entries(info):
+        """The paths the dist-info *info*'s RECORD lists, as written (``[]`` without one).
+
+        Read from the RECORD text, never ``Distribution.files``: from Python 3.12 that
+        drops every entry whose file is missing where it resolves (under Blender 5.1's
+        3.13 it found 0 of 24 console launchers; 3.11 lists them all).
+        """
+        try:
+            with open(os.path.join(info, "RECORD"), encoding="utf-8", newline="") as fh:
+                return [row[0] for row in csv.reader(fh) if row]
+        except (OSError, ValueError, csv.Error):
+            return []
+
+    #: uitk compiles a packaged ``<name>.ui`` to ``<name>_ui.py`` beside it
+    #: (``UiCompiler.compiled_path_for``) and heads every file it writes with this line
+    #: (what ``UiCompiler.read_embedded_hash`` reads). Spelled here because this file runs
+    #: before uitk exists; the test suite pins both to uitk's own functions.
+    _UI_COMPILED_SUFFIX = "_ui.py"
+    _UI_HASH_LINE = re.compile(r"""^__source_hash__\s*=\s*['"][a-f0-9]+['"]""")
+    #: The banner uic (pyside2/6-uic; pyuic5/6 say "Form implementation ...") opens its
+    #: output with, naming the .ui it read.
+    _UIC_BANNER = re.compile(r"generated from reading ui file '([^']+)'", re.IGNORECASE)
+
+    @classmethod
+    def _compiled_ui(cls, ui_path):
+        """The module uitk compiles the Designer file *ui_path* to."""
+        return os.path.splitext(ui_path)[0] + cls._UI_COMPILED_SUFFIX
+
+    @classmethod
+    def _is_compiled_ui(cls, path, ui_name):
+        """True when *path* is provably a compile of the Designer file *ui_name*.
+
+        Either uitk's header (any ``.ui``: uitk wrote it) or uic's own banner naming
+        *ui_name* within the first 40 lines. The second is an editor's live compile of a
+        ``.ui`` it saw land (measured here: VS Code's Qt for Python extension compiles
+        every new ``**/*.ui`` in the workspace, on by default) -- uitk overwrites exactly
+        that file at the next load, and uic marks it "All changes made in this file will
+        be lost". A file with neither is someone's own, whatever its name.
+        """
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                for _ in range(40):
+                    line = fh.readline()
+                    if not line:
+                        break
+                    if cls._UI_HASH_LINE.match(line):
+                        return True
+                    banner = cls._UIC_BANNER.search(line)
+                    if banner and os.path.basename(banner.group(1)) == ui_name:
+                        return True
+        except (OSError, UnicodeDecodeError):
+            pass
+        return False
+
+    @classmethod
+    def _ui_modules(cls, target, names):
+        """``(module, ui name)`` for each ``.ui`` the dists *names* recorded: where it compiles to.
+
+        uitk compiles each packaged ``<name>.ui`` to ``<name>_ui.py`` beside it at first
+        load, and importing that caches ``__pycache__/<name>_ui.<tag>.pyc``; pip, reading
+        only RECORD, leaves both. None ship: ``*_ui.py`` is gitignored in every repo, and
+        uitk compiles with the RUNNING Qt's own uic because a newer uic's output fails on
+        an older runtime. Measured on 5.1: an Uninstall left ``blendertk/``, ``tentacle/``
+        and ``uitk/`` in the SHARED addons/modules holding only those.
+
+        Read from the RECORDs, so before pip drops them; what is actually there is
+        decided after pip has run (:meth:`_generated_files`). A module the RECORD lists
+        itself is pip's to remove, and one that would land outside *target* is skipped.
+        """
+        root = os.path.normcase(os.path.normpath(target)) + os.sep
+        keys = {cls._dist_key(name) for name in names}
+        found = []
+        for info, name, _version in cls._dist_infos(target):  # every copy's RECORD
+            if cls._dist_key(name) not in keys:
+                continue
+            entries = cls._record_entries(info)
+            recorded = {
+                os.path.normcase(os.path.normpath(os.path.join(target, entry)))
+                for entry in entries
+            }
+            for entry in entries:
+                if not entry.endswith(".ui"):
+                    continue
+                module = cls._compiled_ui(os.path.normpath(os.path.join(target, entry)))
+                key = os.path.normcase(module)
+                if key.startswith(root) and key not in recorded:
+                    found.append((module, os.path.basename(entry)))
+        return found
+
+    @classmethod
+    def _generated_files(cls, modules):
+        """The files of *modules* (:meth:`_ui_modules`) on disk NOW that are provably generated.
+
+        Asked after pip has run, not before: an editor compiling ``.ui`` files as they
+        land keeps writing while pip works (measured: 11 blendertk modules written during
+        the uninstall survived a sweep listed before it). Only a module that is a compile
+        of its own ``.ui`` (:meth:`_is_compiled_ui`), and that module's caches: a
+        hand-written file of that name and anything else in the folder are left alone.
+        """
+        found = []
+        for module, ui_name in modules:
+            if os.path.exists(module):
+                if not cls._is_compiled_ui(module, ui_name):
+                    continue
+                found.append(module)
+            cache = os.path.join(os.path.dirname(module), "__pycache__")
+            stem = os.path.splitext(os.path.basename(module))[0] + "."
+            try:
+                found += [
+                    os.path.join(cache, entry)
+                    for entry in sorted(os.listdir(cache))
+                    if entry.startswith(stem) and entry.endswith(".pyc")
+                ]
+            except OSError:
+                pass
+        return found
+
+    # ------------------------------------------------------------------ recorded dists at start
+    @classmethod
+    def _missing_dists(cls, target):
+        """Recorded dists with no dist-info left in *target* -- no import, one listing.
+
+        ``is_installed`` asks for tentacle and the engine only, so a start launched with a
+        recorded dependency gone (another add-on's uninstall taking a shared Pillow, a
+        hand clean-up) and the menu broke at its first use of it. The listing reads the
+        dist-info FOLDER names (``<name>-<version>.dist-info``, the name escaped with
+        ``_``); a name not found there is confirmed from the METADATA before it counts,
+        so a folder spelled some other way is not reinstalled at every start.
+        """
+        recorded = {}
+        for pin in cls.read_manifest(target).get("pins") or []:
+            name = pin.split("==")[0]
+            recorded.setdefault(cls._dist_key(name), name)
+        if not recorded:
+            return []
+        try:
+            listed = {
+                cls._dist_key(entry.split("-")[0])
+                for entry in os.listdir(target)
+                if entry.endswith(".dist-info")
+            }
+        except OSError:
+            return []
+        gone = set(recorded) - listed
+        if gone:
+            gone -= set(cls._dists(target))
+        return sorted(recorded[key] for key in gone)
+
+    @classmethod
+    def _forget_gone(cls, target):
+        """Drop the pins whose dist is not in *target* after a provisioning that succeeded.
+
+        That run's plan found them missing and did not install them, so nothing needs
+        them now (a dependency a release dropped, one the host has since bundled). Kept,
+        every start would find them gone (:meth:`_missing_dists`) and provision again, and
+        an Uninstall could one day remove a dist of that name another add-on installed.
+        Never raises: the provisioning it tidies after has already succeeded.
+        """
+        try:
+            data = cls._read_manifest(target)
+            if not data or not data.get("pins"):
+                return
+            present = cls._dists(target)
+            kept = [
+                pin
+                for pin in data["pins"]
+                if cls._dist_key(pin.split("==")[0]) in present
+            ]
+            if kept != data["pins"]:
+                data["pins"] = kept
+                cls._put_manifest(target, data)
+        except Exception as error:  # noqa: BLE001 -- see above
+            print(f"[tentacle] could not forget the pins gone from {target}: {error}")
+
+    # ------------------------------------------------------------------ interpreter change
+    #: A compiled module's CPython tag: ``cp311-win_amd64`` / ``cpython-311-x86_64-linux-gnu``.
+    _CPYTHON_TAG = re.compile(r"cp(?:ython-)?\d")
+
+    @staticmethod
+    def _abi():
+        """The extension-module suffixes of the interpreter that imports what is installed.
+
+        That is the RUNNING one: this file only ever runs inside the DCC whose Python
+        imports the target (``register()``, ``userSetup.py``, ``blender --python``,
+        ``mayapy``), and :meth:`python_exe` is that interpreter's own binary.
+        """
+        return list(importlib.machinery.EXTENSION_SUFFIXES)
+
+    @classmethod
+    def _foreign_dists(cls, target, names=None, suffixes=None):
+        """Recorded dists in *target* holding a compiled module this interpreter cannot import.
+
+        A module is foreign when its RECORD lists it only under CPython tags none of
+        *suffixes* is (``_imaging.cp311-win_amd64.pyd`` against 3.13's
+        ``.cp313-win_amd64.pyd`` / ``.pyd``). abi3 wheels -- PySide6, shiboken6 -- carry a
+        plain ``.pyd`` / ``.abi3.so`` and are never foreign, and neither is a module whose
+        wheel also ships this interpreter's build. The dist-info alone cannot tell: it says
+        the dist is installed, which is why an Update planned nothing.
+
+        Parameters:
+            target (str): The install dir.
+            names (list): Dist names to check; default the manifest's pins. Nothing else
+                is read -- Blender's ``addons/modules`` is shared with other add-ons.
+            suffixes (list): The importing interpreter's extension suffixes; default
+                :meth:`_abi`.
+
+        Returns:
+            list: The foreign dists' names, sorted.
+        """
+        if names is None:
+            pins = cls.read_manifest(target).get("pins") or []
+            names = [pin.split("==")[0] for pin in pins]
+        suffixes = list(suffixes or cls._abi())
+        kinds = {suffix.rsplit(".", 1)[-1] for suffix in suffixes}  # pyd / so
+        keys = {cls._dist_key(name) for name in names}
+        foreign = set()
+        for info, name, _version in cls._dist_infos(target):
+            if cls._dist_key(name) not in keys:
+                continue
+            imports = {}  # (folder, module) -> a recorded build imports here
+            for entry in cls._record_entries(info):
+                folder, _, base = entry.replace("\\", "/").rpartition("/")
+                module, dot, tail = base.partition(".")
+                if not dot:
+                    continue
+                if "." + tail in suffixes:
+                    imports[(folder, module)] = True
+                    continue
+                tag, _, kind = tail.rpartition(".")
+                if kind in kinds and cls._CPYTHON_TAG.match(tag):
+                    imports.setdefault((folder, module), False)
+            if not all(imports.values()):
+                foreign.add(name)
+        return sorted(foreign)
+
+    @classmethod
+    def _reinstall_due(cls, target):
+        """The recorded dists a start must reinstall; checked once per interpreter.
+
+        The manifest's ``abi`` names the interpreter *target* was last checked for, so a
+        start on that one reads no RECORD (a real 5.1 profile holds 660 KB of them: 300 ms
+        cold, measured), and a wrong verdict costs one reinstall per interpreter rather
+        than one per start. A clean check records it here -- unless a provisioning holds
+        the target, which records it itself and whose manifest writes this one would race;
+        a repair records it when its provisioning ends (:meth:`provision`), however that
+        went -- Update retries, a start does not. The bound is on this CHECK only: a repair
+        that removed the old build and then failed left a recorded dist gone, which the
+        next start repairs (:meth:`_missing_dists`).
+        """
+        manifest = cls.read_manifest(target)
+        if not manifest.get("pins") or manifest.get("abi") == cls._abi():
+            return []
+        foreign = cls._foreign_dists(target)
+        if not foreign and not cls._in_progress(target):
+            cls._mark_checked(target)
+        return foreign
+
+    @classmethod
+    def _mark_checked(cls, target):
+        """Record this interpreter as the one *target* was checked for; never raise.
+
+        Nothing is written for a target that records no pins: there is nothing of ours to
+        vouch for, and ``addons/modules`` is shared.
+        """
+        try:
+            manifest = cls.read_manifest(target)
+            if manifest.get("pins") and manifest.get("abi") != cls._abi():
+                cls.write_manifest(target, abi=cls._abi())
+        except Exception as error:  # noqa: BLE001 -- runs at start and after a failure
+            print(
+                f"[tentacle] could not record the Python {target} was checked for: {error}"
+            )
+
+    @classmethod
+    def _remove_dists(cls, target, names, python):
+        """pip-uninstall *names* from *target* -- every copy -- and the files pip cannot find.
+
+        *names* must be dists *target* holds: pip removes the FIRST dist of a name on
+        ``sys.path``, which with ``PYTHONPATH=<target>`` is the target's copy while it is
+        there -- but a name that has left it resolves to the next copy, the host's own
+        bundled site-packages. pip removes ONE dist of a name per run, and a target
+        updated before pythontk's install_targeted pruned superseded dist-infos holds
+        several: repeat while a copy is left. Never more passes than copies -- each pass
+        removes one or pip raises, so the bound only stops a pip that says it removed
+        nothing. "The files pip cannot find": the launchers its RECORD misplaces
+        (:meth:`_relocated_files`) and the modules the runtime compiled inside the
+        packages (:meth:`_ui_modules`), then each folder that leaves empty.
+        """
+        # Both read the RECORDs, so before pip drops them.
+        relocated = cls._relocated_files(target, names)
+        modules = cls._ui_modules(target, names)
+        keys = {cls._dist_key(name) for name in names}
+        copies = [n for _, n, _ in cls._dist_infos(target) if cls._dist_key(n) in keys]
+        pending = list(names)
+        for _ in range(len(copies)):
+            cls._run_checked(
+                [python, "-s", "-m", "pip", "uninstall", "-y"] + pending,
+                env={**os.environ, "PYTHONPATH": target},
+            )
+            left = cls._dists(target)
+            pending = [name for name in pending if cls._dist_key(name) in left]
+            if not pending:
+                break
+        # What was compiled is decided now: an editor may have written while pip ran.
+        cls._remove_within(target, relocated + cls._generated_files(modules))
+
     # ------------------------------------------------------------------ verbs
     @classmethod
     def install(cls, host, target=None, python=None, upgrade=False):
@@ -769,30 +1090,11 @@ class TentacleInstaller:
             if os.path.isfile(mod):
                 os.remove(mod)
             return names
-        # Only what is IN the target. pip removes the first dist of a name on sys.path,
-        # the target's while it is there -- but a recorded dist that has left it resolves
-        # to the next copy, Blender's own bundled site-packages.
+        # Only what is IN the target (see _remove_dists for why).
         present = cls._dists(target)
         names = [name for name in names if cls._dist_key(name) in present]
-        relocated = cls._relocated_files(target, names)  # before pip drops the RECORDs
-        # pip removes ONE dist of a name per run, and a target updated before pythontk's
-        # install_targeted pruned superseded dist-infos holds several: repeat while a
-        # recorded copy is left. Never more passes than copies -- each pass removes one
-        # or pip raises, so the bound only stops a pip that says it removed nothing.
-        keys = {cls._dist_key(name) for name in names}
-        copies = [n for _, n, _ in cls._dist_infos(target) if cls._dist_key(n) in keys]
-        pending = names
-        for _ in range(len(copies)):
-            python = python or cls.python_exe(host)
-            cls._run_checked(
-                [python, "-s", "-m", "pip", "uninstall", "-y"] + pending,
-                env={**os.environ, "PYTHONPATH": target},
-            )
-            left = cls._dists(target)
-            pending = [name for name in pending if cls._dist_key(name) in left]
-            if not pending:
-                break
-        cls._remove_within(target, relocated)
+        if names:
+            cls._remove_dists(target, names, python or cls.python_exe(host))
         # The manifest and the .corrupt breadcrumb a failed read may have left
         # beside it: addons/modules is SHARED, so an uninstall that leaves its own
         # files there is the very thing this branch exists to avoid.
@@ -819,10 +1121,7 @@ class TentacleInstaller:
         on 5.1.2, an Uninstall left ``bin/`` with PySide6's 23 launchers and qtpy.exe in
         the SHARED addons/modules. Mapped back here (``../../<rest>`` ->
         ``<target>/<rest>``); a path that would land outside *target* is ignored.
-
-        Read from the RECORD text, never ``Distribution.files``: from Python 3.12 that
-        drops every entry whose file is missing where it resolves -- exactly these (under
-        Blender 5.1's 3.13 it found 0 of 24 launchers; 3.11 lists them all).
+        Read through :meth:`_record_entries` -- ``Distribution.files`` drops exactly these.
         """
         root = os.path.normcase(os.path.normpath(target)) + os.sep
         keys = {cls._dist_key(name) for name in names}
@@ -830,14 +1129,7 @@ class TentacleInstaller:
         for info, name, _version in cls._dist_infos(target):  # every copy's RECORD
             if cls._dist_key(name) not in keys:
                 continue
-            try:
-                with open(
-                    os.path.join(info, "RECORD"), encoding="utf-8", newline=""
-                ) as fh:
-                    entries = [row[0] for row in csv.reader(fh) if row]
-            except (OSError, ValueError, csv.Error):  # no RECORD: nothing to map
-                continue
-            for entry in entries:
+            for entry in cls._record_entries(info):
                 parts = entry.replace("\\", "/").split("/")
                 if len(parts) < 3 or parts[:2] != ["..", ".."]:
                     continue
@@ -1080,6 +1372,9 @@ class TentacleInstaller:
         itself. An update asked for directly, with nothing pending, always runs.
 
         A run that fails part-way records what it left in *target* (:meth:`_record_landed`).
+        Every run first reinstalls what was built for another Python (:meth:`_foreign_dists`),
+        and however it ends records this interpreter as checked (:meth:`_reinstall_due`);
+        one that succeeds forgets the pins its plan no longer installs (:meth:`_forget_gone`).
         """
         target = target or cls.target_dir(host)
         python = python or cls.python_exe(host)
@@ -1104,6 +1399,9 @@ class TentacleInstaller:
             except BaseException:
                 cls._record_landed(target, present)
                 raise
+            finally:
+                cls._mark_checked(target)
+            cls._forget_gone(target)
             if upgrade:
                 cls._settle_pending(target, "update", updated=time.time())
             return pins
@@ -1139,6 +1437,15 @@ class TentacleInstaller:
         try:
             if cls._run([python, "-s", "-m", "pip", "--version"]).returncode != 0:
                 cls._run([python, "-m", "ensurepip", "--upgrade"])
+            # Gone before the plan, which then finds them missing and installs this
+            # interpreter's build: left in place, their dist-info satisfies it.
+            foreign = cls._foreign_dists(target)
+            if foreign:
+                print(
+                    f"[tentacle] reinstalling {', '.join(foreign)}: built for another "
+                    "Python version"
+                )
+                cls._remove_dists(target, foreign, python)
             bootstrapped = []
             if not cls._has("pythontk"):
                 cls._bootstrap_pythontk(python, target)
@@ -1319,8 +1626,17 @@ class TentacleInstaller:
             cls._report_uninstall(host, target, names)
             return None
         upgrade = pending == "update"
+        # An install that imports but cannot run -- a recorded dependency gone, or one
+        # carried over from another Python -- is repaired like a missing one.
         if cls.is_installed(host) and not upgrade:
-            return cls.launch(host)
+            missing = cls._missing_dists(target)
+            if missing:
+                print(
+                    f"[tentacle] {', '.join(missing)} recorded but gone from {target} "
+                    "- reinstalling"
+                )
+            elif not cls._reinstall_due(target):
+                return cls.launch(host)
         if cls.headless(host):
             # Unguarded, a failed pending verb propagates out of register() /
             # userSetup and the host reports the add-on itself as broken -- so a

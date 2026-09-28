@@ -544,11 +544,11 @@ class SceneSlots(SceneMixin, SlotsBlender):
         clicked button text (or None if dismissed), so anything but "Yes" cancels."""
         if not include_tangents:
             return True
-        pool = (
-            self.selected_objects()
-            if selection_only
-            else bpy.context.view_layer.objects
-        )
+        if selection_only:
+            pool = self.selected_objects()
+        else:
+            with btk.window_context_override():  # the window's layer, not the default
+                pool = list(bpy.context.view_layer.objects)
         meshes = [o for o in pool if o.type == "MESH"]
         if not meshes:
             return True
@@ -589,7 +589,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
                 export_armatures=options["include_skins"],
             )
             objects = (
-                list(bpy.context.selected_objects)
+                list(self.selected_objects())  # bpy.context's: absent windowless
                 if options["selection_only"]
                 else list(bpy.context.scene.objects)
             )

@@ -11,12 +11,12 @@ re-browses, like Maya's "Try again") → open it. It lives here because Maya's o
 (``sp_createAndSetDefaultProject($path, false)`` — the ``false`` is
 *createDirectories*) and Blender has no native project system at all, so the
 "build the standard folders" half is the ecosystem's, not either DCC's.
-**Recent-workspace selection** (re-validate, then switch) is the same on both
-sides too.
+**Recent-workspace selection** (re-validate, then switch) and the **Scene
+Directory** link row are the same on both sides too.
 
 Only the directory browser, what counts as a workspace, how a default one is
-built, where the session's workspace is read from and how one is opened are
-DCC-specific — those are the hooks below.
+built, where the session's workspace and scene file are read from and how a
+workspace is opened are DCC-specific — those are the hooks below.
 """
 
 import os
@@ -28,6 +28,10 @@ class MainMixin:
     # ------------------------------------------------------------------ hooks
     def _current_workspace_root(self) -> str:
         """The session's current workspace root ('' when none)."""
+        raise NotImplementedError
+
+    def _current_scene_path(self) -> str:
+        """The open scene file's path ('' when the scene was never saved)."""
         raise NotImplementedError
 
     def _browse_workspace_dir(self, start: str) -> str:
@@ -83,6 +87,24 @@ class MainMixin:
                 return
             start = os.path.dirname(path)
         self._switch_to_workspace(path)
+
+    def _add_scene_dir_row(self, widget):
+        """Add a ``Scene Directory`` row to *widget* that opens the open scene's
+        folder — only when the scene is saved and that folder still exists.
+
+        Its data is the folder itself, so a click takes
+        :meth:`_dispatch_workspace_item`'s directory branch (opens it in the
+        system browser); the folder icon matches the dir-browser rows and the
+        tooltip carries the full path.
+        """
+        scene = self._current_scene_path()
+        if not scene:
+            return
+        scene_dir = os.path.dirname(os.path.normpath(scene))
+        if not os.path.isdir(scene_dir):
+            return
+        row = widget.add("Scene Directory", data=scene_dir, setToolTip=scene_dir)
+        self.sb.IconManager.set_label_icon(row, "folder_filled")
 
     def _dispatch_workspace_item(self, item):
         """The Workspace tab's ``list000`` body: editing actions, recent-workspace

@@ -34,12 +34,15 @@ class PolygonsSlots(SlotsBlender):
         based — silently entering edit mode and select-all would operate on the wrong
         thing). Returns True when the op ran.
         """
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if not (active and active.type == "MESH" and active.mode == "EDIT"):
             self.sb.message_box("Select components in Edit Mode first.")
             return False
         try:
-            op(*args, **kwargs)
+            # window override: edit-mesh ops poll ``edit_object`` from *screen* context,
+            # dead in the Qt-pump state (measured: mesh.merge poll-failed windowless)
+            with btk.window_context_override():
+                op(*args, **kwargs)
             return True
         except RuntimeError as e:
             self.sb.message_box(str(e))
@@ -99,7 +102,7 @@ class PolygonsSlots(SlotsBlender):
         import bmesh
 
         spinbox = self.ui.tb000.option_box.menu.s002
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         coords = []
         if active and active.type == "MESH" and active.mode == "EDIT":
             bm = bmesh.from_edit_mesh(active.data)
@@ -320,7 +323,7 @@ class PolygonsSlots(SlotsBlender):
     @btk.undoable
     def tb005(self, widget):
         """Detach (separate selected components into a new object; optionally a copy / per-face)."""
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if not (active and active.type == "MESH" and active.mode == "EDIT"):
             self.sb.message_box("Select faces in Edit Mode first.")
             return
@@ -421,7 +424,7 @@ class PolygonsSlots(SlotsBlender):
     def tb008(self, widget):
         """Boolean Operation (active mesh = base, other selected = operands)."""
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if active in objects:  # base first (Maya's order-matters convention)
             objects = [active] + [o for o in objects if o is not active]
         if len(objects) < 2:
@@ -461,7 +464,7 @@ class PolygonsSlots(SlotsBlender):
     def tb009(self, widget):
         """Snap Closest Verts (the other selected mesh's verts snap onto the ACTIVE mesh)."""
         objects = [o for o in self.selected_objects() if o.type == "MESH"]
-        active = bpy.context.view_layer.objects.active
+        active = self.active_object()
         if len(objects) != 2 or active not in objects:
             self.sb.message_box(
                 "<strong>Select two mesh objects</strong> — the active object is the "
@@ -517,12 +520,14 @@ class PolygonsSlots(SlotsBlender):
         """
         _, _, face_mode = bpy.context.tool_settings.mesh_select_mode
         # view_layer, not objects_in_mode: that is a screen-context member, absent
-        # from a context without a screen (the Qt pump runs slots from a timer).
-        faces = face_mode and any(
-            o.data.total_face_sel
-            for o in bpy.context.view_layer.objects
-            if o.type == "MESH" and o.mode == "EDIT"
-        )
+        # from a context without a screen (the Qt pump runs slots from a timer). The
+        # window's layer, read under the override (windowless: the scene default).
+        with btk.window_context_override():
+            faces = face_mode and any(
+                o.data.total_face_sel
+                for o in bpy.context.view_layer.objects
+                if o.type == "MESH" and o.mode == "EDIT"
+            )
         self._edit_op(bpy.ops.mesh.merge, type="COLLAPSE" if faces else "CENTER")
 
     def b011(self):

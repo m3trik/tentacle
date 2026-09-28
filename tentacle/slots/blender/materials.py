@@ -350,18 +350,19 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             self.sb.message_box(empty_message)
             return []
 
-        # find_by_mat_id scans all of bpy.data, so a user can live outside the active view
-        # layer (a multi-scene file / an excluded collection) — select_set and the active
-        # assignment raise RuntimeError there. Select only the in-layer users; the rest
-        # still count as users, they just can't be selected from here.
-        in_layer = [o for o in users if o.name in bpy.context.view_layer.objects]
-        if not in_layer:
-            self.sb.message_box(outside_message)
-            return []
-
         # window override: mode_set / select_all poll on the active object from *screen*
         # context — dead in the Qt-pump state (no-op when a window is already active).
+        # The layer reads and the select_set writes run in it too: windowless, they
+        # address the scene's default layer while select_all clears the window's.
         with btk.window_context_override():
+            # find_by_mat_id scans all of bpy.data, so a user can live outside the active
+            # view layer (a multi-scene file / an excluded collection) — select_set and the
+            # active assignment raise RuntimeError there. Select only the in-layer users;
+            # the rest still count as users, they just can't be selected from here.
+            in_layer = [o for o in users if o.name in bpy.context.view_layer.objects]
+            if not in_layer:
+                self.sb.message_box(outside_message)
+                return []
             # leave any component mode first (guard the no-active and already-object
             # cases so mode_set can't raise)
             active = bpy.context.view_layer.objects.active
@@ -369,9 +370,9 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 bpy.ops.object.mode_set(mode="OBJECT")
             if not add:
                 bpy.ops.object.select_all(action="DESELECT")
-        for o in in_layer:
-            o.select_set(True)
-        bpy.context.view_layer.objects.active = in_layer[0]
+            for o in in_layer:
+                o.select_set(True)
+            bpy.context.view_layer.objects.active = in_layer[0]
 
         # Face mode only applies to a material search — an unassigned object has no
         # material faces to isolate.

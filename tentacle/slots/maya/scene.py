@@ -812,8 +812,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
         """Mesh Converter (FBX -> GLB)"""
         ui = self.sb.handlers.external_app.launch("mesh_convert", show=False)
 
-        # Default the file dialog to the current scene's directory.
-        scene_path = cmds.file(query=True, sceneName=True) or ""
+        # Default the file dialog to the current scene's directory (never batch's
+        # phantom <project>/untitled).
+        scene_path = mtk.EnvUtils.saved_scene_path()
         if scene_path:
             ui.slots.source_dir = os.path.dirname(scene_path)
 
