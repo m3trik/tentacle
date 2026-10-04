@@ -604,15 +604,16 @@ class UvSlots(UvMixin, SlotsBlender):
         btk.open_editor("UV Editor")
 
     # ------------------------------------------------------------------ b000  Transfer
-    # The option box, its wiring and the texture pass are UvMixin's (``b000_init``,
-    # ``_tt_texture_pass``); this fork supplies its engine and its words.
+    # The option box, its wiring, the run's plan and the texture pass are UvMixin's
+    # (``b000_init``, ``_tt_plan``, ``_tt_texture_pass``); this fork supplies its
+    # engine and its words.
     _TT_TERMS = {
         "set": "map",
         "current": "active",
         "first": "Active Mesh",
         "first_who": "the active object",
-        "pick_first": "<b>Make the source active</b> (a mesh, or the parent of several), with the target(s) selected.",
-        "pick_last": "<b>Make the target mesh active</b>, with the source mesh(es) selected.",
+        "pick_first": "<b>Make the source active and selected</b> (a mesh, or the parent of several), with the target(s) selected.",
+        "pick_last": "<b>Make the target mesh active and selected</b>, with the source mesh(es) selected.",
         "assign_row": "Material",
         "last": "All But Active",
         "last_who": "the active object",
@@ -753,6 +754,11 @@ class UvSlots(UvMixin, SlotsBlender):
         scope = menu.cmb014.currentData() or "order"
         selected = self.selected_objects()
         active = self.active_object()
+        if active is not None and active not in selected:
+            # Blender keeps a deselected object active. It is no side of the
+            # transfer -- read as one, it made a mesh nobody picked the source
+            # (First) or the target (All But Active) -- so the pick hints fire.
+            active = None
         stored_sources = [
             bpy.data.objects[n]
             for n in getattr(self, "_tt_sources", [])
@@ -789,34 +795,9 @@ class UvSlots(UvMixin, SlotsBlender):
         else:  # uvset: every selected mesh moves between its own maps
             source, targets = None, self._tt_meshes(selected)
 
-        transfer_mode = menu.cmb_tt_transfer.currentData()
-        auto = transfer_mode == self.TRANSFER_AUTO
-        lightmap_probe = self._tt_lightmap_probe(menu)
-        if auto and mode != "uvset":
-            # Resolved BEFORE the pass-dependent gates below (the Similar-scope
-            # check): what Auto decides is what they must ask for. An empty
-            # probe resolves to the UV pass and falls through to the same
-            # selection errors a manual mode would hit.
-            transfer_mode = self._tt_resolve_auto(
-                btk.TextureTransfer, source, has_lightmap=lightmap_probe
-            )
-        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
-        auto_note = (
-            self._tt_auto_note(
-                auto, do_textures, mode, lightmaps=lightmap_probe is not None
-            )
-            + source_note
-        )
-        # Blank = named after the source by the texture pass.
-        out_name = menu.t_tt_name.text().strip()
-        pairs, targets, others, refusal = self._tt_gate(
-            mode,
-            scope,
-            source,
-            targets,
-            do_uvs,
-            do_textures,
-            notes=(auto_note, source_note),
+        # Transfer: Auto, the Output Name and the gate: UvMixin's.
+        do_uvs, do_textures, out_name, pairs, targets, others, refusal = self._tt_plan(
+            menu, mode, scope, source, targets, source_note
         )
         if refusal:
             return self.sb.message_box(refusal)

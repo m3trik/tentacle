@@ -478,6 +478,15 @@ CONTROLS = {
         # Blender-verified in test_texture_path_editor.py (51/51).
         "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
         "chk_allow_missing": {"status": "pending", "reason": "Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there)."},
+        # Rename File, Keep Names In Sync (+ its two option-box fields) and the truncate length
+        # landed in mayatk 2026-10-04; the Blender panel has none of them yet. Real open work with
+        # one BACKLOG entry for the lot: "the Blender Texture Path Editor lacks mayatk's fact
+        # columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length".
+        "row_rename_file": {"status": "pending", "reason": "Rename File... (2026-10-04) -- the row menu renames the row's texture file ON DISK in its own cell (a UDIM set renames every tile) and repoints every file node reading it (mayatk MatUtils.rename_texture_file; a lightmap row re-stamps its bake markers through LightmapRecords.rename_lightmap). blendertk has no engine twin yet: the rename has to repoint Image datablocks' filepath. Tracked in BACKLOG (the Blender Texture Path Editor lacks mayatk's fact columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length)."},
+        "chk_sync_names": {"status": "pending", "reason": "Keep Names In Sync (2026-10-04) -- renaming a shader, a texture or a file node renames the rest of its material to match: the shader, its dominant texture set's files on disk, their file nodes and the set's lightmap (mayatk MatUtils.sync_material_names). The Blender twin needs its own engine over materials, Image datablocks and image texture nodes. Tracked in BACKLOG (same entry as row_rename_file)."},
+        "txt_shader_affix": {"status": "pending", "reason": "Keep Names In Sync's option box: the affix the synced shader's name wears (the scene's material naming convention by default). Rides the chk_sync_names port."},
+        "txt_file_node_suffix": {"status": "pending", "reason": "Keep Names In Sync's option box: the suffix a synced file node's name takes after its texture's. Rides the chk_sync_names port."},
+        "spn_truncate_length": {"status": "pending", "reason": "Truncate Texture Paths' option box (2026-10-04): the length a truncated path shortens to. The Blender panel truncates at a fixed _PATH_TRUNCATE_LENGTH (67) with no option box. Tracked in BACKLOG (same entry as row_rename_file)."},
     },
     # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
     # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/
@@ -1053,7 +1062,12 @@ DEFAULT_DELTAS = {
     "lightmap_baker_slots": {
         "spn_samples.maximum": "Different renderer sample ceilings: Maya spn_samples = Arnold AA samples (max 256, sensible for Arnold); Blender spn_samples = Cycles bake samples (max 4096 — Cycles routinely uses far higher sample counts than Arnold AA). Same 'render sample count' concept, renderer-appropriate range.",
         "spn_samples.value": "Each panel's .ui dials ARE its own default tier (mobile), since the preset template restores only its selection and never re-applies a preset at open: Arnold mobile = 4 AA samples (GI 2, adaptive up to AA x GI on the GPU, tiles at 2x their cell), Cycles mobile = 1024 paths. Different units, matched on the RESULT: ~1% shadow mottle each on a production floor (2026-10-01) -- Cycles bakes no adaptive sampling, so it needs the paths (blendertk test: the .ui's dial defaults are the default preset's dials).",
-        "spn_bounces.value": "The SAME number on both panels (mobile 4): both engines count bounces alike -- a grey calibration room agreed with the analytic value to 2% on each side at 0 and 2 bounces (2026-10-01). The old 0.76x Cycles-vs-Arnold gap was the scene crossing (no white card on the Cycles target; area lights double-scaled and turned 90 degrees), not the depth. Each tier carries one depth for both: preview 2, mobile 4, desktop 6, hero 8.",
+        # spn_bounces.value: no entry -- both .ui files say 4 (mobile), so there is no delta to
+        # accept, and an accepted one would hide a future drift. Both engines count bounces alike:
+        # a grey calibration room agreed with the analytic value to 2% on each side at 0 and 2
+        # bounces (2026-10-01). The old 0.76x Cycles-vs-Arnold gap was the scene crossing (no white
+        # card on the Cycles target; area lights double-scaled and turned 90 degrees), not the
+        # depth. Each tier carries one depth for both: preview 2, mobile 4, desktop 6, hero 8.
     },
 }
 

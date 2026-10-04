@@ -985,10 +985,12 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             setChecked=True,
             setToolTip=self.sb.tooltip.fmt(
                 title="Use Earliest Frame",
-                body="Which selected key everything else is dragged onto.",
+                body="Which object's selection the others line up with. Each "
+                "object's selected keys move as one block, keeping their "
+                "spacing, until every selection starts on the same frame.",
                 bullets=[
-                    "<b>On</b> (default) — the earliest selected key wins.",
-                    "<b>Off</b> — the latest selected key wins.",
+                    "<b>On</b> (default) — the earliest selection start wins.",
+                    "<b>Off</b> — the latest selection start wins.",
                 ],
                 notes=[
                     "Ignored once <b>Frame</b> below is set to anything but "
@@ -1006,7 +1008,8 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             setCustomDisplayValues={-1: "Auto"},
             setToolTip=self.sb.tooltip.fmt(
                 title="Frame",
-                body="Align every object's selected keys onto this exact frame.",
+                body="Start every object's selected keys on this exact frame, "
+                "each selection keeping its spacing.",
                 notes=[
                     "<b>Auto</b> (-1) elects the target from the selection "
                     "instead, per <b>Use Earliest Frame</b> above."

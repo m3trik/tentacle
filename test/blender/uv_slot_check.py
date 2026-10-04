@@ -312,6 +312,28 @@ try:
               and sorted(captured[0][0]) == tgt_names, f"{captured} {messages[-1:]}")
         check("b000 a blank Output Name is named after the source group",
               names == ["kit"], f"{names}")
+
+        # A deselected object stays ACTIVE in Blender. It is no side of the
+        # transfer: read as one, it made a mesh nobody picked the source (First,
+        # Auto's First) or the TARGET (All But Active). The pick hint fires instead.
+        reset()
+        meshes = []
+        for i, name in enumerate(("selA", "selB", "deselC")):
+            bpy.ops.mesh.primitive_cube_add(location=(i * 3, 0, 0))
+            o = bpy.context.active_object
+            o.name = name
+            meshes.append(o)
+        for mode, hint in (
+            ("first", "Make the source active"),
+            ("auto", "Make the source active"),
+            ("last", "Make the target mesh active"),
+        ):
+            del captured[:], uv_calls[:], messages[:]
+            select(meshes[:2], active=meshes[2])  # deselC active, not selected
+            slot.b000(option_box(b000_menu(mode)))
+            check(f"b000 Source {mode}: a deselected active object is no side of it",
+                  not meshes[2].select_get() and not captured and not uv_calls
+                  and hint in messages[-1], f"{captured} {messages[-1:]}")
     finally:
         btk.TextureTransfer, btk.transfer_uvs = real_tt, real_uvs
 
@@ -320,5 +342,5 @@ except Exception:
     lines.append("FAIL unhandled exception")
 
 print("\n".join(lines))
-ok = all(l.startswith("OK") for l in lines) and lines
-print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for l in lines if l.startswith('OK'))}/{len(lines)})")
+ok = all(line.startswith("OK") for line in lines) and lines
+print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for line in lines if line.startswith('OK'))}/{len(lines)})")

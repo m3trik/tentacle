@@ -144,8 +144,8 @@ class _FakeB000Widget:
 class _FakeAffixField:
     """The Material Affix field: a uitk LineEdit wearing the affix picker.
 
-    Lives in the Output Name field's option-box menu, so ``b000`` reaches it
-    through the slot's own ``_tt_affix`` handle rather than a menu proxy.
+    A row of the Material section, held on the slot (``_tt_affix``), so
+    ``b000`` reaches it through that handle rather than a menu proxy.
     ``resolve_affix`` delegates to the same ``ptk.StrUtils.split_affix``
     primitive ``AffixOption`` does, so the double cannot drift from the real
     control's Auto / Suffix / Prefix reading.
@@ -581,9 +581,9 @@ class TestB000MaterialAffix(unittest.TestCase):
         self.assertEqual(kwargs["assign_prefix"], "")
 
     def test_an_unbuilt_option_box_reads_as_auto(self):
-        """The field is a row of another field's option-box menu, so ``b000``
-        reads it off the slot -- a panel that never built one must fall through
-        to Auto rather than raising from inside the run."""
+        """``b000`` reads the field off the slot (``_tt_affix``), not through
+        a menu proxy -- a panel that never built one must fall through to Auto
+        rather than raising from inside the run."""
         del self.captured[:]
         a = cmds.polyCube(name="uv_affix_nobox_a")[0]
         b = cmds.polyCube(name="uv_affix_nobox_b")[0]
@@ -2570,8 +2570,9 @@ class TestTransferSourceAuto(unittest.TestCase):
         host = _SourceHost()
         self.assertEqual(host._tt_auto_source(["a", "b"]), ("first", None))
         self.assertEqual(host._tt_auto_source([]), ("first", None))
-        # An unreadable selection falls through to First's own errors.
-        self.assertEqual(host._tt_auto_source(["raises", "b"]), ("first", None))
+        # An unreadable selection falls through to First's own errors. Three
+        # meshes: the combine probe only runs from three up.
+        self.assertEqual(host._tt_auto_source(["raises", "b", "c"]), ("first", None))
 
     def test_the_note_names_what_auto_read(self):
         host = _SourceHost()
@@ -3161,6 +3162,119 @@ class TestTransferAutoNote(unittest.TestCase):
         message = UvMixin._tt_auto_note(True, True, "first", lightmaps=True)
         self.assertIn("lightmap", message)
         self.assertNotIn("materials carry", message)
+
+
+class _PlanEngine:
+    """Engine double for ``_tt_plan``: a mesh named ``textured*`` wears a
+    material with a map, any other one without; pairing is one to one, and
+    every mesh Auto probes is recorded."""
+
+    def __init__(self):
+        self.probed = []
+
+    def face_materials(self, mesh):
+        self.probed.append(mesh)
+        return [{"baseColor": "map.png"} if mesh.startswith("textured") else {}], None
+
+    @staticmethod
+    def material_maps(material):
+        return material
+
+    @staticmethod
+    def pair_sources(targets, sources):
+        return dict(zip(targets, sources))
+
+
+class TestTransferPlan(unittest.TestCase):
+    """``UvMixin._tt_plan`` -- ``b000``'s run, decided once both forks have
+    resolved their source and targets.
+
+    The Auto resolution, its notes, the Output Name read and the gate were one
+    copy per fork, differing only in ``mtk.`` / ``btk.TextureTransfer``.
+    DCC-free: pinned against an engine double and the forks' sources.
+    """
+
+    def _plan(self, mode, source, targets, scope="order", transfer="auto", name=""):
+        from types import SimpleNamespace
+
+        from tentacle.slots._uv import UvMixin
+
+        engine = self.engine = _PlanEngine()
+
+        class _Host(UvMixin):
+            _TT_TERMS = {"set": "set"}
+
+            def _tt_engine(self):
+                return engine
+
+        menu = SimpleNamespace(
+            cmb_tt_transfer=SimpleNamespace(currentData=lambda: transfer),
+            t_tt_name=SimpleNamespace(text=lambda: name),
+        )
+        return _Host()._tt_plan(menu, mode, scope, source, targets, "<SRC-NOTE>")
+
+    def test_auto_reads_the_source_through_the_fork_s_engine(self):
+        do_uvs, do_textures, out_name, pairs, targets, others, refusal = self._plan(
+            "first", ["textured_src"], ["tgt"], name="  hero "
+        )
+        self.assertEqual(self.engine.probed, ["textured_src"])
+        self.assertEqual((do_uvs, do_textures, out_name), (False, True, "hero"))
+        self.assertEqual(
+            (pairs, targets, others, refusal),
+            ([("textured_src", "tgt")], ["tgt"], None, None),
+        )
+
+    def test_an_untextured_source_resolves_to_the_uv_pass(self):
+        do_uvs, do_textures, *_, refusal = self._plan("first", ["bare"], ["tgt"])
+        self.assertEqual((do_uvs, do_textures, refusal), (True, False, None))
+
+    def test_a_refusal_auto_caused_says_auto_chose(self):
+        """A Similar scope needs the UV pass: when Auto picked Textures, the
+        refusal must say so or it reads as a broken combo."""
+        refusal = self._plan("first", ["textured_src"], ["tgt"], scope="selection")[-1]
+        self.assertIn("Similar scopes", refusal)
+        self.assertIn("<i>Transfer: Auto</i> chose Textures", refusal)
+        self.assertTrue(refusal.endswith("<SRC-NOTE>"))
+
+    def test_the_same_mesh_source_is_never_probed(self):
+        """The same-mesh source has no second mesh to read a layout from, so
+        Textures is the only reading: Auto probes nothing."""
+        do_uvs, do_textures, *_, refusal = self._plan("uvset", None, ["textured_a"])
+        self.assertEqual(self.engine.probed, [])
+        self.assertEqual((do_uvs, do_textures, refusal), (False, True, None))
+
+    def test_both_forks_hand_their_picks_to_the_plan(self):
+        """Each fork's ``b000`` resolves its own picks, then calls the plan;
+        neither resolves Auto or gates the run itself any more."""
+        import ast
+        import os
+
+        for dcc in ("maya", "blender"):
+            with self.subTest(dcc=dcc):
+                path = os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "tentacle",
+                    "slots",
+                    dcc,
+                    "uv.py",
+                )
+                with open(path, encoding="utf-8") as f:
+                    tree = ast.parse(f.read())
+                b000 = next(
+                    node
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.FunctionDef) and node.name == "b000"
+                )
+                calls = {
+                    node.func.attr
+                    for node in ast.walk(b000)
+                    if isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                }
+                self.assertIn("_tt_plan", calls)
+                self.assertFalse(
+                    {"_tt_resolve_auto", "_tt_auto_note", "_tt_gate"} & calls
+                )
 
 
 if __name__ == "__main__":

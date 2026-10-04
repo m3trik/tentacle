@@ -1232,9 +1232,10 @@ class UvSlots(UvMixin, SlotsMaya):
             )
 
     # ------------------------------------------------------------------
-    # b000  Transfer UVs / Textures -- the option box, its wiring and the
-    # texture pass are UvMixin's (``b000_init``, ``_tt_texture_pass``); this
-    # fork supplies its engine, its words and the Maya-only Shader row.
+    # b000  Transfer UVs / Textures -- the option box, its wiring, the run's
+    # plan and the texture pass are UvMixin's (``b000_init``, ``_tt_plan``,
+    # ``_tt_texture_pass``); this fork supplies its engine, its words and the
+    # shader types its Material row offers (``_tt_shader_items``).
     # ------------------------------------------------------------------
     _TT_TERMS = {
         "set": "set",
@@ -1390,34 +1391,9 @@ class UvSlots(UvMixin, SlotsMaya):
         else:  # uvset: every selected mesh moves between its own sets
             source, targets = None, self._tt_meshes(ordered)
 
-        transfer_mode = menu.cmb_tt_transfer.currentData()
-        auto = transfer_mode == self.TRANSFER_AUTO
-        lightmap_probe = self._tt_lightmap_probe(menu)
-        if auto and mode != "uvset":
-            # Resolved BEFORE the pass-dependent gates below (the Similar-scope
-            # check): what Auto decides is what they must ask for. An empty
-            # probe resolves to the UV pass and falls through to the same
-            # selection errors a manual mode would hit.
-            transfer_mode = self._tt_resolve_auto(
-                mtk.TextureTransfer, source, has_lightmap=lightmap_probe
-            )
-        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
-        auto_note = (
-            self._tt_auto_note(
-                auto, do_textures, mode, lightmaps=lightmap_probe is not None
-            )
-            + source_note
-        )
-        # Blank = named after the source by the texture pass.
-        out_name = menu.t_tt_name.text().strip()
-        pairs, targets, others, refusal = self._tt_gate(
-            mode,
-            scope,
-            source,
-            targets,
-            do_uvs,
-            do_textures,
-            notes=(auto_note, source_note),
+        # Transfer: Auto, the Output Name and the gate: UvMixin's.
+        do_uvs, do_textures, out_name, pairs, targets, others, refusal = self._tt_plan(
+            menu, mode, scope, source, targets, source_note
         )
         if refusal:
             return self.sb.message_box(refusal)

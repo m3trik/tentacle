@@ -147,9 +147,10 @@ class UvMixin:
     def _tt_auto_note(auto, do_textures, source_mode=None, lightmaps=False):
         """The gate suffix naming Auto's pick, or ``""`` when there is none.
 
-        Auto's choice is invisible state: a gate it trips ("pick a Transfer
-        mode that includes X", "Output Name required") reads as a broken
-        combo unless the message says Auto made the pick.
+        Auto's choice is invisible state: a gate it trips ("the Similar
+        scopes need a Transfer mode that includes UV Set", "the UV pass
+        copies one source per target") reads as a broken combo unless the
+        message says Auto made the pick.
 
         The *reason* has to match how the pick was actually made. With a
         ``uvset`` source nothing is probed at all -- there is no second mesh
@@ -197,9 +198,10 @@ class UvMixin:
     def _tt_material_affix(self):
         """``(assign_prefix, assign_suffix)`` from the Material Affix field.
 
-        The field is ``_tt_affix``, a row of the Output Name field's own
-        option-box menu (each fork's ``b000_init`` builds it and holds the
-        reference -- the tool's menu has no proxy for a nested row).
+        The field is ``_tt_affix``, the Material section's affix row
+        (:meth:`b000_init` builds it and holds the reference: ``Menu.add``
+        registers the ``menu.<name>`` proxies on a timer, so ``b000`` reads it
+        off the slot).
 
         Blank -> ``("", None)``: ``None`` is the engine's Auto, which names the
         material exactly the Output Name (the tag it would otherwise append
@@ -283,15 +285,62 @@ class UvMixin:
         }[mode]
         return f"<br><br><i>Source: Auto</i> read {reading}."
 
+    def _tt_plan(self, menu, mode, scope, source, targets, source_note):
+        """``b000``'s run, decided -- one body for both forks.
+
+        Each fork resolves *mode* (Source: Auto included), *source* and
+        *targets* its own way, then hands them here: *Transfer: Auto* is
+        resolved against the same *source* the passes will read, through the
+        fork's engine (:meth:`_tt_engine`), the Output Name is read, and
+        :meth:`_tt_gate` pairs the meshes or refuses. *source_note* is what
+        Source: Auto read (``""`` when it was not used).
+
+        Returns:
+            ``(do_uvs, do_textures, out_name, pairs, targets, others,
+            refusal)`` -- the passes to run, the Output Name as typed (blank:
+            the texture pass names the result after the source), then
+            :meth:`_tt_gate`'s four.
+        """
+        transfer_mode = menu.cmb_tt_transfer.currentData()
+        auto = transfer_mode == self.TRANSFER_AUTO
+        lightmap_probe = self._tt_lightmap_probe(menu)
+        if auto and mode != "uvset":
+            # Resolved BEFORE the pass-dependent gates below (the Similar-scope
+            # check): what Auto decides is what they must ask for. An empty
+            # probe resolves to the UV pass and falls through to the same
+            # selection errors a manual mode would hit.
+            transfer_mode = self._tt_resolve_auto(
+                self._tt_engine(), source, has_lightmap=lightmap_probe
+            )
+        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
+        auto_note = (
+            self._tt_auto_note(
+                auto, do_textures, mode, lightmaps=lightmap_probe is not None
+            )
+            + source_note
+        )
+        # Blank = named after the source by the texture pass.
+        out_name = menu.t_tt_name.text().strip()
+        pairs, targets, others, refusal = self._tt_gate(
+            mode,
+            scope,
+            source,
+            targets,
+            do_uvs,
+            do_textures,
+            notes=(auto_note, source_note),
+        )
+        return do_uvs, do_textures, out_name, pairs, targets, others, refusal
+
     def _tt_gate(
         self, mode, scope, source, targets, do_uvs, do_textures, notes=("", "")
     ):
         """``b000``'s refusals and the UV pass's pairs -- one body for both forks.
 
         Each fork resolves *source* / *targets* its own way (Maya: the picks in
-        selection order; Blender: the active object), then hands them here.
-        *notes* is ``(auto_note, source_note)``: what Auto chose, appended to
-        the refusals it could have caused.
+        selection order; Blender: the active object); :meth:`_tt_plan` hands
+        them here. *notes* is ``(auto_note, source_note)``: what Auto chose,
+        appended to the refusals it could have caused.
 
         Returns:
             ``(pairs, targets, others, refusal)`` -- *pairs* ``[(source,
@@ -496,7 +545,8 @@ class UvMixin:
 
     # Fork hooks for the Transfer tool (b000_init / b000). Each fork supplies
     # its engine (``_tt_engine``, ``_tt_records``) and its words; the option
-    # box, its wiring and the texture + lightmap passes are this mixin's.
+    # box, its wiring, the run's plan (``_tt_plan``) and the texture +
+    # lightmap passes are this mixin's.
     #
     # ``_TT_TERMS`` -- the host's vocabulary for the same controls (Maya's "UV
     # Set" is Blender's "UV Map"): ``set`` ("set" / "map"), ``current`` (the
