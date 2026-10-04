@@ -611,12 +611,15 @@ class UvSlots(UvMixin, SlotsBlender):
         "current": "active",
         "first": "Active Mesh",
         "first_who": "the active object",
+        "pick_first": "<b>Make the source active</b> (a mesh, or the parent of several), with the target(s) selected.",
+        "pick_last": "<b>Make the target mesh active</b>, with the source mesh(es) selected.",
+        "assign_row": "Material",
+        "last": "All But Active",
+        "last_who": "the active object",
         "order": "",
         "instances": "linked duplicates of the source (one mesh datablock, UVs "
         "already match)",
         "bound": "the UV Map node feeding the image, else the active-render map",
-        "name_note": "the <b>Material Affix</b> — a naming convention for the "
-        "material alone, which the maps deliberately do not follow.",
         "output_dir": "//textures/uv_transfer",
         "output_rel": "a subdirectory of the .blend's textures folder",
     }
@@ -624,6 +627,10 @@ class UvSlots(UvMixin, SlotsBlender):
     def _tt_engine(self):
         """Blender's ``TextureTransfer`` (see ``UvMixin._tt_engine``)."""
         return btk.TextureTransfer
+
+    def _tt_records(self):
+        """Blender's ``LightmapRecords`` (see ``UvMixin._tt_records``)."""
+        return btk.LightmapRecords
 
     @staticmethod
     def _tt_meshes(objects):
@@ -640,8 +647,23 @@ class UvSlots(UvMixin, SlotsBlender):
             visit(o)
         return out
 
+    def _tt_node_path(self, node):
+        """``|``-joined parent chain of *node*, for the derived Output Name.
+
+        Blender has no DAG path, so it is built from ``parent`` links; a
+        ``.001``-style duplicate counter is dropped from each name, since it
+        is Blender's collision suffix, not part of what the object is called.
+        """
+        import re
+
+        chain = []
+        while node is not None:
+            chain.append(re.sub(r"\.\d+$", "", node.name))
+            node = node.parent
+        return "|" + "|".join(reversed(chain))
+
     def _tt_source_tooltip(self):
-        """Live tooltip for Set Source From Selection -- what is stored NOW.
+        """Live tooltip for the Store Source Meshes icon -- what is stored NOW.
 
         Mirror of the Maya slot's. The stored set is otherwise invisible
         until a transfer runs and either uses the wrong meshes or reports
@@ -653,13 +675,13 @@ class UvSlots(UvMixin, SlotsBlender):
         missing = [n for n in stored if n not in bpy.data.objects]
         return self.sb.tooltip.stored_items(
             stored,
-            title="Set Source From Selection",
-            body="Capture the current selection as the <b>Stored Source "
-            "Meshes</b> (mesh objects; collections/empties contribute their "
-            "mesh children). Read by the <i>Stored Source Meshes</i> source.",
+            title="Store Source Meshes",
+            body="Store the current selection as the source meshes (mesh "
+            "objects; empties / parents contribute their mesh children) and "
+            "switch to <i>Stored Meshes</i>. <i>Source: Auto</i> reads them "
+            "too, when they match the selection.",
             noun="stored source mesh(es)",
-            empty_text="Nothing stored yet — the <i>Stored Source Meshes</i> "
-            "source has nothing to read from.",
+            empty_text="Nothing stored yet.",
             notes=(
                 [f"{len(missing)} no longer in the file; they are skipped."]
                 if missing
@@ -690,8 +712,8 @@ class UvSlots(UvMixin, SlotsBlender):
         alive = [bpy.data.objects[n] for n in stored if n in bpy.data.objects]
         if not alive:
             return self.sb.message_box(
-                "<b>Nothing stored.</b><br>Use <i>Set Source From Selection</i> "
-                "to capture the source meshes first."
+                "<b>Nothing stored.</b><br>Store the source meshes with the "
+                "<b>+</b> icon on the Source row first."
                 if not stored
                 else "<b>None of the stored source meshes are still in the "
                 "file.</b><br>Re-capture them."
@@ -727,110 +749,77 @@ class UvSlots(UvMixin, SlotsBlender):
     def b000(self, widget):
         """Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``)."""
         menu = widget.option_box.menu
-        mode = menu.cmb024.currentData() or "first"
+        mode = menu.cmb_tt_source.currentData() or self.SOURCE_AUTO
         scope = menu.cmb014.currentData() or "order"
         selected = self.selected_objects()
-        transfer_mode = menu.cmb028.currentData()
-        auto = transfer_mode == self.TRANSFER_AUTO
-        # Source candidates, resolved ONCE and reused by the mode branches
-        # below: Auto's probe and the pass must read the SAME meshes, or the
-        # probe could decide from meshes the run then doesn't use.
         active = self.active_object()
         stored_sources = [
             bpy.data.objects[n]
             for n in getattr(self, "_tt_sources", [])
             if n in bpy.data.objects
         ]
-        if auto and mode != "uvset":
-            # Resolved BEFORE the pass-dependent gates below (Output Name, the
-            # Similar-scope check): what Auto decides is what they must ask
-            # for. An empty probe resolves to the UV pass and falls through to
-            # the same selection errors a manual mode would hit.
-            if mode == "first":
-                probe = [active] if active is not None and active.type == "MESH" else []
-            else:
-                probe = stored_sources
-            transfer_mode = self._tt_resolve_auto(btk.TextureTransfer, probe)
-        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
-        auto_note = self._tt_auto_note(auto, do_textures, mode)
-        if not (do_uvs or do_textures):
-            return self.sb.message_box(
-                "<b>Nothing to transfer.</b><br>The <i>UV Map On Same Mesh</i> "
-                "source has no second mesh to read a layout from, so it "
-                "transfers textures — pick a <b>Transfer</b> mode that "
-                "includes them."
+        source_note = ""
+        if mode == self.SOURCE_AUTO:
+            # Resolved first: every gate below asks about a concrete mode.
+            # First and Last both key off the ACTIVE object, so Auto's
+            # combined target stands in for it; Auto's First is Rest of
+            # Selection.
+            mode, target = self._tt_auto_source(
+                self._tt_meshes(selected), stored_sources
             )
-        # Checked before anything is touched: the texture pass writes files and
-        # builds a material, and finding out it had no name after the remap has
-        # already run costs the whole run.
-        out_name = menu.t_tt_name.text().strip()
-        if do_textures and not out_name:
-            return self.sb.message_box(
-                "<b>Output Name required.</b><br>Open the option box and name "
-                "the result — it names the new material and its maps." + auto_note
-            )
+            if target is not None:
+                active = target
+            scope = "order"
+            source_note = self._tt_source_note(mode)
 
-        # ---- resolve source(s) and targets -------------------------------
-        # pairs: [(source, target), ...] for the UV pass (None = found by scope)
-        pairs = None
-        source = None
-        others = []
-        if mode == "uvset":
-            targets = self._tt_meshes(selected)
-            if not targets:
-                return self.sb.message_box(
-                    "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on."
-                )
-        elif mode == "first":
-            if active is None or active.type != "MESH":
-                return self.sb.message_box(
-                    "<b>Make the source mesh active</b>"
-                    + (
-                        ", with the target mesh(es) selected."
-                        if scope != "scene"
-                        else "."
-                    )
-                )
-            source = [active]
-            others = [t for t in self._tt_meshes(selected) if t is not active]
-            if scope != "scene" and not others:
-                return self.sb.message_box(
-                    "<b>Insufficient selection.</b><br>Select the target mesh(es) "
-                    "with the source mesh active."
-                )
-            if scope == "order":
-                targets = others
-                pairs = [(active, t) for t in targets]
-            else:
-                if not do_uvs:
-                    return self.sb.message_box(
-                        "<b>The Similar scopes need a Transfer mode that "
-                        "includes UV Map</b> -- the UV pass is what finds their "
-                        "targets. Use Selection Order to transfer textures alone."
-                        + auto_note
-                    )
-                targets = None  # found by transfer_uvs_to_similar below
-        else:
+        # ---- source(s) and targets, per mode, ONCE ------------------------
+        # Auto's probe and the passes must read the SAME meshes. The active
+        # object is one side of the transfer -- a mesh, or an empty / parent
+        # whose mesh children pair with the targets by name, else order.
+        picked = self._tt_meshes([active]) if active is not None else []
+        if mode == "first":
+            source = picked
+            targets = [m for m in self._tt_meshes(selected) if m not in source]
+        elif mode == "last":
+            targets = picked
+            source = [m for m in self._tt_meshes(selected) if m not in targets]
+        elif mode == "stored":
             source = stored_sources
-            if not source:
-                return self.sb.message_box(
-                    "<b>No stored source meshes.</b><br>Open the option box and use "
-                    "<i>Set Source From Selection</i> first."
-                )
-            targets = [t for t in self._tt_meshes(selected) if t not in source]
-            if not targets:
-                return self.sb.message_box(
-                    "<b>Nothing selected.</b><br>Select the target mesh(es)."
-                )
-            try:
-                pairs = [
-                    (s, t)
-                    for t, s in btk.TextureTransfer.pair_by_name(
-                        targets, source
-                    ).items()
-                ]
-            except ValueError as e:
-                return self.sb.message_box(f"<b>Transfer:</b><br>{e}")
+            targets = [m for m in self._tt_meshes(selected) if m not in source]
+        else:  # uvset: every selected mesh moves between its own maps
+            source, targets = None, self._tt_meshes(selected)
+
+        transfer_mode = menu.cmb_tt_transfer.currentData()
+        auto = transfer_mode == self.TRANSFER_AUTO
+        lightmap_probe = self._tt_lightmap_probe(menu)
+        if auto and mode != "uvset":
+            # Resolved BEFORE the pass-dependent gates below (the Similar-scope
+            # check): what Auto decides is what they must ask for. An empty
+            # probe resolves to the UV pass and falls through to the same
+            # selection errors a manual mode would hit.
+            transfer_mode = self._tt_resolve_auto(
+                btk.TextureTransfer, source, has_lightmap=lightmap_probe
+            )
+        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
+        auto_note = (
+            self._tt_auto_note(
+                auto, do_textures, mode, lightmaps=lightmap_probe is not None
+            )
+            + source_note
+        )
+        # Blank = named after the source by the texture pass.
+        out_name = menu.t_tt_name.text().strip()
+        pairs, targets, others, refusal = self._tt_gate(
+            mode,
+            scope,
+            source,
+            targets,
+            do_uvs,
+            do_textures,
+            notes=(auto_note, source_note),
+        )
+        if refusal:
+            return self.sb.message_box(refusal)
 
         report = []
         # Mirror of Maya's: both passes are bulk engine calls with nothing to
@@ -846,11 +835,10 @@ class UvSlots(UvMixin, SlotsBlender):
             if do_uvs:
                 try:
                     if pairs is None:
-                        candidates = others if scope == "selection" else None
                         targets = btk.transfer_uvs_to_similar(
                             source[0],
-                            candidates,
-                            tolerance=menu.d000.value(),
+                            others if scope == "selection" else None,
+                            tolerance=self._tt_similarity_value(),
                         )
                         if not targets:
                             return self.sb.message_box(
@@ -876,7 +864,7 @@ class UvSlots(UvMixin, SlotsBlender):
             if do_textures:
                 tick(text="Working: Transfer Textures")
                 report.append(self._tt_texture_pass(targets, source, menu, out_name))
-        self.sb.message_box("<br><br>".join(report))
+        self.sb.message_box("<br><br>".join(report) + source_note)
 
     # ------------------------------------------------------------------ b003/b004  Texel density
     def b003(self):

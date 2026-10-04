@@ -11,6 +11,7 @@ at this layer:
 - b005 (Cut UVs): the "selected edges vs whole mesh" routing.
 """
 
+import os
 import unittest
 from unittest import mock
 
@@ -114,26 +115,28 @@ class _FakeB000Widget:
     def __init__(
         self,
         scope="order",
-        tolerance=0.9,
         mode="first",
         transfer="uvs",
         output_name="transfer_result",
+        lightmaps=False,
+        output_dir="",
     ):
+        # The Similarity threshold is a row of the Targets combo's own option
+        # box, read off the slot (``_tt_similarity_value``), not this menu.
         menu = _FakeUi()
-        menu.cmb024 = self._Combo(mode)  # Source
-        menu.cmb014 = self._Combo(scope)  # Scope
-        menu.d000 = self._Spin(tolerance)  # Similarity
-        menu.cmb028 = self._Combo(transfer)  # Transfer: uvs / textures / auto
+        menu.cmb_tt_source = self._Combo(mode)  # Source
+        menu.cmb014 = self._Combo(scope)  # Targets
+        menu.cmb_tt_transfer = self._Combo(transfer)  # Transfer
         # Texture-pass rows -- read even when the pass is off.
         menu.t_tt_name = self._Text(output_name)
         menu.t_tt_src_uvset = self._Text("")
         menu.t_tt_dst_uvset = self._Text("")
-        menu.t_tt_output = self._Text("")
+        menu.t_tt_output = self._Text(output_dir)
         menu.cmb025 = self._Combo(0)  # Resolution
         menu.cmb026 = self._Combo(2)  # Quality
         menu.s025 = self._Spin(-1)  # Padding
-        menu.cmb027 = self._Combo(None)  # Normal convention
         menu.chk050 = self._Check(True)  # Assign Result
+        menu.chk051 = self._Check(lightmaps)  # Include Lightmaps
         self.option_box = _FakeUi()
         self.option_box.menu = menu
 
@@ -288,21 +291,6 @@ class TestB000TransferUVsGate(unittest.TestCase):
         self.instance.b000(widget=widget)
         self.assertIn("Working: Transfer Textures", self.instance.sb.progress_texts)
 
-    def test_the_texture_pass_is_refused_without_an_output_name(self):
-        """It names the material AND every map; there is no safe default, and
-        finding out after the remap has run costs the whole run."""
-        a = cmds.polyCube(name="uv_b000_noname_a")[0]
-        b = cmds.polyCube(name="uv_b000_noname_b")[0]
-        cmds.select([a, b])
-        self.instance.b000(
-            widget=_FakeB000Widget(transfer="textures", output_name="  ")
-        )
-        self.assertEqual(self.captured, [])  # refused before any pass ran
-        self.assertIn(
-            "output name",
-            "".join(str(m) for m in self.instance.sb.messages).lower(),
-        )
-
     def test_three_objects_pair_the_source_against_every_target(self):
         a = cmds.polyCube(name="uv_b000_a3")[0]
         b = cmds.polyCube(name="uv_b000_b3")[0]
@@ -384,9 +372,9 @@ class TestB000TransferAuto(unittest.TestCase):
 
     def test_a_mapped_source_resolves_to_the_texture_pass(self):
         """A source whose material carries a map has textures to move, so Auto
-        must pick the texture pass -- observed through that pass's own gate:
-        it demands an Output Name before touching anything, and the refusal
-        has to say Auto made the pick (the user never chose Textures)."""
+        must pick the texture pass: the engine's transfer runs, no UV pass
+        does -- and with the Output Name blank, the result is named after the
+        source rather than refused."""
         src = cmds.polyCube(name="uv_auto_mapped_src")[0]
         tgt = cmds.polyCube(name="uv_auto_mapped_tgt")[0]
         mat = cmds.shadingNode("lambert", asShader=True, name="uv_auto_mat")
@@ -404,17 +392,29 @@ class TestB000TransferAuto(unittest.TestCase):
         cmds.sets(src, edit=True, forceElement=sg)
         cmds.select([src, tgt])
 
-        self.instance.b000(widget=_FakeB000Widget(transfer="auto", output_name=""))
+        import mayatk as mtk
+
+        real, calls = mtk.TextureTransfer, []
+
+        class Capturing(real):
+            def transfer(self, targets, source=None, **kwargs):
+                calls.append(kwargs)
+                return {}
+
+        mtk.TextureTransfer = Capturing
+        try:
+            self.instance.b000(widget=_FakeB000Widget(transfer="auto", output_name=""))
+        finally:
+            mtk.TextureTransfer = real
 
         self.assertEqual(self.captured, [])  # no UV pass ran
-        message = "".join(str(m) for m in self.instance.sb.messages)
-        self.assertIn("Output Name required", message)
-        self.assertIn("Auto", message)
+        self.assertEqual(len(calls), 1, self.instance.sb.messages)
+        self.assertEqual(calls[0]["output_name"], "uv_auto_mapped_src")
 
     def test_an_unmapped_source_resolves_to_the_uv_pass(self):
         """No maps on the source's materials: nothing for the texture pass to
-        read, so Auto transfers the layout instead -- with no Output Name
-        demanded, since no texture is written."""
+        read, so Auto transfers the layout instead -- no texture is
+        written."""
         a = cmds.polyCube(name="uv_auto_plain_a")[0]
         b = cmds.polyCube(name="uv_auto_plain_b")[0]
         cmds.select([a, b])
@@ -425,8 +425,91 @@ class TestB000TransferAuto(unittest.TestCase):
         self.assertIn("Working: Transfer UV Set", self.instance.sb.progress_texts)
 
 
-class _FakeShaderCombo:
-    """The Shader row of the Output Name field's option-box menu."""
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB000TransferLightmaps(unittest.TestCase):
+    """Include Lightmaps, end to end through ``b000`` and the REAL engine.
+
+    A lit but untextured source (a committed lightmap, no material maps) and a
+    copy whose lightmap set was re-laid out: with the row checked, Auto must
+    pick the texture pass, and the target must come out carrying a lightmap
+    resampled into its own layout -- the deliverable a user ticking the box
+    expects, where the material pass alone has nothing to move.
+    """
+
+    def setUp(self):
+        import pythontk as ptk
+
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        self._artifacts = ptk.TempArtifacts("uv_b000_lightmaps", policy="scoped")
+        self.addCleanup(self._artifacts.cleanup)
+        self.tmp = self._artifacts.dir_path()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _lit_source_and_target(self):
+        import numpy as np
+        import mayatk as mtk
+
+        src = cmds.polyPlane(name="uv_lm_src", sx=2, sy=2, ch=False)[0]
+        cmds.polyUVSet(src, copy=True, uvSet="map1", newUVSet="lightmap")
+        image = np.full((16, 16, 3), 3.0, np.float32)
+        path = os.path.join(self.tmp, "uv_lm_src_Lightmap.exr").replace("\\", "/")
+        mtk.LightmapRecords._write_lightmap(path, image)
+        mtk.LightmapRecords.commit({src: path})
+        tgt = cmds.duplicate(src, name="uv_lm_tgt")[0]
+        cmds.deleteAttr(f"{tgt}.lightmapInfo")
+        cmds.polyUVSet(tgt, currentUVSet=True, uvSet="lightmap")
+        cmds.polyEditUV(
+            f"{tgt}.map[*]",
+            uvSetName="lightmap",
+            rotation=True,
+            angle=90,
+            pivotU=0.5,
+            pivotV=0.5,
+        )
+        cmds.polyUVSet(tgt, currentUVSet=True, uvSet="map1")
+        return src, tgt
+
+    def test_auto_carries_a_lit_untextured_source_s_lightmap(self):
+        import mayatk as mtk
+
+        src, tgt = self._lit_source_and_target()
+        cmds.select([src, tgt])
+        out_dir = os.path.join(self.tmp, "out").replace("\\", "/")
+
+        self.instance.b000(
+            widget=_FakeB000Widget(
+                transfer="auto", output_name="hero", lightmaps=True, output_dir=out_dir
+            )
+        )
+
+        message = "".join(str(a) for args, _ in self.instance.sb.messages for a in args)
+        self.assertIn("resampled into the target's layout", message)
+        info = mtk.LightmapRecords.lightmap_info(tgt)
+        self.assertEqual(info.get("map"), "hero_Lightmap.exr", message)
+        self.assertTrue(os.path.isfile(os.path.join(out_dir, "hero_Lightmap.exr")))
+
+    def test_unchecked_auto_moves_the_layout_and_no_lightmap(self):
+        """The same scene with the row off: no maps to move, so Auto transfers
+        the layout -- and the target gains no lightmap."""
+        import mayatk as mtk
+
+        src, tgt = self._lit_source_and_target()
+        cmds.select([src, tgt])
+
+        self.instance.b000(
+            widget=_FakeB000Widget(transfer="auto", output_name="", lightmaps=False)
+        )
+
+        self.assertIn("Working: Transfer UV Set", self.instance.sb.progress_texts)
+        self.assertEqual(mtk.LightmapRecords.lightmap_info(tgt), {})
+
+
+class _FakeAssignCombo:
+    """The Material row (``cmb_tt_assign_from``) of the Transfer box."""
 
     def __init__(self, data):
         self._data = data
@@ -454,7 +537,7 @@ class TestB000MaterialAffix(unittest.TestCase):
         self._original = mtk.TextureTransfer
         captured = self.captured = []
 
-        class FakeTextureTransfer:
+        class FakeTextureTransfer(mtk.TextureTransfer):
             def transfer(self, targets, source=None, **kwargs):
                 captured.append(kwargs)
                 return {}
@@ -467,12 +550,12 @@ class TestB000MaterialAffix(unittest.TestCase):
         mtk.TextureTransfer = self._original
         cmds.file(new=True, force=True)
 
-    def _run(self, affix="", affix_mode="auto", shader_type=None):
+    def _run(self, affix="", affix_mode="auto", assign_row=None):
         """One texture-pass run; returns the kwargs the engine was called with."""
         del self.captured[:]
         self.instance._tt_affix = _FakeAffixField(affix, affix_mode)
-        if shader_type is not None:
-            self.instance._tt_shader_type = _FakeShaderCombo(shader_type)
+        if assign_row is not None:
+            self.instance._tt_assign_from = _FakeAssignCombo(assign_row)
         a = cmds.polyCube(name="uv_affix_a")[0]
         b = cmds.polyCube(name="uv_affix_b")[0]
         cmds.select([a, b])
@@ -510,16 +593,36 @@ class TestB000MaterialAffix(unittest.TestCase):
         self.assertEqual(self.captured[0]["assign_prefix"], "")
         self.assertIsNone(self.captured[0]["assign_suffix"])
 
-    def test_the_shader_row_reaches_the_engine(self):
-        """Same wiring as the affix -- a nested row read off the slot."""
-        self.assertEqual(
-            self._run(shader_type="stingray")["assign_shader_type"], "stingray"
-        )
+    def test_a_shader_type_is_rebuilt_from_the_source_s_material(self):
+        """Same wiring as the affix -- a row read off the slot. A named type
+        retypes a copy of the SOURCE's material (its look, its constants)."""
+        kwargs = self._run(assign_row="stingray")
+        self.assertEqual(kwargs["assign_shader_type"], "stingray")
+        self.assertEqual(kwargs["assign_from"], "source")
 
-    def test_an_unbuilt_shader_row_keeps_the_target_s_type(self):
-        """No row (option box never built) reads as "same as target" rather
-        than raising from inside the run."""
-        self.assertIsNone(self._run()["assign_shader_type"])
+    def test_same_as_target_copies_the_target_s_material(self):
+        kwargs = self._run(assign_row="target")
+        self.assertEqual(kwargs["assign_from"], "target")
+        self.assertNotIn("assign_shader_type", kwargs)
+
+    def test_an_unbuilt_material_row_copies_the_source(self):
+        """No row (option box never built) reads as the row's default, "Same
+        as source" -- the look being transferred -- rather than raising."""
+        kwargs = self._run()
+        self.assertEqual(kwargs["assign_from"], "source")
+        self.assertNotIn("assign_shader_type", kwargs)
+
+    def test_a_blank_output_name_is_named_after_the_source(self):
+        """No name typed: the source's own name, its type marker dropped --
+        never a refusal (the deliverable used to demand a typed name)."""
+        del self.captured[:]
+        grp = cmds.group(empty=True, name="hero_GRP")
+        src = cmds.parent(cmds.polyCube(name="hero_body_GEO")[0], grp)[0]
+        tgt = cmds.polyCube(name="uv_named_tgt")[0]
+        cmds.select([cmds.ls(src, long=True)[0], tgt])
+        self.instance.b000(widget=_FakeB000Widget(transfer="textures", output_name=""))
+        self.assertEqual(len(self.captured), 1, self.instance.sb.messages)
+        self.assertEqual(self.captured[0]["output_name"], "hero_body")
 
     def test_auto_falls_back_to_suffix_when_neither_side_is_declared(self):
         """A bare token (no underscore) is the texture-set convention's
@@ -527,6 +630,146 @@ class TestB000MaterialAffix(unittest.TestCase):
         kwargs = self._run(affix="MAT")
         self.assertEqual(kwargs["assign_suffix"], "MAT")
         self.assertEqual(kwargs["assign_prefix"], "")
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestB000SourceLastAndAuto(unittest.TestCase):
+    """Source: All But Last Selected, and Source: Auto, on real geometry.
+
+    The reported failure: two sources combined into one target -- which kept
+    one source's name -- refused with "cannot pair 0 target(s) with 1
+    source(s)". Pairing runs the REAL engine (``pair_sources`` /
+    ``find_combined``); only ``transfer`` is captured.
+    """
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
+        self.instance.sb = _RecordedSb()
+        import mayatk as mtk
+
+        self._original = mtk.TextureTransfer
+        captured = self.captured = []
+
+        class Capturing(mtk.TextureTransfer):
+            def transfer(self, targets, source=None, **kwargs):
+                captured.append((list(targets), source))
+                return {"m": {"baseColor": "/out/hero_BaseColor.png"}}
+
+        mtk.TextureTransfer = Capturing
+        self.uv_calls = []
+        self._original_uvs = mtk.transfer_uvs
+        mtk.transfer_uvs = lambda *a, **k: self.uv_calls.append(a) or []
+
+    def tearDown(self):
+        import mayatk as mtk
+
+        mtk.TextureTransfer = self._original
+        mtk.transfer_uvs = self._original_uvs
+        cmds.file(new=True, force=True)
+
+    def _scene(self):
+        """Sources A, B and C = B + A combined, renamed after A in a group."""
+        a = cmds.polyCube(name="srcA")[0]
+        b = cmds.polySphere(name="srcB", sx=6, sy=4)[0]
+        cmds.move(3, 0, 0, b)
+        c = cmds.polyUnite(cmds.duplicate([b, a]), ch=False, name="comb")[0]
+        c = cmds.rename(cmds.parent(c, cmds.group(empty=True, name="out"))[0], a)
+        return (cmds.ls(n, long=True)[0] for n in (f"|{a}", f"|{b}", c))
+
+    def _run(self, mode, transfer="textures"):
+        self.instance.b000(
+            widget=_FakeB000Widget(mode=mode, transfer=transfer, output_name="hero")
+        )
+        return self.instance.sb.messages
+
+    def test_last_selected_is_the_target_of_every_other_mesh(self):
+        a, b, c = self._scene()
+        cmds.select([a, b, c])
+        self._run("last")
+        self.assertEqual(self.captured, [([c], [a, b])], self.instance.sb.messages)
+
+    def test_last_refuses_the_uv_pass_onto_a_combined_target(self):
+        a, b, c = self._scene()
+        cmds.select([a, b, c])
+        messages = self._run("last", transfer="uvs")
+        self.assertEqual(self.uv_calls, [])
+        self.assertIn("one source per target", messages[-1][0][0])
+
+    def test_auto_finds_the_combined_target_wherever_it_was_picked(self):
+        a, b, c = self._scene()
+        cmds.select([c, a, b])  # target FIRST: Last would read it backwards
+        messages = self._run("auto")
+        self.assertEqual(self.captured, [([c], [a, b])], messages)
+        self.assertIn("Source: Auto", messages[-1][0][0])
+
+    def test_auto_reads_one_mesh_as_its_own_uv_sets(self):
+        a, _, _ = self._scene()
+        cmds.select(a)
+        self._run("auto")
+        self.assertEqual(self.captured, [([a], None)], self.instance.sb.messages)
+
+    def test_auto_falls_back_to_first_selected(self):
+        a, b, _ = self._scene()
+        cmds.select([b, a])
+        self._run("auto")
+        self.assertEqual(self.captured, [([a], [b])], self.instance.sb.messages)
+
+    def _groups(self):
+        """A source group of two cubes and a target group of their copies --
+        the "source group, target group" pick (leaf names pair them)."""
+        src = cmds.group(empty=True, name="kit_ORIG")
+        tgt = cmds.group(empty=True, name="kit_GRP")
+        for n in ("partA", "partB"):
+            cmds.parent(cmds.polyCube(name=n)[0], src)
+            dup = cmds.duplicate(f"|kit_ORIG|{n}")[0]  # a sibling, renamed
+            moved = cmds.parent(f"|kit_ORIG|{dup}", tgt)[0]
+            cmds.rename(f"|kit_GRP|{moved}", n)
+        return src, tgt
+
+    def test_auto_pairs_a_source_group_with_a_target_group(self):
+        """A picked group is one side of the transfer. Auto flattening the
+        picks read four loose meshes: the first cube as THE source, the rest
+        (its own sibling included) as targets."""
+        src, tgt = self._groups()
+        cmds.select([src, tgt])
+        self._run("auto")
+        self.assertEqual(len(self.captured), 1, self.instance.sb.messages)
+        ((targets, source),) = self.captured
+        self.assertEqual(
+            targets, cmds.ls("|kit_GRP|partA", "|kit_GRP|partB", long=True)
+        )
+        self.assertEqual(
+            source, cmds.ls("|kit_ORIG|partA", "|kit_ORIG|partB", long=True)
+        )
+
+    def test_auto_reads_stored_sources_that_match_the_selection(self):
+        """The capture was made for these targets: Auto uses it, and says so."""
+        a, b, c = self._scene()
+        self.instance._tt_sources = [a, b]
+        cmds.select(c)
+        messages = self._run("auto")
+        self.assertEqual(self.captured, [([c], [a, b])], messages)
+        self.assertIn("stored source meshes", messages[-1][0][0])
+
+    def test_auto_ignores_a_stale_capture(self):
+        """Stored meshes the selection does not match by topology are left out:
+        one picked mesh then reads as its own UV sets."""
+        a, _, _ = self._scene()
+        self.instance._tt_sources = [cmds.ls(cmds.polyTorus()[0], long=True)[0]]
+        cmds.select(a)
+        self._run("auto")
+        self.assertEqual(self.captured, [([a], None)], self.instance.sb.messages)
+
+    def test_first_selected_feeds_every_target(self):
+        """One source onto several copies used to fail in the engine's
+        one-to-one pairing ("cannot pair 2 target(s) with 1 source(s))."""
+        a = cmds.ls(cmds.polyCube(name="feedSrc")[0], long=True)[0]
+        t1 = cmds.ls(cmds.duplicate(a, name="feedT1")[0], long=True)[0]
+        t2 = cmds.ls(cmds.duplicate(a, name="feedT2")[0], long=True)[0]
+        cmds.select([a, t1, t2])
+        self._run("first")
+        self.assertEqual(self.captured, [([t1, t2], [a])], self.instance.sb.messages)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -1963,24 +2206,30 @@ class _FakeTransferCombo:
 
 
 class _FakeSourceCombo:
+    ITEMS = ("auto", "first", "last", "stored", "uvset")
+
     def __init__(self, data="stored"):
         self._data = data
 
     def currentData(self):
         return self._data
 
+    def findData(self, data):
+        return self.ITEMS.index(data) if data in self.ITEMS else -1
+
+    def setCurrentIndex(self, index):
+        self._data = self.ITEMS[index]
+
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestTransferTexturesSourceControls(unittest.TestCase):
-    """b034's Set Source row -- the stored set is invisible state, so the row
-    itself has to report it: the capture button follows the Source mode, and
-    its Select / Clear icons follow whether anything is stored."""
+    """The Source combo's stored-set icons -- the stored set is invisible
+    state, so its Select / Clear icons report whether anything is stored."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
         self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
         self.instance.sb = _RecordedSb()
-        self.instance._tt_src_button = _FakeButton()
         self.instance._tt_select_action = _FakeAction()
         self.instance._tt_clear_action = _FakeAction()
         self.instance._tt_sources = []
@@ -2006,10 +2255,7 @@ class TestTransferTexturesSourceControls(unittest.TestCase):
 
     def _sync(self):
         self.instance._tt_sync_controls()
-        return (
-            self.instance._tt_src_button.enabled,
-            self.instance._tt_clear_action.widget.enabled,
-        )
+        return self.instance._tt_clear_action.widget.enabled
 
     def _sync_select(self):
         self.instance._tt_sync_controls()
@@ -2019,17 +2265,17 @@ class TestTransferTexturesSourceControls(unittest.TestCase):
         return " ".join(str(m) for m in self.instance.sb.messages[-1:])
 
     def test_clear_is_greyed_until_something_is_stored(self):
-        self.assertEqual(self._sync(), (True, False))
+        self.assertFalse(self._sync())
         self.instance._tt_sources = ["|pCube1"]
-        self.assertEqual(self._sync(), (True, True))
+        self.assertTrue(self._sync())
 
-    def test_other_source_modes_grey_the_whole_row(self):
-        """'first' / 'uvset' never read the stored set, so capturing into it
-        would silently do nothing -- which reads as a broken button."""
+    def test_the_icons_follow_the_capture_in_every_mode(self):
+        """Stored and Auto both read the capture, so its icons do not depend
+        on which mode the combo shows."""
         self.instance._tt_sources = ["|pCube1"]
-        for mode in ("first", "uvset"):
+        for mode in ("auto", "first", "uvset"):
             self._set_mode(mode)
-            self.assertEqual(self._sync(), (False, False), mode)
+            self.assertTrue(self._sync(), mode)
 
     def test_clear_empties_the_set_and_greys_itself(self):
         self.instance._tt_sources = ["|pCube1", "|pCube2"]
@@ -2110,7 +2356,7 @@ class TestTransferTexturesSourceTooltip(unittest.TestCase):
         self.instance._tt_sources = []
         html = self.instance._tt_source_tooltip()
         self.assertNotIn("<li>", html)
-        self.assertIn("Set Source From Selection", html)
+        self.assertIn("Store Source Meshes", html)
 
     def test_deleted_nodes_are_called_out(self):
         """b034 drops them; a count that no longer matches needs a reason."""
@@ -2136,7 +2382,6 @@ class TestTransferSyncControls(unittest.TestCase):
 
         self.instance = _Host()
         self.instance._tt_sources = []
-        self.instance._tt_src_button = _FakeButton()
         self.instance._tt_select_action = _FakeAction()
         self.instance._tt_clear_action = _FakeAction()
         self.instance._tt_ctl = {
@@ -2157,10 +2402,30 @@ class TestTransferSyncControls(unittest.TestCase):
 
     def _sync(self):
         self.instance._tt_sync_controls()
-        return (
-            self.instance._tt_src_button.enabled,
-            self.instance._tt_clear_action.widget.enabled,
+        return self.instance._tt_clear_action.widget.enabled
+
+    def test_capturing_switches_the_source_to_stored(self):
+        """The + icon is how Stored is entered: capture, then the combo."""
+        self._set_mode("auto")
+        self.instance._tt_set_source_from_selection = lambda: setattr(
+            self.instance, "_tt_sources", ["|a"]
         )
+        self.instance._tt_capture_source()
+        self.assertEqual(self.instance._tt_ctl["source"].currentData(), "stored")
+
+    def test_an_empty_capture_leaves_the_source_alone(self):
+        self._set_mode("auto")
+        self.instance._tt_set_source_from_selection = lambda: None
+        self.instance._tt_capture_source()
+        self.assertEqual(self.instance._tt_ctl["source"].currentData(), "auto")
+
+    def test_targets_follow_first_selected(self):
+        """Auto never reads a Similar scope, so the row greys under it."""
+        scope = self.instance._tt_ctl["scope"]
+        for mode, live in (("first", True), ("auto", False), ("stored", False)):
+            self._set_mode(mode)
+            self._sync()
+            self.assertEqual(scope.enabled, live, mode)
 
     def test_pinning_the_combo_leaves_the_texture_rows_live(self):
         """The pin re-enters the sync through the combo's signal; the outer
@@ -2228,6 +2493,147 @@ class TestTransferSyncControls(unittest.TestCase):
         self._sync()
         self.assertFalse(row.enabled)
 
+    def test_the_lightmap_row_needs_the_texture_pass_between_meshes(self):
+        """Include Lightmaps rides the texture pass, and a lightmap travels
+        between MESHES: on one mesh the texture move leaves the lightmap's
+        own UV set untouched, so the row has nothing to do there."""
+        row = self.instance._tt_ctl["lightmaps"] = _FakeCheck(True)
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("textures")
+        for mode in ("first", "stored"):
+            self._set_mode(mode)
+            self._sync()
+            self.assertTrue(row.enabled, mode)
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("auto")
+        self._sync()
+        self.assertTrue(row.enabled)  # Auto may still pick Textures
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("uvs")
+        self._sync()
+        self.assertFalse(row.enabled)
+        self.instance._tt_ctl["transfer"] = _FakeTransferCombo("textures")
+        self._set_mode("uvset")
+        self._sync()
+        self.assertFalse(row.enabled)
+
+
+class _FakeSourceEngine:
+    """``TextureTransfer`` double for the Source helpers: a combined mesh is
+    a tuple of its parts; ``pair_sources`` / ``find_combined`` read that."""
+
+    @staticmethod
+    def find_combined(meshes):
+        if "raises" in meshes:
+            raise ValueError("not a mesh")
+        for m in meshes:
+            if isinstance(m, tuple) and set(m) == set(meshes) - {m}:
+                return m, m
+        return None
+
+    @staticmethod
+    def pair_sources(targets, sources):
+        if "unpairable" in sources:
+            raise ValueError("no combination of the 2 source(s) has its topology")
+        if len(sources) > len(targets):
+            return {targets[0]: tuple(sources)}
+        return dict(zip(targets, sources))
+
+
+class _SourceHost:
+    """A bare ``UvMixin`` host over :class:`_FakeSourceEngine`."""
+
+    def __new__(cls, terms=None):
+        from tentacle.slots._uv import UvMixin
+
+        class _Host(UvMixin):
+            _TT_TERMS = terms or {
+                "set": "set",
+                "first_who": "the first-selected object",
+            }
+
+            def _tt_engine(self):
+                return _FakeSourceEngine
+
+        return _Host()
+
+
+class TestTransferSourceAuto(unittest.TestCase):
+    """``UvMixin._tt_auto_source`` -- Source: Auto's reading of a selection."""
+
+    def test_one_mesh_moves_between_its_own_sets(self):
+        self.assertEqual(_SourceHost()._tt_auto_source(["a"]), ("uvset", None))
+
+    def test_a_mesh_combined_from_all_the_others_is_the_target(self):
+        combined = ("a", "b")
+        mode, target = _SourceHost()._tt_auto_source([combined, "a", "b"])
+        self.assertEqual((mode, target), ("last", combined))
+
+    def test_anything_else_is_first_selected(self):
+        host = _SourceHost()
+        self.assertEqual(host._tt_auto_source(["a", "b"]), ("first", None))
+        self.assertEqual(host._tt_auto_source([]), ("first", None))
+        # An unreadable selection falls through to First's own errors.
+        self.assertEqual(host._tt_auto_source(["raises", "b"]), ("first", None))
+
+    def test_the_note_names_what_auto_read(self):
+        host = _SourceHost()
+        self.assertIn("combined", host._tt_source_note("last"))
+        self.assertIn("first-selected", host._tt_source_note("first"))
+        self.assertIn("UV sets", host._tt_source_note("uvset"))
+
+
+class TestTransferPair(unittest.TestCase):
+    """``UvMixin._tt_pair`` -- the Stored / Last modes' pairing gate."""
+
+    def test_one_to_one_pairs_for_the_uv_pass(self):
+        pairs, error = _SourceHost()._tt_pair(["t1", "t2"], ["s1", "s2"], True)
+        self.assertIsNone(error)
+        self.assertEqual(pairs, [("s1", "t1"), ("s2", "t2")])
+
+    def test_a_combined_target_refuses_the_uv_pass_up_front(self):
+        pairs, error = _SourceHost()._tt_pair(["c"], ["a", "b"], True)
+        self.assertIsNone(pairs)
+        self.assertIn("one source per target", error)
+
+    def test_a_combined_target_passes_for_textures(self):
+        pairs, error = _SourceHost()._tt_pair(["c"], ["a", "b"], False)
+        self.assertIsNone(error)
+        self.assertEqual(pairs, [(("a", "b"), "c")])
+
+    def _gate(self, mode, source, targets, scope="order", uvs=False, textures=True):
+        host = _SourceHost(
+            {
+                "set": "set",
+                "first_who": "",
+                "pick_first": "PICK-FIRST",
+                "pick_last": "PICK-LAST",
+            }
+        )
+        return host._tt_gate(mode, scope, source, targets, uvs, textures, ("A", "S"))
+
+    def test_the_gate_names_the_pick_each_mode_needs(self):
+        self.assertEqual(self._gate("first", ["a"], [])[3], "PICK-FIRSTS")
+        self.assertEqual(self._gate("last", [], ["c"])[3], "PICK-LASTS")
+        self.assertIn("No stored source", self._gate("stored", [], ["c"])[3])
+        self.assertIn(
+            "Nothing to transfer", self._gate("uvset", None, ["c"], textures=False)[3]
+        )
+
+    def test_a_similar_scope_hands_its_candidates_on(self):
+        pairs, targets, others, refusal = self._gate(
+            "first", ["a"], ["b"], scope="selection", uvs=True, textures=False
+        )
+        self.assertEqual((pairs, targets, others, refusal), (None, None, ["b"], None))
+        self.assertIn("UV Set", self._gate("first", ["a"], ["b"], scope="scene")[3])
+
+    def test_a_clear_pick_pairs_for_the_uv_pass(self):
+        pairs, targets, _, refusal = self._gate("first", ["a"], ["b"], uvs=True)
+        self.assertIsNone(refusal)
+        self.assertEqual((pairs, targets), ([("a", "b")], ["b"]))
+
+    def test_an_engine_refusal_becomes_the_message(self):
+        pairs, error = _SourceHost()._tt_pair(["c"], ["a", "unpairable"], False)
+        self.assertIsNone(pairs)
+        self.assertIn("no combination", error)
+
 
 class TestTransferPasses(unittest.TestCase):
     """``UvMixin._tt_passes`` -- the Transfer combo's one meaning.
@@ -2274,7 +2680,8 @@ class TestTransferOptionBoxShared(unittest.TestCase):
 
     The forks' copies were ~0.93 similar: identical wiring, fork-specific
     words. Each fork now supplies only ``_TT_TERMS`` (its vocabulary),
-    ``_tt_engine`` and, on Maya, ``_tt_add_assign_rows`` (the Shader row).
+    ``_tt_engine`` and, on Maya, ``_tt_shader_items`` (the Material row's
+    shader types).
     DCC-free: the terms are read from the fork sources, and the box is built
     against a mock widget.
     """
@@ -2299,7 +2706,7 @@ class TestTransferOptionBoxShared(unittest.TestCase):
             and any(getattr(t, "id", None) == "_TT_TERMS" for t in node.targets)
         )
 
-    def _build(self, terms, extra_rows=()):
+    def _build(self, terms, shader_items=()):
         from unittest import mock
 
         from tentacle.slots._uv import UvMixin
@@ -2310,8 +2717,8 @@ class TestTransferOptionBoxShared(unittest.TestCase):
             def _tt_engine(self):
                 return mock.Mock(name="TextureTransfer")
 
-            def _tt_add_assign_rows(self, name_menu):
-                return extra_rows
+            def _tt_shader_items(self):
+                return shader_items
 
             def _tt_set_source_from_selection(self):
                 pass
@@ -2322,6 +2729,10 @@ class TestTransferOptionBoxShared(unittest.TestCase):
         host.sb = mock.MagicMock()
         host.sb.tooltip.fmt = lambda **kw: kw
         widget = mock.MagicMock()
+        # add_row returns one widget per column, in order.
+        widget.option_box.menu.add_row.side_effect = lambda items, **kw: [
+            mock.MagicMock(name=str(kwargs.get("setObjectName"))) for _, kwargs in items
+        ]
         host.b000_init(widget)
         return host, widget
 
@@ -2350,18 +2761,273 @@ class TestTransferOptionBoxShared(unittest.TestCase):
                 ]
                 self.assertIn(item, items)
                 self.assertIn(f"Source: {self._fork_terms(dcc)['first']}", items)
+                self.assertIn(f"Source: {self._fork_terms(dcc)['last']}", items)
+                self.assertIn("Source: Auto", items)
 
-    def test_a_fork_s_extra_assign_rows_grey_with_the_affix(self):
+    def test_auto_leads_both_mode_combos_under_fresh_names(self):
+        """The combos persist by INDEX: reordering them under their old
+        objectNames would re-read every saved index against the new list."""
+        _, widget = self._build(self._fork_terms("maya"))
+        calls = widget.option_box.menu.add.return_value.addItem.call_args_list
+        data = {
+            prefix: [c.args[1] for c in calls if str(c.args[0]).startswith(prefix)]
+            for prefix in ("Source: ", "Transfer: ")
+        }
+        self.assertEqual(data["Source: "], ["auto", "first", "last", "stored", "uvset"])
+        self.assertEqual(data["Transfer: "], ["auto", "textures", "uvs"])
+        names = {
+            c.kwargs.get("setObjectName")
+            for c in widget.option_box.menu.add.call_args_list
+        }
+        self.assertTrue({"cmb_tt_source", "cmb_tt_transfer"} <= names)
+        self.assertFalse({"cmb024", "cmb028"} & names)
+
+    def test_the_layout_reads_transfer_textures_material(self):
+        """Three titled groups, decisions first; the similarity and the
+        material rows no longer hide in nested option boxes of other rows."""
+        _, widget = self._build(self._fork_terms("maya"))
+        order = []
+        for c in widget.option_box.menu.method_calls:
+            if c[0] == "add":
+                order.append(c.kwargs.get("setTitle") or c.kwargs.get("setObjectName"))
+            elif c[0] == "add_row":
+                order.append(tuple(kw.get("setObjectName") for _, kw in c.args[0]))
+        self.assertEqual(
+            order,
+            [
+                "cmb_tt_transfer",
+                "cmb_tt_source",
+                "cmb014",
+                "Textures",
+                "t_tt_name",
+                "t_tt_output",
+                ("cmb025", "cmb026"),
+                "s025",
+                ("t_tt_src_uvset", "t_tt_dst_uvset"),
+                "chk051",
+                "Material",
+                "chk050",
+                "t_tt_affix",
+                "cmb_tt_assign_from",
+            ],
+        )
+
+    def test_the_material_row_leads_with_same_as_source(self):
+        """Both forks: "Same as source" first (so the default) and greying with
+        the affix; a fork's shader types follow. A fresh objectName -- the row
+        persists by INDEX, and index 0 used to mean "Same as target"."""
+        for dcc, items, word in (
+            ("maya", (("Stingray PBS", "stingray"),), "Shader"),
+            ("blender", (), "Material"),
+        ):
+            with self.subTest(dcc=dcc):
+                host, widget = self._build(self._fork_terms(dcc), shader_items=items)
+                affix, row = host._tt_ctl["assign_controls"]
+                self.assertIs(affix, host._tt_affix)
+                self.assertIs(row, host._tt_assign_from)
+                row.setEnabled.assert_called()  # synced with the affix
+                added = [
+                    (c.args[0], c.args[1])
+                    for c in row.addItem.call_args_list
+                    if str(c.args[0]).startswith(f"{word}: ")
+                ]
+                self.assertEqual(
+                    [data for _, data in added],
+                    ["source", "target"] + [data for _, data in items],
+                )
+                self.assertEqual(added[0][0], f"{word}: Same as source")
+                names = {
+                    c.kwargs.get("setObjectName")
+                    for c in widget.option_box.menu.add.call_args_list
+                }
+                self.assertIn("cmb_tt_assign_from", names)
+                self.assertNotIn("cmb_tt_shader", names)
+
+    def test_the_output_name_wears_a_persisted_history(self):
+        host, widget = self._build(self._fork_terms("maya"))
+        name_box = widget.option_box.menu.add.return_value.option_box
+        name_box.recent.assert_called_once()
+        self.assertTrue(name_box.recent.call_args.kwargs.get("settings_key"))
+        self.assertIs(host._tt_name_recent, name_box.find_option.return_value)
+
+    def test_include_lightmaps_is_built_off_and_handed_to_the_sync(self):
+        """Opt-in: carrying the scene's lighting is a choice, not a default."""
+        host, widget = self._build(self._fork_terms("blender"))
+        rows = [
+            c.kwargs
+            for c in widget.option_box.menu.add.call_args_list
+            if c.kwargs.get("setObjectName") == "chk051"
+        ]
+        self.assertEqual(len(rows), 1)
+        self.assertIs(rows[0]["setChecked"], False)
+        self.assertEqual(rows[0]["setText"], "Include Lightmaps")
+        self.assertIn("lightmaps", host._tt_ctl)
+
+
+class TestTransferOutputNameHistory(unittest.TestCase):
+    """``UvMixin._tt_texture_pass`` records the Output Name -- on success only.
+
+    The field itself is never restored (it names one deliverable); the history
+    is opt-in recall, so it should only hold names that produced maps.
+    DCC-free: the engine is a stub.
+    """
+
+    def _host(self, raises=False, results=None):
         from unittest import mock
 
-        row = mock.Mock(name="cmb_tt_shader")
-        host, _ = self._build(self._fork_terms("maya"), extra_rows=(row,))
-        affix, extra = host._tt_ctl["assign_controls"]
-        self.assertIs(affix, host._tt_affix)
-        self.assertIs(extra, row)
-        row.setEnabled.assert_called()  # synced with the affix at build time
-        host, _ = self._build(self._fork_terms("blender"))
-        self.assertEqual(len(host._tt_ctl["assign_controls"]), 1)
+        from tentacle.slots._uv import UvMixin
+
+        if results is None:
+            results = {"mat": {"baseColor": "/out/hero_BaseColor.png"}}
+
+        class _Engine:
+            def transfer(self, *args, **kwargs):
+                if raises:
+                    raise ValueError("no maps")
+                return results
+
+        class _Host(UvMixin):
+            def _tt_engine(self):
+                return _Engine
+
+        host = _Host()
+        host._tt_name_recent = mock.Mock(name="RecentValuesOption")
+        return host
+
+    def _run(self, host):
+        return host._tt_texture_pass(
+            ["tgt"], "src", _FakeB000Widget().option_box.menu, "hero"
+        )
+
+    def test_a_successful_pass_records_the_name(self):
+        host = self._host()
+        self._run(host)
+        host._tt_name_recent.record.assert_called_once_with("hero")
+
+    def test_a_refused_pass_records_nothing(self):
+        host = self._host(raises=True)
+        self.assertIn("no maps", self._run(host))
+        host._tt_name_recent.record.assert_not_called()
+
+    def test_a_pass_that_wrote_no_maps_records_nothing(self):
+        host = self._host(results={})
+        self.assertIn("<b>0</b> map(s)", self._run(host))
+        host._tt_name_recent.record.assert_not_called()
+
+    def test_an_unbuilt_option_box_still_runs(self):
+        host = self._host()
+        del host._tt_name_recent
+        self.assertIn("Transferred", self._run(host))
+
+
+class TestTransferLightmapPass(unittest.TestCase):
+    """``UvMixin._tt_texture_pass`` with *Include Lightmaps* -- the second pass.
+
+    DCC-free: the engine is a stub recording what the pass hands it. The
+    engines' own behaviour (rebind vs resample, the commit) is pinned in
+    mayatk / blendertk ``test_uv_texture_transfer``.
+    """
+
+    def _host(self, maps_raise=False, lightmaps=None, lightmaps_raise=False):
+        from unittest import mock
+
+        from tentacle.slots._uv import UvMixin
+
+        calls = self.calls = []
+        if lightmaps is None:
+            lightmaps = {"tgt": {"path": "/lm/src_Lightmap.exr", "how": "rebound"}}
+
+        class _Engine:
+            def transfer(self, *args, **kwargs):
+                if maps_raise:
+                    raise ValueError("no source material carries a texture map")
+                return {"mat": {"baseColor": "/out/hero_BaseColor.png"}}
+
+        class _Records:
+            @staticmethod
+            def transfer_lightmaps(targets, source, **kwargs):
+                calls.append((targets, source, kwargs))
+                if lightmaps_raise:
+                    raise ValueError("topology differs")
+                return lightmaps
+
+        class _Host(UvMixin):
+            def _tt_engine(self):
+                return _Engine
+
+            def _tt_records(self):
+                return _Records
+
+        host = _Host()
+        host._tt_name_recent = mock.Mock(name="RecentValuesOption")
+        return host
+
+    def _run(self, host, lightmaps=True, source="src", output_dir="/out"):
+        menu = _FakeB000Widget(lightmaps=lightmaps, output_dir=output_dir)
+        return host._tt_texture_pass(["tgt"], source, menu.option_box.menu, "hero")
+
+    def test_off_by_default_the_lightmap_pass_never_runs(self):
+        self._run(self._host(), lightmaps=False)
+        self.assertEqual(self.calls, [])
+
+    def test_on_it_carries_the_same_pairs_into_the_same_folder(self):
+        report = self._run(self._host())
+        self.assertEqual(len(self.calls), 1)
+        targets, source, kwargs = self.calls[0]
+        self.assertEqual((targets, source), (["tgt"], "src"))
+        self.assertEqual(kwargs["output_name"], "hero")
+        self.assertEqual(kwargs["output_dir"], "/out")
+        # The material Resolution row sizes material maps, not lightmaps.
+        self.assertNotIn("size", kwargs)
+        self.assertIn("Transferred <b>1</b> map(s)", report)
+        self.assertIn("bound to the source's own map", report)
+
+    def test_a_same_mesh_run_has_no_lightmap_to_carry(self):
+        self._run(self._host(), source=None)
+        self.assertEqual(self.calls, [])
+
+    def test_it_still_runs_when_the_source_has_no_material_maps(self):
+        """A lit but untextured source: the material pass refuses, the
+        lightmap pass is the whole deliverable -- and names it."""
+        host = self._host(
+            maps_raise=True,
+            lightmaps={"tgt": {"path": "/out/hero_Lightmap.exr", "how": "resampled"}},
+        )
+        report = self._run(host)
+        self.assertIn("no source material carries a texture map", report)
+        self.assertIn("resampled into the target's layout", report)
+        self.assertIn('href="action://open?path=/out"', report)
+        host._tt_name_recent.record.assert_called_once_with("hero")
+
+    def test_a_rebind_alone_wrote_nothing_to_remember(self):
+        host = self._host(maps_raise=True)
+        self._run(host)
+        host._tt_name_recent.record.assert_not_called()
+
+    def test_an_engine_refusal_is_reported_not_raised(self):
+        report = self._run(self._host(lightmaps_raise=True))
+        self.assertIn("<b>Transfer Lightmaps:</b> topology differs", report)
+
+    def test_nothing_carried_says_why(self):
+        report = self._run(self._host(lightmaps={}))
+        self.assertIn("No lightmaps transferred", report)
+
+    def test_auto_s_probe_checks_the_marker_and_never_resolves_the_file(self):
+        """Auto only asks whether a lightmap is committed; resolving its file
+        (``lightmap_info``) can walk the whole texture tree per source."""
+        from unittest import mock
+
+        records = mock.Mock(name="LightmapRecords")
+        records.baked_objects.side_effect = lambda objs: [o for o in objs if o == "lit"]
+        host = self._host()
+        host._tt_records = lambda: records
+        on = _FakeB000Widget(lightmaps=True).option_box.menu
+        probe = host._tt_lightmap_probe(on)
+        self.assertTrue(probe("lit"))
+        self.assertFalse(probe("bare"))
+        records.lightmap_info.assert_not_called()
+        off = _FakeB000Widget(lightmaps=False).option_box.menu
+        self.assertIsNone(host._tt_lightmap_probe(off))
 
 
 class _FakeTextureTransferEngine:
@@ -2423,6 +3089,38 @@ class TestTransferResolveAuto(unittest.TestCase):
             self._resolve(["raises", [{"baseColor": "map.png"}]]), "textures"
         )
 
+    def test_a_committed_lightmap_counts_while_lightmaps_are_included(self):
+        """Include Lightmaps on: a lit but untextured source has a map to move
+        -- its lightmap -- so Auto must pick the pass that moves it."""
+        from tentacle.slots._uv import UvMixin
+
+        lit = [{}]  # no material maps
+        info = lambda mesh: {"map": "lit.exr"} if mesh is lit else {}  # noqa: E731
+        resolve = UvMixin._tt_resolve_auto
+        self.assertEqual(
+            resolve(_FakeTextureTransferEngine, [lit], has_lightmap=info),
+            "textures",
+        )
+        self.assertEqual(resolve(_FakeTextureTransferEngine, [lit]), "uvs")
+        self.assertEqual(
+            resolve(_FakeTextureTransferEngine, [[{}]], has_lightmap=info), "uvs"
+        )
+
+    def test_an_unreadable_marker_contributes_no_lightmap(self):
+        from tentacle.slots._uv import UvMixin
+
+        def info(mesh):
+            raise RuntimeError("bad marker")
+
+        self.assertEqual(
+            UvMixin._tt_resolve_auto(
+                _FakeTextureTransferEngine,
+                [[{"baseColor": "map.png"}]],
+                has_lightmap=info,
+            ),
+            "textures",
+        )
+
 
 class TestTransferAutoNote(unittest.TestCase):
     """``UvMixin._tt_auto_note`` -- the gate suffix must name the real reason.
@@ -2454,6 +3152,15 @@ class TestTransferAutoNote(unittest.TestCase):
         message = self.note(True, True, "uvset")
         self.assertNotIn("materials", message)
         self.assertIn("no layout", message.replace("carries no layout", "no layout"))
+
+    def test_with_lightmaps_included_the_note_names_both_reasons(self):
+        """A committed lightmap may have decided it, so the note must not
+        claim the materials did."""
+        from tentacle.slots._uv import UvMixin
+
+        message = UvMixin._tt_auto_note(True, True, "first", lightmaps=True)
+        self.assertIn("lightmap", message)
+        self.assertNotIn("materials carry", message)
 
 
 if __name__ == "__main__":

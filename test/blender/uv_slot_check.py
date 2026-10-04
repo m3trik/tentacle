@@ -207,6 +207,114 @@ try:
           f"{seams_before}->{seams_after}")
     bpy.ops.object.mode_set(mode="OBJECT")
 
+    # ---- b000 Source: All But Active / Auto -- a target JOINED from its sources.
+    # Pairing runs the real btk engine (pair_sources / find_combined); only
+    # TextureTransfer.transfer is captured, and transfer_uvs counted.
+    import blendertk as btk
+
+    captured, uv_calls, messages, names = [], [], [], []
+
+    class Capturing(btk.TextureTransfer):
+        def transfer(self, targets, source=None, **kwargs):
+            captured.append(([t.name for t in targets], [s.name for s in source or []]))
+            names.append(kwargs.get("output_name"))
+            return {}
+
+    real_tt, real_uvs = btk.TextureTransfer, btk.transfer_uvs
+    btk.TextureTransfer = Capturing
+    btk.transfer_uvs = lambda *a, **k: uv_calls.append(a)
+    slot.sb.message_box = lambda *a, **k: messages.append(a[0] if a else "")
+
+    def text(s):
+        return NS(text=lambda v=s: v)
+
+    def b000_menu(mode, transfer="textures", name="hero"):
+        return NS(
+            cmb_tt_source=combo(data=mode), cmb014=combo(data="order"),
+            cmb_tt_transfer=combo(data=transfer), t_tt_name=text(name), t_tt_src_uvset=text(""),
+            t_tt_dst_uvset=text(""), t_tt_output=text(""), cmb025=combo(data=0),
+            cmb026=combo(data=2), s025=spin(-1), chk050=chk(True),
+        )
+
+    def joined_scene():
+        """srcA (cube), srcB (sphere) and 'comb' = B joined with A (B active)."""
+        reset()
+        bpy.ops.mesh.primitive_cube_add()
+        a = bpy.context.active_object
+        a.name = "srcA"
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=6, ring_count=4, location=(3, 0, 0))
+        b = bpy.context.active_object
+        b.name = "srcB"
+        copies = []
+        for o in (b, a):
+            c = o.copy()
+            c.data = o.data.copy()
+            bpy.context.collection.objects.link(c)
+            copies.append(c)
+        with bpy.context.temp_override(active_object=copies[0], selected_editable_objects=copies):
+            bpy.ops.object.join()
+        copies[0].name = "comb"
+        return a, b, copies[0]
+
+    def select(objs, active):
+        bpy.ops.object.select_all(action="DESELECT")
+        for o in objs:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = active
+
+    try:
+        a, b, c = joined_scene()
+        select([a, b, c], active=c)
+        slot.b000(option_box(b000_menu("last")))
+        check("b000 All But Active: the active mesh takes every other mesh's maps",
+              captured == [(["comb"], ["srcA", "srcB"])], f"{captured} {messages[-1:]}")
+
+        del captured[:]
+        select([a, b, c], active=c)
+        slot.b000(option_box(b000_menu("last", transfer="uvs")))
+        check("b000 All But Active refuses the UV pass onto a joined target",
+              not uv_calls and "one source per target" in messages[-1], messages[-1])
+
+        del captured[:]
+        select([a, b, c], active=a)  # the joined mesh is NOT the active one
+        slot.b000(option_box(b000_menu("auto")))
+        check("b000 Source: Auto finds the joined target whatever is active",
+              captured == [(["comb"], ["srcA", "srcB"])] and "Source: Auto" in messages[-1],
+              f"{captured} {messages[-1:]}")
+
+        del captured[:]
+        select([a], active=a)
+        slot.b000(option_box(b000_menu("auto")))
+        check("b000 Source: Auto reads one mesh as its own UV maps",
+              captured == [(["srcA"], [])], f"{captured} {messages[-1:]}")
+
+        # A source GROUP (an empty parenting two meshes) made active, a target
+        # group of their copies selected: the groups pair mesh to mesh, and a
+        # blank Output Name is named after the source group.
+        reset()
+        groups = {}
+        for gname in ("kit_GRP", "out_GRP"):
+            root = bpy.data.objects.new(gname, None)
+            bpy.context.collection.objects.link(root)
+            groups[gname] = root
+            for i, part in enumerate(("partA", "partB")):
+                bpy.ops.mesh.primitive_cube_add(location=(i * 3, 0, 0))
+                o = bpy.context.active_object
+                o.name = part
+                o.parent = root
+        del captured[:], names[:]
+        select(list(groups.values()), active=groups["kit_GRP"])
+        slot.b000(option_box(b000_menu("first", name="")))
+        src_names = sorted(c.name for c in groups["kit_GRP"].children)
+        tgt_names = sorted(c.name for c in groups["out_GRP"].children)
+        check("b000 First Selected pairs a source group with a target group",
+              len(captured) == 1 and sorted(captured[0][1]) == src_names
+              and sorted(captured[0][0]) == tgt_names, f"{captured} {messages[-1:]}")
+        check("b000 a blank Output Name is named after the source group",
+              names == ["kit"], f"{names}")
+    finally:
+        btk.TextureTransfer, btk.transfer_uvs = real_tt, real_uvs
+
 except Exception:
     traceback.print_exc()
     lines.append("FAIL unhandled exception")

@@ -48,6 +48,12 @@ def _start_maya():
     import maya.standalone
 
     maya.standalone.initialize(name="python")
+    # Off the user's live settings and real Maya project, like run_tests.py:
+    # importing it activates the TestSandbox, and a tool that names no path
+    # writes into the CURRENT project, which mayapy opens as the user's default.
+    from run_tests import _sandbox_maya_workspace
+
+    _sandbox_maya_workspace()
 
 
 def _run() -> int:

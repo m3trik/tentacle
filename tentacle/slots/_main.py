@@ -95,7 +95,8 @@ class MainMixin:
         Its data is the folder itself, so a click takes
         :meth:`_dispatch_workspace_item`'s directory branch (opens it in the
         system browser); the folder icon matches the dir-browser rows and the
-        tooltip carries the full path.
+        tooltip carries the full path. Its flyout holds ``Copy Path`` (puts the
+        folder's full path on the clipboard).
         """
         scene = self._current_scene_path()
         if not scene:
@@ -105,6 +106,9 @@ class MainMixin:
             return
         row = widget.add("Scene Directory", data=scene_dir, setToolTip=scene_dir)
         self.sb.IconManager.set_label_icon(row, "folder_filled")
+        row.sublist.add(
+            "Copy Path", data=("__copy_path__", scene_dir), setToolTip=scene_dir
+        )
 
     def _dispatch_workspace_item(self, item):
         """The Workspace tab's ``list000`` body: editing actions, recent-workspace
@@ -121,6 +125,10 @@ class MainMixin:
             self._open_workspace_editor()
         elif isinstance(data, tuple) and data and data[0] == "__recent__":
             self._set_workspace_from_path(data[1])
+        elif isinstance(data, tuple) and data and data[0] == "__copy_path__":
+            self.sb.QtWidgets.QApplication.clipboard().setText(data[1])
+            self.sb.handlers.marking_menu.hide()
+            self.sb.message_box(f"Copied: <hl>{data[1]}</hl>")
         elif data and os.path.isdir(str(data)):
             ptk.FileUtils.open_explorer(str(data))
             self.sb.handlers.marking_menu.hide()

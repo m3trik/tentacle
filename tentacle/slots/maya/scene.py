@@ -182,10 +182,8 @@ class SceneSlots(SceneMixin, SlotsMaya):
 
     def _ensure_fbx_plugin(self):
         """Load fbxmaya if not already loaded. Returns True on success."""
-        if cmds.pluginInfo("fbxmaya", query=True, loaded=True):
-            return True
         try:
-            cmds.loadPlugin("fbxmaya", quiet=True)
+            mtk.Plugins.load("fbxmaya")
             return True
         except Exception as e:
             self.sb.message_box(f"Could not load FBX plugin:\n{e}")

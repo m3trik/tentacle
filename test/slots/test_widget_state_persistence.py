@@ -429,5 +429,98 @@ class TestUvStackOptionBox(_PersistenceBase):
         self.assertTrue(any("chk047" in k for k in self._raw_keys()), self._raw_keys())
 
 
+# ===========================================================================
+# UV: b000 (Transfer UVs / Textures) option box -- UvMixin.b000_init
+# ===========================================================================
+
+class TestUvTransferOptionBox(_PersistenceBase):
+    """The Transfer box on REAL widgets: the mixin's tests drive it through
+    mocks, which cannot catch a row that fails to build, a nested option box
+    whose widget never lands, or a sync that greys the wrong control."""
+
+    def setUp(self):
+        import maya.cmds as cmds
+
+        cmds.file(new=True, force=True)
+        self.ui = self._load_panel("uv")
+        self.menu = self.ui.b000.option_box.menu
+        self.slot = self.sb.get_slots_instance(self.ui)
+
+    def test_auto_leads_both_mode_combos(self):
+        for combo, data in (
+            (self.menu.cmb_tt_transfer, ["auto", "textures", "uvs"]),
+            (self.menu.cmb_tt_source, ["auto", "first", "last", "stored", "uvset"]),
+        ):
+            self.assertEqual([combo.itemData(i) for i in range(combo.count())], data)
+            self.assertEqual(combo.currentData(), "auto")
+
+    def test_paired_rows_and_nested_rows_land(self):
+        for name in ("cmb025", "cmb026", "s025", "t_tt_src_uvset",
+                     "t_tt_dst_uvset", "t_tt_affix", "chk050", "chk051"):
+            self.assertIsNotNone(getattr(self.menu, name, None), name)
+        self.assertEqual(self.menu.s025.value(), -1)
+        self.assertEqual(self.menu.cmb026.currentData(), 2)
+        self.assertEqual(self.slot._tt_similarity_value(), 0.9)
+        self.assertIs(
+            self.slot._tt_similarity, self.menu.cmb014.option_box.menu.d000
+        )
+
+    def test_targets_grey_unless_first_selected(self):
+        src = self.menu.cmb_tt_source
+        for mode, live in (("first", True), ("auto", False), ("last", False)):
+            src.setCurrentIndex(src.findData(mode))
+            self._drain()
+            self.assertEqual(self.menu.cmb014.isEnabled(), live, mode)
+
+    def test_capture_switches_the_source_to_stored(self):
+        import maya.cmds as cmds
+
+        cmds.select(cmds.polyCube()[0])
+        self.slot._tt_capture_source()
+        self.assertEqual(self.menu.cmb_tt_source.currentData(), "stored")
+        self.assertTrue(self.slot._tt_clear_action.widget.isEnabled())
+
+    def test_a_blank_name_runs_and_is_derived_from_the_source(self):
+        """End to end on the real menu: a textured source GROUP picked first,
+        a copy of it second, no Output Name typed -- the groups pair mesh to
+        mesh by name, and the maps come out named after the source group
+        (its type marker dropped), in the Output Folder."""
+        import os
+
+        import maya.cmds as cmds
+        import pythontk as ptk
+        from PIL import Image
+
+        tmp = ptk.TempArtifacts("uv_transfer_ui_test", policy="scoped")
+        self.addCleanup(tmp.cleanup)
+        folder = tmp.dir_path()  # each call mints a NEW tagged directory
+        png = os.path.join(folder, "src.png").replace("\\", "/")
+        Image.new("RGB", (16, 16), (200, 40, 40)).save(png)
+        mat = cmds.shadingNode("lambert", asShader=True)
+        sg = cmds.sets(renderable=True, noSurfaceShader=True, empty=True)
+        cmds.connectAttr(f"{mat}.outColor", f"{sg}.surfaceShader")
+        tex = cmds.shadingNode("file", asTexture=True)
+        cmds.setAttr(f"{tex}.fileTextureName", png, type="string")
+        cmds.connectAttr(f"{tex}.outColor", f"{mat}.color")
+        grp = cmds.group(empty=True, name="crate_GRP")
+        for name in ("lid", "box"):
+            cmds.parent(cmds.polyCube(name=name)[0], grp)
+            cmds.sets(f"|crate_GRP|{name}", edit=True, forceElement=sg)
+        out = cmds.duplicate(grp, name="out_GRP")[0]
+        self.menu.t_tt_output.setText(folder)
+        self.menu.cmb025.setCurrentIndex(self.menu.cmb025.findData(512))
+        messages = []
+        original = self.sb.message_box
+        self.addCleanup(setattr, self.sb, "message_box", original)
+        self.sb.message_box = lambda *a, **k: messages.append(a[0] if a else "")
+        cmds.select([grp, out])
+        self.slot.b000(self.ui.b000)
+        self.assertTrue(
+            os.path.isfile(os.path.join(folder, "crate_BaseColor.png")),
+            messages,
+        )
+        self.assertIn("Named <b>crate</b> after the source", messages[-1])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
