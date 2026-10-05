@@ -379,10 +379,13 @@ CONTROLS = {
         # (test_telescope_rig.py 73/73). No delta.
     },
     "render_effects_slots": {
-        # Render Effects panel (renamed from render_opacity 2026-09-05): two key tools, each
-        # creating its channel on demand, with a remove action in its option box. Ported 1:1
-        # by objectName (tb000/tb001 option boxes; the header's Viewport Preview
-        # was retired 2026-09-05 on both sides); nothing pending.
+        # Render Effects panel (renamed from render_opacity 2026-09-05; redesigned 2026-10-03):
+        # an effect picker (cmb_effect) over a stack of code-built pages (stk_effects, uitk
+        # FormRows) bound to the scene's effect recipe -- each its mode over a Settings fold,
+        # grp_settings_<channel> -- over ONE action row in the .ui that serves the shown
+        # page (b000 Key, btn_remove, btn_webxr). Ported 1:1 by objectName
+        # (the tb000/tb001 option boxes are gone on both sides); compare_panel_surface 0
+        # deltas; nothing pending.
     },
     "tube_rig_slots": {  # mayatk rig_utils/tube_rig/tube_rig_slots.py
         # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
@@ -475,6 +478,15 @@ CONTROLS = {
         # Blender-verified in test_texture_path_editor.py (51/51).
         "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
         "chk_allow_missing": {"status": "pending", "reason": "Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there)."},
+        # Rename File, Keep Names In Sync (+ its two option-box fields) and the truncate length
+        # landed in mayatk 2026-10-04; the Blender panel has none of them yet. Real open work with
+        # one BACKLOG entry for the lot: "the Blender Texture Path Editor lacks mayatk's fact
+        # columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length".
+        "row_rename_file": {"status": "pending", "reason": "Rename File... (2026-10-04) -- the row menu renames the row's texture file ON DISK in its own cell (a UDIM set renames every tile) and repoints every file node reading it (mayatk MatUtils.rename_texture_file; a lightmap row re-stamps its bake markers through LightmapRecords.rename_lightmap). blendertk has no engine twin yet: the rename has to repoint Image datablocks' filepath. Tracked in BACKLOG (the Blender Texture Path Editor lacks mayatk's fact columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length)."},
+        "chk_sync_names": {"status": "pending", "reason": "Keep Names In Sync (2026-10-04) -- renaming a shader, a texture or a file node renames the rest of its material to match: the shader, its dominant texture set's files on disk, their file nodes and the set's lightmap (mayatk MatUtils.sync_material_names). The Blender twin needs its own engine over materials, Image datablocks and image texture nodes. Tracked in BACKLOG (same entry as row_rename_file)."},
+        "txt_shader_affix": {"status": "pending", "reason": "Keep Names In Sync's option box: the affix the synced shader's name wears (the scene's material naming convention by default). Rides the chk_sync_names port."},
+        "txt_file_node_suffix": {"status": "pending", "reason": "Keep Names In Sync's option box: the suffix a synced file node's name takes after its texture's. Rides the chk_sync_names port."},
+        "spn_truncate_length": {"status": "pending", "reason": "Truncate Texture Paths' option box (2026-10-04): the length a truncated path shortens to. The Blender panel truncates at a fixed _PATH_TRUNCATE_LENGTH (67) with no option box. Tracked in BACKLOG (same entry as row_rename_file)."},
     },
     # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
     # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/
@@ -881,7 +893,6 @@ CONTROLS_SLOTS = {
         "s000": {"status": "na", "reason": "Global joint/IK/IKFK display-scale spinbox (jointDisplayScale/ikHandleDisplayScale); no Blender scene-global display-scale — excused in the Blender slot"},
     },
     "uv": {
-        "cmb_tt_shader": {"status": "na", "reason": "Transfer (b000) Shader row: the assigned material's NODE type, retyped through mtk.ShaderConverter (StingrayPBS / standardSurface / openPBRSurface). Blender has no shader-type axis to offer -- a material is one Principled BSDF node graph, and blendertk's TextureTransfer copies that graph as-is -- so there is nothing to pick. The affix beside it in the same option-box menu IS mirrored."},
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
         "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
         "chk045": {"status": "na", "reason": "Hide Seam From View: Maya's band-based seamer (mtk.UvUtils.get_auto_seam_edges) lands the lengthwise seam on the side facing away from the active viewport camera; Blender Cut Cylinder rides smart_project which places seams itself (same rationale as chk040). A blendertk twin of the band seamer would carry both -- see .claude/BACKLOG.md."},
@@ -1041,16 +1052,22 @@ DEFAULT_DELTAS = {
     # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
     # (no "uv" entry needed here while the panel has no other triaged deltas).
     "uv": {
-        "cmb028.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: uvs / textures / auto).",
-        "cmb024.items": "Transfer (b000) source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'); 'UV Set' is 'UV Map' in Blender's vocabulary. Same three modes, same item data keys (first / stored / uvset).",
+        "cmb_tt_transfer.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: auto / textures / uvs).",
+        "cmb_tt_source.items": "Transfer (b000) source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'), and its inverse 'All But Last Selected' is 'All But Active'; 'UV Sets' are 'UV Maps' in Blender's vocabulary. Same five modes, same item data keys (auto / first / last / stored / uvset).",
+        "cmb_tt_assign_from.items": "Transfer (b000) Material row: both forks lead with 'Same as source' (the default -- a copy of the source's material on the new maps) and 'Same as target'; Maya then offers the shader types mtk.ShaderConverter can rebuild the result on (Stingray PBS / Standard Surface / OpenPBR) and labels the row 'Shader:'. Blender's material is one Principled node graph -- no shader-type axis -- so its row ('Material:') stops at the two copies.",
     },
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
     },
     "lightmap_baker_slots": {
         "spn_samples.maximum": "Different renderer sample ceilings: Maya spn_samples = Arnold AA samples (max 256, sensible for Arnold); Blender spn_samples = Cycles bake samples (max 4096 — Cycles routinely uses far higher sample counts than Arnold AA). Same 'render sample count' concept, renderer-appropriate range.",
-        "spn_samples.value": "Each panel's .ui dials ARE its own default tier (mobile), since the preset template restores only its selection and never re-applies a preset at open: Arnold mobile = 4 AA samples (squared, each spawning GI rays), Cycles mobile = 256 paths. Different units, not a drift (blendertk test: the .ui's dial defaults are the default preset's dials).",
-        "spn_bounces.value": "Each panel's .ui dials ARE its own default tier (mobile): Arnold mobile gi_depth 2, Cycles mobile bounces 4 (Cycles' own default; measured, Cycles at 4 already sits at 0.76x an Arnold depth-2 bake of the same room -- the depth numbers are not interchangeable, see blendertk LightmapBaker.from_preset).",
+        "spn_samples.value": "Each panel's .ui dials ARE its own default tier (mobile), since the preset template restores only its selection and never re-applies a preset at open: Arnold mobile = 4 AA samples (GI 2, adaptive up to AA x GI on the GPU, tiles at 2x their cell), Cycles mobile = 1024 paths. Different units, matched on the RESULT: ~1% shadow mottle each on a production floor (2026-10-01) -- Cycles bakes no adaptive sampling, so it needs the paths (blendertk test: the .ui's dial defaults are the default preset's dials).",
+        # spn_bounces.value: no entry -- both .ui files say 4 (mobile), so there is no delta to
+        # accept, and an accepted one would hide a future drift. Both engines count bounces alike:
+        # a grey calibration room agreed with the analytic value to 2% on each side at 0 and 2
+        # bounces (2026-10-01). The old 0.76x Cycles-vs-Arnold gap was the scene crossing (no white
+        # card on the Cycles target; area lights double-scaled and turned 90 degrees), not the
+        # depth. Each tier carries one depth for both: preview 2, mobile 4, desktop 6, hero 8.
     },
 }
 

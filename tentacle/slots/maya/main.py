@@ -23,7 +23,8 @@ class MainSlots(MainMixin, SlotsMaya):
         ``Edit Workspace`` (Maya's native Project Window), then the
         workspace-name row (the row opens the workspace root; its flyout
         browses the dir tree), then ``Scene Directory`` (opens the saved
-        scene's folder; absent for an unsaved scene). The dir-browser rows
+        scene's folder; its flyout's ``Copy Path`` copies the full path;
+        absent for an unsaved scene). The dir-browser rows
         carry a folder icon that sets them apart from the action rows above. Rebuilt on every show
         (``refresh_on_show``) so the dir tree and recent list stay current.
         """

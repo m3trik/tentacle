@@ -353,6 +353,18 @@ class TestSlotImportDiscipline(unittest.TestCase):
             f"`from tentacle import XMixin`), not a deep module path: {offenders}",
         )
 
+    def test_a_maya_plugin_loads_through_mayatks_door(self):
+        """``mtk.Plugins.load`` loads by name, never into GUI Maya's untrusted-plug-in
+        prompt; mayatk's own guard (``mock_tests/test_plugins.py``) covers mayatk."""
+        offenders = [
+            f"{f.relative_to(SLOTS_ROOT)}:{node.lineno}"
+            for f in _all_slot_modules()
+            for node in ast.walk(ast.parse(f.read_text(encoding="utf-8")))
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) == "loadPlugin"
+        ]
+        self.assertEqual(offenders, [], "load plug-ins through mtk.Plugins.load")
+
 
 def _gate_tokens(source):
     """``(gated widget names, gated AppSpec names)`` for one slot module.

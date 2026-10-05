@@ -17,7 +17,7 @@ class UvSlots(UvMixin, SlotsMaya):
         self.submenu = self.sb.loaded_ui.uv_submenu
 
         # Assure the maya UV plugin is loaded
-        mtk.load_plugin("Unfold3D.mll")
+        mtk.Plugins.load("Unfold3D")
 
         # Dual-state toggle state for b029 (Pin) and b030 (Stack).
         # Each button tracks the selection captured at its last successful
@@ -1232,21 +1232,24 @@ class UvSlots(UvMixin, SlotsMaya):
             )
 
     # ------------------------------------------------------------------
-    # b000  Transfer UVs / Textures -- the option box, its wiring and the
-    # texture pass are UvMixin's (``b000_init``, ``_tt_texture_pass``); this
-    # fork supplies its engine, its words and the Maya-only Shader row.
+    # b000  Transfer UVs / Textures -- the option box, its wiring, the run's
+    # plan and the texture pass are UvMixin's (``b000_init``, ``_tt_plan``,
+    # ``_tt_texture_pass``); this fork supplies its engine, its words and the
+    # shader types its Material row offers (``_tt_shader_items``).
     # ------------------------------------------------------------------
     _TT_TERMS = {
         "set": "set",
         "current": "current",
         "first": "First Selected Mesh",
         "first_who": "the first-selected object",
+        "pick_first": "<b>Select the source first (a mesh or a group), then the target(s).</b>",
+        "pick_last": "<b>Select the source mesh(es) first, then the target last.</b>",
+        "assign_row": "Shader",
+        "last": "All But Last Selected",
+        "last_who": "the last-selected mesh",
         "order": ", in selection order",
         "instances": "true instances of the source (one shape, UVs already match)",
         "bound": "uvLink",
-        "name_note": "the assigned material's own settings — a <b>Material "
-        "Affix</b> (a naming convention the maps deliberately do not follow) and "
-        "its <b>Shader</b> type.",
         "output_dir": "sourceimages/uv_transfer",
         "output_rel": "a subdirectory of sourceimages",
     }
@@ -1255,60 +1258,17 @@ class UvSlots(UvMixin, SlotsMaya):
         """Maya's ``TextureTransfer`` (see ``UvMixin._tt_engine``)."""
         return mtk.TextureTransfer
 
-    def _tt_add_assign_rows(self, name_menu):
-        """The assigned material's TYPE, beside its name (Maya-only).
+    def _tt_records(self):
+        """Maya's ``LightmapRecords`` (see ``UvMixin._tt_records``)."""
+        return mtk.LightmapRecords
 
-        The material is a copy of the target's, so left alone it lands on
-        whatever that mesh wore -- for unassigned geometry, Maya's own default
-        shader. Items come from the converter's TARGETS (its SSoT), so a target
-        added there appears here; "Same as target" leads and the rest follow in
-        TARGETS order, because combo state persists by INDEX.
-        """
-        cmb_tt_shader = name_menu.add(
-            "QComboBox",
-            setObjectName="cmb_tt_shader",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Shader",
-                body="The shader type of the material the run assigns.",
-                bullets=[
-                    "<b>Same as target</b> — a copy of the target's own "
-                    "material, so every channel the transfer does not write "
-                    "keeps its look. Right for a re-bake in place.",
-                    "<b>A named type</b> — the result is rebuilt on that "
-                    "shader (maps, constants and assignments carry across). "
-                    "For a deliverable, where the target may be wearing "
-                    "nothing but Maya's default shader.",
-                ],
-                notes=[
-                    "Retyping a whole scene's materials is the <b>Material "
-                    "Updater</b>'s Shader Type option — same engine.",
-                ],
-            ),
+    def _tt_shader_items(self):
+        """The Material row's shader types: the converter's TARGETS (its SSoT),
+        so a target added there appears here, in TARGETS order."""
+        return tuple(
+            (mtk.ShaderConverter.TARGET_LABELS.get(name, node_type), name)
+            for name, node_type in mtk.ShaderConverter.TARGETS.items()
         )
-        # addItem, not ``add(prefix=...)``: that helper rewrites a None data
-        # value to the item's label (and title-cases the text), so the default
-        # row would reach the engine as the string "Same As Target".
-        cmb_tt_shader.addItem("Shader: Same as target", None)
-        for name, node_type in mtk.ShaderConverter.TARGETS.items():
-            cmb_tt_shader.addItem(
-                f"Shader: {mtk.ShaderConverter.TARGET_LABELS.get(name, node_type)}",
-                name,
-            )
-        # Held directly, like the affix: a row of the NAME field's option-box
-        # menu, so the tool's own menu carries no proxy for ``b000`` to read.
-        self._tt_shader_type = cmb_tt_shader
-        return (cmb_tt_shader,)
-
-    def _tt_assign_shader_type(self):
-        """The Shader row's target type, or None for "same as target".
-
-        Read off the slot rather than a menu proxy for the same reason as the
-        affix (:meth:`UvMixin._tt_material_affix`): it is a row of the Output
-        Name field's option-box menu. Maya-only -- Blender materials are one
-        node graph, so that fork has no such row.
-        """
-        combo = getattr(self, "_tt_shader_type", None)
-        return combo.currentData() if combo is not None else None
 
     @staticmethod
     def _tt_meshes(objects):
@@ -1328,7 +1288,7 @@ class UvSlots(UvMixin, SlotsMaya):
         return out
 
     def _tt_source_tooltip(self):
-        """Live tooltip for Set Source From Selection -- what is stored NOW.
+        """Live tooltip for the Store Source Meshes icon -- what is stored NOW.
 
         The stored set is otherwise invisible until a transfer runs and
         either uses the wrong meshes or reports none, so the hover is the
@@ -1340,14 +1300,14 @@ class UvSlots(UvMixin, SlotsMaya):
         missing = [s for s in stored if not cmds.objExists(s)]
         return self.sb.tooltip.stored_items(
             stored,
-            title="Set Source From Selection",
-            body="Capture the current selection as the <b>Stored Source "
-            "Meshes</b> (mesh transforms, or groups — their mesh children "
-            "are used). Read by the <i>Stored Source Meshes</i> source.",
+            title="Store Source Meshes",
+            body="Store the current selection as the source meshes (mesh "
+            "transforms, or groups — their mesh children are used) and switch "
+            "to <i>Stored Meshes</i>. <i>Source: Auto</i> reads them too, "
+            "when they match the selection.",
             formatter=lambda n: n.rsplit("|", 1)[-1],
             noun="stored source mesh(es)",
-            empty_text="Nothing stored yet — the <i>Stored Source Meshes</i> "
-            "source has nothing to read from.",
+            empty_text="Nothing stored yet.",
             notes=(
                 [f"{len(missing)} no longer in the scene; they are skipped."]
                 if missing
@@ -1377,8 +1337,8 @@ class UvSlots(UvMixin, SlotsMaya):
         alive = [s for s in stored if cmds.objExists(s)]
         if not alive:
             return self.sb.message_box(
-                "<b>Nothing stored.</b><br>Use <i>Set Source From Selection</i> "
-                "to capture the source meshes first."
+                "<b>Nothing stored.</b><br>Store the source meshes with the "
+                "<b>+</b> icon on the Source row first."
                 if not stored
                 else "<b>None of the stored source meshes are still in the "
                 "scene.</b><br>Re-capture them."
@@ -1394,97 +1354,49 @@ class UvSlots(UvMixin, SlotsMaya):
     def b000(self, widget):
         """Transfer UVs OR textures -- one pass per run (see ``b000_init``)."""
         menu = widget.option_box.menu
-        mode = menu.cmb024.currentData() or "first"
+        mode = menu.cmb_tt_source.currentData() or self.SOURCE_AUTO
         scope = menu.cmb014.currentData() or "order"
         ordered = cmds.ls(orderedSelection=True, long=True, type="transform") or []
         if not ordered:
             ordered = cmds.ls(selection=True, long=True, type="transform") or []
-        transfer_mode = menu.cmb028.currentData()
-        auto = transfer_mode == self.TRANSFER_AUTO
-        # Source candidates, resolved ONCE and reused by the mode branches
-        # below: Auto's probe and the pass must read the SAME meshes, or the
-        # probe could decide from meshes the run then doesn't use.
-        first_source = self._tt_meshes(ordered[:1])
         stored_sources = [
             s for s in getattr(self, "_tt_sources", []) if cmds.objExists(s)
         ]
-        if auto and mode != "uvset":
-            # Resolved BEFORE the pass-dependent gates below (Output Name, the
-            # Similar-scope check): what Auto decides is what they must ask
-            # for. An empty probe resolves to the UV pass and falls through to
-            # the same selection errors a manual mode would hit.
-            transfer_mode = self._tt_resolve_auto(
-                mtk.TextureTransfer,
-                first_source if mode == "first" else stored_sources,
-            )
-        do_uvs, do_textures = self._tt_passes(mode, transfer_mode)
-        auto_note = self._tt_auto_note(auto, do_textures, mode)
-        if not (do_uvs or do_textures):
-            return self.sb.message_box(
-                "<b>Nothing to transfer.</b><br>The <i>UV Set On Same Mesh</i> "
-                "source has no second mesh to read a layout from, so it "
-                "transfers textures — pick a <b>Transfer</b> mode that "
-                "includes them."
-            )
-        # Checked before anything is touched: the texture pass writes files and
-        # builds a material, and finding out it had no name after the remap has
-        # already run costs the whole run.
-        out_name = menu.t_tt_name.text().strip()
-        if do_textures and not out_name:
-            return self.sb.message_box(
-                "<b>Output Name required.</b><br>Open the option box and name "
-                "the result — it names the new material and its maps." + auto_note
-            )
+        source_note = ""
+        if mode == self.SOURCE_AUTO:
+            # Resolved first: every gate below asks about a concrete mode. A
+            # combined target goes LAST so the Last branch reads it like a
+            # hand-ordered pick; otherwise the picks stay as picked -- a picked
+            # group is one side of the transfer, not a list of loose meshes.
+            meshes = self._tt_meshes(ordered)
+            mode, target = self._tt_auto_source(meshes, stored_sources)
+            if target is not None:
+                ordered = [m for m in meshes if m != target] + [target]
+            scope = "order"
+            source_note = self._tt_source_note(mode)
 
-        # ---- resolve source(s) and targets -------------------------------
-        # pairs: [(source, target), ...] for the UV pass (None = found by scope)
-        pairs = None
-        source = None
-        if mode == "uvset":
-            targets = self._tt_meshes(ordered)
-            if not targets:
-                return self.sb.message_box(
-                    "<b>Nothing selected.</b><br>Select the mesh(es) to transfer on."
-                )
-        elif mode == "first":
-            if not ordered or (scope != "scene" and len(ordered) < 2):
-                return self.sb.message_box(
-                    "<b>Select the source mesh first, then the target mesh(es).</b>"
-                )
-            source = first_source
-            if scope == "order":
-                targets = self._tt_meshes(ordered[1:])
-                pairs = [(source[0], t) for t in targets]
-            else:
-                if not do_uvs:
-                    return self.sb.message_box(
-                        "<b>The Similar scopes need a Transfer mode that "
-                        "includes UV Set</b> -- the UV pass is what finds their "
-                        "targets. Use Selection Order to transfer textures alone."
-                        + auto_note
-                    )
-                targets = None  # found by transfer_uvs_to_similar below
-        else:
+        # ---- source(s) and targets, per mode, ONCE ------------------------
+        # Auto's probe and the passes must read the SAME meshes. A picked group
+        # is all of its meshes on whichever side it was picked, so a source
+        # group pairs with a target group (by name, else order).
+        if mode == "first":
+            source = self._tt_meshes(ordered[:1])
+            targets = [m for m in self._tt_meshes(ordered[1:]) if m not in source]
+        elif mode == "last":
+            targets = self._tt_meshes(ordered[-1:])
+            source = [m for m in self._tt_meshes(ordered[:-1]) if m not in targets]
+        elif mode == "stored":
             source = stored_sources
-            if not source:
-                return self.sb.message_box(
-                    "<b>No stored source meshes.</b><br>Open the option box and use "
-                    "<i>Set Source From Selection</i> first."
-                )
-            targets = [t for t in self._tt_meshes(ordered) if t not in source]
-            if not targets:
-                return self.sb.message_box(
-                    "<b>Nothing selected.</b><br>Select the target mesh(es)."
-                )
-            try:
-                pairs = [
-                    (s, t)
-                    for t, s in mtk.TextureTransfer.pair_by_name(
-                        targets, source
-                    ).items()
-                ]
-            except ValueError as e:
-                return self.sb.message_box(f"<b>Transfer:</b><br>{e}")
+            targets = [m for m in self._tt_meshes(ordered) if m not in source]
+        else:  # uvset: every selected mesh moves between its own sets
+            source, targets = None, self._tt_meshes(ordered)
+
+        # Transfer: Auto, the Output Name and the gate: UvMixin's.
+        do_uvs, do_textures, out_name, pairs, targets, others, refusal = self._tt_plan(
+            menu, mode, scope, source, targets, source_note
+        )
+        if refusal:
+            return self.sb.message_box(refusal)
 
         report = []
         # Both passes are bulk engine calls with nothing to tick from the
@@ -1501,15 +1413,10 @@ class UvSlots(UvMixin, SlotsMaya):
             if do_uvs:
                 try:
                     if pairs is None:
-                        candidates = (
-                            self._tt_meshes(ordered[1:])
-                            if scope == "selection"
-                            else None
-                        )
                         targets = mtk.transfer_uvs_to_similar(
                             source[0],
-                            candidates,
-                            tolerance=menu.d000.value(),
+                            others if scope == "selection" else None,
+                            tolerance=self._tt_similarity_value(),
                         )
                         if not targets:
                             return self.sb.message_box(
@@ -1545,16 +1452,8 @@ class UvSlots(UvMixin, SlotsMaya):
             # ---- texture pass ----------------------------------------------
             if do_textures:
                 tick(text="Working: Transfer Textures")
-                report.append(
-                    self._tt_texture_pass(
-                        targets,
-                        source,
-                        menu,
-                        out_name,
-                        assign_shader_type=self._tt_assign_shader_type(),
-                    )
-                )
-        self.sb.message_box("<br><br>".join(report))
+                report.append(self._tt_texture_pass(targets, source, menu, out_name))
+        self.sb.message_box("<br><br>".join(report) + source_note)
 
     def b003(self):
         """Get texel density."""

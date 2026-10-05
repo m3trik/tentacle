@@ -61,7 +61,7 @@ class TclMaya(MarkingMenu):
         # Register the Maya hotkey-collision checker on the bundled
         # ShortcutEditor whenever it's built. Lazily wired so the editor
         # module stays unimported until the user opens it.
-        for _editor_name in ("shortcut", "global_shortcuts"):
+        for _editor_name in ("shortcut_editor", "global_shortcuts"):
             self.sb.editors.add_post_build_hook(
                 _editor_name,
                 lambda editor: editor.add_collision_checker(

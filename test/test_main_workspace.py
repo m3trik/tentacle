@@ -255,6 +255,7 @@ class _StubRow:
 
     def __init__(self, label, data, kwargs):
         self.label, self.data, self.kwargs = label, data, kwargs
+        self.sublist = _StubList()
 
     def item_data(self):
         return self.data
@@ -294,6 +295,7 @@ class TestSceneDirRow(unittest.TestCase):
             handlers=types.SimpleNamespace(
                 marking_menu=types.SimpleNamespace(hide=lambda: None)
             ),
+            message_box=lambda *a, **k: None,
         )
         self.list = _StubList()
 
@@ -321,6 +323,22 @@ class TestSceneDirRow(unittest.TestCase):
         with mock.patch.object(ptk.FileUtils, "open_explorer") as open_explorer:
             self.inst._dispatch_workspace_item(self.list.rows[0])
         open_explorer.assert_called_once_with(os.path.normpath(self.root))
+
+    def test_flyout_copy_path_puts_folder_on_clipboard(self):
+        """The row's flyout holds ``Copy Path``; a click puts the scene folder's
+        full (native) path on the clipboard."""
+        from unittest import mock
+
+        self.scene = os.path.join(self.root, "shot_010.ma").replace("\\", "/")
+        self.inst._add_scene_dir_row(self.list)
+        (copy_row,) = self.list.rows[0].sublist.rows
+        self.assertEqual(copy_row.label, "Copy Path")
+        clipboard = mock.Mock()
+        self.inst.sb.QtWidgets = types.SimpleNamespace(
+            QApplication=types.SimpleNamespace(clipboard=lambda: clipboard)
+        )
+        self.inst._dispatch_workspace_item(copy_row)
+        clipboard.setText.assert_called_once_with(os.path.normpath(self.root))
 
     def test_unsaved_scene_adds_nothing(self):
         self.inst._add_scene_dir_row(self.list)

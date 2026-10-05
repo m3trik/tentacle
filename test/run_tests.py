@@ -288,6 +288,27 @@ def _initialize_maya_standalone():
         pass
 
 
+def _sandbox_maya_workspace():
+    """Open a throwaway Maya project inside the sandbox temp root.
+
+    A tool that names no path writes into the CURRENT project, and a fresh Maya
+    opens the user's default one (a GUI Maya restores the project they last had
+    open) -- measured in mayatk's suite: a test fixture's ``untitled_EMask.png``
+    in a production project's sourceimages. Mirror of mayatk's
+    ``_suite_driver._sandbox_workspace``; the in-Maya dispatcher inlines the
+    same two calls. Never fatal.
+    """
+    try:
+        import pythontk as ptk
+        import mayatk as mtk
+
+        root = ptk.TempArtifacts("maya_workspace", policy="session").dir_path()
+        mtk.EnvUtils.create_workspace(root)
+        mtk.EnvUtils.set_current_workspace(root)
+    except Exception as exc:
+        print(f"# Warning: maya workspace sandbox not active: {exc!r} #")
+
+
 def _ensure_ecosystem_paths(monorepo: Path):
     """Push pythontk / uitk / mayatk onto sys.path when running under mayapy.
 
@@ -340,6 +361,17 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
             TestSandbox.activate()
         except Exception as _sandbox_error:
             print('# Warning: live-settings sandbox not active: %r #' % (_sandbox_error,))
+        # And off the user's real Maya project: a GUI Maya restores the one they
+        # last had open, and a tool that names no path writes into it
+        # (run_tests._sandbox_maya_workspace).
+        try:
+            import pythontk as _ptk
+            import mayatk as _mtk
+            _ws = _ptk.TempArtifacts('maya_workspace', policy='session').dir_path()
+            _mtk.EnvUtils.create_workspace(_ws)
+            _mtk.EnvUtils.set_current_workspace(_ws)
+        except Exception as _ws_error:
+            print('# Warning: maya workspace sandbox not active: %r #' % (_ws_error,))
 
         import __main__ as _main
         _main._tentacle_test_complete = False
@@ -677,6 +709,7 @@ def main():
     if args.include_slots:
         _ensure_ecosystem_paths(monorepo)
         _initialize_maya_standalone()
+        _sandbox_maya_workspace()
 
     # Try to verify package import
     try:

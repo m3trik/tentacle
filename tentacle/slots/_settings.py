@@ -159,15 +159,15 @@ class SettingsMixin:
 
     def b020(self):
         """UI Style Editor"""
-        self.sb.editors.show("style")
+        self.sb.editors.show("style_editor")
 
     def b021(self):
         """Shortcut Editor"""
-        self.sb.editors.show("shortcut")
+        self.sb.editors.show("shortcut_editor")
 
     def b022(self):
         """UI Browser: open the tentacle UI browser (search, show/hide registered UIs)."""
-        self.sb.editors.show("browser")
+        self.sb.editors.show("ui_browser")
 
     def b023(self):
         """Global Shortcuts: open the shortcut editor focused on the global
@@ -179,7 +179,7 @@ class SettingsMixin:
     def b024(self):
         """Preset Editor: every tool's presets in one window — lock, group into
         collections, back up, and import/share (uitk ``PresetEditor``)."""
-        self.sb.editors.show("presets")
+        self.sb.editors.show("preset_editor")
 
     # -------------------------------------------------------------------------
     # Marking Menu Bindings

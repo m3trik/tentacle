@@ -128,7 +128,8 @@ try:
     tgt = add_cube("Tgt", (3, 0, 0))
     # give the source distinct UVs to detect on the target
     btk.move_uvs(src, du=2.0)
-    src.select_set(True); tgt.select_set(True)
+    src.select_set(True)
+    tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
     slot = make_slot(UvSlots)
     # b000 is the one Transfer tool (UVs OR textures): Source = the active mesh, Scope =
@@ -141,18 +142,21 @@ try:
         message_box=uv_msgs.append,
         progress=lambda **k: contextlib.nullcontext(lambda *a, **kw: None),
     )
+    # The Similarity threshold is a row of the Targets combo's own option box, read off the
+    # slot (``_tt_similarity_value``), so the menu carries no ``d000``.
     slot.b000(
         option_box(
-            cmb024=combo("first"),
+            cmb_tt_source=combo("first"),
             cmb014=combo("order"),
-            cmb028=combo(UvSlots.TRANSFER_UVS),
-            d000=spin(0.9),
+            cmb_tt_transfer=combo(UvSlots.TRANSFER_UVS),
             t_tt_name=NS(text=lambda: ""),
         )
     )
 
     def min_u(o):
-        bm = bmesh.new(); bm.from_mesh(o.data); uvl = bm.loops.layers.uv.active
+        bm = bmesh.new()
+        bm.from_mesh(o.data)
+        uvl = bm.loops.layers.uv.active
         v = min(loop[uvl].uv.x for f in bm.faces for loop in f.loops)
         bm.free()
         return v
@@ -181,7 +185,9 @@ try:
 
     # ---- uv b029: pin dual-state toggle ------------------------------------------------------
     def pin_count(obj):
-        bm = bmesh.new(); bm.from_mesh(obj.data); uvl = bm.loops.layers.uv.active
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        uvl = bm.loops.layers.uv.active
         n = sum(1 for f in bm.faces for loop in f.loops if loop[uvl].pin_uv)
         bm.free()
         return n
@@ -234,12 +240,14 @@ try:
 
     # ---- crease b002: transfer crease (Data-Transfer CREASE) ----------------------------------
     reset()
-    src = add_cube("CSrc"); tgt = add_cube("CTgt", (3, 0, 0))
+    src = add_cube("CSrc")
+    tgt = add_cube("CTgt", (3, 0, 0))
     from tentacle.slots.blender.crease import CreaseSlots
 
     cslot = make_slot(CreaseSlots)
     btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
-    src.select_set(True); tgt.select_set(True)
+    src.select_set(True)
+    tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
     cslot.b002(None)
     crease_attr = tgt.data.attributes.get("crease_edge")
@@ -257,7 +265,8 @@ try:
 
     # ---- animation tb002/tb004/tb007/tb008 ----------------------------------------------------
     reset()
-    a = add_cube("A"); b = add_cube("B", (3, 0, 0))
+    a = add_cube("A")
+    b = add_cube("B", (3, 0, 0))
 
     def key_obj(o, frames):
         for f in frames:
@@ -268,7 +277,8 @@ try:
         return sorted(k.co.x for fc in btk.get_fcurves(o) for k in fc.keyframe_points)
 
     key_obj(a, (10, 20))
-    a.select_set(True); b.select_set(True)
+    a.select_set(True)
+    b.select_set(True)
     bpy.context.view_layer.objects.active = a
 
     slot = make_slot(AnimationSlots)
@@ -299,12 +309,19 @@ try:
            if k.select_control_point]
     check("animation tb013 selects keys in range", sel == [25.0], f"sel={sel}")
 
+    # Each object's selected keys move as ONE block, spacing kept, so every object's
+    # selection starts on one frame (btk.align_selected_keyframes, mirror of mtk's). A's
+    # selection starts at 10, B's (its key at 25 alone) at 25; Use Earliest Frame off
+    # elects the latest start.
     for k in [k for fc in btk.get_fcurves(a) for k in fc.keyframe_points]:
         k.select_control_point = True
-    slot.tb007(option_box(chk013=chk(True), spn000=spin(-1)))  # align selected to earliest (10)
-    # co-located keys on one fcurve merge — a single key at the target is the correct result
-    check("animation tb007 aligns selected keys (merged at target)",
-          key_times(a) == [10.0], f"{key_times(a)}")
+    for k in [k for fc in btk.get_fcurves(b) for k in fc.keyframe_points]:
+        k.select_control_point = k.co.x == 25.0
+    b_before = key_times(b)
+    slot.tb007(option_box(chk013=chk(False), spn000=spin(-1)))
+    check("animation tb007 aligns each object's selected keys as one block",
+          key_times(a) == [25.0, 40.0] and 25.0 in b_before and key_times(b) == b_before,
+          f"a={key_times(a)} b={b_before}->{key_times(b)}")
 
     # key hidden at current frame
     slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
@@ -559,14 +576,17 @@ try:
     # second click restores positions AND pins (the snapshot carries them).
     reset()
     o = uv_quads([(0.0, 0.0, 0.2, 0.1), (0.5, 0.5, 0.7, 0.6)])
-    bm = _bm.new(); bm.from_mesh(o.data); bm.faces.ensure_lookup_table()
+    bm = _bm.new()
+    bm.from_mesh(o.data)
+    bm.faces.ensure_lookup_table()
     uvl = bm.loops.layers.uv.active
     import math as _math
-    for l in bm.faces[1].loops:  # rotate the twin 37 deg about its center (0.6, 0.55)
-        x, y = l[uvl].uv.x - 0.6, l[uvl].uv.y - 0.55
+    for loop in bm.faces[1].loops:  # rotate the twin 37 deg about its center (0.6, 0.55)
+        x, y = loop[uvl].uv.x - 0.6, loop[uvl].uv.y - 0.55
         a = _math.radians(37)
-        l[uvl].uv = (0.6 + x * _math.cos(a) - y * _math.sin(a), 0.55 + x * _math.sin(a) + y * _math.cos(a))
-    bm.to_mesh(o.data); bm.free()
+        loop[uvl].uv = (0.6 + x * _math.cos(a) - y * _math.sin(a), 0.55 + x * _math.sin(a) + y * _math.cos(a))
+    bm.to_mesh(o.data)
+    bm.free()
     slot = make_slot(UvSlots)
     stack_w = option_box(cmb020=combo("similar"), s024=spin(1.0), chk047=chk(True))
     before = btk.get_uv_coords([o], pins=True)[o.name]

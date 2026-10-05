@@ -10,15 +10,15 @@ What it does:
     1. Adds the four ecosystem packages (pythontk, uitk, mayatk, tentacle)
        to PYTHONPATH so the slot modules can resolve their dependencies.
     2. Initializes maya.standalone (a fresh, in-process Maya — never
-       touches an existing Maya session, per the project's hard rule).
+       touches an existing Maya session, per the project's hard rule),
+       then opens a throwaway Maya project inside the test sandbox.
     3. Discovers and runs every test_*.py in this directory.
     4. Exits 0 on success, non-zero on failure.
 
-The runner is deliberately self-contained and does NOT rely on mayatk's
-MayaConnection / run_tests.py — slot tests are part of tentacle, and we
-keep the dependency direction one-way (tentacle → mayatk, not the reverse).
+It launches no Maya through mayatk's MayaConnection. From tentacle's own
+run_tests.py it takes one helper, ``_sandbox_maya_workspace``; importing
+that module also activates the live-settings ``TestSandbox``.
 """
-import os
 import sys
 import unittest
 from pathlib import Path
@@ -48,6 +48,12 @@ def _start_maya():
     import maya.standalone
 
     maya.standalone.initialize(name="python")
+    # Off the user's live settings and real Maya project, like run_tests.py:
+    # importing it activates the TestSandbox, and a tool that names no path
+    # writes into the CURRENT project, which mayapy opens as the user's default.
+    from run_tests import _sandbox_maya_workspace
+
+    _sandbox_maya_workspace()
 
 
 def _run() -> int:
@@ -63,7 +69,7 @@ def _run() -> int:
 
     print("=" * 72)
     print("Tentacle slot migration tests (Maya)")
-    print(f"  PYTHONPATH roots: pythontk, uitk, mayatk, tentacle")
+    print("  PYTHONPATH roots: pythontk, uitk, mayatk, tentacle")
     print(f"  Discovering from: {THIS_DIR}")
     print("=" * 72)
 

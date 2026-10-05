@@ -555,7 +555,7 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             QtWidgets.QApplication.processEvents()
 
     def test_browser_excludes_gesture_pages(self):
-        browser = self.mm.sb.editors.get("browser")
+        browser = self.mm.sb.editors.get("ui_browser")
         try:
             names = list(browser._model._names)
             self.assertTrue(names, "browser lists no entries at all")
