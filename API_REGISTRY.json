@@ -898,7 +898,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer option box.",
-              "line": 593,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -907,7 +907,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack button — non-checkable text button with the stack option box.",
-              "line": 1231,
+              "line": 1299,
               "deprecated": false
             },
             {
@@ -916,7 +916,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 1341,
+              "line": 1409,
               "deprecated": false
             },
             {
@@ -925,7 +925,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1345,
+              "line": 1413,
               "deprecated": false
             },
             {
@@ -934,7 +934,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1350,
+              "line": 1418,
               "deprecated": false
             },
             {
@@ -943,7 +943,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1354,
+              "line": 1422,
               "deprecated": false
             }
           ]
@@ -1250,7 +1250,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes (keys picked in the Dope Sheet / Graph Editor).",
-              "line": 960,
+              "line": 963,
               "deprecated": false
             },
             {
@@ -1259,7 +1259,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 978,
+              "line": 981,
               "deprecated": false
             },
             {
@@ -1268,7 +1268,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys (key viewport + render visibility).",
-              "line": 1040,
+              "line": 1043,
               "deprecated": false
             },
             {
@@ -1277,7 +1277,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1059,
+              "line": 1062,
               "deprecated": false
             },
             {
@@ -1286,7 +1286,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys (align the selection's keys to the current frame).",
-              "line": 1114,
+              "line": 1117,
               "deprecated": false
             },
             {
@@ -1295,7 +1295,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1141,
+              "line": 1144,
               "deprecated": false
             },
             {
@@ -1304,7 +1304,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys (from the active object;",
-              "line": 1171,
+              "line": 1174,
               "deprecated": false
             },
             {
@@ -1313,7 +1313,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1198,
+              "line": 1201,
               "deprecated": false
             },
             {
@@ -1322,7 +1322,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys (independent copies onto the selection).",
-              "line": 1219,
+              "line": 1222,
               "deprecated": false
             },
             {
@@ -1331,7 +1331,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1241,
+              "line": 1244,
               "deprecated": false
             },
             {
@@ -1340,7 +1340,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 1418,
+              "line": 1421,
               "deprecated": false
             },
             {
@@ -1349,7 +1349,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1464,
+              "line": 1467,
               "deprecated": false
             },
             {
@@ -1358,7 +1358,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Tangents (key interpolation type — stepped / linear / smooth).",
-              "line": 1496,
+              "line": 1499,
               "deprecated": false
             },
             {
@@ -1367,7 +1367,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range (to the keyed extent of the selection, or the whole scene).",
-              "line": 1506,
+              "line": 1509,
               "deprecated": false
             },
             {
@@ -1376,7 +1376,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1518,
+              "line": 1521,
               "deprecated": false
             },
             {
@@ -1385,7 +1385,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 1560,
+              "line": 1563,
               "deprecated": false
             },
             {
@@ -1394,7 +1394,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1574,
+              "line": 1577,
               "deprecated": false
             },
             {
@@ -1403,7 +1403,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render a per-object keyframe summary to the viewer dialog.",
-              "line": 1619,
+              "line": 1622,
               "deprecated": false
             },
             {
@@ -1412,7 +1412,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1653,
+              "line": 1656,
               "deprecated": false
             },
             {
@@ -1421,7 +1421,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1743,
+              "line": 1746,
               "deprecated": false
             },
             {
@@ -1430,7 +1430,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1775,
+              "line": 1778,
               "deprecated": false
             },
             {
@@ -1439,7 +1439,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;",
-              "line": 1834,
+              "line": 1837,
               "deprecated": false
             },
             {
@@ -1448,7 +1448,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1866,
+              "line": 1869,
               "deprecated": false
             },
             {
@@ -1457,7 +1457,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1878,
+              "line": 1881,
               "deprecated": false
             },
             {
@@ -1466,7 +1466,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 1902,
+              "line": 1905,
               "deprecated": false
             },
             {
@@ -1475,7 +1475,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1",
-              "line": 1907,
+              "line": 1910,
               "deprecated": false
             },
             {
@@ -1484,7 +1484,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with",
-              "line": 1914,
+              "line": 1917,
               "deprecated": false
             },
             {
@@ -1493,7 +1493,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:",
-              "line": 1921,
+              "line": 1924,
               "deprecated": false
             }
           ]
@@ -5092,7 +5092,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).",
-              "line": 749,
+              "line": 750,
               "deprecated": false
             },
             {
@@ -5101,7 +5101,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get Texel Density (into the s003 readout, against the cmb003 map size).",
-              "line": 870,
+              "line": 851,
               "deprecated": false
             },
             {
@@ -5110,7 +5110,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density (from the s003 value, against the cmb003 map size).",
-              "line": 879,
+              "line": 860,
               "deprecated": false
             },
             {
@@ -5119,7 +5119,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection",
-              "line": 888,
+              "line": 869,
               "deprecated": false
             },
             {
@@ -5128,7 +5128,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 908,
+              "line": 889,
               "deprecated": false
             },
             {
@@ -5137,7 +5137,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]",
-              "line": 944,
+              "line": 925,
               "deprecated": false
             },
             {
@@ -5146,7 +5146,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle: first click stacks the targeted",
-              "line": 971,
+              "line": 952,
               "deprecated": false
             },
             {
@@ -5155,7 +5155,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
-              "line": 1016,
+              "line": 997,
               "deprecated": false
             },
             {
@@ -5164,7 +5164,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
-              "line": 1021,
+              "line": 1002,
               "deprecated": false
             }
           ]
@@ -5372,7 +5372,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes",
-              "line": 1020,
+              "line": 1023,
               "deprecated": false
             },
             {
@@ -5381,7 +5381,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys Init",
-              "line": 1046,
+              "line": 1049,
               "deprecated": false
             },
             {
@@ -5390,7 +5390,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 1106,
+              "line": 1109,
               "deprecated": false
             },
             {
@@ -5399,7 +5399,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 1131,
+              "line": 1134,
               "deprecated": false
             },
             {
@@ -5408,7 +5408,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 1168,
+              "line": 1171,
               "deprecated": false
             },
             {
@@ -5417,7 +5417,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 1200,
+              "line": 1203,
               "deprecated": false
             },
             {
@@ -5426,7 +5426,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys: delete keys on the selection over a chosen time range.",
-              "line": 1240,
+              "line": 1243,
               "deprecated": false
             },
             {
@@ -5435,7 +5435,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 1258,
+              "line": 1261,
               "deprecated": false
             },
             {
@@ -5444,7 +5444,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 1306,
+              "line": 1309,
               "deprecated": false
             },
             {
@@ -5453,7 +5453,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 1323,
+              "line": 1326,
               "deprecated": false
             },
             {
@@ -5462,7 +5462,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys: select keys on the selection within a frame range.",
-              "line": 1383,
+              "line": 1386,
               "deprecated": false
             },
             {
@@ -5471,7 +5471,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1415,
+              "line": 1418,
               "deprecated": false
             },
             {
@@ -5480,7 +5480,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys: scale the selected keys in time about a pivot.",
-              "line": 1613,
+              "line": 1616,
               "deprecated": false
             },
             {
@@ -5489,7 +5489,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1690,
+              "line": 1693,
               "deprecated": false
             },
             {
@@ -5498,7 +5498,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1748,
+              "line": 1751,
               "deprecated": false
             },
             {
@@ -5507,7 +5507,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — initialize the option box.",
-              "line": 1816,
+              "line": 1819,
               "deprecated": false
             },
             {
@@ -5516,7 +5516,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1827,
+              "line": 1830,
               "deprecated": false
             },
             {
@@ -5525,7 +5525,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — option box.",
-              "line": 1885,
+              "line": 1888,
               "deprecated": false
             },
             {
@@ -5534,7 +5534,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render the report to the viewer dialog.",
-              "line": 1961,
+              "line": 1964,
               "deprecated": false
             },
             {
@@ -5543,7 +5543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents Init",
-              "line": 2009,
+              "line": 2012,
               "deprecated": false
             },
             {
@@ -5552,7 +5552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents — set stepped tangents on keys.",
-              "line": 2074,
+              "line": 2077,
               "deprecated": false
             },
             {
@@ -5561,7 +5561,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 2098,
+              "line": 2101,
               "deprecated": false
             },
             {
@@ -5570,7 +5570,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys: copy the selected objects' keys for later paste.",
-              "line": 2134,
+              "line": 2137,
               "deprecated": false
             },
             {
@@ -5579,7 +5579,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 2184,
+              "line": 2187,
               "deprecated": false
             },
             {
@@ -5588,7 +5588,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys: paste previously copied keys onto the selection.",
-              "line": 2207,
+              "line": 2210,
               "deprecated": false
             },
             {
@@ -5597,7 +5597,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 2239,
+              "line": 2242,
               "deprecated": false
             },
             {
@@ -5606,7 +5606,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 2333,
+              "line": 2336,
               "deprecated": false
             },
             {
@@ -5615,7 +5615,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 2384,
+              "line": 2387,
               "deprecated": false
             },
             {
@@ -5624,7 +5624,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 2388,
+              "line": 2391,
               "deprecated": false
             },
             {
@@ -5633,7 +5633,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 2392,
+              "line": 2395,
               "deprecated": false
             },
             {
@@ -5642,7 +5642,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 2396,
+              "line": 2399,
               "deprecated": false
             },
             {
@@ -5651,7 +5651,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Key Stash",
-              "line": 2400,
+              "line": 2403,
               "deprecated": false
             }
           ]
@@ -9941,7 +9941,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer UVs OR textures -- one pass per run (see ``b000_init``).",
-              "line": 1353,
+              "line": 1354,
               "deprecated": false
             },
             {
@@ -9950,7 +9950,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1484,
+              "line": 1458,
               "deprecated": false
             },
             {
@@ -9959,7 +9959,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1495,
+              "line": 1469,
               "deprecated": false
             },
             {
@@ -9968,7 +9968,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1506,
+              "line": 1480,
               "deprecated": false
             },
             {
@@ -9977,7 +9977,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1541,
+              "line": 1515,
               "deprecated": false
             },
             {
@@ -9986,7 +9986,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1570,
+              "line": 1544,
               "deprecated": false
             },
             {
@@ -9995,7 +9995,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1579,
+              "line": 1553,
               "deprecated": false
             },
             {
@@ -10004,7 +10004,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1614,
+              "line": 1588,
               "deprecated": false
             },
             {
@@ -10013,7 +10013,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1652,
+              "line": 1626,
               "deprecated": false
             },
             {
@@ -10022,7 +10022,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle).",
-              "line": 1676,
+              "line": 1650,
               "deprecated": false
             },
             {
@@ -10031,7 +10031,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1778,
+              "line": 1752,
               "deprecated": false
             },
             {
@@ -10040,7 +10040,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1782,
+              "line": 1756,
               "deprecated": false
             },
             {
@@ -10049,7 +10049,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 1786,
+              "line": 1760,
               "deprecated": false
             }
           ]
