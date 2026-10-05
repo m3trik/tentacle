@@ -1170,7 +1170,10 @@ class UvMixin:
         the engine is reported, not raised -- the UV pass may already have run.
         A blank *out_name* is derived from the source
         (:meth:`_tt_derived_name`) and said so; a TYPED one is recorded in the
-        field's history once the run produced a file.
+        field's history once the run produced a file. The engine names an
+        output beside a name held outside the run (``seat_1`` while another
+        object wears ``seat``), so the name it used is read back off its maps:
+        the report and the lightmap pass follow that, not *out_name*.
         """
         import os
 
@@ -1179,6 +1182,7 @@ class UvMixin:
         typed = bool(out_name)
         if not typed:
             out_name = self._tt_derived_name(source, targets)
+        named = out_name
         assign_prefix, assign_suffix = self._tt_material_affix()
         try:
             results = self._tt_engine()().transfer(
@@ -1214,14 +1218,28 @@ class UvMixin:
                     else ""
                 )
             )
+            # One layout's maps are `<name>_<Channel>.png`; several layouts are
+            # `<name>_<layout>` each, and the stem stands.
+            stems = {
+                os.path.basename(p).rsplit("_", 1)[0]
+                for v in results.values()
+                for p in v.values()
+            }
+            if len(results) == 1 and len(stems) == 1:
+                named = stems.pop()
         if source is not None and self._tt_lightmaps_checked(menu):
-            text, wrote = self._tt_lightmap_pass(targets, source, menu, out_name)
+            text, wrote = self._tt_lightmap_pass(targets, source, menu, named)
             lines.append(text)
             produced = produced or wrote
         if produced and not typed:
             lines.append(
-                f"Named <b>{out_name}</b> after the source — type an "
+                f"Named <b>{named}</b> after the source — type an "
                 "<b>Output Name</b> to choose another."
+            )
+        elif produced and named != out_name:
+            lines.append(
+                f"Named <b>{named}</b>: <b>{out_name}</b> is held outside this "
+                "run (another object's material, or a map one reads)."
             )
         recent = getattr(self, "_tt_name_recent", None)
         if produced and typed and recent is not None:
