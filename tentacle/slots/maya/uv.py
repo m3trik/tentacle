@@ -1452,9 +1452,7 @@ class UvSlots(UvMixin, SlotsMaya):
             # ---- texture pass ----------------------------------------------
             if do_textures:
                 tick(text="Working: Transfer Textures")
-                report.append(
-                    self._tt_texture_pass(targets, source, menu, out_name)
-                )
+                report.append(self._tt_texture_pass(targets, source, menu, out_name))
         self.sb.message_box("<br><br>".join(report) + source_note)
 
     def b003(self):
