@@ -28,6 +28,15 @@ for pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
 os.environ.setdefault("QT_API", "pyside6")
+# A throwaway Blender: keep its settings off the developer's live uitk stores.
+from uitk.testing import TestSandbox  # noqa: E402
+
+try:
+    TestSandbox.activate()
+except ImportError:  # a first launch: tentacle provisions Qt as it imports
+    from tentacle import tcl_blender  # noqa: E402, F401
+
+    TestSandbox.activate()
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 lines = []
@@ -322,6 +331,248 @@ try:
     check("animation tb007 aligns each object's selected keys as one block",
           key_times(a) == [25.0, 40.0] and 25.0 in b_before and key_times(b) == b_before,
           f"a={key_times(a)} b={b_before}->{key_times(b)}")
+
+    # The key edits carry the shot claims of the keys they touch (BACKLOG
+    # 2026-10-04): a key one REPLACES takes its claims with it, a key one MOVES
+    # carries them along -- left behind, a fade's claim passed to whatever key
+    # arrived on its frame, and the next Build deleted that animator key. Twin
+    # of tentacle/test/test_animation.py::TestAlignInvertReleaseShotClaims.
+    claims = btk.BlenderShotStore()
+    btk.BlenderShotStore.set_active(claims)
+    try:
+        def claimed(name, frames=(10, 20, 30), at=20.0, path="location"):
+            o = add_cube(name, (6, 0, 0))
+            key_obj(o, frames)
+            key = btk.BlenderShotStore.curve_key(o.name, path, 0)
+            if at is not None:
+                claims.edit_ledger.record_authored(key, at, 0, "fade_in", o.name)
+            bpy.ops.object.select_all(action="DESELECT")
+            o.select_set(True)
+            bpy.context.view_layer.objects.active = o
+            return o, key
+
+        def claimed_at(o):
+            return [round(t, 3) for _k, t in claims.edit_ledger.authored(obj=o.name)]
+
+        def select_keys(o, *frames):
+            for k in [k for fc in btk.get_fcurves(o) for k in fc.keyframe_points]:
+                k.select_control_point = any(abs(k.co.x - f) < 1e-3 for f in frames)
+
+        c, c_key = claimed("ClaimAlign")
+        select_keys(c, 10)
+        slot.tb007(option_box(chk013=chk(True), spn000=spin(20)))
+        check("animation tb007 releases the shot claims of the key it lands on",
+              key_times(c) == [20.0, 30.0]
+              and not claims.edit_ledger.owns_any(c_key, 20.0),
+              f"{key_times(c)} {claims.edit_ledger.to_dict()}")
+
+        def invert(time_value):
+            slot.tb001(option_box(cmb035=combo("horizontal"), s001=spin(time_value),
+                                  d000=spin(0.0), chk002=chk(False), chk005=chk(False)))
+
+        # The reversed copy at 0 (absolute): t' = 30 - t, so 10's copy lands on 20.
+        d, d_key = claimed("ClaimInvert")
+        invert(0)
+        check("animation tb001 releases the shot claims of the key its copy lands on",
+              key_times(d) == [0.0, 10.0, 20.0, 30.0]
+              and not claims.edit_ledger.owns_any(d_key, 20.0),
+              f"{key_times(d)} {claims.edit_ledger.to_dict()}")
+
+        # In place (Time = Auto): {10, 15, 25, 30} with a fade claimed at 15.
+        e, _e_key = claimed("ClaimMoved", (10, 15, 25, 30), at=15.0)
+        invert(-1)
+        check("animation tb001 carries a moved key's shot claims to its new frame",
+              claimed_at(e) == [25.0], f"{key_times(e)} {claims.edit_ledger.to_dict()}")
+
+        f_obj, _f_key = claimed("ClaimSpacing", (1, 10), at=10.0)
+        slot.tb002(option_box(s003=spin(5), s002=spin(6), chk004=chk(False),
+                              chk003=chk(False), cmb036=combo("objects"),
+                              chk021=chk(False)))
+        check("animation tb002 carries the shot claims of the keys it moves",
+              claimed_at(f_obj) == [15.0], f"{key_times(f_obj)}")
+
+        src = add_cube("XferSource", (6, 0, 0))
+        key_obj(src, (1, 10))
+        src_fc = btk.get_fcurves(src)[0]
+        src_fc.keyframe_points[0].co.y = 0.0  # the source holds 0 at frame 1
+        src_fc.update()
+        tgt, tgt_key = claimed("XferTarget", (1, 10), at=1.0)  # the target holds 1
+        src.select_set(True)
+        bpy.context.view_layer.objects.active = src
+        slot.tb004(option_box(chk006=chk(False), chk035=chk(False)))
+        xo_src, xo_key = claimed("XferOptSource", (0, 10, 20, 30), at=10.0)
+        for kp, v in zip(btk.get_fcurves(xo_src)[0].keyframe_points, (1.0, 1.0, 1.0, 5.0)):
+            kp.co.y = v  # 0..20 a flat run: the optimize drops 10
+        btk.get_fcurves(xo_src)[0].update()
+        xo_tgt = add_cube("XferOptTarget", (6, 0, 0))
+        key_obj(xo_tgt, (0, 5))
+        bpy.ops.object.select_all(action="DESELECT")
+        xo_tgt.select_set(True)
+        xo_src.select_set(True)
+        bpy.context.view_layer.objects.active = xo_src
+        slot.tb004(option_box(chk006=chk(False), chk035=chk(True)))
+        check("animation tb004 (optimize) releases the claims of the source keys it drops",
+              not claims.edit_ledger.owns_any(xo_key, 10.0),
+              f"{key_times(xo_src)} {claims.edit_ledger.to_dict()}")
+        check("animation tb004 releases the claims of a target key it replaces",
+              not claims.edit_ledger.owns_any(tgt_key, 1.0), f"{key_times(tgt)}")
+
+        g, g_key = claimed("ClaimMoveKeys", (1, 5, 10), at=5.0)
+        select_keys(g, 1)
+        bpy.context.scene.frame_set(5)
+        slot.tb006(option_box(chk012=chk(False), chk031=chk(True),
+                              cmb_align=combo("start")))
+        check("animation tb006 releases the shot claims of the key it lands on",
+              key_times(g) == [5.0, 10.0] and not claims.edit_ledger.owns_any(g_key, 5.0),
+              f"{key_times(g)}")
+
+        h, _h_key = claimed("ClaimVis", (1, 10), at=None)
+        for vis_path in ("hide_viewport", "hide_render"):
+            setattr(h, vis_path, False)
+            h.keyframe_insert(vis_path, frame=1)
+        h_key = btk.BlenderShotStore.curve_key(h.name, "hide_viewport", 0)
+        claims.edit_ledger.record_authored(h_key, 1.0, 0, "fade_in", h.name)
+        bpy.context.scene.frame_set(1)
+        slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
+                              cmb002=combo("current"), s008=spin(0), chk016=chk(False)))
+        check("animation tb008 releases the claims of a visibility key it replaces",
+              not claims.edit_ledger.owns_any(h_key, 1.0), f"{claims.edit_ledger.to_dict()}")
+
+        i, i_key = claimed("ClaimSnap", (1, 10), at=None)
+        btk.get_fcurves(i)[0].keyframe_points.insert(4.4, 4.0)
+        claims.edit_ledger.record_authored(i_key, 4.4, 0, "fade_in", i.name)
+        slot.tb009(option_box(chk017=chk(False), chk018=chk(False),
+                              cmb003=combo("nearest")))
+        check("animation tb009 carries the shot claims of the keys it snaps",
+              claimed_at(i) == [4.0], f"{key_times(i)} {claims.edit_ledger.to_dict()}")
+
+        j, j_key = claimed("ClaimPaste", (1, 10, 20), at=10.0)
+        select_keys(j, 20)
+        slot._copied_action = btk.copy_keys(j, mode="selected")
+        bpy.context.scene.frame_set(10)
+        slot.tb018(option_box(cmb039=combo("playhead")))
+        check("animation tb018 releases the shot claims of a key it pastes over",
+              not claims.edit_ledger.owns_any(j_key, 10.0), f"{key_times(j)}")
+
+        k_obj, _k_key = claimed("ClaimScale", (0, 10), at=10.0)
+        slot.tb014(option_box(cmb014=combo("uniform"),
+                              cmb_scale_pivot=NS(currentText=lambda: "Auto"),
+                              d001=spin(2.0),
+                              cmb_scale_mode=NS(currentText=lambda: "Relative"),
+                              cmb033=combo("single_group"), cmb034=combo("none"),
+                              s014=spin(64), chk_split_static=chk(False),
+                              chk_merge_touching=chk(False)))
+        check("animation tb014 carries the shot claims of the keys it scales",
+              claimed_at(k_obj) == [20.0], f"{key_times(k_obj)}")
+
+        # Stagger's Start Frame override re-times one object: 5..15 -> 20..30.
+        m_obj, _m_key = claimed("ClaimStagger", (5, 15), at=15.0)
+        slot.tb003(option_box(s005=spin(20), s004=spin(0), chk025=chk(False),
+                              chk008=chk(False), chk014=chk(False),
+                              chk029=chk(False), chk009=chk(False)))
+        check("animation tb003 carries the shot claims of the keys it staggers",
+              claimed_at(m_obj) == [30.0], f"{key_times(m_obj)}")
+
+        # A deleted key takes its claims with it, as a replaced one does.
+        n_obj, n_key = claimed("ClaimDelete", (1, 10, 20), at=10.0)
+        bpy.context.scene.frame_set(10)
+        slot.tb010(option_box(cmb004=combo("current")))
+        check("animation tb010 releases the shot claims of the keys it deletes",
+              key_times(n_obj) == [1.0, 20.0]
+              and not claims.edit_ledger.owns_any(n_key, 10.0),
+              f"{key_times(n_obj)} {claims.edit_ledger.to_dict()}")
+        _o_obj, o_key = claimed("ClaimClear", (1, 10, 20), at=10.0)
+        slot.tb010(option_box(cmb004=combo("all")))
+        check("animation tb010 (all) releases the claims of the animation it clears",
+              not claims.edit_ledger.owns_any(o_key, 10.0),
+              f"{claims.edit_ledger.to_dict()}")
+        p_obj, p_key = claimed("ClaimThin", (1, 10, 20), at=10.0)
+        slot.tb005(option_box(s021=spin(-1), s006=spin(-1), s007=spin(100),
+                              chk028=chk(False), chk027=chk(True)))
+        check("animation tb005 remove releases the shot claims of the keys it deletes",
+              key_times(p_obj) == [1.0, 20.0]
+              and not claims.edit_ledger.owns_any(p_key, 10.0),
+              f"{key_times(p_obj)} {claims.edit_ledger.to_dict()}")
+
+        sc = bpy.context.scene
+        frame_range = sc.frame_start, sc.frame_end
+        sc.frame_start, sc.frame_end = 1, 30
+        q_obj, q_key = claimed("ClaimUntie", (5, 10), at=None)
+        btk.tie_keyframes([q_obj])  # bookends at 1 and 30
+        claims.edit_ledger.record_authored(q_key, 30.0, 0, "fade_out", q_obj.name)
+        slot.tb011(option_box(cmb_tie=NS(currentText=lambda: "Untie"),
+                              chk023=chk(False)))
+        check("animation tb011 untie releases the claims of the bookends it deletes",
+              key_times(q_obj) == [5.0, 10.0]
+              and not claims.edit_ledger.owns_any(q_key, 30.0),
+              f"{key_times(q_obj)} {claims.edit_ledger.to_dict()}")
+        sc.frame_start, sc.frame_end = frame_range
+
+        r_obj, r_key = claimed("ClaimOptimize", (0, 10, 20, 30), at=10.0)
+        r_fc = btk.get_fcurves(r_obj)[0]
+        for kp, v in zip(r_fc.keyframe_points, (1.0, 1.0, 1.0, 5.0)):
+            kp.co.y = v  # 0..20 a flat run: 10 is its redundant interior
+        r_fc.update()
+        r_obj.location.y = 3.0
+        for f in (0, 10):
+            r_obj.keyframe_insert(data_path="location", index=1, frame=f)  # static
+        ry_key = btk.BlenderShotStore.curve_key(r_obj.name, "location", 1)
+        claims.edit_ledger.record_authored(ry_key, 0.0, 0, "fade_in", r_obj.name)
+        slot.tb019(option_box(chk000=chk(True), chk030=chk(True), chk032=chk(False),
+                              chk040=chk(False), d017=spin(0.001)))
+        check("animation tb019 releases the claims of the keys and curves it deletes",
+              not claims.edit_ledger.owns_any(r_key, 10.0)
+              and not claims.edit_ledger.owns_any(ry_key, 0.0),
+              f"{key_times(r_obj)} {claims.edit_ledger.to_dict()}")
+
+        s_obj, s_key = claimed("ClaimRepair", (1, 10, 20), at=1.0)
+        btk.get_fcurves(s_obj)[0].keyframe_points[0].co.y = 1e9
+        slot.tb015(option_box(chk036=chk(False), chk037=chk(True), chk038=chk(True),
+                              d015=spin(1e6), d016=spin(1e6)))
+        check("animation tb015 releases the claims of the keys it deletes",
+              key_times(s_obj) == [10.0, 20.0]
+              and not claims.edit_ledger.owns_any(s_key, 1.0),
+              f"{key_times(s_obj)} {claims.edit_ledger.to_dict()}")
+
+        # Undo pairing: with claims the edit is the store's scene_edit, one undo
+        # step whose restore point (taken BEFORE it) brings the released claim
+        # back -- what the sequencer's undo listener applies when Blender
+        # undoes that step.  With no claims, no restore point at all.
+        u, u_key = claimed("ClaimUndo")
+        select_keys(u, 10)
+        bpy.ops.ed.undo_push(message="before the align")
+        depth = len(claims._boundary_undo)
+        slot.tb007(option_box(chk013=chk(True), spn000=spin(20)))
+        tag = claims.peek_boundary_tag()
+        released = not claims.edit_ledger.owns_any(u_key, 20.0)
+        bpy.ops.ed.undo()
+        u = bpy.data.objects["ClaimUndo"]  # memfile undo replaced the object
+        serial_back = btk.BlenderShotStore.edit_serial() != (tag or (None, None))[1]
+        restored = claims.restore_boundary_snapshot()
+        check("animation tb007 with claims: undo brings the released claim back",
+              released and len(claims._boundary_undo) == depth
+              and isinstance(tag, tuple) and tag[0] is True and serial_back
+              and restored and key_times(u) == [10.0, 20.0, 30.0]
+              and claims.edit_ledger.owns_any(u_key, 20.0),
+              f"tag={tag} serial={btk.BlenderShotStore.edit_serial()} "
+              f"{key_times(u)} {claims.edit_ledger.to_dict()}")
+
+        bare = btk.BlenderShotStore()
+        btk.BlenderShotStore.set_active(bare)
+        v, _v_key = claimed("NoClaims", at=None)
+        select_keys(v, 10)
+        slot.tb007(option_box(chk013=chk(True), spn000=spin(20)))
+        check("animation tb007 with no claims pushes no restore point",
+              key_times(v) == [20.0, 30.0] and not bare.has_boundary_snapshot(),
+              f"{key_times(v)}")
+    finally:
+        btk.BlenderShotStore.clear_active()
+        bpy.ops.object.select_all(action="DESELECT")  # A and B, as tb008 expects
+        a = bpy.data.objects["A"]  # an undo above may have replaced them
+        b = bpy.data.objects["B"]
+        a.select_set(True)
+        b.select_set(True)
+        bpy.context.view_layer.objects.active = a
 
     # key hidden at current frame
     slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
@@ -690,6 +941,57 @@ try:
     slot.sb = NS(message_box=msgs.append)
     slot.cmb002(2, NS(items=rig_items))  # nothing active -> message
     check("rigging cmb002 generate without a meta-rig messages", len(msgs) == 1, f"{msgs}")
+
+    # ---- rigging tb003: mayatk's locator rig; a bare locator typed a Maya locator ----------
+    def affix(text=""):  # an affix field in the picker's Scene state
+        return NS(text=lambda t=text: t, option_box=NS(affix_mode="convention"))
+
+    tb003_box = option_box(
+        t000=affix(), t001=affix(), t002=affix(), s001=spin(1.5), cmb011=combo("zyx"),
+        cmb012=combo("ring"), **{f"chk00{i}": chk(False) for i in range(5, 10)},
+    )
+    reset()
+    crate = add_cube("Crate", (2, 0, 1))
+    slot = make_slot(RiggingSlots)
+    slot.tb003(tb003_box)
+    loc = crate.parent
+    check("rigging tb003 rigs the selection under a zeroed zyx locator, left selected",
+          loc is not None and loc.rotation_mode == "ZYX"
+          and tuple(loc.location) == (0.0, 0.0, 0.0)
+          and loc.get("maya_node_type") == "locator"
+          and list(bpy.context.view_layer.objects.selected) == [loc],
+          f"parent={loc and loc.name} loc={loc and tuple(loc.location)}")
+    grp = loc and loc.parent
+    check("rigging tb003 cmb012 'ring' draws the group as a circle",
+          grp is not None and grp.empty_display_type == "CIRCLE",
+          f"{grp and grp.empty_display_type}")
+    reset()
+    slot.tb003(tb003_box)  # nothing selected -> a lone locator
+    bare = bpy.context.view_layer.objects.active
+    check("rigging tb003 with nothing selected adds a typed locator Empty",
+          bare is not None and bare.type == "EMPTY"
+          and bare.get("maya_node_type") == "locator"
+          and abs(bare.empty_display_size - 1.5) < 1e-6 and bare.rotation_mode == "ZYX",
+          f"{bare and bare.name} {bare and bare.get('maya_node_type')!r}")
+
+    # ---- edit Create > Helper: a Locator and a Null Group, each typed its Maya node --------
+    from tentacle.slots.blender.edit import EditSlots
+
+    reset()
+    EditSlots._HELPERS["Locator"]()
+    helper = bpy.context.view_layer.objects.active
+    check("edit Create > Helper > Locator adds a typed locator Empty",
+          helper is not None and helper.type == "EMPTY"
+          and helper.get("maya_node_type") == "locator",
+          f"{helper and helper.name}")
+    reset()
+    EditSlots._HELPERS["Null Group"]()  # childless: untyped, it read as a locator
+    null = bpy.context.view_layer.objects.active
+    check("edit Create > Helper > Null Group adds a typed group Empty, its arrows kept",
+          null is not None and null.get("maya_node_type") == "group"
+          and btk.NodeUtils.is_group(null) and null.empty_display_type == "ARROWS"
+          and abs(null.empty_display_size - 1.0) < 1e-6,
+          f"{null and null.get('maya_node_type')!r} {null and null.empty_display_size}")
 
     # ---- nurbs b056: image tracer resolves real ops -----------------------------------------
     from tentacle.slots.blender.nurbs import NurbsSlots

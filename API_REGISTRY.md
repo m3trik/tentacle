@@ -134,7 +134,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 Text the animation panel's Maya and Blender forks say identically.
 
-- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L37)** — Shared tooltip text for ``slots/{maya,blender}/animation.py``.
+- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
   - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
 
 <a id="slots--_display"></a>
@@ -262,7 +262,7 @@ Behavior shared by the Maya and Blender ``rigging`` panels.
 
 Behavior shared by the Maya and Blender ``scene`` panels.
 
-- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L43)** — Shared ``scene`` panel behavior.
+- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L44)** — Shared ``scene`` panel behavior.
   - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
   - `SceneMixin.b019(self)` — Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.
@@ -707,7 +707,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `RiggingSlots.tb001_init(self, widget)`
   - `RiggingSlots.tb001(self, widget)` — Constraint Switch — drive the active object's constraints' influence from a single custom
   - `RiggingSlots.tb003_init(self, widget)`
-  - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection — an Empty (locator) at each selected object's origin,
+  - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection — a zeroed locator Empty at each selected object's
   - `RiggingSlots.tb004_init(self, widget)`
   - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).
   - `RiggingSlots.cmb002_init(self, widget)`

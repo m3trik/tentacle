@@ -9,6 +9,7 @@ perf; ``test_blender_slots``: launcher/add-on surface, cross-DCC objectName sema
 M2 shared-UI contract). AST-based: no DCC runtime needed. A new DCC slot package is covered
 by adding one entry to ``DCCS``.
 """
+
 import ast
 import collections
 import unittest
@@ -35,9 +36,7 @@ def _slot_files(dcc):
     d = SLOTS_ROOT / dcc
     skip = {"__init__.py", f"_slots_{dcc}.py"}
     return sorted(
-        f
-        for f in d.glob("*.py")
-        if f.name not in skip and not f.name.startswith("__")
+        f for f in d.glob("*.py") if f.name not in skip and not f.name.startswith("__")
     )
 
 
@@ -171,14 +170,16 @@ SCENE_HANDOFF = {
     "maya": ("Import Blender Scene", "Export .blend"),
     "blender": ("Import Maya Scene", "Export .ma"),
 }
-#: The format BOTH Scene forks read and write: the same labels on either side (a
+#: The formats BOTH Scene forks read and write: the same labels on either side (a
 #: tentacle slot must not branch on the host to offer it), same rules as above.
-SCENE_USD = ("Import USD", "Export USD")
+#: Maya's glTF rows ride the bridge (import) and FBX2glTF (export); Blender's are
+#: native operators -- the label pair is the contract, not the route.
+SCENE_SHARED_FORMATS = (("Import USD", "Export USD"), ("Import glTF", "Export glTF"))
 
 
 def _scene_list_pairs(dcc):
     """Every (Import label, Export label) pair the *dcc* Scene lists must carry."""
-    return (SCENE_HANDOFF[dcc], SCENE_USD)
+    return (SCENE_HANDOFF[dcc], *SCENE_SHARED_FORMATS)
 
 
 def _dict_entries(class_node, name):
@@ -257,7 +258,9 @@ class TestSceneHandoffSymmetry(unittest.TestCase):
 
     def test_each_entry_calls_a_method_that_exists(self):
         """The lists dispatch by item TEXT, so a lambda naming a missing method dies at
-        click time with no compile-time error."""
+        click time with no compile-time error. A string entry is a host-native
+        operator id (Blender's ``export_scene.gltf``), dispatched by the fork itself
+        and not resolvable offline, so only its presence is pinned."""
         for dcc in SCENE_HANDOFF:
             if dcc not in DCCS:
                 continue
@@ -271,14 +274,15 @@ class TestSceneHandoffSymmetry(unittest.TestCase):
             for registry, label in entries:
                 entry = _dict_entries(cls, registry).get(label)
                 with self.subTest(dcc=dcc, label=label):
+                    if isinstance(entry, ast.Constant) and isinstance(entry.value, str):
+                        continue
                     self.assertIsInstance(
                         entry, ast.Lambda, f"{label} must be a callable entry"
                     )
                     called = [
                         n.func.attr
                         for n in ast.walk(entry)
-                        if isinstance(n, ast.Call)
-                        and isinstance(n.func, ast.Attribute)
+                        if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
                     ]
                     self.assertTrue(
                         any(name in defined for name in called),

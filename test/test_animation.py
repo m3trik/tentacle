@@ -31,10 +31,13 @@ What's worth pinning at this layer:
 """
 
 import ast
+import contextlib
 import re
+import sys
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from types import SimpleNamespace
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
 
@@ -697,6 +700,87 @@ class TestAnimationClaimRegressions(unittest.TestCase):
                 )
 
 
+class _FakeShotStore:
+    """A shot store class: ``active()`` is the store, or raises *error*."""
+
+    def __init__(self, claims=True, error=None):
+        self.edit_ledger = ["claim"] if claims else []
+        self.error = error
+        self.edits = []
+
+    def active(self):
+        if self.error is not None:
+            raise self.error
+        return self
+
+    @contextlib.contextmanager
+    def key_edit(self, label, objects=None):
+        self.edits.append((label, objects))
+        yield "on_replace", "on_move"
+
+
+class TestSharedKeyEdit(unittest.TestCase):
+    """``AnimationMixin._key_edit``: the one wrapper both forks' key edits run
+    under, so the shot claims of the keys they touch follow them.
+
+    The forks called ``ShotStore.active().key_edit(...)`` at 34 sites, and
+    ``active()`` raises ``ValueError`` on an unreadable shot record (it never
+    reads one as empty): every hooked Animation-panel edit then raised, where it
+    ran before key edits carried claims (BACKLOG 2026-10-05, claim hooks (3)).
+    """
+
+    @staticmethod
+    def _host(store):
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        from tentacle.slots._animation import AnimationMixin
+
+        class _Host(AnimationMixin):
+            def _shot_store_class(self):
+                return store
+
+        return _Host()
+
+    def test_claims_ride_the_store_s_key_edit(self):
+        store = _FakeShotStore()
+        with self._host(store)._key_edit("alignkeys", ["a"]) as hooks:
+            pass
+        self.assertEqual(hooks, ("on_replace", "on_move"))
+        self.assertEqual(store.edits, [("alignkeys", ["a"])])
+
+    def test_an_unreadable_shot_record_still_runs_the_edit_unhooked(self):
+        store = _FakeShotStore(error=ValueError("not a readable record"))
+        ran = []
+        with self.assertLogs("tentacle.slots._animation", "WARNING"):
+            with self._host(store)._key_edit("alignkeys") as hooks:
+                ran.append(hooks)
+        self.assertEqual(ran, [(None, None)])
+
+    def test_the_edit_s_own_error_is_not_swallowed(self):
+        """Only the store's unreadable record is caught, never the edit's."""
+        for store in (_FakeShotStore(), _FakeShotStore(error=ValueError("bad"))):
+            with self.subTest(readable=store.error is None):
+                with self.assertRaises(ValueError):
+                    with self._host(store)._key_edit("x"):
+                        raise ValueError("the edit's own")
+
+    def test_claimed_only_hands_no_hooks_to_a_store_that_claims_nothing(self):
+        store = _FakeShotStore(claims=False)
+        with self._host(store)._key_edit("optimizekeys", claimed_only=True) as hooks:
+            pass
+        self.assertEqual(hooks, (None, None))
+        self.assertEqual(store.edits, [])
+
+    def test_both_forks_route_every_key_edit_through_the_wrapper(self):
+        for dcc, path in SLOT_MODULES.items():
+            with self.subTest(dcc=dcc):
+                source = path.read_text(encoding="utf-8")
+                self.assertIn("def _shot_store_class(", source)
+                self.assertNotIn("ShotStore.active()", source)
+                self.assertNotIn(".key_edit(", source)
+                self.assertIn("self._key_edit(", source)
+
+
 class TestRepairSectionCoverage(unittest.TestCase):
     """What the Repair section promises to be able to fix."""
 
@@ -1104,6 +1188,404 @@ class TestTb017StepKeysModeTranslation(unittest.TestCase):
         self.instance.tb017(widget)
         self.assertEqual(self.recorded_keys, [])  # never called
         self.assertTrue(self.instance.sb.messages, "User must be told why nothing ran")
+
+
+def _chk(state):
+    return SimpleNamespace(isChecked=lambda: state)
+
+
+def _val(value):
+    return SimpleNamespace(value=lambda: value)
+
+
+def _combo(data, text=""):
+    return SimpleNamespace(
+        currentData=lambda: data,
+        currentText=lambda: text,
+        currentIndex=lambda: 0,
+        itemData=lambda _i: data,
+    )
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestAlignInvertReleaseShotClaims(unittest.TestCase):
+    """The key edits carry the shot claims of the keys they touch: a key one
+    REPLACES takes its claims with it (``ShotStore.release_replaced``) and a
+    key one MOVES carries them along (``ShotStore.remap_moved``), both handed
+    over by the store's ``key_edit``.
+
+    A claim left behind passed to whatever key arrived on its frame -- a
+    manifest fade's claim on an animator key, which the next Build deleted as a
+    dropped behavior (BACKLOG 2026-10-04). The sequencer's own key menu
+    released them; these panel buttons did not. The Blender fork's twin checks
+    are in ``blender/deepened_slots_check.py``.
+    """
+
+    def setUp(self):
+        import mayatk as mtk
+
+        self.mtk = mtk
+        cmds.file(new=True, force=True)
+        self.addCleanup(cmds.file, new=True, force=True)
+        self.instance = animation_module.AnimationSlots.__new__(
+            animation_module.AnimationSlots
+        )
+        self.instance.sb = _RecordedSb()
+        self.store = mtk.ShotStore()
+        mtk.ShotStore.set_active(self.store)
+        self.addCleanup(mtk.ShotStore.clear_active)
+
+    def _claimed(self, name, frames, at=20.0):
+        """A selected cube keyed on *frames* (value = frame), a fade claiming
+        its key at *at* (none when ``None``)."""
+        obj = cmds.polyCube(name=name)[0]
+        for t in frames:
+            cmds.setKeyframe(obj, attribute="translateX", time=t, value=t)
+        crv = cmds.keyframe(obj, attribute="translateX", query=True, name=True)[0]
+        if at is not None:
+            self.store.edit_ledger.record_authored(crv, at, 0, "fade_in", obj)
+        cmds.select(obj, replace=True)
+        return crv
+
+    def _claimed_frames(self):
+        return [round(t, 3) for _crv, t in self.store.edit_ledger.authored()]
+
+    @staticmethod
+    def _select_keys(crv, *times):
+        cmds.selectKey(clear=True)
+        for t in times:
+            cmds.selectKey(crv, time=(t, t), add=True)
+
+    @staticmethod
+    def _widget(**controls):
+        return SimpleNamespace(
+            option_box=SimpleNamespace(menu=SimpleNamespace(**controls))
+        )
+
+    def _align(self, frame):
+        self.instance.tb007(self._widget(chk013=_chk(True), spn000=_val(frame)))
+
+    def _invert(self):
+        self.instance.tb001(
+            self._widget(
+                cmb035=_combo("horizontal"),
+                s001=_val(-1),
+                d000=_val(0.0),
+                chk002=_chk(True),
+                chk005=_chk(False),
+            )
+        )
+
+    def test_align_releases_the_claims_of_the_key_it_lands_on(self):
+        crv = self._claimed("claim_align", (10, 20, 30))
+        self._select_keys(crv, 10)
+
+        self._align(20)
+
+        led = self.store.edit_ledger
+        self.assertFalse(led.owns_any(crv, 20.0), led.to_dict())
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [20.0, 30.0]
+        )
+
+    def test_invert_releases_the_claims_of_the_key_it_lands_on(self):
+        crv = self._claimed("claim_invert", (10, 15, 20, 25))
+        self._select_keys(crv, 10, 15, 25)  # over [10, 25]: 15 lands on 20
+
+        self._invert()
+
+        led = self.store.edit_ledger
+        self.assertFalse(led.owns_any(crv, 20.0), led.to_dict())
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [10.0, 20.0, 25.0]
+        )
+
+    def test_invert_carries_the_claims_of_a_key_it_moves(self):
+        """The in-place Invert of {10, 15, 25, 30} with a fade claimed at 15
+        leaves the claim on the key now at 25."""
+        self._claimed("claim_moved", (10, 15, 25, 30), at=15.0)
+        cmds.selectKey(clear=True)
+
+        self._invert()
+
+        self.assertEqual(self._claimed_frames(), [25.0])
+
+    def test_adjust_spacing_carries_the_claims_of_the_keys_it_moves(self):
+        self._claimed("claim_spacing", (1, 10), at=10.0)
+
+        self.instance.tb002(
+            self._widget(
+                s003=_val(5),
+                s002=_val(6),
+                chk004=_chk(False),
+                chk003=_chk(False),
+                cmb036=_combo("objects"),
+                chk021=_chk(False),
+            )
+        )
+
+        self.assertEqual(self._claimed_frames(), [15.0])
+
+    def test_transfer_releases_the_claims_of_a_target_key_it_replaces(self):
+        source = cmds.polyCube(name="xfer_source")[0]
+        for t, v in ((1, 0.0), (10, 10.0)):
+            cmds.setKeyframe(source, attribute="translateX", time=t, value=v)
+        target = self._claimed("xfer_target", (1, 10), at=1.0)  # 1 holds 1.0
+        cmds.select([source, "xfer_target"], replace=True)
+        cmds.selectKey(clear=True)
+
+        self.instance.tb004(
+            self._widget(chk006=_chk(False), chk007=_chk(False), chk035=_chk(False))
+        )
+
+        self.assertFalse(self.store.edit_ledger.owns_any(target, 1.0))
+
+    def test_move_keys_releases_the_claims_of_a_key_it_lands_on(self):
+        crv = self._claimed("claim_move", (1, 5, 10), at=5.0)
+        self._select_keys(crv, 1)
+        cmds.currentTime(5)
+
+        self.instance.tb006(
+            self._widget(
+                chk031=_chk(True),
+                chk012=_chk(False),
+                chk033=_chk(False),
+                cmb_align=_combo("start"),
+            )
+        )
+
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 5.0))
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [5.0, 10.0]
+        )
+
+    def test_visibility_keys_release_the_claims_of_a_key_they_replace(self):
+        obj = cmds.polyCube(name="claim_vis")[0]
+        cmds.setKeyframe(obj, attribute="translateX", time=1, value=0)
+        cmds.setKeyframe(obj, attribute="translateX", time=10, value=1)
+        cmds.setKeyframe(obj, attribute="visibility", time=1, value=1)
+        crv = cmds.keyframe(obj, attribute="visibility", query=True, name=True)[0]
+        self.store.edit_ledger.record_authored(crv, 1.0, 0, "fade_in", obj)
+        cmds.select(obj, replace=True)
+
+        self.instance.tb008(
+            self._widget(
+                cmb_visibility=_combo(None, "Hidden"),
+                cmb002=_combo("start"),
+                s008=_val(0),
+                chk016=_chk(False),
+            )
+        )
+
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 1.0))
+
+    def test_snap_carries_the_claims_of_the_keys_it_moves(self):
+        crv = self._claimed("claim_snap", (1, 10), at=None)
+        cmds.setKeyframe("claim_snap", attribute="translateX", time=4.4, value=4)
+        self.store.edit_ledger.record_authored(crv, 4.4, 0, "fade_in", "claim_snap")
+
+        self.instance.tb009(
+            self._widget(
+                cmb003=_combo("nearest"), chk017=_chk(False), chk018=_chk(False)
+            )
+        )
+
+        self.assertEqual(self._claimed_frames(), [4.0])
+
+    def test_paste_releases_the_claims_of_a_key_it_replaces(self):
+        crv = self._claimed("claim_paste", (1, 10, 20), at=10.0)
+        self._select_keys(crv, 20)
+        self.instance._stored_attributes = self.mtk.AnimUtils.copy_keys(
+            ["claim_paste"], mode="selected"
+        )
+        cmds.currentTime(10)
+
+        self.instance.tb018(self._widget(cmb039=_combo("playhead")))
+
+        self.assertEqual(
+            cmds.keyframe(crv, query=True, time=(10, 10), valueChange=True), [20.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 10.0))
+
+    def test_scale_carries_the_claims_of_the_keys_it_moves(self):
+        """tb014 carries claims as the Blender fork's does (parity)."""
+        self._claimed("claim_scale", (0, 10), at=10.0)
+        cmds.selectKey(clear=True)
+
+        self.instance.tb014(
+            self._widget(
+                cmb014=_combo("uniform"),
+                d001=_val(2.0),
+                chk_channel_box=_chk(False),
+                cmb_scale_mode=_combo(None, "Relative"),
+                chk_split_static=_chk(True),
+                chk_merge_touching=_chk(False),
+                cmb033=_combo("single_group"),
+                cmb034=_combo("nearest"),
+                s014=_val(64),
+            )
+        )
+
+        self.assertEqual(self._claimed_frames(), [20.0])
+
+    def test_stagger_carries_the_claims_of_the_keys_it_moves(self):
+        lead = cmds.polyCube(name="stagger_lead")[0]
+        for t in (0, 10):
+            cmds.setKeyframe(lead, attribute="translateX", time=t, value=t)
+        self._claimed("claim_stagger", (5, 15), at=15.0)  # starts after the lead
+        cmds.select([lead, "claim_stagger"], replace=True)
+        cmds.selectKey(clear=True)
+
+        self.instance.tb003(
+            self._widget(
+                s004=_val(0),
+                s005=_val(-1),
+                chk025=_chk(False),
+                chk008=_chk(False),
+                chk009=_chk(False),
+                chk014=_chk(False),
+                chk029=_chk(False),
+                chk024=_chk(False),
+            )
+        )
+
+        self.assertEqual(self._claimed_frames(), [20.0])
+
+    # -- a deleted key takes its claims with it --------------------------------
+
+    def test_delete_keys_releases_the_claims_of_the_keys_it_deletes(self):
+        crv = self._claimed("claim_delete", (1, 10, 20), at=10.0)
+        cmds.currentTime(10)
+
+        self.instance.tb010(self._widget(cmb004=_combo("current"), chk020=_chk(False)))
+
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [1.0, 20.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 10.0))
+
+    def test_remove_intermediate_keys_releases_the_claims_of_the_keys_it_deletes(
+        self,
+    ):
+        crv = self._claimed("claim_thin", (1, 10, 20), at=10.0)
+
+        self.instance.tb005(
+            self._widget(
+                chk027=_chk(True),
+                chk028=_chk(False),
+                s021=_val(-1),
+                s006=_val(-1),
+                s007=_val(0),
+            )
+        )
+
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [1.0, 20.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 10.0))
+
+    def test_untie_releases_the_claims_of_the_bookends_it_deletes(self):
+        crv = self._claimed("claim_untie", (5, 10), at=None)
+        cmds.playbackOptions(minTime=1, maxTime=20)
+        self.mtk.AnimUtils.tie_keyframes(["claim_untie"])  # bookends at 1 and 20
+        self.store.edit_ledger.record_authored(crv, 20.0, 0, "fade_out", "claim_untie")
+
+        self.instance.tb011(
+            self._widget(cmb_tie=_combo(None, "Untie"), chk023=_chk(False))
+        )
+
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [5.0, 10.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 20.0))
+
+    def test_optimize_releases_the_claims_of_the_keys_and_curves_it_deletes(self):
+        import contextlib
+
+        obj = cmds.polyCube(name="claim_optimize")[0]
+        for t, v in ((0, 1), (10, 1), (20, 1), (30, 5)):
+            cmds.setKeyframe(obj, attribute="translateX", time=t, value=v)
+        for t in (0, 10):  # held at its default: static, so deleted (lossless)
+            cmds.setKeyframe(obj, attribute="translateY", time=t, value=0)
+        tx = cmds.keyframe(obj, attribute="translateX", query=True, name=True)[0]
+        ty = cmds.keyframe(obj, attribute="translateY", query=True, name=True)[0]
+        led = self.store.edit_ledger
+        led.record_authored(tx, 10.0, 0, "fade_in", obj)  # a flat key
+        led.record_authored(ty, 0.0, 0, "fade_in", obj)  # on a static curve
+        cmds.select(obj, replace=True)
+        self.instance.sb.progress = contextlib.contextmanager(
+            lambda **_kw: (yield lambda *a, **k: None)
+        )
+        self.instance.sb.progress_adapter = lambda update: update
+
+        self.instance.tb019(
+            self._widget(
+                chk000=_chk(True),
+                chk030=_chk(True),
+                chk032=_chk(False),
+                chk040=_chk(False),
+                d017=_val(0.001),
+            )
+        )
+
+        self.assertFalse(cmds.objExists(ty))
+        self.assertEqual(led.authored(), [], led.to_dict())
+
+    def test_repair_releases_the_claims_of_the_keys_it_deletes(self):
+        crv = self._claimed("claim_repair", (1, 10, 20), at=1.0)
+        cmds.keyframe(crv, edit=True, valueChange=1e9, index=(0, 0))
+
+        self.instance.tb015(
+            self._widget(
+                chk036=_chk(False),
+                chk037=_chk(True),
+                chk038=_chk(True),
+                d015=_val(1e6),
+                d016=_val(1e6),
+            )
+        )
+
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [10.0, 20.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 1.0))
+
+    # -- undo pairing: a store with claims makes the edit its scene_edit -----
+
+    def test_undoing_a_panel_align_puts_back_the_claim_it_released(self):
+        """With claims the edit runs inside the store's ``scene_edit``: one
+        undo step paired with a restore point taken BEFORE it, so the restore
+        the sequencer's undo listener applies when Maya undoes that step brings
+        the released claim back with its key."""
+        cmds.undoInfo(state=True, infinity=True)
+        crv = self._claimed("claim_undo", (10, 20, 30))
+        self._select_keys(crv, 10)
+
+        self._align(20)
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 20.0))
+        paired, marker = self.store.peek_boundary_tag()
+        self.assertTrue(paired, "the restore point is not paired with Maya's step")
+
+        cmds.undo()
+        self.assertEqual(self.mtk.ShotStore.undo_queue_top(redo=True), marker)
+        self.assertTrue(self.store.restore_boundary_snapshot())
+
+        self.assertTrue(self.store.edit_ledger.owns_authored(crv, 20.0))
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)),
+            [10.0, 20.0, 30.0],
+        )
+
+    def test_a_scene_with_no_claims_gets_no_restore_point(self):
+        crv = self._claimed("no_claims", (10, 20, 30), at=None)
+        self._select_keys(crv, 10)
+
+        self._align(20)
+
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)), [20.0, 30.0]
+        )
+        self.assertFalse(self.store.has_boundary_snapshot())
 
 
 if __name__ == "__main__":

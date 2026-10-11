@@ -13,6 +13,11 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         self.ui = self.sb.loaded_ui.animation
         self.ui_submenu = self.sb.loaded_ui.animation_submenu
 
+    @staticmethod
+    def _shot_store_class():
+        """The shot store the key edits' claims live in (AnimationMixin hook)."""
+        return mtk.ShotStore
+
     #: ``category -> [(label, objectName, tooltip)]`` for the header Tools list
     #: (was five separator sections of loose header buttons).
     _TOOLS_ITEMS = {
@@ -347,13 +352,18 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         time = None if time_value == -1 else time_value
 
         try:
-            mtk.invert_keys(
-                time=time,
-                relative=relative,
-                delete_original=delete_original,
-                mode=mode,
-                value_pivot=value_pivot,
-            )
+            # A key the mirror lands on is replaced and one it moves carries its
+            # shot claims along; with claims it is one undo step with them.
+            with self._key_edit("invertkeys") as (rep, mov):
+                mtk.invert_keys(
+                    time=time,
+                    relative=relative,
+                    delete_original=delete_original,
+                    mode=mode,
+                    value_pivot=value_pivot,
+                    on_replace=rep,
+                    on_move=mov,
+                )
         except RuntimeError as e:
             self.sb.message_box(
                 "<strong>Nothing to invert</strong>.<br>"
@@ -493,15 +503,19 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         # Use None when -1 to use current playhead time
         time = None if time_value == -1 else time_value
 
-        mtk.adjust_key_spacing(
-            objects,
-            spacing=amount,
-            time=time,
-            relative=relative,
-            preserve_keys=preserve_keys,
-            selected_keys_only=selected_keys_only,
-            exact_gap=exact_gap,
-        )
+        # The keys it moves (and any it lands on) carry their shot claims along.
+        with self._key_edit("adjustspacing", objects) as (rep, mov):
+            mtk.adjust_key_spacing(
+                objects,
+                spacing=amount,
+                time=time,
+                relative=relative,
+                preserve_keys=preserve_keys,
+                selected_keys_only=selected_keys_only,
+                exact_gap=exact_gap,
+                on_replace=rep,
+                on_move=mov,
+            )
 
     def tb003_init(self, widget):
         """Stagger Keys Init"""
@@ -676,19 +690,24 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         start_frame = start_frame_value if start_frame_value != -1 else None
 
         selected_objects = cmds.ls(sl=True) or []
-        mtk.stagger_keys(
-            selected_objects,
-            start_frame=start_frame,
-            spacing=spacing,
-            use_intervals=use_intervals,
-            avoid_overlap=True,
-            invert=invert,
-            smooth_tangents=smooth_tangents,
-            group_overlapping=group_overlapping,
-            merge_touching=merge_touching,
-            channel_box_attrs_only=channel_box_only,
-            verbose=True,
-        )
+        # The keys it re-times carry their shot claims along; a segment laid on
+        # the next one's start key replaces it, and takes its claims.
+        with self._key_edit("staggerkeys", selected_objects) as (rep, mov):
+            mtk.stagger_keys(
+                selected_objects,
+                start_frame=start_frame,
+                spacing=spacing,
+                use_intervals=use_intervals,
+                avoid_overlap=True,
+                invert=invert,
+                smooth_tangents=smooth_tangents,
+                group_overlapping=group_overlapping,
+                merge_touching=merge_touching,
+                channel_box_attrs_only=channel_box_only,
+                verbose=True,
+                on_replace=rep,
+                on_move=mov,
+            )
 
     def tb004_init(self, widget):
         """Transfer Keys Init"""
@@ -752,12 +771,17 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         optimize = widget.option_box.menu.chk035.isChecked()
 
         selected_objects = cmds.ls(sl=True) or []
-        mtk.transfer_keyframes(
-            selected_objects,
-            relative=relative,
-            transfer_tangents=tangents,
-            optimize=optimize,
-        )
+        # A target key a transferred one replaces takes its shot claims with it,
+        # and so does a source key the optimize deletes.
+        with self._key_edit("transferkeys") as (rep, _mov):
+            mtk.transfer_keyframes(
+                selected_objects,
+                relative=relative,
+                transfer_tangents=tangents,
+                optimize=optimize,
+                on_replace=rep,
+                on_delete=rep,
+            )
 
     def tb005_init(self, widget):
         """Add/Remove Intermediate Keys Init"""
@@ -876,10 +900,12 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             time_range = (start_time_value, end_time_value)
 
         if remove_mode:
-            # Remove intermediate keys with time_range
-            keys_removed = mtk.remove_intermediate_keys(
-                objects, time_range, ignore=ignore
-            )
+            # Remove intermediate keys with time_range; a removed key takes its
+            # shot claims with it, as a replaced one does.
+            with self._key_edit("removekeys", objects) as (rep, _mov):
+                keys_removed = mtk.remove_intermediate_keys(
+                    objects, time_range, ignore=ignore, on_delete=rep
+                )
             if keys_removed > 0:
                 self.sb.message_box(f"Removed {keys_removed} intermediate keyframe(s).")
             else:
@@ -936,18 +962,7 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         cmb = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb_align",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Align",
-                body="Which end of the moved key range lands on the current frame.",
-                bullets=[
-                    "<b>Start</b> — the earliest key lands there; the animation "
-                    "runs forward from the playhead.",
-                    "<b>End</b> — the latest key lands there; the animation "
-                    "arrives at the playhead.",
-                    "<b>Auto</b> — picks whichever end is nearer: End when the "
-                    "range's midpoint sits before the playhead, Start otherwise.",
-                ],
-            ),
+            setToolTip=self.sb.tooltip.fmt(**self.TIP_MOVE_ALIGN),
         )
         for text, data in [
             ("Align: Auto", "auto"),
@@ -967,13 +982,18 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         if not objects:
             self.sb.message_box("You must select at least one object or set of keys.")
             return
-        mtk.move_keys_to_frame(
-            objects,
-            selected_keys_only=selected_keys_only,
-            retain_spacing=retain_spacing,
-            channel_box_attrs_only=channel_box_attrs_only,
-            align=align,
-        )
+        # A key the move lands on is replaced and one it moves carries its shot
+        # claims along.
+        with self._key_edit("movekeys", objects) as (rep, mov):
+            mtk.move_keys_to_frame(
+                objects,
+                selected_keys_only=selected_keys_only,
+                retain_spacing=retain_spacing,
+                channel_box_attrs_only=channel_box_attrs_only,
+                align=align,
+                on_replace=rep,
+                on_move=mov,
+            )
 
     def tb007_init(self, widget):
         """Align Selected Keyframes Init"""
@@ -1035,11 +1055,16 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             )
             return
 
-        result = mtk.align_selected_keyframes(
-            objects,
-            target_frame=target_frame,
-            use_earliest=use_earliest,
-        )
+        # A key the block lands on is replaced and one it moves carries its shot
+        # claims along; with claims it is one undo step with them.
+        with self._key_edit("alignkeys", objects) as (rep, mov):
+            result = mtk.align_selected_keyframes(
+                objects,
+                target_frame=target_frame,
+                use_earliest=use_earliest,
+                on_replace=rep,
+                on_move=mov,
+            )
 
         if not result:
             self.sb.message_box(
@@ -1118,13 +1143,16 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        result = mtk.set_visibility_keys(
-            selected_objects,
-            visible=visible,
-            when=when,
-            offset=offset,
-            group_overlapping=group_overlapping,
-        )
+        # A visibility key of the other state it replaces takes its shot claims.
+        with self._key_edit("visibilitykeys") as (rep, _mov):
+            result = mtk.set_visibility_keys(
+                selected_objects,
+                visible=visible,
+                when=when,
+                offset=offset,
+                group_overlapping=group_overlapping,
+                on_replace=rep,
+            )
 
         if result == 0:
             self.sb.message_box(
@@ -1186,12 +1214,15 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             self.sb.message_box("You must select at least one object.")
             return
 
-        result = mtk.snap_keys_to_frames(
-            selected_objects,
-            method=method,
-            selected_only=selected_only,
-            time_range=time_range,
-        )
+        # The keys it snaps carry their shot claims along (a taken frame is skipped).
+        with self._key_edit("snapkeys") as (_rep, mov):
+            result = mtk.snap_keys_to_frames(
+                selected_objects,
+                method=method,
+                selected_only=selected_only,
+                time_range=time_range,
+                on_move=mov,
+            )
 
         if result == 0:
             self.sb.message_box(
@@ -1256,7 +1287,9 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             kwargs["time"] = time_param
         if channel_box_only:
             kwargs["channel_box_only"] = True
-        mtk.delete_keys(objects, **kwargs)
+        # A deleted key takes its shot claims with it, as a replaced one does.
+        with self._key_edit("deletekeys", objects) as (rep, _mov):
+            mtk.delete_keys(objects, on_delete=rep, **kwargs)
 
     def tb011_init(self, widget):
         """Tie/Untie Keyframes Init"""
@@ -1318,8 +1351,10 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
 
         if untie_mode:
             # untie removes exactly the recorded/detected bookends — the
-            # absolute-range option only applies when tying.
-            mtk.untie_keyframes(objects=objects)
+            # absolute-range option only applies when tying.  A removed
+            # bookend takes its shot claims with it.
+            with self._key_edit("untiekeys", objects) as (rep, _mov):
+                mtk.untie_keyframes(objects=objects, on_delete=rep)
         else:
             mtk.tie_keyframes(objects=objects, absolute=absolute)
 
@@ -1649,24 +1684,29 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
         # Get samples parameter for speed mode
         samples = widget.option_box.menu.s014.value() if mode == "speed" else None
 
-        # Call the method with updated API (factor param serves both modes)
-        keys_scaled = mtk.scale_keys(
-            objects=selected_objects,
-            factor=factor,
-            mode=mode,
-            pivot=None,  # Auto-detect pivot
-            keys=keys,
-            channel_box_attrs_only=channel_box_only,
-            group_mode=group_mode,
-            snap_mode=snap_mode,
-            samples=samples,
-            include_rotation=include_rotation,
-            absolute=absolute_mode,
-            split_static=split_static,
-            merge_touching=merge_touching,
-            prevent_overlap=True,
-            verbose=True,
-        )
+        # Call the method with updated API (factor param serves both modes).
+        # A key the scale (or its snap) lands on is replaced and one it moves
+        # carries its shot claims along, as in the Blender fork.
+        with self._key_edit("scalekeys", selected_objects) as (rep, mov):
+            keys_scaled = mtk.scale_keys(
+                objects=selected_objects,
+                factor=factor,
+                mode=mode,
+                pivot=None,  # Auto-detect pivot
+                keys=keys,
+                channel_box_attrs_only=channel_box_only,
+                group_mode=group_mode,
+                snap_mode=snap_mode,
+                samples=samples,
+                include_rotation=include_rotation,
+                absolute=absolute_mode,
+                split_static=split_static,
+                merge_touching=merge_touching,
+                prevent_overlap=True,
+                verbose=True,
+                on_replace=rep,
+                on_move=mov,
+            )
 
         # Report results
         if keys_scaled > 0:
@@ -1778,17 +1818,20 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             objects = None
             scope_label = "entire scene"
 
-        # Call the repair method
-        result = mtk.Diagnostics.repair_corrupted_curves(
-            objects=objects,
-            recursive=True,
-            delete_corrupted=delete_corrupted,
-            fix_infinite=fix_infinite,
-            fix_invalid_times=fix_invalid_times,
-            time_range_threshold=time_threshold,
-            value_threshold=value_threshold,
-            quiet=False,
-        )
+        # Call the repair method; a key (or curve) it deletes takes
+        # its shot claims with it.
+        with self._key_edit("repaircurves", objects) as (rep, _mov):
+            result = mtk.Diagnostics.repair_corrupted_curves(
+                objects=objects,
+                recursive=True,
+                delete_corrupted=delete_corrupted,
+                fix_infinite=fix_infinite,
+                fix_invalid_times=fix_invalid_times,
+                time_range_threshold=time_threshold,
+                value_threshold=value_threshold,
+                quiet=False,
+                on_delete=rep,
+            )
 
         # Format and display results
         corrupted = result["corrupted_found"]
@@ -1856,7 +1899,10 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             self.sb.message_box(f"No animation curves found on {scope_label}.")
             return
 
-        snapped = mtk.AnimUtils.snap_keys_to_frames(curves, method=method)
+        with self._key_edit("snapkeys") as (_rep, mov):
+            snapped = mtk.AnimUtils.snap_keys_to_frames(
+                curves, method=method, on_move=mov
+            )
         if not snapped:
             self.sb.message_box(f"No keys on {scope_label} sit on a fractional frame.")
             return
@@ -2158,9 +2204,11 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             if not objects:
                 self.sb.message_box("You must select at least one object.")
                 return
-            keys_set = mtk.AnimUtils.paste_keys(
-                objects, copied_data=self._stored_attributes
-            )
+            # A pasted key that replaces one takes its shot claims with it.
+            with self._key_edit("pastekeys") as (rep, _mov):
+                keys_set = mtk.AnimUtils.paste_keys(
+                    objects, copied_data=self._stored_attributes, on_replace=rep
+                )
             if keys_set > 0:
                 self.sb.message_box(
                     f"Copied and pasted values to {keys_set} object(s)."
@@ -2223,9 +2271,14 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             getattr(self, "_stored_frame", None) if paste_mode == "source" else None
         )
 
-        keys_set = mtk.AnimUtils.paste_keys(
-            objects, copied_data=self._stored_attributes, target_time=target_time
-        )
+        # A pasted key that replaces one takes its shot claims with it.
+        with self._key_edit("pastekeys") as (rep, _mov):
+            keys_set = mtk.AnimUtils.paste_keys(
+                objects,
+                copied_data=self._stored_attributes,
+                target_time=target_time,
+                on_replace=rep,
+            )
 
         if keys_set > 0:
             msg = f"Pasted values to {keys_set} object(s)."
@@ -2352,18 +2405,22 @@ class AnimationSlots(AnimationMixin, SlotsMaya):
             return
 
         stats = {}
-        with self.sb.progress(text="Working: Optimize Keys") as update:
-            mtk.AnimUtils.optimize_keys(
-                objects,
-                value_tolerance=tolerance,
-                remove_static_curves=remove_static,
-                remove_flat_keys=remove_flat,
-                simplify_keys=simplify,
-                recursive=True,
-                quiet=True,
-                stats=stats,
-                progress_callback=self.sb.progress_adapter(update),
-            )
+        # A key (or curve) it deletes takes its shot claims with it.  Nothing
+        # claimed: no hook, so a production scene pays no key-time reads.
+        with self._key_edit("optimizekeys", objects, claimed_only=True) as (rep, _):
+            with self.sb.progress(text="Working: Optimize Keys") as update:
+                mtk.AnimUtils.optimize_keys(
+                    objects,
+                    value_tolerance=tolerance,
+                    remove_static_curves=remove_static,
+                    remove_flat_keys=remove_flat,
+                    simplify_keys=simplify,
+                    recursive=True,
+                    quiet=True,
+                    stats=stats,
+                    progress_callback=self.sb.progress_adapter(update),
+                    on_delete=rep,
+                )
 
         kb = stats.get("keys_before", 0)
         ka = stats.get("keys_after", 0)

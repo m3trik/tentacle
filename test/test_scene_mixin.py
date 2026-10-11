@@ -14,6 +14,7 @@ needed; this runs everywhere). AST checks pin that both DCC slots actually mix
 the shared class in, supply every hook, and do NOT carry their own copy of a
 shared method.
 """
+
 import ast
 import os
 import sys
@@ -68,7 +69,7 @@ FORK_MUST_NOT_DEFINE = (
     # hand copy under another name, until both became this one.
     "_pull_scene",
     "_import_usd",
-    "_export_usd",
+    "_export_one_shot",
     "_write_native",
     # Get Scene Info: the two forks' copies had drifted (a 100k Generic budget
     # on Blender's tooltip against the engine's 20,000; no progress bar).
@@ -119,9 +120,24 @@ class _FakeProgress:
 # here instead of in a live DCC.
 QT_STANDARD_BUTTONS = frozenset(
     {
-        "Ok", "Open", "Save", "Cancel", "Close", "Discard", "Apply", "Reset",
-        "RestoreDefaults", "Help", "SaveAll", "Yes", "YesToAll", "No",
-        "NoToAll", "Abort", "Retry", "Ignore",
+        "Ok",
+        "Open",
+        "Save",
+        "Cancel",
+        "Close",
+        "Discard",
+        "Apply",
+        "Reset",
+        "RestoreDefaults",
+        "Help",
+        "SaveAll",
+        "Yes",
+        "YesToAll",
+        "No",
+        "NoToAll",
+        "Abort",
+        "Retry",
+        "Ignore",
     }
 )
 
@@ -244,9 +260,7 @@ class TestTb002Flow(unittest.TestCase):
     def test_fix_flow_confirms_fixes_and_reverifies_fresh(self):
         host = _Host(_FakeDiagnostics(DIAGNOSIS), scene=["|grp|bad", "own"])
         host.tb002(_widget(scope="all"))
-        self.assertEqual(
-            [c[0] for c in host._diag.calls], ["detect", "fix", "detect"]
-        )
+        self.assertEqual([c[0] for c in host._diag.calls], ["detect", "fix", "detect"])
         # Confirmation states the count, the inherited breakdown, and the
         # DCC-specific effect before anything is touched.
         confirm = host.sb.messages[0]
@@ -491,7 +505,9 @@ class TestToolsList(unittest.TestCase):
 class _FakeBridge:
     """Stand-in for mtk.BlenderBridge / btk.MayaBridge (the attrs the mixin reads)."""
 
-    def __init__(self, name="Blender", extensions=(".blend",), result=None, raises=None):
+    def __init__(
+        self, name="Blender", extensions=(".blend",), result=None, raises=None
+    ):
         self.spec = _Attr(app=_Attr(name=name))
         self.save_extensions = tuple(extensions)
         self.calls = []
@@ -518,10 +534,12 @@ class _ExportHost(_Host):
         self._scene_path = scene_path
         self._picked = picked
         self.sb.save_file_dialog = self._save_file_dialog
-        self.sb.QtWidgets = _Attr(QApplication=_Attr(
-            setOverrideCursor=lambda *a: self.cursors.append("set"),
-            restoreOverrideCursor=lambda *a: self.cursors.append("restore"),
-        ))
+        self.sb.QtWidgets = _Attr(
+            QApplication=_Attr(
+                setOverrideCursor=lambda *a: self.cursors.append("set"),
+                restoreOverrideCursor=lambda *a: self.cursors.append("restore"),
+            )
+        )
         self.sb.QtCore = _Attr(Qt=_Attr(WaitCursor=object()))
         self.cursors = []
         self.dialog_kwargs = None
@@ -561,7 +579,8 @@ class TestExportFormats(unittest.TestCase):
 
     def test_transfer_items_are_pythontk_s_carrier_vocabulary(self):
         self.assertEqual(
-            [d for _, d in _ExportHost.EXPORT_TRANSFER_ITEMS], list(ptk.CARRIER_EXTENSIONS)
+            [d for _, d in _ExportHost.EXPORT_TRANSFER_ITEMS],
+            list(ptk.CARRIER_EXTENSIONS),
         )
         self.assertEqual(_ExportHost.EXPORT_TRANSFER_ITEMS[0], ("FBX", "fbx"))
 
@@ -589,7 +608,9 @@ class TestExportFormats(unittest.TestCase):
         host = _ExportHost(
             self.bridge, scene_path="P:/proj/asset.ma", picked="P:/out/thing.glb"
         )
-        self.assertEqual(host._resolve_export_path("prompt", ".glb"), "P:/out/thing.glb")
+        self.assertEqual(
+            host._resolve_export_path("prompt", ".glb"), "P:/out/thing.glb"
+        )
         self.assertEqual(
             host.dialog_kwargs["start_dir"], os.path.join("P:/proj", "asset.glb")
         )
@@ -606,7 +627,9 @@ class TestExportFormats(unittest.TestCase):
         """Qt does not reliably add the filter's suffix, and the writer picks its
         translator off the extension."""
         host = _ExportHost(self.bridge, picked="X:/bare_name")
-        self.assertEqual(host._resolve_export_path("prompt", ".obj"), "X:/bare_name.obj")
+        self.assertEqual(
+            host._resolve_export_path("prompt", ".obj"), "X:/bare_name.obj"
+        )
 
     def test_prompt_mode_cancels_cleanly(self):
         host = _ExportHost(self.bridge, picked=None)
@@ -827,9 +850,7 @@ class TestForeignExport(unittest.TestCase):
 
     def test_the_list_entry_prompts_then_delegates(self):
         bridge = _FakeBridge(result={"output": "X:/a.blend", "duration": 2.0})
-        host = _ExportHost(
-            bridge, scene_path="P:/proj/asset.ma", picked="X:/a.blend"
-        )
+        host = _ExportHost(bridge, scene_path="P:/proj/asset.ma", picked="X:/a.blend")
         host._export_foreign_scene()
         # Whole scene: no object list is passed.
         self.assertEqual(bridge.calls, [("X:/a.blend", None)])
@@ -859,10 +880,7 @@ def _export_widget(fmt="fbx", scope="all", save="scene_dir", transfer="fbx", **c
         cmb_transfer=_Attr(currentData=lambda: transfer),
         cmb_scope=_Attr(currentData=lambda: scope),
         cmb_save=_Attr(currentData=lambda: save),
-        **{
-            name: _Attr(isChecked=lambda v=value: v)
-            for name, value in state.items()
-        },
+        **{name: _Attr(isChecked=lambda v=value: v) for name, value in state.items()},
     )
     return _Attr(option_box=_Attr(menu=menu))
 
@@ -1088,7 +1106,7 @@ class TestUsdListEntries(unittest.TestCase):
         host = _PullHost(
             _FakeBridge(), scene_path="P:/proj/asset.ma", picked="X:/out/asset.usd"
         )
-        host._export_usd()
+        host._export_one_shot("usd")
         self.assertEqual(len(host.native), 1)
         export_format, out_path, options = host.native[0]
         self.assertEqual((export_format, out_path), ("usd", "X:/out/asset.usd"))
@@ -1109,14 +1127,37 @@ class TestUsdListEntries(unittest.TestCase):
         ):
             with self.subTest(picked=picked):
                 host = _PullHost(_FakeBridge(), picked=picked)
-                host._export_usd()
+                host._export_one_shot("usd")
                 self.assertEqual(host.native[0][1], written)
 
     def test_export_usd_cancel_writes_nothing(self):
         host = _PullHost(_FakeBridge(), picked=None)
-        host._export_usd()
+        host._export_one_shot("usd")
         self.assertEqual(host.native, [])
         self.assertEqual(host.sb.messages, [])
+
+    def test_export_glb_one_shot_writes_the_whole_scene_as_glb(self):
+        """Maya's Export glTF entry: the same one-shot body, GLB's own prompt."""
+        host = _PullHost(
+            _FakeBridge(), scene_path="P:/proj/asset.ma", picked="X:/out/hero"
+        )
+        host._export_one_shot("glb")
+        self.assertEqual(
+            host.native, [("glb", "X:/out/hero.glb", host.ONE_SHOT_EXPORT_OPTIONS)]
+        )
+        self.assertEqual(host.dialog_kwargs["file_types"], ["*.glb"])
+        self.assertEqual(
+            host.dialog_kwargs["start_dir"], os.path.join("P:/proj", "asset.glb")
+        )
+
+    def test_one_shot_passes_export_scene_s_dense_gate(self):
+        """A whole-scene GLB rides FBX with tangents on -- the cost Export Scene
+        warns about -- so a dense scene asks first, and a No writes nothing."""
+        host = _PullHost(_FakeBridge(), picked="X:/out/hero.glb", dense_ok=False)
+        host._export_one_shot("glb")
+        self.assertEqual(host.dense_calls, [(False, True)])
+        self.assertEqual(host.native, [])
+        self.assertIsNone(host.dialog_kwargs)  # cancelled before the prompt
 
     def test_export_scene_s_usd_prompt_takes_the_same_spellings(self):
         """The shared path fixes Export Scene too: a typed .usdz used to come back

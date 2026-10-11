@@ -16,7 +16,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
     Import / Export expandable lists route through Blender's native format operators
     (file dialogs via ``INVOKE_DEFAULT``) -- except USD, which goes through
     ``btk.UsdUtils``' interchange import / export (``SceneMixin._import_usd`` /
-    ``_export_usd``): the stock importer skips hidden prims and folds single-child
+    ``_export_one_shot``): the stock importer skips hidden prims and folds single-child
     groups away, and the stock exporter drops hidden objects in every mode.
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
     Scene Exporter and Hierarchy Sync are native blendertk panels, both 1:1 with mayatk's:
@@ -39,10 +39,11 @@ class SceneSlots(SceneMixin, SlotsBlender):
     _IMPORTERS = {
         "Import FBX": "import_scene.fbx",
         "Import OBJ": "wm.obj_import",
-        # Mirrors the Maya fork's "Import glTF" (which has to reach it through the
-        # headless-Blender bridge — Maya ships no glTF importer). Here it is native,
-        # so the parity is in the LABEL and the result, not the mechanism.
-        "Import glTF": "import_scene.gltf",
+        # Through the engine (SceneMixin._import_gltf), not the stock operator:
+        # Blender's importer refuses a KTX2 file whole ("Extension
+        # KHR_texture_basisu is not available"), and the engine imports a decoded
+        # copy -- natively, the way the Maya fork's conversion reads it.
+        "Import glTF": lambda slot: slot._import_gltf(),
         # A callable, not "wm.usd_import": the stock operator's defaults skip
         # hidden prims and fold single-child groups away (SceneMixin._import_usd).
         "Import USD": lambda slot: slot._import_usd(),
@@ -68,7 +69,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
         "Export .ma": lambda slot: slot._export_foreign_scene(),
         # The whole scene as USD, on Export Scene's USD writer (SceneMixin) -- not
         # "wm.usd_export", which drops hidden objects in every mode.
-        "Export USD": lambda slot: slot._export_usd(),
+        "Export USD": lambda slot: slot._export_one_shot("usd"),
         "Export FBX": "export_scene.fbx",
         "Export OBJ": "wm.obj_export",
         "Export glTF": "export_scene.gltf",
@@ -308,7 +309,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def _scene_import_engine(self):
         """The engine the Import list pulls through (SceneMixin hook): a .ma / .mb
         converts in a fresh headless mayapy (tens of seconds -- startup plus a license
-        checkout; a local Maya install is required), and a USD imports natively,
+        checkout; a local Maya install is required), a glTF imports natively
+        (KTX2-decoded first when it needs it), and a USD imports natively,
         through the same consumer a linked USD row's bake runs."""
         return btk.MayaSceneImport()
 

@@ -21,8 +21,9 @@ The subsystems that live here include:
   display name and the scene extensions it writes; and
 * the Import / Export lists' **pull and USD entries**: every Import entry that
   reaches the scene through the bridge engine (the other DCC's scene, glTF on
-  Maya, USD on both) runs one browse-import-report body, and Export USD writes
-  the scene through the writer Export Scene's USD format already uses; and
+  Maya, USD on both) runs one browse-import-report body, and Export USD (and
+  Maya's Export glTF) writes the scene through the writer Export Scene's
+  format combo already uses; and
 * **Get Scene Info** (``tb001``): the option box and the report run. Identical
   on both sides because the engines are mirrors (``mtk.SceneAnalyzer`` ↔
   ``btk.SceneAnalyzer``, ``mtk.SceneInfoSection`` ↔ ``btk.SceneInfoSection``).
@@ -83,9 +84,9 @@ class SceneMixin:
 
         ``mtk.BlenderSceneImport()`` from the Maya fork, ``btk.MayaSceneImport()``
         from the Blender fork: its ``import_scene(src, via=...)`` converts the other
-        DCC's scene through a fresh headless app, and imports a USD file natively
-        (no conversion, *via* inert). The pull direction of
-        :meth:`_foreign_scene_bridge`.
+        DCC's scene through a fresh headless app, imports a USD file natively (no
+        conversion, *via* inert), and brings a glTF in each engine's own way
+        (:meth:`_import_gltf`). The pull direction of :meth:`_foreign_scene_bridge`.
         """
         raise NotImplementedError
 
@@ -345,11 +346,7 @@ class SceneMixin:
             self.sb.message_box("No objects selected.")
             return
 
-        # OBJ carries no tangent channel, so the cost that warning is about is not
-        # paid there — asking about it would be noise.
-        if not self._confirm_dense_export(
-            selection_only, options["include_tangents"] and export_format != "obj"
-        ):
+        if not self._confirm_export_cost(export_format, options):
             return
 
         extension = self._export_extension(export_format)
@@ -379,6 +376,18 @@ class SceneMixin:
 
         self._write_native(export_format, out_path, options)
 
+    def _confirm_export_cost(self, export_format, options) -> bool:
+        """The fork's dense-export gate for *options*; False when the user cancels.
+
+        Shared by Export Scene and the Export list's one-shots, which export with
+        tangents on and so pay the same cost. OBJ carries no tangent channel, so
+        that cost is not paid there -- asking about it would be noise.
+        """
+        return self._confirm_dense_export(
+            options["selection_only"],
+            options["include_tangents"] and export_format != "obj",
+        )
+
     def _write_native(self, export_format, out_path, options):
         """Run the fork's native writer for *out_path*, then report either outcome.
 
@@ -388,7 +397,7 @@ class SceneMixin:
         (``tick()`` pumps the event loop) so it reads as working, not hung. Failures
         propagate out of the context so it suppresses its "Complete" flash on a
         non-clean exit, then land in one report. Shared by Export Scene and the
-        Export list's USD one-shot, so the two cannot disagree on either.
+        Export list's one-shots, so they cannot disagree on either.
         """
         label = os.path.splitext(out_path)[1].lstrip(".").upper()
         try:
@@ -423,7 +432,9 @@ class SceneMixin:
         qapp = self.sb.QtWidgets.QApplication
         qapp.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            result = bridge.save_as(out_path, objects, params={ptk.CARRIER_PARAM: carrier})
+            result = bridge.save_as(
+                out_path, objects, params={ptk.CARRIER_PARAM: carrier}
+            )
         except Exception as error:
             self.sb.message_box(
                 f"Export to {app} failed: <hl>{html.escape(str(error))}</hl>"
@@ -472,7 +483,7 @@ class SceneMixin:
                 f"({result['duration']:.1f}s)."
             )
 
-    # ------------------------------------------------------- export: USD one-shot
+    # --------------------------------------------- export: native-format one-shots
     #: What an Export-list one-shot writes: the whole scene, every type. The list's
     #: entries carry no options of their own -- Export Scene is the configured route.
     ONE_SHOT_EXPORT_OPTIONS = {
@@ -484,23 +495,30 @@ class SceneMixin:
         "embed_textures": True,
     }
 
-    def _export_usd(self):
-        """Write the WHOLE scene as a USD layer (Export list entry).
+    def _export_one_shot(self, export_format: str):
+        """Write the WHOLE scene in native *export_format* (Export list entry).
 
-        The one-shot sibling of Export Scene's USD format, on the same writer
+        The one-shot sibling of Export Scene's format combo, on the same writer
         (:meth:`_export_scene_native` via :meth:`_write_native`) -- each engine's
-        interchange USD export, not the host's stock one -- and under the list's
-        one-shot contract, like the foreign-scene entry: the whole scene, every type,
-        and its own destination prompt, which takes any USD spelling (``.usda`` text,
-        ``.usdc`` crate, ``.usdz`` package).
+        own route (Maya's GLB is FBX + FBX2glTF; USD is the interchange export, not
+        the host's stock one) -- under the list's one-shot contract, like the
+        foreign-scene entry: the whole scene, every type, and its own destination
+        prompt, which takes every spelling the format's writer does (a USD layer as
+        ``.usda`` text, ``.usdc`` crate or ``.usdz`` package).
+
+        Parameters:
+            export_format: A native format-combo data value (``"usd"``, ``"glb"``…).
         """
+        options = dict(self.ONE_SHOT_EXPORT_OPTIONS)
+        if not self._confirm_export_cost(export_format, options):
+            return
         out_path = self._resolve_export_path(
             "prompt",
-            self._export_extension("usd"),
-            self.EXPORT_EXTENSION_SPELLINGS["usd"],
+            self._export_extension(export_format),
+            self._export_spellings(export_format),
         )
         if out_path:
-            self._write_native("usd", out_path, dict(self.ONE_SHOT_EXPORT_OPTIONS))
+            self._write_native(export_format, out_path, options)
 
     # ------------------------------------------------------ import: pull a file in
     def _pull_scene(self, file_types, title, filter_description, kind):
@@ -551,6 +569,18 @@ class SceneMixin:
             f"Imported <hl>{len(imported)}</hl> object(s) from "
             f"<hl>{os.path.basename(src)}</hl>."
         )
+
+    def _import_gltf(self):
+        """Import a glTF container (.glb/.gltf) (Import list entry) -- each engine's
+        own way in; see :meth:`_pull_scene`.
+
+        Blender imports it natively; Maya, which has no glTF importer, converts it
+        through a fresh headless Blender, else through pythontk's built-in glTF ->
+        FBX. Either way a KTX2 file (``KHR_texture_basisu`` -- every KTX2
+        deliverable) is decoded first: Blender's own importer refuses it outright,
+        which is why the Blender fork no longer opens the stock operator here.
+        """
+        self._pull_scene(["*.glb", "*.gltf"], "Import glTF", "glTF Files", "glTF")
 
     def _import_usd(self):
         """Import a USD layer or package (Import list entry) -- each engine's
@@ -701,7 +731,9 @@ class SceneMixin:
         )
         if not picked:
             return
-        groups = self._deliverable_groups([picked] if isinstance(picked, str) else picked)
+        groups = self._deliverable_groups(
+            [picked] if isinstance(picked, str) else picked
+        )
         if not groups:
             self.sb.message_box(
                 "Pick a <hl>.glb</hl> or <hl>.fbx</hl> deliverable to check."
@@ -767,13 +799,21 @@ class SceneMixin:
             files = [p for p in (inputs["glb"], inputs["fbx"]) if p]
             stem = os.path.splitext(os.path.basename(files[0]))[0]
             kinds = " + ".join(os.path.splitext(p)[1].lower() for p in files)
-            lines += ["", f"== {stem}  ({kinds}) ==", f"folder:  {os.path.dirname(files[0])}"]
+            lines += [
+                "",
+                f"== {stem}  ({kinds}) ==",
+                f"folder:  {os.path.dirname(files[0])}",
+            ]
             if isinstance(report, Exception):
                 lines.append(f"could not check: {report}")
                 continue
             lines.append(
                 "sidecar: "
-                + (os.path.basename(sidecar) if sidecar else "none found (its gates skip)")
+                + (
+                    os.path.basename(sidecar)
+                    if sidecar
+                    else "none found (its gates skip)"
+                )
             )
             lines.append(report.summary())
         return "<pre>{}</pre>".format(html.escape("\n".join(lines)))

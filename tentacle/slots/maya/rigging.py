@@ -312,8 +312,9 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
             setObjectName="s001",
             set_limits=[0, 1000, 1, 3],
             setValue=1,
-            setToolTip="The scale of the locator.",
+            setToolTip="The display size of the locator (its shape's localScale).",
         )
+        self._add_rotate_order_combo(widget.option_box.menu)
         # Section: Naming
         widget.option_box.menu.add("Separator", setTitle="Naming")
         # Seeded from the shared naming convention, not from literals: the GRP
@@ -436,6 +437,19 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
             ),
         )
 
+    @staticmethod
+    def _selected_rotate_orders():
+        """``(node, label, rotate order)`` per selected transform (cmb011's action)."""
+        return [
+            (n, n.split("|")[-1], cmds.getAttr(f"{n}.rotateOrder", asString=True))
+            for n in cmds.ls(sl=True, type="transform", long=True) or []
+        ]
+
+    @staticmethod
+    def _set_rotate_orders(nodes, order):
+        """The host's pose-keeping rotate-order change (one undo step)."""
+        return mtk.XformUtils.set_rotate_order(nodes, order)
+
     @mtk.undoable
     def tb003(self, widget):
         """Create Locator at Selection"""
@@ -455,9 +469,14 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
         lock_rotation = menu.chk008.isChecked()
         lock_scale = menu.chk009.isChecked()
 
+        rotate_order = menu.cmb011.currentData()
         selection = cmds.ls(sl=True) or []
         if not selection:
-            return mtk.create_locator(scale=loc_scale)
+            # Sized by its display, as on a rig: a transform scale would carry into
+            # anything parented under it.
+            loc = mtk.create_locator(size=loc_scale)
+            cmds.setAttr(f"{loc}.rotateOrder", self.ROTATE_ORDERS.index(rotate_order))
+            return loc
 
         try:
             mtk.create_locator_at_object(
@@ -474,6 +493,7 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
                 lock_translate=lock_translate,
                 lock_rotation=lock_rotation,
                 lock_scale=lock_scale,
+                rotate_order=rotate_order,
             )
         except Exception as e:
             self.sb.message_box(f"Could not create the locator rig.<br><hl>{e}</hl>")
