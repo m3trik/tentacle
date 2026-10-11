@@ -8,7 +8,7 @@ A widget counts as **handled** when the DCC's slot class defines the widget meth
 
 | Domain | Widgets | Maya | Blender |
 |:---|--:|--:|--:|
-| animation | 21 | 100% | 100% |
+| animation | 20 | 100% | 100% |
 | cameras | 13 | 100% | 100% |
 | crease | 2 | 100% | 100% |
 | deformation | 1 | 100% | 100% |
@@ -16,22 +16,22 @@ A widget counts as **handled** when the DCC's slot class defines the widget meth
 | duplicate | 8 | 100% | 100% |
 | edit | 8 | 100% | 100% |
 | editors | 15 | 100% | 100% |
-| lighting | 2 | 100% | 100% |
+| lighting | 3 | 100% | 100% |
 | main | 1 | 100% | 100% |
-| materials | 9 | 100% | 100% |
+| materials | 7 | 100% | 100% |
 | normals | 8 | 100% | 100% |
 | nurbs | 6 | 100% | 100% |
 | pivot | 8 | 100% | 100% |
 | polygons | 27 | 100% | 100% |
-| preferences | 12 | 100% | 100% |
-| rendering | 5 | 100% | 100% |
-| rigging | 8 | 100% | 100% |
+| preferences | 13 | 100% | 100% |
+| rendering | 6 | 100% | 100% |
+| rigging | 7 | 100% | 100% |
 | scene | 7 | 100% | 100% |
-| selection | 13 | 100% | 100% |
-| settings | 4 | 100% | 100% |
+| selection | 18 | 100% | 100% |
+| settings | 5 | 100% | 100% |
 | subdivision | 9 | 100% | 100% |
 | symmetry | 5 | 100% | 100% |
 | transform | 12 | 100% | 100% |
 | utilities | 4 | 100% | 100% |
 | uv | 19 | 100% | 100% |
-| **TOTAL** | **230** | **100%** | **100%** |
+| **TOTAL** | **235** | **100%** | **100%** |

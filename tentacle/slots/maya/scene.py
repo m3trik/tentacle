@@ -274,7 +274,10 @@ class SceneSlots(SceneMixin, SlotsMaya):
         # direction, so the two live symmetrically in the two lists.
         "Export .blend": lambda slot: slot._export_foreign_scene(),
         # The whole scene as USD, on Export Scene's USD writer (SceneMixin).
-        "Export USD": lambda slot: slot._export_usd(),
+        "Export USD": lambda slot: slot._export_one_shot("usd"),
+        # Maya has no glTF writer: Export Scene's GLB route (FBX + FBX2glTF), as a
+        # one-shot -- the label twin of the Blender fork's native "Export glTF".
+        "Export glTF": lambda slot: slot._export_one_shot("glb"),
         "Export All": lambda slot: mel.eval("Export"),
         "Send to Unreal": lambda slot: mel.eval("SendToUnrealSelection"),
         "Send to Unity": lambda slot: mel.eval("SendToUnitySelection"),
@@ -326,9 +329,10 @@ class SceneSlots(SceneMixin, SlotsMaya):
             action(self)
 
     def _scene_import_engine(self):
-        """The engine the Import list pulls through (SceneMixin hook): a .blend or a
-        glTF converts in a fresh headless Blender (a local install is required), and a
-        USD imports natively through ``mtk.UsdUtils``."""
+        """The engine the Import list pulls through (SceneMixin hook): a .blend
+        converts in a fresh headless Blender (a local install is required), a glTF
+        too when there is one -- else through pythontk's built-in glTF -> FBX -- and
+        a USD imports natively through ``mtk.UsdUtils``."""
         return mtk.BlenderSceneImport()
 
     def _import_blender_scene(self):
@@ -337,18 +341,6 @@ class SceneSlots(SceneMixin, SlotsMaya):
         self._pull_scene(
             ["*.blend"], "Import Blender Scene", "Blender Scenes", "Blender scene"
         )
-
-    def _import_gltf(self):
-        """Import a glTF container (.glb/.gltf) — the same bridge as
-        :meth:`_import_blender_scene`, honouring the same Transfer-via choice.
-
-        Maya ships no glTF importer at all, so this is the ONLY route a .glb has into
-        a Maya scene — not a convenience wrapper over a native command like the
-        Blender fork's ``import_scene.gltf`` twin. The conversion opens the container
-        by import and unpacks its embedded images to disk first, so the packed ORM a
-        glTF carries survives into the rebuilt materials instead of arriving gray.
-        """
-        self._pull_scene(["*.glb", "*.gltf"], "Import glTF", "glTF Files", "glTF")
 
     #: Export Scene's combo label for Blender's native format (SceneMixin hook).
     FOREIGN_FORMAT_LABEL = "Blend"
@@ -391,7 +383,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
         widget.apply_preset("expand_up" if submenu else "hover_menu")
         root = widget.add(
             "Export",
-            setToolTip="Export the scene or selection (FBX, USD, Send To, presets).",
+            setToolTip="Export the scene or selection (FBX, glTF, USD, Send To, presets).",
         )
         one_shots = [
             k

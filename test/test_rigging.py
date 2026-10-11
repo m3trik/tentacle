@@ -13,6 +13,7 @@ The dispatch units worth pinning at this layer:
 - tb001 (Constraint Switch): forwards three field values to
   mtk.connect_switch_to_constraint as named kwargs.
 """
+
 import unittest
 
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
@@ -231,6 +232,7 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
         self.instance.sb = _FakeSb()
 
         import mayatk as mtk
+
         self._original = mtk.connect_switch_to_constraint
         self.captured = []
 
@@ -244,6 +246,7 @@ class TestTb001ConstraintSwitch(unittest.TestCase):
 
     def tearDown(self):
         import mayatk as mtk
+
         mtk.connect_switch_to_constraint = self._original
         cmds.file(new=True, force=True)
 
@@ -405,6 +408,102 @@ class TestTb004LockUnlockAttributes(unittest.TestCase):
         cmds.select(clear=True)
         self.instance.tb004(self._widget("Lock", "all"))
         self.assertTrue(self.instance.sb.messages)
+
+
+class _FakeSpin:
+    def __init__(self, value):
+        self._v = value
+
+    def value(self):
+        return self._v
+
+
+class _FakeAffixField(_FakeLineEdit):
+    """An affix QLineEdit whose option-box picker is in Scene mode."""
+
+    def __init__(self):
+        super().__init__("")
+        self.option_box = type("_Box", (), {"affix_mode": "convention"})()
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestTb003CreateLocatorRotateOrder(unittest.TestCase):
+    """tb003 hands the cmb011 rotate order to create_locator_at_object, so a
+    prop that spins about its own Z can be rigged with Z first (the
+    SOCKET_WRENCH bug: in xyz a Z spin after an X tilt keys all three)."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.instance = rigging_module.RiggingSlots.__new__(rigging_module.RiggingSlots)
+        self.instance.sb = _FakeSb()
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def _menu(self):
+        return _FakeMenu(
+            t000=_FakeAffixField(),
+            t001=_FakeAffixField(),
+            t002=_FakeAffixField(),
+            s001=_FakeSpin(1.0),
+            cmb011=_FakeCombo(text="Rotate Order: zyx", data="zyx"),
+            **{f"chk00{i}": _FakeChk(False) for i in range(5, 10)},
+        )
+
+    def _assert_one_zyx_locator(self):
+        self.assertFalse(self.instance.sb.messages)
+        locs = cmds.listRelatives(cmds.ls(type="locator"), parent=True) or []
+        self.assertEqual(len(locs), 1)
+        self.assertEqual(cmds.getAttr(f"{locs[0]}.rotateOrder", asString=True), "zyx")
+
+    def test_rotate_order_reaches_the_locator(self):
+        cmds.select(cmds.polyCube(name="wrench")[0])
+        self.instance.tb003(_FakeWidget([], menu=self._menu()))
+        self._assert_one_zyx_locator()
+
+    def test_fix_rotate_order_reads_the_turn_off_the_keys(self):
+        """cmb011's action: a locator lifted on X then turned about its own Y
+        (SOCKET_WRENCH) gets a Y-first order, and the message says so."""
+        loc = cmds.spaceLocator(name="wrench_LOC")[0]
+        cmds.setKeyframe(loc, attribute="rotate", time=1)
+        cmds.currentTime(10)
+        cmds.setAttr(f"{loc}.rotate", 98.3, -6.4, -0.15)
+        cmds.setKeyframe(loc, attribute="rotate", time=10)
+        cmds.currentTime(20)
+        cmds.rotate(0, 60, 0, loc, relative=True, objectSpace=True, forceOrderXYZ=True)
+        cmds.setKeyframe(loc, attribute="rotate", time=20)
+        cmds.select(loc)
+        self.instance._fix_rotate_order()
+        order = cmds.getAttr(f"{loc}.rotateOrder", asString=True)
+        self.assertEqual(order[0], "y", order)
+        self.assertIn(f"xyz → {order}", str(self.instance.sb.messages))
+
+    def test_rotate_order_reaches_a_bare_locator(self):
+        """Nothing selected: the lone locator takes the picked order too."""
+        cmds.select(clear=True)
+        self.instance.tb003(_FakeWidget([], menu=self._menu()))
+        self._assert_one_zyx_locator()
+
+    def test_locator_scale_sizes_a_bare_locator_not_its_channels(self):
+        """Nothing selected, Locator Scale is the display size, as on a rig.
+
+        The lone locator was scaled as a TRANSFORM, which carries into
+        anything later parented under it; the shape's localScale is the
+        locator's size, and its channels stay unit (Blender's lone locator
+        is sized the same way, by its display size).
+        """
+        cmds.select(clear=True)
+        menu = self._menu()
+        menu.s001 = _FakeSpin(2.5)
+        self.instance.tb003(_FakeWidget([], menu=menu))
+        loc = (cmds.listRelatives(cmds.ls(type="locator"), parent=True) or [])[0]
+        shape = cmds.listRelatives(loc, shapes=True, fullPath=True)[0]
+        self.assertEqual(
+            [round(v, 6) for v in cmds.getAttr(f"{shape}.localScale")[0]], [2.5] * 3
+        )
+        self.assertEqual(
+            [round(v, 6) for v in cmds.getAttr(f"{loc}.scale")[0]], [1.0] * 3
+        )
 
 
 if __name__ == "__main__":

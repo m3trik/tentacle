@@ -37,6 +37,30 @@ import bpy
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import _input  # noqa: E402
 
+# A throwaway Blender: keep its settings off the developer's live uitk stores. Here,
+# before Blender's event loop runs any timer: on a developer profile (no
+# --factory-startup) the tentacle add-on builds its UI from a timer of its own.
+_MONO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
+    _dir = os.path.join(_MONO, _pkg)
+    if os.path.isdir(_dir) and _dir not in sys.path:
+        sys.path.insert(0, _dir)
+os.environ.setdefault("QT_API", "pyside6")
+_built = sys.modules.get("tentacle.tcl_blender")
+if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+    raise RuntimeError(
+        "tentacle's UI was built before this harness could sandbox its settings; "
+        "run it with --factory-startup, or with the tentacle add-on disabled"
+    )
+from uitk.testing import TestSandbox  # noqa: E402
+
+try:
+    TestSandbox.activate()
+except ImportError:  # a first launch: tentacle provisions Qt as it imports
+    from tentacle import tcl_blender  # noqa: E402, F401
+
+    TestSandbox.activate()
+
 MONO = Path(__file__).resolve().parents[3]
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "temp_tests",
                    "hover_nav_out.txt")

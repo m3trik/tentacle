@@ -270,6 +270,15 @@ def _run():
             if os.path.isdir(_p) and _p not in sys.path:
                 sys.path.insert(0, _p)
         os.environ.setdefault("QT_API", "pyside6")
+        # A throwaway Blender: keep its settings off the developer's live uitk stores.
+        from uitk.testing import TestSandbox
+
+        try:
+            TestSandbox.activate()
+        except ImportError:  # a first launch: tentacle provisions Qt as it imports
+            from tentacle import tcl_blender  # noqa: F401
+
+            TestSandbox.activate()
         # tcl_blender first — it provisions qtpy/PySide6 for Blender's bundled Python.
         from tentacle import tcl_blender as tb
         from qtpy import QtWidgets

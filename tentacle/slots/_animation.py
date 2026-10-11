@@ -28,14 +28,23 @@ rounding vocabulary both forks' snap entry points offer. It is a combo's item
 ORDER, which the cross-DCC QSettings rule pins by index, so a second copy left
 to drift would repoint every stored choice in the other host.
 
+One shared behavior lives here too: :meth:`AnimationMixin._key_edit`, the
+wrapper every key edit of both forks runs under so the shot claims of the keys
+it touches follow them.
+
 This mixin deliberately defines NO widget-named slots (see the DEFAULT_INCLUDE
 note in ``tentacle/__init__.py``): it carries text, so mixing it in cannot
 capture another panel's ``tb###``.
 """
 
+import contextlib
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class AnimationMixin:
-    """Shared tooltip text for ``slots/{maya,blender}/animation.py``."""
+    """Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``."""
 
     #: ``label -> pythontk.MathUtils.round_value mode`` for every snap combo,
     #: in COMBO ORDER — a dict whose insertion order is load-bearing: the
@@ -222,6 +231,19 @@ class AnimationMixin:
         ],
     }
 
+    TIP_MOVE_ALIGN = {
+        "title": "Align",
+        "body": "Which end of the moved key range lands on the current frame.",
+        "bullets": [
+            "<b>Start</b> — the earliest key lands there; the animation "
+            "runs forward from the playhead.",
+            "<b>End</b> — the latest key lands there; the animation "
+            "arrives at the playhead.",
+            "<b>Auto</b> — picks whichever end is nearer: End when the "
+            "range's midpoint sits before the playhead, Start otherwise.",
+        ],
+    }
+
     TIP_SELECT_TIME_RANGE = {
         "title": "Time Range",
         "body": "Which keys, relative to the playhead, get selected.",
@@ -403,6 +425,46 @@ class AnimationMixin:
     TIP_SELECT_RANGE_START = "First frame of the window, in Range mode."
 
     TIP_SELECT_RANGE_END = "Last frame of the window, in Range mode."
+
+    # --------------------------------------------------- shot claims on key edits
+    def _shot_store_class(self):
+        """Return the DCC engine's shot store class (``mtk.ShotStore`` /
+        ``btk.BlenderShotStore``): where the claims :meth:`_key_edit` carries live."""
+        raise NotImplementedError
+
+    @contextlib.contextmanager
+    def _key_edit(self, label, objects=None, claimed_only=False):
+        """Run a key edit under the active shot store's ``key_edit``.
+
+        Yields ``(on_replace, on_move)`` for the edit to take: a key it replaces
+        or deletes takes its shot claims with it, and a key it moves carries them
+        along. With claims the edit is one undo step paired with the store's
+        restore point (``ShotStore.key_edit``).
+
+        A scene whose shot record is unreadable makes ``active()`` raise
+        ``ValueError`` (it never reads such a record as empty). The edit still
+        runs, as it did before key edits carried claims, with ``(None, None)``
+        and the reason logged: a damaged shot record must not take the whole
+        Animation panel down with it.
+
+        Parameters:
+            label: The undo step's name.
+            objects: The objects the edit touches; ``None`` lets the store resolve
+                each curve's owners itself.
+            claimed_only: Hand no hooks when the store claims nothing -- for an
+                edit whose hook costs a key-time read on every key it removes
+                (Optimize), so a production scene with no claims pays none.
+        """
+        try:
+            store = self._shot_store_class().active()
+        except ValueError as error:
+            _logger.warning("%s: shot claims not carried: %s", label, error)
+            store = None
+        if store is None or (claimed_only and not store.edit_ledger):
+            yield None, None
+            return
+        with store.key_edit(label, objects) as hooks:
+            yield hooks
 
     def list000_init(self, widget):
         """Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.

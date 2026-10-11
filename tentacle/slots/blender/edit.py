@@ -66,17 +66,17 @@ class EditSlots(EditMixin, SlotsBlender):
         "Patch": "primitive_nurbs_surface_surface_add",
     }
 
-    # (label -> callable) for the Create > Helper category. "Locator" reuses the exact
-    # empty_add(type="PLAIN_AXES") precedent already established in rigging.py; "Null Group" uses
-    # the "ARROWS" empty type RigUtils.create_group uses for its offset-group buffer (Blender has
-    # no separate invisible-group node like Maya's ``cmds.group(empty=True)`` — an Empty stands in
-    # for both). "Set" mirrors ``cmds.sets()`` — a non-visual logical-grouping container — with a
-    # linked, empty Collection (Blender's closest structural analogue), linked under
-    # ``scene.collection``: ``bpy.context.collection`` is a *screen-context* member that is None
-    # in the Qt-pump state (AttributeError).
+    # (label -> callable) for the Create > Helper category. "Locator" (rigging.py's bare
+    # locator, a PLAIN_AXES Empty) and "Null Group" (the "ARROWS" Empty RigUtils.create_group
+    # builds) are each typed the Maya node they stand for (_add_empty), so a locator stays one
+    # with something parented under it, and a childless null group is no locator -- to
+    # selection, Suffix By Type and the Maya send. "Set" mirrors ``cmds.sets()`` — a non-visual
+    # logical-grouping container — with a linked, empty Collection (Blender's closest structural
+    # analogue), linked under ``scene.collection``: ``bpy.context.collection`` is a
+    # *screen-context* member that is None in the Qt-pump state (AttributeError).
     _HELPERS = {
-        "Locator": lambda: bpy.ops.object.empty_add(type="PLAIN_AXES"),
-        "Null Group": lambda: bpy.ops.object.empty_add(type="ARROWS"),
+        "Locator": lambda: EditSlots._add_empty("PLAIN_AXES", "locator"),
+        "Null Group": lambda: EditSlots._add_empty("ARROWS", "group"),
         "Set": lambda: bpy.context.scene.collection.children.link(
             bpy.data.collections.new("set1")
         ),
@@ -785,6 +785,20 @@ class EditSlots(EditMixin, SlotsBlender):
     @btk.undoable
     def _create_helper(self, fn):
         fn()
+
+    @staticmethod
+    def _add_empty(display_type, node_type):
+        """Create > Helper: an Empty at the cursor, typed the Maya node it stands for.
+
+        Its own display is kept -- a Null Group keeps the arrows it is grabbed by.
+        """
+        # Windowless (tentacle's Qt timer), the op and the active read would address
+        # the scene's default view layer, not the window's.
+        with btk.window_context_override():
+            bpy.ops.object.empty_add(type=display_type)
+            btk.NodeUtils.set_maya_node_type(
+                bpy.context.view_layer.objects.active, node_type, look=False
+            )
 
     @btk.undoable
     def _create_control(self, shape, label):

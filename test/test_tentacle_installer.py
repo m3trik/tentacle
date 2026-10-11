@@ -156,7 +156,7 @@ class TestBootstrapTarget(unittest.TestCase):
 
     mayapy.exe decodes its ANSI command line as UTF-8: measured on Maya 2025, an
     accented letter arrived as a lone surrogate and Cyrillic as "???", while the
-    environment arrived intact. Under the prefs dir of a user named José,
+    environment arrived intact. Under the prefs dir of a user named Zoë,
     ``--target <site>`` sent pip to a DIFFERENT directory and the install failed with
     "No module named 'pythontk'" (the live clean room, run under such a dir).
     """
@@ -165,7 +165,7 @@ class TestBootstrapTarget(unittest.TestCase):
         self.installer = _load().TentacleInstaller
 
     def test_the_target_travels_in_the_environment(self):
-        target = "X:/Users/José/site"
+        target = "X:/Users/Zoë/site"
         with mock.patch.object(self.installer, "_run_checked") as run:
             self.installer._bootstrap_pythontk("PY", target)
         command, env = run.call_args.args[0], run.call_args.kwargs["env"]
@@ -177,7 +177,7 @@ class TestBootstrapTarget(unittest.TestCase):
     @unittest.skipUnless(_find_mayapy(), "mayapy.exe not installed")
     def test_mayapy_installs_into_a_non_ascii_target(self):
         """The measured failure itself, through the real mayapy and offline: a stand-in
-        pythontk wheel lands in a site dir named like José's, and nowhere else (on the
+        pythontk wheel lands in a site dir named like Zoë's, and nowhere else (on the
         argv route pip wrote a mangled sibling of that dir)."""
         root = TEMP / "bootstrap_target"
         shutil.rmtree(root, ignore_errors=True)
@@ -185,7 +185,7 @@ class TestBootstrapTarget(unittest.TestCase):
         wheel = _write_wheel(
             root / "wheels", "pythontk", "99.0", {"pythontk/__init__.py": "PROBE = 1\n"}
         )
-        prefs = "José Ångström"
+        prefs = "Zoë Ångström"
         target = root / prefs / "site"
         offline = {
             "PIP_FIND_LINKS": str(wheel.parent),
@@ -736,13 +736,14 @@ class TestMayaModule(unittest.TestCase):
     def test_the_mod_locates_its_root_relative_to_itself(self):
         """Maya never resolved an absolute non-ASCII module path from a .mod.
 
-        Measured on Maya 2025 with a prefs dir named "José Ångström": the absolute path
-        this file used to write (UTF-8) left the module unloaded -- no ``site`` on the
-        path, no ``userSetup.py`` -- while ``../tentacle`` loaded there, and in a plain
-        dir and one with a space. A user named José got a working first drop and no
-        tentacle at any start after it. The relative form is pure ASCII.
+        Measured on Maya 2025 with an accented prefs dir ("é", "Å"): the absolute
+        path this file used to write (UTF-8) left the module unloaded -- no ``site``
+        on the path, no ``userSetup.py`` -- while ``../tentacle`` loaded there, and
+        in a plain dir and one with a space. A user with such a name got a working
+        first drop and no tentacle at any start after it. The relative form is pure
+        ASCII.
         """
-        app = self.app / "José Ångström"
+        app = self.app / "Zoë Ångström"
         root = self.installer.write_maya_module(str(INSTALLER), str(app), "2025")
         mod = app / "2025" / "modules" / "tentacle.mod"
         raw = mod.read_bytes()
@@ -3014,10 +3015,10 @@ class TestLiveBlenderCleanRoom(unittest.TestCase):
         cls.blender = _find_blender()
         if not cls.blender:
             raise unittest.SkipTest("blender.exe not found")
-        # A space and non-ASCII letters, like the profile dir of a user named José. The
+        # A space and a non-ASCII letter, like the profile dir of a user named Zoë. The
         # dir must EXIST before Blender starts: pointed at a missing one, Blender silently
         # falls back to the REAL user profile (measured on 5.1.2).
-        cls.res = TEMP / "blender res Jösé"
+        cls.res = TEMP / "blender res Zoë"
         shutil.rmtree(cls.res, ignore_errors=True)
         cls.res.mkdir(parents=True)
         cls.env = _clean_env(cls.res / "userbase", BLENDER_USER_RESOURCES=str(cls.res))
@@ -3149,9 +3150,9 @@ class TestLiveMayaCleanRoom(unittest.TestCase):
         cls.mayapy = _find_mayapy()
         if not cls.mayapy:
             raise unittest.SkipTest("mayapy.exe not found")
-        # A space and non-ASCII letters, like the prefs dir of a user named José: an
+        # A space and a non-ASCII letter, like the prefs dir of a user named Zoë: an
         # absolute module path in the .mod never loaded there (measured on Maya 2025).
-        cls.app = TEMP / "maya app Jösé"
+        cls.app = TEMP / "maya app Zoë"
         shutil.rmtree(cls.app, ignore_errors=True)
         cls.app.mkdir(parents=True)
         cls.env = _clean_env(cls.app / "userbase", MAYA_APP_DIR=str(cls.app))

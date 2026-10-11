@@ -22,6 +22,11 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         self.ui = self.sb.loaded_ui.animation
         self._copied_action = None
 
+    @staticmethod
+    def _shot_store_class():
+        """The shot store the key edits' claims live in (AnimationMixin hook)."""
+        return btk.BlenderShotStore
+
     #: ``category -> [(label, objectName, tooltip)]`` for the header Tools list
     #: (was five separator sections of loose header buttons). Mirror of the Maya
     #: animation Tools list; Sequencing (Shot Manifest / Shot Sequencer) launches
@@ -324,14 +329,19 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         mode = self._INVERT_MODES.get(m.cmb035.currentData(), "time")
         time_value = m.s001.value()
-        btk.invert_keys(
-            objects,
-            mode=mode,
-            value_pivot=m.d000.value(),
-            start_frame=None if time_value == -1 else time_value,
-            relative=m.chk002.isChecked(),
-            delete_original=m.chk005.isChecked(),
-        )
+        # A key a copy lands on is replaced and a key the mirror moves carries its
+        # shot claims along; with claims it is one undo step with them.
+        with self._key_edit("Invert Keys", objects) as (rep, mov):
+            btk.invert_keys(
+                objects,
+                mode=mode,
+                value_pivot=m.d000.value(),
+                start_frame=None if time_value == -1 else time_value,
+                relative=m.chk002.isChecked(),
+                delete_original=m.chk005.isChecked(),
+                on_replace=rep,
+                on_move=mov,
+            )
 
     def tb003_init(self, widget):
         m = widget.option_box.menu
@@ -449,16 +459,19 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             return
         m = widget.option_box.menu
         start = m.s005.value()
-        btk.stagger_keys(
-            objects,
-            start_frame=None if start == -1 else start,
-            spacing=m.s004.value(),
-            use_intervals=m.chk025.isChecked(),
-            invert=m.chk008.isChecked(),
-            group_overlapping=m.chk014.isChecked(),
-            merge_touching=m.chk029.isChecked(),
-            smooth_tangents=m.chk009.isChecked(),
-        )
+        # The keys it re-times carry their shot claims along.
+        with self._key_edit("Stagger Keys", objects) as (_rep, mov):
+            btk.stagger_keys(
+                objects,
+                start_frame=None if start == -1 else start,
+                spacing=m.s004.value(),
+                use_intervals=m.chk025.isChecked(),
+                invert=m.chk008.isChecked(),
+                group_overlapping=m.chk014.isChecked(),
+                merge_touching=m.chk029.isChecked(),
+                smooth_tangents=m.chk009.isChecked(),
+                on_move=mov,
+            )
 
     def tb009_init(self, widget):
         m = widget.option_box.menu
@@ -512,12 +525,16 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         time_range = (
             (scene.frame_start, scene.frame_end) if m.chk018.isChecked() else None
         )
-        snapped = btk.snap_keys(
-            objects,
-            selected_only=m.chk017.isChecked(),
-            time_range=time_range,
-            method=m.cmb003.currentData(),
-        )
+        # A snap never replaces a key (a taken target is skipped); the keys it
+        # moves carry their shot claims along.
+        with self._key_edit("Snap Keys", objects) as (_r, mov):
+            snapped = btk.snap_keys(
+                objects,
+                selected_only=m.chk017.isChecked(),
+                time_range=time_range,
+                method=m.cmb003.currentData(),
+                on_move=mov,
+            )
         if not snapped:
             self.sb.message_box("No keys needed snapping (already on whole frames).")
 
@@ -550,7 +567,11 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             self.sb.message_box("Delete Keys requires a selection.")
             return
         scope = widget.option_box.menu.cmb004.currentData()
-        cleared = btk.delete_keys(objects, time=None if scope == "all" else scope)
+        # A deleted key takes its shot claims with it, as a replaced one does.
+        with self._key_edit("Delete Keys", objects) as (rep, _mov):
+            cleared = btk.delete_keys(
+                objects, time=None if scope == "all" else scope, on_delete=rep
+            )
         if not cleared:
             self.sb.message_box("Nothing keyed in the selection for the chosen scope.")
 
@@ -667,15 +688,19 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
                 self.sb.message_box("Adjust Spacing requires a selection.")
                 return
         frame_value = m.s002.value()
-        moved = btk.adjust_key_spacing(
-            objects,
-            spacing=m.s003.value(),
-            frame=None if frame_value == -1 else frame_value,
-            relative=m.chk004.isChecked(),
-            preserve_keys=m.chk003.isChecked(),
-            selected_keys_only=scope == "keys",
-            exact_gap=m.chk021.isChecked(),
-        )
+        # The keys it moves (and any it lands on) carry their shot claims along.
+        with self._key_edit("Adjust Spacing", objects) as (rep, mov):
+            moved = btk.adjust_key_spacing(
+                objects,
+                spacing=m.s003.value(),
+                frame=None if frame_value == -1 else frame_value,
+                relative=m.chk004.isChecked(),
+                preserve_keys=m.chk003.isChecked(),
+                selected_keys_only=scope == "keys",
+                exact_gap=m.chk021.isChecked(),
+                on_replace=rep,
+                on_move=mov,
+            )
         if not moved:
             self.sb.message_box("No keys at or after the frame.")
 
@@ -731,11 +756,16 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
                 "Select target object(s) with the source object active."
             )
             return
-        pasted = btk.transfer_keyframes(
-            [active] + targets,
-            relative=widget.option_box.menu.chk006.isChecked(),
-            optimize=widget.option_box.menu.chk035.isChecked(),
-        )
+        # The targets' keys the source's action replaces take their shot claims
+        # (and the source keys its optimize drops take theirs).
+        with self._key_edit("Transfer Keys", [active] + targets) as (rep, _mov):
+            pasted = btk.transfer_keyframes(
+                [active] + targets,
+                relative=widget.option_box.menu.chk006.isChecked(),
+                optimize=widget.option_box.menu.chk035.isChecked(),
+                on_replace=rep,
+                on_delete=rep,
+            )
         if not pasted:
             self.sb.message_box("The active object has no keys to transfer.")
 
@@ -829,9 +859,14 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         )
         ignore_visibility = m.chk028.isChecked()
         if m.chk027.isChecked():
-            count = btk.remove_intermediate_keys(
-                objects, time_range=time_range, ignore_visibility=ignore_visibility
-            )
+            # A removed key takes its shot claims with it, as a replaced one does.
+            with self._key_edit("Remove Intermediate Keys", objects) as (rep, _mov):
+                count = btk.remove_intermediate_keys(
+                    objects,
+                    time_range=time_range,
+                    ignore_visibility=ignore_visibility,
+                    on_delete=rep,
+                )
         else:
             count = btk.add_intermediate_keys(
                 objects,
@@ -968,11 +1003,16 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             return
         m = widget.option_box.menu
         frame = m.spn000.value()
-        moved = btk.align_selected_keyframes(
-            objects,
-            target_frame=None if frame == -1 else frame,
-            use_earliest=m.chk013.isChecked(),
-        )
+        # A key the block lands on is replaced and one it moves carries its shot
+        # claims along; with claims it is one undo step with them.
+        with self._key_edit("Align Keys", objects) as (rep, mov):
+            moved = btk.align_selected_keyframes(
+                objects,
+                target_frame=None if frame == -1 else frame,
+                use_earliest=m.chk013.isChecked(),
+                on_replace=rep,
+                on_move=mov,
+            )
         if not moved:
             self.sb.message_box(
                 "No selected keyframes found — select keys in the Dope Sheet first."
@@ -1047,13 +1087,16 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             self.sb.message_box("Visibility Keys requires a selection.")
             return
         m = widget.option_box.menu
-        keyed = btk.set_visibility_keys(
-            objects,
-            visible=m.cmb_visibility.currentText() == "Visible",
-            when=m.cmb002.currentData(),
-            offset=m.s008.value(),
-            group_overlapping=m.chk016.isChecked(),
-        )
+        # A visibility key of the other state it replaces takes its shot claims.
+        with self._key_edit("Visibility Keys", objects) as (rep, _mov):
+            keyed = btk.set_visibility_keys(
+                objects,
+                visible=m.cmb_visibility.currentText() == "Visible",
+                when=m.cmb002.currentData(),
+                offset=m.s008.value(),
+                group_overlapping=m.chk016.isChecked(),
+                on_replace=rep,
+            )
         if not keyed:
             self.sb.message_box(
                 "No keyed range on the selection for the chosen When mode."
@@ -1094,17 +1137,7 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         cmb = m.add(
             "QComboBox",
             setObjectName="cmb_align",
-            setToolTip=self.sb.tooltip.fmt(
-                title="Align",
-                body="Which end of the moved key range lands on the current frame.",
-                bullets=[
-                    "<b>Start</b> — the earliest key lands there; the animation "
-                    "runs forward from the playhead.",
-                    "<b>End</b> — the latest key lands there; the animation "
-                    "arrives at the playhead.",
-                    "<b>Auto</b> — picks whichever end is nearer.",
-                ],
-            ),
+            setToolTip=self.sb.tooltip.fmt(**self.TIP_MOVE_ALIGN),
         )
         for text, data in [
             ("Align: Auto", "auto"),
@@ -1121,12 +1154,17 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             self.sb.message_box("Move Keys requires a selection.")
             return
         m = widget.option_box.menu
-        moved = btk.move_keys_to_frame(
-            objects,
-            retain_spacing=m.chk012.isChecked(),
-            selected_keys_only=m.chk031.isChecked(),
-            align=m.cmb_align.currentData(),
-        )
+        # A key the move lands on is replaced and one it moves carries its shot
+        # claims along.
+        with self._key_edit("Move Keys", objects) as (rep, mov):
+            moved = btk.move_keys_to_frame(
+                objects,
+                retain_spacing=m.chk012.isChecked(),
+                selected_keys_only=m.chk031.isChecked(),
+                align=m.cmb_align.currentData(),
+                on_replace=rep,
+                on_move=mov,
+            )
         if not moved:
             self.sb.message_box("Nothing keyed in the selection.")
 
@@ -1191,7 +1229,9 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
                     "Select target object(s) in addition to the active object."
                 )
                 return
-            btk.paste_keys(targets, action)
+            # The targets' keys the pasted action replaces take their shot claims.
+            with self._key_edit("Paste Keys", targets) as (rep, _mov):
+                btk.paste_keys(targets, action, on_replace=rep)
             return
 
         self._copied_action = btk.copy_keys(active, mode=mode)
@@ -1228,10 +1268,16 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         target_time = (
             bpy.context.scene.frame_current if paste_mode == "playhead" else None
         )
+        objects = self.selected_objects()
         try:
-            pasted = btk.paste_keys(
-                self.selected_objects(), self._copied_action, target_time=target_time
-            )
+            # A pasted key that replaces one takes its shot claims with it.
+            with self._key_edit("Paste Keys", objects) as (rep, _mov):
+                pasted = btk.paste_keys(
+                    objects,
+                    self._copied_action,
+                    target_time=target_time,
+                    on_replace=rep,
+                )
         except ReferenceError:  # the copied action was deleted (e.g. file reload/purge)
             self._copied_action = None
             self.sb.message_box(
@@ -1440,19 +1486,24 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             if m.cmb_scale_pivot.currentText() == "Current Frame"
             else None
         )
-        keys_scaled = btk.scale_keys(
-            objects,
-            factor=m.d001.value(),
-            pivot=pivot,
-            mode=mode,
-            absolute=m.cmb_scale_mode.currentText() == "Absolute",
-            group_mode=m.cmb033.currentData(),
-            snap_mode=m.cmb034.currentData(),
-            samples=m.s014.value(),
-            include_rotation=include_rotation,
-            split_static=m.chk_split_static.isChecked(),
-            merge_touching=m.chk_merge_touching.isChecked(),
-        )
+        # A key the scale (or its snap) lands on is replaced and one it moves
+        # carries its shot claims along.
+        with self._key_edit("Scale Keys", objects) as (rep, mov):
+            keys_scaled = btk.scale_keys(
+                objects,
+                factor=m.d001.value(),
+                pivot=pivot,
+                mode=mode,
+                absolute=m.cmb_scale_mode.currentText() == "Absolute",
+                group_mode=m.cmb033.currentData(),
+                snap_mode=m.cmb034.currentData(),
+                samples=m.s014.value(),
+                include_rotation=include_rotation,
+                split_static=m.chk_split_static.isChecked(),
+                merge_touching=m.chk_merge_touching.isChecked(),
+                on_replace=rep,
+                on_move=mov,
+            )
         if not keys_scaled:
             self.sb.message_box("No keyframes found to scale.")
 
@@ -1567,9 +1618,15 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         untie = m.cmb_tie.currentText() == "Untie"
         # Absolute range = the keyed extent (every curve's genuine first/last keys), so
         # untie+absolute would delete real animation endpoints — absolute applies only when tying.
-        changed = btk.tie_keyframes(
-            objects, untie=untie, absolute=not untie and m.chk023.isChecked()
-        )
+        # A removed bookend takes its shot claims with it.
+        label = "Untie Keys" if untie else "Tie Keys"
+        with self._key_edit(label, objects) as (rep, _mov):
+            changed = btk.tie_keyframes(
+                objects,
+                untie=untie,
+                absolute=not untie and m.chk023.isChecked(),
+                on_delete=rep,
+            )
         verb = "Untied" if untie else "Tied"
         self.sb.message_box(f"{verb} <hl>{changed}</hl> bookend key(s).")
 
@@ -1748,15 +1805,20 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         m = widget.option_box.menu
         selected = self.selected_objects()
         stats = {}
-        btk.optimize_keys(
-            selected or None,
-            # A negative tolerance is optimize_keys' extremes sentinel.
-            value_tolerance=-1 if m.chk040.isChecked() else m.d017.value(),
-            remove_static_curves=m.chk000.isChecked(),
-            remove_flat_keys=m.chk030.isChecked(),
-            simplify_keys=m.chk032.isChecked(),
-            stats=stats,
-        )
+        # A key (or curve) it deletes takes its shot claims with it.  Nothing
+        # claimed: no hook, so a production scene pays no key-time reads.
+        objects = selected or None
+        with self._key_edit("Optimize Keys", objects, claimed_only=True) as (rep, _):
+            btk.optimize_keys(
+                objects,
+                # A negative tolerance is optimize_keys' extremes sentinel.
+                value_tolerance=-1 if m.chk040.isChecked() else m.d017.value(),
+                remove_static_curves=m.chk000.isChecked(),
+                remove_flat_keys=m.chk030.isChecked(),
+                simplify_keys=m.chk032.isChecked(),
+                stats=stats,
+                on_delete=rep,
+            )
         cb, ca = stats["curves_before"], stats["curves_after"]
         kb, ka = stats["keys_before"], stats["keys_after"]
         scope = "selected objects" if selected else "scene"
@@ -1838,14 +1900,17 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         """Repair Corrupted Curves — strip NaN/infinite or out-of-range keys; delete unfixable curves."""
         m = widget.option_box.menu
         selected = self.selected_objects()
-        r = btk.repair_corrupted_curves(
-            selected or None,
-            delete_unfixable=m.chk036.isChecked(),
-            fix_infinite=m.chk037.isChecked(),
-            fix_invalid_times=m.chk038.isChecked(),
-            time_threshold=m.d015.value(),
-            value_threshold=m.d016.value(),
-        )
+        # A key (or curve) it deletes takes its shot claims with it.
+        with self._key_edit("Repair Curves", selected or None) as (rep, _mov):
+            r = btk.repair_corrupted_curves(
+                selected or None,
+                delete_unfixable=m.chk036.isChecked(),
+                fix_infinite=m.chk037.isChecked(),
+                fix_invalid_times=m.chk038.isChecked(),
+                time_threshold=m.d015.value(),
+                value_threshold=m.d016.value(),
+                on_delete=rep,
+            )
         scope = "selected objects" if selected else "scene"
         if not r["corrupted_found"]:
             self.sb.message_box(
@@ -1893,9 +1958,12 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         """
         objects = self.selected_objects() or None
         scope = "the selected objects" if objects else "the scene"
-        snapped = btk.snap_keys(
-            objects, method=widget.option_box.menu.cmb042.currentData()
-        )
+        with self._key_edit("Snap Keys", objects) as (_r, mov):
+            snapped = btk.snap_keys(
+                objects,
+                method=widget.option_box.menu.cmb042.currentData(),
+                on_move=mov,
+            )
         if not snapped:
             self.sb.message_box(f"No keys on {scope} sit on a fractional frame.")
             return

@@ -36,8 +36,8 @@
       "classes": [
         {
           "name": "AnimationMixin",
-          "summary": "Shared tooltip text for ``slots/{maya,blender}/animation.py``.",
-          "line": 37,
+          "summary": "Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.",
+          "line": 46,
           "bases": [],
           "members": [
             {
@@ -46,7 +46,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
-              "line": 407,
+              "line": 469,
               "deprecated": false
             }
           ]
@@ -528,7 +528,7 @@
         {
           "name": "SceneMixin",
           "summary": "Shared ``scene`` panel behavior.",
-          "line": 43,
+          "line": 44,
           "bases": [],
           "members": [
             {
@@ -537,7 +537,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Scene in the chosen format, using the configured options.",
-              "line": 321,
+              "line": 322,
               "deprecated": false
             },
             {
@@ -546,7 +546,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 625,
+              "line": 655,
               "deprecated": false
             },
             {
@@ -555,7 +555,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.",
-              "line": 681,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -564,7 +564,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box: scope, profile, and one toggle per section.",
-              "line": 812,
+              "line": 852,
               "deprecated": false
             },
             {
@@ -573,7 +573,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the sectioned audit report to the viewer dialog.",
-              "line": 859,
+              "line": 899,
               "deprecated": false
             },
             {
@@ -582,7 +582,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 924,
+              "line": 964,
               "deprecated": false
             },
             {
@@ -591,7 +591,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 968,
+              "line": 1008,
               "deprecated": false
             }
           ]
@@ -1070,7 +1070,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its slot method.",
-              "line": 99,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -1079,7 +1079,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 104,
+              "line": 109,
               "deprecated": false
             },
             {
@@ -1088,7 +1088,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame (absolute, or relative offset from the current frame);",
-              "line": 219,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -1097,7 +1097,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 243,
+              "line": 248,
               "deprecated": false
             },
             {
@@ -1106,7 +1106,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert Keys (mirror key times and/or values — reverses timing / flips motion).",
-              "line": 318,
+              "line": 323,
               "deprecated": false
             },
             {
@@ -1115,7 +1115,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 336,
+              "line": 346,
               "deprecated": false
             },
             {
@@ -1124,7 +1124,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys (re-time selected objects sequentially).",
-              "line": 444,
+              "line": 454,
               "deprecated": false
             },
             {
@@ -1133,7 +1133,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 463,
+              "line": 476,
               "deprecated": false
             },
             {
@@ -1142,7 +1142,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 504,
+              "line": 517,
               "deprecated": false
             },
             {
@@ -1151,7 +1151,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 524,
+              "line": 541,
               "deprecated": false
             },
             {
@@ -1160,7 +1160,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys (clear all animation on the selection, or only a time-scoped subset).",
-              "line": 546,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -1169,7 +1169,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 557,
+              "line": 578,
               "deprecated": false
             },
             {
@@ -1178,7 +1178,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust Key Spacing (shift every key at/after the frame by the amount).",
-              "line": 658,
+              "line": 679,
               "deprecated": false
             },
             {
@@ -1187,7 +1187,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 682,
+              "line": 707,
               "deprecated": false
             },
             {
@@ -1196,7 +1196,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys (active object → other selected, independent copies).",
-              "line": 721,
+              "line": 746,
               "deprecated": false
             },
             {
@@ -1205,7 +1205,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 742,
+              "line": 772,
               "deprecated": false
             },
             {
@@ -1214,7 +1214,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys",
-              "line": 816,
+              "line": 846,
               "deprecated": false
             },
             {
@@ -1223,7 +1223,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 845,
+              "line": 880,
               "deprecated": false
             },
             {
@@ -1232,7 +1232,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys (``select_control_point`` — shows in the Dope Sheet / Graph Editor).",
-              "line": 897,
+              "line": 932,
               "deprecated": false
             },
             {
@@ -1241,7 +1241,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 919,
+              "line": 954,
               "deprecated": false
             },
             {
@@ -1250,7 +1250,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes (keys picked in the Dope Sheet / Graph Editor).",
-              "line": 963,
+              "line": 998,
               "deprecated": false
             },
             {
@@ -1259,7 +1259,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 981,
+              "line": 1021,
               "deprecated": false
             },
             {
@@ -1268,7 +1268,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys (key viewport + render visibility).",
-              "line": 1043,
+              "line": 1083,
               "deprecated": false
             },
             {
@@ -1277,7 +1277,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1062,
+              "line": 1105,
               "deprecated": false
             },
             {
@@ -1286,7 +1286,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys (align the selection's keys to the current frame).",
-              "line": 1117,
+              "line": 1150,
               "deprecated": false
             },
             {
@@ -1295,7 +1295,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1144,
+              "line": 1182,
               "deprecated": false
             },
             {
@@ -1304,7 +1304,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys (from the active object;",
-              "line": 1174,
+              "line": 1212,
               "deprecated": false
             },
             {
@@ -1313,7 +1313,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1201,
+              "line": 1241,
               "deprecated": false
             },
             {
@@ -1322,7 +1322,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys (independent copies onto the selection).",
-              "line": 1222,
+              "line": 1262,
               "deprecated": false
             },
             {
@@ -1331,7 +1331,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1244,
+              "line": 1290,
               "deprecated": false
             },
             {
@@ -1340,7 +1340,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys",
-              "line": 1421,
+              "line": 1467,
               "deprecated": false
             },
             {
@@ -1349,7 +1349,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1467,
+              "line": 1518,
               "deprecated": false
             },
             {
@@ -1358,7 +1358,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Tangents (key interpolation type — stepped / linear / smooth).",
-              "line": 1499,
+              "line": 1550,
               "deprecated": false
             },
             {
@@ -1367,7 +1367,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range (to the keyed extent of the selection, or the whole scene).",
-              "line": 1509,
+              "line": 1560,
               "deprecated": false
             },
             {
@@ -1376,7 +1376,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1521,
+              "line": 1572,
               "deprecated": false
             },
             {
@@ -1385,7 +1385,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 1563,
+              "line": 1614,
               "deprecated": false
             },
             {
@@ -1394,7 +1394,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1577,
+              "line": 1634,
               "deprecated": false
             },
             {
@@ -1403,7 +1403,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render a per-object keyframe summary to the viewer dialog.",
-              "line": 1622,
+              "line": 1679,
               "deprecated": false
             },
             {
@@ -1412,7 +1412,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1656,
+              "line": 1713,
               "deprecated": false
             },
             {
@@ -1421,7 +1421,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1746,
+              "line": 1803,
               "deprecated": false
             },
             {
@@ -1430,7 +1430,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1778,
+              "line": 1840,
               "deprecated": false
             },
             {
@@ -1439,7 +1439,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;",
-              "line": 1837,
+              "line": 1899,
               "deprecated": false
             },
             {
@@ -1448,7 +1448,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 1869,
+              "line": 1934,
               "deprecated": false
             },
             {
@@ -1457,7 +1457,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1881,
+              "line": 1946,
               "deprecated": false
             },
             {
@@ -1466,7 +1466,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 1905,
+              "line": 1973,
               "deprecated": false
             },
             {
@@ -1475,7 +1475,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1",
-              "line": 1910,
+              "line": 1978,
               "deprecated": false
             },
             {
@@ -1484,7 +1484,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with",
-              "line": 1917,
+              "line": 1985,
               "deprecated": false
             },
             {
@@ -1493,7 +1493,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:",
-              "line": 1924,
+              "line": 1992,
               "deprecated": false
             }
           ]
@@ -1990,7 +1990,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 802,
+              "line": 816,
               "deprecated": false
             },
             {
@@ -1999,7 +1999,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert the selected object(s) to another type (or run a Convert-list action that",
-              "line": 813,
+              "line": 827,
               "deprecated": false
             },
             {
@@ -2008,7 +2008,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis",
-              "line": 863,
+              "line": 877,
               "deprecated": false
             },
             {
@@ -2017,7 +2017,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 886,
+              "line": 900,
               "deprecated": false
             },
             {
@@ -2026,7 +2026,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize — relabel the shared \"Delete History\" button (its text lives in the shared",
-              "line": 994,
+              "line": 1008,
               "deprecated": false
             },
             {
@@ -2035,7 +2035,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize — purge orphaned (zero-user) datablocks;",
-              "line": 1031,
+              "line": 1045,
               "deprecated": false
             },
             {
@@ -2044,7 +2044,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock).",
-              "line": 1052,
+              "line": 1066,
               "deprecated": false
             },
             {
@@ -2053,7 +2053,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make",
-              "line": 1071,
+              "line": 1085,
               "deprecated": false
             }
           ]
@@ -3763,8 +3763,8 @@
               "qualname": "RiggingSlots.tb003",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Create Locator at Selection — an Empty (locator) at each selected object's origin,",
-              "line": 361,
+              "summary": "Create Locator at Selection — a zeroed locator Empty at each selected object's",
+              "line": 389,
               "deprecated": false
             },
             {
@@ -3773,7 +3773,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 399,
+              "line": 436,
               "deprecated": false
             },
             {
@@ -3782,7 +3782,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).",
-              "line": 431,
+              "line": 468,
               "deprecated": false
             },
             {
@@ -3791,7 +3791,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 466,
+              "line": 503,
               "deprecated": false
             },
             {
@@ -3800,7 +3800,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Quick Rig — a procedural rig opens its panel (mayatk parity);",
-              "line": 485,
+              "line": 522,
               "deprecated": false
             },
             {
@@ -3809,7 +3809,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled",
-              "line": 525,
+              "line": 562,
               "deprecated": false
             }
           ]
@@ -3837,7 +3837,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 208,
+              "line": 209,
               "deprecated": false
             },
             {
@@ -3846,7 +3846,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 248,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -3855,7 +3855,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 261,
+              "line": 262,
               "deprecated": false
             },
             {
@@ -3864,7 +3864,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 268,
+              "line": 269,
               "deprecated": false
             },
             {
@@ -3873,7 +3873,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 277,
+              "line": 278,
               "deprecated": false
             },
             {
@@ -3882,7 +3882,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 282,
+              "line": 283,
               "deprecated": false
             },
             {
@@ -3891,7 +3891,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 300,
+              "line": 301,
               "deprecated": false
             },
             {
@@ -3900,7 +3900,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 337,
+              "line": 339,
               "deprecated": false
             },
             {
@@ -3909,7 +3909,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 389,
+              "line": 391,
               "deprecated": false
             },
             {
@@ -3918,7 +3918,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 403,
+              "line": 405,
               "deprecated": false
             },
             {
@@ -3927,7 +3927,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 645,
+              "line": 647,
               "deprecated": false
             },
             {
@@ -3936,7 +3936,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 660,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -3945,7 +3945,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 664,
+              "line": 666,
               "deprecated": false
             },
             {
@@ -3954,7 +3954,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 668,
+              "line": 670,
               "deprecated": false
             },
             {
@@ -3963,7 +3963,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 675,
+              "line": 677,
               "deprecated": false
             },
             {
@@ -3972,7 +3972,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 681,
+              "line": 683,
               "deprecated": false
             },
             {
@@ -3981,7 +3981,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 688,
+              "line": 690,
               "deprecated": false
             },
             {
@@ -3990,7 +3990,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 705,
+              "line": 707,
               "deprecated": false
             },
             {
@@ -3999,7 +3999,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 730,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -4008,7 +4008,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 736,
+              "line": 738,
               "deprecated": false
             },
             {
@@ -4017,7 +4017,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 747,
+              "line": 749,
               "deprecated": false
             },
             {
@@ -4026,7 +4026,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 758,
+              "line": 760,
               "deprecated": false
             }
           ]
@@ -5219,7 +5219,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its slot method.",
-              "line": 86,
+              "line": 91,
               "deprecated": false
             },
             {
@@ -5228,7 +5228,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Repair Visibility Tangents",
-              "line": 90,
+              "line": 95,
               "deprecated": false
             },
             {
@@ -5237,7 +5237,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame Init",
-              "line": 94,
+              "line": 99,
               "deprecated": false
             },
             {
@@ -5246,7 +5246,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Go To Frame: jump the time slider to the next/previous key or a snap target.",
-              "line": 232,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -5255,7 +5255,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert Keyframes Init",
-              "line": 259,
+              "line": 264,
               "deprecated": false
             },
             {
@@ -5264,7 +5264,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Invert keyframes (selected keys preferred, fallback to all keys).",
-              "line": 337,
+              "line": 342,
               "deprecated": false
             },
             {
@@ -5273,7 +5273,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust Spacing Init",
-              "line": 366,
+              "line": 376,
               "deprecated": false
             },
             {
@@ -5282,7 +5282,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Adjust spacing",
-              "line": 475,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -5291,7 +5291,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys Init",
-              "line": 506,
+              "line": 520,
               "deprecated": false
             },
             {
@@ -5300,7 +5300,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stagger Keys",
-              "line": 664,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -5309,7 +5309,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys Init",
-              "line": 693,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -5318,7 +5318,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Transfer Keys",
-              "line": 748,
+              "line": 767,
               "deprecated": false
             },
             {
@@ -5327,7 +5327,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys Init",
-              "line": 762,
+              "line": 786,
               "deprecated": false
             },
             {
@@ -5336,7 +5336,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Add/Remove Intermediate Keys.",
-              "line": 842,
+              "line": 866,
               "deprecated": false
             },
             {
@@ -5345,7 +5345,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys Init",
-              "line": 892,
+              "line": 918,
               "deprecated": false
             },
             {
@@ -5354,7 +5354,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Move Keys: move the selected keys in time, with optional spacing/alignment.",
-              "line": 959,
+              "line": 974,
               "deprecated": false
             },
             {
@@ -5363,7 +5363,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes Init",
-              "line": 978,
+              "line": 998,
               "deprecated": false
             },
             {
@@ -5372,7 +5372,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Align Selected Keyframes",
-              "line": 1023,
+              "line": 1043,
               "deprecated": false
             },
             {
@@ -5381,7 +5381,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys Init",
-              "line": 1049,
+              "line": 1074,
               "deprecated": false
             },
             {
@@ -5390,7 +5390,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Visibility Keys",
-              "line": 1109,
+              "line": 1134,
               "deprecated": false
             },
             {
@@ -5399,7 +5399,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames Init",
-              "line": 1134,
+              "line": 1162,
               "deprecated": false
             },
             {
@@ -5408,7 +5408,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Keys to Frames",
-              "line": 1171,
+              "line": 1199,
               "deprecated": false
             },
             {
@@ -5417,7 +5417,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys Init",
-              "line": 1203,
+              "line": 1234,
               "deprecated": false
             },
             {
@@ -5426,7 +5426,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Keys: delete keys on the selection over a chosen time range.",
-              "line": 1243,
+              "line": 1274,
               "deprecated": false
             },
             {
@@ -5435,7 +5435,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes Init",
-              "line": 1261,
+              "line": 1294,
               "deprecated": false
             },
             {
@@ -5444,7 +5444,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tie/Untie Keyframes",
-              "line": 1309,
+              "line": 1342,
               "deprecated": false
             },
             {
@@ -5453,7 +5453,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys Init",
-              "line": 1326,
+              "line": 1361,
               "deprecated": false
             },
             {
@@ -5462,7 +5462,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Select Keys: select keys on the selection within a frame range.",
-              "line": 1386,
+              "line": 1421,
               "deprecated": false
             },
             {
@@ -5471,7 +5471,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys Init",
-              "line": 1418,
+              "line": 1453,
               "deprecated": false
             },
             {
@@ -5480,7 +5480,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Scale Keys: scale the selected keys in time about a pivot.",
-              "line": 1616,
+              "line": 1651,
               "deprecated": false
             },
             {
@@ -5489,7 +5489,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1693,
+              "line": 1733,
               "deprecated": false
             },
             {
@@ -5498,7 +5498,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Repair Corrupted Curves",
-              "line": 1751,
+              "line": 1791,
               "deprecated": false
             },
             {
@@ -5507,7 +5507,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — initialize the option box.",
-              "line": 1819,
+              "line": 1862,
               "deprecated": false
             },
             {
@@ -5516,7 +5516,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1830,
+              "line": 1873,
               "deprecated": false
             },
             {
@@ -5525,7 +5525,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — option box.",
-              "line": 1888,
+              "line": 1934,
               "deprecated": false
             },
             {
@@ -5534,7 +5534,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Animation Info — render the report to the viewer dialog.",
-              "line": 1964,
+              "line": 2010,
               "deprecated": false
             },
             {
@@ -5543,7 +5543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents Init",
-              "line": 2012,
+              "line": 2058,
               "deprecated": false
             },
             {
@@ -5552,7 +5552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Step Tangents — set stepped tangents on keys.",
-              "line": 2077,
+              "line": 2123,
               "deprecated": false
             },
             {
@@ -5561,7 +5561,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys Init",
-              "line": 2101,
+              "line": 2147,
               "deprecated": false
             },
             {
@@ -5570,7 +5570,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Copy Keys: copy the selected objects' keys for later paste.",
-              "line": 2137,
+              "line": 2183,
               "deprecated": false
             },
             {
@@ -5579,7 +5579,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys Init",
-              "line": 2187,
+              "line": 2235,
               "deprecated": false
             },
             {
@@ -5588,7 +5588,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Paste Keys: paste previously copied keys onto the selection.",
-              "line": 2210,
+              "line": 2258,
               "deprecated": false
             },
             {
@@ -5597,7 +5597,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys Init",
-              "line": 2242,
+              "line": 2295,
               "deprecated": false
             },
             {
@@ -5606,7 +5606,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 2336,
+              "line": 2389,
               "deprecated": false
             },
             {
@@ -5615,7 +5615,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Smart Bake",
-              "line": 2387,
+              "line": 2444,
               "deprecated": false
             },
             {
@@ -5624,7 +5624,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Sequencer",
-              "line": 2391,
+              "line": 2448,
               "deprecated": false
             },
             {
@@ -5633,7 +5633,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest",
-              "line": 2395,
+              "line": 2452,
               "deprecated": false
             },
             {
@@ -5642,7 +5642,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fit Playback Range",
-              "line": 2399,
+              "line": 2456,
               "deprecated": false
             },
             {
@@ -5651,7 +5651,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Key Stash",
-              "line": 2403,
+              "line": 2460,
               "deprecated": false
             }
           ]
@@ -8512,7 +8512,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create Locator at Selection",
-              "line": 440,
+              "line": 454,
               "deprecated": false
             },
             {
@@ -8521,7 +8521,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Attributes",
-              "line": 500,
+              "line": 520,
               "deprecated": false
             },
             {
@@ -8530,7 +8530,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lock/Unlock Attributes",
-              "line": 533,
+              "line": 553,
               "deprecated": false
             },
             {
@@ -8539,7 +8539,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Effects",
-              "line": 568,
+              "line": 588,
               "deprecated": false
             }
           ]
@@ -8594,7 +8594,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 306,
+              "line": 309,
               "deprecated": false
             },
             {
@@ -8603,7 +8603,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import: import a file, or open import / FBX / OBJ preset options.",
-              "line": 322,
+              "line": 325,
               "deprecated": false
             },
             {
@@ -8612,7 +8612,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 376,
+              "line": 368,
               "deprecated": false
             },
             {
@@ -8621,7 +8621,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 428,
+              "line": 420,
               "deprecated": false
             },
             {
@@ -8630,7 +8630,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 439,
+              "line": 431,
               "deprecated": false
             },
             {
@@ -8639,7 +8639,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 452,
+              "line": 444,
               "deprecated": false
             },
             {
@@ -8648,7 +8648,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 465,
+              "line": 457,
               "deprecated": false
             },
             {
@@ -8657,7 +8657,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 469,
+              "line": 461,
               "deprecated": false
             },
             {
@@ -8666,7 +8666,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 473,
+              "line": 465,
               "deprecated": false
             },
             {
@@ -8675,7 +8675,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 477,
+              "line": 469,
               "deprecated": false
             },
             {
@@ -8684,7 +8684,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 728,
+              "line": 720,
               "deprecated": false
             },
             {
@@ -8693,7 +8693,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 732,
+              "line": 724,
               "deprecated": false
             },
             {
@@ -8702,7 +8702,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 736,
+              "line": 728,
               "deprecated": false
             },
             {
@@ -8711,7 +8711,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 740,
+              "line": 732,
               "deprecated": false
             },
             {
@@ -8720,7 +8720,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 757,
+              "line": 749,
               "deprecated": false
             },
             {
@@ -8729,7 +8729,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 761,
+              "line": 753,
               "deprecated": false
             },
             {
@@ -8738,7 +8738,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 777,
+              "line": 769,
               "deprecated": false
             },
             {
@@ -8747,7 +8747,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 792,
+              "line": 784,
               "deprecated": false
             },
             {
@@ -8756,7 +8756,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 809,
+              "line": 801,
               "deprecated": false
             },
             {
@@ -8765,7 +8765,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 844,
+              "line": 836,
               "deprecated": false
             },
             {
@@ -8774,7 +8774,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 888,
+              "line": 880,
               "deprecated": false
             }
           ]

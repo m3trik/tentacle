@@ -224,6 +224,24 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
             setValue=1.0,
             setToolTip="Display size of the locator Empty.",
         )
+        # Blender only: a Maya group has no display to choose.
+        group_display = m.add(
+            "QComboBox",
+            setObjectName="cmb012",
+            setToolTip=(
+                "How the group Empty draws. Either way it exports, and goes\n"
+                "to Maya, as a group.\n"
+                "None: nothing, as a Maya group. A repeat click on the\n"
+                "locator's centre cycles to it, as Blender cycles every\n"
+                "object under a click.\n"
+                "Ring: a circle around the locator. It marks the rig and\n"
+                "gives the group a handle, and the locator's centre stays\n"
+                "the locator's."
+            ),
+        )
+        for text, data in (("None", "none"), ("Ring", "ring")):
+            group_display.addItem(f"Group Display: {text}", data)
+        self._add_rotate_order_combo(m)
         m.add("Separator", setTitle="Naming")
         # Seeded from the shared naming convention, not from literals: the group
         # and the locator are Empties this tool creates, so their type is known here.
@@ -338,9 +356,9 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
             tooltip=self.sb.tooltip.fmt(
                 title="Remove Locator",
                 body="Dissolve the locator rig on the selection: unlock the "
-                "child channels, un-parent the children to world (transforms "
-                "kept), then delete the locator Empty -- and its group Empty, "
-                "when that is left childless.",
+                "child channels, hand the children back to where the rig took "
+                "them from (world transforms kept), then delete the locator "
+                "Empty -- and its group Empty, when that is left childless.",
                 notes=["Select the locator Empty, not the rigged geometry."],
             ),
         )
@@ -357,16 +375,33 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
         key = btk.Naming.type_key(objects[0]) if objects else "mesh"
         return key if ptk.NamingConvention.affix(key) else "mesh"
 
+    def _selected_rotate_orders(self):
+        """``(object, label, rotate order)`` per selected object (cmb011's action)."""
+        return [(o, o.name, o.rotation_mode.lower()) for o in self.selected_objects()]
+
+    @staticmethod
+    @btk.undoable
+    def _set_rotate_orders(objects, order):
+        """The host's pose-keeping rotate-order change (one undo step)."""
+        return btk.XformUtils.set_rotate_order(objects, order)
+
     @btk.undoable
     def tb003(self, widget):
-        """Create Locator at Selection — an Empty (locator) at each selected object's origin,
-        parented under a group Empty, with the geometry renamed and (optionally) channel-locked
-        (``btk.RigUtils.create_locator_at_object``, the mirror of mayatk's). A lone Empty at the
-        cursor when nothing is selected."""
+        """Create Locator at Selection — a zeroed locator Empty at each selected object's
+        origin, under a group Empty, with the geometry frozen under it, renamed and
+        (optionally) channel-locked (``btk.RigUtils.create_locator_at_object``, the mirror of
+        mayatk's). A lone locator Empty at the cursor when nothing is selected."""
         objects = self.selected_objects()
         m = widget.option_box.menu
         if not objects:
-            bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
+            # Windowless (tentacle's Qt timer), the op and ``context.object`` would
+            # both address the scene's default view layer, not the window's.
+            with btk.window_context_override():
+                bpy.ops.object.empty_add(type="PLAIN_AXES", radius=m.s001.value())
+                loc = bpy.context.object
+                loc.rotation_mode = m.cmb011.currentData().upper()
+                # Typed a locator, it stays one once something is parented under it.
+                btk.NodeUtils.set_maya_node_type(loc, "locator")
             return
         grp_suffix, grp_affix_mode = self._affix_arg(m.t002)
         loc_suffix, loc_affix_mode = self._affix_arg(m.t000)
@@ -385,6 +420,8 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
             lock_translate=m.chk007.isChecked(),
             lock_rotation=m.chk008.isChecked(),
             lock_scale=m.chk009.isChecked(),
+            rotate_order=m.cmb011.currentData(),
+            group_display=m.cmb012.currentData(),
         )
 
     @btk.undoable

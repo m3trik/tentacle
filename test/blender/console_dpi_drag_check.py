@@ -564,6 +564,15 @@ def _go():
             if os.path.isdir(_p) and _p not in sys.path:
                 sys.path.insert(0, _p)
         os.environ.setdefault("QT_API", "pyside6")
+        # A throwaway Blender: keep its settings off the developer's live uitk stores.
+        from uitk.testing import TestSandbox
+
+        try:
+            TestSandbox.activate()
+        except ImportError:  # a first launch: tentacle provisions Qt as it imports
+            from tentacle import tcl_blender  # noqa: F401
+
+            TestSandbox.activate()
         # Candidate fix under test: freeze Qt's high-DPI scaling (our embed geometry
         # is pure physical px). Must be set before the QApplication is created.
         if os.environ.get("CONSOLE_DPI_QT_NOSCALE") == "1":

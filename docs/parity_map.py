@@ -38,7 +38,6 @@ CONTROLS = {
         "flatten_sheared_chains": {"status": "na", "reason": "a Blender object's local matrix is loc/rot/scale, so a sheared chain cannot be authored"},
         "check_sheared_local_transforms": {"status": "na", "reason": "see flatten_sheared_chains"},
         "check_mangled_names": {"status": "na", "reason": "the patterns are Maya import escapes (FBXASC###, __RZTMP) that Blender never writes"},
-        "check_uv_snapshots": {"status": "na", "reason": "the _uv_snap_* backup sets are mayatk Auto Unwrap temporaries, and Blender's unwrap takes none (blendertk TaskManager.PARITY_GAPS)"},
         "check_default_materials": {"status": "pending", "reason": "not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)"},
         "verify_deliverables": {"status": "pending", "reason": "post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass"},
     },
@@ -477,16 +476,11 @@ CONTROLS = {
         # image_texture_nodes), walking node groups, with Maya's replace-select semantics.
         # Blender-verified in test_texture_path_editor.py (51/51).
         "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
-        "chk_allow_missing": {"status": "pending", "reason": "Allow Missing Targets (2026-08-25) — Set Texture Directory's escape hatch: repath onto a folder that does not hold the file YET (the deliberate aim-a-batch-at-a-folder-you-are-about-to-fill case), off by default so the normal path still refuses a rewrite that would name nothing. The Blender twin needs the same tile-aware existence rule underneath it, which is real open work: Blender models a tile set as img.tiles + source == 'TILED', not a glob, so mayatk's MatUtils.texture_tiles does not transfer and the verdict has to be rebuilt on the bpy API and verified live. Tracked in BACKLOG (blendertk Texture Path Editor repaths an image onto a file that is not there)."},
-        # Rename File, Keep Names In Sync (+ its two option-box fields) and the truncate length
-        # landed in mayatk 2026-10-04; the Blender panel has none of them yet. Real open work with
-        # one BACKLOG entry for the lot: "the Blender Texture Path Editor lacks mayatk's fact
-        # columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length".
-        "row_rename_file": {"status": "pending", "reason": "Rename File... (2026-10-04) -- the row menu renames the row's texture file ON DISK in its own cell (a UDIM set renames every tile) and repoints every file node reading it (mayatk MatUtils.rename_texture_file; a lightmap row re-stamps its bake markers through LightmapRecords.rename_lightmap). blendertk has no engine twin yet: the rename has to repoint Image datablocks' filepath. Tracked in BACKLOG (the Blender Texture Path Editor lacks mayatk's fact columns, Rename File, Keep Names In Sync, multi-row Browse and truncate length)."},
-        "chk_sync_names": {"status": "pending", "reason": "Keep Names In Sync (2026-10-04) -- renaming a shader, a texture or a file node renames the rest of its material to match: the shader, its dominant texture set's files on disk, their file nodes and the set's lightmap (mayatk MatUtils.sync_material_names). The Blender twin needs its own engine over materials, Image datablocks and image texture nodes. Tracked in BACKLOG (same entry as row_rename_file)."},
-        "txt_shader_affix": {"status": "pending", "reason": "Keep Names In Sync's option box: the affix the synced shader's name wears (the scene's material naming convention by default). Rides the chk_sync_names port."},
-        "txt_file_node_suffix": {"status": "pending", "reason": "Keep Names In Sync's option box: the suffix a synced file node's name takes after its texture's. Rides the chk_sync_names port."},
-        "spn_truncate_length": {"status": "pending", "reason": "Truncate Texture Paths' option box (2026-10-04): the length a truncated path shortens to. The Blender panel truncates at a fixed _PATH_TRUNCATE_LENGTH (67) with no option box. Tracked in BACKLOG (same entry as row_rename_file)."},
+        # Allow Missing Targets, Rename File, Keep Names In Sync (+ its two option-box
+        # fields) and the truncate length landed in the Blender panel 2026-10-05 -- engine
+        # btk.MatUtils.set_texture_directory(allow_missing=...), rename_texture_file /
+        # sync_material_names + LightmapRecords.rename_lightmap; Blender-verified in
+        # test_texture_path_editor.py. Their pending rows are gone.
     },
     # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
     # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/

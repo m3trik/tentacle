@@ -1972,7 +1972,7 @@ class TentacleInstaller:
 
         The ``.mod`` names the root RELATIVE to itself (``../tentacle``). Maya never resolved
         the absolute path it used to carry once that path had a non-ASCII letter in it
-        (measured on Maya 2025, a prefs dir named "Jose Angstrom" with its accents, UTF-8
+        (measured on Maya 2025, a prefs dir named with accented letters ("é", "Å"), UTF-8
         .mod): such a user got a working first drop and no tentacle at any start after it.
         The relative form loaded there, with a space and plain alike, and it is pure ASCII.
         """

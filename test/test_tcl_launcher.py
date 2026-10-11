@@ -841,6 +841,24 @@ class TestForksUseTheSharedContract(unittest.TestCase):
                 self.assertNotIn(f'"key_show", "{Tcl.DEFAULT_KEY}"', src)
 
 
+class TestStyleDefaults(unittest.TestCase):
+    """Window blur is uitk's own per-theme default: on in light and dark, off in the
+    opaque high-contrast theme. tentacle sets no base value over it.
+
+    The entry classes used to set ``WINDOW_BLUR`` "on" in EVERY theme through
+    ``StyleSheet.set_base_variable``: redundant once uitk shipped it on, and it turned
+    blur on in high-contrast, whose surfaces are opaque (and a theme without the token
+    would have raised out of the entry class, leaving no menu).
+    """
+
+    def test_no_tentacle_module_overrides_uitk_s_theme_defaults(self):
+        for path in sorted(PKG.rglob("*.py")):
+            with self.subTest(module=path.name):
+                src = path.read_text(encoding="utf-8")
+                self.assertNotIn("set_base_variable", src)
+                self.assertNotIn("WINDOW_BLUR", src)
+
+
 class TestEngineExtras(unittest.TestCase):
     """The DCC engine is an ``[extra]``, resolved from installed metadata.
 

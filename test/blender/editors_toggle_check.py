@@ -43,6 +43,15 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_p) and _p not in sys.path:
         sys.path.insert(0, _p)
 os.environ.setdefault("QT_API", "pyside6")
+# A throwaway Blender: keep its settings off the developer's live uitk stores.
+from uitk.testing import TestSandbox  # noqa: E402
+
+try:
+    TestSandbox.activate()
+except ImportError:  # a first launch: tentacle provisions Qt as it imports
+    from tentacle import tcl_blender  # noqa: E402, F401
+
+    TestSandbox.activate()
 
 TEMP = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "temp_tests")

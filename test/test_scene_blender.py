@@ -55,14 +55,16 @@ def _method(class_node, name):
 
 
 class TestGltfImportEntry(unittest.TestCase):
-    """SceneSlots (Blender): "Import glTF" is on the Import list, natively.
+    """SceneSlots (Blender): "Import glTF" is on the Import list, through the engine.
 
-    Parity with the Maya fork's entry of the same name, which has to reach glTF
-    through the headless-Blender bridge (Maya ships no glTF importer). Here the
-    operator is native, so what has to hold is the LABEL — a tentacle slot must not
-    have to branch on the host to offer the same import — and that the value is the
-    op path ``list001`` knows how to dispatch, since a typo would simply drop the
-    row from the list with no error (``list001_init`` filters on ``resolve_op``).
+    Parity with the Maya fork's entry of the same name: the LABEL -- a tentacle slot
+    must not have to branch on the host to offer the same import -- and the route.
+    The entry was the stock ``import_scene.gltf`` operator until a KTX2 deliverable
+    met it: Blender's importer refuses a file that requires ``KHR_texture_basisu``
+    ("Extension KHR_texture_basisu is not available on this addon version"), and
+    the operator's own file browser leaves nowhere to decode it first. It now calls
+    the shared ``SceneMixin._import_gltf`` -> ``_pull_scene`` ->
+    ``btk.MayaSceneImport.import_scene``, which imports a decoded copy.
     """
 
     def setUp(self):
@@ -76,15 +78,24 @@ class TestGltfImportEntry(unittest.TestCase):
             if isinstance(k, ast.Constant)
         }
 
-    def test_entry_is_registered_as_the_native_operator(self):
+    def test_entry_routes_through_the_shared_import(self):
         self.assertIn("Import glTF", self.entries)
         value = self.entries["Import glTF"]
         self.assertIsInstance(
             value,
-            ast.Constant,
-            "the Blender entry must be a bpy.ops path, not a lambda",
+            ast.Lambda,
+            "the stock operator refuses a KTX2 glTF; the entry must call the engine",
         )
-        self.assertEqual(value.value, "import_scene.gltf")
+        self.assertIn("_import_gltf", ast.unparse(value))
+
+    def test_shared_import_pulls_through_the_engine(self):
+        mixin = _class_node(
+            (ROOT / "tentacle" / "slots" / "_scene.py").read_text(encoding="utf-8"),
+            "SceneMixin",
+        )
+        method = _method(mixin, "_import_gltf")
+        self.assertIsNotNone(method, "SceneMixin._import_gltf is missing")
+        self.assertIn("_pull_scene", ast.unparse(method))
 
     def test_label_matches_the_maya_fork(self):
         # Reused labels are the cross-DCC contract (and QSettings key); a Blender-only

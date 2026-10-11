@@ -273,9 +273,16 @@ class TestSceneExporterOnExportList(unittest.TestCase):
 
     def test_usd_entry_dispatches_to_the_shared_usd_export(self):
         calls = []
-        self.inst._export_usd = lambda: calls.append("usd")
+        self.inst._export_one_shot = calls.append
         self.inst.list002(self._Item("Export USD"))
         self.assertEqual(calls, ["usd"])
+
+    def test_gltf_entry_dispatches_to_the_shared_glb_export(self):
+        """Maya has no glTF writer, so the entry rides Export Scene's GLB route."""
+        calls = []
+        self.inst._export_one_shot = calls.append
+        self.inst.list002(self._Item("Export glTF"))
+        self.assertEqual(calls, ["glb"])
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
