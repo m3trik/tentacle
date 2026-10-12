@@ -273,5 +273,32 @@ class TestPrevCommandLine(unittest.TestCase):
         self.assertEqual(self.hud.lines, [])
 
 
+class TestHudDisplayIsNotPersisted(unittest.TestCase):
+    """The HUD text is composed afresh on every show -- never a persisted value.
+
+    Regression: registration defaults every widget to ``restore_state=True``, so
+    the read-only ``hudTextEdit`` was persisted like an input. Its hide-time
+    ``clear()`` -- and every line the delayed build appends -- wrote the whole
+    HUD to the settings store and flushed it, on every gesture, and the
+    previous session's HUD text was restored into it at load.
+    """
+
+    class _Widget:
+        restore_state = True  # what MainWindow.register_widget defaults
+
+    def test_the_hud_text_edit_opts_out_of_state_persistence(self):
+        widget = self._Widget()
+
+        HudWarningsMixin().hudTextEdit_init(widget)
+
+        self.assertIs(widget.restore_state, False)
+
+    @unittest.skipUnless(_MAYA_AVAILABLE, "Maya HudSlots needs maya.cmds")
+    def test_the_maya_hud_slots_inherit_the_opt_out(self):
+        """Switchboard binds ``<objectName>_init`` by name on the slots class, so
+        the fork must resolve the shared method (not shadow it)."""
+        self.assertIs(hud.HudSlots.hudTextEdit_init, HudWarningsMixin.hudTextEdit_init)
+
+
 if __name__ == "__main__":
     unittest.main()

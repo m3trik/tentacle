@@ -109,6 +109,38 @@ class TestGltfImportEntry(unittest.TestCase):
         self.assertIn("Import glTF", maya_labels)
 
 
+class TestFbxImportEntry(unittest.TestCase):
+    """SceneSlots (Blender): "Import FBX" imports ALL the file's animation.
+
+    The entry was the stock ``import_scene.fbx`` operator, which hands each object
+    the FIRST take keying it -- a Shots Only file played its first shot, a
+    whole-timeline take listed after its slices played a slice. It now browses
+    through the shared ``_pull_scene`` body with ``btk.FbxUtils.import_fbx`` as the
+    importer: every take's animation, alternatives parked in Key Stash.
+    """
+
+    def setUp(self):
+        self.cls = _class_node(SCENE_FILE.read_text(encoding="utf-8"), "SceneSlots")
+        importers = _class_assign(self.cls, "_IMPORTERS")
+        self.entries = {
+            k.value: v
+            for k, v in zip(importers.keys, importers.values)
+            if isinstance(k, ast.Constant)
+        }
+
+    def test_entry_is_a_callable_not_the_stock_operator(self):
+        value = self.entries.get("Import FBX")
+        self.assertIsInstance(value, ast.Lambda, "the stock operator plays one take")
+        self.assertIn("_import_fbx", ast.unparse(value))
+
+    def test_import_pulls_through_fbx_utils(self):
+        method = _method(self.cls, "_import_fbx")
+        self.assertIsNotNone(method, "SceneSlots._import_fbx is missing")
+        source = ast.unparse(method)
+        self.assertIn("_pull_scene", source)
+        self.assertIn("importer=btk.FbxUtils.import_fbx", source)
+
+
 class TestSceneExporterOnExportList(unittest.TestCase):
     """SceneSlots (Blender): the Export list is the only route to the Scene Exporter."""
 

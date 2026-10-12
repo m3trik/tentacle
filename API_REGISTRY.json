@@ -182,16 +182,25 @@
         {
           "name": "HudWarningsMixin",
           "summary": "",
-          "line": 27,
+          "line": 28,
           "bases": [],
           "members": [
+            {
+              "name": "hudTextEdit_init",
+              "qualname": "HudWarningsMixin.hudTextEdit_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The HUD is a display composed afresh on every show — never persisted.",
+              "line": 34,
+              "deprecated": false
+            },
             {
               "name": "evaluate_warnings",
               "qualname": "HudWarningsMixin.evaluate_warnings",
               "kind": "method",
               "signature": "(self) -> list",
               "summary": "Return the subset of WARNING_DEFS whose check fires and is enabled.",
-              "line": 55,
+              "line": 66,
               "deprecated": false
             },
             {
@@ -200,7 +209,7 @@
               "kind": "method",
               "signature": "(self, hud, warnings) -> None",
               "summary": "Insert a single-line row of colored badges;",
-              "line": 72,
+              "line": 83,
               "deprecated": false
             },
             {
@@ -209,7 +218,7 @@
               "kind": "method",
               "signature": "(self, hud, warnings) -> None",
               "summary": "Insert a formatted detail line per active warning.",
-              "line": 82,
+              "line": 93,
               "deprecated": false
             },
             {
@@ -218,7 +227,7 @@
               "kind": "method",
               "signature": "(self, hud, method) -> None",
               "summary": "Insert the last-used command as a single, length-capped line.",
-              "line": 93,
+              "line": 104,
               "deprecated": false
             }
           ]
@@ -546,7 +555,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 655,
+              "line": 661,
               "deprecated": false
             },
             {
@@ -555,7 +564,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.",
-              "line": 711,
+              "line": 717,
               "deprecated": false
             },
             {
@@ -564,7 +573,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box: scope, profile, and one toggle per section.",
-              "line": 852,
+              "line": 858,
               "deprecated": false
             },
             {
@@ -573,7 +582,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the sectioned audit report to the viewer dialog.",
-              "line": 899,
+              "line": 905,
               "deprecated": false
             },
             {
@@ -582,7 +591,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 964,
+              "line": 970,
               "deprecated": false
             },
             {
@@ -591,7 +600,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 1008,
+              "line": 1014,
               "deprecated": false
             }
           ]
@@ -3837,7 +3846,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 209,
+              "line": 211,
               "deprecated": false
             },
             {
@@ -3846,7 +3855,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 249,
+              "line": 251,
               "deprecated": false
             },
             {
@@ -3855,7 +3864,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 262,
+              "line": 264,
               "deprecated": false
             },
             {
@@ -3864,7 +3873,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 269,
+              "line": 271,
               "deprecated": false
             },
             {
@@ -3873,7 +3882,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 278,
+              "line": 280,
               "deprecated": false
             },
             {
@@ -3882,7 +3891,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 283,
+              "line": 285,
               "deprecated": false
             },
             {
@@ -3891,7 +3900,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 301,
+              "line": 303,
               "deprecated": false
             },
             {
@@ -3900,7 +3909,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 339,
+              "line": 354,
               "deprecated": false
             },
             {
@@ -3909,7 +3918,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 391,
+              "line": 406,
               "deprecated": false
             },
             {
@@ -3918,7 +3927,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 405,
+              "line": 420,
               "deprecated": false
             },
             {
@@ -3927,7 +3936,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 647,
+              "line": 662,
               "deprecated": false
             },
             {
@@ -3936,7 +3945,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 662,
+              "line": 677,
               "deprecated": false
             },
             {
@@ -3945,7 +3954,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 666,
+              "line": 681,
               "deprecated": false
             },
             {
@@ -3954,7 +3963,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 670,
+              "line": 685,
               "deprecated": false
             },
             {
@@ -3963,7 +3972,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 677,
+              "line": 692,
               "deprecated": false
             },
             {
@@ -3972,7 +3981,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 683,
+              "line": 698,
               "deprecated": false
             },
             {
@@ -3981,7 +3990,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 690,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -3990,7 +3999,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 707,
+              "line": 722,
               "deprecated": false
             },
             {
@@ -3999,7 +4008,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 732,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -4008,7 +4017,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 738,
+              "line": 753,
               "deprecated": false
             },
             {
@@ -4017,7 +4026,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 749,
+              "line": 764,
               "deprecated": false
             },
             {
@@ -4026,7 +4035,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 760,
+              "line": 775,
               "deprecated": false
             }
           ]
@@ -10503,7 +10512,7 @@
         {
           "name": "TclMaya",
           "summary": "Marking Menu class overridden for use with Autodesk Maya.",
-          "line": 9,
+          "line": 11,
           "bases": [
             "MarkingMenu"
           ],

@@ -24,7 +24,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_hud_warnings.py` — Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 - `class HudWarningsMixin`
-  - methods: evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
+  - methods: hudTextEdit_init, evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
 
 ### `slots/_lighting.py` — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - `class LightingMixin`

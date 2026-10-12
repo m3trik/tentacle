@@ -18,7 +18,8 @@ Each WARNING_DEFS spec defines:
 Adding a new check is a one-line tuple addition in the DCC subclass — no other edits needed.
 
 The trailing "Prev Command" line lives here too — it reads ``sb.prev_slot``, which is
-DCC-agnostic, so both DCC hud slots share one implementation (and one length cap).
+DCC-agnostic, so both DCC hud slots share one implementation (and one length cap) — as does
+the HUD text view's opt-out from state persistence (``hudTextEdit_init``).
 """
 
 import pythontk as ptk
@@ -29,6 +30,16 @@ class HudWarningsMixin:
     SKIP_ON_UNSAVED_KEY = "chk_warn_skip_unsaved"
     #: Max characters of a slot summary shown on the "Prev Command" line.
     PREV_COMMAND_MAX_CHARS = 120
+
+    def hudTextEdit_init(self, widget) -> None:
+        """The HUD is a display composed afresh on every show — never persisted.
+
+        Registration defaults every widget to ``restore_state=True``; left on,
+        the hide-time ``clear()`` and each line the delayed build appends wrote
+        the whole HUD to the settings store and flushed it on every gesture,
+        and the last session's text was restored into it at load.
+        """
+        widget.restore_state = False
 
     def _scene_is_unsaved(self) -> bool:
         """True if no saved scene file exists on disk — DCC subclasses override."""

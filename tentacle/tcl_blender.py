@@ -1549,11 +1549,11 @@ class TclBlender(MarkingMenu):
             handlers={"ui": btk.BlenderUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
-            # Scoped preloading: warm the binding-target startmenus once
-            # Blender's event loop is idle, so the FIRST activation behaves
-            # exactly like every later one (no cold-page lag/settle). The
-            # blender#startmenu target resolves like any other page; a
-            # host-synthesized target would simply be skipped.
+            # Scoped preloading: once Blender's event loop is idle, warm the
+            # binding-target startmenus, then the submenus they open, so the
+            # FIRST activation and the first hover into each submenu behave
+            # like every later one. The blender#startmenu target resolves like
+            # any other page; a host-synthesized target would simply be skipped.
             preload=True,
             context_tags={
                 "blender"

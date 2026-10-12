@@ -32,6 +32,7 @@ shows real ``QMainWindow`` widgets.
 
 This is the same gating ``test_overlay_safety`` uses.
 """
+
 from __future__ import annotations
 
 import unittest
@@ -497,6 +498,32 @@ class MarkingMenuGuiTest(unittest.TestCase):
             1,
             "the both-button release must dispatch the click exactly once",
         )
+
+    def test_preload_leaves_mayas_own_menus_cold(self):
+        """The preload warms tentacle's submenus but never a native-menu page.
+
+        Building one runs Maya's MEL menu builder: it switches the main
+        window's menu set mid-build, Arnold and MASH load their plugins
+        (warming arnold#submenu froze the first key_show press for 5.4 s), and
+        a stale mapping's error reached the Script Editor at every startup
+        (``NucleusCacheMenu.mel``: ``'MayaWindow|mainCacheMenu' not found``).
+        """
+        from fnmatch import fnmatchcase
+
+        def excluded(name):
+            return any(fnmatchcase(name, p) for p in self.mm.PRELOAD_EXCLUDE)
+
+        for name in ("cache#submenu", "arnold#submenu", "mash#submenu", "mesh#submenu"):
+            self.assertTrue(excluded(name), f"{name} builds a Maya menu at startup")
+        # Same names as native-menu keys, but tentacle's own pages.
+        for name in ("uv#submenu", "display#submenu", "edit#submenu"):
+            self.assertFalse(excluded(name), f"tentacle's {name} must still warm")
+
+    def test_preload_advances_only_from_mayas_own_loop(self):
+        """A tick fired inside a script's processEvents (mayatk's
+        test_shot_manifest) built a page mid-test and faulted Maya: Maya's loop
+        is native, so the warm-up must wait whenever Python is beneath it."""
+        self.assertTrue(self.mm.PRELOAD_ONLY_FROM_HOST_LOOP)
 
 
 @unittest.skipUnless(_can_run_marking_menu_tests(), _SKIP_REASON)

@@ -249,7 +249,11 @@ def _run_one_sample(
 
     maya_exe = _find_maya_exe()
     print(f"[run_in_maya] launching fresh Maya ({maya_exe})")
-    process = AppLauncher.launch(maya_exe, args=args, detached=True)
+    # Skip the user's userSetup.py: a typical one launches tentacle and opens
+    # command ports at idle, so a second TclMaya would be built (retiring the
+    # bench's instance) while the bench pumps the event loop.
+    env = {**os.environ, "MAYA_SKIP_USERSETUP_PY": "1"}
+    process = AppLauncher.launch(maya_exe, args=args, detached=True, env=env)
     if process is None:
         print("[run_in_maya] AppLauncher returned None — launch failed")
         return None
@@ -337,6 +341,14 @@ def _aggregate_samples(
 
     best = {k: round(min(_vals(k)), 3) for k in keys if _vals(k)}
     median = {k: round(_median(_vals(k)), 3) for k in keys if _vals(k)}
+    # A bench that reports its own per-run medians (the runtime bench: many
+    # samples per phase) aggregates as the median of those, not of the bests.
+    if all("phases_ms_median" in s for s in samples):
+        median = {
+            k: round(_median([s["phases_ms_median"][k] for s in samples]), 3)
+            for k in keys
+            if all(k in s["phases_ms_median"] for s in samples)
+        }
 
     init_keys = ("04_register_children_sync", "05_drain_deferred_timers")
     init_total = round(sum(best.get(k, 0.0) for k in init_keys), 3)
@@ -485,8 +497,11 @@ def main() -> int:
     for k in sorted(best):
         print(f"{k:<48} {best[k]:>10.2f} {median.get(k, 0):>12.2f}")
     print("-" * 72)
-    print(f"{'init total (04+05)':<48} {result.get('init_total_ms_best', 0):>10.2f}")
-    print(f"{'first show (06)':<48} {(result.get('first_show_ms_best') or 0):>10.2f}")
+    # Summary rows only for benches that define those phases.
+    if result.get("init_total_ms_best"):
+        print(f"{'init total (04+05)':<48} {result['init_total_ms_best']:>10.2f}")
+    if result.get("first_show_ms_best"):
+        print(f"{'first show (06)':<48} {result['first_show_ms_best']:>10.2f}")
 
     if args.diff:
         try:
