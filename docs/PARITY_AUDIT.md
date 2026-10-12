@@ -11,9 +11,9 @@
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 215, Blender 217 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (354/415) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 49), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **55%** (1292/2330 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **56%** (1310/2347 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 55% with 1 module(s) absent (render_utils); 1 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 56% with 1 module(s) absent (render_utils); 1 panel ports open.
 
 ---
 
@@ -24,13 +24,13 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 391 | 357 | 308 | 79% |
+| anim_utils | 408 | 374 | 324 | 79% |
 | audio_utils | 74 | 34 | 18 | 24% |
 | cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 172 | 80 | 55 | 32% |
 | display_utils | 44 | 44 | 18 | 41% |
 | edit_utils | 165 | 180 | 127 | 77% |
-| env_utils | 472 | 310 | 227 | 48% |
+| env_utils | 474 | 313 | 229 | 48% |
 | light_utils | 110 | 96 | 74 | 67% |
 | mat_utils | 367 | 285 | 249 | 68% |
 | node_utils | 151 | 64 | 54 | 36% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 77 | 92 | 35 | 45% |
 | uv_utils | 110 | 98 | 78 | 71% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2330** | **1705** | **1292** | **55%** |
+| **TOTAL (unique)** | **2347** | **1724** | **1310** | **56%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -85,7 +85,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | Bridge | 0→0 | 0→0 | 5→5 | 274→255 | 93% | 100% | clean |
 | ShaderTemplates | 0→0 | 5→5 | 5→5 | 352→330 | 94% | 100% | clean |
 | Calculator | 0→0 | 0→0 | 4→4 | 286→271 | 95% | 100% | clean |
-| ShotSequencer | 1→1 | 18→18 | 2→2 | 929→884 | 95% | 100% | clean |
+| ShotSequencer | 1→1 | 18→18 | 2→2 | 917→875 | 95% | 100% | clean |
 | UnityBridge | 0→0 | 0→0 | 2→2 | 174→165 | 95% | 100% | clean |
 | LightmapBaker | 8→8 | 2→2 | 14→13 | 1253→1197 | 96% | 93% | clean |
 | BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 939→925 | 99% | 100% | clean |
