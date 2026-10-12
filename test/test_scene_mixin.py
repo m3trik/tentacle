@@ -1089,6 +1089,24 @@ class TestPullScene(unittest.TestCase):
         self.assertIn("&lt;/&gt;", host.sb.messages[-1])
         self.assertEqual(host.cursors, ["set", "restore"])
 
+    def test_an_importer_given_runs_in_place_of_the_bridge_engine(self):
+        """A file the host imports natively (Blender's FBX, through
+        ``btk.FbxUtils.import_fbx``) shares the browse / cursor / report body,
+        not the bridge engine or its carrier."""
+        seen = []
+        host = _PullHost(_FakeBridge(), opened="X:/in/shots.fbx")
+        host._pull_scene(
+            ["*.fbx"],
+            "Import FBX",
+            "FBX Files",
+            "FBX",
+            importer=lambda src: seen.append(src) or ["a", "b", "c"],
+        )
+        self.assertEqual(seen, ["X:/in/shots.fbx"])
+        self.assertEqual(host.engine.calls, [])
+        self.assertIn("Imported <hl>3</hl> object(s)", host.sb.messages[-1])
+        self.assertEqual(host.cursors, ["set", "restore"])
+
 
 class TestUsdListEntries(unittest.TestCase):
     """Import USD / Export USD -- the Import and Export lists' USD one-shots."""

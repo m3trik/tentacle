@@ -536,8 +536,9 @@ try:
 
         # Undo pairing: with claims the edit is the store's scene_edit, one undo
         # step whose restore point (taken BEFORE it) brings the released claim
-        # back -- what the sequencer's undo listener applies when Blender
-        # undoes that step.  With no claims, no restore point at all.
+        # back -- the STORE applies it when Blender undoes that step, no Shot
+        # Sequencer open (BACKLOG 2026-10-05: with none, the claim stayed
+        # released).  With no claims, no restore point at all.
         u, u_key = claimed("ClaimUndo")
         select_keys(u, 10)
         bpy.ops.ed.undo_push(message="before the align")
@@ -548,14 +549,51 @@ try:
         bpy.ops.ed.undo()
         u = bpy.data.objects["ClaimUndo"]  # memfile undo replaced the object
         serial_back = btk.BlenderShotStore.edit_serial() != (tag or (None, None))[1]
-        restored = claims.restore_boundary_snapshot()
-        check("animation tb007 with claims: undo brings the released claim back",
+        check("animation tb007 with claims: Blender's undo alone brings the released "
+              "claim back",
               released and len(claims._boundary_undo) == depth
               and isinstance(tag, tuple) and tag[0] is True and serial_back
-              and restored and key_times(u) == [10.0, 20.0, 30.0]
+              and key_times(u) == [10.0, 20.0, 30.0]
               and claims.edit_ledger.owns_any(u_key, 20.0),
               f"tag={tag} serial={btk.BlenderShotStore.edit_serial()} "
               f"{key_times(u)} {claims.edit_ledger.to_dict()}")
+
+        # A no-op Snap between pushes a step of its own in Blender (it cannot
+        # tell keys that did not move from keys that did), so the Align takes a
+        # second undo -- and its claims still come back.
+        n_obj, n_key = claimed("ClaimNoop")
+        select_keys(n_obj, 10)
+        bpy.ops.ed.undo_push(message="before the align")
+        slot.tb007(option_box(chk013=chk(True), spn000=spin(20)))
+        slot.tb021(option_box(cmb042=combo("nearest")))  # every key is whole
+        bpy.ops.ed.undo()
+        bpy.ops.ed.undo()
+        n_obj = bpy.data.objects["ClaimNoop"]
+        check("animation tb007 then a no-op tb021: the undos still bring the claim back",
+              key_times(n_obj) == [10.0, 20.0, 30.0]
+              and claims.edit_ledger.owns_any(n_key, 20.0),
+              f"{key_times(n_obj)} {claims.edit_ledger.to_dict()}")
+
+        # TC-5: the repair-scoped Snap and Copy + Paste carry claims too.
+        w, w_key = claimed("ClaimSnapFrac", (1, 10), at=None)
+        btk.get_fcurves(w)[0].keyframe_points.insert(4.4, 4.0)
+        claims.edit_ledger.record_authored(w_key, 4.4, 0, "fade_in", w.name)
+        slot.tb021(option_box(cmb042=combo("nearest")))
+        check("animation tb021 carries the shot claims of the keys it snaps",
+              claimed_at(w) == [4.0], f"{key_times(w)} {claims.edit_ledger.to_dict()}")
+
+        tgt_cp, tgt_cp_key = claimed("ClaimCopyPaste", (1, 10, 20), at=10.0)
+        src_cp = add_cube("CopyPasteSource", (8, 0, 0))
+        for f, v in ((1, 0.0), (10, 99.0)):
+            src_cp.location.x = v
+            src_cp.keyframe_insert(data_path="location", index=0, frame=f)
+        tgt_cp.select_set(True)
+        src_cp.select_set(True)
+        bpy.context.view_layer.objects.active = src_cp
+        slot.tb012(option_box(cmb038=combo("copy_paste")))
+        check("animation tb012 (Copy + Paste) releases the claims of a key it replaces",
+              not claims.edit_ledger.owns_any(tgt_cp_key, 10.0),
+              f"{key_times(tgt_cp)} {claims.edit_ledger.to_dict()}")
 
         bare = btk.BlenderShotStore()
         btk.BlenderShotStore.set_active(bare)

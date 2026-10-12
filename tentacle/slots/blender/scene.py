@@ -37,7 +37,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
     # entries that aren't native operators — importers with no file browser to invoke, and
     # the Scene Exporter panel.
     _IMPORTERS = {
-        "Import FBX": "import_scene.fbx",
+        # Through the engine (_import_fbx), not the stock operator: that hands each
+        # object the FIRST take keying it, so a Shots Only file played one shot.
+        "Import FBX": lambda slot: slot._import_fbx(),
         "Import OBJ": "wm.obj_import",
         # Through the engine (SceneMixin._import_gltf), not the stock operator:
         # Blender's importer refuses a KTX2 file whole ("Extension
@@ -313,6 +315,19 @@ class SceneSlots(SceneMixin, SlotsBlender):
         (KTX2-decoded first when it needs it), and a USD imports natively,
         through the same consumer a linked USD row's bake runs."""
         return btk.MayaSceneImport()
+
+    def _import_fbx(self):
+        """Import an FBX (Import list entry) through ``btk.FbxUtils.import_fbx``:
+        ALL its animation -- the takes that agree play as one (a Shots Only file's
+        every shot), the alternatives are parked in Key Stash -- authored frames
+        kept and sibling armatures bound. Browses through :meth:`_pull_scene`."""
+        self._pull_scene(
+            ["*.fbx"],
+            "Import FBX",
+            "FBX Files",
+            "FBX",
+            importer=btk.FbxUtils.import_fbx,
+        )
 
     def _import_maya_scene(self):
         """Import a Maya scene (.ma/.mb). Mirror of the Maya slots' "Import Blender

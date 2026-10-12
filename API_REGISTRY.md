@@ -171,7 +171,8 @@ Shared, DCC-agnostic behavior for the ``edit`` panel.
 
 Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
 
-- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L27)**
+- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L28)**
+  - `HudWarningsMixin.hudTextEdit_init(self, widget) -> None` — The HUD is a display composed afresh on every show — never persisted.
   - `HudWarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
   - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
   - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
@@ -1680,7 +1681,7 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 <a id="tcl_maya"></a>
 ### `tcl_maya.py`
 
-- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L9)** — Marking Menu class overridden for use with Autodesk Maya.
+- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L11)** — Marking Menu class overridden for use with Autodesk Maya.
 
 <a id="tentacle_installer"></a>
 ### `tentacle_installer.py`

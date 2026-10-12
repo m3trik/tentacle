@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+from pathlib import Path
+
 import mayatk as mtk
 from uitk import MarkingMenu, ExternalAppHandler, ShortcutManager
 
@@ -8,6 +10,16 @@ from tentacle.tcl import Tcl
 
 class TclMaya(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk Maya."""
+
+    #: Maya's event loop is native, so the preload advances only from it and
+    #: waits out any script pumping events: a tick fired inside mayatk's
+    #: test_shot_manifest (``processEvents`` after a menu) built the HUD start
+    #: menu there and faulted Maya.
+    PRELOAD_ONLY_FROM_HOST_LOOP = True
+
+    #: The native-menu pages: each wraps one of Maya's own menus, which its
+    #: slots class builds through ``mtk.MayaNativeMenus`` on first show.
+    NATIVE_MENU_UI = "ui/maya_menus"
 
     def __init__(
         self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs
@@ -33,19 +45,34 @@ class TclMaya(MarkingMenu):
 
         super().__init__(
             parent,
-            ui_source=("ui", "ui/maya_menus"),
+            ui_source=("ui", self.NATIVE_MENU_UI),
             slot_source=slot_source,
             bindings=bindings,
             handlers={"ui": mtk.MayaUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
             precompile=True,
-            # Scoped preloading: warm the five binding-target startmenus once
-            # Maya's event loop is idle, so the FIRST key_show press behaves
-            # exactly like every later one (no cold-page lag/settle).
+            # Scoped preloading: once Maya's event loop is idle, warm the
+            # binding-target startmenus, then the submenus they open (minus
+            # PRELOAD_EXCLUDE), so the FIRST key_show press and the first
+            # hover into each submenu behave like every later one.
             preload=True,
             context_tags={"maya"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
+        )
+        # The preload leaves Maya's own menus cold. Building one runs Maya's
+        # MEL menu builder: the main window's menu set switches mid-build,
+        # Arnold and MASH load their plugins (mtoa's deferred init froze the
+        # first key_show press for 5.4 s), and a mapping Maya had renamed
+        # printed its MEL error at every startup (the nCache menu). Their first
+        # hover pays the build, as it always has. Read off the page files, so
+        # a new native menu is covered too (tentacle's own uv/display/edit
+        # pages share native-menu keys); set ahead of the warm-up's first tick.
+        self.PRELOAD_EXCLUDE = tuple(
+            page.stem
+            for page in (Path(__file__).parent / self.NATIVE_MENU_UI).glob(
+                "*#submenu.ui"
+            )
         )
 
         # ``extapps`` ships the content-pipeline panels but is deliberately NOT

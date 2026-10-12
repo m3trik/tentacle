@@ -25,6 +25,9 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
   </property>
+  <property name="accessibleDescription">
+   <string>Set the theme, working units, autosave and HUD warnings, or open app preferences.</string>
+  </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
     <size>

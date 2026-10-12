@@ -521,7 +521,7 @@ class SceneMixin:
             self._write_native(export_format, out_path, options)
 
     # ------------------------------------------------------ import: pull a file in
-    def _pull_scene(self, file_types, title, filter_description, kind):
+    def _pull_scene(self, file_types, title, filter_description, kind, importer=None):
         """Browse for a file and pull it in through :meth:`_scene_import_engine`.
 
         Every Import-list entry that reaches the scene through the bridge engine
@@ -543,6 +543,9 @@ class SceneMixin:
             title: File-dialog title.
             filter_description: File-dialog filter label.
             kind: What failed, for the error message ("Blender scene", "USD").
+            importer: ``importer(path) -> imported objects`` run in place of the
+                bridge engine, for a file the host imports natively (Blender's FBX
+                through ``btk.FbxUtils.import_fbx``); the carrier is then inert.
         """
         src = self.sb.file_dialog(
             file_types=file_types,
@@ -557,9 +560,12 @@ class SceneMixin:
         app = self.sb.QtWidgets.QApplication
         app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            imported = self._scene_import_engine().import_scene(
-                src, via=self._transfer_carrier()
-            )
+            if importer is not None:
+                imported = importer(src)
+            else:
+                imported = self._scene_import_engine().import_scene(
+                    src, via=self._transfer_carrier()
+                )
         except Exception as e:  # noqa: BLE001 - every engine failure, one report
             self.sb.message_box(f"{kind} import failed: <hl>{html.escape(str(e))}</hl>")
             return

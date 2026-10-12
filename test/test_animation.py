@@ -1554,9 +1554,10 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
 
     def test_undoing_a_panel_align_puts_back_the_claim_it_released(self):
         """With claims the edit runs inside the store's ``scene_edit``: one
-        undo step paired with a restore point taken BEFORE it, so the restore
-        the sequencer's undo listener applies when Maya undoes that step brings
-        the released claim back with its key."""
+        undo step paired with a restore point taken BEFORE it, so Maya's own
+        undo of that step brings the released claim back with its key -- the
+        STORE follows the undo, no Shot Sequencer needed (BACKLOG 2026-10-05:
+        with none open this session the claim stayed released)."""
         cmds.undoInfo(state=True, infinity=True)
         crv = self._claimed("claim_undo", (10, 20, 30))
         self._select_keys(crv, 10)
@@ -1568,13 +1569,62 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
 
         cmds.undo()
         self.assertEqual(self.mtk.ShotStore.undo_queue_top(redo=True), marker)
-        self.assertTrue(self.store.restore_boundary_snapshot())
+        self.assertFalse(self.store.has_boundary_snapshot(), "the undo applied it")
 
         self.assertTrue(self.store.edit_ledger.owns_authored(crv, 20.0))
         self.assertEqual(
             sorted(cmds.keyframe(crv, query=True, timeChange=True)),
             [10.0, 20.0, 30.0],
         )
+
+    def test_a_no_op_snap_between_does_not_block_the_aligns_undo(self):
+        """A Snap that moved nothing left an unpaired restore point on top of
+        the ledger, and the next Ctrl+Z (the Align's) restored nothing."""
+        cmds.undoInfo(state=True, infinity=True)
+        crv = self._claimed("claim_noop", (10, 20, 30))
+        # A second claim the Align leaves, so the Snap runs on a claimed store.
+        self.store.edit_ledger.record_authored(crv, 30.0, 0, "fade_out", "claim_noop")
+        self._select_keys(crv, 10)
+        self._align(20)
+
+        self.instance.tb021(self._widget(cmb042=_combo("nearest")))  # all whole
+
+        self.assertEqual(len(self.store._boundary_undo), 1, "the Align's alone")
+        cmds.undo()
+        self.assertTrue(self.store.edit_ledger.owns_authored(crv, 20.0))
+        self.assertTrue(self.store.edit_ledger.owns_authored(crv, 30.0))
+        self.assertEqual(
+            sorted(cmds.keyframe(crv, query=True, timeChange=True)),
+            [10.0, 20.0, 30.0],
+        )
+
+    # -- TC-5: the repair-scoped Snap and Copy + Paste carry claims too --------
+
+    def test_snap_fractional_carries_the_claims_of_the_keys_it_moves(self):
+        """tb021, the repair-scoped twin of tb009."""
+        crv = self._claimed("claim_snap_frac", (1, 10), at=None)
+        cmds.setKeyframe("claim_snap_frac", attribute="translateX", time=4.4, value=4)
+        self.store.edit_ledger.record_authored(
+            crv, 4.4, 0, "fade_in", "claim_snap_frac"
+        )
+
+        self.instance.tb021(self._widget(cmb042=_combo("nearest")))
+
+        self.assertEqual(self._claimed_frames(), [4.0])
+
+    def test_copy_paste_releases_the_claims_of_a_key_it_replaces(self):
+        """tb012's Copy + Paste: Auto copies the selected key (20's) and pastes
+        it at the playhead onto the same selection, replacing the key on 10."""
+        crv = self._claimed("claim_copy_paste", (1, 10, 20), at=10.0)
+        self._select_keys(crv, 20)
+        cmds.currentTime(10)
+
+        self.instance.tb012(self._widget(cmb038=_combo("copy_paste")))
+
+        self.assertEqual(
+            cmds.keyframe(crv, query=True, time=(10, 10), valueChange=True), [20.0]
+        )
+        self.assertFalse(self.store.edit_ledger.owns_any(crv, 10.0))
 
     def test_a_scene_with_no_claims_gets_no_restore_point(self):
         crv = self._claimed("no_claims", (10, 20, 30), at=None)

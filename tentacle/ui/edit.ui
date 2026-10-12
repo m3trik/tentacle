@@ -22,6 +22,9 @@
   <property name="enabled" stdset="0">
    <bool>true</bool>
   </property>
+  <property name="accessibleDescription">
+   <string>Delete components or history, repair mesh topology, transfer data and lock nodes.</string>
+  </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
     <size>

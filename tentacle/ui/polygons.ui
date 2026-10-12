@@ -26,6 +26,9 @@
     <disabled/>
    </palette>
   </property>
+  <property name="accessibleDescription">
+   <string>Merge, extrude, bridge, cut, inset, combine and boolean polygon meshes.</string>
+  </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
     <size>

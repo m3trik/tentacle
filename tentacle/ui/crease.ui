@@ -89,6 +89,9 @@
     </disabled>
    </palette>
   </property>
+  <property name="accessibleDescription">
+   <string>Crease edges for subdivision sharpness and transfer crease sets between objects.</string>
+  </property>
   <widget class="QWidget" name="central_widget">
    <property name="minimumSize">
     <size>

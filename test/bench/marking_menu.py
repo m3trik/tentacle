@@ -30,6 +30,7 @@ from __future__ import annotations
 from typing import Optional
 
 from bench.marking_menu_init import MarkingMenuInitBench
+from bench.marking_menu_runtime import MarkingMenuRuntimeBench
 
 
 class TentacleMarkingMenuBench(MarkingMenuInitBench):
@@ -61,4 +62,23 @@ class TentacleMarkingMenuBench(MarkingMenuInitBench):
         # ``mtk.get_main_window()``, which matches how a user invokes
         # tentacle.  The global F12 shortcut wires up against the Maya
         # main window; cmds.quit at end-of-bench tears it down.
+        return TclMaya(log_level="WARNING")
+
+
+class TentacleMarkingMenuRuntimeBench(MarkingMenuRuntimeBench):
+    """Per-gesture runtime costs against the real :class:`TclMaya`.
+
+    Drives the same entry point as :class:`TentacleMarkingMenuBench`, then
+    times what every later activation pays (press, chord switches, drag
+    trail, hover-nav, release) -- see :mod:`bench.marking_menu_runtime`.
+
+    Run from the repo root::
+
+        python tentacle/test/bench/run_in_maya.py \
+            marking_menu:TentacleMarkingMenuRuntimeBench --label runtime
+    """
+
+    def setup_marking_menu(self):
+        from tentacle.tcl_maya import TclMaya
+
         return TclMaya(log_level="WARNING")

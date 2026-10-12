@@ -1,5 +1,7 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ 41cac9c2)._
+_Diff vs the last release (origin/main @ 8a5cb070)._
 
-No public API changes since the last release (origin/main @ 41cac9c2).
+## Added (1)
+
+- `slots/_hud_warnings.py::HudWarningsMixin.hudTextEdit_init(self, widget) -> None`
