@@ -136,6 +136,7 @@ class _Spin:
 class _Text:
     def __init__(self, text=""):
         self._text = text
+        self._placeholder = ""
 
     def text(self):
         return self._text
@@ -143,12 +144,22 @@ class _Text:
     def setText(self, t):
         self._text = t
 
+    def setPlaceholderText(self, t):
+        self._placeholder = t
+
+    def placeholderText(self):
+        return self._placeholder
+
 
 class _Menu:
+    def __init__(self):
+        self.added = []
+
     def setTitle(self, t):
         pass
 
     def add(self, kind, **kw):
+        self.added.append(kw.get("setObjectName", kind))
         if kind == "QComboBox":
             w = _Combo()
             if "addItems" in kw:
@@ -257,6 +268,36 @@ try:
     check("tb001 switches scene.render.engine to the picked renderer",
           scene.render.engine == "CYCLES", f"engine={scene.render.engine}")
 
+    # ============================================================== t000 output default
+    # The field stays EMPTY and shows the default as its placeholder: a value written into
+    # it would persist and pin the panel to the file it was built in.
+    reset_scene()
+    path_widget = _Widget()
+    slot.tb000_init(path_widget)
+    path_menu = path_widget.option_box.menu
+    check("t000 starts empty", path_menu.t000.text() == "", f"text={path_menu.t000.text()!r}")
+    check("t000's placeholder is the file's default playblast path",
+          path_menu.t000.placeholderText() == slot._default_playblast_path(),
+          f"placeholder={path_menu.t000.placeholderText()!r}")
+    import pythontk as ptk
+
+    blend_tmp = ptk.TempArtifacts.scoped("tentacle_rendering_check")
+    try:
+        blend_path = os.path.join(blend_tmp.dir_path(), "ShotB.blend")
+        bpy.ops.wm.save_as_mainfile(filepath=blend_path)
+        built = list(path_menu.added)
+        slot.tb000_init(path_widget)  # refresh_on_show re-runs the init on a panel show
+        check("a re-shown playblast menu builds nothing twice", path_menu.added == built)
+        placeholder = path_menu.t000.placeholderText()
+        check("the placeholder follows a newly saved file",
+              os.path.basename(placeholder) == "ShotB"
+              and os.path.normcase(placeholder).startswith(
+                  os.path.normcase(os.path.dirname(blend_path))),
+              f"placeholder={placeholder!r}")
+    finally:
+        bpy.ops.wm.read_homefile(use_factory_startup=True)
+        blend_tmp.cleanup()
+
     # ============================================================== chk057 Show Ornaments
     reset_scene()
     cube = bpy.data.objects.new("AnimCube", bpy.data.meshes.new("M"))
@@ -275,14 +316,14 @@ try:
     if view3d_ctx is not None:
         space = view3d_ctx["area"].spaces.active
 
-        def _run_capture(chk057_checked, baseline):
+        def _run_capture(chk057_checked, baseline, path_text="//_rendering_slot_check_"):
             """Run tb000 with chk057 set to ``chk057_checked`` and the viewport overlay
             pre-set to ``baseline``; returns (observed_during_capture, after_value)."""
             space.overlay.show_overlays = baseline
             widget = _Widget()
             slot.tb000_init(widget)
             m = widget.option_box.menu
-            m.t000.setText("//_rendering_slot_check_")
+            m.t000.setText(path_text)
             m.cmb010.setCurrentIndex(3)  # Custom Range
             m.s010.setValue(1)
             m.s011.setValue(2)
@@ -293,6 +334,7 @@ try:
             def _on_opengl(kw):
                 observed["kwargs"] = kw
                 observed["show_overlays"] = space.overlay.show_overlays
+                observed["filepath"] = bpy.context.scene.render.filepath
                 return {"FINISHED"}
 
             orig_bpy = rendering_module.bpy
@@ -315,6 +357,13 @@ try:
               observed2.get("show_overlays") is True, f"{observed2}")
         check("show_overlays is restored to its pre-capture baseline (False) afterward",
               after2 is False, f"after={after2}")
+
+        # A blank field (the default state now) playblasts to the shown default.
+        observed3, _ = _run_capture(chk057_checked=True, baseline=True, path_text="")
+        check("a blank t000 writes to the default playblast path (MP4: the base as-is)",
+              observed3.get("filepath") == slot._default_playblast_path(),
+              f"filepath={observed3.get('filepath')!r} "
+              f"default={slot._default_playblast_path()!r}")
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

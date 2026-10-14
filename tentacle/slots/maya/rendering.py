@@ -28,21 +28,34 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
     ]
 
     def tb000_init(self, widget):
-        """Export Playblast Init"""
+        """Export Playblast: built once, then re-run on every panel show.
 
+        ``refresh_on_show`` re-runs this init, so the output field's
+        placeholder (the default path, ``_show_playblast_default``) follows the
+        open scene instead of the one the panel was built in.
+        """
         menu = widget.option_box.menu
+        if not getattr(widget, "_playblast_menu_built", False):
+            widget.refresh_on_show = True
+            self._build_playblast_menu(menu)
+            widget._playblast_menu_built = True
+        self._show_playblast_default(menu.t000)
+
+    def _build_playblast_menu(self, menu):
+        """Add the Playblast option box's controls."""
         menu.setTitle("Playblast Export")
 
         playback_min = int(cmds.playbackOptions(q=True, minTime=True))
         playback_max = int(cmds.playbackOptions(q=True, maxTime=True))
 
+        # Left empty: the placeholder shows the scene's default, and a blank
+        # field resolves to it at playblast time (_split_output_base).
         menu.add(
             "QLineEdit",
-            setPlaceholderText="Output directory or base path",
-            setText=self._default_playblast_path(),
             setObjectName="t000",
             setToolTip="Output directory, or directory plus base name. A bare directory "
-            "uses the scene name; any typed extension is ignored (each output appends its own).",
+            "uses the scene name; any typed extension is ignored (each output appends its own). "
+            "Blank: the default shown, the scene workspace's movie folder.",
         )
         menu.add(
             "QComboBox",
@@ -354,25 +367,58 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
             directory = os.path.dirname(self._default_playblast_path())
         return directory, name
 
+    #: Scene-backed render-setting fields in the Render option box, grouped
+    #: under a separator each: ``(objectName, RenderUtils key, label, min,
+    #: max)``. The maxima sit well above any sane value: a scene value past a
+    #: spinbox's maximum would display clamped -- a lie about the scene.
+    #: The keys are ``mtk.RenderUtils.RENDER_SETTINGS``'s, so a field, a preset
+    #: and a script all name a setting the same way.
+    _RESOLUTION_FIELDS = (
+        ("s020", "width", "Width", 1, 32768),
+        ("s021", "height", "Height", 1, 32768),
+    )
+    _ARNOLD_FIELDS = (
+        # AA 0 traces no camera rays at all; 0 per-ray samples is a valid "off".
+        ("s022", "camera_samples", "Camera (AA)", 1, 100),
+        ("s023", "diffuse_samples", "Diffuse", 0, 100),
+        ("s024", "specular_samples", "Specular", 0, 100),
+        ("s025", "transmission_samples", "Transmission", 0, 100),
+        ("s026", "diffuse_depth", "Diffuse Depth", 0, 100),
+        ("s027", "specular_depth", "Specular Depth", 0, 100),
+        ("s028", "transmission_depth", "Transmission Depth", 0, 100),
+    )
+
     def tb001_init(self, widget):
-        """Render: camera, renderer, IPR, and smart redo."""
+        """Render: camera, renderer, IPR, smart redo, key settings and presets.
+
+        Built once, then re-run on every panel show (``refresh_on_show``): the
+        camera list and the setting fields re-read the scene, so a new or
+        re-opened scene never shows the last one's values. The setting fields
+        are the scene's own render settings -- written as they change, never
+        session-restored -- and the menu's native preset selector applies
+        ``mtk.RenderUtils``'s render presets (shipped Arnold tiers + saved ones)
+        to the same settings.
+        """
         menu = widget.option_box.menu
+        if not getattr(widget, "_render_menu_built", False):
+            widget.refresh_on_show = True
+            self._build_render_menu(menu)
+            widget._render_menu_built = True
+        self._refresh_cameras(menu)
+        self._sync_render_options(menu)
+
+    def _build_render_menu(self, menu):
+        """Add the Render option box's controls and wire its preset selector."""
         menu.setTitle("Render")
 
         # Camera transforms (not shapes): Render-View procs expect a transform.
-        cameras = [c for c in self._camera_transforms() if "Target" not in c]
+        # Populated from the scene on every show (_refresh_cameras).
         menu.add(
             "QComboBox",
-            addItems=cameras,
             setObjectName="cmb002",
             block_signals_on_restore=False,
             setToolTip="Camera to render into the Render View / IPR.",
         )
-        # Default to the perspective camera (handles a namespaced `ns:persp`).
-        default_cam = next(
-            (c for c in cameras if c == "persp" or c.endswith(":persp")), None
-        )
-        menu.cmb002.setCurrentIndex(cameras.index(default_cam) if default_cam else 0)
 
         # Renderer: built-ins + installed plugins; default to the active one.
         renderers = mtk.RenderUtils.get_available_renderers()
@@ -408,28 +454,158 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
             "are unchanged (faster); otherwise render fresh.",
         )
 
-        # Gate the renderer-specific options on the picked renderer: each is
-        # disabled (and cleared) when it doesn't apply, so the user can't ask
-        # for something that would only fail after the click.
-        def _gate(checkbox, allowed):
-            checkbox.setEnabled(allowed)
-            if not allowed:
-                checkbox.setChecked(False)
+        for title, fields in (
+            ("Resolution", self._RESOLUTION_FIELDS),
+            ("Arnold Sampling", self._ARNOLD_FIELDS),
+        ):
+            menu.add("Separator", setTitle=title)
+            for name, key, label, minimum, maximum in fields:
+                field = menu.add(
+                    "QSpinBox",
+                    setObjectName=name,
+                    setPrefix=f"{label}: ",
+                    set_limits=[minimum, maximum],
+                    # Typed digits commit once (Enter / focus out), not per
+                    # keystroke: "1920" must not write 1, 19 and 192 first.
+                    setKeyboardTracking=False,
+                    setToolTip=f"The scene's {label} render setting, applied as "
+                    "it changes. Presets below set several at once.",
+                )
+                # The scene owns these values: a restored session value would
+                # overwrite the open scene's settings. (Also keeps them out of
+                # Restore Defaults: no default is captured without it.)
+                field.restore_state = False
+                field.valueChanged.connect(
+                    lambda value, k=key: self._write_render_setting(menu, k, value)
+                )
 
-        def _sync(_=None):
-            renderer = menu.cmb003.currentData()
-            _gate(
-                menu.chk001, bool(renderer) and mtk.RenderUtils.supports_ipr(renderer)
-            )
+        # The menu's native preset selector, in semantic mode: a preset is a
+        # ``{setting: value}`` dict read from and applied to the SCENE, so the
+        # files are the ones ``mtk.RenderUtils.render_preset_store`` serves to
+        # any script, and the shipped Arnold tiers appear as read-only entries.
+        store = mtk.RenderUtils.render_preset_store()
+        presets = menu.presets
+        presets.preset_dir = str(store.user_dir)
+        presets.builtin_dir = str(store.builtin_dir)
+        presets.value_provider = mtk.RenderUtils.render_settings
+        presets.value_applier = lambda values: self._apply_render_preset(menu, values)
+        menu.add_presets = True
 
-        menu.cmb003.currentIndexChanged.connect(_sync)
-        _sync()
+        menu.cmb003.currentIndexChanged.connect(
+            lambda _=None: self._sync_render_options(menu)
+        )
+        # ``activated`` is the USER's pick only (never a restore or a
+        # programmatic set): the one place a renderer choice may create nodes.
+        menu.cmb003.activated.connect(lambda _=None: self._on_renderer_picked(menu))
+
+    def _refresh_cameras(self, menu):
+        """Repopulate the camera combo from the scene, keeping the pick."""
+        cameras = [c for c in self._camera_transforms() if "Target" not in c]
+        previous = menu.cmb002.currentText()
+        # Keep the pick; else the perspective camera (a namespaced `ns:persp`
+        # too); else the first.
+        default = next(
+            (c for c in cameras if c == "persp" or c.endswith(":persp")), None
+        )
+        pick = previous if previous in cameras else default
+        menu.cmb002.blockSignals(True)
+        try:
+            menu.cmb002.clear()
+            menu.cmb002.addItems(cameras)
+            menu.cmb002.setCurrentIndex(cameras.index(pick) if pick else 0)
+        finally:
+            menu.cmb002.blockSignals(False)
+
+    def _sync_render_options(self, menu):
+        """Gate the renderer-specific options and re-read the scene's settings.
+
+        Each option is disabled (and an IPR request cleared) when it doesn't
+        apply, so the user can't ask for something that would only fail after
+        the click. This runs on every panel show and on a restored renderer
+        pick, so it only READS the scene: it never loads mtoa or creates
+        ``defaultArnoldRenderOptions`` (that would modify any scene the panel
+        is shown over, and the scene would then save with ``requires mtoa``).
+        Arnold's fields enable when Arnold is picked and show values once its
+        options exist; they are created by the user's pick
+        (:meth:`_on_renderer_picked`) or the first field edit or preset
+        (``mtk.RenderUtils.set_render_settings``).
+        """
+        renderer = menu.cmb003.currentData()
+        ipr = bool(renderer) and mtk.RenderUtils.supports_ipr(renderer)
+        menu.chk001.setEnabled(ipr)
+        if not ipr:
+            menu.chk001.setChecked(False)
+        self._enable_arnold_fields(menu, renderer == "arnold")
+        self._show_render_settings(menu)
+
+    def _enable_arnold_fields(self, menu, enabled: bool) -> None:
+        """Enable or disable every Arnold Sampling field."""
+        for name, *_ in self._ARNOLD_FIELDS:
+            getattr(menu, name).setEnabled(enabled)
+
+    def _on_renderer_picked(self, menu):
+        """The user picked a renderer: Arnold gets its render options now.
+
+        What Maya's Render Settings does when Arnold is picked, so the fields
+        show and edit the scene's real values. Only this user-driven pick (and
+        a write) creates them; see :meth:`_sync_render_options`.
+        """
+        if menu.cmb003.currentData() != "arnold":
+            return
+        try:
+            mtk.RenderUtils.ensure_arnold_options()
+        except (ValueError, RuntimeError) as error:
+            # ValueError: Plugins.LoadError (mtoa is not installed);
+            # RuntimeError: mtoa failed to load or to create its options.
+            self._enable_arnold_fields(menu, False)
+            self.sb.message_box(f"Arnold is unavailable: {error}")
+            return
+        self._show_render_settings(menu)
+
+    def _show_render_settings(self, menu):
+        """Set every setting field to the scene's value, without writing back."""
+        settings = mtk.RenderUtils.render_settings()
+        for name, key, *_ in self._RESOLUTION_FIELDS + self._ARNOLD_FIELDS:
+            if key not in settings:
+                continue
+            field = getattr(menu, name)
+            field.blockSignals(True)
+            try:
+                field.setValue(int(settings[key]))
+            finally:
+                field.blockSignals(False)
+        menu.presets.refresh_modified_state()
+
+    def _write_render_setting(self, menu, key, value):
+        """A field edit: write it to the scene and update the preset marker.
+
+        An Arnold field's first write creates Arnold's options; if mtoa can't
+        load, the field is disabled and the reason shown, never raised out of
+        the signal.
+        """
+        try:
+            mtk.RenderUtils.set_render_settings({key: value})
+        except (ValueError, RuntimeError) as error:
+            if key not in {k for _, k, *_ in self._ARNOLD_FIELDS}:
+                raise
+            self._enable_arnold_fields(menu, False)
+            self.sb.message_box(f"Arnold is unavailable: {error}")
+            return
+        menu.presets.refresh_modified_state()
+
+    def _apply_render_preset(self, menu, values) -> int:
+        """The preset selector's applier: write the preset, then show it."""
+        applied = mtk.RenderUtils.set_render_settings(values)
+        self._show_render_settings(menu)
+        return applied
 
     def tb001(self, widget):
         """Render: render the current frame through the selected camera and renderer.
 
-        An Arnold render first gives each material Arnold cannot translate (the
-        game shaders) its Arnold bridge, on every shading group.
+        An Arnold render first readies the scene to render what the viewport
+        shows (``mtk.RenderUtils.prepare_arnold_preview``): the game shaders
+        get their Arnold bridge and viewport backface culling reaches Arnold's
+        camera rays.
         """
         menu = widget.option_box.menu
 
@@ -444,14 +620,12 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
         renderer = menu.cmb003.currentData() or mtk.RenderUtils.current_renderer()
         mtk.RenderUtils.set_renderer(renderer)
 
-        # Arnold renders a material it cannot translate as error magenta, so
-        # bridge those first -- and only those: a lambert or standardSurface
-        # renders as it is. The bridge stays: IPR and every other Arnold render
-        # read the same scene, and it never touches what exports (surfaceShader).
+        # Arnold reads neither the game shaders (error magenta) nor viewport
+        # backface culling (a cutaway room renders as a black box), so ready
+        # the scene first. The setup stays: IPR and every other Arnold render
+        # read the same scene, and none of it touches what exports.
         if renderer == "arnold":
-            materials = mtk.ArnoldBridge.unrenderable_materials()
-            if materials:
-                mtk.ArnoldBridge().add(materials=materials)
+            mtk.RenderUtils.prepare_arnold_preview()
 
         # IPR supersedes a single frame. The checkbox is disabled for renderers
         # that can't start one (see _sync), so this only fires when supported;
@@ -509,9 +683,10 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
         """Editor: Rendering Flags"""
         mel.eval("renderFlagsWindow")
 
-    def _default_playblast_path(self) -> str:
-        desktop = os.path.expanduser(os.path.join("~", "Desktop"))
-        return os.path.normpath(os.path.join(desktop, self._scene_base_name()))
+    def _scene_workspace(self):
+        """The open scene's project (RenderingMixin hook): the scene's own, not
+        merely the active one."""
+        return mtk.EnvUtils.scene_workspace()
 
     @staticmethod
     def _scene_base_name() -> str:

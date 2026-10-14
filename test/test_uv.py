@@ -2707,7 +2707,7 @@ class TestTransferOptionBoxShared(unittest.TestCase):
             and any(getattr(t, "id", None) == "_TT_TERMS" for t in node.targets)
         )
 
-    def _build(self, terms, shader_items=()):
+    def _build(self, terms, shader_items=(), engine=None):
         from unittest import mock
 
         from tentacle.slots._uv import UvMixin
@@ -2716,7 +2716,7 @@ class TestTransferOptionBoxShared(unittest.TestCase):
             _TT_TERMS = terms
 
             def _tt_engine(self):
-                return mock.Mock(name="TextureTransfer")
+                return engine or mock.Mock(name="TextureTransfer")
 
             def _tt_shader_items(self):
                 return shader_items
@@ -2863,6 +2863,19 @@ class TestTransferOptionBoxShared(unittest.TestCase):
         self.assertIs(rows[0]["setChecked"], False)
         self.assertEqual(rows[0]["setText"], "Include Lightmaps")
         self.assertIn("lightmaps", host._tt_ctl)
+
+    def test_the_output_browse_opens_anywhere_without_a_project(self):
+        """An unsaved file with no workspace has no output folder: the
+        engine's resolve raises, and the browse must still open (on no
+        folder), not raise out of the click."""
+        from unittest import mock
+
+        engine = mock.Mock(name="TextureTransfer")
+        engine.resolve_output_dir.side_effect = ValueError("no project")
+        _, widget = self._build(self._fork_terms("blender"), engine=engine)
+        browse = widget.option_box.menu.add.return_value.option_box.browse
+        start_dir = browse.call_args.kwargs["start_dir"]
+        self.assertEqual(start_dir(), "")
 
 
 class TestTransferOutputNameHistory(unittest.TestCase):

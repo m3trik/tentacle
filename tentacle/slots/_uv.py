@@ -640,6 +640,16 @@ class UvMixin:
             return {"assign_from": data}
         return {"assign_from": "source", "assign_shader_type": data}
 
+    @staticmethod
+    def _tt_output_start_dir(engine, entry: str) -> str:
+        """Where the Output Folder browse opens: the folder *entry* resolves to,
+        or ``""`` (the dialog's own default) when there is none to resolve
+        against -- an unsaved file with no workspace, where the engine raises."""
+        try:
+            return engine.resolve_output_dir(entry) or ""
+        except ValueError:
+            return ""
+
     def b000_init(self, widget):
         """Initialize the Transfer option box.
 
@@ -911,7 +921,7 @@ class UvMixin:
             mode="directory",
             title="Transfer output folder",
             tooltip="Browse for the output folder…",
-            start_dir=lambda w=t_tt_output: engine.resolve_output_dir(w.text()),
+            start_dir=lambda w=t_tt_output: self._tt_output_start_dir(engine, w.text()),
             callback=lambda picked, w=t_tt_output: w.setText(
                 ptk.FileUtils.relativize_output_dir(picked, engine.output_base_dir())
             ),

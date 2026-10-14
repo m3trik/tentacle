@@ -343,6 +343,11 @@ class SceneSlots(SceneMixin, SlotsBlender):
         """The open .blend, or "" when it has never been saved (SceneMixin hook)."""
         return bpy.data.filepath or ""
 
+    def _scene_workspace(self):
+        """The open file's project (SceneMixin hook): the file's own, not
+        merely the pinned one."""
+        return btk.EnvUtils.scene_workspace()
+
     def _foreign_scene_bridge(self):
         """The bridge that writes Maya's native format (SceneMixin hook).
 
@@ -448,7 +453,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             setObjectName="cmb_save",
             setToolTip=(
                 "Where to write the exported file(s):\n"
-                "• Alongside Scene File — same directory and basename as the open .blend\n"
+                "• Project Export Folder — the export folder of the file's "
+                "workspace: its project, else the file's own folder (the FBX "
+                "export rule, else data/), under the file's name\n"
                 "• Prompt for File — choose the name and location each time"
             ),
         )

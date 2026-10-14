@@ -249,7 +249,7 @@ Shared, DCC-agnostic behavior for the ``preferences`` panel.
 
 Shared, DCC-agnostic behavior for the ``rendering`` panel.
 
-- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L20)** — DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard).
+- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L23)** — DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard and
 
 <a id="slots--_rigging"></a>
 ### `slots/_rigging.py`
@@ -685,8 +685,8 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
 
-- **[`class RenderingSlots(RenderingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L8)** — Blender port of the shared ``rendering`` menu.
-  - `RenderingSlots.tb000_init(self, widget)`
+- **[`class RenderingSlots(RenderingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L10)** — Blender port of the shared ``rendering`` menu.
+  - `RenderingSlots.tb000_init(self, widget)` — Playblast: built once, then re-run on every panel show.
   - `RenderingSlots.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the chosen frame range / format).
   - `RenderingSlots.tb001_init(self, widget)` — Render: pick the camera and renderer, then render the current frame.
   - `RenderingSlots.tb001(self, widget)` — Render Current Frame
@@ -1364,9 +1364,9 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/rendering.py`
 
 - **[`class RenderingSlots(RenderingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L14)**
-  - `RenderingSlots.tb000_init(self, widget)` — Export Playblast Init
+  - `RenderingSlots.tb000_init(self, widget)` — Export Playblast: built once, then re-run on every panel show.
   - `RenderingSlots.tb000(self, widget)` — Export Playblast
-  - `RenderingSlots.tb001_init(self, widget)` — Render: camera, renderer, IPR, and smart redo.
+  - `RenderingSlots.tb001_init(self, widget)` — Render: camera, renderer, IPR, smart redo, key settings and presets.
   - `RenderingSlots.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
   - `RenderingSlots.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
   - `RenderingSlots.b001(self)` — Open Render Settings Window
