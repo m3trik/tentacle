@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 import bpy
 import blendertk as btk
 from tentacle import RenderingMixin, SlotsBlender
@@ -131,16 +133,31 @@ class RenderingSlots(RenderingMixin, SlotsBlender):
         return [o for o in bpy.data.objects if o.type == "CAMERA"]
 
     def tb000_init(self, widget):
-        scene = bpy.context.scene
+        """Playblast: built once, then re-run on every panel show.
+
+        ``refresh_on_show`` re-runs this init, so the output field's
+        placeholder (the default path, ``_show_playblast_default``) follows the
+        open file instead of the one the panel was built in.
+        """
         menu = widget.option_box.menu
+        if not getattr(widget, "_playblast_menu_built", False):
+            widget.refresh_on_show = True
+            self._build_playblast_menu(menu)
+            widget._playblast_menu_built = True
+        self._show_playblast_default(menu.t000)
+
+    def _build_playblast_menu(self, menu):
+        """Add the Playblast option box's controls."""
+        scene = bpy.context.scene
         menu.setTitle("Playblast")
+        # Left empty: the placeholder shows the file's default, and a blank
+        # field resolves to it at playblast time (tb000).
         menu.add(
             "QLineEdit",
-            setPlaceholderText="Output base path (without extension)",
-            setText=scene.render.filepath,
             setObjectName="t000",
             setToolTip="Output base filepath. The format's extension (and frame numbers for "
-            "sequences) are appended automatically; '//' is a .blend-relative path.",
+            "sequences) are appended automatically; '//' is a .blend-relative path. "
+            "Blank: the default shown, the file workspace's movie folder.",
         )
         menu.add(
             "QComboBox",
@@ -315,7 +332,9 @@ class RenderingSlots(RenderingMixin, SlotsBlender):
             render.resolution_x, render.resolution_y = m.cmb040.currentData()
             render.resolution_percentage = int(m.s015.value())
             render.filepath = self._playblast_path(
-                m.t000.text(), int(m.s012.value()), is_movie or is_still
+                m.t000.text().strip() or self._default_playblast_path(),
+                int(m.s012.value()),
+                is_movie or is_still,
             )
             out_path = render.filepath  # the finally below restores render.filepath
             btk.configure_render_output(
@@ -383,6 +402,18 @@ class RenderingSlots(RenderingMixin, SlotsBlender):
                 RuntimeError
             ) as e:  # no external player / headless — file still written
                 self.sb.message_box(f"Playblast viewer failed: <hl>{e}</hl>")
+
+    def _scene_workspace(self):
+        """The open file's project (RenderingMixin hook): the file's own, else
+        the session's pinned project."""
+        return btk.EnvUtils.scene_workspace()
+
+    @staticmethod
+    def _scene_base_name() -> str:
+        """The open file's name (RenderingMixin hook); "playblast" while unsaved,
+        like Maya's."""
+        name = os.path.splitext(os.path.basename(bpy.data.filepath or ""))[0]
+        return name or "playblast"
 
     @staticmethod
     def _playblast_path(base, padding, single):

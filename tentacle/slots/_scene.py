@@ -69,6 +69,16 @@ class SceneMixin:
         """Return the open scene's path, or ``""`` when it has never been saved."""
         raise NotImplementedError
 
+    def _scene_workspace(self):
+        """Return the open scene's project as a ``ptk.Workspace``, or ``None``.
+
+        ``mtk.EnvUtils.scene_workspace()`` / ``btk.EnvUtils.scene_workspace()``:
+        the SCENE's workspace (``ptk.Workspace.for_scene``: its project, else
+        its own folder unmarked), not merely the active project -- where the
+        export rule a quick export writes into resolves.
+        """
+        raise NotImplementedError
+
     def _foreign_scene_bridge(self):
         """Return the hand-off bridge that writes the OTHER DCC's native format.
 
@@ -146,16 +156,17 @@ class SceneMixin:
     #: leading item is what an unconfigured option box shows, and the export people
     #: reach for by reflex is the current selection, not the whole scene.
     EXPORT_SCOPE_ITEMS = (("Selected Only", "selected"), ("Entire Scene", "all"))
-    #: ``(label, data)`` for the save-location combo. Alongside Scene File leads, so
-    #: the default route is the no-prompt one the button labels "Quick".
+    #: ``(label, data)`` for the save-location combo. Project Export Folder leads,
+    #: so the default route is the no-prompt one the button labels "Quick". Its
+    #: position is what a stored setting names (combos persist by index).
     EXPORT_SAVE_ITEMS = (
-        ("Alongside Scene File", "scene_dir"),
+        ("Project Export Folder", "export_dir"),
         ("Prompt for File", "prompt"),
     )
     #: The button label's scope word, per ``cmb_scope`` data value.
     EXPORT_SCOPE_LABELS = {"all": "Scene", "selected": "Sel"}
     #: The save mode that writes without asking — the one the label marks "Quick".
-    EXPORT_QUICK_SAVE_MODE = "scene_dir"
+    EXPORT_QUICK_SAVE_MODE = "export_dir"
 
     def _export_format_items(self):
         """``[(label, data), ...]`` for the format combo, foreign twin last."""
@@ -178,9 +189,10 @@ class SceneMixin:
         "Quick Export Sel GLB", "Export Scene FBX" — the entry names its own outcome
         instead of hiding it behind a gear icon, which matters most on the marking
         menu where the button is a one-click commit. *Quick* marks the no-prompt
-        route (``scene_dir`` writes straight beside the scene; ``prompt`` stops to
-        ask, so it is not quick). The suffix is the format combo's own LABEL, not its
-        data value, so the foreign twin reads "Blend" / "MA" per fork for free.
+        route (``export_dir`` writes straight into the scene's workspace; ``prompt``
+        stops to ask, so it is not quick). The suffix is the format combo's own
+        LABEL, not its data value, so the foreign twin reads "Blend" / "MA" per
+        fork for free.
         """
         prefix = "Quick " if save_mode == self.EXPORT_QUICK_SAVE_MODE else ""
         scope_label = self.EXPORT_SCOPE_LABELS.get(
@@ -266,10 +278,17 @@ class SceneMixin:
     def _resolve_export_path(self, save_mode: str, extension: str, accepted=None):
         """Output path for *save_mode*, or ``None`` to cancel (reported to the user).
 
-        ``"scene_dir"`` writes beside the open scene under its own name;
-        ``"prompt"`` asks, pre-filled with exactly that path so the two modes agree
-        on the default. An unsaved scene has no directory to write beside, so that
-        combination is the one hard error — the prompt falls back to the workspace.
+        ``"export_dir"`` writes into the export folder of the scene's workspace
+        (``ptk.Workspace.export_dir``: Maya's ``FBX export`` rule, then ``FBX``,
+        else ``data/`` -- one folder in both DCCs; made on write) under the
+        scene's own name. That workspace is the scene's project, else the
+        scene's own folder (``ptk.Workspace.for_scene``), so a loose scene
+        exports to ``<scene folder>/data/`` -- the one project layout, as its
+        bakes go to ``<scene folder>/cache/bridge``. ``"prompt"`` asks,
+        pre-filled with exactly that path so the two modes agree on the default
+        (the scene's folder while the export folder does not exist yet). An unsaved scene has no name to write under,
+        so that combination is the one hard error — the prompt falls back to the
+        workspace.
 
         *accepted* are the extensions a picked name may carry as typed (default:
         *extension* alone — see :attr:`EXPORT_EXTENSION_SPELLINGS`); any other name
@@ -280,9 +299,15 @@ class SceneMixin:
         base = os.path.splitext(os.path.basename(scene_path))[0] or "untitled"
         label = extension.lstrip(".").upper()
         accepted = tuple(accepted or (extension,))
+        ws = self._scene_workspace()
 
         if save_mode == "prompt":
-            start_dir = os.path.dirname(scene_path) or self._resolve_workspace_text()
+            start_dir = ws.export_dir() if ws is not None else ""
+            if not os.path.isdir(start_dir):
+                # Asking makes no folder: start where something exists.
+                start_dir = (
+                    os.path.dirname(scene_path) or self._resolve_workspace_text()
+                )
             picked = self.sb.save_file_dialog(
                 file_types=[f"*{ext}" for ext in accepted],
                 title=f"Export {label} As",
@@ -302,7 +327,12 @@ class SceneMixin:
                 "<hl>Prompt for File</hl> in the export options."
             )
             return None
-        return os.path.splitext(scene_path)[0] + extension
+        if ws is None:
+            # A saved scene always has a workspace (its project, else its own
+            # folder, unmarked); None means that folder no longer exists, and
+            # the scene's own path is the one left to name.
+            return os.path.splitext(scene_path)[0] + extension
+        return os.path.join(ws.export_dir(create=True), base + extension)
 
     def _export_scene_native(self, export_format, out_path, options, tick):
         """Write *out_path* in a NATIVE format: ``"fbx"``/``"obj"``/``"glb"``/``"usd"``.

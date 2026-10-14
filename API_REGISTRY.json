@@ -506,8 +506,8 @@
       "classes": [
         {
           "name": "RenderingMixin",
-          "summary": "DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard).",
-          "line": 20,
+          "summary": "DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard and",
+          "line": 23,
           "bases": [],
           "members": []
         }
@@ -546,7 +546,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Scene in the chosen format, using the configured options.",
-              "line": 322,
+              "line": 352,
               "deprecated": false
             },
             {
@@ -555,7 +555,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 661,
+              "line": 691,
               "deprecated": false
             },
             {
@@ -564,7 +564,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.",
-              "line": 717,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -573,7 +573,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — option box: scope, profile, and one toggle per section.",
-              "line": 858,
+              "line": 888,
               "deprecated": false
             },
             {
@@ -582,7 +582,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info — render the sectioned audit report to the viewer dialog.",
-              "line": 905,
+              "line": 935,
               "deprecated": false
             },
             {
@@ -591,7 +591,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 970,
+              "line": 1000,
               "deprecated": false
             },
             {
@@ -600,7 +600,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 1014,
+              "line": 1044,
               "deprecated": false
             }
           ]
@@ -907,7 +907,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer option box.",
-              "line": 643,
+              "line": 653,
               "deprecated": false
             },
             {
@@ -916,7 +916,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack button — non-checkable text button with the stack option box.",
-              "line": 1299,
+              "line": 1309,
               "deprecated": false
             },
             {
@@ -925,7 +925,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get the map size from the combobox as an int.",
-              "line": 1409,
+              "line": 1419,
               "deprecated": false
             },
             {
@@ -934,7 +934,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "UV Map Size — passive input;",
-              "line": 1413,
+              "line": 1423,
               "deprecated": false
             },
             {
@@ -943,7 +943,7 @@
               "kind": "method",
               "signature": "(self, value, widget)",
               "summary": "Texel Density — passive input;",
-              "line": 1418,
+              "line": 1428,
               "deprecated": false
             },
             {
@@ -952,7 +952,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Pin/Unpin button — non-checkable text button.",
-              "line": 1422,
+              "line": 1432,
               "deprecated": false
             }
           ]
@@ -3589,7 +3589,7 @@
         {
           "name": "RenderingSlots",
           "summary": "Blender port of the shared ``rendering`` menu.",
-          "line": 8,
+          "line": 10,
           "bases": [
             "RenderingMixin",
             "SlotsBlender"
@@ -3600,8 +3600,8 @@
               "qualname": "RenderingSlots.tb000_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "",
-              "line": 133,
+              "summary": "Playblast: built once, then re-run on every panel show.",
+              "line": 135,
               "deprecated": false
             },
             {
@@ -3610,7 +3610,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast (OpenGL viewport render of the chosen frame range / format).",
-              "line": 266,
+              "line": 283,
               "deprecated": false
             },
             {
@@ -3619,7 +3619,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: pick the camera and renderer, then render the current frame.",
-              "line": 398,
+              "line": 429,
               "deprecated": false
             },
             {
@@ -3628,7 +3628,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render Current Frame",
-              "line": 437,
+              "line": 468,
               "deprecated": false
             },
             {
@@ -3637,7 +3637,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
-              "line": 476,
+              "line": 507,
               "deprecated": false
             },
             {
@@ -3646,7 +3646,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 486,
+              "line": 517,
               "deprecated": false
             },
             {
@@ -3655,7 +3655,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 491,
+              "line": 522,
               "deprecated": false
             },
             {
@@ -3664,7 +3664,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 499,
+              "line": 530,
               "deprecated": false
             }
           ]
@@ -3909,7 +3909,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 354,
+              "line": 359,
               "deprecated": false
             },
             {
@@ -3918,7 +3918,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 406,
+              "line": 411,
               "deprecated": false
             },
             {
@@ -3927,7 +3927,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 420,
+              "line": 425,
               "deprecated": false
             },
             {
@@ -3936,7 +3936,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 662,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -3945,7 +3945,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 677,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -3954,7 +3954,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 681,
+              "line": 688,
               "deprecated": false
             },
             {
@@ -3963,7 +3963,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 685,
+              "line": 692,
               "deprecated": false
             },
             {
@@ -3972,7 +3972,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
-              "line": 692,
+              "line": 699,
               "deprecated": false
             },
             {
@@ -3981,7 +3981,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 698,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -3990,7 +3990,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 705,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -3999,7 +3999,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 722,
+              "line": 729,
               "deprecated": false
             },
             {
@@ -4008,7 +4008,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 747,
+              "line": 754,
               "deprecated": false
             },
             {
@@ -4017,7 +4017,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
-              "line": 753,
+              "line": 760,
               "deprecated": false
             },
             {
@@ -4026,7 +4026,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
-              "line": 764,
+              "line": 771,
               "deprecated": false
             },
             {
@@ -4035,7 +4035,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 775,
+              "line": 782,
               "deprecated": false
             }
           ]
@@ -8294,7 +8294,7 @@
               "qualname": "RenderingSlots.tb000_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Export Playblast Init",
+              "summary": "Export Playblast: built once, then re-run on every panel show.",
               "line": 30,
               "deprecated": false
             },
@@ -8304,7 +8304,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast",
-              "line": 246,
+              "line": 259,
               "deprecated": false
             },
             {
@@ -8312,8 +8312,8 @@
               "qualname": "RenderingSlots.tb001_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Render: camera, renderer, IPR, and smart redo.",
-              "line": 357,
+              "summary": "Render: camera, renderer, IPR, smart redo, key settings and presets.",
+              "line": 391,
               "deprecated": false
             },
             {
@@ -8322,7 +8322,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: render the current frame through the selected camera and renderer.",
-              "line": 428,
+              "line": 602,
               "deprecated": false
             },
             {
@@ -8331,7 +8331,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
-              "line": 491,
+              "line": 665,
               "deprecated": false
             },
             {
@@ -8340,7 +8340,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Render Settings Window",
-              "line": 500,
+              "line": 674,
               "deprecated": false
             },
             {
@@ -8349,7 +8349,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Render Setup",
-              "line": 504,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -8358,7 +8358,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Editor: Rendering Flags",
-              "line": 508,
+              "line": 682,
               "deprecated": false
             }
           ]
@@ -8621,7 +8621,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 368,
+              "line": 373,
               "deprecated": false
             },
             {
@@ -8630,7 +8630,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 420,
+              "line": 425,
               "deprecated": false
             },
             {
@@ -8639,7 +8639,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 431,
+              "line": 436,
               "deprecated": false
             },
             {
@@ -8648,7 +8648,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 444,
+              "line": 449,
               "deprecated": false
             },
             {
@@ -8657,7 +8657,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Reference Manager",
-              "line": 457,
+              "line": 462,
               "deprecated": false
             },
             {
@@ -8666,7 +8666,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 461,
+              "line": 466,
               "deprecated": false
             },
             {
@@ -8675,7 +8675,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 465,
+              "line": 470,
               "deprecated": false
             },
             {
@@ -8684,7 +8684,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 469,
+              "line": 474,
               "deprecated": false
             },
             {
@@ -8693,7 +8693,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Hierarchy Sync",
-              "line": 720,
+              "line": 735,
               "deprecated": false
             },
             {
@@ -8702,7 +8702,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Naming Tool",
-              "line": 724,
+              "line": 739,
               "deprecated": false
             },
             {
@@ -8711,7 +8711,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup",
-              "line": 728,
+              "line": 743,
               "deprecated": false
             },
             {
@@ -8720,7 +8720,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO",
-              "line": 732,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -8729,7 +8729,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces",
-              "line": 749,
+              "line": 764,
               "deprecated": false
             },
             {
@@ -8738,7 +8738,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names",
-              "line": 753,
+              "line": 768,
               "deprecated": false
             },
             {
@@ -8747,7 +8747,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports",
-              "line": 769,
+              "line": 784,
               "deprecated": false
             },
             {
@@ -8756,7 +8756,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 784,
+              "line": 799,
               "deprecated": false
             },
             {
@@ -8765,7 +8765,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 801,
+              "line": 816,
               "deprecated": false
             },
             {
@@ -8774,7 +8774,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene.",
-              "line": 836,
+              "line": 851,
               "deprecated": false
             },
             {
@@ -8783,7 +8783,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene.",
-              "line": 880,
+              "line": 895,
               "deprecated": false
             }
           ]

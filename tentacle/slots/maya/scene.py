@@ -355,6 +355,11 @@ class SceneSlots(SceneMixin, SlotsMaya):
         """
         return mtk.saved_scene_path()
 
+    def _scene_workspace(self):
+        """The open scene's project (SceneMixin hook): the scene's own, not
+        merely the active one."""
+        return mtk.EnvUtils.scene_workspace()
+
     def _foreign_scene_bridge(self):
         """The bridge that writes Blender's native format (SceneMixin hook).
 
@@ -491,7 +496,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
                 setObjectName="cmb_save",
                 setToolTip=(
                     "Where to write the exported file(s):\n"
-                    "• Alongside Scene File — same directory and basename as the open scene\n"
+                    "• Project Export Folder — the export folder of the scene's "
+                    "workspace: its project, else the scene's own folder (the FBX "
+                    "export rule, else data/), under the scene's name\n"
                     "• Prompt for File — choose the name and location each time "
                     "(filename pre-filled from the scene, editable)"
                 ),
@@ -634,11 +641,12 @@ class SceneSlots(SceneMixin, SlotsMaya):
         Maya has no GLB writer, so a GLB is an FBX plus an FBX2glTF conversion. The
         intermediate goes to a TEMP dir rather than next to the deliverable: writing
         it beside the target would overwrite whatever .fbx the user already had
-        there, and a "delete it afterwards" cleanup cannot run when the process dies
-        mid-convert (only TempArtifacts' age-gated sweep reclaims it then). Same rule
-        ``SceneExporter`` follows for its own ``output_format="glb"``. The converter
-        does take a ``dst``, but writing straight to the target would leave a partial
-        .glb there if it failed — the deliverable is only touched on success.
+        there. The dir is SCOPED: removed once the GLB is delivered, kept for a
+        look on a failure, and swept by age if the process dies mid-convert. Same
+        rule ``SceneExporter`` follows for its own ``output_format="glb"``. The
+        converter does take a ``dst``, but writing straight to the target would
+        leave a partial .glb there if it failed — the deliverable is only touched
+        on success.
         """
         if export_format == "obj":
             mtk.export_scene_as_obj(
@@ -669,15 +677,22 @@ class SceneSlots(SceneMixin, SlotsMaya):
             )
             return
 
-        write_path, tempdir = out_path, None
-        if export_format == "glb":
-            tempdir = ptk.TempArtifacts("scene_export_glb").dir_path()
-            write_path = os.path.join(
-                tempdir, os.path.splitext(os.path.basename(out_path))[0] + ".fbx"
-            )
+        if export_format != "glb":
+            self._export_fbx(out_path, options)
+            return
 
+        with ptk.TempArtifacts.scoped("scene_export_glb") as tmp:
+            write_path = os.path.join(
+                tmp.dir_path(), os.path.splitext(os.path.basename(out_path))[0] + ".fbx"
+            )
+            self._export_fbx(write_path, options)
+            self._convert_to_glb(write_path, out_path, options, tick)
+
+    @staticmethod
+    def _export_fbx(file_path, options):
+        """Write the scene (or selection) as FBX with Export Scene's options."""
         mtk.export_scene_as_fbx(
-            file_path=write_path,
+            file_path=file_path,
             selection_only=options["selection_only"],
             FBXExportCameras=options["include_cameras"],
             FBXExportLights=options["include_lights"],
@@ -685,9 +700,9 @@ class SceneSlots(SceneMixin, SlotsMaya):
             FBXExportTangents=options["include_tangents"],
             FBXExportEmbeddedTextures=options["embed_textures"],
         )
-        if export_format != "glb":
-            return
 
+    def _convert_to_glb(self, write_path, out_path, options, tick):
+        """Convert the intermediate FBX *write_path* and move the GLB to *out_path*."""
         # The scene sidecar repairs what the FBX hop mistranslates (modern-
         # shader base colour / emissive) and rides embedded in the GLB. The
         # Blender fork deliberately has no counterpart: it writes GLB through
@@ -882,9 +897,10 @@ class SceneSlots(SceneMixin, SlotsMaya):
 
         Saves the currently open autosave file back to its resolved
         original path (shown in the button text and tooltip). The existing
-        original is backed up to `<path>.bak` first; if a `.bak` already
-        exists, a timestamped variant is used so prior backups are
-        preserved. See `mtk.save_autosave_to_original`.
+        original is backed up first, as `<name>.bak` in the scene's
+        incremental-save folder (`ptk.Workspace.backup_dir`, never beside the
+        scene); if a `.bak` already exists, a timestamped variant is used so
+        prior backups are preserved. See `mtk.save_autosave_to_original`.
         """
         current = cmds.file(query=True, sceneName=True) or ""
         original = mtk.find_original_for_autosave(current)
@@ -894,7 +910,7 @@ class SceneSlots(SceneMixin, SlotsMaya):
 
         choice = self.sb.message_box(
             f"Save current autosave to:<br><hl>{original}</hl><br>"
-            "(Existing file will be backed up alongside it.)",
+            "(The existing file is backed up to its incrementalSave folder.)",
             "Save",
             "Cancel",
         )

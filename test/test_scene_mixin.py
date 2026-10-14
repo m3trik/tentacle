@@ -41,6 +41,7 @@ HOOKS = (
     # these inherits the mixin's NotImplementedError and dies on click — nothing
     # fails at import, so it has to be pinned here.
     "_current_scene_path",
+    "_scene_workspace",
     "_foreign_scene_bridge",
     "_export_scene_native",
     "_confirm_dense_export",
@@ -528,10 +529,11 @@ class _ExportHost(_Host):
 
     FOREIGN_FORMAT_LABEL = "Blend"
 
-    def __init__(self, bridge, scene_path="", picked=None, **kwargs):
+    def __init__(self, bridge, scene_path="", picked=None, workspace=None, **kwargs):
         super().__init__(diagnostics=None, **kwargs)
         self._bridge = bridge
         self._scene_path = scene_path
+        self._workspace = workspace
         self._picked = picked
         self.sb.save_file_dialog = self._save_file_dialog
         self.sb.QtWidgets = _Attr(
@@ -550,6 +552,9 @@ class _ExportHost(_Host):
 
     def _current_scene_path(self):
         return self._scene_path
+
+    def _scene_workspace(self):
+        return self._workspace
 
     def _foreign_scene_bridge(self):
         return self._bridge
@@ -593,18 +598,68 @@ class TestExportFormats(unittest.TestCase):
         # Not a second table here -- the bridge already declares it.
         self.assertEqual(host._export_extension("foreign"), ".ma")
 
-    def test_scene_dir_mode_writes_beside_the_open_scene(self):
-        host = _ExportHost(self.bridge, scene_path="P:/proj/scenes/asset.ma")
+    def test_a_loose_scene_exports_into_its_own_folders_data_dir(self):
+        """A saved scene outside any project is its own (unmarked) workspace
+        (``ptk.Workspace.for_scene``), so the quick route writes to
+        ``<scene folder>/data/`` -- the one layout, never beside the scene."""
+        tmp = ptk.TempArtifacts.scoped("tentacle_scene_export_loose")
+        self.addCleanup(tmp.cleanup)
+        folder = tmp.dir_path()
+        scene = os.path.join(folder, "asset.ma")
+        ws = ptk.Workspace.for_scene(scene)  # the real rule, no session project
+        self.assertIsNotNone(ws)
+        host = _ExportHost(self.bridge, scene_path=scene, workspace=ws)
+        out = host._resolve_export_path("export_dir", ".fbx")
         self.assertEqual(
-            host._resolve_export_path("scene_dir", ".fbx"), "P:/proj/scenes/asset.fbx"
+            os.path.normcase(out),
+            os.path.normcase(os.path.join(folder, "data", "asset.fbx")),
+        )
+        self.assertTrue(os.path.isdir(os.path.dirname(out)))
+
+    def _project(self, rules=None):
+        tmp = ptk.TempArtifacts.scoped("tentacle_scene_export")
+        self.addCleanup(tmp.cleanup)
+        root = tmp.dir_path()
+        os.makedirs(os.path.join(root, "scenes"))
+        return root, ptk.Workspace(root, rules or {})
+
+    def test_export_dir_mode_writes_into_the_scene_project_export_folder(self):
+        """The quick route follows the scene project's export rule (``FBX
+        export``, else ``data/``), never the scene folder -- and makes it."""
+        root, ws = self._project()
+        scene = os.path.join(root, "scenes", "asset.ma")
+        host = _ExportHost(self.bridge, scene_path=scene, workspace=ws)
+        out = host._resolve_export_path("export_dir", ".fbx")
+        self.assertEqual(out, os.path.join(root, "data", "asset.fbx"))
+        self.assertTrue(os.path.isdir(os.path.dirname(out)))
+
+    def test_export_dir_mode_honors_the_project_export_rule(self):
+        root, ws = self._project({"FBX export": "deliver/fbx"})
+        scene = os.path.join(root, "scenes", "asset.ma")
+        host = _ExportHost(self.bridge, scene_path=scene, workspace=ws)
+        self.assertEqual(
+            host._resolve_export_path("export_dir", ".glb"),
+            os.path.join(root, "deliver", "fbx", "asset.glb"),
         )
 
-    def test_scene_dir_mode_reports_an_unsaved_scene_instead_of_guessing(self):
+    def test_prompt_mode_prefills_the_project_export_folder(self):
+        root, ws = self._project()
+        os.makedirs(os.path.join(root, "data"))
+        scene = os.path.join(root, "scenes", "asset.ma")
+        host = _ExportHost(
+            self.bridge, scene_path=scene, picked="X:/a.fbx", workspace=ws
+        )
+        host._resolve_export_path("prompt", ".fbx")
+        self.assertEqual(
+            host.dialog_kwargs["start_dir"], os.path.join(root, "data", "asset.fbx")
+        )
+
+    def test_export_dir_mode_reports_an_unsaved_scene_instead_of_guessing(self):
         host = _ExportHost(self.bridge, scene_path="")
-        self.assertIsNone(host._resolve_export_path("scene_dir", ".fbx"))
+        self.assertIsNone(host._resolve_export_path("export_dir", ".fbx"))
         self.assertIn("has not been saved", host.sb.messages[-1])
 
-    def test_prompt_mode_prefills_the_scene_dir_default(self):
+    def test_prompt_mode_without_a_project_prefills_the_scene_dir(self):
         host = _ExportHost(
             self.bridge, scene_path="P:/proj/asset.ma", picked="P:/out/thing.glb"
         )
@@ -710,7 +765,7 @@ class TestExportButtonLabel(unittest.TestCase):
 
     def test_quick_marks_the_no_prompt_route_only(self):
         self.assertEqual(
-            self.host._export_button_text("selected", "scene_dir", "GLB"),
+            self.host._export_button_text("selected", "export_dir", "GLB"),
             "Quick Export Sel GLB",
         )
         # Prompt for File stops to ask, so it is not quick.
@@ -721,7 +776,7 @@ class TestExportButtonLabel(unittest.TestCase):
 
     def test_the_scope_word_follows_the_scope(self):
         self.assertEqual(
-            self.host._export_button_text("all", "scene_dir", "FBX"),
+            self.host._export_button_text("all", "export_dir", "FBX"),
             "Quick Export Scene FBX",
         )
         self.assertEqual(
@@ -865,7 +920,7 @@ class TestForeignExport(unittest.TestCase):
         self.assertEqual(host.cursors, [])
 
 
-def _export_widget(fmt="fbx", scope="all", save="scene_dir", transfer="fbx", **checks):
+def _export_widget(fmt="fbx", scope="all", save="export_dir", transfer="fbx", **checks):
     """A tb003 stand-in: the option box tb003_init builds, with all boxes ticked."""
     state = dict(
         chk_cameras=True,
@@ -968,7 +1023,7 @@ class TestTb003ExportFlow(unittest.TestCase):
 
     def test_an_unsaved_scene_stops_before_writing(self):
         host = self._host(scene_path="")
-        host.tb003(_export_widget(save="scene_dir"))
+        host.tb003(_export_widget(save="export_dir"))
         self.assertEqual(host.native, [])
         self.assertIn("has not been saved", host.sb.messages[-1])
 

@@ -6,6 +6,7 @@ The pure-Python helpers (_default_playblast_path, _scene_base_name,
 _camera_transforms) had no coverage — they underpin the entire Export
 Playblast workflow.
 """
+
 import os
 import tempfile
 import unittest
@@ -38,10 +39,12 @@ class TestSceneBaseName(unittest.TestCase):
         """
         original = cmds.file
         try:
+
             def fake_file(*args, **kwargs):
                 if kwargs.get("query") and kwargs.get("sceneName"):
                     return ""  # Simulate genuinely empty sceneName
                 return original(*args, **kwargs)
+
             cmds.file = fake_file
 
             result = rendering_module.RenderingSlots._scene_base_name()
@@ -61,6 +64,7 @@ class TestSceneBaseName(unittest.TestCase):
             self.assertEqual(result, "MyShot")
         finally:
             import shutil
+
             shutil.rmtree(tmpdir, ignore_errors=True)
 
     def test_saved_scene_with_multi_dot_strips_only_last(self):
@@ -75,28 +79,31 @@ class TestSceneBaseName(unittest.TestCase):
             self.assertEqual(result, "v1.test")
         finally:
             import shutil
+
             shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
 class TestDefaultPlayblastPath(unittest.TestCase):
-    """_default_playblast_path joins Desktop with _scene_base_name."""
+    """_default_playblast_path joins the scene project's movie folder with
+    _scene_base_name (RenderingMixin; the Desktop only without a project)."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+        self.instance = rendering_module.RenderingSlots.__new__(
+            rendering_module.RenderingSlots
+        )
 
     def tearDown(self):
         cmds.file(new=True, force=True)
 
-    def test_returns_normalized_path_under_desktop(self):
+    def test_returns_the_scene_project_movie_folder(self):
+        """An unsaved scene's project is the active one; its movie rule wins."""
+        import mayatk as mtk
+
         path = self.instance._default_playblast_path()
-        # Should be normalized + under Desktop.
-        desktop = os.path.normpath(os.path.expanduser(os.path.join("~", "Desktop")))
-        self.assertTrue(
-            path.startswith(desktop),
-            f"Expected path under {desktop}, got {path}",
-        )
+        movies = ptk.Workspace.load(mtk.EnvUtils.workspace_root()).movie_dir()
+        self.assertEqual(os.path.dirname(path), os.path.normpath(movies))
 
     def test_uses_scene_name_when_saved(self):
         tmpdir = tempfile.mkdtemp(prefix="rh_path_")
@@ -113,16 +120,19 @@ class TestDefaultPlayblastPath(unittest.TestCase):
             )
         finally:
             import shutil
+
             shutil.rmtree(tmpdir, ignore_errors=True)
 
     def test_uses_playblast_fallback_when_scene_name_empty(self):
         """Force sceneName='' to exercise the 'playblast' fallback branch."""
         original = cmds.file
         try:
+
             def fake_file(*args, **kwargs):
                 if kwargs.get("query") and kwargs.get("sceneName"):
                     return ""
                 return original(*args, **kwargs)
+
             cmds.file = fake_file
 
             path = self.instance._default_playblast_path()
@@ -171,11 +181,14 @@ class TestCameraTransforms(unittest.TestCase):
 class _Signal:
     def __init__(self):
         self.fns = []
+        self.blocked = False
 
     def connect(self, fn):
         self.fns.append(fn)
 
     def emit(self, *args):
+        if self.blocked:
+            return
         for fn in list(self.fns):
             fn(*args)
 
@@ -186,9 +199,16 @@ class _Combo:
         self._idx = 0
         self._visible = True
         self.currentIndexChanged = _Signal()
+        self.activated = _Signal()  # Qt: the USER's pick only
 
     def addItems(self, labels):
         self._items.extend((str(label), None) for label in labels)
+
+    def clear(self):
+        self._items, self._idx = [], 0
+
+    def blockSignals(self, block):
+        self.currentIndexChanged.blocked = bool(block)
 
     def setItemData(self, i, data):
         label, _ = self._items[i]
@@ -217,11 +237,17 @@ class _Combo:
         self._visible = bool(v)
 
     def select(self, data):
-        """Test helper: select the item whose itemData == data."""
+        """Test helper: select the item whose itemData == data (programmatic,
+        as a restore does: no ``activated``)."""
         for i, (_, d) in enumerate(self._items):
             if d == data:
                 self.setCurrentIndex(i)
                 return
+
+    def pick(self, data):
+        """Test helper: the USER picks the item whose itemData == data."""
+        self.select(data)
+        self.activated.emit(self._idx)
 
 
 class _Check:
@@ -250,12 +276,26 @@ class _Spin:
     def __init__(self, value=0):
         self._value = value
         self._visible = True
+        self._enabled = True
+        self.valueChanged = _Signal()
 
     def value(self):
         return self._value
 
     def setValue(self, v):
+        changed = v != self._value
         self._value = v
+        if changed:
+            self.valueChanged.emit(v)
+
+    def blockSignals(self, block):
+        self.valueChanged.blocked = bool(block)
+
+    def setEnabled(self, v):
+        self._enabled = bool(v)
+
+    def isEnabled(self):
+        return self._enabled
 
     def setVisible(self, v):
         self._visible = bool(v)
@@ -264,6 +304,7 @@ class _Spin:
 class _Line:
     def __init__(self, text=""):
         self._text = text
+        self._placeholder = ""
 
     def text(self):
         return self._text
@@ -271,12 +312,39 @@ class _Line:
     def setText(self, t):
         self._text = t
 
+    def setPlaceholderText(self, t):
+        self._placeholder = t
+
+    def placeholderText(self):
+        return self._placeholder
+
+
+class _Presets:
+    """Stand-in for the menu's PresetManager namespace (``menu.presets``)."""
+
+    def __init__(self):
+        self.preset_dir = self.builtin_dir = None
+        self.value_provider = self.value_applier = None
+        self.refreshes = 0
+
+    def refresh_modified_state(self):
+        self.refreshes += 1
+        return False
+
 
 class _Menu:
+    def __init__(self):
+        self.presets = _Presets()
+        self.add_presets = False
+        self.added = []
+
     def setTitle(self, t):
         self._title = t
 
     def add(self, kind, **kw):
+        self.added.append(kw.get("setObjectName", kind))
+        if kind == "Separator":
+            return None
         if kind == "QComboBox":
             w = _Combo()
             w.addItems(kw.get("addItems", []))
@@ -322,34 +390,14 @@ class _SB:
         return None
 
 
-class _FakeBridge:
-    """Records add() calls (into ``log`` too, when set); instances tracked on
-    the class. ``game`` is what ``unrenderable_materials()`` reports."""
-
-    instances = []
-    game = []
-    log = None
-
-    def __init__(self):
-        _FakeBridge.instances.append(self)
-        self.added = "UNSET"
-
-    @classmethod
-    def unrenderable_materials(cls):
-        return list(cls.game)
-
-    def add(self, materials=None, **kw):
-        self.added = materials
-        if _FakeBridge.log is not None:
-            _FakeBridge.log.append(("bridge", tuple(materials or ())))
-        return materials or []
-
-
 class _FakeRenderUtils:
     """Stand-in for mtk.RenderUtils that records calls (no live render)."""
 
-    def __init__(self, current="mayaSoftware", renderers=None, ipr_ok=True):
+    def __init__(
+        self, current="mayaSoftware", renderers=None, ipr_ok=True, arnold_error=None
+    ):
         self.calls = []
+        self._arnold_error = arnold_error  # raised by ensure_arnold_options
         self._current = current
         self._renderers = renderers or [
             {"name": "mayaSoftware", "label": "Maya Software", "loaded": True},
@@ -357,6 +405,7 @@ class _FakeRenderUtils:
             {"name": "arnold", "label": "Arnold", "loaded": False},
         ]
         self._ipr_ok = ipr_ok
+        self.settings = {"width": 1920, "height": 1080}
 
     def get_available_renderers(self):
         return list(self._renderers)
@@ -382,6 +431,32 @@ class _FakeRenderUtils:
     def start_ipr(self, camera, renderer):
         self.calls.append(("ipr", camera, renderer))
         return self._ipr_ok
+
+    def prepare_arnold_preview(self):
+        self.calls.append(("prepare_arnold",))
+        return {"bridged": [], "culled": []}
+
+    def ensure_arnold_options(self):
+        self.calls.append(("ensure_arnold",))
+        if self._arnold_error is not None:
+            raise self._arnold_error
+        self.settings.setdefault("camera_samples", 3)
+        return "defaultArnoldRenderOptions"
+
+    def render_settings(self):
+        return dict(self.settings)
+
+    def set_render_settings(self, values):
+        self.calls.append(("set_settings", dict(values)))
+        self.settings.update(values)
+        return len(values)
+
+    def render_preset_store(self):
+        class _Store:
+            user_dir = "user/render"
+            builtin_dir = "builtin/render"
+
+        return _Store()
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
@@ -447,23 +522,126 @@ class TestRenderButtonInit(unittest.TestCase):
 
 
 @unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestRenderButtonAction(unittest.TestCase):
-    """tb001 routes camera/renderer/bridge/IPR/smart-redo through RenderUtils."""
+class TestRenderSettingsAndPresets(unittest.TestCase):
+    """The Render option box shows and writes the scene's key render settings,
+    and its native preset selector drives the same settings."""
 
     def setUp(self):
         cmds.file(new=True, force=True)
         self._orig_ru = rendering_module.mtk.RenderUtils
-        self._orig_bridge = rendering_module.mtk.ArnoldBridge
         self.ru = _FakeRenderUtils()
         rendering_module.mtk.RenderUtils = self.ru
-        rendering_module.mtk.ArnoldBridge = _FakeBridge
-        _FakeBridge.instances, _FakeBridge.game = [], []
-        _FakeBridge.log = self.ru.calls  # one timeline: bridge vs render order
+        self.inst = rendering_module.RenderingSlots.__new__(
+            rendering_module.RenderingSlots
+        )
+        self.widget = _Widget()
+        self.inst.tb001_init(self.widget)
+        self.menu = self.widget.option_box.menu
 
     def tearDown(self):
         rendering_module.mtk.RenderUtils = self._orig_ru
-        rendering_module.mtk.ArnoldBridge = self._orig_bridge
-        _FakeBridge.log = None
+        cmds.file(new=True, force=True)
+
+    def test_fields_show_the_scene_values_without_writing_them(self):
+        self.assertEqual(self.menu.s020.value(), 1920)
+        self.assertEqual(self.menu.s021.value(), 1080)
+        self.assertFalse(any(c[0] == "set_settings" for c in self.ru.calls))
+
+    def test_editing_a_field_writes_the_scene(self):
+        self.menu.s020.setValue(640)
+        self.assertIn(("set_settings", {"width": 640}), self.ru.calls)
+        self.assertEqual(self.ru.settings["width"], 640)
+
+    def test_fields_are_never_session_restored(self):
+        for name in ("s020", "s021", "s022", "s028"):
+            self.assertFalse(getattr(self.menu, name).restore_state, name)
+
+    def test_arnold_fields_follow_the_renderer(self):
+        # mayaSoftware is current: Arnold's fields are off, its options untouched.
+        self.assertFalse(self.menu.s022.isEnabled())
+        self.assertNotIn(("ensure_arnold",), self.ru.calls)
+        self.assertTrue(self.menu.s020.isEnabled())  # resolution always applies
+
+        # The USER picking Arnold creates its options, as Maya's Render Settings does.
+        self.menu.cmb003.pick("arnold")
+        self.assertIn(("ensure_arnold",), self.ru.calls)
+        self.assertTrue(self.menu.s022.isEnabled())
+        self.assertEqual(self.menu.s022.value(), 3)  # read from the new options
+
+    def test_a_restored_arnold_pick_creates_nothing(self):
+        """A restore sets the combo programmatically (no ``activated``): the
+        fields enable, but mtoa is not loaded and no options node is made --
+        either would modify the scene and make it save with ``requires mtoa``."""
+        self.menu.cmb003.select("arnold")
+        self.assertNotIn(("ensure_arnold",), self.ru.calls)
+        self.assertTrue(self.menu.s022.isEnabled())
+        self.inst.tb001_init(self.widget)  # the next panel show
+        self.assertNotIn(("ensure_arnold",), self.ru.calls)
+        # The first edit is what creates them (set_render_settings).
+        self.menu.s022.setValue(5)
+        self.assertIn(("set_settings", {"camera_samples": 5}), self.ru.calls)
+
+    def test_an_unavailable_mtoa_on_a_pick_disables_the_fields(self):
+        self.ru._arnold_error = RuntimeError("mtoa failed to initialize")
+        self.inst.sb = _SB()
+        self.menu.cmb003.pick("arnold")  # must not raise out of the signal
+        self.assertFalse(self.menu.s022.isEnabled())
+        self.assertIn("mtoa failed", self.inst.sb.messages[-1])
+
+    def test_native_presets_drive_the_render_settings(self):
+        presets = self.menu.presets
+        self.assertTrue(self.menu.add_presets)
+        self.assertEqual(presets.builtin_dir, "builtin/render")
+        self.assertEqual(presets.preset_dir, "user/render")
+        self.assertEqual(presets.value_provider(), self.ru.settings)
+
+        applied = presets.value_applier({"camera_samples": 8, "width": 960})
+        self.assertEqual(applied, 2)
+        self.assertEqual(self.menu.s022.value(), 8)  # the fields show the preset
+        self.assertEqual(self.menu.s020.value(), 960)
+
+    def test_showing_the_panel_over_an_arnold_scene_creates_nothing(self):
+        """Showing the panel (build and every re-show) with Arnold current
+        reads the scene only: no mtoa load, no ``defaultArnoldRenderOptions``."""
+        ru = _FakeRenderUtils(current="arnold")
+        rendering_module.mtk.RenderUtils = ru
+        widget = _Widget()
+        self.inst.tb001_init(widget)
+        self.inst.tb001_init(widget)  # refresh_on_show re-runs the init
+        self.assertEqual(widget.option_box.menu.cmb003.currentData(), "arnold")
+        self.assertNotIn(("ensure_arnold",), ru.calls)
+        self.assertFalse(any(c[0] == "set_settings" for c in ru.calls))
+        self.assertTrue(widget.option_box.menu.s022.isEnabled())
+
+    def test_a_show_rereads_the_scene_without_rebuilding(self):
+        built = list(self.menu.added)
+        self.menu.cmb002.setCurrentIndex(
+            [label for label, _ in self.menu.cmb002._items].index("top")
+        )
+        cmds.rename(cmds.camera()[0], "laterCam")
+        self.ru.settings["width"] = 800
+
+        self.inst.tb001_init(self.widget)  # refresh_on_show re-runs the init
+
+        self.assertEqual(self.menu.added, built)  # nothing added twice
+        labels = [label for label, _ in self.menu.cmb002._items]
+        self.assertIn("laterCam", labels)  # a camera made since the first show
+        self.assertEqual(self.menu.cmb002.currentText(), "top")  # the pick kept
+        self.assertEqual(self.menu.s020.value(), 800)
+
+
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestRenderButtonAction(unittest.TestCase):
+    """tb001 routes camera/renderer/Arnold prep/IPR/smart-redo through RenderUtils."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self._orig_ru = rendering_module.mtk.RenderUtils
+        self.ru = _FakeRenderUtils()
+        rendering_module.mtk.RenderUtils = self.ru
+
+    def tearDown(self):
+        rendering_module.mtk.RenderUtils = self._orig_ru
         cmds.file(new=True, force=True)
 
     def _menu(self, camera="", renderer="mayaSoftware", ipr=False, smart=True):
@@ -522,33 +700,26 @@ class TestRenderButtonAction(unittest.TestCase):
         self.assertIn(("render_camera", cam_tf), self.ru.calls)
         self.assertFalse(any(c[0] == "redo" for c in self.ru.calls))
 
-    def test_an_arnold_render_bridges_the_game_shaders_first(self):
-        """Arnold renders a material it cannot translate as error magenta, so an
-        Arnold render bridges exactly those -- before the frame, or the IPR
-        session, starts -- and nothing else."""
+    def test_an_arnold_render_prepares_the_scene_first(self):
+        """Arnold reads neither the game shaders (error magenta) nor viewport
+        backface culling (a cutaway room renders black), so an Arnold render
+        readies the scene -- before the frame, or the IPR session, starts."""
         cam_tf = cmds.rename(cmds.camera()[0], "aiCam")
         calls = self.ru.calls
-        bridged = ("bridge", ("rack_srp",))
-        _FakeBridge.game = ["rack_srp"]
+        prepared = ("prepare_arnold",)
         inst = self._inst()
         inst.tb001(self._menu(camera=cam_tf, renderer="arnold"))
-        self.assertLess(calls.index(bridged), calls.index(("render_camera", cam_tf)))
+        self.assertLess(calls.index(prepared), calls.index(("render_camera", cam_tf)))
 
-        calls.clear()  # an IPR session renders the live scene: bridged first too
+        calls.clear()  # an IPR session renders the live scene: prepared first too
         inst.tb001(self._menu(camera=cam_tf, renderer="arnold", ipr=True))
         ipr = next(i for i, c in enumerate(calls) if c[0] == "ipr")
-        self.assertLess(calls.index(bridged), ipr)
+        self.assertLess(calls.index(prepared), ipr)
 
-        # No game shader in the scene: nothing to add.
-        _FakeBridge.game, _FakeBridge.instances = [], []
-        inst.tb001(self._menu(camera=cam_tf, renderer="arnold"))
-        self.assertFalse(_FakeBridge.instances)
-
-        # Another renderer never bridges.
-        _FakeBridge.game = ["rack_srp"]
+        # Another renderer is never touched.
         calls.clear()
         inst.tb001(self._menu(camera=cam_tf, renderer="mayaSoftware"))
-        self.assertFalse(any(c[0] == "bridge" for c in calls))
+        self.assertNotIn(prepared, calls)
 
     def test_ipr_supersedes_single_render(self):
         cam_tf = cmds.rename(cmds.camera()[0], "iprCam")
@@ -678,6 +849,43 @@ class TestExportPlayblastInit(unittest.TestCase):
             for target in bundle:
                 self.assertIn(target, PlayblastExporter.TARGETS)
 
+    def test_the_output_field_is_empty_and_shows_the_default(self):
+        """The default path is the placeholder, never the field's value: a value
+        would persist and pin the panel to the scene it was built in."""
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+        widget = _Widget()
+        inst.tb000_init(widget)
+        menu = widget.option_box.menu
+        self.assertEqual(menu.t000.text(), "")
+        self.assertEqual(menu.t000.placeholderText(), inst._default_playblast_path())
+
+    def test_the_default_follows_a_newly_opened_scene(self):
+        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+        widget = _Widget()
+        inst.tb000_init(widget)
+        menu = widget.option_box.menu
+        built = list(menu.added)
+        tmpdir = tempfile.mkdtemp(prefix="rh_follow_")
+        try:
+            cmds.file(rename=os.path.join(tmpdir, "ShotB.ma").replace("\\", "/"))
+            cmds.file(save=True, type="mayaAscii")
+            inst.tb000_init(widget)  # refresh_on_show re-runs the init
+            self.assertEqual(menu.added, built)  # nothing built twice
+            self.assertEqual(os.path.basename(menu.t000.placeholderText()), "ShotB")
+            self.assertEqual(
+                menu.t000.placeholderText(), inst._default_playblast_path()
+            )
+            # A blank field playblasts to exactly that default.
+            directory, name = inst._split_output_base(menu.t000.text())
+            self.assertEqual(
+                os.path.join(directory, name), inst._default_playblast_path()
+            )
+        finally:
+            cmds.file(new=True, force=True)
+            import shutil
+
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
     def test_custom_range_spinboxes_toggle(self):
         menu = self._init()
         self.assertFalse(menu.s010._visible)
@@ -784,7 +992,9 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
 
         tmpdir = tempfile.mkdtemp(prefix="rh_action_")
         try:
-            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+            inst = rendering_module.RenderingSlots.__new__(
+                rendering_module.RenderingSlots
+            )
             inst.sb = _SB()
             inst.tb000(self._widget(tmpdir))
 
@@ -816,7 +1026,9 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
 
         tmpdir = tempfile.mkdtemp(prefix="rh_ffmpeg_")
         try:
-            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+            inst = rendering_module.RenderingSlots.__new__(
+                rendering_module.RenderingSlots
+            )
             inst.sb = _SB()
             with mock.patch.object(
                 ptk.VidUtils,
@@ -839,7 +1051,9 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
             widget.option_box.menu.cmb050.addItems(["PNG Sequence"])
             widget.option_box.menu.cmb050.setItemData(1, ["png_sequence"])
             widget.option_box.menu.cmb050._idx = 1
-            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+            inst = rendering_module.RenderingSlots.__new__(
+                rendering_module.RenderingSlots
+            )
             inst.sb = _SB()
             with mock.patch.object(ptk.VidUtils, "ensure_ffmpeg") as ensure:
                 inst.tb000(widget)
@@ -856,7 +1070,9 @@ class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
             widget = self._widget(tmpdir)
             widget.option_box.menu.s010.setValue(9)
             widget.option_box.menu.s011.setValue(2)
-            inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
+            inst = rendering_module.RenderingSlots.__new__(
+                rendering_module.RenderingSlots
+            )
             inst.sb = _SB()
             inst.tb000(widget)
             self.assertFalse(_FakeExporter.instances, "export must not run")

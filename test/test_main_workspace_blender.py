@@ -194,10 +194,13 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         self.assertIn("_workspace_store.record", src)
 
     def test_auto_set_resolves_then_pins(self):
-        """Auto Set resolves from the open file (marked root walk-up) and actually
-        switches — no more find-and-record-only toast."""
+        """Auto Set resolves the open file's project (``btk.EnvUtils.scene_workspace``:
+        marked root walk-up, the pin while unsaved) and actually switches — no more
+        find-and-record-only toast. Never the process cwd: an unsaved file used to
+        resolve whatever folder Blender was launched from."""
         src = self.mod.method_source("MainSlots", "_auto_set_workspace")
-        self.assertIn("btk.current_workspace", src)
+        self.assertIn("btk.EnvUtils.scene_workspace()", src)
+        self.assertNotIn("getcwd", src)
         self.assertIn("_switch_to_workspace", src)
 
     def test_editor_row_opens_workspace_editor_panel(self):

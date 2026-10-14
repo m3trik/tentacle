@@ -22,6 +22,7 @@ Runs under mayapy.standalone via:
     PYTHONPATH=...tentacle;...uitk;...mayatk;...pythontk \\
         mayapy.exe tentacle/test/slots/test_widget_state_persistence.py
 """
+
 from __future__ import annotations
 
 import sys
@@ -52,15 +53,18 @@ class _PersistenceBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from qtpy import QtCore, QtWidgets
+
         cls.QtCore = QtCore
         cls.QtWidgets = QtWidgets
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
 
         from tentacle.tcl_maya import TclMaya
+
         cls.tcl = TclMaya(parent=None, log_level="WARNING")
         cls.sb = cls.tcl.sb
 
         from uitk.managers.settings_manager import SettingsManager
+
         cls.SettingsManager = SettingsManager
         cls.sb.settings = SettingsManager(
             org=cls.TEST_ORG, app=cls.TEST_APP, namespace="switchboard"
@@ -102,25 +106,25 @@ class _PersistenceBase(unittest.TestCase):
         at the isolated test store so reads round-trip through our
         cleared QSettings."""
         from uitk.managers.state_manager import StateManager
+
         ui = getattr(self.sb.loaded_ui, ui_name)
         ui.settings = self.sb.settings.branch(ui.objectName())
         ui.state = StateManager(ui.settings)
         ui.register_children()
-        self._drain(); self._drain()
+        self._drain()
+        self._drain()
         return ui
 
     def _raw_keys(self):
-        return sorted(
-            self.SettingsManager(org=self.TEST_ORG, app=self.TEST_APP).keys()
-        )
+        return sorted(self.SettingsManager(org=self.TEST_ORG, app=self.TEST_APP).keys())
 
 
 # ===========================================================================
 # Polygons: tb007 has chk008 (U) / chk009 (V) / chk010 (Tris)
 # ===========================================================================
 
-class TestPolygonsOptionBoxPersistence(_PersistenceBase):
 
+class TestPolygonsOptionBoxPersistence(_PersistenceBase):
     def test_tb007_init_adds_chk008_to_option_box_menu(self):
         ui = self._load_panel("polygons")
         menu = ui.tb007.option_box.menu
@@ -129,7 +133,7 @@ class TestPolygonsOptionBoxPersistence(_PersistenceBase):
             getattr(menu, "chk008", None),
             "tb007_init did not add chk008 — "
             "PolygonsSlots construction may have failed silently. "
-            f"Menu children: {[w.objectName() for w in menu.findChildren(self.QtWidgets.QWidget) if w.objectName()]}"
+            f"Menu children: {[w.objectName() for w in menu.findChildren(self.QtWidgets.QWidget) if w.objectName()]}",
         )
 
     def test_tb007_chk008_toggle_writes_to_qsettings(self):
@@ -158,7 +162,8 @@ class TestPolygonsOptionBoxPersistence(_PersistenceBase):
         # NO explicit sync. NEW QSettings.
         fresh = self.QtCore.QSettings(self.TEST_ORG, self.TEST_APP)
         self.assertIn(
-            "switchboard/polygons/chk008/toggled", fresh.allKeys(),
+            "switchboard/polygons/chk008/toggled",
+            fresh.allKeys(),
             "Per-save sync regressed: write not visible to fresh QSettings",
         )
 
@@ -166,6 +171,7 @@ class TestPolygonsOptionBoxPersistence(_PersistenceBase):
 # ===========================================================================
 # Smoke test: every major panel persists something
 # ===========================================================================
+
 
 class TestEveryPanelPersistsAtLeastOneWidget(_PersistenceBase):
     """Walk each panel, find one stateful widget after init, toggle it,
@@ -175,6 +181,7 @@ class TestEveryPanelPersistsAtLeastOneWidget(_PersistenceBase):
 
     def _exercise_panel(self, name):
         from uitk.widgets.menu import Menu
+
         ui = self._load_panel(name)
         # Force every tb* button to expose its option_box menu — this
         # triggers lazy tb*_init.
@@ -184,22 +191,27 @@ class TestEveryPanelPersistsAtLeastOneWidget(_PersistenceBase):
                     _ = w.option_box.menu
                 except Exception:
                     pass
-        self._drain(); self._drain()
+        self._drain()
+        self._drain()
 
         stateful = (
-            self.QtWidgets.QCheckBox, self.QtWidgets.QSpinBox,
-            self.QtWidgets.QDoubleSpinBox, self.QtWidgets.QComboBox,
+            self.QtWidgets.QCheckBox,
+            self.QtWidgets.QSpinBox,
+            self.QtWidgets.QDoubleSpinBox,
+            self.QtWidgets.QComboBox,
         )
         candidates = []
         seen = set()
         for w in ui.widgets:
-            if id(w) in seen: continue
+            if id(w) in seen:
+                continue
             seen.add(id(w))
             if isinstance(w, stateful) and w.objectName():
                 candidates.append(w)
         for m in ui.findChildren(Menu):
             for c in m.findChildren(self.QtWidgets.QWidget):
-                if id(c) in seen: continue
+                if id(c) in seen:
+                    continue
                 seen.add(id(c))
                 if isinstance(c, stateful) and c.objectName():
                     candidates.append(c)
@@ -258,6 +270,7 @@ class TestEveryPanelPersistsAtLeastOneWidget(_PersistenceBase):
 # Round-trip: save in one "session", rebuild fresh state, expect restore
 # ===========================================================================
 
+
 class TestPolygonsSessionRoundTrip(_PersistenceBase):
     """The user-facing contract: change a widget in session 1, expect
     that value to show up in session 2.
@@ -299,7 +312,8 @@ class TestPolygonsSessionRoundTrip(_PersistenceBase):
         self._drain()
 
         self.assertEqual(
-            chk008.isChecked(), not original,
+            chk008.isChecked(),
+            not original,
             "state.load did not restore the persisted chk008 value "
             "after the state manager was rebuilt",
         )
@@ -309,6 +323,7 @@ class TestPolygonsSessionRoundTrip(_PersistenceBase):
 # Selection: the constraint icon row MIRRORS Maya, and must NOT persist;
 # the Convert To list builds on both surfaces
 # ===========================================================================
+
 
 class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
     """b002-b007 (2026-08-16: the icon row that replaced the one-at-a-time
@@ -320,13 +335,19 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
     the row/list actually building through the real slot init."""
 
     _ALL_OFF = dict(
-        border=False, borderPropagation=False, shell=False, anglePropagation=False,
-        loopPropagation=False, ringPropagation=False, uvEdgeLoopPropagation=False,
+        border=False,
+        borderPropagation=False,
+        shell=False,
+        anglePropagation=False,
+        loopPropagation=False,
+        ringPropagation=False,
+        uvEdgeLoopPropagation=False,
     )
 
     def setUp(self):
         super().setUp()
         import maya.cmds as cmds
+
         self.cmds = cmds
         cmds.polySelectConstraint(**self._ALL_OFF)
 
@@ -335,17 +356,25 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
         super().tearDown()
 
     def _row(self, ui):
-        return [getattr(ui, n) for n in ("b002", "b003", "b004", "b005", "b006", "b007")]
+        return [
+            getattr(ui, n) for n in ("b002", "b003", "b004", "b005", "b006", "b007")
+        ]
 
     def test_row_builds_as_icon_toggles(self):
         ui = self._load_panel("selection")
         for b in self._row(ui):
             with self.subTest(b.objectName()):
                 self.assertTrue(b.isCheckable())
-                self.assertFalse(b.icon().isNull(), "no glyph — a bad icon NAME resolves to an empty QIcon silently")
+                self.assertFalse(
+                    b.icon().isNull(),
+                    "no glyph — a bad icon NAME resolves to an empty QIcon silently",
+                )
                 self.assertEqual(b.text(), "")
                 self.assertIn("Selection constraint", b.toolTip())
-                self.assertFalse(getattr(b, "restore_state", True), "constraint button not opted out of restore")
+                self.assertFalse(
+                    getattr(b, "restore_state", True),
+                    "constraint button not opted out of restore",
+                )
 
     def test_click_toggles_maya_flag_and_writes_no_qsettings_key(self):
         ui = self._load_panel("selection")
@@ -354,8 +383,10 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
         b004.click()
         self._drain()
         self.assertTrue(self.cmds.polySelectConstraint(q=True, loopPropagation=True))
-        self.assertFalse(any("b004" in k for k in self._raw_keys()),
-                         "constraint state leaked into QSettings")
+        self.assertFalse(
+            any("b004" in k for k in self._raw_keys()),
+            "constraint state leaked into QSettings",
+        )
         b004.click()
         self._drain()
         self.assertFalse(self.cmds.polySelectConstraint(q=True, loopPropagation=True))
@@ -378,8 +409,13 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
                 # get_items() recurses; every row carrying a populated sublist is
                 # the root plus one category (categories fan out on hover).
                 from tentacle.slots._selection import SelectionMixin
+
                 groups = SelectionMixin._CONVERT_TO_GROUPS
-                branches = [w for w in lst.get_items() if getattr(w, "sublist", None) and w.sublist.get_items()]
+                branches = [
+                    w
+                    for w in lst.get_items()
+                    if getattr(w, "sublist", None) and w.sublist.get_items()
+                ]
                 self.assertEqual(
                     [lst.get_item_text(r) for r in branches], ["Convert To", *groups]
                 )
@@ -391,13 +427,16 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
                 self.assertEqual(sorted(rows), sorted([*groups, *leaves]))
                 for cat in branches[1:]:
                     name = lst.get_item_text(cat)
-                    members = [cat.sublist.get_item_text(w) for w in cat.sublist.get_items()]
+                    members = [
+                        cat.sublist.get_item_text(w) for w in cat.sublist.get_items()
+                    ]
                     self.assertEqual(members, list(groups[name]), name)
 
 
 # ===========================================================================
 # UV: b030 (Stack) option box comes from the shared UvMixin.b030_init
 # ===========================================================================
+
 
 class TestUvStackOptionBox(_PersistenceBase):
     """The Stack button's option box (Mode cmb020 / Tolerance s024 / Pin chk047) is
@@ -433,6 +472,7 @@ class TestUvStackOptionBox(_PersistenceBase):
 # UV: b000 (Transfer UVs / Textures) option box -- UvMixin.b000_init
 # ===========================================================================
 
+
 class TestUvTransferOptionBox(_PersistenceBase):
     """The Transfer box on REAL widgets: the mixin's tests drive it through
     mocks, which cannot catch a row that fails to build, a nested option box
@@ -455,15 +495,21 @@ class TestUvTransferOptionBox(_PersistenceBase):
             self.assertEqual(combo.currentData(), "auto")
 
     def test_paired_rows_and_nested_rows_land(self):
-        for name in ("cmb025", "cmb026", "s025", "t_tt_src_uvset",
-                     "t_tt_dst_uvset", "t_tt_affix", "chk050", "chk051"):
+        for name in (
+            "cmb025",
+            "cmb026",
+            "s025",
+            "t_tt_src_uvset",
+            "t_tt_dst_uvset",
+            "t_tt_affix",
+            "chk050",
+            "chk051",
+        ):
             self.assertIsNotNone(getattr(self.menu, name, None), name)
         self.assertEqual(self.menu.s025.value(), -1)
         self.assertEqual(self.menu.cmb026.currentData(), 2)
         self.assertEqual(self.slot._tt_similarity_value(), 0.9)
-        self.assertIs(
-            self.slot._tt_similarity, self.menu.cmb014.option_box.menu.d000
-        )
+        self.assertIs(self.slot._tt_similarity, self.menu.cmb014.option_box.menu.d000)
 
     def test_targets_grey_unless_first_selected(self):
         src = self.menu.cmb_tt_source
@@ -520,6 +566,78 @@ class TestUvTransferOptionBox(_PersistenceBase):
             messages,
         )
         self.assertIn("Named <b>crate</b> after the source", messages[-1])
+
+
+# ===========================================================================
+# Rendering: tb001's render settings are the SCENE's; presets drive them
+# ===========================================================================
+
+
+class TestRenderingOptionBoxSettings(_PersistenceBase):
+    """The real Render option box: its setting fields read and write the
+    scene and never persist, and its native preset selector lists the shipped
+    Arnold tiers and applies one to the scene."""
+
+    def setUp(self):
+        super().setUp()
+        import maya.cmds as cmds
+
+        self.cmds = cmds
+        cmds.file(new=True, force=True)
+        cmds.setAttr("defaultResolution.width", 1234)
+        self.ui = self._load_panel("rendering")
+        self.menu = self.ui.tb001.option_box.menu
+        self._drain()
+
+    def tearDown(self):
+        self.menu.hide()
+        super().tearDown()
+        self.cmds.file(new=True, force=True)
+
+    def test_fields_show_and_write_the_scene_and_never_persist(self):
+        menu = self.menu
+        self.assertIsInstance(menu.s020, self.QtWidgets.QSpinBox)
+        self.assertEqual(menu.s020.value(), 1234)
+        menu.s020.setValue(720)
+        self.assertEqual(self.cmds.getAttr("defaultResolution.width"), 720)
+        self._drain()
+        self.assertFalse(
+            [k for k in self._raw_keys() if k.endswith("/s020")],
+            "a scene-backed field reached QSettings",
+        )
+
+        # Restore Defaults resets the menu's fields; the scene's are not its to
+        # reset (no default is captured for a restore_state=False widget).
+        menu.show()  # the Menu Actions section is built on first show
+        self._drain()
+        menu._restore_menu_defaults()
+        self._drain()
+        self.assertEqual(self.cmds.getAttr("defaultResolution.width"), 720)
+        self.assertEqual(menu.s020.value(), 720)
+
+    def test_a_shipped_arnold_preset_applies_to_the_scene(self):
+        try:
+            self.cmds.loadPlugin("mtoa", quiet=True)
+        except RuntimeError:
+            self.skipTest("mtoa (Arnold) plugin not available")
+        menu = self.menu
+        menu.cmb003.setCurrentIndex(menu.cmb003.findData("arnold"))
+        self._drain()
+        self.assertTrue(menu.s022.isEnabled())
+
+        menu.show()  # the native preset selector is built on first show
+        self._drain()
+        combo = menu.cmb_presets
+        index = combo.findText("Draft")
+        self.assertGreaterEqual(
+            index, 0, [combo.itemText(i) for i in range(combo.count())]
+        )
+        combo.setCurrentIndex(index)
+        combo.activated.emit(index)  # a user pick (programmatic picks never load)
+        self._drain()
+
+        self.assertEqual(self.cmds.getAttr("defaultArnoldRenderOptions.AASamples"), 1)
+        self.assertEqual(menu.s022.value(), 1)  # the field shows the applied preset
 
 
 if __name__ == "__main__":

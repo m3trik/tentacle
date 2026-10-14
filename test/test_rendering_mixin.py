@@ -225,5 +225,107 @@ class TestFfmpegGate(unittest.TestCase):
         self.assertEqual(self.host.sb.messages, [str(error)])
 
 
+class _PathHost(_Host):
+    def __init__(self, workspace=None, name="ShotA"):
+        super().__init__()
+        self._workspace = workspace
+        self._name = name
+
+    def _scene_workspace(self):
+        return self._workspace
+
+    def _scene_base_name(self):
+        return self._name
+
+
+class TestDefaultPlayblastPath(unittest.TestCase):
+    """The playblast default is the scene project's movie folder, one rule for
+    both forks (Maya used the Desktop, Blender the scene's ``//`` render path)."""
+
+    def _project(self, rules=None):
+        import os
+
+        import pythontk as ptk
+
+        tmp = ptk.TempArtifacts.scoped("tentacle_test_movie")
+        self.addCleanup(tmp.cleanup)
+        root = tmp.dir_path()
+        return root, ptk.Workspace(root, rules or {}), os
+
+    def test_lands_in_the_scene_project_movie_folder(self):
+        root, ws, os = self._project()
+        path = _PathHost(ws)._default_playblast_path()
+        self.assertEqual(path, os.path.join(root, "movies", "ShotA"))
+
+    def test_honors_the_project_movie_rule(self):
+        root, ws, os = self._project({"movie": "deliver/clips"})
+        path = _PathHost(ws, name="v1.test")._default_playblast_path()
+        self.assertEqual(path, os.path.join(root, "deliver", "clips", "v1.test"))
+
+    def test_asking_creates_no_folder(self):
+        root, ws, os = self._project()
+        _PathHost(ws)._default_playblast_path()
+        self.assertFalse(os.path.exists(os.path.join(root, "movies")))
+
+    def test_without_a_project_falls_back_to_the_desktop(self):
+        import os
+
+        path = _PathHost(None)._default_playblast_path()
+        desktop = os.path.normpath(os.path.expanduser(os.path.join("~", "Desktop")))
+        self.assertEqual(path, os.path.join(desktop, "ShotA"))
+
+
+class _Field:
+    def __init__(self, text=""):
+        self.text, self.placeholder = text, ""
+
+    def setPlaceholderText(self, text):
+        self.placeholder = text
+
+
+class TestPlayblastFieldDefault(unittest.TestCase):
+    """The output field shows the default; it never holds it. A value written
+    at build time persists, so the panel kept the FIRST scene's path forever."""
+
+    def test_the_default_is_the_placeholder_and_the_text_is_untouched(self):
+        import os
+
+        field = _Field()
+        host = _PathHost(None, name="ShotA")
+        host._show_playblast_default(field)
+        self.assertEqual(field.placeholder, host._default_playblast_path())
+        self.assertEqual(field.text, "")
+        # A re-show over another scene follows it.
+        host._name = "ShotB"
+        host._show_playblast_default(field)
+        self.assertEqual(os.path.basename(field.placeholder), "ShotB")
+
+    def test_neither_fork_writes_the_default_into_the_field(self):
+        """Both forks build t000 empty and refresh its placeholder on every show."""
+        for path, tree in _fork_sources():
+            calls = [
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, ast.Call)
+                and any(
+                    k.arg == "setObjectName"
+                    and isinstance(k.value, ast.Constant)
+                    and k.value.value == "t000"
+                    for k in node.keywords
+                )
+            ]
+            inits = [
+                node
+                for node in ast.walk(tree)
+                if isinstance(node, ast.FunctionDef) and node.name == "tb000_init"
+            ]
+            with self.subTest(fork=path.name):
+                self.assertEqual(len(calls), 1)
+                self.assertNotIn("setText", {k.arg for k in calls[0].keywords})
+                init_source = ast.unparse(inits[0])
+                self.assertIn("refresh_on_show = True", init_source)
+                self.assertIn("_show_playblast_default(menu.t000)", init_source)
+
+
 if __name__ == "__main__":
     unittest.main()

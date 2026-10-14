@@ -592,5 +592,72 @@ class TestGetSceneInfoShared(unittest.TestCase):
         self.assertIn("No sections selected", host.messages[0])
 
 
+@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
+class TestGlbIntermediateIsReleased(unittest.TestCase):
+    """Export Scene's GLB route writes an FBX into temp, converts it, and must
+    not leave that FBX behind.
+
+    Regression: the intermediate came from a detached store that nothing
+    released, so every GLB export left a full-scene FBX in temp until the age
+    sweep, a week later.  Added: 2026-10-13
+    """
+
+    OPTIONS = {
+        "selection_only": False,
+        "include_cameras": True,
+        "include_lights": True,
+        "include_skins": True,
+        "include_tangents": True,
+        "embed_textures": False,
+    }
+
+    def setUp(self):
+        import pythontk as ptk
+
+        self.ptk = ptk
+        self.mtk = scene_module.mtk
+        self.tmp = ptk.TempArtifacts.scoped("tentacle_test_glb_out")
+        self.addCleanup(self.tmp.cleanup)
+        self.out = os.path.join(self.tmp.dir_path(), "asset.glb")
+        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
+        self.inst.sb = NS(logger=mock.Mock())
+        self.fbx = []
+
+    def _write_fbx(self, file_path, **_):
+        self.fbx.append(file_path)
+        with open(file_path, "w") as fh:
+            fh.write("fbx")
+
+    @staticmethod
+    def _convert(src, **_):
+        glb = os.path.splitext(src)[0] + ".glb"
+        with open(glb, "w") as fh:
+            fh.write("glb")
+        return glb
+
+    def test_the_intermediate_fbx_folder_is_gone_after_a_good_export(self):
+        convert = self.ptk.MeshConvert
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(
+                mock.patch.object(self.mtk, "export_scene_as_fbx", new=self._write_fbx)
+            )
+            stack.enter_context(
+                mock.patch.object(convert, "fbx_to_glb", new=self._convert)
+            )
+            stack.enter_context(
+                mock.patch.object(convert, "build_scene_sidecar", return_value=None)
+            )
+            self.inst._export_scene_native(
+                "glb", self.out, dict(self.OPTIONS), tick=lambda **_: None
+            )
+        self.assertTrue(os.path.isfile(self.out))
+        self.assertEqual(len(self.fbx), 1)
+        self.assertNotEqual(os.path.dirname(self.fbx[0]), os.path.dirname(self.out))
+        self.assertFalse(
+            os.path.exists(os.path.dirname(self.fbx[0])),
+            f"intermediate left in temp: {self.fbx[0]}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
