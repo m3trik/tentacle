@@ -5,7 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tentacletk"
 dynamic = ["version", "readme"]
-description = "A multi-application marking menu and UI framework for Maya, 3ds Max, and Blender."
+description = "Marking menus (pie menus) and tool panels for Maya and Blender: one hotkey-driven Qt interface for modeling, UV, animation and export."
+keywords = ["m3trik", "marking-menu", "pie-menu", "radial-menu", "maya", "blender", "blender-addon", "hotkeys", "technical-art"]
 authors = [{name = "Ryan Simpson", email = "m3trik@outlook.com"}]
 license = {text = "LGPL-3.0-or-later"}
 requires-python = ">=3.9"
@@ -14,6 +15,8 @@ classifiers = [
     "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Multimedia :: Graphics :: 3D Modeling",
 ]
 
 # Dependencies - exclude optional system deps (Pillow, qtpy, numpy, shiboken6)
@@ -51,6 +54,8 @@ blender = ["blendertk>=0.19.0"]
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"
 Repository = "https://github.com/m3trik/tentacle"
+Changelog = "https://github.com/m3trik/tentacle/blob/main/CHANGELOG.md"
+Issues = "https://github.com/m3trik/tentacle/issues"
 
 # extapps is an OPTIONAL, runtime-discovered provider of the content-pipeline
 # panels (compositor, photogrammetry, texture/mesh tools) — deliberately NOT a

@@ -328,7 +328,8 @@ Behavior shared by the Maya and Blender ``transform`` panels.
 Behavior shared by the Maya and Blender UV panels.
 
 - **[`class UvMixin`](tentacle/tentacle/slots/_uv.py#L6)** — Shared UV-panel behavior (see ``slots/maya/uv.py``, ``slots/blender/uv.py``).
-  - `UvMixin.b000_init(self, widget)` — Initialize the Transfer option box.
+  - `UvMixin.b000_init(self, widget)` — The Texture Combine launcher: a plain button, the panel is the UI.
+  - `UvMixin.b000(self)` — Open the Texture Combine panel (Combine / Transfer modes).
   - `UvMixin.b030_init(self, widget)` — Stack button — non-checkable text button with the stack option box.
   - `UvMixin.get_map_size(self)` — Get the map size from the combobox as an int.
   - `UvMixin.cmb003(self, index, widget)` — UV Map Size — passive input;
@@ -530,6 +531,8 @@ Behavior shared by the Maya and Blender UV panels.
 - **[`class LightingSlots(LightingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L8)** — Blender port of the shared ``lighting`` menu.
   - `LightingSlots.b000(self)` — Launch the HDR Manager (world-environment HDRI panel).
   - `LightingSlots.b001(self)` — Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).
+  - `LightingSlots.b002_init(self, widget)` — Light Rigs -- hidden until ported: blendertk has no LightRig twin yet, so the
+  - `LightingSlots.b002(self)` — Light Rigs -- unreachable (b002_init hides the button);
   - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
   - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture meshes.
 
@@ -711,6 +714,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection — a zeroed locator Empty at each selected object's
   - `RiggingSlots.tb004_init(self, widget)`
   - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).
+  - `RiggingSlots.tb005_init(self, widget)` — Add to Skin — hidden until ported: the Maya tool (``mtk.SkinUtils.add_to_skin``)
+  - `RiggingSlots.tb005(self, widget)` — Add to Skin — unreachable (tb005_init hides the button);
   - `RiggingSlots.cmb002_init(self, widget)`
   - `RiggingSlots.cmb002(self, index, widget)` — Quick Rig — a procedural rig opens its panel (mayatk parity);
   - `RiggingSlots.b004(self)` — Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled
@@ -776,6 +781,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `SelectionSlots.b006(self, widget)` — Selection constraint: Shell (one-shot expand).
   - `SelectionSlots.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
   - `SelectionSlots.b007(self, widget)` — Selection constraint: UV Edge Loop (one-shot expand).
+  - `SelectionSlots.cmb002_init(self, widget)` — Rig Picking Mode — hidden: the Maya modes (``mtk.Selection.set_rig_selection_mode``)
+  - `SelectionSlots.cmb002(self, index, widget)` — Rig Picking Mode — unreachable (cmb002_init hides the combo).
   - `SelectionSlots.cmb001_init(self, widget)` — Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
   - `SelectionSlots.cmb001(self, index, widget)` — Reorder Selection (sort via ``btk.reorder_objects``, record the order on
   - `SelectionSlots.list000_init(self, widget)` — Select by Type: hierarchical type list.
@@ -879,7 +886,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
   - `UvSlots.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
   - `UvSlots.b031(self)` — Open UV Editor
-  - `UvSlots.b000(self, widget)` — Transfer UVs OR textures -- one pass per run (mirror of Maya's ``b000``).
   - `UvSlots.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
   - `UvSlots.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
   - `UvSlots.b029(self, widget)` — Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
@@ -1148,6 +1154,7 @@ Behavior shared by the Maya and Blender UV panels.
 - **[`class LightingSlots(LightingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
   - `LightingSlots.b000(self)` — Launch the HDR Manager.
   - `LightingSlots.b001(self)` — Launch the Lightmap Baker.
+  - `LightingSlots.b002(self)` — Launch Light Rigs: save, swap and restore named light rigs.
   - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
   - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture geometry.
 
@@ -1395,6 +1402,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection
   - `RiggingSlots.tb004_init(self, widget)` — Init Lock/Unlock Attributes
   - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes
+  - `RiggingSlots.tb005_init(self, widget)` — Init Add to Skin
+  - `RiggingSlots.tb005(self, widget)` — Add to Skin
   - `RiggingSlots.b004(self)` — Render Effects
 
 <a id="slots--maya--scene"></a>
@@ -1438,6 +1447,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `SelectionSlots.list000_init(self, widget)` — Select by Type: Hierarchical type list.
   - `SelectionSlots.list000(self, item)` — Select by Type
   - `SelectionSlots.tb004_init(self, widget)` — Select by Type settings menu.
+  - `SelectionSlots.cmb002_init(self, widget)` — Rig Picking Mode: mirrors the scene, never restored (see mirror_app_state).
+  - `SelectionSlots.cmb002(self, index, widget)` — Rig Picking Mode
   - `SelectionSlots.cmb001_init(self, widget)` — Reorder Selection Init
   - `SelectionSlots.cmb001(self, index, widget)` — Reorder Selection
   - `SelectionSlots.list001(self, item)` — Convert To: convert the component selection to verts, edges, faces, UVs, or shells.
@@ -1596,7 +1607,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.tb007(self, widget)` — Cleanup UV Sets
   - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
   - `UvSlots.tb009(self, widget)` — Cut Cylinder
-  - `UvSlots.b000(self, widget)` — Transfer UVs OR textures -- one pass per run (see ``b000_init``).
   - `UvSlots.b003(self)` — Get texel density.
   - `UvSlots.b004(self)` — Set Texel Density
   - `UvSlots.b005(self)` — Cut UVs: split the UV shell along the selected edges.

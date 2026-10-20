@@ -81,7 +81,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
 - `class UvMixin`
-  - methods: b000_init, b030_init, get_map_size, cmb003, s003, b029_init
+  - methods: b000_init, b000, b030_init, get_map_size, cmb003, s003, b029_init
 
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
@@ -133,7 +133,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/lighting.py`
 - `class LightingSlots(LightingMixin, SlotsBlender)`
-  - methods: b000, b001, tb000_init, tb000
+  - methods: b000, b001, b002_init, b002, tb000_init, tb000
 
 ### `slots/blender/main.py`
 - `class MainSlots(MainMixin, SlotsBlender)`
@@ -169,7 +169,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/rigging.py`
 - `class RiggingSlots(RiggingMixin, SlotsBlender)`
-  - methods: header_init, b020, cmb001_init, cmb001, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, cmb002_init, cmb002, b004
+  - methods: header_init, b020, cmb001_init, cmb001, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, cmb002_init, cmb002, b004
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
@@ -177,7 +177,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/selection.py`
 - `class SelectionSlots(SelectionMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, list001, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, cmb001_init, cmb001, list000_init, tb004_init, list000
+  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, list001, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, cmb002_init, cmb002, cmb001_init, cmb001, list000_init, tb004_init, list000
 
 ### `slots/blender/settings.py`
 - `class SettingsSlots(SettingsMixin, SlotsBlender)`
@@ -201,7 +201,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/uv.py`
 - `class UvSlots(UvMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b000, b003, b004, b029, tb022_init, tb022, b030, b032, b033
+  - methods: tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b003, b004, b029, tb022_init, tb022, b030, b032, b033
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -289,7 +289,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/lighting.py`
 - `class LightingSlots(LightingMixin, SlotsMaya)`
-  - methods: b000, b001, tb000_init, tb000
+  - methods: b000, b001, b002, tb000_init, tb000
 
 ### `slots/maya/lighting_shading.py`
 - `class LightingShadingSlots(SlotsMaya)`
@@ -358,7 +358,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/rigging.py`
 - `class RiggingSlots(RiggingMixin, SlotsMaya)`
-  - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, b004
+  - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, chk000, chk001, chk002, s000, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, b004
 
 ### `slots/maya/scene.py`
 - `class SceneSlots(SceneMixin, SlotsMaya)`
@@ -369,7 +369,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/selection.py`
 - `class SelectionSlots(SelectionMixin, SlotsMaya)`
-  - methods: list000_init, list000, tb004_init, cmb001_init, cmb001, list001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
+  - methods: list000_init, list000, tb004_init, cmb002_init, cmb002, cmb001_init, cmb001, list001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
 
 ### `slots/maya/settings.py`
 - `class SettingsSlots(SettingsMixin, SlotsMaya)`
@@ -411,7 +411,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/uv.py`
 - `class UvSlots(UvMixin, SlotsMaya)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, b000, b003, b004, b005, b011, b021, tb022_init, tb022, b029, b030, b031, b032, b033
+  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, b003, b004, b005, b011, b021, tb022_init, tb022, b029, b030, b031, b032, b033
 
 ### `slots/maya/visualize.py`
 - `class VisualizeSlots(SlotsMaya)`

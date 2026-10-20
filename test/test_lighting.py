@@ -2,9 +2,9 @@
 # coding=utf-8
 """Regression tests for tentacle.slots.maya.lighting.
 
-Lighting launches two mayatk panels via marking_menu.show(): b000 (HDR
-Manager) and b001 (Lightmap Baker). Pin the key names — drift would
-silently break the launch buttons.
+Lighting launches three mayatk panels via marking_menu.show(): b000 (HDR
+Manager), b001 (Lightmap Baker) and b002 (Light Rigs). Pin the key names —
+drift would silently break the launch buttons.
 """
 import unittest
 
@@ -46,6 +46,12 @@ class TestB000HdrManager(unittest.TestCase):
         instance.sb = _FakeSb()
         instance.b001()
         self.assertEqual(instance.sb.handlers.marking_menu.shown, ["lightmap_baker"])
+
+    def test_b002_routes_to_light_rig(self):
+        instance = lighting_module.LightingSlots.__new__(lighting_module.LightingSlots)
+        instance.sb = _FakeSb()
+        instance.b002()
+        self.assertEqual(instance.sb.handlers.marking_menu.shown, ["light_rig"])
 
 
 if __name__ == "__main__":

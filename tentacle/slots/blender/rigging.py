@@ -500,6 +500,16 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
         except Exception:
             return False
 
+    def tb005_init(self, widget):
+        """Add to Skin — hidden until ported: the Maya tool (``mtk.SkinUtils.add_to_skin``)
+        un-poses new geometry through a skinCluster's bind; blendertk has no SkinUtils yet, so
+        the button is hidden rather than shipped dead (same pattern as polygons.py's b038)."""
+        widget.setVisible(False)
+
+    def tb005(self, widget):
+        """Add to Skin — unreachable (tb005_init hides the button); defensive message."""
+        self.sb.message_box("Add to Skin is not available in Blender yet.")
+
     def cmb002_init(self, widget):
         # Procedural rigs (mayatk parity — each opens its co-located blendertk panel) +
         # Rigify character rigging (Blender-native; the Maya twin exposes its own built-in
@@ -511,6 +521,7 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
                 "Wheel Rig",
                 "Shadow Rig",
                 "Tube Rig",
+                "Articulated Rig",
                 "Human Meta-Rig",
                 "Basic Human Meta-Rig",
                 "Generate Rig",
@@ -534,6 +545,9 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
             return
         if text == "Tube Rig":
             self.sb.handlers.marking_menu.show("tube_rig")
+            return
+        if text == "Articulated Rig":
+            self.sb.handlers.marking_menu.show("articulated_rig")
             return
         if not self._enable_rigify():
             self.sb.message_box("The Rigify add-on could not be enabled.")

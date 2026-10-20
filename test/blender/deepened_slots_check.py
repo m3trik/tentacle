@@ -16,6 +16,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/deepened_slots_check.py
 """
+import contextlib
 import sys
 import os
 import traceback
@@ -131,47 +132,15 @@ try:
           abs(a.location.x - b.location.x) < 1e-4 and abs(a.location.y - 1) < 1e-4,
           f"a={tuple(a.location)}")
 
-    # ---- normals b002 / uv b000: data transfer ----------------------------------------------
+    # ---- normals b002: data transfer ---------------------------------------------------------
+    # (uv b000's UV pass moved with the Transfer tool to blendertk's Texture Combine panel:
+    # blendertk's test_texture_combine_transfer_mode drives it on real geometry.)
     reset()
     src = add_cube("Src")
     tgt = add_cube("Tgt", (3, 0, 0))
-    # give the source distinct UVs to detect on the target
-    btk.move_uvs(src, du=2.0)
     src.select_set(True)
     tgt.select_set(True)
     bpy.context.view_layer.objects.active = src
-    slot = make_slot(UvSlots)
-    # b000 is the one Transfer tool (UVs OR textures): Source = the active mesh, Scope =
-    # Selection Order (active -> others), Transfer = the UV pass alone. It reads the Output
-    # Name before branching and wraps the pass in a footer progress task.
-    import contextlib
-
-    uv_msgs = []
-    slot.sb = NS(
-        message_box=uv_msgs.append,
-        progress=lambda **k: contextlib.nullcontext(lambda *a, **kw: None),
-    )
-    # The Similarity threshold is a row of the Targets combo's own option box, read off the
-    # slot (``_tt_similarity_value``), so the menu carries no ``d000``.
-    slot.b000(
-        option_box(
-            cmb_tt_source=combo("first"),
-            cmb014=combo("order"),
-            cmb_tt_transfer=combo(UvSlots.TRANSFER_UVS),
-            t_tt_name=NS(text=lambda: ""),
-        )
-    )
-
-    def min_u(o):
-        bm = bmesh.new()
-        bm.from_mesh(o.data)
-        uvl = bm.loops.layers.uv.active
-        v = min(loop[uvl].uv.x for f in bm.faces for loop in f.loops)
-        bm.free()
-        return v
-
-    check("uv b000 transfers UVs (active -> selected)", min_u(tgt) >= 2.0 - 1e-4,
-          f"tgt min_u={min_u(tgt):.2f}")
 
     slot = make_slot(NormalsSlots)
     slot.b002()
@@ -979,6 +948,22 @@ try:
     slot.sb = NS(message_box=msgs.append)
     slot.cmb002(2, NS(items=rig_items))  # nothing active -> message
     check("rigging cmb002 generate without a meta-rig messages", len(msgs) == 1, f"{msgs}")
+
+    # The procedural rigs open their co-located blendertk panels -- the same names
+    # tentacle/test/test_rigging.py pins for Maya's (mayatk parity).
+    added, shown = [], []
+    slot = make_slot(RiggingSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
+    slot.cmb002_init(NS(add=lambda items, **k: added.extend(items)))
+    procedural = {"Telescope Rig": "telescope_rig", "Wheel Rig": "wheel_rig",
+                  "Shadow Rig": "shadow_rig", "Tube Rig": "tube_rig",
+                  "Articulated Rig": "articulated_rig"}
+    for index, text in enumerate(added):
+        if text in procedural:
+            slot.cmb002(index, NS(items=added))
+    check("rigging cmb002 offers every procedural rig and opens its panel",
+          set(procedural) <= set(added)
+          and shown == [procedural[t] for t in added if t in procedural],
+          f"items={added} shown={shown}")
 
     # ---- rigging tb003: mayatk's locator rig; a bare locator typed a Maya locator ----------
     def affix(text=""):  # an affix field in the picker's Scene state

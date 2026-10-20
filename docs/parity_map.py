@@ -36,8 +36,6 @@ CONTROLS = {
         "set_workspace": {"status": "na", "reason": "no Blender project-directory switch; the .blend's folder is the workspace"},
         "conform_shape_names": {"status": "na", "reason": "no transform/shape pair to conform in Blender, and mesh-data names never reach the FBX"},
         "flatten_sheared_chains": {"status": "na", "reason": "a Blender object's local matrix is loc/rot/scale, so a sheared chain cannot be authored"},
-        "check_sheared_local_transforms": {"status": "na", "reason": "see flatten_sheared_chains"},
-        "check_mangled_names": {"status": "na", "reason": "the patterns are Maya import escapes (FBXASC###, __RZTMP) that Blender never writes"},
         "check_default_materials": {"status": "pending", "reason": "not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)"},
         "verify_deliverables": {"status": "pending", "reason": "post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass"},
     },
@@ -755,14 +753,9 @@ HANDLERS = {
     "settings": {
     },
     "subdivision": {},
-    "uv": {
-        # b000_init BUILT 2026-07-28: the Blender b000 gained the same scope option box
-        # (cmb014 Selection Order / Similar in Selection / Similar in Scene + d000 similarity
-        # threshold), backed by the new btk.transfer_uvs_to_similar (bbox-volume + vertex-count
-        # similarity mirroring mtk's _calculate_mesh_similarity; linked duplicates of the source
-        # skipped, one representative per candidate linked group; native Data-Transfer under
-        # window_context_override). Verified headless in test_uv_utils.py. No delta.
-    },
+    # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
+    # took the Transfer tool UvMixin's option box was).
+    "uv": {},
 }
 
 CONTROLS_SLOTS = {
@@ -814,6 +807,7 @@ CONTROLS_SLOTS = {
         "cmb_del_scope": {"status": "na", "reason": "Scope selector (Selected / Visible / All Geometry) for Maya's Delete History — replaces the old dead chk031 'For All Objects' checkbox (tb001 never read it). Blender's tb001 Optimize purges orphaned datablocks, which by definition have zero users, so there is no selected-vs-all scope for unused data; the purge is inherently file-wide and needs no scope control."},
     },
     "lighting": {
+        "b002": {"status": "pending", "reason": "Light Rigs (2026-10-17): Maya's b002 opens mayatk's light_rig panel (save / swap / restore named light rigs). blendertk has no LightRig twin; b002_init hides the button in Blender until then. Ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')."},
         "cmb000": {"status": "pending", "reason": "tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG)."},
     },
     "materials": {
@@ -896,6 +890,9 @@ CONTROLS_SLOTS = {
         "chk001": {"status": "na", "reason": "IK radio drives Maya's global ikHandleDisplayScale; Blender has no global IK-handle display-scale — excused in the Blender slot"},
         "chk002": {"status": "na", "reason": "IK\\FK radio drives Maya's jointDisplayScale(ikfk=1); no Blender global IKFK display-scale — excused in the Blender slot"},
         "s000": {"status": "na", "reason": "Global joint/IK/IKFK display-scale spinbox (jointDisplayScale/ikHandleDisplayScale); no Blender scene-global display-scale — excused in the Blender slot"},
+        "tb005": {"status": "pending", "reason": "Add to Skin (2026-10-14): mtk.SkinUtils.add_to_skin merges/binds new meshes into an existing skinCluster, un-posed through its bind so they land where modeled at any pose. blendertk has no SkinUtils; the port needs the Armature-modifier equivalent (vertex-group weights sampled from the closest surface point + rest-pose un-posing). tb005_init hides the button in Blender until then."},
+        "cmb_skin_mode": {"status": "pending", "reason": "Add to Skin option box (merge vs separate bind) -- rides the tb005 port."},
+        "chk_skin_rigid": {"status": "pending", "reason": "Add to Skin option box (rigid insert) -- rides the tb005 port."},
     },
     "uv": {
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
@@ -946,6 +943,7 @@ CONTROLS_SLOTS = {
         # Maya. No delta.
     },
     "selection": {
+        "cmb002": {"status": "pending", "reason": "Rig Picking Mode (2026-10-14): mtk.Selection.set_rig_selection_mode lifts the display lock Maya rigs put on skinned meshes (shape overrideEnabled under a rig-driven overrideDisplayType) and, for Meshes Only, masks curves/joints via selectType. blendertk rigs lock no mesh today; a port would map Meshes Only to hide_select on armatures/curves. cmb002_init hides it in Blender."},
         "chk003": {"status": "replaced", "to": "_ISLAND_DELIMIT model",
                    "reason": "Maya Lock-Values+normal-range island model -> native select_linked delimiters"},
         "s002": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
@@ -1045,7 +1043,7 @@ DEFAULT_DELTAS = {
     "rigging": {
         "chk000.setChecked": "Not a same-meaning toggle: Maya chk000 is a QRadioButton 'Joints' (checked as the default of a 3-way Joints/IK/IK-FK group driving display scales); Blender chk000 is a standalone QCheckBox opting into armature bone-axes (show_axes) — a mode Maya lacks. Defaulting True would make tb000 error ('No armatures selected') on non-armature selections. Documented in the Blender file's name-reuse comment.",
         "cmb010.items": "Deliberately different item list: Maya's Attrs scope ['Attrs: Auto','Attrs: Channel Box'] names Channel-Box-driven attribute scoping; Blender has no Channel Box, so the scope is re-expressed as the concrete transform channels ['Attrs: Translate','Attrs: Rotate','Attrs: Scale']. Documented only in the Blender slot comment previously; recorded here 2026-07-08.",
-        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's procedural items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop. Maya adds 'Articulated Rig' (mayatk ArticulatedRig, 2026-09-27): the blendertk twin is PENDING, ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin') -- a gap, not a design divergence.",
+        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's procedural items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop; Maya's 'Quick Rig' / 'HumanIK' are its own built-in character auto-riggers, the role Rigify fills here. The procedural items match, 'Articulated Rig' included (blendertk ArticulatedRig, 2026-10-17).",
     },
     "animation": {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
@@ -1056,10 +1054,12 @@ DEFAULT_DELTAS = {
     # as `na`; Flip/Rotate (+ the move pad and Straighten/Mirror/Distribute) ship in the Blender
     # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
     # (no "uv" entry needed here while the panel has no other triaged deltas).
-    "uv": {
-        "cmb_tt_transfer.items": "Transfer (b000) mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: auto / textures / uvs).",
-        "cmb_tt_source.items": "Transfer (b000) source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'), and its inverse 'All But Last Selected' is 'All But Active'; 'UV Sets' are 'UV Maps' in Blender's vocabulary. Same five modes, same item data keys (auto / first / last / stored / uvset).",
-        "cmb_tt_assign_from.items": "Transfer (b000) Material row: both forks lead with 'Same as source' (the default -- a copy of the source's material on the new maps) and 'Same as target'; Maya then offers the shader types mtk.ShaderConverter can rebuild the result on (Stingray PBS / Standard Surface / OpenPBR) and labels the row 'Shader:'. Blender's material is one Principled node graph -- no shader-type axis -- so its row ('Material:') stops at the two copies.",
+    # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
+    # Transfer mode (2026-10-17); its vocabulary deltas moved with it.
+    "texture_combine_slots": {
+        "cmb_tt_transfer.items": "Transfer mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: auto / textures / uvs).",
+        "cmb_tt_source.items": "Transfer source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'), and its inverse 'All But Last Selected' is 'All But Active'; 'UV Sets' are 'UV Maps' in Blender's vocabulary. Same five modes, same item data keys (auto / first / last / stored / uvset).",
+        "cmb_shader.items": "Material row: both forks lead with 'Same as source' (the default -- a copy of the source's material on the new maps) and 'Same as target' and end with 'Overwrite target'; Maya labels the row 'Shader:' and offers, between them, the shader types mtk.ShaderConverter can rebuild the result on (Stingray PBS / Standard Surface / OpenPBR). Blender's material is one Principled node graph -- no shader-type axis -- so its row ('Material:') has the copies and the overwrite only.",
     },
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
@@ -1080,9 +1080,9 @@ DEFAULT_DELTAS = {
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
     "ArnoldBridgeSlots": {"status": "na", "reason": "no Arnold in Blender (Cycles/EEVEE)"},
-    "ArticulatedRigSlots": {"status": "pending", "reason": "mayatk ArticulatedRig (2026-09-27) has no "
-                            "blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md "
-                            "('ArticulatedRig has no blendertk twin')"},
+    "LightRigSlots": {"status": "pending", "reason": "mayatk LightRig (2026-10-17, save / swap / restore named "
+                      "light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in "
+                      ".claude/BACKLOG.md ('Light Rigs has no blendertk twin')"},
     # MarmosetBridgeSlots / SubstanceBridgeSlots: stale "no twin" rows removed 2026-07-08 -- both
     # now ship real native blendertk twins (blendertk/mat_utils/{marmoset,substance}_bridge/
     # *_bridge_slots.py -- full BlenderBridgeSlotsBase panels with co-located .ui + RPC clients +

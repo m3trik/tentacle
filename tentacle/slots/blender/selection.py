@@ -509,6 +509,16 @@ class SelectionSlots(SelectionMixin, SlotsBlender):
         """Selection constraint: UV Edge Loop (one-shot expand)."""
         self._expand_by_constraint(widget)
 
+    # ------------------------------------------------------------------ cmb002  Rig Picking Mode
+    def cmb002_init(self, widget):
+        """Rig Picking Mode — hidden: the Maya modes (``mtk.Selection.set_rig_selection_mode``)
+        lift the display lock Maya rigs put on their skinned meshes; blendertk rigs lock no
+        mesh, so there is nothing to toggle yet (same hide pattern as polygons.py's b038)."""
+        widget.setVisible(False)
+
+    def cmb002(self, index, widget):
+        """Rig Picking Mode — unreachable (cmb002_init hides the combo)."""
+
     # ------------------------------------------------------------------ cmb001  Reorder Selection
     def cmb001_init(self, widget):
         """Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
