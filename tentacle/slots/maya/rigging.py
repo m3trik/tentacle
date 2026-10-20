@@ -585,6 +585,52 @@ class RiggingSlots(RiggingMixin, SlotsMaya):
             f"<hl>{len(selection)}</hl> object(s)."
         )
 
+    def tb005_init(self, widget):
+        """Init Add to Skin"""
+        widget.option_box.menu.setTitle("Add to Skin")
+        cmb = widget.option_box.menu.add(
+            "QComboBox",
+            setObjectName="cmb_skin_mode",
+            setToolTip="Merge: one mesh, one skinCluster (UVs, normals and "
+            "per-face materials kept).\n"
+            "Separate: each mesh keeps its own node, bound to the same "
+            "joints under the same bind pose.",
+        )
+        cmb.addItem("Merge Into Skinned Mesh", True)
+        cmb.addItem("Bind As Separate Mesh", False)
+        widget.option_box.menu.add(
+            "QCheckBox",
+            setText="Rigid Insert",
+            setObjectName="chk_skin_rigid",
+            setToolTip="Give each added mesh ONE set of weights so it moves as "
+            "a solid part (a connector, a bolt).\n"
+            "Off: weights vary per vertex, so it bends with the surface.",
+        )
+
+    def tb005(self, widget):
+        """Add to Skin"""
+        selection = cmds.ls(sl=True, objectsOnly=True, long=True) or []
+        if len(selection) < 2:
+            self.sb.message_box(
+                "Select the mesh(es) to add, then the <hl>skinned mesh</hl> last."
+            )
+            return
+        menu = widget.option_box.menu
+        try:
+            mtk.SkinUtils.add_to_skin(
+                selection[-1],
+                selection[:-1],
+                combine=menu.cmb_skin_mode.currentData(),
+                rigid=menu.chk_skin_rigid.isChecked(),
+            )
+        except ValueError as e:
+            self.sb.message_box(f"<hl>Add to Skin</hl>: {e}")
+            return
+        self.sb.message_box(
+            f"Added <hl>{len(selection) - 1}</hl> mesh(es) to "
+            f"<hl>{selection[-1].split('|')[-1]}</hl>."
+        )
+
     def b004(self):
         """Render Effects"""
         self.sb.handlers.marking_menu.show("render_effects")

@@ -275,6 +275,63 @@ If there are vertices selected, it creates a locator at the center of their comb
        </widget>
       </item>
       <item>
+       <widget class="CollapsableGroup" name="skin">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Skin</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_skin">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="PushButton" name="tb005">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Add the selected mesh(es) to the skin of the LAST selected skinned mesh, exactly where they sit at the current pose.
+
+Weights come from the closest point on the skinned surface; the bind pose and existing weights are kept.</string>
+           </property>
+           <property name="text">
+            <string>Add to Skin</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="CollapsableGroup" name="constraints">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">

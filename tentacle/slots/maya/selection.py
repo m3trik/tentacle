@@ -150,6 +150,37 @@ class SelectionSlots(SelectionMixin, SlotsMaya):
             return cmds.ls(visible=True) or []
         return cmds.ls() or []
 
+    _RIG_PICKING = (
+        ("Picking: Rig Aware", "rig"),
+        ("Picking: Normal", "normal"),
+        ("Picking: Meshes Only", "meshes_only"),
+    )
+
+    def cmb002_init(self, widget):
+        """Rig Picking Mode: mirrors the scene, never restored (see mirror_app_state).
+
+        Re-read on every show: a rig re-locks its mesh on (re)bind, and a scene
+        open swaps the state wholesale.
+        """
+        widget.refresh_on_show = True
+        widget.add(list(self._RIG_PICKING))
+        modes = [mode for _, mode in self._RIG_PICKING]
+        self.mirror_app_state(
+            widget,
+            lambda: widget.setCurrentIndex(
+                modes.index(mtk.Selection.get_rig_selection_mode())
+            ),
+        )
+
+    def cmb002(self, index, widget):
+        """Rig Picking Mode"""
+        mode = widget.itemData(index)
+        if not mode:
+            return
+        locked = mtk.Selection.set_rig_selection_mode(mode)
+        label = widget.itemText(index).split(": ")[-1]
+        self.sb.message_box(f"Picking: <hl>{label}</hl> ({len(locked)} rigged mesh(es)).")
+
     def cmb001_init(self, widget):
         """Reorder Selection Init"""
         widget.option_box.menu.setTitle("Reorder Selection")

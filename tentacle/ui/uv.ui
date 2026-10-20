@@ -802,15 +802,13 @@ Use the option box to choose the unwrap engine/mode.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfer UVs or textures from a source mesh onto the selected meshes.
+            <string>Open the Texture Combine panel.
 
-UV Set: copy the source layout onto each target (exact for identical topology, sampled by proximity otherwise).
-Textures: re-map the source textures into each target's own layout by exact texel correspondence (no rays, no cage, no bleed; identical topology required).
-
-Source, scope and the texture options live in the option box.</string>
+Combine: merge the selected meshes' materials into one atlas and one material, in place.
+Transfer: UVs or textures from a source mesh onto targets (exact texel correspondence, no rays).</string>
            </property>
            <property name="text">
-            <string>Transfer UVs / Textures</string>
+            <string>Texture Combine...</string>
            </property>
            <property name="autoDefault">
             <bool>true</bool>

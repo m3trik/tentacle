@@ -22,6 +22,10 @@ class LightingSlots(LightingMixin, SlotsMaya):
         """Launch the Lightmap Baker."""
         self.sb.handlers.marking_menu.show("lightmap_baker")
 
+    def b002(self):
+        """Launch Light Rigs: save, swap and restore named light rigs."""
+        self.sb.handlers.marking_menu.show("light_rig")
+
     def tb000_init(self, widget):
         """Lights From Geometry Init"""
         menu = widget.option_box.menu

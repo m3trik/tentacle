@@ -355,7 +355,7 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
             setToolTip=self.sb.tooltip.fmt(
                 title="Start Frame",
                 body="Where the first block's animation begins.",
-                notes=["<b>-1</b> leaves the first block exactly where it is."],
+                notes=["<b>-1</b> starts from the earliest existing key."],
             ),
         )
         # Integer, unlike Maya's: btk.stagger_keys has no percentage-of-duration

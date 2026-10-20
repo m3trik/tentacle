@@ -87,7 +87,7 @@
    <widget class="MenuButton" name="i016">
     <property name="geometry">
      <rect>
-      <x>285</x>
+      <x>260</x>
       <y>295</y>
       <width>66</width>
       <height>21</height>

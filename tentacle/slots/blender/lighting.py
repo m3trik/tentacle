@@ -24,6 +24,15 @@ class LightingSlots(LightingMixin, SlotsBlender):
         """Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps)."""
         self.sb.handlers.marking_menu.show("lightmap_baker")
 
+    def b002_init(self, widget):
+        """Light Rigs -- hidden until ported: blendertk has no LightRig twin yet, so the
+        button is hidden rather than shipped dead (same pattern as rigging.py's tb005)."""
+        widget.setVisible(False)
+
+    def b002(self):
+        """Light Rigs -- unreachable (b002_init hides the button); defensive message."""
+        self.sb.message_box("Light Rigs is not available in Blender yet.")
+
     def tb000_init(self, widget):
         """Lights From Geometry Init"""
         menu = widget.option_box.menu

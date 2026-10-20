@@ -7,6 +7,7 @@
 | panel | untriaged | pending | triaged OK | prop deltas | status |
 |:--|--:|--:|--:|--:|:--|
 | ArnoldBridge | 0 | 0 | 4 | 0 | OK |
+| ArticulatedRig | 0 | 0 | 0 | 0 | OK |
 | AudioClips | 0 | 0 | 15 | 3 | OK |
 | Bevel | 0 | 0 | 0 | 0 | OK |
 | BlendshapeAnimator | 0 | 0 | 1 | 0 | OK |
@@ -37,7 +38,7 @@
 | ReferenceManager | 0 | 0 | 14 | 0 | OK |
 | RenderEffects | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 2 | 5 | 0 | open |
+| SceneExporter | 0 | 2 | 3 | 0 | open |
 | ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShellXform | 0 | 0 | 0 | 0 | OK |
@@ -48,6 +49,7 @@
 | Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
 | TelescopeRig | 0 | 0 | 0 | 0 | OK |
+| TextureCombine | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 1 | 5 | OK |
 | TubeRig | 0 | 3 | 8 | 6 | open |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
@@ -105,7 +107,7 @@
   - `chk000.class` maya=`'QPushButton'` blender=`'QCheckBox'`
 
 **Open panel ports (1):**
-- **ArticulatedRig** — mayatk ArticulatedRig (2026-09-27) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin')
+- **LightRig** — mayatk LightRig (2026-10-17, save / swap / restore named light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')
 
 **N/A by design (1):** WorkspaceMap (Maya workspace-tree browser; Blender SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18) and, since 2026-08-02, the workspace-template store — but the map/browser tree itself stays unported: the Reference Manager combo (which also creates + promotes projects) and the main.py Workspace tab cover discovery; port only if wanted)
 
@@ -135,7 +137,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | polygons.py | 0 | 0 | 3 | 0 | 0 | OK |
 | preferences.py | 0 | 0 | 0 | 0 | 0 | OK |
 | rendering.py | 0 | 4 | 10 | 0 | 0 | open |
-| rigging.py | 0 | 0 | 3 | 0 | 0 | OK |
+| rigging.py | 0 | 2 | 3 | 0 | 0 | open |
 | scene.py | 0 | 1 | 5 | 0 | 0 | open |
 | selection.py | 0 | 0 | 7 | 0 | 0 | OK |
 | settings.py | 0 | 0 | 0 | 0 | 0 | OK |
@@ -185,7 +187,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 #### rigging.py
 **combo item deltas (review)**
-  - `cmb002` 7->7 items; missing=['Articulated Rig', 'Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
+  - `cmb002` 7->8 items; missing=['Quick Rig', 'HumanIK'] extra=['Human Meta-Rig', 'Basic Human Meta-Rig', 'Generate Rig']
   - `cmb010` 3->4 items; missing=['Attrs: Auto', 'Attrs: Channel Box'] extra=['Attrs: Translate', 'Attrs: Rotate', 'Attrs: Scale']
 
 #### subdivision.py
@@ -207,16 +209,18 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **TubeRig** `b005` — .ui widget QPushButton  [pending] Remove Rig (2026-08-25) -- TubeRigSlots.b005 tears down every rig the selection touches, via TubeRig.teardown (skinCluster, curveInfo, joints, controls set and the rig group, then unlocking the mesh display). Blender's TubeRig has no teardown surface at all yet -- the port needs the armature/modifier/constraint/collection cleanup and the same owned-node scoping that keeps a sibling rig whose name EXTENDS this one out of the sweep -- so this is real open work rather than na.
 - **TubeRig** `b006` — .ui widget QPushButton  [pending] Rename Rig (2026-08-25) -- TubeRigSlots.b006 renames an existing rig and every node under it to the Rig Name field. Rides the b005 teardown port: both need the same owned-node enumeration on the Blender side (armature, deform bones, hook/spline-IK constraints, the driver curve and the collection), which does not exist yet.
 - **TubeRig** `b007` — .ui widget QPushButton  [pending] Rebind Skin (2026-08-26) -- TubeRigSlots.b007 re-solves the bind for every rig the selection touches, including the legacy rescue that re-pairs a single orphaned mesh with a single rig whose bind was destroyed. Rides the same open work as b005/b006: blendertk's TubeRig has no teardown/rebind surface at all yet, and a Blender twin needs the armature modifier + vertex-group rebuild and the same owned-node scoping. Real open work, not na.
-- **ArticulatedRig** `panel` — mayatk ArticulatedRig (2026-09-27) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('ArticulatedRig has no blendertk twin')
+- **LightRig** `panel` — mayatk LightRig (2026-10-17, save / swap / restore named light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')
 - **lighting** `cmb000` — optbox QComboBox None  [pending] tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG).
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
 - **rendering** `preset_dir` — preset_dir (maya x1, blender x0)  [pending] see add_presets (the selector's user tier)
 - **rendering** `add_presets` — add_presets (maya x1, blender x0)  [pending] tb001's native preset selector over mtk.RenderUtils.render_preset_store (semantic {setting: value} presets); the Blender twin arrives with s020's render-settings surface
 - **rendering** `s020` — menu QSpinBox None  [pending] Render resolution width (scene-backed field + render presets via mtk.RenderUtils); Blender twin = scene.render.resolution_x, needs a btk render-settings surface
 - **rendering** `s021` — menu QSpinBox None  [pending] Render resolution height; see s020 (scene.render.resolution_y)
+- **rigging** `chk_skin_rigid` — optbox QCheckBox 'Rigid Insert'  [pending] Add to Skin option box (rigid insert) -- rides the tb005 port.
+- **rigging** `cmb_skin_mode` — optbox QComboBox None  [pending] Add to Skin option box (merge vs separate bind) -- rides the tb005 port.
 - **scene** `b018` — [pending] Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na.
 - **uv** `chk043` — optbox QCheckBox 'Brute Force (xatlas)'  [pending] Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=).
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 46 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 16 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 48 panels paired; 27 tentacle slots paired; 33 native-menu stubs (counterpart-set); 18 open-work items; 0 stale Maya handlers. Sweep PASSES.
