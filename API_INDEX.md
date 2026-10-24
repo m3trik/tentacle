@@ -35,7 +35,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
-  - methods: b003, list001_init
+  - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, txt000_init, b006_init, b006, b033, b014, header_init, b003, list001_init
 
 ### `slots/_normals.py` — Behavior shared by the Maya and Blender ``normals`` panels.
 - `class NormalsMixin`
@@ -141,7 +141,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
-  - methods: b_shader_editor, cmb002_init, cmb002, tb000_init, tb000, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b002, b004, b006, b013, b014, b015, lbl002, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
+  - methods: b_shader_editor, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b004, b013, b015, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/normals.py`
 - `class NormalsSlots(NormalsMixin, SlotsBlender)`
@@ -303,7 +303,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
-  - methods: b007, list000_init, list000, list001, cmb002_init, tb000_init, tb000, select_by_mat, lbl002, b015, lbl004, lbl006, b002, b004, b006, b008, b009, b026, b027, b010, b011, b013, b014, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
+  - methods: b007, list000_init, list000, list001, select_by_mat, b015, lbl004, lbl006, b004, b008, b009, b026, b027, b010, b011, b013, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
 - `class MeshSlots(SlotsMaya)`

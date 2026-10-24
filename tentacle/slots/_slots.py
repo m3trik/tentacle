@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import inspect
+
 from qtpy import QtCore
 from uitk import Signals, Cancelable
 
@@ -158,13 +160,29 @@ class Slots(QtCore.QObject):
         for label, slot_name, *_ in self._TOOLS_ITEMS.get(parent, ()):
             if label == text:
                 slot = getattr(self, slot_name, None)
-                if not callable(slot):
-                    return
-                try:
-                    slot(item)
-                except TypeError:
-                    slot()
+                if callable(slot):
+                    self._call_slot(slot, item)
                 return
+
+    @staticmethod
+    def _call_slot(slot, widget=None):
+        """Call *slot* with *widget* when it takes an argument, else bare.
+
+        Decided from the signature: calling it with one and retrying bare on a
+        ``TypeError`` re-ran a slot whose own body raised one, hiding the error.
+        """
+        try:
+            params = inspect.signature(slot).parameters.values()
+        except (TypeError, ValueError):  # a builtin: nothing to read
+            return slot()
+        positional = (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.VAR_POSITIONAL,
+        )
+        if any(p.kind in positional for p in params):
+            return slot(widget)
+        return slot()
 
     def gate_on_app(self, widget, resolve_spec) -> bool:
         """Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.

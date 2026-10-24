@@ -198,9 +198,22 @@ Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 
 Shared, DCC-agnostic behavior for the ``materials`` panel.
 
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L58)** — DCC-agnostic ``materials`` slot behavior.
+- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L72)** — DCC-agnostic ``materials`` slot behavior: the material table, the current
+  - `MaterialsMixin.tbl000_init(self, widget)` — The material table: built once, re-wired and refilled on every show.
+  - `MaterialsMixin.b028(self, widget=None)` — Assign the highlighted material to the selection.
+  - `MaterialsMixin.b029(self, widget=None)` — Select what uses the highlighted material, as assigned.
+  - `MaterialsMixin.b030(self, widget=None)` — Select every object using the highlighted material.
+  - `MaterialsMixin.b031(self, widget=None)` — Narrow the selection to what uses the highlighted material.
+  - `MaterialsMixin.b032(self, widget=None)` — Merge the highlighted duplicates into the materials they duplicate.
+  - `MaterialsMixin.lbl002(self, widget=None)` — Delete the highlighted materials.
+  - `MaterialsMixin.txt000_init(self, widget)` — The filter field: hides the rows whose name does not hold its text.
+  - `MaterialsMixin.b006_init(self, widget)`
+  - `MaterialsMixin.b006(self, widget=None)` — New material onto the selection (:meth:`_new_mat`);
+  - `MaterialsMixin.b033(self, widget=None)` — Select the objects carrying no material.
+  - `MaterialsMixin.b014(self, widget=None)` — Remove Duplicate Materials: merge every duplicate in the scene into
+  - `MaterialsMixin.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
-  - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Conversion / External (mirrors prior header sections).
+  - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
 
 <a id="slots--_normals"></a>
 ### `slots/_normals.py`
@@ -306,7 +319,7 @@ Shared, DCC-agnostic behavior for the ``settings`` panel.
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
 
-- **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L7)** — Provides methods that can be triggered by widgets in the ui.
+- **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L9)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
   - `Slots.gate_on_app(self, widget, resolve_spec) -> bool` — Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
@@ -546,25 +559,17 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--materials"></a>
 ### `slots/blender/materials.py`
 
-- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L8)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
+- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L10)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
   - `MaterialsSlots.b_shader_editor(self)` — Shader Editor — Blender's analogue of Maya's Hypershade.
-  - `MaterialsSlots.cmb002_init(self, widget)` — Materials combo: scene materials with color swatches + option box (Cleanup) + a
-  - `MaterialsSlots.cmb002(self, index, widget)` — Current Material (selection only — assignment is on the b-buttons).
-  - `MaterialsSlots.tb000_init(self, widget)`
-  - `MaterialsSlots.tb000(self, widget)` — Select By Material — the option box supplies the parameters.
   - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
   - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
   - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the text-view dialog.
-  - `MaterialsSlots.list000_init(self, widget)` — Assign list: assign-current root + New / Random + scene materials.
+  - `MaterialsSlots.list000_init(self, widget)` — The submenu's Assign list: assign-current root + New / Random + the
   - `MaterialsSlots.list000(self, item)` — Assign list: root assigns the current material;
   - `MaterialsSlots.list001(self, item)` — Dispatch a Tools-list selection to its slot method.
-  - `MaterialsSlots.b002(self, widget=None)` — Get Material: set the combo to the selection's material.
   - `MaterialsSlots.b004(self, widget=None)` — Assign Random
-  - `MaterialsSlots.b006(self, widget=None)` — Assign New Material
   - `MaterialsSlots.b013(self)` — Reload Scene Textures
-  - `MaterialsSlots.b014(self)` — Remove Duplicate Materials
   - `MaterialsSlots.b015(self, widget=None)` — Delete All Unused Materials
-  - `MaterialsSlots.lbl002(self)` — Delete the current material.
   - `MaterialsSlots.lbl004(self)` — Select Node — select the object(s) using the current material.
   - `MaterialsSlots.lbl006(self)` — Open in Editor — graph the current material in the Shader Editor.
   - `MaterialsSlots.b021(self)` — Image to Plane — open the panel (batch image→plane with aspect sizing, material affix
@@ -1178,22 +1183,16 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
 
-- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L11)**
+- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
   - `MaterialsSlots.b007(self)` — Hypershade Editor
   - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
   - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
   - `MaterialsSlots.list001(self, item)` — Dispatch Tools list selection to the matching slot method.
-  - `MaterialsSlots.cmb002_init(self, widget)` — Initialize Materials
-  - `MaterialsSlots.tb000_init(self, widget)`
-  - `MaterialsSlots.tb000(self, widget)` — Select By Material — the option box supplies the parameters.
   - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
-  - `MaterialsSlots.lbl002(self)` — Delete Material
   - `MaterialsSlots.b015(self, widget)` — Delete Unused Materials
   - `MaterialsSlots.lbl004(self)` — Select and Show Attributes: Show Material Attributes in the Attribute Editor.
   - `MaterialsSlots.lbl006(self)` — Open material in editor
-  - `MaterialsSlots.b002(self, widget)` — Get Material: Change the index to match the current material selection.
   - `MaterialsSlots.b004(self, widget)` — Assign Random
-  - `MaterialsSlots.b006(self, widget)` — Assign: New Material
   - `MaterialsSlots.b008(self, widget)` — Map Packer
   - `MaterialsSlots.b009(self, widget)` — Create Game Shader
   - `MaterialsSlots.b026(self, widget)` — Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;
@@ -1201,7 +1200,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.b010(self, widget)` — Texture Path Editor
   - `MaterialsSlots.b011(self, widget)` — Shader Templates
   - `MaterialsSlots.b013(self)` — Reload Textures and Reset Viewport
-  - `MaterialsSlots.b014(self)` — Remove and Reassign Duplicates
   - `MaterialsSlots.b016(self)` — Map Converter
   - `MaterialsSlots.b018(self, widget)` — Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.
   - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.

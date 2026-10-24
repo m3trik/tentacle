@@ -25,6 +25,6 @@
 
 ## Tests
 
-Structural suite: `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py` (runs in CI — `.github/workflows/tests.yml`). Canonical full run: `python tentacle/test/run_tests.py --in-maya` (launches a FRESH Maya via `MayaConnection`; the badge needs the Maya slot suites, so a plain no-Maya run never stamps it).
+Structural suite: `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py` (runs in CI — `.github/workflows/tests.yml`). Pointed: `python tentacle/test/run_tests.py <modules> [-k pat]` (offscreen; Maya-gated tests skip there, so add `--in-maya` for those — or let `m3trik/scripts/affected_tests.py <files> --run` split them). Canonical full run (review / release): `python tentacle/test/run_tests.py --in-maya` (launches a FRESH Maya via `MayaConnection`; the badge needs the Maya slot suites, so a plain no-Maya or pointed run never stamps it).
 
 See [CHANGELOG.md](CHANGELOG.md) for history.

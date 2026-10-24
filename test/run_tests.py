@@ -32,6 +32,16 @@ Three execution modes:
    force_new_instance=True. There is no --reuse path; existing Maya
    sessions are never touched.
 
+Pointed runs (any mode):
+    python run_tests.py test_scene test_uv          # named modules (test/ or test/slots/)
+    python run_tests.py test_scene -k footer        # ...and only tests matching "footer"
+    python run_tests.py test_marking_menu_gui --in-maya   # Maya-hosted modules, fresh Maya
+A pointed run never stamps the badge. For the modules a change reaches:
+``python m3trik/scripts/affected_tests.py <files> --run``.
+
+Headless by default: a plain run sets ``QT_QPA_PLATFORM=offscreen`` unless one is
+given explicitly (the in-Maya run is a real GUI Maya by design).
+
 Other flags:
     -v / --verbose      Increase verbosity
     --log               Save results to a log file
@@ -42,6 +52,7 @@ Other flags:
 import argparse
 import datetime
 import io
+import os
 import re
 import sys
 import textwrap
@@ -111,15 +122,44 @@ class TestRunner:
         test_dir: Path,
         verbosity: int = 1,
         include_slots: bool = False,
+        modules=None,
+        patterns=None,
     ):
         self.test_dir = test_dir
         self.verbosity = verbosity
         self.include_slots = include_slots
+        #: Named modules (bare or ``test_``-prefixed); empty = discover all.
+        self.modules = list(modules or [])
+        #: ``-k`` filters, unittest's own semantics (no ``*`` = substring).
+        self.patterns = [p if "*" in p else f"*{p}*" for p in (patterns or [])]
         self.log_buffer = io.StringIO()
 
+    @staticmethod
+    def resolve_modules(test_dir: Path, names):
+        """``(stems, unknown)``: each name as the ``test_*`` stem of a module in
+        ``test/`` or ``test/slots/``, and the names neither holds."""
+        stems, unknown = [], []
+        for name in names:
+            stem = name[:-3] if name.endswith(".py") else name
+            stem = stem if stem.startswith("test_") else f"test_{stem}"
+            if (test_dir / f"{stem}.py").is_file() or (test_dir / "slots" / f"{stem}.py").is_file():
+                stems.append(stem)
+            else:
+                unknown.append(name)
+        return stems, unknown
+
     def discover_tests(self) -> unittest.TestSuite:
-        """Discover test modules — main directory plus optional slot subdir."""
+        """Discover test modules — main directory plus optional slot subdir, or
+        just :attr:`modules`; :attr:`patterns` narrows either."""
         loader = unittest.TestLoader()
+        if self.patterns:
+            loader.testNamePatterns = list(self.patterns)
+        if self.modules:
+            for path in (self.test_dir, self.test_dir / "slots"):
+                if path.is_dir() and str(path) not in sys.path:
+                    sys.path.insert(0, str(path))
+            stems, _unknown = self.resolve_modules(self.test_dir, self.modules)
+            return unittest.TestSuite(loader.loadTestsFromName(stem) for stem in stems)
         suite = loader.discover(
             start_dir=str(self.test_dir),
             pattern="test_*.py",
@@ -168,9 +208,7 @@ Test Directory: {self.test_dir}
         import time
         start_time = time.perf_counter()
 
-        runner = unittest.TextTestRunner(
-            stream=stream, verbosity=self.verbosity, resultclass=DetailedTestResult
-        )
+        runner = unittest.TextTestRunner(stream=stream, verbosity=self.verbosity)
         # unittest writes through `stream`, but product code does not: a bare
         # print(), or the traceback.print_exc() of a swallowed exception, goes
         # to the REAL stdout/stderr and never reached the log, leaving a failure
@@ -199,17 +237,14 @@ Test Directory: {self.test_dir}
 """
         stream.write(footer)
 
+        # The tracebacks are above (unittest's own report); end on the ids, so
+        # the last lines of a run say exactly what failed.
         if test_result.failure_details or test_result.error_details:
-            stream.write("\nDETAILED FAILURES AND ERRORS:\n")
-            stream.write("-" * 70 + "\n")
-            for test, traceback in test_result.failure_details:
-                stream.write(f"\nFAILED: {test}\n")
-                stream.write(traceback)
-                stream.write("\n")
-            for test, traceback in test_result.error_details:
-                stream.write(f"\nERROR: {test}\n")
-                stream.write(traceback)
-                stream.write("\n")
+            stream.write("\nFAILED TESTS:\n")
+            for test, _traceback in test_result.failure_details:
+                stream.write(f"  FAIL:  {test.id()}\n")
+            for test, _traceback in test_result.error_details:
+                stream.write(f"  ERROR: {test.id()}\n")
 
         if log_to_file:
             self._save_log(timestamp)
@@ -224,25 +259,6 @@ Test Directory: {self.test_dir}
         with open(log_file, "w", encoding="utf-8") as f:
             f.write(self.log_buffer.getvalue())
         print(f"\nLog saved to: {log_file}")
-
-class DetailedTestResult(unittest.TextTestResult):
-    """Extended test result with better output formatting."""
-    def addSuccess(self, test):
-        super().addSuccess(test)
-        if self.showAll: self.stream.write(" ok\n")
-        elif self.dots: self.stream.write("."); self.stream.flush()
-    def addError(self, test, err):
-        super().addError(test, err)
-        if self.showAll: self.stream.write(" ERROR\n")
-        elif self.dots: self.stream.write("E"); self.stream.flush()
-    def addFailure(self, test, err):
-        super().addFailure(test, err)
-        if self.showAll: self.stream.write(" FAIL\n")
-        elif self.dots: self.stream.write("F"); self.stream.flush()
-    def addSkip(self, test, reason):
-        super().addSkip(test, reason)
-        if self.showAll: self.stream.write(f" skipped ({reason})\n")
-        elif self.dots: self.stream.write("s"); self.stream.flush()
 
 def update_readme_badge(passed: int, failed: int, readme_path: Path) -> bool:
     """Stamp the test badge via the ecosystem SSoT (``ptk.StatusBadge``).
@@ -322,7 +338,8 @@ def _ensure_ecosystem_paths(monorepo: Path):
 
 
 def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
-                              results_file: Path, verbosity: int) -> str:
+                              results_file: Path, verbosity: int,
+                              modules=(), patterns=()) -> str:
     """Return the Python source executed inside the Maya GUI process.
 
     The dispatcher discovers and runs both the main suite and the slots
@@ -334,6 +351,9 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
     test_dir_str = str(test_dir).replace("\\", "/")
     slots_dir_str = str(test_dir / "slots").replace("\\", "/")
     results_file_str = str(results_file).replace("\\", "/")
+    # Literals the dispatcher reads: a pointed run loads only these modules.
+    modules_repr = repr(list(modules))
+    patterns_repr = repr([p if "*" in p else f"*{p}*" for p in patterns])
 
     return textwrap.dedent(f"""
         import sys, os, io, time, datetime, traceback, unittest
@@ -401,17 +421,24 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
             stream.write('='*70 + '\\n')
 
             loader = unittest.TestLoader()
-            suite = loader.discover(
-                start_dir=r'{test_dir_str}',
-                pattern='test_*.py',
-                top_level_dir=r'{test_dir_str}',
-            )
-            slot_suite = loader.discover(
-                start_dir=r'{slots_dir_str}',
-                pattern='test_*.py',
-                top_level_dir=r'{slots_dir_str}',
-            )
-            suite.addTests(slot_suite)
+            _patterns = {patterns_repr}
+            if _patterns:
+                loader.testNamePatterns = _patterns
+            _modules = {modules_repr}
+            if _modules:
+                suite = unittest.TestSuite(loader.loadTestsFromName(m) for m in _modules)
+            else:
+                suite = loader.discover(
+                    start_dir=r'{test_dir_str}',
+                    pattern='test_*.py',
+                    top_level_dir=r'{test_dir_str}',
+                )
+                slot_suite = loader.discover(
+                    start_dir=r'{slots_dir_str}',
+                    pattern='test_*.py',
+                    top_level_dir=r'{slots_dir_str}',
+                )
+                suite.addTests(slot_suite)
 
             t0 = time.perf_counter()
             runner = unittest.TextTestRunner(stream=stream, verbosity={verbosity})
@@ -467,7 +494,8 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
 
 
 def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
-                     no_badge: bool, keep_maya: bool, root_dir: Path) -> int:
+                     no_badge: bool, keep_maya: bool, root_dir: Path,
+                     modules=(), patterns=()) -> int:
     """Launch a FRESH Maya GUI and dispatch the full suite over command port.
 
     This is the canonical "100% verified" path — every test runs against
@@ -497,8 +525,10 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
         results_file.unlink()
 
     dispatcher_code = _build_in_maya_dispatcher(
-        test_dir, monorepo, results_file, verbosity
+        test_dir, monorepo, results_file, verbosity, modules, patterns
     )
+    # A pointed run is not the suite's number (TEST_BADGE_STANDARD).
+    no_badge = no_badge or bool(modules) or bool(patterns)
     dispatcher_file.write_text(dispatcher_code, encoding="utf-8")
 
     print("\n" + "=" * 70)
@@ -651,6 +681,18 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
 
 def main():
     parser = argparse.ArgumentParser(description="Run tentacle test suite")
+    parser.add_argument(
+        "modules",
+        nargs="*",
+        help="Test modules to run (bare or test_-prefixed; test/ or test/slots/); none = all",
+    )
+    parser.add_argument(
+        "-k",
+        dest="patterns",
+        action="append",
+        default=[],
+        help="Only tests whose id matches (substring, or a * pattern); repeatable",
+    )
     parser.add_argument("-v", "--verbose", action="count", default=1, help="Increase verbosity")
     parser.add_argument("--log", action="store_true", help="Save results to a log file")
     parser.add_argument("-q", "--quiet", action="store_true", help="Minimal output")
@@ -689,6 +731,12 @@ def main():
     if str(test_dir) not in sys.path:
         sys.path.insert(0, str(test_dir))
 
+    # A name nothing answers to means the run would not cover what was asked for.
+    stems, unknown = TestRunner.resolve_modules(test_dir, args.modules)
+    if unknown:
+        sys.stderr.write(f"[ERROR] No such test module(s): {', '.join(unknown)}\n")
+        sys.exit(2)
+
     # --in-maya: hand off to the GUI launcher and exit.
     if args.in_maya:
         if args.include_slots:
@@ -703,7 +751,14 @@ def main():
             no_badge=args.no_badge,
             keep_maya=args.keep_maya,
             root_dir=root_dir,
+            modules=stems,
+            patterns=args.patterns,
         ))
+
+    # Headless unless a GUI is the point (CODE_STANDARD section 9): the plain and
+    # mayapy runs get the offscreen platform before anything constructs Qt; an
+    # explicit value is honored. (--in-maya above is a real GUI Maya on purpose.)
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
     # Maya-bound: bootstrap maya.standalone and the ecosystem packages.
     if args.include_slots:
@@ -719,7 +774,13 @@ def main():
     except ImportError:
         print("DEBUG: Could not import tentacle")
 
-    runner = TestRunner(test_dir, verbosity=verbosity, include_slots=args.include_slots)
+    runner = TestRunner(
+        test_dir,
+        verbosity=verbosity,
+        include_slots=args.include_slots,
+        modules=stems,
+        patterns=args.patterns,
+    )
     result = runner.run(log_to_file=args.log)
 
     # ONLY --in-maya stamps, and it does so from its own path -- so nothing here

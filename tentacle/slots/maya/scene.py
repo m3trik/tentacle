@@ -685,8 +685,24 @@ class SceneSlots(SceneMixin, SlotsMaya):
             write_path = os.path.join(
                 tmp.dir_path(), os.path.splitext(os.path.basename(out_path))[0] + ".fbx"
             )
-            self._export_fbx(write_path, options)
-            self._convert_to_glb(write_path, out_path, options, tick)
+            # The intermediate states its materials -- and the handoff that
+            # describes them -- as every deliverable FBX does: the GLB built
+            # from it reads both off the file. A selection carries the carrier,
+            # for the write only: the user's selection comes back after.
+            with mtk.FbxUtils.export_prepared(only=[ptk.SceneRecords.MATERIALS]):
+                prior = cmds.ls(selection=True, long=True) or []
+                try:
+                    if options["selection_only"]:
+                        carriers = mtk.DataNodes.get_export_nodes()
+                        if carriers:
+                            cmds.select(carriers, add=True)
+                    self._export_fbx(write_path, options)
+                finally:
+                    if prior:  # noExpand: a selected set stays the set
+                        cmds.select(prior, replace=True, noExpand=True)
+                    else:
+                        cmds.select(clear=True)
+            self._convert_to_glb(write_path, out_path, tick)
 
     @staticmethod
     def _export_fbx(file_path, options):
@@ -701,32 +717,17 @@ class SceneSlots(SceneMixin, SlotsMaya):
             FBXExportEmbeddedTextures=options["embed_textures"],
         )
 
-    def _convert_to_glb(self, write_path, out_path, options, tick):
-        """Convert the intermediate FBX *write_path* and move the GLB to *out_path*."""
-        # The scene sidecar repairs what the FBX hop mistranslates (modern-
-        # shader base colour / emissive) and rides embedded in the GLB. The
-        # Blender fork deliberately has no counterpart: it writes GLB through
-        # Blender's native glTF exporter — no FBX hop, nothing to repair.
-        sidecar = None
-        try:
-            objects = (
-                cmds.ls(selection=True, long=True)
-                if options["selection_only"]
-                else cmds.ls(assemblies=True, long=True)
-            )
-            sidecar = ptk.MeshConvert.build_scene_sidecar(
-                mtk.SceneState.read(
-                    objects, include_textures=options["embed_textures"]
-                ),
-                source=mtk.SceneState.source(),
-                asset=os.path.basename(write_path),
-            )
-        except Exception:  # a bare GLB still beats no GLB
-            self.sb.logger.warning("Scene sidecar skipped.", exc_info=True)
+    @staticmethod
+    def _convert_to_glb(write_path, out_path, tick):
+        """Convert the intermediate FBX *write_path* and move the GLB to *out_path*.
 
+        The GLB states what the FBX states: its materials record and its
+        handoff, read off the file. The Blender fork writes GLB through
+        Blender's native glTF exporter instead -- no FBX hop.
+        """
         tick(text="Converting to GLB…")
         glb_path = ptk.MeshConvert.fbx_to_glb(
-            write_path, overwrite=True, auto_install=True, prompt=False, sidecar=sidecar
+            write_path, overwrite=True, auto_install=True, prompt=False
         )
         if not (glb_path and os.path.isfile(glb_path)):
             raise RuntimeError("FBX to GLB conversion produced no file.")

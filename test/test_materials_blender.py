@@ -87,7 +87,9 @@ class TestAssignListUndoableConvention(unittest.TestCase):
         material-assignment / bulk-mutation action in the class stays wrapped."""
         # b005 (Assign Current) was removed with the panel's Assign button — the
         # Assign list's root release covers it through @btk.undoable _assign_named.
-        for method in ("b004", "b006", "b014", "b015"):
+        # b014 (Remove Duplicate Materials) is the mixin's: its one undo step is
+        # the _merge_duplicates hook it calls.
+        for method in ("b004", "_new_mat", "_merge_duplicates", "b015"):
             with self.subTest(method=method):
                 decorators = _method_decorators(self.source, "MaterialsSlots", method)
                 self.assertIsNotNone(decorators, f"{method} not found in MaterialsSlots")

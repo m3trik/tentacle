@@ -307,7 +307,7 @@ CONTROLS = {
         # _disable_unsupported_packing_mode removed). Since 2026-08-29 the slot b000 atlas
         # branch on BOTH sides calls bake_atlas (plan the layout, bake each object at its
         # footprint) + commit_lightmap(scale_offsets=…); the rect is the engine binding and
-        # the UVs are no longer repacked (uv_rects survives for reverting legacy markers).
+        # the UVs are no longer repacked (a legacy marker's uvRect is still reverted).
         # Verified end-to-end headlessly (blendertk/test/test_lightmap_baker.py: 2 objects
         # sharing a material -> 1 shared area-weighted EXR, source maps consolidated, each
         # object baked at its atlas footprint, revert EXACTLY restores the 0-1 layout).
@@ -317,11 +317,9 @@ CONTROLS = {
         # _base_output_dir already resolves the bake default through it. Both panels ship an
         # Output Directory field and BOTH handlers open the RESOLVED output dir (Maya falls
         # back to the sourceimages it resolves against), so only the label differs.
-        "open_sourceimages": {
-            "status": "renamed",
-            "to": "open_output",
-            "reason": "same 'open where the bakes went' action on the header menu; both resolve the Output Directory field and open it. Maya names the menu item for its project's sourceimages fallback, Blender for the resolved output dir (its texture-folder base is workspace/.blend-relative, so 'sourceimages' would name the wrong thing).",
-        },
+        # open_sourceimages / open_output: the rename entry retired 2026-10-22 -- both twins
+        # name it open_output now, an action on the Output Directory field (the header
+        # menu is gone: its bake operations are the Manage page's).
         # 2026-09-22 Maya panel additions -- preset template (wire_combo), Exclude row
         # (set_exclusions / lbl_exclude / add_action), the four option-box switches
         # (set_toggle), Bounces and Reset to Defaults -- PORTED 2026-09-23 (blendertk
@@ -816,8 +814,8 @@ CONTROLS_SLOTS = {
         "cmb_opacity_scope": {"status": "pending", "reason": "tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice."},
         "chk_depth_peeling": {"status": "na", "reason": "tb002 option switching Viewport 2.0 to depth-peeled transparency (hardwareRenderingGlobals.transparencyAlgorithm). EEVEE has no depth-peeling mode — its transparency sorting is per-material (render method / sort order), not a viewport-wide algorithm — so there is no toggle to mirror."},
         "chk_exclude_defaults": {"status": "na", "reason": "Blender has no auto-created default materials to filter from the report; drop documented in tb001_init"},
-        "chk_hide_defaults": {"status": "na", "reason": "Blender has no auto-created default materials (lambert1 etc.) to hide; drop documented in the Blender slot"},
-        "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the materials combo, for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
+        "chk_hide_defaults": {"status": "na", "reason": "Material-list filter (the filter field's option box, Maya's _list_filters hook): Blender has no auto-created default materials (lambert1 etc.) to hide, so its hook returns none and the field shows no option box"},
+        "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the material list (the filter field's option box), for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
     },
     "nurbs": {
         "chk000": {"status": "na", "reason": "Loft 'Uniform' = NURBS uniform-vs-chord-length parameterization; Blender loft (btk.loft bmesh bridge) outputs a mesh with no parametric direction — explicitly excused in the blender slot's tb001 comment."},
