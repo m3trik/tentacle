@@ -30,7 +30,7 @@
 | ImageToPlane | 0 | 0 | 0 | 1 | OK |
 | ImageTracer | 0 | 0 | 0 | 0 | OK |
 | KeyStash | 0 | 0 | 0 | 0 | OK |
-| LightmapBaker | 0 | 0 | 2 | 0 | OK |
+| LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | MatUpdater | 0 | 0 | 1 | 0 | OK |
 | Mirror | 0 | 0 | 0 | 0 | OK |
@@ -130,7 +130,7 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 | hud.py | 0 | 0 | 0 | 0 | 0 | OK |
 | lighting.py | 0 | 1 | 0 | 0 | 4 | open |
 | main.py | 0 | 0 | 0 | 0 | 0 | OK |
-| materials.py | 0 | 1 | 4 | 0 | 0 | open |
+| materials.py | 0 | 1 | 2 | 0 | 0 | open |
 | normals.py | 0 | 0 | 0 | 0 | 0 | OK |
 | nurbs.py | 0 | 0 | 13 | 0 | 0 | OK |
 | pivot.py | 0 | 0 | 6 | 0 | 0 | OK |
