@@ -19,6 +19,13 @@ entry points activate the same idempotent classmethod — that is coverage, not 
 missing any one of them silently loses the isolation for that path (the ``--in-maya`` one was
 missed on the first pass, which is the run that actually constructs the menus).
 """
+import os
+
 from uitk.testing import TestSandbox
+
+# Headless unless a GUI is the point (CODE_STANDARD section 9): a bare pytest run
+# gets the offscreen platform before any test constructs Qt, as run_tests.py's
+# plain mode does. An explicit value is honored.
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 QSETTINGS_SANDBOX_DIR, PRESETS_SANDBOX_DIR = TestSandbox.activate()

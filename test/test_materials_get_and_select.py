@@ -3,22 +3,17 @@
 """Tests for the materials submenu's "Get + Select" one-shot (``b003``).
 
 The submenu button gets the material off the current selection and selects every object
-using it. Copying the main panel's "Select" button (``tb000``) into the submenu would not
-give that: uitk mirrors same-named widget values across a panel and its ``#submenu``
-surface (``MainWindow.sync_widget_values``), so the copy IS the configurable button — it
-runs with whatever the user last set, and only "gets" the material when "Get and Select"
-happens to be ticked. Temporarily overwriting ``tb000``'s stored option state around the
-call was the other option (it also fires the toggles' own connections, and needs new uitk
-state API for no behavioral gain). Instead the search body was extracted into a
-parameterized per-DCC primitive,
-``select_by_mat(shell, in_selection, get_first, add)``. ``tb000`` reads its option box and
-delegates; the submenu's ``b003`` (defined ONCE on the DCC-agnostic ``MaterialsMixin``)
-calls the same primitive with fixed values.
+using it. The search body is one parameterized per-DCC primitive,
+``select_by_mat(shell, in_selection, get_first, add, unassigned)``: the panel's material
+table (its Select icon, its row menu), the header's Objects Without Material and the
+submenu's ``b003`` (defined ONCE on the DCC-agnostic ``MaterialsMixin``) all call it with
+plain values.
 
-The "get the material off the selection" half became shared the same way:
+The "get the material off the selection" half is shared the same way:
 ``_adopt_selection_mat(on_failure)`` on the mixin over a ``_selection_mats()`` DCC hook,
-serving both "Get Material" (``b002``, which stops on failure) and ``get_first`` (which
-carries on with the current material and says so).
+serving ``get_first`` (which carries on with the current material and says so). The
+current material is a name (``_current_mat``), not a list entry, so a material the table
+filters out is adopted all the same.
 
 The mixin half runs without any DCC; the per-DCC halves are pinned by AST (no
 ``maya.cmds`` / ``bpy`` needed) plus an XML/text check that the widget really exists in the
@@ -93,7 +88,7 @@ class TestB003DelegatesWithFixedArgs(unittest.TestCase):
         self.assertTrue(host.calls[0]["shell"])
 
     def test_searches_the_whole_scene_and_replaces_the_selection(self):
-        """The configurable form is tb000's option box — b003 must not inherit either."""
+        """The configurable forms are the table's row menu — b003 inherits neither."""
         host = _Host()
         host.b003()
         self.assertFalse(host.calls[0]["in_selection"])
@@ -125,7 +120,7 @@ class TestB003UnassignedFallthrough(unittest.TestCase):
         self.assertTrue(host.calls[0]["shell"])
 
     def test_fallthrough_does_not_try_to_adopt_a_material(self):
-        """"No material" must never become cmb002's current material."""
+        """"No material" must never become the current material."""
         host = _Host(mats=[])
         host.b003()
         self.assertFalse(host.calls[0]["get_first"])
@@ -151,71 +146,42 @@ class TestB003UnassignedFallthrough(unittest.TestCase):
         self.assertTrue(host.calls[0]["get_first"])
 
 
-class _FakeCombo:
-    """cmb002 stand-in. ``items`` mimics a restricted list: a value that isn't in
-    it resolves to index 0, exactly as ``ComboBox.setAsCurrent`` does."""
-
-    def __init__(self, current=None, items=None):
-        self.current = current
-        self.items = items
-        self.init_calls = 0
-        self.added = []
-
-    def currentData(self):
-        return self.current
-
-    def init_slot(self):
-        self.init_calls += 1
-
-    def addItem(self, text, data):
-        self.added.append((text, data))
-        if self.items is not None:
-            self.items.append(data)
-
-    def setAsCurrent(self, value):
-        if self.items is not None and value not in self.items:
-            self.current = self.items[0] if self.items else None
-            return
-        self.current = value
-
-
 class _AdoptHost(MaterialsMixin):
-    """Host for the shared adopt path — ``_selection_mats`` is the DCC hook."""
+    """Host for the shared adopt path — ``_selection_mats`` is the DCC hook. No
+    table: the current material exists without one."""
 
-    def __init__(self, mats, current=None, items=None, filters=()):
+    def __init__(self, mats, current=None):
         self._mats = mats
-        self._filters = filters
+        self._current = current
         self.messages = []
         self.ui = type("_UI", (), {})()
-        self.ui.cmb002 = _FakeCombo(current, items)
         self.sb = type("_SB", (), {"message_box": lambda _s, m: self.messages.append(m)})()
 
     def _selection_mats(self):
         return self._mats
 
-    def _list_filter_names(self):
-        return self._filters
-
 
 class TestAdoptSelectionMat(unittest.TestCase):
-    """One material -> adopt it; anything else -> a reason, and cmb002 untouched."""
+    """One material -> it is current; anything else -> a reason, current untouched."""
 
     def test_single_material_is_adopted(self):
         host = _AdoptHost(["matA"])
         self.assertEqual(host._adopt_selection_mat(), "matA")
-        self.assertEqual(host.ui.cmb002.current, "matA")
+        self.assertEqual(host._current_mat(), "matA")
         self.assertEqual(host.messages, [])
 
-    def test_combo_is_repopulated_before_selecting(self):
-        """The material may be missing from a stale list, so the combo refreshes first."""
-        host = _AdoptHost(["matA"])
-        host._adopt_selection_mat()
-        self.assertEqual(host.ui.cmb002.init_calls, 1)
+    def test_a_material_no_list_shows_is_adopted_all_the_same(self):
+        """The combo could only make current what it listed (a filter, or a
+        shader ``cmds.ls(materials=True)`` misses, dead-ended "Get"); a name
+        can be current whatever the table shows."""
+        host = _AdoptHost(["|grp|matA"], current="matZ")
+        self.assertEqual(host._adopt_selection_mat(), "|grp|matA")
+        self.assertEqual(host._current_mat(), "|grp|matA")
 
-    def test_nothing_selected_reports_and_leaves_the_combo(self):
-        host = _AdoptHost(None)
+    def test_nothing_selected_reports_and_keeps_the_current(self):
+        host = _AdoptHost(None, current="matZ")
         self.assertIsNone(host._adopt_selection_mat())
-        self.assertIsNone(host.ui.cmb002.current)
+        self.assertEqual(host._current_mat(), "matZ")
         self.assertIn("Nothing selected", host.messages[0])
 
     def test_no_material_reports(self):
@@ -229,7 +195,7 @@ class TestAdoptSelectionMat(unittest.TestCase):
         self.assertIn("Multiple materials", host.messages[0])
 
     def test_on_failure_text_is_appended(self):
-        """get_first carries on with the current material and says so; b002 doesn't."""
+        """get_first carries on with the current material and says so."""
         host = _AdoptHost(None)
         host._adopt_selection_mat(" Proceeding with current material.")
         self.assertTrue(host.messages[0].endswith(" Proceeding with current material."))
@@ -238,116 +204,6 @@ class TestAdoptSelectionMat(unittest.TestCase):
         host = _AdoptHost([])
         host._adopt_selection_mat()
         self.assertNotIn("Proceeding", host.messages[0])
-
-
-class TestAdoptRejectsAFilteredMaterial(unittest.TestCase):
-    """``ComboBox.setAsCurrent`` falls back to INDEX 0 for a missing item.
-
-    An ENABLED cmb002 list filter ("Hide Default Materials" / "Hide Arnold
-    Shaders") can drop the found material from the list — Maya's default shader
-    is exactly the material an unshaded object reports — so adopting it would
-    silently leave an unrelated material current and then select by THAT.
-    """
-
-    def _host(self):  # 'matA' is filtered out of the list; 'matZ' is current
-        return _AdoptHost(
-            ["matA"],
-            current="matZ",
-            items=["matB", "matZ"],
-            filters=("Hide Default Materials",),
-        )
-
-    def test_filtered_material_is_not_adopted(self):
-        self.assertIsNone(self._host()._adopt_selection_mat())
-
-    def test_previous_material_is_restored(self):
-        host = self._host()
-        host._adopt_selection_mat()
-        self.assertEqual(host.ui.cmb002.current, "matZ")
-
-    def test_the_filter_is_reported_by_name(self):
-        host = self._host()
-        host._adopt_selection_mat()
-        self.assertEqual(len(host.messages), 1)
-        self.assertIn("matA", host.messages[0])
-        self.assertIn("Hide Default Materials", host.messages[0])
-
-    def test_every_enabled_filter_is_named(self):
-        host = _AdoptHost(
-            ["matA"],
-            current="matZ",
-            items=["matB", "matZ"],
-            filters=("Hide Default Materials", "Hide Arnold Shaders"),
-        )
-        host._adopt_selection_mat()
-        self.assertIn("Hide Default Materials", host.messages[0])
-        self.assertIn("Hide Arnold Shaders", host.messages[0])
-
-    def test_a_filtered_material_is_not_forced_into_the_list(self):
-        """The filter is the user's setting — respect it instead of overriding."""
-        host = self._host()
-        host._adopt_selection_mat()
-        self.assertEqual(host.ui.cmb002.added, [])
-
-    def test_unfiltered_material_still_adopts(self):
-        host = _AdoptHost(["matA"], current="matZ", items=["matA", "matZ"])
-        self.assertEqual(host._adopt_selection_mat(), "matA")
-        self.assertEqual(host.messages, [])
-
-    def test_message_says_what_the_caller_does_next(self):
-        """get_first carries on with the current material — every failure reason
-        has to say so, or the message misdescribes the outcome."""
-        host = self._host()
-        host._adopt_selection_mat(" Proceeding with current material.")
-        self.assertTrue(host.messages[0].endswith(" Proceeding with current material."))
-
-
-class TestAdoptWithNoFilterEnabled(unittest.TestCase):
-    """A material the list simply doesn't carry is NOT a filtered material.
-
-    ``cmds.ls(materials=True)`` reports ``defaultShaderList1`` only, so a shader
-    built with ``createNode`` (or wired up by an importer) is assigned to the
-    geometry yet absent from the combo. Blaming the list filters sent the user to
-    an option box whose boxes were already unchecked; with no filter enabled the
-    found material is added to the combo and adopted instead, because every
-    consumer of cmb002 works on the name and the node is real.
-    """
-
-    def _host(self):  # 'matA' is missing from the list, and NO filter is on
-        return _AdoptHost(["matA"], current="matZ", items=["matB", "matZ"])
-
-    def test_missing_material_is_adopted_anyway(self):
-        self.assertEqual(self._host()._adopt_selection_mat(), "matA")
-
-    def test_it_is_added_to_the_combo(self):
-        host = self._host()
-        host._adopt_selection_mat()
-        self.assertEqual(host.ui.cmb002.added, [("matA", "matA")])
-        self.assertEqual(host.ui.cmb002.current, "matA")
-
-    def test_no_failure_is_reported(self):
-        host = self._host()
-        host._adopt_selection_mat()
-        self.assertEqual(host.messages, [])
-
-    def test_the_added_row_drops_any_dag_path(self):
-        """The combo lists leaf names — the data keeps the full name."""
-        host = _AdoptHost(["|grp|matA"], current="matZ", items=["matZ"])
-        host._adopt_selection_mat()
-        self.assertEqual(host.ui.cmb002.added, [("matA", "|grp|matA")])
-
-    def test_default_hook_reports_no_filters(self):
-        """Blender's combo has none, so the mixin default must be empty."""
-        self.assertEqual(tuple(MaterialsMixin._list_filter_names(object())), ())
-
-    def test_a_combo_that_cannot_take_it_reports_without_blaming_a_filter(self):
-        """Belt-and-braces: if the adopt-anyway doesn't land, say so plainly
-        rather than sending the user to an option box with nothing enabled."""
-        host = _AdoptHost(["matA"], current="matZ", items=["matB", "matZ"])
-        host.ui.cmb002.addItem = lambda *_: None  # list refuses the entry
-        self.assertIsNone(host._adopt_selection_mat())
-        self.assertIn("matA", host.messages[0])
-        self.assertNotIn("filter", host.messages[0].lower())
 
 
 class _AstMixin:
@@ -382,51 +238,20 @@ class _AstMixin:
         }
 
 
-class TestMayaReportsItsRealFilterLabels(_AstMixin, unittest.TestCase):
-    """The reported filter name must be the text on the checkbox, not a copy.
+class TestMayaListFiltersAreDeclaredOnce(_AstMixin, unittest.TestCase):
+    """The list filters live in txt000's option box, each declared once and read
+    off the widget (a hand-kept copy of a label is free to drift from it)."""
 
-    The failure this guards is the one that produced the bug report: a message
-    naming filters that weren't on. Naming them from a hand-kept table is the
-    same class of mistake one step removed — the label is free to drift from
-    what the option box actually says.
-    """
-
-    def _source(self, name):
-        return ast.unparse(self._method(self._classdef(MAYA_FILE), name))
-
-    def test_labels_are_read_off_the_widget(self):
-        src = self._source("_list_filter_names")
-        self.assertIn(".text()", src, "the label must come from the checkbox itself")
-        self.assertIn("isChecked", src, "only an ENABLED filter may be reported")
-
-    def test_no_hardcoded_label_copy(self):
-        """The literal text lives in cmb002_init's setText and nowhere else."""
+    def test_each_filter_is_declared_once(self):
         source = MAYA_FILE.read_text(encoding="utf-8")
         for label in ("Hide Default Materials", "Hide Arnold Shaders"):
             with self.subTest(label=label):
-                self.assertEqual(
-                    source.count(f'setText="{label}"'),
-                    1,
-                    f"'{label}' must be declared once, on the checkbox.",
-                )
+                self.assertEqual(source.count(f'"{label}"'), 1)
 
-    def test_every_filter_checkbox_is_registered(self):
-        """A filter missing from _LIST_FILTERS can hide a material unreported."""
-        cls = self._classdef(MAYA_FILE)
-        init_src = ast.unparse(self._method(cls, "cmb002_init"))
-        declared = {
-            e.value
-            for b in cls.body
-            if isinstance(b, ast.Assign)
-            and any(getattr(t, "id", "") == "_LIST_FILTERS" for t in b.targets)
-            for e in b.value.elts
-        }
-        built = {
-            n
-            for n in ("chk_hide_defaults", "chk_hide_arnold")
-            if f"setObjectName='{n}'" in init_src
-        }
-        self.assertEqual(declared, built)
+    def test_the_rows_read_both_filters(self):
+        src = ast.unparse(self._method(self._classdef(MAYA_FILE), "_material_rows"))
+        for name in ("chk_hide_defaults", "chk_hide_arnold"):
+            self.assertIn(name, src)
 
 
 class TestBothDccsImplementThePrimitive(_AstMixin, unittest.TestCase):
@@ -464,41 +289,8 @@ class TestBothDccsImplementThePrimitive(_AstMixin, unittest.TestCase):
                 )
 
 
-class TestTb000DelegatesInsteadOfDuplicating(_AstMixin, unittest.TestCase):
-    """tb000 stays a thin option-box reader over the shared primitive."""
-
-    def test_tb000_calls_the_primitive(self):
-        for path in DCC_FILES:
-            with self.subTest(path=path.name):
-                tb000 = self._method(self._classdef(path), "tb000")
-                self.assertIsNotNone(tb000, f"tb000 not found in {path.name}")
-                self.assertIn(
-                    PRIMITIVE,
-                    self._self_calls(tb000),
-                    f"{path.name} tb000 must delegate to self.{PRIMITIVE}.",
-                )
-
-    def test_tb000_holds_no_search_body(self):
-        """The search must live in one place — a second copy is how the two entry
-        points drift apart."""
-        for path in DCC_FILES:
-            with self.subTest(path=path.name):
-                tb000 = self._method(self._classdef(path), "tb000")
-                names = {
-                    n.func.attr
-                    for n in ast.walk(tb000)
-                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-                }
-                self.assertNotIn(
-                    "find_by_mat_id",
-                    names,
-                    f"{path.name} tb000 must not re-implement the search — "
-                    f"that body belongs to {PRIMITIVE}.",
-                )
-
-
 class TestUnassignedModeIsWiredInBothDccs(_AstMixin, unittest.TestCase):
-    """The no-material search runs through the engines, never through cmb002."""
+    """The no-material search runs through the engines, never the current material."""
 
     def test_primitive_uses_the_engine_finder(self):
         for path in DCC_FILES:
@@ -516,19 +308,12 @@ class TestUnassignedModeIsWiredInBothDccs(_AstMixin, unittest.TestCase):
                     "the engine (mtk/btk find_unassigned), not re-implement it.",
                 )
 
-    def test_option_box_exposes_it(self):
-        """tb000 is the configurable form — the mode must be reachable there too."""
-        for path in DCC_FILES:
-            with self.subTest(path=path.name):
-                cls = self._classdef(path)
-                init_src = ast.unparse(self._method(cls, "tb000_init"))
-                self.assertIn("chk009", init_src, f"{path.name} tb000_init lacks chk009.")
-                tb000_src = ast.unparse(self._method(cls, "tb000"))
-                self.assertIn(
-                    "unassigned=",
-                    tb000_src,
-                    f"{path.name} tb000 must pass the option-box value through.",
-                )
+    def test_the_header_offers_it(self):
+        """Objects Without Material (b033, the header menu) is the panel's form."""
+        host = _Host()
+        host.b033()
+        self.assertEqual(len(host.calls), 1)
+        self.assertTrue(host.calls[0]["unassigned"])
 
 
 class TestB003IsDefinedOnlyOnce(_AstMixin, unittest.TestCase):
@@ -553,7 +338,7 @@ class TestAdoptPathIsSharedNotForked(_AstMixin, unittest.TestCase):
         self.assertTrue(callable(getattr(MaterialsMixin, "_adopt_selection_mat", None)))
         self.assertEqual(
             set(MaterialsMixin._GET_MAT_FAILURES),
-            {"empty", "none", "multiple", "filtered", "unlisted"},
+            {"empty", "none", "multiple"},
         )
 
     def test_each_dcc_supplies_the_lookup_hook(self):
@@ -579,18 +364,15 @@ class TestAdoptPathIsSharedNotForked(_AstMixin, unittest.TestCase):
                     }
                     self.assertNotIn(name, assigned, f"{path.name} redefines {name}.")
 
-    def test_b002_and_get_first_both_route_through_it(self):
-        """The two entry points differ only in their failure message."""
+    def test_get_first_routes_through_it(self):
         for path in DCC_FILES:
             with self.subTest(path=path.name):
-                cls = self._classdef(path)
-                for method_name in ("b002", PRIMITIVE):
-                    method = self._method(cls, method_name)
-                    self.assertIn(
-                        "_adopt_selection_mat",
-                        self._self_calls(method),
-                        f"{path.name} {method_name} must use the shared adopt path.",
-                    )
+                method = self._method(self._classdef(path), PRIMITIVE)
+                self.assertIn(
+                    "_adopt_selection_mat",
+                    self._self_calls(method),
+                    f"{path.name} {PRIMITIVE} must use the shared adopt path.",
+                )
 
 
 class TestSubmenuCarriesTheButton(unittest.TestCase):

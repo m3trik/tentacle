@@ -760,6 +760,84 @@ try:
     check("display b013/b014 open the exploded-view / color-id panels",
           shown == ["exploded_view", "color_id"], f"{shown}")
 
+    # ---- materials b014: Remove Duplicate Materials merges, and says how many ----------------
+    # (a baked pair needs no lightmap step: blendertk's LightmapBaker groups a duplicate's
+    # atlas with the one it duplicates -- covered by blendertk/test/test_lightmap_baker.py)
+    import blendertk as btk
+    from tentacle.slots.blender.materials import MaterialsSlots
+
+    reset()
+    told = []
+    dup_img = bpy.data.images.new("DupCheck_BaseColor", 4, 4)
+    dup_img.filepath_raw = "//DupCheck_BaseColor.png"
+    for i, name in enumerate(("DupChkA", "DupChkB")):
+        dup_mat = btk.create_mat("standard", name=f"{name}_mat")
+        dup_mat.node_tree.nodes.new("ShaderNodeTexImage").image = dup_img
+        btk.assign_mat(add_cube(name, (3 * i, 0, 0)), dup_mat)
+    slot = make_slot(
+        MaterialsSlots, sb=NS(message_box=told.append), _refresh_material_lists=lambda: None
+    )
+    slot.b014()
+    left = {bpy.data.objects[n].material_slots[0].material.name for n in ("DupChkA", "DupChkB")}
+    check("materials b014 merges the duplicate and says how many, naming no lightmaps",
+          len(left) == 1 and bool(told) and "<hl>1</hl>" in told[-1]
+          and "lightmap" not in told[-1].lower(), f"{left} {told}")
+
+    # ---- materials table hooks: rows, details (each issue), merge, delete, rename ------------
+    # Mirror of tentacle/test/test_materials.py TestMaterialTableHooks (Maya).
+    import pythontk as ptk
+
+    reset()
+    with ptk.TempArtifacts("tbl_mats", policy="scoped") as store:
+        crate = bpy.data.images.new("TblCrate_BaseColor", 4, 4)
+        crate.filepath_raw = os.path.join(store.dir_path(), "TblCrate_BaseColor.png")
+        crate.file_format = "PNG"
+        crate.save()
+        wood = bpy.data.images.new("TblWood_BaseColor", 4, 4)
+        wood.source = "FILE"
+        wood.filepath = os.path.join(store.dir_path(), "gone", "TblWood_BaseColor.png")
+        for i, (name, img) in enumerate((("TblCrateA", crate), ("TblCrateB", crate), ("TblWood", wood))):
+            mat = btk.create_mat("standard", name=name)
+            mat.node_tree.nodes.new("ShaderNodeTexImage").image = img
+            btk.assign_mat(add_cube(f"{name}_geo", (3 * i, 0, 0)), mat)
+        btk.create_mat("standard", name="TblOld")
+        btk.create_mat("standard", name="TblKept").use_fake_user = True
+        # Used only by a Geometry Nodes Set Material: no object slot carries it, yet
+        # it is in use (deleting it from the Status column broke the node tree).
+        gn_tree = bpy.data.node_groups.new("TblSetMaterial", "GeometryNodeTree")
+        gn_tree.nodes.new("GeometryNodeSetMaterial").inputs["Material"].default_value = (
+            btk.create_mat("standard", name="TblGeoNodes")
+        )
+        add_cube("TblGeoNodes_geo", (12, 0, 0)).modifiers.new("GN", "NODES").node_group = gn_tree
+        slot = make_slot(MaterialsSlots, ui=NS())
+        names = ["TblCrateA", "TblCrateB", "TblWood", "TblOld", "TblKept", "TblGeoNodes"]
+        rows = {row["name"] for row in slot._material_rows()}
+        details = slot._material_details(names)
+        kinds = {n: (details[n]["issue"] or ("",))[0] for n in names}
+        check("materials table: each material is a row, and the details flag what needs attention "
+              "(a material only Geometry Nodes uses is in use)",
+              set(names) <= rows
+              and {k: v for k, v in kinds.items() if v}
+              == {"TblCrateB": "duplicate", "TblWood": "missing", "TblOld": "unused"}
+              and details["TblCrateB"]["issue"][2] == "TblCrateA"
+              and (details["TblCrateA"]["users"], details["TblCrateA"]["textures"]) == (1, 1)
+              and details["TblCrateA"]["type"] == "Principled BSDF",
+              f"{kinds} {details.get('TblCrateA')}")
+        for obj in bpy.data.objects:
+            obj.select_set(obj.name == "TblCrateA_geo")
+        selected = slot._selected_mat_names()
+        merged = slot._merge_duplicates({"TblCrateB": "TblCrateA"})
+        slot._delete_materials(["TblOld"])
+        slot._current = "TblWood"
+        renamed = slot._rename_current("TblTimber")
+        check("materials table: selection's materials, merge, delete and rename",
+              selected == ["TblCrateA"] and merged == 1
+              and "TblCrateB" not in bpy.data.materials
+              and bpy.data.objects["TblCrateB_geo"].material_slots[0].material.name == "TblCrateA"
+              and "TblOld" not in bpy.data.materials
+              and renamed == "TblTimber" and slot._current_mat() == "TblTimber",
+              f"{selected} {merged} {renamed}")
+
     # ---- display Template Selected (WIRE + non-render + non-select; re-click releases) --------
     reset()
     a = add_cube("TA")

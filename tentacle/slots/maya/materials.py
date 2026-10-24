@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
@@ -129,28 +131,16 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
     def list000_init(self, widget):
         """Assign list: scene materials + 'New' + 'Random'.
 
-        Re-populated on every show so the list reflects the current scene
-        contents and the current cmb002 selection. Releasing on the root
-        assigns the current material; the row's wording is surface-dependent
-        (see the mixin's ``_assign_root_text``).
-
-        This *is* the panel's assign surface — it replaced the Assign /
-        Assign Random / New buttons, each of which reached one action where
-        the list reaches all of them plus every material in the scene (and
-        reports the result, which the bare Assign button did not).
+        The submenu's: re-populated on every show so it reflects the scene's
+        materials and the current one (the panel's is the material table).
+        Releasing on the root assigns the current material
+        (:meth:`_assign_root_text` names it).
         """
         if not getattr(widget, "_assign_list_configured", False):
             widget.refresh_on_show = True
             widget.fixed_item_height = 18
-            widget.apply_preset(
-                "expand_right" if widget.ui.has_tags("submenu") else "hover_menu"
-            )
+            widget.apply_preset("expand_right")
             widget._assign_list_configured = True
-            # Ensure cmb002 is populated — the submenu's root row reads
-            # currentData() off it (see the mixin's _assign_root_text).
-            if not getattr(self.ui.cmb002, "is_initialized", False):
-                self.ui.cmb002.init_slot()
-                self.ui.cmb002.is_initialized = True
 
         widget.clear()
 
@@ -171,24 +161,24 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
     def list000(self, item):
         """Dispatch Assign list selection.
 
-        - Releasing on the root assigns the current cmb002 material.
-        - 'New' / 'Random' route to b006 / b004.
+        - Releasing on the root assigns the current material.
+        - 'New' / 'Random' route to b006 / b004 (Alt on 'New' is random too).
         - Any other leaf is treated as a material name and assigned directly.
         Result is reported via sb.message_box in every branch.
         """
         text = item.item_text()
         parent = item.parent_item_text()
 
-        # Root release: assign the current cmb002 material.
+        # Root release: assign the current material.
         if parent is None:
-            current = self.ui.cmb002.currentData()
+            current = self._current_mat()
             if not current:
                 self.sb.message_box(
                     "<hl>No current material</hl><br>"
                     "Pick a material in the main UI first."
                 )
                 return
-            self._assign_material_with_feedback(str(current))
+            self._assign_named(current)
             return
 
         if text == "New":
@@ -199,17 +189,11 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             return
 
         # Otherwise treat as a material name — assign directly.
-        self._assign_material_with_feedback(text)
+        self._assign_named(text)
 
-    def _assign_material_with_feedback(self, mat_name):
-        """Assign ``mat_name`` to the current selection and report the result.
-
-        Side effects:
-            - Sets cmb002's current material to ``mat_name`` (which fires
-              the connected ``_refresh_assign_lists`` so both Assign lists'
-              root labels update).
-            - Emits an sb.message_box describing success or the failure reason.
-        """
+    def _assign_named(self, mat_name):
+        """Assign ``mat_name`` to the current selection, make it current, and
+        report the result (the MaterialsMixin hook behind every assign)."""
         selection = cmds.ls(sl=True, flatten=True) or []
         if not selection:
             self.sb.message_box(
@@ -224,9 +208,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
                 f"<hl>Assign failed</hl><br>{mat_name}: {e}"
             )
             return
-        # Push the assigned material into cmb002 — this propagates to the
-        # submenu Assign list's root label via the cmb002 signal connections.
-        self.ui.cmb002.setAsCurrent(mat_name)
+        self._set_current(mat_name)
         self.sb.message_box(
             f"Assigned <hl>{mat_name}</hl> to "
             f"<hl>{len(selection)}</hl> object(s)."
@@ -254,163 +236,135 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """Dispatch Tools list selection to the matching slot method."""
         self._dispatch_tools_row(item)
 
-    def cmb002_init(self, widget):
-        """Initialize Materials"""
-        if not widget.is_initialized:
-            widget.refresh_on_show = True  # Call this method on show
-            # Renaming IS the double-click: the two menu entries this replaced
-            # (free-form Rename + its affix box, and Rename-strip-trailing) are
-            # gone. Batch name surgery lives in the Texture Path Editor now.
-            #
-            # Deliberately NOT editable at init: an editable combo swallows the
-            # body click that opens the popup (probed), so the panel used to
-            # open with a material list you could not drop down until the combo
-            # had lost focus once — tolerable when a menu command was what
-            # re-enabled editing, wrong now that the combo itself is the
-            # picker. begin_rename() turns editing on for the rename only.
-            widget.rename_on_double_click = True
-            # Option box (a separate dropdown from the right-click context
-            # menu built below): list-population options for the materials combo.
-            widget.option_box.menu.setTitle("Material List Options")
-            chk_hide_defaults = widget.option_box.menu.add(
-                "QCheckBox",
-                setText="Hide Default Materials",
-                setObjectName="chk_hide_defaults",
-                setChecked=False,
-                setToolTip=(
-                    "Hide Maya's built-in default materials (lambert1, "
-                    "standardSurface1, particleCloud1, …) from the list.\n"
-                    "Off by default; user-created materials are always shown."
-                ),
-            )
-            chk_hide_arnold = widget.option_box.menu.add(
-                "QCheckBox",
-                setText="Hide Arnold Shaders",
-                setObjectName="chk_hide_arnold",
-                setChecked=False,
-                setToolTip=(
-                    "Hide Arnold shaders (aiStandardSurface, aiToon, …) from the "
-                    "list — useful when every game material carries a parallel "
-                    "Arnold preview shader (see Tools > Arnold Preview Shader).\n"
-                    "Off by default. Arnold *utility* nodes (aiMultiply, bump2d, …) "
-                    "are never listed: they're shading-network helpers, not materials."
-                ),
-            )
-            # Re-populate the combo when toggled. The submenu Assign list's
-            # contents don't depend on these toggles, so it needs no refresh.
-            chk_hide_defaults.toggled.connect(widget.init_slot)
-            chk_hide_arnold.toggled.connect(widget.init_slot)
-            # Cleanup actions (moved here from the right-click context menu).
-            widget.option_box.menu.add("Separator", setTitle="Cleanup")
-            widget.option_box.menu.add(
-                "QPushButton",
-                setText="Remove Duplicate Materials",
-                setObjectName="b014",
-                setToolTip="Find duplicate materials, remove duplicates, and reassign them to the original material.",
-            )
-            widget.option_box.menu.add(
-                "QPushButton",
-                setText="Delete All Unused Materials",
-                setObjectName="b015",
-                setToolTip="Delete all unused materials.",
-            )
-            # Every Edit / View entry is a one-shot action — dismiss the
-            # context menu once one is triggered.
-            widget.menu.hide_on_trigger = True
-            widget.menu.add("Separator", setTitle="Edit")
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Delete",
-                setObjectName="lbl002",
-                setToolTip="Delete the current material.",
-            )
-            # Section: View / Select
-            widget.menu.add("Separator", setTitle="View / Select")
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Select Node",
-                setObjectName="lbl004",
-                setToolTip="Select the material node and show its attributes in the attribute editor.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label,
-                setText="Open in Editor",
-                setObjectName="lbl006",
-                setToolTip="Open the material in the hypershade editor.",
-            )
-            # Rename the material after editing has finished.
-            widget.on_editing_finished.connect(self._rename_current)
-            # Initialize the widget every time before the popup is shown.
-            widget.before_popup_shown.connect(widget.init_slot)
-            # Refresh BOTH Assign lists (panel + submenu) when the current
-            # material changes — their root row mirrors it (see the mixin).
-            widget.on_editing_finished.connect(self._refresh_assign_lists)
-            widget.currentIndexChanged.connect(self._refresh_assign_lists)
+    # --- Material table (MaterialsMixin hooks) ---------------------------
 
-        # Use 'restore_index=True' to save and restore the index. Default
-        # materials are shown unless the option-box toggle hides them.
-        # (Shading-network utility nodes — aiMultiply, bump2d, … — are dropped
-        # by get_scene_mats itself; they were never materials.)
-        materials_dict = mtk.MatUtils.get_scene_mats(
-            sort=True,
-            as_dict=True,
-            exclude_defaults=self._list_option("chk_hide_defaults"),
-            exc_classification=(
-                "rendernode/arnold*"
-                if self._list_option("chk_hide_arnold")
-                else None
+    def _list_filters(self):
+        """The list filters in the filter field's option box (MaterialsMixin hook)."""
+        return (
+            (
+                "chk_hide_defaults",
+                "Hide Default Materials",
+                "Hide Maya's built-in default materials (lambert1, "
+                "standardSurface1, particleCloud1, …) from the list.",
+            ),
+            (
+                "chk_hide_arnold",
+                "Hide Arnold Shaders",
+                "Hide Arnold shaders (aiStandardSurface, aiToon, …) from the "
+                "list — useful when every game material carries a parallel "
+                "Arnold preview shader (Tools > Arnold Preview Shader).",
             ),
         )
-        widget.add(materials_dict, clear=True, restore_index=True)
 
-        # Create and set icons with color swatch
-        for i, mat in enumerate(widget.items):
-            icon = mtk.MatUtils.get_mat_swatch_icon(mat)
-            if icon:
-                widget.setItemIcon(i, icon)
-
-    #: objectNames of the cmb002 option-box list-filter checkboxes. The label
-    #: shown when one is reported comes off the widget itself — a second copy
-    #: here would be free to drift from the text the user actually sees.
-    _LIST_FILTERS = ("chk_hide_defaults", "chk_hide_arnold")
-
-    def _list_filter(self, name: str):
-        """The named cmb002 option-box filter checkbox, or None if not built yet."""
-        option_box = self.ui.cmb002.option_box
-        menu = option_box.get_menu(create=False) if option_box else None
-        return getattr(menu, name, None) if menu else None
-
-    def _list_option(self, name: str) -> bool:
-        """Whether the named cmb002 option-box list-filter checkbox is checked.
-
-        Returns False when the option box / checkbox hasn't been created yet, so
-        a population pass that runs before init is safe (each filter's "off"
-        state is the unfiltered one).
-        """
-        chk = self._list_filter(name)
-        return bool(chk and chk.isChecked())
-
-    def _list_filter_names(self):
-        """Labels of the cmb002 list filters currently enabled (see MaterialsMixin)."""
+    def _material_rows(self):
+        """The scene's materials, the list filters applied. Shading-network
+        utility nodes (aiMultiply, bump2d, …) are never listed: get_scene_mats
+        drops them."""
+        materials = mtk.MatUtils.get_scene_mats(
+            sort=True,
+            exclude_defaults=self._list_option("chk_hide_defaults"),
+            exc_classification=(
+                "rendernode/arnold*" if self._list_option("chk_hide_arnold") else None
+            ),
+        )
         return [
-            chk.text()
-            for chk in map(self._list_filter, self._LIST_FILTERS)
-            if chk is not None and chk.isChecked()
+            {"name": str(mat), "label": str(mat).rsplit("|", 1)[-1]}
+            for mat in materials or []
         ]
 
-    def _rename_current(self, text):
-        """Rename the current material to ``text`` (combo edit-finished).
+    def _material_icon(self, name):
+        return mtk.MatUtils.get_mat_swatch_icon(name)
 
-        Re-populates cmb002 afterward so the item text AND data reflect the
-        actual result — Maya may adjust the requested name (invalid characters,
-        collisions) — then restores the selection on the renamed material.
+    def _script_job_manager(self):
+        return mtk.ScriptJobManager
+
+    def _material_facts(self, names):
+        """Type, users (objects), textures (file nodes) and the facts the
+        Status column judges (MaterialsMixin hook): the texture files whose
+        path does not resolve the way Maya will, the material it duplicates,
+        and whether nothing uses it.
+
+        Unused is the engine's rule (``MatUtils.is_mat_assigned``): no member
+        in any shading engine DOWNSTREAM of it -- its own, or one it feeds
+        through a layeredShader / aiMixShader -- as Maya's Delete Unused reads
+        it: a lambert inside an assigned layered network is in use, and
+        deleting it would break the network. The Users column counts those
+        members. A default material never counts as unused.
+        """
+        defaults = set(cmds.ls(defaultNodes=True) or [])
+        live = [name for name in names if cmds.objExists(name)]
+        duplicate_of = self._duplicate_pairs(live) if len(live) > 1 else {}
+        out = {}
+        for name in live:
+            users = {
+                member.split(".", 1)[0]
+                for sg in set(self._history_nodes(name, "shadingEngine", future=True))
+                for member in cmds.sets(sg, query=True) or []
+            }
+            files = self._history_nodes(name, "file", pruneDagObjects=True)
+            missing = [
+                os.path.basename(path)
+                for path in (cmds.getAttr(f"{node}.fileTextureName") for node in files)
+                if path and not mtk.MatUtils.resolve_path(path, search=False)
+            ]
+            out[name] = {
+                "type": cmds.nodeType(name),
+                "users": len(users),
+                "textures": len(files),
+                "missing": missing,
+                "duplicate_of": duplicate_of.get(name),
+                "unused": name not in defaults
+                and not mtk.MatUtils.is_mat_assigned(name),
+            }
+        return out
+
+    @staticmethod
+    def _history_nodes(node, node_type, **flags):
+        """The *node_type* nodes in *node*'s history (``listHistory`` *flags*);
+        none for an empty history."""
+        history = cmds.listHistory(node, **flags) or []
+        return (cmds.ls(history, type=node_type) or []) if history else []
+
+    def _duplicate_pairs(self, names=None):
+        """``{duplicate: original}`` over *names* (None: every scene material),
+        verified (MaterialsMixin hook)."""
+        found = mtk.MatUtils.find_materials_with_duplicate_textures(materials=names)
+        return {str(dup): str(kept) for kept, dups in found.items() for dup in dups}
+
+    def _selected_mat_names(self):
+        """The materials on the whole selection (the table's bold mark)."""
+        selection = cmds.ls(sl=True) or []
+        return [str(m) for m in mtk.MatUtils.get_mats(selection)] if selection else []
+
+    def _delete_materials(self, names):
+        """Delete the named materials, one Undo."""
+        existing = [name for name in names if cmds.objExists(name)]
+        if existing:
+            cmds.delete(existing)
+
+    def _merge_duplicates(self, pairs):
+        """Merge each ``{duplicate: kept}`` pair (the verified merge, one Undo);
+        returns how many duplicates went -- counted after, as the merge skips
+        an original with no shading engine and only warns on a failed pair.
+
+        The merge takes the MATERIALS to scan, every one in the pairs: handed
+        only the kept ones, it found nothing duplicated and merged nothing."""
+        mtk.MatUtils.reassign_duplicate_materials(
+            materials=sorted(set(pairs) | set(pairs.values())), delete=True
+        )
+        return sum(1 for dup in pairs if not cmds.objExists(dup))
+
+    def _rename_current(self, text):
+        """Rename the current material to ``text`` (a name edited in the table).
+
+        Refills the table afterward so each row reflects the actual result —
+        Maya may adjust the requested name (invalid characters, collisions).
 
         Returns the resulting (possibly Maya-adjusted) name on success, or None
         when nothing was renamed (no material, empty/unchanged name, or a
-        failed ``cmds.rename``). Callers that aren't the ``on_editing_finished``
-        signal (e.g. the affix field) use this to react to the outcome.
+        failed ``cmds.rename``).
         """
-        mat = self.ui.cmb002.currentData()
+        mat = self._current_mat()
         if not (mat and text):
             return None
         old_name = str(mat)
@@ -420,69 +374,13 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             new_name = cmds.rename(old_name, text)
         except Exception as e:
             self.sb.message_box(f"<hl>Rename failed</hl><br>{old_name}: {e}")
-            # The combo item already carries the typed name (the edit-commit
-            # happens widget-side, before this handler runs) — re-sync it
-            # with the scene so a failed rename isn't displayed as done.
+            # The cell already carries the typed name: re-sync it with the
+            # scene so a failed rename isn't displayed as done.
             self._refresh_material_lists()
             return None
+        self._current = new_name
         self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(new_name)
         return new_name
-
-    def tb000_init(self, widget):
-        """ """
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Shell",
-            setObjectName="chk005",
-            setToolTip="Select object(s) containing the material.",
-        )
-        # Search scope is a choice between two named sets, not a modifier.
-        scope = widget.option_box.menu.add(
-            "QComboBox",
-            setObjectName="cmb_search_scope",
-            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection (falls back to all objects if nothing is selected).",
-        )
-        scope.addItems(["All Objects", "Selection Only"])
-        scope.setCurrentText("All Objects")  # preserve prior default (checkbox off)
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Get and Select",
-            setObjectName="chk007",
-            setChecked=False,
-            setToolTip="When checked, first get the material from the current viewport selection and set it as the current material, then perform the selection.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="Add to Selection",
-            setObjectName="chk008",
-            setChecked=False,
-            setToolTip="When checked, add matches to the existing selection instead of replacing it.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox",
-            setText="No Material",
-            setObjectName="chk009",
-            setChecked=False,
-            setToolTip=(
-                "Select the objects carrying NO material instead of the current one "
-                "— geometry still on Maya's default shader, plus any shape bound to "
-                "no shading engine at all.\n"
-                "Object-level, so Shell and Get and Select don't apply; scope and "
-                "Add to Selection still do."
-            ),
-        )
-
-    def tb000(self, widget):
-        """Select By Material — the option box supplies the parameters."""
-        menu = widget.option_box.menu
-        return self.select_by_mat(
-            shell=menu.chk005.isChecked(),
-            in_selection=menu.cmb_search_scope.currentText() == "Selection Only",
-            get_first=menu.chk007.isChecked(),
-            add=menu.chk008.isChecked(),
-            unassigned=menu.chk009.isChecked(),
-        )
 
     def select_by_mat(
         self,
@@ -495,7 +393,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         """Select the geometry carrying the current material.
 
         The parameterized primitive behind every select-by-material entry point
-        (``tb000``'s option box, the submenu's one-shot ``b003``, marking menus).
+        (the table's Select icon and row menu, the submenu's one-shot ``b003``).
         Takes plain values so callers don't have to reach into — or temporarily
         mutate — another widget's option-box state.
 
@@ -505,14 +403,12 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             in_selection (bool): Search within the current selection only
                 (falls back to the whole scene when nothing is selected).
             get_first (bool): Adopt the material of the current selection as the
-                current material (cmb002) before searching. Ignored when
-                ``unassigned`` — that search doesn't read cmb002.
+                current material before searching. Ignored when ``unassigned``.
             add (bool): Add the matches to the existing selection instead of
                 replacing it.
             unassigned (bool): Select the objects carrying NO material instead
                 (default-shaded or orphaned — see ``mtk.MatUtils.find_unassigned``).
-                cmb002 is bypassed entirely: "no material" is not a material, so it
-                never becomes the current one.
+                "No material" is not a material, so it never becomes the current one.
 
         Returns:
             list: The components/objects selected (empty when nothing matched or
@@ -535,7 +431,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
                 "<hl>No matches</hl><br>No objects without a material were found."
             )
         else:
-            mat = self.ui.cmb002.currentData()
+            mat = self._current_mat()
             if not mat:
                 return []
             matches = mtk.MatUtils.find_by_mat_id(mat, selection, shell=shell)
@@ -555,14 +451,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             cmds.select(matches)
         return list(matches)
 
-    def lbl002(self):
-        """Delete Material"""
-        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
-        if not mat:
-            return
-        cmds.delete(str(mat))
-        self._refresh_material_lists()
-
     def b015(self, widget):
         """Delete Unused Materials"""
         mel.eval('hyperShadePanelMenuCommand "hyperShadePanel1" "deleteUnusedNodes"')
@@ -570,7 +458,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
     def lbl004(self):
         """Select and Show Attributes: Show Material Attributes in the Attribute Editor."""
-        mat = self.ui.cmb002.currentData()  # get the mat obj from cmb002
+        mat = self._current_mat()
         if not mat:
             return
         cmds.select(str(mat), replace=True)
@@ -578,12 +466,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
 
     def lbl006(self):
         """Open material in editor"""
-        try:
-            mat = self.ui.cmb002.currentData()
-        except Exception:
-            self.sb.message_box("No stored material or no valid object selected.")
-            return
-
+        mat = self._current_mat()
         if not mat:
             self.sb.message_box("No stored material or no valid object selected.")
             return
@@ -600,10 +483,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         if not selection:
             return None
         return [str(m) for m in mtk.MatUtils.get_mats(selection[0])]
-
-    def b002(self, widget):
-        """Get Material: Change the index to match the current material selection."""
-        self._adopt_selection_mat()
 
     def b004(self, widget):
         """Assign Random"""
@@ -638,14 +517,14 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         self.last_random_material = new_mat
 
         # Refresh the UI
+        self._current = str(new_mat)
         self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(str(new_mat))
 
         # Reselect the original selection so that this method can be called again if needed.
         cmds.select(selection)
 
-    def b006(self, widget):
-        """Assign: New Material"""
+    def _new_mat(self):
+        """Assign: New Material (Maya's own Assign New Material window)."""
         renderable_objects = cmds.ls(sl=True, type="mesh", dag=True, geometry=True) or []
         if not renderable_objects:
             self.sb.message_box("No renderable object is selected for assignment.")
@@ -688,13 +567,6 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         mtk.DisplayUtils.reset_viewport()
         confirmation_message = "<html><body><p style='font-size:16px; color:yellow;'>Textures Reloaded & Viewport Reset.</p></body></html>"
         self.sb.message_box(confirmation_message)
-
-    def b014(self):
-        """Remove and Reassign Duplicates"""
-        dups = mtk.MatUtils.find_materials_with_duplicate_textures()
-        if dups:
-            mtk.MatUtils.reassign_duplicate_materials(dups, delete=True)
-            self._refresh_material_lists()
 
     def b016(self):
         """Map Converter"""
@@ -773,7 +645,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
             setObjectName="cmb_scope",
             setToolTip=(
                 "Textures: every scene texture file.\n"
-                "Current Material: the material picked in cmb002.\n"
+                "Current Material: the material last highlighted in the list.\n"
                 "All Materials: every scene material.\n"
                 "Selected Objects: materials assigned to the current "
                 "viewport selection."
@@ -858,7 +730,7 @@ class MaterialsSlots(MaterialsMixin, SlotsMaya):
         # Pre-validate scope inputs.
         get_mat_info_kwargs = None
         if scope == "current":
-            mat = self.ui.cmb002.currentData()
+            mat = self._current_mat()
             if not mat:
                 self.sb.message_box(
                     "<hl>No current material</hl><br>Pick a material first."

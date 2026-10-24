@@ -1,5 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
+import os
+
 import bpy
 import blendertk as btk
 from tentacle import MaterialsMixin, SlotsBlender
@@ -121,77 +123,122 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         """Shader Editor — Blender's analogue of Maya's Hypershade."""
         btk.open_editor("Shader Editor")
 
-    # ------------------------------------------------------------------ cmb002  Material list
-    def cmb002_init(self, widget):
-        """Materials combo: scene materials with color swatches + option box (Cleanup) + a
-        right-click Edit/View menu (Delete / Select Node / Open in Editor; renaming is the
-        combo's own double-click)."""
-        if not widget.is_initialized:
-            widget.refresh_on_show = True
-            # Renaming IS the double-click (mirror of mayatk) — the two menu
-            # rename entries this replaced are gone. Not editable at init: an
-            # editable combo swallows the body click that opens the popup, so
-            # the list could not be dropped down until it had lost focus once.
-            widget.rename_on_double_click = True
+    # ------------------------------------------------------------------ material table hooks
+    def _material_rows(self):
+        """The file's materials (MaterialsMixin hook). Names, never datablocks:
+        a stored reference goes stale on undo (see _resolve_material)."""
+        return [{"name": mat.name, "label": mat.name} for mat in btk.get_scene_mats(sort=True)]
 
-            # Option box — Cleanup actions. (Maya's 'Hide Default Materials' toggle is omitted:
-            # Blender has no built-in default materials to hide.)
-            widget.option_box.menu.setTitle("Material List Options")
-            widget.option_box.menu.add("Separator", setTitle="Cleanup")
-            widget.option_box.menu.add(
-                "QPushButton", setText="Remove Duplicate Materials", setObjectName="b014",
-                setToolTip="Find materials sharing the same texture files, reassign their objects "
-                "to one canonical material, and delete the duplicates.",
-            )
-            widget.option_box.menu.add(
-                "QPushButton", setText="Delete All Unused Materials", setObjectName="b015",
-                setToolTip="Delete materials assigned to no object (fake-user materials are kept).",
-            )
+    def _material_icon(self, name):
+        mat = bpy.data.materials.get(name)
+        return btk.get_mat_swatch_icon(mat) if mat is not None else None
 
-            # Right-click context menu — Edit / View. Every entry is a
-            # one-shot action — dismiss the menu once one is triggered.
-            widget.menu.hide_on_trigger = True
-            widget.menu.add("Separator", setTitle="Edit")
-            widget.menu.add(
-                self.sb.registered_widgets.Label, setText="Delete", setObjectName="lbl002",
-                setToolTip="Delete the current material.",
-            )
-            widget.menu.add("Separator", setTitle="View / Select")
-            widget.menu.add(
-                self.sb.registered_widgets.Label, setText="Select Node", setObjectName="lbl004",
-                setToolTip="Select the object(s) using this material.",
-            )
-            widget.menu.add(
-                self.sb.registered_widgets.Label, setText="Open in Editor", setObjectName="lbl006",
-                setToolTip="Open this material in the Shader Editor.",
-            )
+    def _script_job_manager(self):
+        return btk.ScriptJobManager
 
-            widget.on_editing_finished.connect(self._rename_current)
-            widget.before_popup_shown.connect(widget.init_slot)
-            # Refresh BOTH Assign lists (panel + submenu) — their root row
-            # mirrors the current material (see the mixin).
-            widget.currentIndexChanged.connect(self._refresh_assign_lists)
-            widget.on_editing_finished.connect(self._refresh_assign_lists)
+    def _material_facts(self, names):
+        """Type (the surface shader node), users (objects), textures (image
+        nodes) and the facts the Status column judges (MaterialsMixin hook):
+        the image files that are not there, the material it duplicates, and
+        whether nothing uses it.
 
-        # Item data is the material NAME, not the Material datablock: a stored reference
-        # goes stale on undo (any later attribute access raises ReferenceError), so every
-        # consumer re-resolves the name against bpy.data at use time (_resolve_material).
-        materials = btk.get_scene_mats(sort=True)
-        widget.add({m.name: m.name for m in materials}, clear=True, restore_index=True)
-        for i, mat in enumerate(materials):
-            icon = btk.get_mat_swatch_icon(mat)
-            if icon:
-                widget.setItemIcon(i, icon)
+        Unused is the engine's rule (``btk.is_mat_assigned``), the datablock's
+        own count: no user at all once its fake user is set aside -- not an
+        object's slot, a mesh's, a Geometry Nodes Set Material, nor anything
+        else holding it -- and a fake-user material is kept on purpose, so
+        never unused. (The Users column counts the objects
+        whose slots carry it: what Select selects.) The panel itself holds no
+        user: its rows and current material are names, its swatch a color read.
+        """
+        users = {}
+        for obj in bpy.data.objects:
+            for slot in getattr(obj, "material_slots", ()):
+                if slot.material is not None:
+                    users.setdefault(slot.material.name, set()).add(obj.name)
+        mats = [m for m in (bpy.data.materials.get(n) for n in names) if m is not None]
+        duplicate_of = (
+            self._duplicate_pairs([m.name for m in mats]) if len(mats) > 1 else {}
+        )
+        out = {}
+        for mat in mats:
+            nodes = mat.node_tree.nodes if mat.node_tree else ()
+            images = [n.image for n in nodes if n.type == "TEX_IMAGE" and n.image]
+            out[mat.name] = {
+                "type": self._surface_type(nodes),
+                "users": len(users.get(mat.name, ())),
+                "textures": len(images),
+                "missing": [
+                    os.path.basename(img.filepath) or img.name
+                    for img in images
+                    if self._image_missing(img)
+                ],
+                "duplicate_of": duplicate_of.get(mat.name),
+                "unused": not mat.use_fake_user and not btk.is_mat_assigned(mat),
+            }
+        return out
 
-    def cmb002(self, index, widget):
-        """Current Material (selection only — assignment is on the b-buttons)."""
+    def _duplicate_pairs(self, names=None):
+        """``{duplicate: original}`` over *names* (None: every material in the
+        file), verified (MaterialsMixin hook)."""
+        mats = (
+            None
+            if names is None
+            else [m for m in (bpy.data.materials.get(n) for n in names) if m is not None]
+        )
+        groups = btk.find_materials_with_duplicate_textures(mats)
+        return {dup.name: group[0].name for group in groups for dup in group[1:]}
+
+    @staticmethod
+    def _image_missing(image):
+        """An image read from a file that is not there (packed, generated and
+        UDIM-tiled images never count)."""
+        if image.source not in ("FILE", "SEQUENCE") or image.packed_file:
+            return False
+        path = bpy.path.abspath(image.filepath, library=image.library)
+        return bool(image.filepath) and not os.path.exists(path)
+
+    @staticmethod
+    def _surface_type(nodes):
+        """The label of the shader node feeding the active Material Output."""
+        for node in nodes:
+            if node.type == "OUTPUT_MATERIAL" and node.is_active_output:
+                links = node.inputs["Surface"].links
+                return links[0].from_node.bl_label if links else ""
+        return ""
+
+    def _selected_mat_names(self):
+        """The materials on the whole selection (the table's bold mark)."""
+        return [m.name for m in btk.get_mats(self.selected_objects())]
+
+    @btk.undoable
+    def _delete_materials(self, names):
+        """Delete the named materials, one undo step."""
+        for name in names:
+            mat = bpy.data.materials.get(name)
+            if mat is not None:
+                bpy.data.materials.remove(mat)
+
+    @btk.undoable
+    def _merge_duplicates(self, pairs):
+        """Merge each ``{duplicate: kept}`` pair (the verified merge, one undo
+        step -- Remove Duplicate Materials' too); returns how many duplicates
+        went, counted after, as the merge skips a pair it cannot re-prove."""
+        groups = {}
+        for dup, kept in sorted(pairs.items()):
+            groups.setdefault(kept, [kept]).append(dup)
+        resolved = [
+            [bpy.data.materials[name] for name in group if name in bpy.data.materials]
+            for group in groups.values()
+        ]
+        btk.reassign_duplicate_materials([g for g in resolved if len(g) > 1], delete=True)
+        return sum(1 for dup in pairs if dup not in bpy.data.materials)
 
     def _resolve_material(self, name):
-        """The live material datablock for ``name``, or None. Falsy ``name`` (no combo
-        pick) returns None silently — callers surface their own no-selection wording.
+        """The live material datablock for ``name``, or None. Falsy ``name`` (no current
+        material) returns None silently — callers surface their own wording.
 
-        cmb002's item data and ``last_random_material`` hold material NAMES, not Material
-        references: an undo invalidates a stored ``bpy.types.Material`` wrapper and any
+        The table's rows, the current material and ``last_random_material`` hold
+        material NAMES, not Material references: an undo invalidates a stored ``bpy.types.Material`` wrapper and any
         later use raises ReferenceError. A name re-resolves against ``bpy.data`` at use
         time; one that no longer resolves means the datablock was undone, deleted, or
         renamed — message and refresh the list instead of crashing."""
@@ -207,73 +254,29 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         return mat
 
     def _rename_current(self, text):
-        """Rename the current material datablock to ``text`` (combo edit-finished).
+        """Rename the current material datablock to ``text`` (a name edited in
+        the table).
 
         Returns the resulting (possibly Blender-suffixed) name on success, or
         None when nothing was renamed (no material, empty/unchanged name, or an
-        unresolvable material). Callers that aren't the ``on_editing_finished``
-        signal (e.g. the affix field) use this to react to the outcome.
+        unresolvable material).
         """
-        name = self.ui.cmb002.currentData()
+        name = self._current_mat()
         if not (name and text):
             return None
         mat = self._resolve_material(name)
         if mat is None:
-            # The combo item already carries the typed name (the edit-commit
-            # happens widget-side, before this handler runs) — re-sync it
-            # with the scene so a failed rename isn't displayed as done.
+            # The cell already carries the typed name: re-sync it with the
+            # file so a failed rename isn't displayed as done.
             self._refresh_material_lists()
             return None
         mat.name = text
-        # Re-sync the item data (a NAME — now stale) with the actual result; Blender may
-        # have suffixed ``text`` (.001) on collision, so read the name back off the mat.
+        # Blender may have suffixed ``text`` (.001) on collision: read the name back.
+        self._current = mat.name
         self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(mat.name)
         return mat.name
 
-    # ------------------------------------------------------------------ tb000  Select By Material
-    def tb000_init(self, widget):
-        widget.option_box.menu.setTitle("Select By Material")
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Shell", setObjectName="chk005",
-            setToolTip="Select whole object(s) using the material (else select the faces).",
-        )
-        # Search scope is a choice between two named sets, not a modifier.
-        scope = widget.option_box.menu.add(
-            "QComboBox", setObjectName="cmb_search_scope",
-            setToolTip="All Objects: search the whole scene.\nSelection Only: search within the current selection (falls back to all objects if nothing is selected).",
-        )
-        scope.addItems(["All Objects", "Selection Only"])
-        scope.setCurrentText("All Objects")  # preserve prior default (checkbox off)
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Get and Select", setObjectName="chk007",
-            setToolTip="First set the current material from the active selection, then select.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="Add to Selection", setObjectName="chk008",
-            setToolTip="Add matches to the current selection instead of replacing it.",
-        )
-        widget.option_box.menu.add(
-            "QCheckBox", setText="No Material", setObjectName="chk009",
-            setToolTip=(
-                "Select the objects carrying NO material instead of the current one "
-                "(no material slots, or every slot empty).\n"
-                "Object-level, so Shell and Get and Select don't apply; scope and "
-                "Add to Selection still do."
-            ),
-        )
-
-    def tb000(self, widget):
-        """Select By Material — the option box supplies the parameters."""
-        m = widget.option_box.menu
-        return self.select_by_mat(
-            shell=m.chk005.isChecked(),
-            in_selection=m.cmb_search_scope.currentText() == "Selection Only",
-            get_first=m.chk007.isChecked(),
-            add=m.chk008.isChecked(),
-            unassigned=m.chk009.isChecked(),
-        )
-
+    # ------------------------------------------------------------------ select by material
     def select_by_mat(
         self,
         shell=False,
@@ -285,7 +288,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         """Select the geometry carrying the current material.
 
         The parameterized primitive behind every select-by-material entry point
-        (``tb000``'s option box, the submenu's one-shot ``b003``, marking menus).
+        (the table's Select icon and row menu, the submenu's one-shot ``b003``).
         Takes plain values so callers don't have to reach into — or temporarily
         mutate — another widget's option-box state.
 
@@ -296,13 +299,12 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             in_selection (bool): Search within the current selection only
                 (falls back to the whole file when nothing is selected).
             get_first (bool): Adopt the material of the active selection as the
-                current material (cmb002) before searching. Ignored when
-                ``unassigned`` — that search doesn't read cmb002.
+                current material before searching. Ignored when ``unassigned``.
             add (bool): Add the matches to the existing selection instead of
                 replacing it.
             unassigned (bool): Select the objects carrying NO material instead
-                (see ``btk.find_unassigned``). cmb002 is bypassed entirely: "no
-                material" is not a material, so it never becomes the current one.
+                (see ``btk.find_unassigned``). "No material" is not a material, so
+                it never becomes the current one.
 
         Returns:
             list: The objects selected (empty when nothing matched, no current
@@ -332,9 +334,9 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 "outside the active view layer — nothing selectable."
             )
         else:
-            name = self.ui.cmb002.currentData()
+            name = self._current_mat()
             if not name:
-                self.sb.message_box("No material selected in the materials list.")
+                self.sb.message_box("No current material: highlight one in the list.")
                 return []
             mat = self._resolve_material(name)
             if mat is None:
@@ -421,7 +423,8 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         menu.setTitle("Get Material Info")
         cmb = menu.add(
             "QComboBox", setObjectName="cmb_scope",
-            setToolTip="Textures: every scene texture.\nCurrent Material: the cmb002 pick.\n"
+            setToolTip="Textures: every scene texture.\nCurrent Material: the one last "
+            "highlighted in the list.\n"
             "All Materials: every scene material.\nSelected Objects: materials on the selection.",
         )
         for label, data in self._TB001_SCOPES:
@@ -478,7 +481,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
                 optimize_check=include_optimization,
             )
             if scope == "current":
-                name = self.ui.cmb002.currentData()
+                name = self._current_mat()
                 if not name:
                     self.sb.message_box("<hl>No current material</hl><br>Pick a material first.")
                     return
@@ -509,25 +512,15 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ Assign list
     def list000_init(self, widget):
-        """Assign list: assign-current root + New / Random + scene materials.
-
-        The root's wording is surface-dependent — see the mixin's
-        ``_assign_root_text``.
-
-        This *is* the panel's assign surface — it replaced the Assign /
-        Assign Random / New buttons, each of which reached one action where
-        the list reaches all of them plus every material in the scene.
+        """The submenu's Assign list: assign-current root + New / Random + the
+        file's materials, rebuilt on every show (the panel's is the material
+        table). The root names the current material (``_assign_root_text``).
         """
         if not getattr(widget, "_assign_list_configured", False):
             widget.refresh_on_show = True
             widget.fixed_item_height = 18
-            widget.apply_preset(
-                "expand_right" if widget.ui.has_tags("submenu") else "hover_menu"
-            )
+            widget.apply_preset("expand_right")
             widget._assign_list_configured = True
-            if not getattr(self.ui.cmb002, "is_initialized", False):
-                self.ui.cmb002.init_slot()
-                self.ui.cmb002.is_initialized = True
 
         widget.clear()
         root = widget.add(self._assign_root_text(widget))
@@ -543,7 +536,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         text = item.item_text()
         parent = item.parent_item_text()
         if parent is None:  # root release
-            current = self.ui.cmb002.currentData()  # a material name (see cmb002_init)
+            current = self._current_mat()  # a material name
             if not current:
                 self.sb.message_box("<hl>No current material</hl><br>Pick a material first.")
                 return
@@ -558,7 +551,8 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
     @btk.undoable
     def _assign_named(self, mat_name):
-        """Assign the named material to the selection and report; sync cmb002."""
+        """Assign the named material to the selection, make it current, and report
+        (the MaterialsMixin hook behind every assign)."""
         selection = self.selected_objects()
         if not selection:
             self.sb.message_box("<hl>Nothing selected</hl><br>Select object(s) first.")
@@ -567,7 +561,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         if mat is None:
             return
         btk.assign_mat(selection, mat)
-        self.ui.cmb002.setAsCurrent(mat_name)
+        self._set_current(mat_name)
         self.sb.message_box(f"Assigned <hl>{mat_name}</hl> to <hl>{len(selection)}</hl> object(s).")
 
     # ------------------------------------------------------------------ Submenu Tools list
@@ -599,16 +593,12 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         """Material names on the current selection, or None when nothing is selected.
 
         The DCC half of the shared ``_adopt_selection_mat`` (see ``MaterialsMixin``);
-        cmb002 stores names, not datablocks (see ``_resolve_material``).
+        names, not datablocks (see ``_resolve_material``).
         """
         selection = self.selected_objects()
         if not selection:
             return None
         return [m.name for m in btk.get_mats(selection[0])]
-
-    def b002(self, widget=None):
-        """Get Material: set the combo to the selection's material."""
-        self._adopt_selection_mat()
 
     @btk.undoable
     def b004(self, widget=None):
@@ -626,11 +616,11 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         if last and last is not new_mat and not btk.is_mat_assigned(last):
             bpy.data.materials.remove(last)
         self.last_random_material = new_mat.name
+        self._current = new_mat.name
         self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(new_mat.name)
 
     @btk.undoable
-    def b006(self, widget=None):
+    def _new_mat(self):
         """Assign New Material"""
         selection = self.selected_objects()
         if not selection:
@@ -638,24 +628,13 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
             return
         mat = btk.create_mat("standard", name="Material")
         btk.assign_mat(selection, mat)
+        self._current = mat.name
         self._refresh_material_lists()
-        self.ui.cmb002.setAsCurrent(mat.name)
 
     def b013(self):
         """Reload Scene Textures"""
         btk.reload_textures()
         self.sb.message_box("Textures reloaded from disk.")
-
-    @btk.undoable
-    def b014(self):
-        """Remove Duplicate Materials"""
-        dups = btk.find_materials_with_duplicate_textures()
-        if not dups:
-            self.sb.message_box("No duplicate-texture materials found.")
-            return
-        reassigned = btk.reassign_duplicate_materials(dups, delete=True)
-        self._refresh_material_lists()
-        self.sb.message_box(f"Removed duplicates — reassigned <hl>{reassigned}</hl> slot(s).")
 
     @btk.undoable
     def b015(self, widget=None):
@@ -665,17 +644,9 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self.sb.message_box(f"Deleted <hl>{len(removed)}</hl> unused material(s).")
 
     # ------------------------------------------------------------------ context-menu (lbl) slots
-    def lbl002(self):
-        """Delete the current material."""
-        mat = self._resolve_material(self.ui.cmb002.currentData())
-        if mat is None:
-            return
-        bpy.data.materials.remove(mat)
-        self._refresh_material_lists()
-
     def lbl004(self):
         """Select Node — select the object(s) using the current material."""
-        name = self.ui.cmb002.currentData()
+        name = self._current_mat()
         if not name:
             self.sb.message_box("No current material.")
             return
@@ -688,7 +659,7 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
 
     def lbl006(self):
         """Open in Editor — graph the current material in the Shader Editor."""
-        name = self.ui.cmb002.currentData()
+        name = self._current_mat()
         if not name:
             self.sb.message_box("No current material.")
             return

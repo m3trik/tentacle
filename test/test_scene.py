@@ -644,12 +644,18 @@ class TestGlbIntermediateIsReleased(unittest.TestCase):
             stack.enter_context(
                 mock.patch.object(convert, "fbx_to_glb", new=self._convert)
             )
-            stack.enter_context(
-                mock.patch.object(convert, "build_scene_sidecar", return_value=None)
+            prepared = stack.enter_context(
+                mock.patch.object(
+                    self.mtk.FbxUtils,
+                    "export_prepared",
+                    return_value=contextlib.nullcontext(),
+                )
             )
             self.inst._export_scene_native(
                 "glb", self.out, dict(self.OPTIONS), tick=lambda **_: None
             )
+        # The intermediate states its materials, as every deliverable FBX does.
+        prepared.assert_called_once_with(only=[self.ptk.SceneRecords.MATERIALS])
         self.assertTrue(os.path.isfile(self.out))
         self.assertEqual(len(self.fbx), 1)
         self.assertNotEqual(os.path.dirname(self.fbx[0]), os.path.dirname(self.out))
@@ -657,6 +663,49 @@ class TestGlbIntermediateIsReleased(unittest.TestCase):
             os.path.exists(os.path.dirname(self.fbx[0])),
             f"intermediate left in temp: {self.fbx[0]}",
         )
+
+    def test_a_selection_export_gives_the_selection_back(self):
+        """The carrier rides the write, then the user's selection is theirs again.
+        Added: 2026-10-24 (``data_export`` stayed selected after the export)."""
+        cmds.file(new=True, force=True)
+        self.addCleanup(cmds.file, new=True, force=True)
+        cube = cmds.polyCube(name="glb_sel_geo")[0]
+        carrier = cmds.createNode("transform", name="glb_sel_carrier")
+        cmds.select(cube, replace=True)
+        selected_at_write = []
+
+        def write(file_path, **_):
+            selected_at_write.extend(cmds.ls(selection=True))
+            self._write_fbx(file_path)
+
+        convert = self.ptk.MeshConvert
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(
+                mock.patch.object(self.mtk, "export_scene_as_fbx", new=write)
+            )
+            stack.enter_context(
+                mock.patch.object(convert, "fbx_to_glb", new=self._convert)
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    self.mtk.FbxUtils,
+                    "export_prepared",
+                    return_value=contextlib.nullcontext(),
+                )
+            )
+            stack.enter_context(
+                mock.patch.object(
+                    self.mtk.DataNodes, "get_export_nodes", return_value=[carrier]
+                )
+            )
+            self.inst._export_scene_native(
+                "glb",
+                self.out,
+                dict(self.OPTIONS, selection_only=True),
+                tick=lambda **_: None,
+            )
+        self.assertEqual(sorted(selected_at_write), sorted([cube, carrier]))
+        self.assertEqual(cmds.ls(selection=True), [cube])
 
 
 if __name__ == "__main__":

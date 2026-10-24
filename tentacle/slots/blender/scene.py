@@ -636,8 +636,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
             # GLB — wired for the export's lifetime, restored after, a clean no-op
             # on an unbaked scene. The export needs no knowledge of the bake; it
             # reads scene state, exactly like the Maya fork's fbx_to_glb route.
-            # Given the path, it also corrects the written file's lightmap
-            # markers to what the GLB ships, as the Maya route's applier does.
+            # Given the path, it also finishes the written file as the Maya
+            # route's build does: the lightmap copies on its nodes dropped, the
+            # probe embedded, the lightmaps block in its root extras.
             with btk.LightmapWebExport().wired_for_export(glb_path=out_path):
                 with btk.window_context_override():
                     bpy.ops.export_scene.gltf(
@@ -646,7 +647,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
                         use_selection=options["selection_only"],
                         export_cameras=options["include_cameras"],
                         export_lights=options["include_lights"],
-                        export_extras=True,  # carries the lightmap_web manifest
+                        export_extras=True,  # carries the lightmaps block
                     )
             return
 
