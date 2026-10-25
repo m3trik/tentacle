@@ -139,4 +139,4 @@ CI runs `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`, and
 
 ## License
 
-[LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.en.html).
+LGPL-3.0-or-later — see [COPYING.LESSER](https://github.com/m3trik/tentacle/blob/main/COPYING.LESSER) and [COPYING](https://github.com/m3trik/tentacle/blob/main/COPYING), plus an additional permission to combine it with mayatk and Autodesk Maya ([COPYING.EXCEPTION](https://github.com/m3trik/tentacle/blob/main/COPYING.EXCEPTION)).

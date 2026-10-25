@@ -1,4 +1,6 @@
+include COPYING
 include COPYING.LESSER
+include COPYING.EXCEPTION
 include docs/README.md
 include pyproject.toml
 recursive-include tentacle *.ui *.json
