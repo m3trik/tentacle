@@ -3,7 +3,7 @@
 ## 2026
 - **2026-10-26 -- Remove the aliases whose deprecation window has ended (`slots/maya/editors.py`).** `tentacle.slots.maya.editors.Editors` -> `tentacle.slots.maya.editors.EditorsSlots`. Switchboard binds `EditorsSlots` first, so the panel is unaffected; mayatk's tests already import it by that name.
   - Test(s): `test_editors.py` `TestPreRenameAlias` removed (it exercised only the alias).
-- **2026-10-25 -- The workspace and rendering slots read the scene's project from `DataNodes`, its one owner (`slots/`).** mayatk and blendertk retired the `EnvUtils` copies of the scene-source family.
+- **2026-10-25 -- The workspace, scene and rendering slots read the scene's project from `DataNodes`, its one owner (`slots/`).** mayatk and blendertk retired the `EnvUtils` copies of the scene-source family.
   - Test(s): `test_main_workspace_blender.py` follows the owner.
 - **2026-10-25 -- `import tentacle` is pinned to load declarations only (`test/test_package.py`).** pythontk's root no longer loads PIL and numpy, so `import tentacle` loads no implementation module and no third-party package (338 -> 138 ms, plain Python).
   - Test(s): `test_package.py` +`test_plain_import_loads_only_declarations`.
