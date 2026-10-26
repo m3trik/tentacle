@@ -686,7 +686,7 @@ class RenderingSlots(RenderingMixin, SlotsMaya):
     def _scene_workspace(self):
         """The open scene's project (RenderingMixin hook): the scene's own, not
         merely the active one."""
-        return mtk.EnvUtils.scene_workspace()
+        return mtk.DataNodes.scene_workspace()
 
     @staticmethod
     def _scene_base_name() -> str:

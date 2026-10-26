@@ -89,6 +89,16 @@ class TestPackageMetadata(unittest.TestCase):
                 f"Class name '{cls_name}' is not a valid Python identifier",
             )
 
+    def test_plain_import_loads_only_declarations(self):
+        """``import tentacle`` loads no implementation module and no third-party
+        package, of tentacle or of the packages below it -- until 2026-10-25
+        pythontk's root loaded PIL and numpy into every import."""
+        from pythontk.core_utils.module_resolver import import_footprint
+
+        self.assertEqual(
+            import_footprint("tentacle"), {"modules": [], "third_party": []}
+        )
+
 
 class TestExtappsRegistration(unittest.TestCase):
     """External apps are auto-discovered from extapps' entry points — the

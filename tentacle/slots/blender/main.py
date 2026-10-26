@@ -170,11 +170,11 @@ class MainSlots(MainMixin, SlotsBlender):
         """Auto Set Workspace — resolve the open .blend's project and pin it, mirroring
         Maya's ``mtk.find_workspace_using_path`` walk-up + switch.
 
-        ``btk.EnvUtils.scene_workspace()`` (``ptk.Workspace.for_scene``): the nearest
+        ``btk.DataNodes.scene_workspace()`` (``ptk.Workspace.for_scene``): the nearest
         ``workspace.mel`` root above the file, else the session pin when it holds the
         file, else the file's own folder; while unsaved, the pin. Never the process
         cwd, which named whatever folder Blender was launched from."""
-        ws = btk.EnvUtils.scene_workspace()
+        ws = btk.DataNodes.scene_workspace()
         if ws is None or not (ws.is_marked or self._is_workspace(ws.root)):
             self.sb.message_box("No workspace found.")
             return

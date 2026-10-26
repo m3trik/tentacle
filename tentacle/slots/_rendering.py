@@ -27,7 +27,7 @@ class RenderingMixin:
     # ------------------------------------------------------------------ hooks
     def _scene_workspace(self):
         """Return the open scene's project as a ``ptk.Workspace``, or ``None``:
-        ``mtk.EnvUtils.scene_workspace()`` / ``btk.EnvUtils.scene_workspace()``."""
+        ``mtk.DataNodes.scene_workspace()`` / ``btk.DataNodes.scene_workspace()``."""
         raise NotImplementedError
 
     def _scene_base_name(self) -> str:

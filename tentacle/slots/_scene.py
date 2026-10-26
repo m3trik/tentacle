@@ -72,7 +72,7 @@ class SceneMixin:
     def _scene_workspace(self):
         """Return the open scene's project as a ``ptk.Workspace``, or ``None``.
 
-        ``mtk.EnvUtils.scene_workspace()`` / ``btk.EnvUtils.scene_workspace()``:
+        ``mtk.DataNodes.scene_workspace()`` / ``btk.DataNodes.scene_workspace()``:
         the SCENE's workspace (``ptk.Workspace.for_scene``: its project, else
         its own folder unmarked), not merely the active project -- where the
         export rule a quick export writes into resolves.
