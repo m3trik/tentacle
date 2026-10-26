@@ -1091,7 +1091,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--editors"></a>
 ### `slots/maya/editors.py`
 
-- **[`class EditorsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/editors.py#L19)**
+- **[`class EditorsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/editors.py#L9)**
   - `EditorsSlots.list000_init(self, widget)` — Initialize the editors list (categories -> Maya editors), filtered
   - `EditorsSlots.list000(self, item)` — Open the chosen Maya editor (category headers are nav-only).
   - `EditorsSlots.b000(self)` — Attributes: open the Attribute Editor.

@@ -11,6 +11,32 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+def _standalone_interpreter():
+    """``(path, "")`` of a Python interpreter to spawn, or ``(None, reason)``.
+
+    Under the --in-maya dispatcher ``sys.executable`` is the HOST binary
+    (maya.exe), not an interpreter: ``maya.exe -c ...`` is not a valid
+    invocation and dies in native code -- rc 1 with an unsymbolized stack
+    trace and no Python traceback, which reads as the test's assertion failing
+    rather than as the spawn being nonsense. mayapy ships beside maya.exe, so
+    a spawning check keeps its coverage under every entry point instead of
+    skipping the one where a stray side effect is most likely.
+    """
+    import os
+
+    if not sys.executable:
+        # Embedded interpreters can leave this empty, and Path("") has no
+        # name to substitute -- with_name() would raise ValueError.
+        return None, "sys.executable is empty; nothing to spawn"
+    exe = Path(sys.executable)
+    if exe.stem.lower().startswith("python"):
+        return exe, ""
+    mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
+    if mayapy.exists():
+        return mayapy, ""
+    return None, f"no standalone interpreter beside {exe.name}"
+
+
 class TestSuiteIsolation(unittest.TestCase):
     """The suite must not be running against the developer's live user state.
 
@@ -88,6 +114,22 @@ class TestPackageMetadata(unittest.TestCase):
                 cls_name.isidentifier(),
                 f"Class name '{cls_name}' is not a valid Python identifier",
             )
+
+    def test_plain_import_loads_only_declarations(self):
+        """``import tentacle`` loads no implementation module and no third-party
+        package, of tentacle or of the packages below it -- until 2026-10-25
+        pythontk's root loaded PIL and numpy into every import."""
+        from unittest import mock
+
+        from pythontk.core_utils.module_resolver import import_footprint
+
+        exe, why = _standalone_interpreter()
+        if exe is None:
+            self.skipTest(why)
+        # import_footprint spawns sys.executable, the host binary in Maya.
+        with mock.patch.object(sys, "executable", str(exe)):
+            footprint = import_footprint("tentacle")
+        self.assertEqual(footprint, {"modules": [], "third_party": []})
 
 
 class TestExtappsRegistration(unittest.TestCase):
@@ -203,23 +245,9 @@ class TestGreeting(unittest.TestCase):
         import os
         import subprocess
 
-        # Under the --in-maya dispatcher `sys.executable` is the HOST binary
-        # (maya.exe), not an interpreter: `maya.exe -c "import tentacle"` is not
-        # a valid invocation and dies in native code -- rc 1 with an
-        # unsymbolized stack trace and no Python traceback, which reads as this
-        # assertion failing rather than as the spawn being nonsense. mayapy ships
-        # beside maya.exe, so the check keeps its coverage under every entry
-        # point instead of skipping the one where a stray print is most likely.
-        if not sys.executable:
-            # Embedded interpreters can leave this empty, and Path("") has no
-            # name to substitute -- with_name() would raise ValueError here.
-            self.skipTest("sys.executable is empty; nothing to spawn")
-        exe = Path(sys.executable)
-        if not exe.stem.lower().startswith("python"):
-            mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
-            if not mayapy.exists():
-                self.skipTest(f"no standalone interpreter beside {exe.name}")
-            exe = mayapy
+        exe, why = _standalone_interpreter()
+        if exe is None:
+            self.skipTest(why)
 
         env = dict(os.environ)
         env["PYTHONPATH"] = os.pathsep.join(sys.path[1:])

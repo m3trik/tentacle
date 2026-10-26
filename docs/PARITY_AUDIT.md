@@ -29,18 +29,18 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 178 | 86 | 60 | 34% |
 | display_utils | 44 | 44 | 18 | 41% |
-| edit_utils | 168 | 180 | 127 | 76% |
+| edit_utils | 168 | 178 | 127 | 76% |
 | env_utils | 496 | 324 | 239 | 48% |
 | light_utils | 170 | 130 | 106 | 62% |
-| mat_utils | 374 | 291 | 255 | 68% |
-| node_utils | 158 | 72 | 62 | 39% |
+| mat_utils | 374 | 290 | 255 | 68% |
+| node_utils | 159 | 73 | 63 | 40% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 13 | 0 | 0 | 0% |
 | rig_utils | 282 | 246 | 189 | 67% |
 | ui_utils | 76 | 91 | 34 | 45% |
 | uv_utils | 166 | 154 | 134 | 81% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2509** | **1920** | **1495** | **60%** |
+| **TOTAL (unique)** | **2509** | **1917** | **1495** | **60%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -70,7 +70,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | DuplicateRadial | 0→0 | 1→1 | 12→12 | 549→323 | 59% | 100% | clean |
 | DuplicateGrid | 0→0 | 1→1 | 7→7 | 443→271 | 61% | 100% | clean |
 | HdrManager | 3→3 | 14→13 | 4→4 | 1799→1186 | 66% | 100% | clean |
-| ImageTracer | 1→1 | 2→2 | 7→7 | 553→375 | 68% | 100% | clean |
+| ImageTracer | 1→1 | 2→2 | 7→7 | 552→374 | 68% | 100% | clean |
 | CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 317→233 | 74% | 100% | clean |
 | TexturePathEditor | 9→7 ⚠ | 38→31 | 1→1 | 4178→3136 | 75% | 100% | clean |

@@ -3,17 +3,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import mayatk as mtk
-import pythontk as ptk
 from tentacle import SlotsMaya
-
-# The class's name before it took the ``<Base>Slots`` suffix: mayatk's tests import
-# it by module path, so it resolves (with a DeprecationWarning) for one release.
-ptk.Deprecation.attributes(
-    globals(),
-    {"Editors": "tentacle.slots.maya.editors.EditorsSlots"},
-    remove_in="0.15.0",
-    since="2026-09-26",
-)
 
 
 class EditorsSlots(SlotsMaya):

@@ -346,7 +346,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
     def _scene_workspace(self):
         """The open file's project (SceneMixin hook): the file's own, not
         merely the pinned one."""
-        return btk.EnvUtils.scene_workspace()
+        return btk.DataNodes.scene_workspace()
 
     def _foreign_scene_bridge(self):
         """The bridge that writes Maya's native format (SceneMixin hook).

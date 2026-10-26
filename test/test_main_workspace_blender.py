@@ -194,12 +194,12 @@ class TestMainWorkspaceStructure(unittest.TestCase):
         self.assertIn("_workspace_store.record", src)
 
     def test_auto_set_resolves_then_pins(self):
-        """Auto Set resolves the open file's project (``btk.EnvUtils.scene_workspace``:
+        """Auto Set resolves the open file's project (``btk.DataNodes.scene_workspace``:
         marked root walk-up, the pin while unsaved) and actually switches — no more
         find-and-record-only toast. Never the process cwd: an unsaved file used to
         resolve whatever folder Blender was launched from."""
         src = self.mod.method_source("MainSlots", "_auto_set_workspace")
-        self.assertIn("btk.EnvUtils.scene_workspace()", src)
+        self.assertIn("btk.DataNodes.scene_workspace()", src)
         self.assertNotIn("getcwd", src)
         self.assertIn("_switch_to_workspace", src)
 

@@ -406,7 +406,7 @@ class RenderingSlots(RenderingMixin, SlotsBlender):
     def _scene_workspace(self):
         """The open file's project (RenderingMixin hook): the file's own, else
         the session's pinned project."""
-        return btk.EnvUtils.scene_workspace()
+        return btk.DataNodes.scene_workspace()
 
     @staticmethod
     def _scene_base_name() -> str:
