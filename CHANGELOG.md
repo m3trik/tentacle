@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-26 -- tentacle stays open and may not be sold: GPL-3.0-or-later with the Commons Clause, replacing LGPL-3.0-or-later (new `LICENSE`, `COPYING.LESSER` removed, `pyproject.toml`, `MANIFEST.in`, README, a notice in `tentacle_installer.py`).** The GPL keeps every copy's source open; the Commons Clause withholds the right to sell tentacle or a product or service whose value comes substantially from it, while paid production work with it stays free. `LICENSE` states that the clause is the copyright holder's own condition, not a further restriction a recipient may remove. The PyPI classifier becomes "Other/Proprietary License", as mayatk's is, since the combination is not OSI-approved. The no-sale term covers the Blender side too, by choice, although Blender holds distributed `bpy` code to be GPL-covered; tentacle is not an official Blender add-on. `COPYING.EXCEPTION` still permits combining with mayatk and Maya, and blendertk's now names tentacle. Ships as its own release.
+  - Test(s): none -- license files and packaging metadata only.
 - **2026-10-26 -- Remove the aliases whose deprecation window has ended (`slots/maya/editors.py`).** `tentacle.slots.maya.editors.Editors` -> `tentacle.slots.maya.editors.EditorsSlots`. Switchboard binds `EditorsSlots` first, so the panel is unaffected; mayatk's tests already import it by that name.
   - Test(s): `test_editors.py` `TestPreRenameAlias` removed (it exercised only the alias).
 - **2026-10-25 -- The workspace, scene and rendering slots read the scene's project from `DataNodes`, its one owner (`slots/`).** mayatk and blendertk retired the `EnvUtils` copies of the scene-source family.

@@ -8,11 +8,11 @@ dynamic = ["version", "readme"]
 description = "Marking menus (pie menus) and tool panels for Maya and Blender: one hotkey-driven Qt interface for modeling, UV, animation and export."
 keywords = ["m3trik", "marking-menu", "pie-menu", "radial-menu", "maya", "blender", "blender-addon", "hotkeys", "technical-art"]
 authors = [{name = "Ryan Simpson", email = "m3trik@outlook.com"}]
-license = {text = "LGPL-3.0-or-later"}
+license = {text = "GPL-3.0-or-later with Commons Clause"}
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "License :: Other/Proprietary License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Intended Audience :: End Users/Desktop",
@@ -49,7 +49,7 @@ dependencies = [
 # mtk./btk.<Bridge>.APP, and the AppSpec collapse that introduced APP lands in
 # mayatk 0.13.54 / blendertk 0.5.74 -- the engines published beside this one.
 maya = ["mayatk>=0.29.0"]
-blender = ["blendertk>=0.21.0"]
+blender = ["blendertk>=0.21.1"]
 
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"
