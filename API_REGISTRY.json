@@ -6572,7 +6572,7 @@
         {
           "name": "EditorsSlots",
           "summary": "",
-          "line": 19,
+          "line": 9,
           "bases": [
             "SlotsMaya"
           ],
@@ -6583,7 +6583,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the editors list (categories -> Maya editors), filtered",
-              "line": 103,
+              "line": 93,
               "deprecated": false
             },
             {
@@ -6592,7 +6592,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Open the chosen Maya editor (category headers are nav-only).",
-              "line": 116,
+              "line": 106,
               "deprecated": false
             },
             {
@@ -6601,7 +6601,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Attributes: open the Attribute Editor.",
-              "line": 124,
+              "line": 114,
               "deprecated": false
             },
             {
@@ -6610,7 +6610,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Outliner: open the Outliner window.",
-              "line": 128,
+              "line": 118,
               "deprecated": false
             },
             {
@@ -6619,7 +6619,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool: open the Tool Settings window.",
-              "line": 132,
+              "line": 122,
               "deprecated": false
             },
             {
@@ -6628,7 +6628,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Layers: open the Channels / Layers panel.",
-              "line": 136,
+              "line": 126,
               "deprecated": false
             },
             {
@@ -6637,7 +6637,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels: open the Channels / Layers panel.",
-              "line": 140,
+              "line": 130,
               "deprecated": false
             },
             {
@@ -6646,7 +6646,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Node Editor: open the Node Editor window.",
-              "line": 144,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -6655,7 +6655,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Dependancy Graph",
-              "line": 148,
+              "line": 138,
               "deprecated": false
             },
             {
@@ -6664,7 +6664,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Status Line: toggle the Status Line UI.",
-              "line": 187,
+              "line": 177,
               "deprecated": false
             },
             {
@@ -6673,7 +6673,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shelf: toggle the Shelf UI.",
-              "line": 191,
+              "line": 181,
               "deprecated": false
             },
             {
@@ -6682,7 +6682,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Time & Range",
-              "line": 195,
+              "line": 185,
               "deprecated": false
             },
             {
@@ -6691,7 +6691,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Script Output",
-              "line": 209,
+              "line": 199,
               "deprecated": false
             },
             {
@@ -6700,7 +6700,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Command Line",
-              "line": 215,
+              "line": 205,
               "deprecated": false
             },
             {
@@ -6709,7 +6709,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Help Line: toggle the Help Line UI.",
-              "line": 219,
+              "line": 209,
               "deprecated": false
             },
             {
@@ -6718,7 +6718,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Tool Box: toggle the Toolbox UI.",
-              "line": 223,
+              "line": 213,
               "deprecated": false
             },
             {
@@ -6727,7 +6727,7 @@
               "kind": "method",
               "signature": "(self, name)",
               "summary": "Get a maya widget from a given name.",
-              "line": 227,
+              "line": 217,
               "deprecated": false
             }
           ]

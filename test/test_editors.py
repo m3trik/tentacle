@@ -156,18 +156,5 @@ class TestList000Dispatch(unittest.TestCase):
         self.assertTrue(self.messages)
 
 
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestPreRenameAlias(unittest.TestCase):
-    """``Editors`` became ``EditorsSlots``; mayatk's tests import the class by
-    module path, so the old name resolves to the same class, with a warning, for
-    one release (``ptk.Deprecation.attributes``)."""
-
-    def test_old_name_resolves_to_the_renamed_class_with_a_warning(self):
-        with self.assertWarns(DeprecationWarning):
-            old = editors_module.Editors
-        self.assertIs(old, editors_module.EditorsSlots)
-
-
 if __name__ == "__main__":
     unittest.main()
