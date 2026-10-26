@@ -1,5 +1,5 @@
 [![Tests](https://img.shields.io/badge/Tests-1212%20passed-brightgreen.svg)](../test/)
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0.en.html)
+[![License: GPL v3 + Commons Clause](https://img.shields.io/badge/License-GPL%20v3%20%2B%20Commons%20Clause-blue.svg)](https://github.com/m3trik/tentacle/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2C%20Linux-lightgrey.svg)
 
@@ -139,4 +139,4 @@ CI runs `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`, and
 
 ## License
 
-LGPL-3.0-or-later — see [COPYING.LESSER](https://github.com/m3trik/tentacle/blob/main/COPYING.LESSER) and [COPYING](https://github.com/m3trik/tentacle/blob/main/COPYING), plus an additional permission to combine it with mayatk and Autodesk Maya ([COPYING.EXCEPTION](https://github.com/m3trik/tentacle/blob/main/COPYING.EXCEPTION)).
+GPL-3.0-or-later with the Commons Clause — see [LICENSE](https://github.com/m3trik/tentacle/blob/main/LICENSE) and [COPYING](https://github.com/m3trik/tentacle/blob/main/COPYING), plus an additional permission to combine it with mayatk and Autodesk Maya ([COPYING.EXCEPTION](https://github.com/m3trik/tentacle/blob/main/COPYING.EXCEPTION)). tentacle stays open source and may not be sold: use it, change it and share it freely, paid production work included, but do not sell it or a service built on it. It runs inside Blender without being an official Blender add-on.

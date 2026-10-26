@@ -8,11 +8,11 @@ dynamic = ["version", "readme"]
 description = "Marking menus (pie menus) and tool panels for Maya and Blender: one hotkey-driven Qt interface for modeling, UV, animation and export."
 keywords = ["m3trik", "marking-menu", "pie-menu", "radial-menu", "maya", "blender", "blender-addon", "hotkeys", "technical-art"]
 authors = [{name = "Ryan Simpson", email = "m3trik@outlook.com"}]
-license = {text = "LGPL-3.0-or-later"}
+license = {text = "GPL-3.0-or-later with Commons Clause"}
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+    "License :: Other/Proprietary License",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Intended Audience :: End Users/Desktop",
