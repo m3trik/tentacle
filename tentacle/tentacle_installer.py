@@ -1,7 +1,7 @@
 # !/usr/bin/python
 # coding=utf-8
-# tentacle: GPL-3.0-or-later with the Commons Clause (it may not be sold).
-# Terms: https://github.com/m3trik/tentacle/blob/main/LICENSE
+# tentacle: GPL-3.0-or-later, with an additional permission for mayatk and Maya.
+# Terms: https://github.com/m3trik/tentacle/blob/main/COPYING
 """Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
 Maya (2025+)
