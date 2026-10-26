@@ -1,4 +1,3 @@
-include LICENSE
 include COPYING
 include COPYING.EXCEPTION
 include docs/README.md
