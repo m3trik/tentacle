@@ -10603,7 +10603,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on entry: preferences UI, then finish any pending verb / install / launch.",
-          "line": 2277,
+          "line": 2279,
           "deprecated": false
         },
         {
@@ -10612,7 +10612,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2283,
+          "line": 2285,
           "deprecated": false
         },
         {
@@ -10621,7 +10621,7 @@
           "kind": "function",
           "signature": "(*_args)",
           "summary": "Maya drop hook: first drop installs and launches;",
-          "line": 2289,
+          "line": 2291,
           "deprecated": false
         }
       ],
@@ -10629,7 +10629,7 @@
         {
           "name": "TentacleInstaller",
           "summary": "Provision tentacle into the host's per-user import dir, launch it, update or remove it.",
-          "line": 92,
+          "line": 94,
           "bases": [],
           "members": [
             {
@@ -10638,7 +10638,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "``\"blender\"`` / ``\"maya\"`` for the DCC this interpreter is embedded in, else None.",
-              "line": 155,
+              "line": 157,
               "deprecated": false
             },
             {
@@ -10647,7 +10647,7 @@
               "kind": "staticmethod",
               "signature": "(host)",
               "summary": "True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).",
-              "line": 171,
+              "line": 173,
               "deprecated": false
             },
             {
@@ -10656,7 +10656,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "True once our code is imported in this process -- its extension modules are then",
-              "line": 187,
+              "line": 189,
               "deprecated": false
             },
             {
@@ -10665,7 +10665,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, fresh=True)",
               "summary": "pip requirements for *host*: the package with its engine extra (+ Qt on a fresh Blender install).",
-              "line": 193,
+              "line": 195,
               "deprecated": false
             },
             {
@@ -10674,7 +10674,7 @@
               "kind": "staticmethod",
               "signature": "(host)",
               "summary": "The host's own interpreter (``sys.executable`` is the DCC binary in a GUI session).",
-              "line": 201,
+              "line": 203,
               "deprecated": false
             },
             {
@@ -10683,7 +10683,7 @@
               "kind": "classmethod",
               "signature": "(cls, app_dir=None, version=None)",
               "summary": "``(module_root, mod_file)`` for this Maya -- both under the per-version prefs dir.",
-              "line": 243,
+              "line": 245,
               "deprecated": false
             },
             {
@@ -10692,7 +10692,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Where the packages go: a per-user dir the host imports from at tail precedence.",
-              "line": 262,
+              "line": 264,
               "deprecated": false
             },
             {
@@ -10701,7 +10701,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "True when ``tentacle`` and the host's engine both resolve on ``sys.path``.",
-              "line": 328,
+              "line": 330,
               "deprecated": false
             },
             {
@@ -10710,7 +10710,7 @@
               "kind": "classmethod",
               "signature": "(cls, target)",
               "summary": "",
-              "line": 403,
+              "line": 405,
               "deprecated": false
             },
             {
@@ -10719,7 +10719,7 @@
               "kind": "classmethod",
               "signature": "(cls, target)",
               "summary": "",
-              "line": 538,
+              "line": 540,
               "deprecated": false
             },
             {
@@ -10728,7 +10728,7 @@
               "kind": "classmethod",
               "signature": "(cls, target)",
               "summary": "The manifest dict (``{}`` when absent or unreadable).",
-              "line": 542,
+              "line": 544,
               "deprecated": false
             },
             {
@@ -10737,7 +10737,7 @@
               "kind": "classmethod",
               "signature": "(cls, target, **updates)",
               "summary": "Merge *updates* into the manifest.",
-              "line": 586,
+              "line": 588,
               "deprecated": false
             },
             {
@@ -10746,7 +10746,7 @@
               "kind": "classmethod",
               "signature": "(cls, target, name=None)",
               "summary": "A dist's version as recorded in *target*'s dist-info (default: tentacletk), else None -- no import.",
-              "line": 676,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -10755,7 +10755,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None, upgrade=False)",
               "summary": "Provision (or upgrade) the host's spec set and record it;",
-              "line": 1036,
+              "line": 1038,
               "deprecated": false
             },
             {
@@ -10764,7 +10764,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None)",
               "summary": "Upgrade the package (and whatever its floors now require);",
-              "line": 1053,
+              "line": 1055,
               "deprecated": false
             },
             {
@@ -10773,7 +10773,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, target=None, python=None)",
               "summary": "Remove what this installer put there;",
-              "line": 1058,
+              "line": 1060,
               "deprecated": false
             },
             {
@@ -10782,7 +10782,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, verb)",
               "summary": "The one entry every surface calls with a verb;",
-              "line": 1183,
+              "line": 1185,
               "deprecated": false
             },
             {
@@ -10791,7 +10791,7 @@
               "kind": "classmethod",
               "signature": "(cls, host, upgrade=False, target=None, python=None, specs=None)",
               "summary": "Install *specs* into *target*;",
-              "line": 1351,
+              "line": 1353,
               "deprecated": false
             },
             {
@@ -10800,7 +10800,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Start the menu through tentacle's own host-aware entry (deferred as the host needs).",
-              "line": 1548,
+              "line": 1550,
               "deprecated": false
             },
             {
@@ -10809,7 +10809,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.",
-              "line": 1577,
+              "line": 1579,
               "deprecated": false
             },
             {
@@ -10818,7 +10818,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The startup entry both hosts call: finish a pending verb, install if needed, launch.",
-              "line": 1585,
+              "line": 1587,
               "deprecated": false
             },
             {
@@ -10827,7 +10827,7 @@
               "kind": "classmethod",
               "signature": "(cls, source, app_dir=None, version=None)",
               "summary": "Register the user-owned Maya module that re-runs this file at every start.",
-              "line": 1964,
+              "line": 1966,
               "deprecated": false
             },
             {
@@ -10836,7 +10836,7 @@
               "kind": "classmethod",
               "signature": "(cls, source)",
               "summary": "Maya drop hook body: first drop installs;",
-              "line": 2015,
+              "line": 2017,
               "deprecated": false
             },
             {
@@ -10845,7 +10845,7 @@
               "kind": "classmethod",
               "signature": "(cls, addon_name)",
               "summary": "Build and register the add-on preferences (version, Update, Uninstall) lazily --",
-              "line": 2093,
+              "line": 2095,
               "deprecated": false
             },
             {
@@ -10854,7 +10854,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "",
-              "line": 2156,
+              "line": 2158,
               "deprecated": false
             },
             {
@@ -10863,7 +10863,7 @@
               "kind": "classmethod",
               "signature": "(cls, argv=None)",
               "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
-              "line": 2208,
+              "line": 2210,
               "deprecated": false
             }
           ]

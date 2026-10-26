@@ -1696,10 +1696,10 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L2277) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L2283) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L2289) — Maya drop hook: first drop installs and launches;
-- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L92)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L2279) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L2285) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L2291) — Maya drop hook: first drop installs and launches;
+- **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L94)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).
   - `TentacleInstaller.loaded()` *(static)* — True once our code is imported in this process -- its extension modules are then

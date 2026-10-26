@@ -49,7 +49,7 @@ dependencies = [
 # mtk./btk.<Bridge>.APP, and the AppSpec collapse that introduced APP lands in
 # mayatk 0.13.54 / blendertk 0.5.74 -- the engines published beside this one.
 maya = ["mayatk>=0.29.0"]
-blender = ["blendertk>=0.21.0"]
+blender = ["blendertk>=0.21.1"]
 
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"
