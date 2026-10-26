@@ -1,8 +1,8 @@
 # tentacle
 
-**Role**: Desktop app. Slots architecture integrates Maya / Max / Blender / Standalone DCCs (engine per DCC: `mayatk`, `blendertk`).
+**Role**: The product: every tool, panel and Slots class, for Maya, Blender and standalone (3ds Max: a thin launcher). Target layout (root CLAUDE.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): `tools/<tool>/` (`model/`, adapter Protocol, `maya.py` / `blender.py`), `ui/panels/<panel>/` (`.ui` + one shared Slots class), `core/<engine>/`. Panels and tools arrive from mayatk and blendertk one tool per release; no library imports tentacle.
 
-**Nav**: [← root](../CLAUDE.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · **Engines**: [mayatk](../mayatk/CLAUDE.md) · [blendertk](../blendertk/CLAUDE.md) (host-provided, not pinned)
+**Nav**: [← root](../CLAUDE.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · **Host libraries**: [mayatk](../mayatk/CLAUDE.md) · [blendertk](../blendertk/CLAUDE.md) (host-provided, not pinned)
 
 ## API surface
 
@@ -11,6 +11,7 @@
 ## Architecture
 
 - `tentacle/slots/<dcc>/*.py` — DCC-specific slot handlers (e.g. `slots/maya/rendering.py`).
+- **Target: one `<Base>Slots` per category, shared by both hosts**, reaching the host through `self.tk` or the tool's API, never a per-host fork (§3). The normals pilot opens it; each category folds its forks and mixin into one class when next touched. Until then:
 - **Behavior shared by a panel's Maya + Blender forks** → ONE underscore-prefixed mixin module per panel: `slots/_<panel>.py` defining a single `<Panel>Mixin` **class** (a plain mixin, NOT a `Slots{Maya,Blender}` subclass). This is the sanctioned exception to root's composition-over-mixins rule: Switchboard binds a slot by *method name on the slots class*, so shared slot bodies can only be inherited. Concrete slot: `from tentacle import <Panel>Mixin, SlotsDcc` → `class <Panel>Slots(<Panel>Mixin, SlotsDcc)`. Grow the panel's existing mixin — never drop loose per-feature helper modules or module-level `def`s into `slots/` (that's the pre-encapsulation regression). The `_` prefix keeps it out of slot/UI discovery (concrete panels live in `slots/<dcc>/` and pair with a `.ui`). Exemplar: [`slots/_hud_warnings.py`](tentacle/slots/_hud_warnings.py).
   - **Never fold a mixin into `SlotsMaya`/`SlotsBlender`.** Mixins define widget-named slots (`SceneMixin.tb002`, `MaterialsMixin.b003`) and objectNames are reused across panels — on a shared base, a panel that has a `tb002` widget but no `tb002` method silently binds to another panel's slot. Register new mixins in `tentacle/__init__.py`'s `DEFAULT_INCLUDE`; mix in per panel.
 - `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu. `tcl_blender.py` is a full Blender integration (drives `slots/blender` + the `blendertk` engine); `tcl_max.py` is a thin wrapper.
