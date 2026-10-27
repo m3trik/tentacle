@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import maya.cmds as cmds
-import pythontk as ptk
 import mayatk as mtk
 from tentacle import NormalsMixin, SlotsMaya
 

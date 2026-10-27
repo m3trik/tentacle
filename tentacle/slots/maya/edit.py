@@ -490,68 +490,67 @@ class EditSlots(EditMixin, SlotsMaya):
         result_msg = None
 
         # Suspend viewport refresh for the duration of the cleanup
-        cmds.refresh(suspend=True)
         try:
-            if unused_nodes:
-                mel.eval("MLdeleteUnused")
-                # An "empty group" is a transform with neither a shape nor any
-                # DAG child. NodeUtils.get_groups(empty=True) is the shared query
-                # for that, and it replaced a hand-rolled DAG-path sweep whose
-                # type test — `ls -dag -exactType transform` — was not exact at
-                # all: `-exactType` inherits under `-dag`, so it ALSO returned
-                # joints, ikHandles, ikEffectors and every constraint, each of
-                # them a childless, shapeless DAG node and therefore an "empty
-                # group" by that test. On a production assembly it deleted all 7
-                # ikHandles and all 224 constraints while the button had been
-                # asked only to delete history on 6 selected meshes. The
-                # primitive's `is_group` tests `objectType(n) == "transform"`,
-                # which IS exact, reads shapes with noIntermediate so an orig
-                # shape cannot disguise geometry as a group, and stays correct
-                # for instances (a shape instanced into a transform still lists
-                # as that transform's child) — measured identical to the sweep
-                # it replaces on a fixture of instanced shapes, instanced
-                # transforms and a transform carrying two DAG paths.
-                disposable = [
-                    group
-                    for group in mtk.NodeUtils.get_groups(empty=True)
-                    if self._is_disposable_group(group)
-                ]
-                if disposable:
-                    cmds.delete(disposable)
+            with mtk.CoreUtils.suspended_refresh():
+                if unused_nodes:
+                    mel.eval("MLdeleteUnused")
+                    # An "empty group" is a transform with neither a shape nor any
+                    # DAG child. NodeUtils.get_groups(empty=True) is the shared query
+                    # for that, and it replaced a hand-rolled DAG-path sweep whose
+                    # type test — `ls -dag -exactType transform` — was not exact at
+                    # all: `-exactType` inherits under `-dag`, so it ALSO returned
+                    # joints, ikHandles, ikEffectors and every constraint, each of
+                    # them a childless, shapeless DAG node and therefore an "empty
+                    # group" by that test. On a production assembly it deleted all 7
+                    # ikHandles and all 224 constraints while the button had been
+                    # asked only to delete history on 6 selected meshes. The
+                    # primitive's `is_group` tests `objectType(n) == "transform"`,
+                    # which IS exact, reads shapes with noIntermediate so an orig
+                    # shape cannot disguise geometry as a group, and stays correct
+                    # for instances (a shape instanced into a transform still lists
+                    # as that transform's child) — measured identical to the sweep
+                    # it replaces on a fixture of instanced shapes, instanced
+                    # transforms and a transform carrying two DAG paths.
+                    disposable = [
+                        group
+                        for group in mtk.NodeUtils.get_groups(empty=True)
+                        if self._is_disposable_group(group)
+                    ]
+                    if disposable:
+                        cmds.delete(disposable)
 
-            # NodeUtils.delete_history is the shared primitive for exactly this
-            # dispatch — bakePartialHistory -prePostDeformers on a deformed
-            # object, plain `delete -ch` on an undeformed one — and it isolates
-            # a per-node failure instead of losing the whole batch to the first
-            # RuntimeError.
-            # Only report success when something was actually processed — an
-            # empty scope must not claim history was deleted.
-            if pool and mtk.NodeUtils.delete_history(
-                pool, preserve_deformers=not deformers
-            ):
-                result_msg = (
-                    "<hl>Delete history</hl>"
-                    if deformers
-                    else "<hl>Delete non-deformer history</hl>"
-                )
+                # NodeUtils.delete_history is the shared primitive for exactly this
+                # dispatch — bakePartialHistory -prePostDeformers on a deformed
+                # object, plain `delete -ch` on an undeformed one — and it isolates
+                # a per-node failure instead of losing the whole batch to the first
+                # RuntimeError.
+                # Only report success when something was actually processed — an
+                # empty scope must not claim history was deleted.
+                if pool and mtk.NodeUtils.delete_history(
+                    pool, preserve_deformers=not deformers
+                ):
+                    result_msg = (
+                        "<hl>Delete history</hl>"
+                        if deformers
+                        else "<hl>Delete non-deformer history</hl>"
+                    )
 
-            if optimize:
-                # `OptimizeScene` == `cleanUpScene 1` == performCleanUpScene(), which pops a
-                # non-undoable-op OK/Cancel confirmDialog ("Optimize the current scene size?").
-                # performCleanUpScene checks the MAYA_TESTING_CLEANUP env var — Autodesk's own
-                # built-in dialog-suppression hook — and skips the prompt when it is set. Toggle
-                # it around the call (via MEL putenv so MEL's own getenv sees it) and restore the
-                # prior value, so the optimize runs silently as one step of Delete History.
-                prior = mel.eval('getenv "MAYA_TESTING_CLEANUP"')
-                mel.eval('putenv "MAYA_TESTING_CLEANUP" "1"')
-                try:
-                    mel.eval("OptimizeScene")
-                except RuntimeError as error:
-                    print(f"Optimize Scene failed: {error}")
-                finally:
-                    mel.eval(f'putenv "MAYA_TESTING_CLEANUP" "{prior}"')
+                if optimize:
+                    # `OptimizeScene` == `cleanUpScene 1` == performCleanUpScene(), which pops a
+                    # non-undoable-op OK/Cancel confirmDialog ("Optimize the current scene size?").
+                    # performCleanUpScene checks the MAYA_TESTING_CLEANUP env var — Autodesk's own
+                    # built-in dialog-suppression hook — and skips the prompt when it is set. Toggle
+                    # it around the call (via MEL putenv so MEL's own getenv sees it) and restore the
+                    # prior value, so the optimize runs silently as one step of Delete History.
+                    prior = mel.eval('getenv "MAYA_TESTING_CLEANUP"')
+                    mel.eval('putenv "MAYA_TESTING_CLEANUP" "1"')
+                    try:
+                        mel.eval("OptimizeScene")
+                    except RuntimeError as error:
+                        print(f"Optimize Scene failed: {error}")
+                    finally:
+                        mel.eval(f'putenv "MAYA_TESTING_CLEANUP" "{prior}"')
         finally:
-            cmds.refresh(suspend=False)
             cmds.refresh(force=True)
 
         if result_msg:

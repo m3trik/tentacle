@@ -5,7 +5,7 @@ import sys
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
-__version__ = "0.16.2"
+__version__ = "0.16.3"
 
 
 DEFAULT_INCLUDE = {
@@ -88,7 +88,7 @@ def greeting(string, outputToConsole=True):
     result = string.format(hr=hr, pyver=pyver, modver=modver)
 
     if outputToConsole:
-        print(result)
+        print(result)  # noqa: T201 -- greeting() prints only when asked to
     return result
 
 

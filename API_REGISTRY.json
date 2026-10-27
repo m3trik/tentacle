@@ -5775,7 +5775,7 @@
         {
           "name": "ArnoldSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -5792,7 +5792,7 @@
         {
           "name": "CacheSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -5953,7 +5953,7 @@
         {
           "name": "ConstrainSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -5970,7 +5970,7 @@
         {
           "name": "ControlSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6032,7 +6032,7 @@
         {
           "name": "CurvesSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6049,7 +6049,7 @@
         {
           "name": "DeformSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6458,7 +6458,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Selected",
-              "line": 569,
+              "line": 568,
               "deprecated": false
             },
             {
@@ -6467,7 +6467,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Init Lock/Unlock Nodes",
-              "line": 573,
+              "line": 572,
               "deprecated": false
             },
             {
@@ -6476,7 +6476,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Node Locking",
-              "line": 588,
+              "line": 587,
               "deprecated": false
             },
             {
@@ -6485,7 +6485,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Channels: open the Channels panel.",
-              "line": 598,
+              "line": 597,
               "deprecated": false
             },
             {
@@ -6494,7 +6494,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).",
-              "line": 602,
+              "line": 601,
               "deprecated": false
             },
             {
@@ -6503,7 +6503,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list.",
-              "line": 623,
+              "line": 622,
               "deprecated": false
             },
             {
@@ -6512,7 +6512,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive",
-              "line": 704,
+              "line": 703,
               "deprecated": false
             },
             {
@@ -6521,7 +6521,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 778,
+              "line": 777,
               "deprecated": false
             },
             {
@@ -6530,7 +6530,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).",
-              "line": 790,
+              "line": 789,
               "deprecated": false
             },
             {
@@ -6539,7 +6539,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 840,
+              "line": 839,
               "deprecated": false
             }
           ]
@@ -6555,7 +6555,7 @@
         {
           "name": "EditMeshSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6743,7 +6743,7 @@
         {
           "name": "EffectsSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6760,7 +6760,7 @@
         {
           "name": "FieldsSolversSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6777,7 +6777,7 @@
         {
           "name": "FluidsSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6794,7 +6794,7 @@
         {
           "name": "GenerateSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6811,7 +6811,7 @@
         {
           "name": "HelpSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -6920,7 +6920,7 @@
         {
           "name": "KeySlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7001,7 +7001,7 @@
         {
           "name": "LightingShadingSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7055,7 +7055,7 @@
         {
           "name": "MashSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7352,7 +7352,7 @@
         {
           "name": "MeshSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7369,7 +7369,7 @@
         {
           "name": "MeshDisplaySlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7386,7 +7386,7 @@
         {
           "name": "MeshToolsSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7403,7 +7403,7 @@
         {
           "name": "NClothSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7420,7 +7420,7 @@
         {
           "name": "NConstraintSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7437,7 +7437,7 @@
         {
           "name": "NHairSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7454,7 +7454,7 @@
         {
           "name": "NormalsSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "NormalsMixin",
             "SlotsMaya"
@@ -7466,7 +7466,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Set Normals By Angle",
-              "line": 13,
+              "line": 12,
               "deprecated": false
             },
             {
@@ -7475,7 +7475,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Normals By Angle",
-              "line": 47,
+              "line": 46,
               "deprecated": false
             },
             {
@@ -7484,7 +7484,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 83,
+              "line": 82,
               "deprecated": false
             },
             {
@@ -7493,7 +7493,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 92,
+              "line": 91,
               "deprecated": false
             },
             {
@@ -7502,7 +7502,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 117,
+              "line": 116,
               "deprecated": false
             },
             {
@@ -7511,7 +7511,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden all selected edges.",
-              "line": 121,
+              "line": 120,
               "deprecated": false
             },
             {
@@ -7520,7 +7520,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Normals",
-              "line": 125,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -7529,7 +7529,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock vertex normals.",
-              "line": 137,
+              "line": 136,
               "deprecated": false
             },
             {
@@ -7538,7 +7538,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face: set vertex normals to match their face normals (faceted shading).",
-              "line": 141,
+              "line": 140,
               "deprecated": false
             },
             {
@@ -7547,7 +7547,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 145,
+              "line": 144,
               "deprecated": false
             }
           ]
@@ -7563,7 +7563,7 @@
         {
           "name": "NParticlesSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -7780,7 +7780,7 @@
         {
           "name": "PlaybackSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -8311,7 +8311,7 @@
         {
           "name": "RenderSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -8862,7 +8862,7 @@
         {
           "name": "SelectSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9286,7 +9286,7 @@
         {
           "name": "SkeletonSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9303,7 +9303,7 @@
         {
           "name": "SkinSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9320,7 +9320,7 @@
         {
           "name": "StereoSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9472,7 +9472,7 @@
         {
           "name": "SurfacesSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9570,7 +9570,7 @@
         {
           "name": "TexturingSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9587,7 +9587,7 @@
         {
           "name": "ToonSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -9866,7 +9866,7 @@
         {
           "name": "UtilitiesSlots",
           "summary": "",
-          "line": 8,
+          "line": 7,
           "bases": [
             "SlotsMaya"
           ],
@@ -9877,7 +9877,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Measure: create a distance-measure tool between two points.",
-              "line": 12,
+              "line": 11,
               "deprecated": false
             },
             {
@@ -9886,7 +9886,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Annotation: create an annotation (text label) node.",
-              "line": 16,
+              "line": 15,
               "deprecated": false
             },
             {
@@ -9895,7 +9895,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Calculator: open the calculator tool.",
-              "line": 20,
+              "line": 19,
               "deprecated": false
             },
             {
@@ -9904,7 +9904,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Grease Pencil",
-              "line": 24,
+              "line": 23,
               "deprecated": false
             }
           ]
@@ -9959,7 +9959,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Auto Unwrap.",
-              "line": 685,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -9968,7 +9968,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Auto Unwrap: automatically unwrap UVs for the selected objects.",
-              "line": 762,
+              "line": 761,
               "deprecated": false
             },
             {
@@ -9977,7 +9977,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Unfold UV",
-              "line": 823,
+              "line": 822,
               "deprecated": false
             },
             {
@@ -9986,7 +9986,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold: relax/unfold the selected UVs to reduce stretch and distortion.",
-              "line": 873,
+              "line": 872,
               "deprecated": false
             },
             {
@@ -9995,7 +9995,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cleanup UV Sets",
-              "line": 965,
+              "line": 964,
               "deprecated": false
             },
             {
@@ -10004,7 +10004,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cleanup UV Sets",
-              "line": 1011,
+              "line": 1010,
               "deprecated": false
             },
             {
@@ -10013,7 +10013,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Cylinder.",
-              "line": 1069,
+              "line": 1068,
               "deprecated": false
             },
             {
@@ -10022,7 +10022,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut Cylinder",
-              "line": 1187,
+              "line": 1186,
               "deprecated": false
             },
             {
@@ -10031,7 +10031,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Get texel density.",
-              "line": 1234,
+              "line": 1233,
               "deprecated": false
             },
             {
@@ -10040,7 +10040,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set Texel Density",
-              "line": 1245,
+              "line": 1244,
               "deprecated": false
             },
             {
@@ -10049,7 +10049,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut UVs: split the UV shell along the selected edges.",
-              "line": 1256,
+              "line": 1255,
               "deprecated": false
             },
             {
@@ -10058,7 +10058,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Sew UVs: stitch the selected UV edges back together.",
-              "line": 1291,
+              "line": 1290,
               "deprecated": false
             },
             {
@@ -10067,7 +10067,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Unfold and Pack UVs",
-              "line": 1320,
+              "line": 1319,
               "deprecated": false
             },
             {
@@ -10076,7 +10076,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Cut Hard Edges option menu.",
-              "line": 1329,
+              "line": 1328,
               "deprecated": false
             },
             {
@@ -10085,7 +10085,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Cut UV hard edges (always), optionally also UV borders and auto-detected seams.",
-              "line": 1364,
+              "line": 1363,
               "deprecated": false
             },
             {
@@ -10094,7 +10094,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Pin / Unpin selected UVs (dual-state toggle).",
-              "line": 1402,
+              "line": 1401,
               "deprecated": false
             },
             {
@@ -10103,7 +10103,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Stack / Unstack shells (dual-state toggle).",
-              "line": 1426,
+              "line": 1425,
               "deprecated": false
             },
             {
@@ -10112,7 +10112,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open UV Editor",
-              "line": 1528,
+              "line": 1524,
               "deprecated": false
             },
             {
@@ -10121,7 +10121,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RizomUV Bridge",
-              "line": 1532,
+              "line": 1528,
               "deprecated": false
             },
             {
@@ -10130,7 +10130,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).",
-              "line": 1536,
+              "line": 1532,
               "deprecated": false
             }
           ]
@@ -10146,7 +10146,7 @@
         {
           "name": "VisualizeSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
@@ -10163,7 +10163,7 @@
         {
           "name": "WindowsSlots",
           "summary": "",
-          "line": 9,
+          "line": 8,
           "bases": [
             "SlotsMaya"
           ],
