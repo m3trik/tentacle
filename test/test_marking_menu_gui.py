@@ -656,6 +656,37 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             ui.hide()
             self._process()
 
+    def test_a_shared_tool_panel_opens_sticky_over_the_host_toolkit(self):
+        """A panel in ``ui/panels/`` opens the way the Duplicate menu opens it: from
+        tentacle's folder, bound to its one Slots class over ``mtk``, sticky by the
+        panel tag (the rule mayatk's own panels had by their package tag)."""
+        from pathlib import Path
+
+        import mayatk as mtk
+        import tentacle
+
+        self.mm.sb.handlers.marking_menu.show("duplicate_radial")
+        self._process()
+        ui = self.mm.sb.loaded_ui.duplicate_radial
+        try:
+            self.assertTrue(ui.isVisible(), "the panel did not show")
+            filepath = self.mm.sb.registry.ui_registry.get(
+                filename="duplicate_radial", return_field="filepath"
+            )
+            panels = Path(tentacle.__file__).resolve().parent / "ui" / "panels"
+            self.assertTrue(Path(filepath).resolve().is_relative_to(panels), filepath)
+            slots = self.mm.sb.get_slots_instance(ui)
+            self.assertEqual(type(slots).__name__, "DuplicateRadialSlots")
+            self.assertIs(slots.tk, mtk)
+            self.assertIsInstance(slots.preview, mtk.Preview)
+            self.assertEqual(
+                self.mm.sb.handlers.ui.default_persistence(ui),
+                self.mm.sb.handlers.ui.PERSISTENCE_STICKY,
+            )
+        finally:
+            ui.hide()
+            self._process()
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

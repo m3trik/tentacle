@@ -98,6 +98,7 @@ def make_slot(cls, ui, axis=""):
     slot.sb = NS(
         message_box=lambda *a, **k: messages.append(" ".join(map(str, a))),
         get_axis_from_checkboxes=lambda *a, **k: axis,
+        tk=btk,  # a shared Slots class's host (Slots.tk)
     )
     slot.ui = ui
     return slot
@@ -106,13 +107,15 @@ def make_slot(cls, ui, axis=""):
 try:
     import bpy
 
-    # The tool-panel Slots now live co-located in blendertk (next to their engine + .ui),
-    # discovered by BlenderUiHandler — not in tentacle. Their Qt-only imports are deferred,
-    # so importing the Slots classes is Qt-free (no tcl_blender Qt-provisioning needed here).
+    import blendertk as btk
+
+    # Most tool-panel Slots still live co-located in blendertk (next to their engine + .ui),
+    # discovered by BlenderUiHandler; a moved panel's one Slots class is tentacle's
+    # (ui/panels/), shared with Maya, and reaches Blender through sb.tk (make_slot sets it).
     from blendertk.edit_utils.mirror import MirrorSlots
     from blendertk.edit_utils.cut_on_axis import CutOnAxisSlots
     from blendertk.edit_utils.duplicate_linear import DuplicateLinearSlots
-    from blendertk.edit_utils.duplicate_radial import DuplicateRadialSlots
+    from tentacle.ui.panels.duplicate_radial.duplicate_radial import DuplicateRadialSlots
     from blendertk.edit_utils.duplicate_grid import DuplicateGridSlots
 
     def reset():
@@ -299,7 +302,6 @@ try:
     # _apply_levels): cmb000's full path now re-syncs the whole panel from the scene
     # (_sync_ui_to_scene), which a stub ui cannot stand in for.
     import tempfile
-    import blendertk as btk
     from blendertk.light_utils.hdr_manager import HdrManagerSlots
 
     tmp_dir = tempfile.mkdtemp(prefix="tcl_hdr_")

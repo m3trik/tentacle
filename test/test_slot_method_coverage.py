@@ -43,6 +43,8 @@ from xml.etree import ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 UI_DIR = ROOT / "tentacle" / "ui"
+#: Tool panels: one folder each, its ``.ui`` and its one Slots class (``Tcl.register_panels``).
+PANELS_DIR = UI_DIR / "panels"
 
 #: DCC -> the marking-menu subdir holding its submenu .ui files (e.g.
 #: ``select#submenu.ui``). Every DCC with a ``slots/<dcc>/`` package is checked;
@@ -338,6 +340,86 @@ class TestEveryUiPairsToASlotFile(unittest.TestCase):
             10,
             f"Too many orphan UI files (no slot pair): {orphans}",
         )
+
+
+
+def _panel_dirs() -> list[Path]:
+    """Every panel folder under ``ui/panels/``."""
+    return sorted(
+        d for d in PANELS_DIR.iterdir() if d.is_dir() and not d.name.startswith("__")
+    )
+
+
+def _ui_names(ui_path: Path) -> set[str]:
+    """Every widget (and layout) name a .ui declares: what ``self.ui.<name>`` reaches."""
+    tree = ET.parse(ui_path)
+    return {
+        node.get("name")
+        for tag in ("widget", "layout")
+        for node in tree.iter(tag)
+        if node.get("name")
+    }
+
+
+def _ui_reads(py_path: Path) -> set[str]:
+    """Names the module reads as ``self.ui.<name>``; a call (``self.ui.show()``) is a
+    window method, not a widget."""
+    tree = ast.parse(py_path.read_text(encoding="utf-8"))
+    called = {
+        id(node.func) for node in ast.walk(tree) if isinstance(node, ast.Call)
+    }
+    return {
+        node.attr
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Attribute)
+        and id(node) not in called
+        and ast.unparse(node.value) == "self.ui"
+    }
+
+
+class TestEveryPanelIsOneUiAndOneSlotsClass(unittest.TestCase):
+    """A panel folder holds ``<panel>.ui`` and ``<panel>.py`` defining its one
+    ``<Panel>Slots`` (the name uitk's Slots lookup derives from the stem), and every
+    widget the Slots class reads is one its ``.ui`` declares -- the drift a widget
+    rename leaves behind (the read dies on first use, not at load)."""
+
+    def test_each_panel_folder_pairs_its_ui_with_its_slots_class(self):
+        for panel in _panel_dirs():
+            with self.subTest(panel=panel.name):
+                ui, py = panel / f"{panel.name}.ui", panel / f"{panel.name}.py"
+                self.assertTrue(ui.is_file(), f"{panel.name}: no {ui.name}")
+                self.assertTrue(py.is_file(), f"{panel.name}: no {py.name}")
+                expected = "".join(p.title() for p in panel.name.split("_")) + "Slots"
+                classes = [
+                    n.name
+                    for n in ast.parse(py.read_text(encoding="utf-8")).body
+                    if isinstance(n, ast.ClassDef) and n.name.endswith("Slots")
+                ]
+                self.assertEqual(classes, [expected], panel.name)
+
+    def test_every_widget_a_panel_reads_is_in_its_ui(self):
+        for panel in _panel_dirs():
+            with self.subTest(panel=panel.name):
+                py = panel / f"{panel.name}.py"
+                widgets = _ui_names(panel / f"{panel.name}.ui")
+                unknown = sorted(_ui_reads(py) - widgets)
+                self.assertEqual(unknown, [], f"{py.name} reads widgets its .ui lacks")
+                inits = {
+                    n.name[: -len("_init")]
+                    for n in ast.walk(ast.parse(py.read_text(encoding="utf-8")))
+                    if isinstance(n, ast.FunctionDef) and n.name.endswith("_init")
+                }
+                self.assertEqual(
+                    sorted(inits - widgets), [], f"{py.name} inits widgets its .ui lacks"
+                )
+
+    def test_the_panel_checks_are_not_vacuous(self):
+        """Guard the guard: a moved panel root would pass the checks above empty."""
+        self.assertTrue(_panel_dirs(), f"no panel folders under {PANELS_DIR}")
+        reads = set().union(
+            *(_ui_reads(d / f"{d.name}.py") for d in _panel_dirs())
+        )
+        self.assertTrue(reads, "no self.ui reads found in any panel")
 
 
 if __name__ == "__main__":

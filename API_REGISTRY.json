@@ -924,12 +924,21 @@
           ],
           "members": [
             {
+              "name": "tk",
+              "qualname": "Slots.tk",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host toolkit (``mtk`` / ``btk``) the entry point set on the",
+              "line": 44,
+              "deprecated": false
+            },
+            {
               "name": "mirror_app_state",
               "qualname": "Slots.mirror_app_state",
               "kind": "staticmethod",
               "signature": "(widget, seed=None) -> None",
               "summary": "Declare that *widget*'s value mirrors live DCC state, optionally seeding it.",
-              "line": 62,
+              "line": 70,
               "deprecated": false
             },
             {
@@ -938,7 +947,7 @@
               "kind": "method",
               "signature": "(self, sublist, widget_class=None, **kwargs)",
               "summary": "Add a slot-wired widget as an ExpandableList sublist entry.",
-              "line": 102,
+              "line": 110,
               "deprecated": false
             },
             {
@@ -947,7 +956,7 @@
               "kind": "method",
               "signature": "(self, widget, resolve_spec) -> bool",
               "summary": "Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.",
-              "line": 187,
+              "line": 195,
               "deprecated": false
             },
             {
@@ -956,7 +965,7 @@
               "kind": "method",
               "signature": "(self) -> int",
               "summary": "Re-probe every gated app and re-present its widgets.",
-              "line": 233,
+              "line": 241,
               "deprecated": false
             },
             {
@@ -965,7 +974,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two viewport-camera views in slot history.",
-              "line": 255,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -974,7 +983,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
-              "line": 286,
+              "line": 294,
               "deprecated": false
             }
           ]
@@ -10258,12 +10267,21 @@
               "deprecated": false
             },
             {
+              "name": "register_panels",
+              "qualname": "Tcl.register_panels",
+              "kind": "staticmethod",
+              "signature": "(switchboard)",
+              "summary": "Register ``ui/panels/`` on *switchboard*: one folder per tool panel, holding its",
+              "line": 594,
+              "deprecated": false
+            },
+            {
               "name": "chord_bindings",
               "qualname": "Tcl.chord_bindings",
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 594,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -10272,7 +10290,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 614,
+              "line": 633,
               "deprecated": false
             },
             {
@@ -10281,7 +10299,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 649,
+              "line": 668,
               "deprecated": false
             },
             {
@@ -10317,7 +10335,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2260,
+          "line": 2264,
           "deprecated": false
         },
         {
@@ -10326,7 +10344,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2265,
+          "line": 2269,
           "deprecated": false
         },
         {
@@ -10335,7 +10353,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2270,
+          "line": 2274,
           "deprecated": false
         },
         {
@@ -10344,7 +10362,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2275,
+          "line": 2279,
           "deprecated": false
         },
         {
@@ -10353,7 +10371,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2280,
+          "line": 2284,
           "deprecated": false
         },
         {
@@ -10362,7 +10380,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2285,
+          "line": 2289,
           "deprecated": false
         },
         {
@@ -10371,7 +10389,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2290,
+          "line": 2294,
           "deprecated": false
         },
         {
@@ -10380,7 +10398,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2295,
+          "line": 2299,
           "deprecated": false
         },
         {
@@ -10389,7 +10407,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2300,
+          "line": 2304,
           "deprecated": false
         },
         {
@@ -10398,7 +10416,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2305,
+          "line": 2309,
           "deprecated": false
         },
         {
@@ -10407,7 +10425,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2310,
+          "line": 2314,
           "deprecated": false
         }
       ],
@@ -10426,7 +10444,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1657,
+              "line": 1661,
               "deprecated": false
             },
             {
@@ -10435,7 +10453,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1706,
+              "line": 1710,
               "deprecated": false
             },
             {
@@ -10444,7 +10462,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1737,
+              "line": 1741,
               "deprecated": false
             },
             {
@@ -10453,7 +10471,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1748,
+              "line": 1752,
               "deprecated": false
             },
             {
@@ -10462,7 +10480,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1766,
+              "line": 1770,
               "deprecated": false
             }
           ]
@@ -10470,7 +10488,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 2025,
+          "line": 2029,
           "bases": [],
           "members": [
             {
@@ -10479,7 +10497,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 2030,
+              "line": 2034,
               "deprecated": false
             }
           ]
@@ -10487,7 +10505,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 2138,
+          "line": 2142,
           "bases": [],
           "members": [
             {
@@ -10496,7 +10514,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 2144,
+              "line": 2148,
               "deprecated": false
             },
             {
@@ -10505,7 +10523,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 2164,
+              "line": 2168,
               "deprecated": false
             },
             {
@@ -10514,7 +10532,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 2197,
+              "line": 2201,
               "deprecated": false
             },
             {
@@ -10523,7 +10541,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2202,
+              "line": 2206,
               "deprecated": false
             }
           ]
@@ -10864,6 +10882,78 @@
               "signature": "(cls, argv=None)",
               "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
               "line": 2210,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "ui/panels/duplicate_radial/duplicate_radial.py",
+      "summary": "Duplicate Radial: copies of the selection in a radial pattern about a pivot.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DuplicateRadialSlots",
+          "summary": "",
+          "line": 13,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "DuplicateRadialSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 53,
+              "deprecated": false
+            },
+            {
+              "name": "s015_init",
+              "qualname": "DuplicateRadialSlots.s015_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Weight Bias.",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "s016_init",
+              "qualname": "DuplicateRadialSlots.s016_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Weight Curve.",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "DuplicateRadialSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "DuplicateRadialSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Duplicate *objects* radially from the panel's values.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "regroup_copies",
+              "qualname": "DuplicateRadialSlots.regroup_copies",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The commit's finalize step: the host groups the committed copies.",
+              "line": 172,
               "deprecated": false
             }
           ]

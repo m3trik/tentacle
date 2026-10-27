@@ -73,7 +73,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: mirror_app_state, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
+  - methods: tk, mirror_app_state, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/_transform.py` — Behavior shared by the Maya and Blender ``transform`` panels.
 - `class TransformMixin`
@@ -422,7 +422,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, chord_bindings, banner, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, register_panels, chord_bindings, banner, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`
@@ -456,3 +456,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `onMayaDroppedPythonFile(*_args)`
 - `class TentacleInstaller`
   - methods: host, headless, loaded, specs, python_exe, maya_paths, target_dir, is_installed, lock_path, manifest_path, read_manifest, write_manifest, installed_version, install, update, uninstall, request, provision, launch, shutdown, ensure_and_launch, write_maya_module, dropped, register_blender_ui, unregister_blender_ui, main
+
+### `ui/panels/duplicate_radial/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+- `class DuplicateRadialSlots(Slots)`
+  - methods: header_init, s015_init, s016_init, b001_init, perform_operation, regroup_copies
