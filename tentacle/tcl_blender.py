@@ -1560,6 +1560,8 @@ class TclBlender(MarkingMenu):
             },  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
+        # The toolkit a Slots class shared by both hosts calls (Slots.tk).
+        self.sb.tk = btk
 
         # External apps — the same standalone ``extapps`` panels Maya uses.
         # They self-describe via ``extapps``'s ``uitk.external_apps.in_process``

@@ -40,6 +40,14 @@ class Slots(QtCore.QObject):
     #: slot class).
     _legacy_repeat_last_migrated = False
 
+    @property
+    def tk(self):
+        """The host toolkit (``mtk`` / ``btk``) the entry point set on the
+        switchboard: what a Slots class shared by both hosts calls for host
+        behavior, never the host itself (CODE_STANDARD section 3). ``None``
+        outside a host entry point."""
+        return getattr(self.sb, "tk", None)
+
     def __init__(self, switchboard):
         super().__init__()
         self.sb = switchboard

@@ -783,5 +783,40 @@ class TestRecheckAppGates(unittest.TestCase):
         self.assertEqual(good.refreshes, 1)
 
 
+class TestToolkit(unittest.TestCase):
+    """A shared Slots class reaches the host through ``self.tk``, the toolkit
+    the host's entry point sets on the switchboard -- never the host itself."""
+
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+
+    def test_tk_is_the_toolkit_the_entry_point_set(self):
+        sb = _Sb()
+        sb.tk = object()
+        self.assertIs(Slots(sb).tk, sb.tk)
+
+    def test_without_one_tk_is_none(self):
+        self.assertIsNone(Slots(_Sb()).tk)
+
+    def test_each_host_entry_point_sets_its_toolkit(self):
+        """Read off the source: the entry points import only inside their host."""
+        import ast
+        from pathlib import Path
+
+        package = Path(__file__).resolve().parents[1] / "tentacle"
+        for module, toolkit in (("tcl_maya.py", "mtk"), ("tcl_blender.py", "btk")):
+            tree = ast.parse((package / module).read_text(encoding="utf-8"))
+            sets = [
+                node.value.id
+                for node in ast.walk(tree)
+                if isinstance(node, ast.Assign)
+                and isinstance(node.value, ast.Name)
+                and any(ast.unparse(t) == "self.sb.tk" for t in node.targets)
+            ]
+            self.assertEqual(sets, [toolkit], module)
+
+
 if __name__ == "__main__":
     unittest.main()

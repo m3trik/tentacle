@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-27 -- A Slots class reaches its host through `self.tk` (`slots/_slots.py`, `tcl_maya.py`, `tcl_blender.py`).** Each host's entry point sets its toolkit on the switchboard (`mtk` in Maya, `btk` in Blender), and `Slots.tk` reads it, so a Slots class shared by both hosts calls host behavior through one name instead of naming a host (CODE_STANDARD section 3). The groundwork for Phase 3's composed Slots; no existing Slots class changes.
+  - Test(s): `test_slots_base.py` +3 (`TestToolkit`).
 - **2026-10-27 -- A fresh, headless Blender mode in the test runner (`test/run_tests.py --in-blender`).** Each Blender check whose usage line runs it in a background Blender (15 of `test/blender/`) runs in its own fresh `blender --background --factory-startup`, through blendertk's runner, the one launcher (a throwaway temp root, uitk's settings sandbox), never an open session; the rest drive a real window and stay manual. Two checks printed a sentinel the runner does not read (`duplicate_check.py`, `viewport_tool_check.py`) and now print the standard `===RESULT: PASS=== (n/m)`. `affected_tests.py` names the command for a headless check it selects.
   - Test(s): `test_run_tests.py` +3 (`TestBlenderChecks`); the mode's first full run: 15 checks, 425 of 425 passed.
 - **2026-10-26 -- Cleanup, Pack UVs and Unstack suspend the viewport through mayatk's counter (`slots/maya/edit.py`, `slots/maya/uv.py`).** Their raw `cmds.refresh` toggles did not count, so a mayatk call inside one that suspends through `CoreUtils.suspended_refresh()` resumed the viewport for the rest of the operation. They now use it too; Cleanup still forces a redraw at the end.
