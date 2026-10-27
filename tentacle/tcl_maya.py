@@ -62,6 +62,8 @@ class TclMaya(MarkingMenu):
         )
         # The toolkit a Slots class shared by both hosts calls (Slots.tk).
         self.sb.tk = mtk
+        # The shared tool panels (ui/panels/), sticky in either host.
+        Tcl.register_panels(self.sb)
         # The preload leaves Maya's own menus cold. Building one runs Maya's
         # MEL menu builder: the main window's menu set switches mid-build,
         # Arnold and MASH load their plugins (mtoa's deferred init froze the

@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-27 -- Shared tool panels have their root (`tcl.py` `Tcl.register_panels`, new `ui/panels/`, `tcl_maya.py`, `tcl_blender.py`).** Both entry points register `ui/panels/` recursively under uitk's `UiHandler.PANEL_TAG`, so a panel folder there (its `.ui` and its one Slots class) loads and opens sticky in Maya and Blender alike. Empty until Phase 3's first panel moves in; needs the uitk release that adds `PANEL_TAG`.
+  - Test(s): `test_tcl_launcher.py` +2 (`TestPanelRoot`).
 - **2026-10-27 -- A Slots class reaches its host through `self.tk` (`slots/_slots.py`, `tcl_maya.py`, `tcl_blender.py`).** Each host's entry point sets its toolkit on the switchboard (`mtk` in Maya, `btk` in Blender), and `Slots.tk` reads it, so a Slots class shared by both hosts calls host behavior through one name instead of naming a host (CODE_STANDARD section 3). The groundwork for Phase 3's composed Slots; no existing Slots class changes.
   - Test(s): `test_slots_base.py` +3 (`TestToolkit`).
 - **2026-10-27 -- A fresh, headless Blender mode in the test runner (`test/run_tests.py --in-blender`).** Each Blender check whose usage line runs it in a background Blender (15 of `test/blender/`) runs in its own fresh `blender --background --factory-startup`, through blendertk's runner, the one launcher (a throwaway temp root, uitk's settings sandbox), never an open session; the rest drive a real window and stay manual. Two checks printed a sentinel the runner does not read (`duplicate_check.py`, `viewport_tool_check.py`) and now print the standard `===RESULT: PASS=== (n/m)`. `affected_tests.py` names the command for a headless check it selects.

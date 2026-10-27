@@ -137,6 +137,37 @@ class TestChordBindings(unittest.TestCase):
         self.assertEqual(Tcl.chord_bindings(), Tcl.chord_bindings(Tcl.DEFAULT_KEY))
 
 
+class TestPanelRoot(unittest.TestCase):
+    """``register_panels`` — the shared ``ui/panels/`` root, sticky in any host."""
+
+    def test_registers_the_packaged_root_recursively_under_the_panel_tag(self):
+        from uitk import UiHandler
+
+        sb = mock.Mock()
+        Tcl.register_panels(sb)
+        kwargs = sb.register.call_args.kwargs
+        panels = PKG / "ui" / "panels"
+        self.assertTrue(panels.is_dir())
+        self.assertEqual(Path(kwargs["ui_location"]), panels)
+        self.assertEqual(Path(kwargs["slot_location"]), panels)
+        self.assertTrue(kwargs["recursive"])
+        self.assertEqual(kwargs["tags"], {UiHandler.PANEL_TAG})
+
+    def test_each_host_entry_point_registers_it(self):
+        """Read off the source: the entry points import only inside their host."""
+        import ast
+
+        for module in ("tcl_maya.py", "tcl_blender.py"):
+            tree = ast.parse((PKG / module).read_text(encoding="utf-8"))
+            calls = [
+                ast.unparse(node)
+                for node in ast.walk(tree)
+                if isinstance(node, ast.Call)
+                and ast.unparse(node.func) == "Tcl.register_panels"
+            ]
+            self.assertEqual(calls, ["Tcl.register_panels(self.sb)"], module)
+
+
 class TestHostDetection(unittest.TestCase):
     """``host`` — which DCC is running this process.
 

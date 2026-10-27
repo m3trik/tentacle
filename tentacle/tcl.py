@@ -590,6 +590,25 @@ class Tcl(_TclInternal):
             stored = None
         return cls.qt_key_name(stored or key_show)
 
+    @staticmethod
+    def register_panels(switchboard):
+        """Register ``ui/panels/`` on *switchboard*: one folder per tool panel, holding its
+        ``.ui`` and its one Slots class, shared by every host (CODE_STANDARD section 3).
+
+        Recursive, and tagged ``UiHandler.PANEL_TAG`` so a panel opens sticky in any host
+        (the hosts' handlers defer to that rule). Both entry points call this, so the panel
+        root is written once.
+        """
+        from uitk import UiHandler
+
+        panels = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "panels")
+        switchboard.register(
+            ui_location=panels,
+            slot_location=panels,
+            recursive=True,
+            tags={UiHandler.PANEL_TAG},
+        )
+
     @classmethod
     def chord_bindings(cls, key_show=None, chord_target=None):
         """The default chord→menu table for ``key_show`` (bare or Qt-named).
