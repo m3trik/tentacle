@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (137)
+## Added (41)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -23,129 +23,33 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots(class)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.header_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.regroup_copies(self)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s015_init(self, widget)`
+- `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s016_init(self, widget)`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots(class)`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b000(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b001(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b002(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b003(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.compact_slots(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.header_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.key_weights(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.make_weights_keyable(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.remove_group(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.republish_export(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.select_members(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tb000(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tb000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.tbl000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.txt000_init(self, widget) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_off(self) -> None`
+- `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_on(self) -> None`
 - `tcl.py::Tcl.register_shared(switchboard)`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter(class)`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.add_members(self, store: str, face_map: FaceMap) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.carrier_weights(self, prefix: str) -> List[str]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.delete_weight(self, attr: str) -> bool`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.discard_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.ensure_weight(self, attr: str, default: float) -> str`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.extra_warnings(self) -> List[str]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.face_count(self, obj: str) -> int`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.faces(self, faces=None) -> FaceMap`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.mask_path(self, suffix: str) -> str`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.members(self, store: str) -> Optional[FaceMap]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.membership_stores(self, prefix: str) -> Iterable[Tuple[str, str]]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.merge_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.mesh(self, name: str) -> Optional[str]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.object_names(self, objects) -> List[str]`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.publish(self, records: Mapping[Any, Any]) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.remove_members(self, store: str) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.select(self, face_map: FaceMap) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.sync_weight(self, attr: str, value: float) -> None`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.weight_exists(self, attr: str) -> bool`
-- `tools/emissive_groups/adapter.py::EmissiveGroupsAdapter.write_colors(self, obj: str, channels: Mapping[int, List[float]], color_set: str) -> None`
-- `tools/emissive_groups/api.py::EmissiveGroupsApi(class)`
-- `tools/emissive_groups/api.py::EmissiveGroupsApi.for_toolkit(cls, tk)`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups(class)`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.carrier_weights(self, prefix: str) -> List[str]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.create_export_curve_proxies(cls) -> List`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.delete_weight(self, attr: str) -> bool`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.discard_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.ensure_weight(self, attr: str, default: float) -> str`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.extra_warnings(self) -> List[str]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.face_count(self, obj: str) -> int`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.faces(self, faces=None) -> FaceMap`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.mask_path(self, suffix: str) -> str`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.members(self, store: str) -> Optional[FaceMap]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.membership_stores(self, prefix: str)`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.merge_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.mesh(self, name: str) -> Optional[str]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.object_names(self, objects) -> List[str]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.publish(self, records) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.remove_export_curve_proxies(cls) -> List[str]`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.remove_members(self, store: str) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.select(self, face_map: FaceMap) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.sync_weight(self, attr: str, value: float) -> None`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.weight_exists(self, attr: str) -> bool`
-- `tools/emissive_groups/blender.py::BlenderEmissiveGroups.write_colors(self, obj: str, channels, color_set: str) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups(class)`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.carrier_weights(self, prefix: str) -> List[str]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.delete_weight(self, attr: str) -> bool`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.discard_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.ensure_weight(self, attr: str, default: float) -> str`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.extra_warnings(self) -> List[str]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.face_count(self, obj: str) -> int`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.faces(self, faces=None) -> FaceMap`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.mask_path(self, suffix: str) -> str`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.members(self, store: str) -> Optional[FaceMap]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.membership_stores(self, prefix: str)`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.merge_stores(self, stores: List[str], ctx) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.mesh(self, name: str) -> Optional[str]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.object_names(self, objects) -> List[str]`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.publish(self, records) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.remove_members(self, store: str) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.select(self, face_map: FaceMap) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.sync_weight(self, attr: str, value: float) -> None`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.weight_exists(self, attr: str) -> bool`
-- `tools/emissive_groups/maya.py::MayaEmissiveGroups.write_colors(self, obj: str, channels, color_set: str) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel(class)`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.add_group(self, name: str, faces=None, default: float = 1.0) -> str`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.bake_mask(self, output_path: Optional[str] = None, resolution: int = 512, padding_px: int = 4, uv_set: Optional[str] = None) -> dict`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.bake_vertex_colors(self, force: bool = False) -> dict`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.compact_slots(self) -> List[int]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.discard_carrier(self, carriers, other, ctx) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.export_record(self, ctx: 'ptk.ExportContext') -> Optional['ptk.Record']`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.key_weight(self, name: str, value: Optional[float] = None, frame: Optional[float] = None, auto_keyable: bool = True) -> str`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.list_groups(self) -> Dict[str, dict]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.make_weights_keyable(self, names=None) -> Dict[str, str]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.merge_carrier(self, carriers, other, ctx) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.refresh_export_metadata(self) -> Optional[str]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.remove_group(self, name: str) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.remove_keyable_weights(self, names=None) -> List[str]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.select_group(self, name: str) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.set_default(self, name: str, default: float) -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.transfer_in(self, payload: dict, ctx: 'ptk.TransferContext') -> None`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.transfer_out(self, ctx: 'ptk.TransferContext') -> Optional[dict]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.validate(self) -> List[str]`
-- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.weight_attrs(self) -> Dict[str, str]`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots(class)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.b001_init(self, widget)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.header_init(self, widget)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.perform_operation(self, objects, contract=None)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.regroup_copies(self)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.s015_init(self, widget)`
-- `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.s016_init(self, widget)`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots(class)`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b000(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b001(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b002(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b003(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.compact_slots(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.header_init(self, widget) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.key_weights(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.make_weights_keyable(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.remove_group(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.republish_export(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.select_members(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tb000(self, widget) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tb000_init(self, widget) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tbl000_init(self, widget) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.txt000_init(self, widget) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.weights_all_off(self) -> None`
-- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.weights_all_on(self) -> None`
 
 ## Moved (22)
 

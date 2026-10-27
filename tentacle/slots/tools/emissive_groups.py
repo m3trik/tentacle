@@ -2,14 +2,14 @@
 # coding=utf-8
 """Emissive Groups: named face groups whose emissive regions a game engine gates.
 
-One Slots class for both hosts; the engine is the Emissive Groups tool
-(``tools/emissive_groups``) in the running host, reached from ``self.tk``.
+One Slots class for both hosts; the engine is the host library's
+``EmissiveGroups`` (pythontk's model over that host's half), reached from
+``self.tk``.
 """
 
 from typing import Optional
 
 from tentacle import Slots
-from tentacle.tools.emissive_groups.api import EmissiveGroupsApi
 
 
 class EmissiveGroupsSlots(Slots):
@@ -33,7 +33,7 @@ class EmissiveGroupsSlots(Slots):
     def __init__(self, switchboard):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.emissive_groups
-        self.engine = EmissiveGroupsApi.for_toolkit(self.tk)
+        self.engine = self.tk.EmissiveGroups
         self._updating = False
         self._scrub_start = None
         self._scrub_value = None

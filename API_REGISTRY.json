@@ -10065,6 +10065,258 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/duplicate_radial.py",
+      "summary": "Duplicate Radial: copies of the selection in a radial pattern about a pivot.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DuplicateRadialSlots",
+          "summary": "",
+          "line": 13,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "DuplicateRadialSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 53,
+              "deprecated": false
+            },
+            {
+              "name": "s015_init",
+              "qualname": "DuplicateRadialSlots.s015_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Weight Bias.",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "s016_init",
+              "qualname": "DuplicateRadialSlots.s016_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Weight Curve.",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "DuplicateRadialSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "DuplicateRadialSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Duplicate *objects* radially from the panel's values.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "regroup_copies",
+              "qualname": "DuplicateRadialSlots.regroup_copies",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The commit's finalize step: the host groups the committed copies.",
+              "line": 172,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/emissive_groups.py",
+      "summary": "Emissive Groups: named face groups whose emissive regions a game engine gates.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "EmissiveGroupsSlots",
+          "summary": "Switchboard slots for the ``emissive_groups.ui`` panel.",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "EmissiveGroupsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "EmissiveGroupsSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Group-name field — clearable back to the auto-derived name.",
+              "line": 112,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "EmissiveGroupsSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Table setup: one-time construction, then (re)wire signals and populate.",
+              "line": 116,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "EmissiveGroupsSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Add (or extend) a group from the selection.",
+              "line": 369,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "EmissiveGroupsSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove the selected group (retires its slot).",
+              "line": 382,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "EmissiveGroupsSlots.b002",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select the group's member faces.",
+              "line": 386,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "EmissiveGroupsSlots.b003",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Validate authoring state.",
+              "line": 390,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "EmissiveGroupsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Initialize Bake.",
+              "line": 400,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "EmissiveGroupsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Bake membership and publish the export manifest.",
+              "line": 473,
+              "deprecated": false
+            },
+            {
+              "name": "select_members",
+              "qualname": "EmissiveGroupsSlots.select_members",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 492,
+              "deprecated": false
+            },
+            {
+              "name": "remove_group",
+              "qualname": "EmissiveGroupsSlots.remove_group",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 502,
+              "deprecated": false
+            },
+            {
+              "name": "weights_all_on",
+              "qualname": "EmissiveGroupsSlots.weights_all_on",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 510,
+              "deprecated": false
+            },
+            {
+              "name": "weights_all_off",
+              "qualname": "EmissiveGroupsSlots.weights_all_off",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 513,
+              "deprecated": false
+            },
+            {
+              "name": "make_weights_keyable",
+              "qualname": "EmissiveGroupsSlots.make_weights_keyable",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 521,
+              "deprecated": false
+            },
+            {
+              "name": "key_weights",
+              "qualname": "EmissiveGroupsSlots.key_weights",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 532,
+              "deprecated": false
+            },
+            {
+              "name": "remove_keyable_weights",
+              "qualname": "EmissiveGroupsSlots.remove_keyable_weights",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 545,
+              "deprecated": false
+            },
+            {
+              "name": "compact_slots",
+              "qualname": "EmissiveGroupsSlots.compact_slots",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 555,
+              "deprecated": false
+            },
+            {
+              "name": "republish_export",
+              "qualname": "EmissiveGroupsSlots.republish_export",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 564,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "tcl.py",
       "summary": "The host-agnostic entry point — one launcher snippet for every DCC.",
       "functions": [],
@@ -10164,7 +10416,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 616,
+              "line": 615,
               "deprecated": false
             },
             {
@@ -10173,7 +10425,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 636,
+              "line": 635,
               "deprecated": false
             },
             {
@@ -10182,7 +10434,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 671,
+              "line": 670,
               "deprecated": false
             },
             {
@@ -10765,1167 +11017,6 @@
               "signature": "(cls, argv=None)",
               "summary": "``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.",
               "line": 2210,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "tools/emissive_groups/adapter.py",
-      "summary": "The scene operations the Emissive Groups model needs from a host.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EmissiveGroupsAdapter",
-          "summary": "A host's half of Emissive Groups.",
-          "line": 19,
-          "bases": [
-            "Protocol"
-          ],
-          "members": [
-            {
-              "name": "faces",
-              "qualname": "EmissiveGroupsAdapter.faces",
-              "kind": "method",
-              "signature": "(self, faces=None) -> FaceMap",
-              "summary": "*faces* (a ``FaceMap``, or the host's own spelling) or, for ``None``,",
-              "line": 33,
-              "deprecated": false
-            },
-            {
-              "name": "add_members",
-              "qualname": "EmissiveGroupsAdapter.add_members",
-              "kind": "method",
-              "signature": "(self, store: str, face_map: FaceMap) -> None",
-              "summary": "Add *face_map* to *store*, creating it when absent.",
-              "line": 41,
-              "deprecated": false
-            },
-            {
-              "name": "remove_members",
-              "qualname": "EmissiveGroupsAdapter.remove_members",
-              "kind": "method",
-              "signature": "(self, store: str) -> None",
-              "summary": "Delete *store* wherever it lives.",
-              "line": 44,
-              "deprecated": false
-            },
-            {
-              "name": "members",
-              "qualname": "EmissiveGroupsAdapter.members",
-              "kind": "method",
-              "signature": "(self, store: str) -> Optional[FaceMap]",
-              "summary": "*store*'s faces;",
-              "line": 47,
-              "deprecated": false
-            },
-            {
-              "name": "select",
-              "qualname": "EmissiveGroupsAdapter.select",
-              "kind": "method",
-              "signature": "(self, face_map: FaceMap) -> None",
-              "summary": "Select exactly these faces.",
-              "line": 50,
-              "deprecated": false
-            },
-            {
-              "name": "membership_stores",
-              "qualname": "EmissiveGroupsAdapter.membership_stores",
-              "kind": "method",
-              "signature": "(self, prefix: str) -> Iterable[Tuple[str, str]]",
-              "summary": "``(where, group name)`` for every store named *prefix*``<name>``,",
-              "line": 53,
-              "deprecated": false
-            },
-            {
-              "name": "carrier_weights",
-              "qualname": "EmissiveGroupsAdapter.carrier_weights",
-              "kind": "method",
-              "signature": "(self, prefix: str) -> List[str]",
-              "summary": "The carrier's weight attrs named *prefix*``<name>``.",
-              "line": 59,
-              "deprecated": false
-            },
-            {
-              "name": "weight_exists",
-              "qualname": "EmissiveGroupsAdapter.weight_exists",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "Whether the carrier holds weight *attr*.",
-              "line": 62,
-              "deprecated": false
-            },
-            {
-              "name": "ensure_weight",
-              "qualname": "EmissiveGroupsAdapter.ensure_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, default: float) -> str",
-              "summary": "Create keyable 0-1 weight *attr* (default *default*), or make an",
-              "line": 65,
-              "deprecated": false
-            },
-            {
-              "name": "delete_weight",
-              "qualname": "EmissiveGroupsAdapter.delete_weight",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "Delete weight *attr* and its animation;",
-              "line": 69,
-              "deprecated": false
-            },
-            {
-              "name": "sync_weight",
-              "qualname": "EmissiveGroupsAdapter.sync_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: float) -> None",
-              "summary": "Set an un-animated weight *attr* to *value*;",
-              "line": 72,
-              "deprecated": false
-            },
-            {
-              "name": "key_weight",
-              "qualname": "EmissiveGroupsAdapter.key_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: Optional[float], frame: Optional[float]) -> str",
-              "summary": "Key weight *attr* (at *value*, else its current value;",
-              "line": 75,
-              "deprecated": false
-            },
-            {
-              "name": "foreign_color_sets",
-              "qualname": "EmissiveGroupsAdapter.foreign_color_sets",
-              "kind": "method",
-              "signature": "(self, objects: List[str], color_set: str) -> Dict[str, List[str]]",
-              "summary": "``{object: [color set, ...]}`` for the objects carrying sets other",
-              "line": 81,
-              "deprecated": false
-            },
-            {
-              "name": "write_colors",
-              "qualname": "EmissiveGroupsAdapter.write_colors",
-              "kind": "method",
-              "signature": "(self, obj: str, channels: Mapping[int, List[float]], color_set: str) -> None",
-              "summary": "Write *color_set* on *obj*: each listed face's corners take its RGBA",
-              "line": 85,
-              "deprecated": false
-            },
-            {
-              "name": "uv_triangles",
-              "qualname": "EmissiveGroupsAdapter.uv_triangles",
-              "kind": "method",
-              "signature": "(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list",
-              "summary": "Triangulated UVs of *obj*'s faces *indices*: ``[[(u, v)] * 3, ...]``.",
-              "line": 89,
-              "deprecated": false
-            },
-            {
-              "name": "mask_path",
-              "qualname": "EmissiveGroupsAdapter.mask_path",
-              "kind": "method",
-              "signature": "(self, suffix: str) -> str",
-              "summary": "``<scene project texture folder>/<scene stem><suffix>``;",
-              "line": 92,
-              "deprecated": false
-            },
-            {
-              "name": "object_names",
-              "qualname": "EmissiveGroupsAdapter.object_names",
-              "kind": "method",
-              "signature": "(self, objects) -> List[str]",
-              "summary": "*objects* named as the ``FaceMap`` keys name them.",
-              "line": 98,
-              "deprecated": false
-            },
-            {
-              "name": "face_count",
-              "qualname": "EmissiveGroupsAdapter.face_count",
-              "kind": "method",
-              "signature": "(self, obj: str) -> int",
-              "summary": "*obj*'s face count.",
-              "line": 101,
-              "deprecated": false
-            },
-            {
-              "name": "mesh",
-              "qualname": "EmissiveGroupsAdapter.mesh",
-              "kind": "method",
-              "signature": "(self, name: str) -> Optional[str]",
-              "summary": "The mesh object *name* resolves to, as a ``FaceMap`` key, or ``None``.",
-              "line": 104,
-              "deprecated": false
-            },
-            {
-              "name": "merge_stores",
-              "qualname": "EmissiveGroupsAdapter.merge_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "An imported scene's *stores* join this scene's of the same name.",
-              "line": 107,
-              "deprecated": false
-            },
-            {
-              "name": "discard_stores",
-              "qualname": "EmissiveGroupsAdapter.discard_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "Delete the *stores* an import brought, which nothing describes now.",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "publish",
-              "qualname": "EmissiveGroupsAdapter.publish",
-              "kind": "method",
-              "signature": "(self, records: Mapping[Any, Any]) -> None",
-              "summary": "Commit authored *records* to the export carrier",
-              "line": 115,
-              "deprecated": false
-            },
-            {
-              "name": "extra_warnings",
-              "qualname": "EmissiveGroupsAdapter.extra_warnings",
-              "kind": "method",
-              "signature": "(self) -> List[str]",
-              "summary": "The host's own validation warnings (Blender: leftover curve proxies).",
-              "line": 119,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "tools/emissive_groups/api.py",
-      "summary": "The Emissive Groups tool in the running host.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EmissiveGroupsApi",
-          "summary": "Reaches the host half a toolkit names, without importing a host here.",
-          "line": 8,
-          "bases": [],
-          "members": [
-            {
-              "name": "for_toolkit",
-              "qualname": "EmissiveGroupsApi.for_toolkit",
-              "kind": "classmethod",
-              "signature": "(cls, tk)",
-              "summary": "The tool over *tk*'s host: what a panel calls with its ``Slots.tk``.",
-              "line": 18,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "tools/emissive_groups/blender.py",
-      "summary": "Emissive Groups' Blender half: one boolean FACE attribute per group on its",
-      "functions": [],
-      "classes": [
-        {
-          "name": "BlenderEmissiveGroups",
-          "summary": "The Blender scene operations of the Emissive Groups model",
-          "line": 77,
-          "bases": [
-            "_BlenderEmissiveGroupsInternal"
-          ],
-          "members": [
-            {
-              "name": "faces",
-              "qualname": "BlenderEmissiveGroups.faces",
-              "kind": "method",
-              "signature": "(self, faces=None) -> FaceMap",
-              "summary": "",
-              "line": 87,
-              "deprecated": false
-            },
-            {
-              "name": "add_members",
-              "qualname": "BlenderEmissiveGroups.add_members",
-              "kind": "method",
-              "signature": "(self, store: str, face_map: FaceMap) -> None",
-              "summary": "",
-              "line": 101,
-              "deprecated": false
-            },
-            {
-              "name": "remove_members",
-              "qualname": "BlenderEmissiveGroups.remove_members",
-              "kind": "method",
-              "signature": "(self, store: str) -> None",
-              "summary": "",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "members",
-              "qualname": "BlenderEmissiveGroups.members",
-              "kind": "method",
-              "signature": "(self, store: str) -> Optional[FaceMap]",
-              "summary": "",
-              "line": 116,
-              "deprecated": false
-            },
-            {
-              "name": "select",
-              "qualname": "BlenderEmissiveGroups.select",
-              "kind": "method",
-              "signature": "(self, face_map: FaceMap) -> None",
-              "summary": "",
-              "line": 136,
-              "deprecated": false
-            },
-            {
-              "name": "membership_stores",
-              "qualname": "BlenderEmissiveGroups.membership_stores",
-              "kind": "method",
-              "signature": "(self, prefix: str)",
-              "summary": "",
-              "line": 151,
-              "deprecated": false
-            },
-            {
-              "name": "carrier_weights",
-              "qualname": "BlenderEmissiveGroups.carrier_weights",
-              "kind": "method",
-              "signature": "(self, prefix: str) -> List[str]",
-              "summary": "",
-              "line": 159,
-              "deprecated": false
-            },
-            {
-              "name": "weight_exists",
-              "qualname": "BlenderEmissiveGroups.weight_exists",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "",
-              "line": 163,
-              "deprecated": false
-            },
-            {
-              "name": "ensure_weight",
-              "qualname": "BlenderEmissiveGroups.ensure_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, default: float) -> str",
-              "summary": "",
-              "line": 167,
-              "deprecated": false
-            },
-            {
-              "name": "delete_weight",
-              "qualname": "BlenderEmissiveGroups.delete_weight",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "",
-              "line": 179,
-              "deprecated": false
-            },
-            {
-              "name": "sync_weight",
-              "qualname": "BlenderEmissiveGroups.sync_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: float) -> None",
-              "summary": "",
-              "line": 193,
-              "deprecated": false
-            },
-            {
-              "name": "key_weight",
-              "qualname": "BlenderEmissiveGroups.key_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: Optional[float], frame: Optional[float]) -> str",
-              "summary": "",
-              "line": 198,
-              "deprecated": false
-            },
-            {
-              "name": "foreign_color_sets",
-              "qualname": "BlenderEmissiveGroups.foreign_color_sets",
-              "kind": "method",
-              "signature": "(self, objects: List[str], color_set: str) -> Dict[str, List[str]]",
-              "summary": "",
-              "line": 210,
-              "deprecated": false
-            },
-            {
-              "name": "write_colors",
-              "qualname": "BlenderEmissiveGroups.write_colors",
-              "kind": "method",
-              "signature": "(self, obj: str, channels, color_set: str) -> None",
-              "summary": "",
-              "line": 221,
-              "deprecated": false
-            },
-            {
-              "name": "uv_triangles",
-              "qualname": "BlenderEmissiveGroups.uv_triangles",
-              "kind": "method",
-              "signature": "(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list",
-              "summary": "",
-              "line": 239,
-              "deprecated": false
-            },
-            {
-              "name": "mask_path",
-              "qualname": "BlenderEmissiveGroups.mask_path",
-              "kind": "method",
-              "signature": "(self, suffix: str) -> str",
-              "summary": "",
-              "line": 254,
-              "deprecated": false
-            },
-            {
-              "name": "object_names",
-              "qualname": "BlenderEmissiveGroups.object_names",
-              "kind": "method",
-              "signature": "(self, objects) -> List[str]",
-              "summary": "",
-              "line": 270,
-              "deprecated": false
-            },
-            {
-              "name": "face_count",
-              "qualname": "BlenderEmissiveGroups.face_count",
-              "kind": "method",
-              "signature": "(self, obj: str) -> int",
-              "summary": "",
-              "line": 273,
-              "deprecated": false
-            },
-            {
-              "name": "mesh",
-              "qualname": "BlenderEmissiveGroups.mesh",
-              "kind": "method",
-              "signature": "(self, name: str) -> Optional[str]",
-              "summary": "",
-              "line": 278,
-              "deprecated": false
-            },
-            {
-              "name": "merge_stores",
-              "qualname": "BlenderEmissiveGroups.merge_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "Nothing to do: the attributes arrive on their meshes.",
-              "line": 284,
-              "deprecated": false
-            },
-            {
-              "name": "discard_stores",
-              "qualname": "BlenderEmissiveGroups.discard_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "Nothing to do: the attributes leave with their meshes.",
-              "line": 287,
-              "deprecated": false
-            },
-            {
-              "name": "publish",
-              "qualname": "BlenderEmissiveGroups.publish",
-              "kind": "method",
-              "signature": "(self, records) -> None",
-              "summary": "",
-              "line": 292,
-              "deprecated": false
-            },
-            {
-              "name": "extra_warnings",
-              "qualname": "BlenderEmissiveGroups.extra_warnings",
-              "kind": "method",
-              "signature": "(self) -> List[str]",
-              "summary": "Leftover curve proxies: export-transient, so one outside an export",
-              "line": 295,
-              "deprecated": false
-            },
-            {
-              "name": "create_export_curve_proxies",
-              "qualname": "BlenderEmissiveGroups.create_export_curve_proxies",
-              "kind": "classmethod",
-              "signature": "(cls) -> List",
-              "summary": "Stage the keyed-weight FBX transport (the ``emissive_groups`` export",
-              "line": 310,
-              "deprecated": false
-            },
-            {
-              "name": "remove_export_curve_proxies",
-              "qualname": "BlenderEmissiveGroups.remove_export_curve_proxies",
-              "kind": "classmethod",
-              "signature": "(cls) -> List[str]",
-              "summary": "Delete every staged curve proxy (marker-matched) and its action.",
-              "line": 355,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "tools/emissive_groups/maya.py",
-      "summary": "Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MayaEmissiveGroups",
-          "summary": "The Maya scene operations of the Emissive Groups model",
-          "line": 96,
-          "bases": [
-            "_MayaEmissiveGroupsInternal"
-          ],
-          "members": [
-            {
-              "name": "faces",
-              "qualname": "MayaEmissiveGroups.faces",
-              "kind": "method",
-              "signature": "(self, faces=None) -> FaceMap",
-              "summary": "",
-              "line": 106,
-              "deprecated": false
-            },
-            {
-              "name": "add_members",
-              "qualname": "MayaEmissiveGroups.add_members",
-              "kind": "method",
-              "signature": "(self, store: str, face_map: FaceMap) -> None",
-              "summary": "",
-              "line": 116,
-              "deprecated": false
-            },
-            {
-              "name": "remove_members",
-              "qualname": "MayaEmissiveGroups.remove_members",
-              "kind": "method",
-              "signature": "(self, store: str) -> None",
-              "summary": "",
-              "line": 123,
-              "deprecated": false
-            },
-            {
-              "name": "members",
-              "qualname": "MayaEmissiveGroups.members",
-              "kind": "method",
-              "signature": "(self, store: str) -> Optional[FaceMap]",
-              "summary": "",
-              "line": 127,
-              "deprecated": false
-            },
-            {
-              "name": "select",
-              "qualname": "MayaEmissiveGroups.select",
-              "kind": "method",
-              "signature": "(self, face_map: FaceMap) -> None",
-              "summary": "",
-              "line": 133,
-              "deprecated": false
-            },
-            {
-              "name": "membership_stores",
-              "qualname": "MayaEmissiveGroups.membership_stores",
-              "kind": "method",
-              "signature": "(self, prefix: str)",
-              "summary": "",
-              "line": 136,
-              "deprecated": false
-            },
-            {
-              "name": "carrier_weights",
-              "qualname": "MayaEmissiveGroups.carrier_weights",
-              "kind": "method",
-              "signature": "(self, prefix: str) -> List[str]",
-              "summary": "",
-              "line": 145,
-              "deprecated": false
-            },
-            {
-              "name": "weight_exists",
-              "qualname": "MayaEmissiveGroups.weight_exists",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "",
-              "line": 151,
-              "deprecated": false
-            },
-            {
-              "name": "ensure_weight",
-              "qualname": "MayaEmissiveGroups.ensure_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, default: float) -> str",
-              "summary": "",
-              "line": 157,
-              "deprecated": false
-            },
-            {
-              "name": "delete_weight",
-              "qualname": "MayaEmissiveGroups.delete_weight",
-              "kind": "method",
-              "signature": "(self, attr: str) -> bool",
-              "summary": "",
-              "line": 174,
-              "deprecated": false
-            },
-            {
-              "name": "sync_weight",
-              "qualname": "MayaEmissiveGroups.sync_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: float) -> None",
-              "summary": "",
-              "line": 185,
-              "deprecated": false
-            },
-            {
-              "name": "key_weight",
-              "qualname": "MayaEmissiveGroups.key_weight",
-              "kind": "method",
-              "signature": "(self, attr: str, value: Optional[float], frame: Optional[float]) -> str",
-              "summary": "",
-              "line": 193,
-              "deprecated": false
-            },
-            {
-              "name": "foreign_color_sets",
-              "qualname": "MayaEmissiveGroups.foreign_color_sets",
-              "kind": "method",
-              "signature": "(self, objects: List[str], color_set: str) -> Dict[str, List[str]]",
-              "summary": "",
-              "line": 205,
-              "deprecated": false
-            },
-            {
-              "name": "write_colors",
-              "qualname": "MayaEmissiveGroups.write_colors",
-              "kind": "method",
-              "signature": "(self, obj: str, channels, color_set: str) -> None",
-              "summary": "",
-              "line": 217,
-              "deprecated": false
-            },
-            {
-              "name": "uv_triangles",
-              "qualname": "MayaEmissiveGroups.uv_triangles",
-              "kind": "method",
-              "signature": "(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list",
-              "summary": "",
-              "line": 231,
-              "deprecated": false
-            },
-            {
-              "name": "mask_path",
-              "qualname": "MayaEmissiveGroups.mask_path",
-              "kind": "method",
-              "signature": "(self, suffix: str) -> str",
-              "summary": "",
-              "line": 251,
-              "deprecated": false
-            },
-            {
-              "name": "object_names",
-              "qualname": "MayaEmissiveGroups.object_names",
-              "kind": "method",
-              "signature": "(self, objects) -> List[str]",
-              "summary": "",
-              "line": 265,
-              "deprecated": false
-            },
-            {
-              "name": "face_count",
-              "qualname": "MayaEmissiveGroups.face_count",
-              "kind": "method",
-              "signature": "(self, obj: str) -> int",
-              "summary": "",
-              "line": 268,
-              "deprecated": false
-            },
-            {
-              "name": "mesh",
-              "qualname": "MayaEmissiveGroups.mesh",
-              "kind": "method",
-              "signature": "(self, name: str) -> Optional[str]",
-              "summary": "",
-              "line": 271,
-              "deprecated": false
-            },
-            {
-              "name": "merge_stores",
-              "qualname": "MayaEmissiveGroups.merge_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "",
-              "line": 274,
-              "deprecated": false
-            },
-            {
-              "name": "discard_stores",
-              "qualname": "MayaEmissiveGroups.discard_stores",
-              "kind": "method",
-              "signature": "(self, stores: List[str], ctx) -> None",
-              "summary": "",
-              "line": 286,
-              "deprecated": false
-            },
-            {
-              "name": "publish",
-              "qualname": "MayaEmissiveGroups.publish",
-              "kind": "method",
-              "signature": "(self, records) -> None",
-              "summary": "",
-              "line": 292,
-              "deprecated": false
-            },
-            {
-              "name": "extra_warnings",
-              "qualname": "MayaEmissiveGroups.extra_warnings",
-              "kind": "method",
-              "signature": "(self) -> List[str]",
-              "summary": "",
-              "line": 295,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "tools/emissive_groups/model/emissive_groups_model.py",
-      "summary": "Emissive groups: named face sets that gate emissive regions at runtime.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EmissiveGroupsModel",
-          "summary": "Author, bake, and export named emissive face groups (see module doc).",
-          "line": 145,
-          "bases": [
-            "_EmissiveGroupsModelInternal",
-            "pythontk.LoggingMixin",
-            "pythontk.HelpMixin"
-          ],
-          "members": [
-            {
-              "name": "add_group",
-              "qualname": "EmissiveGroupsModel.add_group",
-              "kind": "method",
-              "signature": "(self, name: str, faces=None, default: float = 1.0) -> str",
-              "summary": "Create a group from faces (or the selection), or extend one.",
-              "line": 163,
-              "deprecated": false
-            },
-            {
-              "name": "remove_group",
-              "qualname": "EmissiveGroupsModel.remove_group",
-              "kind": "method",
-              "signature": "(self, name: str) -> None",
-              "summary": "Delete a group's membership, registry entry and any keyable weight;",
-              "line": 192,
-              "deprecated": false
-            },
-            {
-              "name": "list_groups",
-              "qualname": "EmissiveGroupsModel.list_groups",
-              "kind": "method",
-              "signature": "(self) -> Dict[str, dict]",
-              "summary": "``{name: {\"slot\", \"default\", \"faces\"(count), \"missing\"(membership",
-              "line": 201,
-              "deprecated": false
-            },
-            {
-              "name": "weight_attrs",
-              "qualname": "EmissiveGroupsModel.weight_attrs",
-              "kind": "method",
-              "signature": "(self) -> Dict[str, str]",
-              "summary": "``{group: keyable weight attr}`` for the groups that have one, read",
-              "line": 217,
-              "deprecated": false
-            },
-            {
-              "name": "select_group",
-              "qualname": "EmissiveGroupsModel.select_group",
-              "kind": "method",
-              "signature": "(self, name: str) -> None",
-              "summary": "Select the group's faces.",
-              "line": 222,
-              "deprecated": false
-            },
-            {
-              "name": "set_default",
-              "qualname": "EmissiveGroupsModel.set_default",
-              "kind": "method",
-              "signature": "(self, name: str, default: float) -> None",
-              "summary": "Set the group's default gate weight (0-1; clamped).",
-              "line": 229,
-              "deprecated": false
-            },
-            {
-              "name": "compact_slots",
-              "qualname": "EmissiveGroupsModel.compact_slots",
-              "kind": "method",
-              "signature": "(self) -> List[int]",
-              "summary": "Reclaim retired slots.",
-              "line": 237,
-              "deprecated": false
-            },
-            {
-              "name": "make_weights_keyable",
-              "qualname": "EmissiveGroupsModel.make_weights_keyable",
-              "kind": "method",
-              "signature": "(self, names=None) -> Dict[str, str]",
-              "summary": "Add a keyable 0-1 weight per group on the ``data_export`` carrier.",
-              "line": 257,
-              "deprecated": false
-            },
-            {
-              "name": "remove_keyable_weights",
-              "qualname": "EmissiveGroupsModel.remove_keyable_weights",
-              "kind": "method",
-              "signature": "(self, names=None) -> List[str]",
-              "summary": "Delete the keyable weights, animation included, and clear the",
-              "line": 287,
-              "deprecated": false
-            },
-            {
-              "name": "key_weight",
-              "qualname": "EmissiveGroupsModel.key_weight",
-              "kind": "method",
-              "signature": "(self, name: str, value: Optional[float] = None, frame: Optional[float] = None, auto_keyable: bool = True) -> str",
-              "summary": "Key one group's weight on the carrier.",
-              "line": 311,
-              "deprecated": false
-            },
-            {
-              "name": "validate",
-              "qualname": "EmissiveGroupsModel.validate",
-              "kind": "method",
-              "signature": "(self) -> List[str]",
-              "summary": "Non-fatal authoring warnings (empty list = clean).",
-              "line": 345,
-              "deprecated": false
-            },
-            {
-              "name": "bake_vertex_colors",
-              "qualname": "EmissiveGroupsModel.bake_vertex_colors",
-              "kind": "method",
-              "signature": "(self, force: bool = False) -> dict",
-              "summary": "Bake membership into the ``emissiveGroups`` RGBA color set.",
-              "line": 378,
-              "deprecated": false
-            },
-            {
-              "name": "bake_mask",
-              "qualname": "EmissiveGroupsModel.bake_mask",
-              "kind": "method",
-              "signature": "(self, output_path: Optional[str] = None, resolution: int = 512, padding_px: int = 4, uv_set: Optional[str] = None) -> dict",
-              "summary": "Rasterize membership into an ``_EMask`` RGBA texture (channels encoding).",
-              "line": 423,
-              "deprecated": false
-            },
-            {
-              "name": "transfer_out",
-              "qualname": "EmissiveGroupsModel.transfer_out",
-              "kind": "method",
-              "signature": "(self, ctx: 'ptk.TransferContext') -> Optional[dict]",
-              "summary": "The emissive registry's hand-off payload: the registry, each group's",
-              "line": 485,
-              "deprecated": false
-            },
-            {
-              "name": "transfer_in",
-              "qualname": "EmissiveGroupsModel.transfer_in",
-              "kind": "method",
-              "signature": "(self, payload: dict, ctx: 'ptk.TransferContext') -> None",
-              "summary": "Land a received payload (:meth:`transfer_out`'s shape, from either",
-              "line": 512,
-              "deprecated": false
-            },
-            {
-              "name": "merge_carrier",
-              "qualname": "EmissiveGroupsModel.merge_carrier",
-              "kind": "method",
-              "signature": "(self, carriers, other, ctx) -> None",
-              "summary": "Another scene's groups merged into the registry: its membership",
-              "line": 556,
-              "deprecated": false
-            },
-            {
-              "name": "discard_carrier",
-              "qualname": "EmissiveGroupsModel.discard_carrier",
-              "kind": "method",
-              "signature": "(self, carriers, other, ctx) -> None",
-              "summary": "Another scene's groups were dropped: the membership stores it brought,",
-              "line": 563,
-              "deprecated": false
-            },
-            {
-              "name": "export_record",
-              "qualname": "EmissiveGroupsModel.export_record",
-              "kind": "method",
-              "signature": "(self, ctx: 'ptk.ExportContext') -> Optional['ptk.Record']",
-              "summary": "The ``emissive_groups`` manifest record, or ``None`` when no group",
-              "line": 574,
-              "deprecated": false
-            },
-            {
-              "name": "refresh_export_metadata",
-              "qualname": "EmissiveGroupsModel.refresh_export_metadata",
-              "kind": "method",
-              "signature": "(self) -> Optional[str]",
-              "summary": "Republish the ``emissive_groups`` channel on the ``data_export``",
-              "line": 589,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "ui/panels/duplicate_radial/duplicate_radial.py",
-      "summary": "Duplicate Radial: copies of the selection in a radial pattern about a pivot.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DuplicateRadialSlots",
-          "summary": "",
-          "line": 13,
-          "bases": [
-            "Slots"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "DuplicateRadialSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Configure header help text.",
-              "line": 53,
-              "deprecated": false
-            },
-            {
-              "name": "s015_init",
-              "qualname": "DuplicateRadialSlots.s015_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Weight Bias.",
-              "line": 90,
-              "deprecated": false
-            },
-            {
-              "name": "s016_init",
-              "qualname": "DuplicateRadialSlots.s016_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Weight Curve.",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "b001_init",
-              "qualname": "DuplicateRadialSlots.b001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
-              "line": 129,
-              "deprecated": false
-            },
-            {
-              "name": "perform_operation",
-              "qualname": "DuplicateRadialSlots.perform_operation",
-              "kind": "method",
-              "signature": "(self, objects, contract=None)",
-              "summary": "Duplicate *objects* radially from the panel's values.",
-              "line": 134,
-              "deprecated": false
-            },
-            {
-              "name": "regroup_copies",
-              "qualname": "DuplicateRadialSlots.regroup_copies",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "The commit's finalize step: the host groups the committed copies.",
-              "line": 172,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "ui/panels/emissive_groups/emissive_groups.py",
-      "summary": "Emissive Groups: named face groups whose emissive regions a game engine gates.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EmissiveGroupsSlots",
-          "summary": "Switchboard slots for the ``emissive_groups.ui`` panel.",
-          "line": 15,
-          "bases": [
-            "Slots"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "EmissiveGroupsSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "",
-              "line": 45,
-              "deprecated": false
-            },
-            {
-              "name": "txt000_init",
-              "qualname": "EmissiveGroupsSlots.txt000_init",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "Group-name field — clearable back to the auto-derived name.",
-              "line": 112,
-              "deprecated": false
-            },
-            {
-              "name": "tbl000_init",
-              "qualname": "EmissiveGroupsSlots.tbl000_init",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "Table setup: one-time construction, then (re)wire signals and populate.",
-              "line": 116,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "EmissiveGroupsSlots.b000",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Add (or extend) a group from the selection.",
-              "line": 369,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "EmissiveGroupsSlots.b001",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Remove the selected group (retires its slot).",
-              "line": 382,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "EmissiveGroupsSlots.b002",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Select the group's member faces.",
-              "line": 386,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "EmissiveGroupsSlots.b003",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Validate authoring state.",
-              "line": 390,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "EmissiveGroupsSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "Initialize Bake.",
-              "line": 400,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "EmissiveGroupsSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "Bake membership and publish the export manifest.",
-              "line": 473,
-              "deprecated": false
-            },
-            {
-              "name": "select_members",
-              "qualname": "EmissiveGroupsSlots.select_members",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 492,
-              "deprecated": false
-            },
-            {
-              "name": "remove_group",
-              "qualname": "EmissiveGroupsSlots.remove_group",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 502,
-              "deprecated": false
-            },
-            {
-              "name": "weights_all_on",
-              "qualname": "EmissiveGroupsSlots.weights_all_on",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 510,
-              "deprecated": false
-            },
-            {
-              "name": "weights_all_off",
-              "qualname": "EmissiveGroupsSlots.weights_all_off",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 513,
-              "deprecated": false
-            },
-            {
-              "name": "make_weights_keyable",
-              "qualname": "EmissiveGroupsSlots.make_weights_keyable",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 521,
-              "deprecated": false
-            },
-            {
-              "name": "key_weights",
-              "qualname": "EmissiveGroupsSlots.key_weights",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 532,
-              "deprecated": false
-            },
-            {
-              "name": "remove_keyable_weights",
-              "qualname": "EmissiveGroupsSlots.remove_keyable_weights",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 545,
-              "deprecated": false
-            },
-            {
-              "name": "compact_slots",
-              "qualname": "EmissiveGroupsSlots.compact_slots",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 555,
-              "deprecated": false
-            },
-            {
-              "name": "republish_export",
-              "qualname": "EmissiveGroupsSlots.republish_export",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 564,
               "deprecated": false
             }
           ]

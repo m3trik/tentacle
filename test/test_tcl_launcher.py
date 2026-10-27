@@ -138,8 +138,8 @@ class TestChordBindings(unittest.TestCase):
 
 
 class TestSharedRoots(unittest.TestCase):
-    """``register_shared`` — the composed ``slots/`` and the ``ui/panels/`` root, sticky
-    in any host."""
+    """``register_shared`` — the composed ``slots/`` and the shared tools'
+    ``ui/tools/`` + ``slots/tools/`` pair, sticky in any host."""
 
     def test_registers_the_composed_slots(self):
         sb = mock.Mock()
@@ -148,17 +148,17 @@ class TestSharedRoots(unittest.TestCase):
         self.assertEqual(first, {"slot_location": first["slot_location"]})
         self.assertEqual(Path(first["slot_location"]), PKG / "slots")
 
-    def test_registers_the_packaged_panel_root_recursively_under_the_panel_tag(self):
+    def test_registers_the_flat_tool_pair_under_the_panel_tag(self):
         from uitk import UiHandler
 
         sb = mock.Mock()
         Tcl.register_shared(sb)
         kwargs = sb.register.call_args.kwargs
-        panels = PKG / "ui" / "panels"
-        self.assertTrue(panels.is_dir())
-        self.assertEqual(Path(kwargs["ui_location"]), panels)
-        self.assertEqual(Path(kwargs["slot_location"]), panels)
-        self.assertTrue(kwargs["recursive"])
+        ui, slots = PKG / "ui" / "tools", PKG / "slots" / "tools"
+        self.assertTrue(ui.is_dir() and slots.is_dir())
+        self.assertEqual(Path(kwargs["ui_location"]), ui)
+        self.assertEqual(Path(kwargs["slot_location"]), slots)
+        self.assertFalse(kwargs.get("recursive"), "flat: no folder per tool")
         self.assertEqual(kwargs["tags"], {UiHandler.PANEL_TAG})
 
     def test_each_host_entry_point_registers_it(self):

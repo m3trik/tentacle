@@ -71,6 +71,8 @@ def panel_ui(cls, **overrides):
     path = Path(sys.modules[cls.__module__].__file__).with_suffix(".ui")
     if not path.exists():  # a tool subpackage pairs <tool>_slots.py with <tool>.ui
         path = path.with_name(path.name.replace("_slots.ui", ".ui"))
+    if not path.exists():  # tentacle's shared tools: slots/tools/<t>.py pairs ui/tools/<t>.ui
+        path = path.parents[2] / "ui" / "tools" / path.name
     fake = {}
     for w in ET.parse(path).iter("widget"):
         kind, name = w.get("class", ""), w.get("name", "")
@@ -110,12 +112,12 @@ try:
     import blendertk as btk
 
     # Most tool-panel Slots still live co-located in blendertk (next to their engine + .ui),
-    # discovered by BlenderUiHandler; a moved panel's one Slots class is tentacle's
-    # (ui/panels/), shared with Maya, and reaches Blender through sb.tk (make_slot sets it).
+    # discovered by BlenderUiHandler; a moved tool's one Slots class is tentacle's
+    # (slots/tools/), shared with Maya, and reaches Blender through sb.tk (make_slot sets it).
     from blendertk.edit_utils.mirror import MirrorSlots
     from blendertk.edit_utils.cut_on_axis import CutOnAxisSlots
     from blendertk.edit_utils.duplicate_linear import DuplicateLinearSlots
-    from tentacle.ui.panels.duplicate_radial.duplicate_radial import DuplicateRadialSlots
+    from tentacle.slots.tools.duplicate_radial import DuplicateRadialSlots
     from blendertk.edit_utils.duplicate_grid import DuplicateGridSlots
 
     def reset():

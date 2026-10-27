@@ -113,18 +113,13 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/tools/duplicate_radial.py`](#slots--tools--duplicate_radial) — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+- [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
 - [`tcl_maya.py`](#tcl_maya)
 - [`tentacle_installer.py`](#tentacle_installer) — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
-- [`tools/emissive_groups/adapter.py`](#tools--emissive_groups--adapter) — The scene operations the Emissive Groups model needs from a host.
-- [`tools/emissive_groups/api.py`](#tools--emissive_groups--api) — The Emissive Groups tool in the running host.
-- [`tools/emissive_groups/blender.py`](#tools--emissive_groups--blender) — Emissive Groups' Blender half: one boolean FACE attribute per group on its
-- [`tools/emissive_groups/maya.py`](#tools--emissive_groups--maya) — Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
-- [`tools/emissive_groups/model/emissive_groups_model.py`](#tools--emissive_groups--model--emissive_groups_model) — Emissive groups: named face sets that gate emissive regions at runtime.
-- [`ui/panels/duplicate_radial/duplicate_radial.py`](#ui--panels--duplicate_radial--duplicate_radial) — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
-- [`ui/panels/emissive_groups/emissive_groups.py`](#ui--panels--emissive_groups--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 
 ---
 
@@ -1615,6 +1610,44 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
 
+<a id="slots--tools--duplicate_radial"></a>
+### `slots/tools/duplicate_radial.py`
+
+Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+
+- **[`class DuplicateRadialSlots(Slots)`](tentacle/tentacle/slots/tools/duplicate_radial.py#L13)**
+  - `DuplicateRadialSlots.header_init(self, widget)` — Configure header help text.
+  - `DuplicateRadialSlots.s015_init(self, widget)` — Initialize Weight Bias.
+  - `DuplicateRadialSlots.s016_init(self, widget)` — Initialize Weight Curve.
+  - `DuplicateRadialSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `DuplicateRadialSlots.perform_operation(self, objects, contract=None)` — Duplicate *objects* radially from the panel's values.
+  - `DuplicateRadialSlots.regroup_copies(self)` — The commit's finalize step: the host groups the committed copies.
+
+<a id="slots--tools--emissive_groups"></a>
+### `slots/tools/emissive_groups.py`
+
+Emissive Groups: named face groups whose emissive regions a game engine gates.
+
+- **[`class EmissiveGroupsSlots(Slots)`](tentacle/tentacle/slots/tools/emissive_groups.py#L15)** — Switchboard slots for the ``emissive_groups.ui`` panel.
+  - `EmissiveGroupsSlots.header_init(self, widget) -> None`
+  - `EmissiveGroupsSlots.txt000_init(self, widget) -> None` — Group-name field — clearable back to the auto-derived name.
+  - `EmissiveGroupsSlots.tbl000_init(self, widget) -> None` — Table setup: one-time construction, then (re)wire signals and populate.
+  - `EmissiveGroupsSlots.b000(self) -> None` — Add (or extend) a group from the selection.
+  - `EmissiveGroupsSlots.b001(self) -> None` — Remove the selected group (retires its slot).
+  - `EmissiveGroupsSlots.b002(self) -> None` — Select the group's member faces.
+  - `EmissiveGroupsSlots.b003(self) -> None` — Validate authoring state.
+  - `EmissiveGroupsSlots.tb000_init(self, widget) -> None` — Initialize Bake.
+  - `EmissiveGroupsSlots.tb000(self, widget) -> None` — Bake membership and publish the export manifest.
+  - `EmissiveGroupsSlots.select_members(self) -> None`
+  - `EmissiveGroupsSlots.remove_group(self) -> None`
+  - `EmissiveGroupsSlots.weights_all_on(self) -> None`
+  - `EmissiveGroupsSlots.weights_all_off(self) -> None`
+  - `EmissiveGroupsSlots.make_weights_keyable(self) -> None`
+  - `EmissiveGroupsSlots.key_weights(self) -> None`
+  - `EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
+  - `EmissiveGroupsSlots.compact_slots(self) -> None`
+  - `EmissiveGroupsSlots.republish_export(self) -> None`
+
 <a id="tcl"></a>
 ### `tcl.py`
 
@@ -1714,167 +1747,3 @@ Install, update or uninstall tentacle in a DCC -- one file, dropped in, no admin
   - `TentacleInstaller.register_blender_ui(cls, addon_name)` *(class)* — Build and register the add-on preferences (version, Update, Uninstall) lazily --
   - `TentacleInstaller.unregister_blender_ui(cls)` *(class)*
   - `TentacleInstaller.main(cls, argv=None)` *(class)* — ``[install|update|uninstall]`` from a plain ``mayapy`` / ``blender --background`` run.
-
-<a id="tools--emissive_groups--adapter"></a>
-### `tools/emissive_groups/adapter.py`
-
-The scene operations the Emissive Groups model needs from a host.
-
-- **[`class EmissiveGroupsAdapter(Protocol)`](tentacle/tentacle/tools/emissive_groups/adapter.py#L19)** — A host's half of Emissive Groups.
-  - `EmissiveGroupsAdapter.faces(self, faces=None) -> FaceMap` — *faces* (a ``FaceMap``, or the host's own spelling) or, for ``None``,
-  - `EmissiveGroupsAdapter.add_members(self, store: str, face_map: FaceMap) -> None` — Add *face_map* to *store*, creating it when absent.
-  - `EmissiveGroupsAdapter.remove_members(self, store: str) -> None` — Delete *store* wherever it lives.
-  - `EmissiveGroupsAdapter.members(self, store: str) -> Optional[FaceMap]` — *store*'s faces;
-  - `EmissiveGroupsAdapter.select(self, face_map: FaceMap) -> None` — Select exactly these faces.
-  - `EmissiveGroupsAdapter.membership_stores(self, prefix: str) -> Iterable[Tuple[str, str]]` — ``(where, group name)`` for every store named *prefix*``<name>``,
-  - `EmissiveGroupsAdapter.carrier_weights(self, prefix: str) -> List[str]` — The carrier's weight attrs named *prefix*``<name>``.
-  - `EmissiveGroupsAdapter.weight_exists(self, attr: str) -> bool` — Whether the carrier holds weight *attr*.
-  - `EmissiveGroupsAdapter.ensure_weight(self, attr: str, default: float) -> str` — Create keyable 0-1 weight *attr* (default *default*), or make an
-  - `EmissiveGroupsAdapter.delete_weight(self, attr: str) -> bool` — Delete weight *attr* and its animation;
-  - `EmissiveGroupsAdapter.sync_weight(self, attr: str, value: float) -> None` — Set an un-animated weight *attr* to *value*;
-  - `EmissiveGroupsAdapter.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str` — Key weight *attr* (at *value*, else its current value;
-  - `EmissiveGroupsAdapter.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]` — ``{object: [color set, ...]}`` for the objects carrying sets other
-  - `EmissiveGroupsAdapter.write_colors(self, obj: str, channels: Mapping[int, List[float]], color_set: str) -> None` — Write *color_set* on *obj*: each listed face's corners take its RGBA
-  - `EmissiveGroupsAdapter.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list` — Triangulated UVs of *obj*'s faces *indices*: ``[[(u, v)] * 3, ...]``.
-  - `EmissiveGroupsAdapter.mask_path(self, suffix: str) -> str` — ``<scene project texture folder>/<scene stem><suffix>``;
-  - `EmissiveGroupsAdapter.object_names(self, objects) -> List[str]` — *objects* named as the ``FaceMap`` keys name them.
-  - `EmissiveGroupsAdapter.face_count(self, obj: str) -> int` — *obj*'s face count.
-  - `EmissiveGroupsAdapter.mesh(self, name: str) -> Optional[str]` — The mesh object *name* resolves to, as a ``FaceMap`` key, or ``None``.
-  - `EmissiveGroupsAdapter.merge_stores(self, stores: List[str], ctx) -> None` — An imported scene's *stores* join this scene's of the same name.
-  - `EmissiveGroupsAdapter.discard_stores(self, stores: List[str], ctx) -> None` — Delete the *stores* an import brought, which nothing describes now.
-  - `EmissiveGroupsAdapter.publish(self, records: Mapping[Any, Any]) -> None` — Commit authored *records* to the export carrier
-  - `EmissiveGroupsAdapter.extra_warnings(self) -> List[str]` — The host's own validation warnings (Blender: leftover curve proxies).
-
-<a id="tools--emissive_groups--api"></a>
-### `tools/emissive_groups/api.py`
-
-The Emissive Groups tool in the running host.
-
-- **[`class EmissiveGroupsApi`](tentacle/tentacle/tools/emissive_groups/api.py#L8)** — Reaches the host half a toolkit names, without importing a host here.
-  - `EmissiveGroupsApi.for_toolkit(cls, tk)` *(class)* — The tool over *tk*'s host: what a panel calls with its ``Slots.tk``.
-
-<a id="tools--emissive_groups--blender"></a>
-### `tools/emissive_groups/blender.py`
-
-Emissive Groups' Blender half: one boolean FACE attribute per group on its
-
-- **[`class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/blender.py#L77)** — The Blender scene operations of the Emissive Groups model
-  - `BlenderEmissiveGroups.faces(self, faces=None) -> FaceMap`
-  - `BlenderEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
-  - `BlenderEmissiveGroups.remove_members(self, store: str) -> None`
-  - `BlenderEmissiveGroups.members(self, store: str) -> Optional[FaceMap]`
-  - `BlenderEmissiveGroups.select(self, face_map: FaceMap) -> None`
-  - `BlenderEmissiveGroups.membership_stores(self, prefix: str)`
-  - `BlenderEmissiveGroups.carrier_weights(self, prefix: str) -> List[str]`
-  - `BlenderEmissiveGroups.weight_exists(self, attr: str) -> bool`
-  - `BlenderEmissiveGroups.ensure_weight(self, attr: str, default: float) -> str`
-  - `BlenderEmissiveGroups.delete_weight(self, attr: str) -> bool`
-  - `BlenderEmissiveGroups.sync_weight(self, attr: str, value: float) -> None`
-  - `BlenderEmissiveGroups.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str`
-  - `BlenderEmissiveGroups.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]`
-  - `BlenderEmissiveGroups.write_colors(self, obj: str, channels, color_set: str) -> None`
-  - `BlenderEmissiveGroups.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list`
-  - `BlenderEmissiveGroups.mask_path(self, suffix: str) -> str`
-  - `BlenderEmissiveGroups.object_names(self, objects) -> List[str]`
-  - `BlenderEmissiveGroups.face_count(self, obj: str) -> int`
-  - `BlenderEmissiveGroups.mesh(self, name: str) -> Optional[str]`
-  - `BlenderEmissiveGroups.merge_stores(self, stores: List[str], ctx) -> None` — Nothing to do: the attributes arrive on their meshes.
-  - `BlenderEmissiveGroups.discard_stores(self, stores: List[str], ctx) -> None` — Nothing to do: the attributes leave with their meshes.
-  - `BlenderEmissiveGroups.publish(self, records) -> None`
-  - `BlenderEmissiveGroups.extra_warnings(self) -> List[str]` — Leftover curve proxies: export-transient, so one outside an export
-  - `BlenderEmissiveGroups.create_export_curve_proxies(cls) -> List` *(class)* — Stage the keyed-weight FBX transport (the ``emissive_groups`` export
-  - `BlenderEmissiveGroups.remove_export_curve_proxies(cls) -> List[str]` *(class)* — Delete every staged curve proxy (marker-matched) and its action.
-
-<a id="tools--emissive_groups--maya"></a>
-### `tools/emissive_groups/maya.py`
-
-Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
-
-- **[`class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/maya.py#L96)** — The Maya scene operations of the Emissive Groups model
-  - `MayaEmissiveGroups.faces(self, faces=None) -> FaceMap`
-  - `MayaEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
-  - `MayaEmissiveGroups.remove_members(self, store: str) -> None`
-  - `MayaEmissiveGroups.members(self, store: str) -> Optional[FaceMap]`
-  - `MayaEmissiveGroups.select(self, face_map: FaceMap) -> None`
-  - `MayaEmissiveGroups.membership_stores(self, prefix: str)`
-  - `MayaEmissiveGroups.carrier_weights(self, prefix: str) -> List[str]`
-  - `MayaEmissiveGroups.weight_exists(self, attr: str) -> bool`
-  - `MayaEmissiveGroups.ensure_weight(self, attr: str, default: float) -> str`
-  - `MayaEmissiveGroups.delete_weight(self, attr: str) -> bool`
-  - `MayaEmissiveGroups.sync_weight(self, attr: str, value: float) -> None`
-  - `MayaEmissiveGroups.key_weight(self, attr: str, value: Optional[float], frame: Optional[float]) -> str`
-  - `MayaEmissiveGroups.foreign_color_sets(self, objects: List[str], color_set: str) -> Dict[str, List[str]]`
-  - `MayaEmissiveGroups.write_colors(self, obj: str, channels, color_set: str) -> None`
-  - `MayaEmissiveGroups.uv_triangles(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list`
-  - `MayaEmissiveGroups.mask_path(self, suffix: str) -> str`
-  - `MayaEmissiveGroups.object_names(self, objects) -> List[str]`
-  - `MayaEmissiveGroups.face_count(self, obj: str) -> int`
-  - `MayaEmissiveGroups.mesh(self, name: str) -> Optional[str]`
-  - `MayaEmissiveGroups.merge_stores(self, stores: List[str], ctx) -> None`
-  - `MayaEmissiveGroups.discard_stores(self, stores: List[str], ctx) -> None`
-  - `MayaEmissiveGroups.publish(self, records) -> None`
-  - `MayaEmissiveGroups.extra_warnings(self) -> List[str]`
-
-<a id="tools--emissive_groups--model--emissive_groups_model"></a>
-### `tools/emissive_groups/model/emissive_groups_model.py`
-
-Emissive groups: named face sets that gate emissive regions at runtime.
-
-- **[`class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`](tentacle/tentacle/tools/emissive_groups/model/emissive_groups_model.py#L145)** — Author, bake, and export named emissive face groups (see module doc).
-  - `EmissiveGroupsModel.add_group(self, name: str, faces=None, default: float = 1.0) -> str` — Create a group from faces (or the selection), or extend one.
-  - `EmissiveGroupsModel.remove_group(self, name: str) -> None` — Delete a group's membership, registry entry and any keyable weight;
-  - `EmissiveGroupsModel.list_groups(self) -> Dict[str, dict]` — ``{name: {"slot", "default", "faces"(count), "missing"(membership
-  - `EmissiveGroupsModel.weight_attrs(self) -> Dict[str, str]` — ``{group: keyable weight attr}`` for the groups that have one, read
-  - `EmissiveGroupsModel.select_group(self, name: str) -> None` — Select the group's faces.
-  - `EmissiveGroupsModel.set_default(self, name: str, default: float) -> None` — Set the group's default gate weight (0-1; clamped).
-  - `EmissiveGroupsModel.compact_slots(self) -> List[int]` — Reclaim retired slots.
-  - `EmissiveGroupsModel.make_weights_keyable(self, names=None) -> Dict[str, str]` — Add a keyable 0-1 weight per group on the ``data_export`` carrier.
-  - `EmissiveGroupsModel.remove_keyable_weights(self, names=None) -> List[str]` — Delete the keyable weights, animation included, and clear the
-  - `EmissiveGroupsModel.key_weight(self, name: str, value: Optional[float] = None, frame: Optional[float] = None, auto_keyable: bool = True) -> str` — Key one group's weight on the carrier.
-  - `EmissiveGroupsModel.validate(self) -> List[str]` — Non-fatal authoring warnings (empty list = clean).
-  - `EmissiveGroupsModel.bake_vertex_colors(self, force: bool = False) -> dict` — Bake membership into the ``emissiveGroups`` RGBA color set.
-  - `EmissiveGroupsModel.bake_mask(self, output_path: Optional[str] = None, resolution: int = 512, padding_px: int = 4, uv_set: Optional[str] = None) -> dict` — Rasterize membership into an ``_EMask`` RGBA texture (channels encoding).
-  - `EmissiveGroupsModel.transfer_out(self, ctx: 'ptk.TransferContext') -> Optional[dict]` — The emissive registry's hand-off payload: the registry, each group's
-  - `EmissiveGroupsModel.transfer_in(self, payload: dict, ctx: 'ptk.TransferContext') -> None` — Land a received payload (:meth:`transfer_out`'s shape, from either
-  - `EmissiveGroupsModel.merge_carrier(self, carriers, other, ctx) -> None` — Another scene's groups merged into the registry: its membership
-  - `EmissiveGroupsModel.discard_carrier(self, carriers, other, ctx) -> None` — Another scene's groups were dropped: the membership stores it brought,
-  - `EmissiveGroupsModel.export_record(self, ctx: 'ptk.ExportContext') -> Optional['ptk.Record']` — The ``emissive_groups`` manifest record, or ``None`` when no group
-  - `EmissiveGroupsModel.refresh_export_metadata(self) -> Optional[str]` — Republish the ``emissive_groups`` channel on the ``data_export``
-
-<a id="ui--panels--duplicate_radial--duplicate_radial"></a>
-### `ui/panels/duplicate_radial/duplicate_radial.py`
-
-Duplicate Radial: copies of the selection in a radial pattern about a pivot.
-
-- **[`class DuplicateRadialSlots(Slots)`](tentacle/tentacle/ui/panels/duplicate_radial/duplicate_radial.py#L13)**
-  - `DuplicateRadialSlots.header_init(self, widget)` — Configure header help text.
-  - `DuplicateRadialSlots.s015_init(self, widget)` — Initialize Weight Bias.
-  - `DuplicateRadialSlots.s016_init(self, widget)` — Initialize Weight Curve.
-  - `DuplicateRadialSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
-  - `DuplicateRadialSlots.perform_operation(self, objects, contract=None)` — Duplicate *objects* radially from the panel's values.
-  - `DuplicateRadialSlots.regroup_copies(self)` — The commit's finalize step: the host groups the committed copies.
-
-<a id="ui--panels--emissive_groups--emissive_groups"></a>
-### `ui/panels/emissive_groups/emissive_groups.py`
-
-Emissive Groups: named face groups whose emissive regions a game engine gates.
-
-- **[`class EmissiveGroupsSlots(Slots)`](tentacle/tentacle/ui/panels/emissive_groups/emissive_groups.py#L15)** — Switchboard slots for the ``emissive_groups.ui`` panel.
-  - `EmissiveGroupsSlots.header_init(self, widget) -> None`
-  - `EmissiveGroupsSlots.txt000_init(self, widget) -> None` — Group-name field — clearable back to the auto-derived name.
-  - `EmissiveGroupsSlots.tbl000_init(self, widget) -> None` — Table setup: one-time construction, then (re)wire signals and populate.
-  - `EmissiveGroupsSlots.b000(self) -> None` — Add (or extend) a group from the selection.
-  - `EmissiveGroupsSlots.b001(self) -> None` — Remove the selected group (retires its slot).
-  - `EmissiveGroupsSlots.b002(self) -> None` — Select the group's member faces.
-  - `EmissiveGroupsSlots.b003(self) -> None` — Validate authoring state.
-  - `EmissiveGroupsSlots.tb000_init(self, widget) -> None` — Initialize Bake.
-  - `EmissiveGroupsSlots.tb000(self, widget) -> None` — Bake membership and publish the export manifest.
-  - `EmissiveGroupsSlots.select_members(self) -> None`
-  - `EmissiveGroupsSlots.remove_group(self) -> None`
-  - `EmissiveGroupsSlots.weights_all_on(self) -> None`
-  - `EmissiveGroupsSlots.weights_all_off(self) -> None`
-  - `EmissiveGroupsSlots.make_weights_keyable(self) -> None`
-  - `EmissiveGroupsSlots.key_weights(self) -> None`
-  - `EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
-  - `EmissiveGroupsSlots.compact_slots(self) -> None`
-  - `EmissiveGroupsSlots.republish_export(self) -> None`

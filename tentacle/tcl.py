@@ -595,20 +595,19 @@ class Tcl(_TclInternal):
         """Register on *switchboard* what every host shares (CODE_STANDARD section 3).
 
         ``slots/``: the composed Slots classes, one per category, reaching their host
-        through ``Slots.tk``. ``ui/panels/``: one folder per tool panel, holding its ``.ui``
-        and its one Slots class; recursive, and tagged ``UiHandler.PANEL_TAG`` so a panel
+        through ``Slots.tk``. ``ui/tools/`` and ``slots/tools/``: each tool's ``.ui`` and its
+        one Slots class, flat, paired by name, and tagged ``UiHandler.PANEL_TAG`` so a tool
         opens sticky in any host (the hosts' handlers defer to that rule). Both entry
         points call this, so the shared roots are written once.
         """
         from uitk import UiHandler
 
         root = os.path.dirname(os.path.abspath(__file__))
-        panels = os.path.join(root, "ui", "panels")
-        switchboard.register(slot_location=os.path.join(root, "slots"))
+        slots = os.path.join(root, "slots")
+        switchboard.register(slot_location=slots)
         switchboard.register(
-            ui_location=panels,
-            slot_location=panels,
-            recursive=True,
+            ui_location=os.path.join(root, "ui", "tools"),
+            slot_location=os.path.join(slots, "tools"),
             tags={UiHandler.PANEL_TAG},
         )
 

@@ -1,6 +1,6 @@
 # tentacle
 
-**Role**: The product: every tool, panel and Slots class, for Maya, Blender and standalone (3ds Max: a thin launcher). Target layout (root CLAUDE.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): `tools/<tool>/` (`model/`, adapter Protocol, `maya.py` / `blender.py`), `ui/panels/<panel>/` (`.ui` + one shared Slots class), `core/<engine>/`. Panels and tools arrive from mayatk and blendertk one tool per release; no library imports tentacle.
+**Role**: The product's UI: the launcher, the UIs and the Slots classes, for Maya, Blender and standalone (3ds Max: a thin launcher), and no logic of its own: a tool's API is mayatk / blendertk, shared logic pythontk. Layout (root CLAUDE.md, [CODE_STANDARD](../m3trik/docs/CODE_STANDARD.md) §3, §14): a tool's UI is `ui/tools/<tool>.ui` and its one Slots class `slots/tools/<tool>.py` (shared by both hosts, paired by name; Qt helpers in `slots/tools/_<tool>/`); categories are `ui/<category>.ui` + `slots/<category>.py`. Tool UIs arrive from mayatk and blendertk one tool per milestone; no library imports tentacle.
 
 **Nav**: [← root](../CLAUDE.md) · [docs](docs/README.md) · **Deps**: [pythontk](../pythontk/CLAUDE.md) · [uitk](../uitk/CLAUDE.md) · **Host libraries**: [mayatk](../mayatk/CLAUDE.md) · [blendertk](../blendertk/CLAUDE.md) (host-provided, not pinned)
 

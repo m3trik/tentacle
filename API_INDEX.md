@@ -411,6 +411,14 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
 
+### `slots/tools/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+- `class DuplicateRadialSlots(Slots)`
+  - methods: header_init, s015_init, s016_init, b001_init, perform_operation, regroup_copies
+
+### `slots/tools/emissive_groups.py` — Emissive Groups: named face groups whose emissive regions a game engine gates.
+- `class EmissiveGroupsSlots(Slots)`
+  - methods: header_init, txt000_init, tbl000_init, b000, b001, b002, b003, tb000_init, tb000, select_members, remove_group, weights_all_on, weights_all_off, make_weights_keyable, key_weights, remove_keyable_weights, compact_slots, republish_export
+
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
@@ -448,31 +456,3 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `onMayaDroppedPythonFile(*_args)`
 - `class TentacleInstaller`
   - methods: host, headless, loaded, specs, python_exe, maya_paths, target_dir, is_installed, lock_path, manifest_path, read_manifest, write_manifest, installed_version, install, update, uninstall, request, provision, launch, shutdown, ensure_and_launch, write_maya_module, dropped, register_blender_ui, unregister_blender_ui, main
-
-### `tools/emissive_groups/adapter.py` — The scene operations the Emissive Groups model needs from a host.
-- `class EmissiveGroupsAdapter(Protocol)`
-  - methods: faces, add_members, remove_members, members, select, membership_stores, carrier_weights, weight_exists, ensure_weight, delete_weight, sync_weight, key_weight, foreign_color_sets, write_colors, uv_triangles, mask_path, object_names, face_count, mesh, merge_stores, discard_stores, publish, extra_warnings
-
-### `tools/emissive_groups/api.py` — The Emissive Groups tool in the running host.
-- `class EmissiveGroupsApi`
-  - methods: for_toolkit
-
-### `tools/emissive_groups/blender.py` — Emissive Groups' Blender half: one boolean FACE attribute per group on its
-- `class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal)`
-  - methods: faces, add_members, remove_members, members, select, membership_stores, carrier_weights, weight_exists, ensure_weight, delete_weight, sync_weight, key_weight, foreign_color_sets, write_colors, uv_triangles, mask_path, object_names, face_count, mesh, merge_stores, discard_stores, publish, extra_warnings, create_export_curve_proxies, remove_export_curve_proxies
-
-### `tools/emissive_groups/maya.py` — Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
-- `class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`
-  - methods: faces, add_members, remove_members, members, select, membership_stores, carrier_weights, weight_exists, ensure_weight, delete_weight, sync_weight, key_weight, foreign_color_sets, write_colors, uv_triangles, mask_path, object_names, face_count, mesh, merge_stores, discard_stores, publish, extra_warnings
-
-### `tools/emissive_groups/model/emissive_groups_model.py` — Emissive groups: named face sets that gate emissive regions at runtime.
-- `class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`
-  - methods: add_group, remove_group, list_groups, weight_attrs, select_group, set_default, compact_slots, make_weights_keyable, remove_keyable_weights, key_weight, validate, bake_vertex_colors, bake_mask, transfer_out, transfer_in, merge_carrier, discard_carrier, export_record, refresh_export_metadata
-
-### `ui/panels/duplicate_radial/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
-- `class DuplicateRadialSlots(Slots)`
-  - methods: header_init, s015_init, s016_init, b001_init, perform_operation, regroup_copies
-
-### `ui/panels/emissive_groups/emissive_groups.py` — Emissive Groups: named face groups whose emissive regions a game engine gates.
-- `class EmissiveGroupsSlots(Slots)`
-  - methods: header_init, txt000_init, tbl000_init, b000, b001, b002, b003, tb000_init, tb000, select_members, remove_group, weights_all_on, weights_all_off, make_weights_keyable, key_weights, remove_keyable_weights, compact_slots, republish_export

@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Panel-wiring tests for the shared ``emissive_groups`` panel (``ui/panels/``).
+"""Panel-wiring tests for the shared ``emissive_groups`` tool (``ui/tools/`` + ``slots/tools/``).
 
 Maya-hosted, in a fresh GUI Maya (``run_tests.py --in-maya``): the panel hosts a
 uitk ``TableWidget``, and Qt table classes hard-crash mayapy in batch. It loads
@@ -21,8 +21,7 @@ from _host import MAYA_AVAILABLE, maya_module, qt_widgets_available
 
 cmds = maya_module("maya.cmds")
 mtk = maya_module("mayatk")
-_maya_half = maya_module("tentacle.tools.emissive_groups.maya")
-EmissiveGroups = _maya_half.EmissiveGroups if _maya_half else None
+EmissiveGroups = mtk.EmissiveGroups if mtk else None
 
 
 @unittest.skipUnless(
@@ -59,7 +58,7 @@ class TestPanelSurface(_PanelCase):
     def test_the_panel_drives_the_tool_in_this_host(self):
         self.assertEqual(
             type(self.slots).__module__,
-            "tentacle.ui.panels.emissive_groups.emissive_groups",
+            "tentacle.slots.tools.emissive_groups",
         )
         self.assertIs(self.slots.tk, mtk)
         self.assertIs(self.slots.engine, EmissiveGroups)

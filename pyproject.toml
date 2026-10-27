@@ -74,14 +74,6 @@ extapps = "extapps"
 # exporters and record stores merge these under their own rows, read from this
 # metadata alone, so a batch export finds a tool without importing tentacle.
 # ``<host>.<role>.<key>`` = ``module:Owner.method``.
-[project.entry-points."m3trik.scene_records"]
-"maya.producer.emissive_groups" = "tentacle.tools.emissive_groups.maya:EmissiveGroups.export_record"
-"maya.owner.emissive_registry" = "tentacle.tools.emissive_groups.maya:EmissiveGroups"
-"blender.producer.emissive_groups" = "tentacle.tools.emissive_groups.blender:EmissiveGroups.export_record"
-"blender.owner.emissive_registry" = "tentacle.tools.emissive_groups.blender:EmissiveGroups"
-"blender.stager.emissive_groups.prepare" = "tentacle.tools.emissive_groups.blender:BlenderEmissiveGroups.create_export_curve_proxies"
-"blender.stager.emissive_groups.finish" = "tentacle.tools.emissive_groups.blender:BlenderEmissiveGroups.remove_export_curve_proxies"
-
 [tool.setuptools.dynamic]
 version = {attr = "tentacle.__version__"}
 readme = {file = "docs/README.md", content-type = "text/markdown"}
@@ -115,8 +107,8 @@ exclude = ["docs/parity_map.py"]
 [tool.ruff.lint]
 # E4/E7/E9/F: the house set. The rest are the layout's guardrails (CODE_STANDARD
 # section 3): small objects (C901, PLR0904, PLR0915), Qt only through qtpy and no
-# PyMEL (TID251), no print (T201). They hold on the new layout -- tools/, core/,
-# ui/panels/ and composed slots -- and unmoved code sits in the per-file ignores
+# PyMEL (TID251), no print (T201). They hold on the new layout -- the shared
+# tools' slots/tools/ and the composed slots -- and unmoved code sits in the per-file ignores
 # below, which shrink as each tool or category moves.
 select = ["E4", "E7", "E9", "F", "C901", "PLR0904", "PLR0915", "TID251", "T201"]
 ignore = ["E402"]  # house pattern: try-guarded DCC imports precede the other imports
@@ -156,14 +148,12 @@ max-statements = 100
 # CODE_STANDARD section 0 (Parts): this package's parts, top first. A module may
 # import its own part or any part below it; "a | b" makes peers of one rank.
 # Checked by m3trik/scripts/check_layers.py against a frozen baseline of today's
-# exceptions. tools/ and core/ join below "slots | ui" with the first pilot.
+# exceptions. tentacle holds only the launcher, the UIs and the Slots classes.
 order = [
     # The host entry points: each builds the menus and injects its toolkit.
     "tcl_maya | tcl_blender | tcl_max",
     "tcl",
     "slots | ui",
-    # A tool's halves, its API and its model; ui/panels and slots call it.
-    "tools",
 ]
 
 [tool.m3trik.roles.groups]
@@ -171,24 +161,15 @@ order = [
 # roots: "maya" covers maya.cmds, never mayatk.
 maya = ["maya", "pymel", "mayatk"]
 blender = ["bpy", "bmesh", "mathutils", "blendertk"]
-maya_half = ["tentacle.tools.*.maya"]
-blender_half = ["tentacle.tools.*.blender"]
 qt = ["qtpy", "uitk", "PySide6", "PySide2", "shiboken6", "shiboken2"]
 ui = ["tentacle.ui", "tentacle.slots"]
 entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max"]
 
 [tool.m3trik.roles.forbid]
-# Strict from the first file, never frozen; the most specific path wins. A
-# tool's model and the shared models are host- and Qt-free; its API picks a
-# half; each half touches only its own host, never the other half; a panel or composed Slots class
-# reaches the host only through a tool's API or self.tk.
-"tools" = ["maya", "blender", "qt", "ui", "entry"]
-"tools/*/model" = ["maya", "blender", "maya_half", "blender_half", "qt", "ui", "entry"]
-"tools/*/maya" = ["blender", "blender_half", "qt", "ui", "entry"]
-"tools/*/blender" = ["maya", "maya_half", "qt", "ui", "entry"]
-"core" = ["maya", "blender", "maya_half", "blender_half", "qt", "ui", "entry"]
-"ui/panels" = ["maya", "blender", "maya_half", "blender_half", "entry"]
-"slots" = ["maya", "blender", "maya_half", "blender_half", "entry"]
+# Strict from the first file, never frozen; the most specific path wins. A Slots
+# class (composed category or shared tool) reaches its host only through
+# self.tk, the host library's API.
+"slots" = ["maya", "blender", "entry"]
 # The per-host categories: exempt until each merges into one composed class.
 "slots/maya" = []
 "slots/blender" = []

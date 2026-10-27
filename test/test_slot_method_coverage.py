@@ -43,8 +43,10 @@ from xml.etree import ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 UI_DIR = ROOT / "tentacle" / "ui"
-#: Tool panels: one folder each, its ``.ui`` and its one Slots class (``Tcl.register_shared``).
-PANELS_DIR = UI_DIR / "panels"
+#: Shared tools: ``ui/tools/<tool>.ui`` paired by name with ``slots/tools/<tool>.py``
+#: and its one Slots class (``Tcl.register_shared``).
+TOOL_UI_DIR = UI_DIR / "tools"
+TOOL_SLOTS_DIR = SLOTS_ROOT / "tools"
 
 #: DCC -> the marking-menu subdir holding its submenu .ui files (e.g.
 #: ``select#submenu.ui``). Every DCC with a ``slots/<dcc>/`` package is checked;
@@ -350,11 +352,12 @@ class TestEveryUiPairsToASlotFile(unittest.TestCase):
 
 
 
-def _panel_dirs() -> list[Path]:
-    """Every panel folder under ``ui/panels/``."""
-    return sorted(
-        d for d in PANELS_DIR.iterdir() if d.is_dir() and not d.name.startswith("__")
-    )
+def _tools():
+    """Every shared tool's stem: a ``.ui`` under ``ui/tools/`` or a Slots module
+    under ``slots/tools/`` (either alone is a broken pair)."""
+    stems = {p.stem for p in TOOL_UI_DIR.glob("*.ui")}
+    stems |= {p.stem for p in TOOL_SLOTS_DIR.glob("*.py") if not p.stem.startswith("_")}
+    return sorted(stems)
 
 
 def _ui_names(ui_path: Path) -> set[str]:
@@ -384,34 +387,34 @@ def _ui_reads(py_path: Path) -> set[str]:
     }
 
 
-class TestEveryPanelIsOneUiAndOneSlotsClass(unittest.TestCase):
-    """A panel folder holds ``<panel>.ui`` and ``<panel>.py`` defining its one
-    ``<Panel>Slots`` (the name uitk's Slots lookup derives from the stem), and every
-    widget the Slots class reads is one its ``.ui`` declares -- the drift a widget
-    rename leaves behind (the read dies on first use, not at load)."""
+class TestEveryToolIsOneUiAndOneSlotsClass(unittest.TestCase):
+    """A shared tool is ``ui/tools/<tool>.ui`` and ``slots/tools/<tool>.py`` defining
+    its one ``<Tool>Slots`` (the name uitk's Slots lookup derives from the stem), and
+    every widget the Slots class reads is one its ``.ui`` declares -- the drift a
+    widget rename leaves behind (the read dies on first use, not at load)."""
 
-    def test_each_panel_folder_pairs_its_ui_with_its_slots_class(self):
-        for panel in _panel_dirs():
-            with self.subTest(panel=panel.name):
-                ui, py = panel / f"{panel.name}.ui", panel / f"{panel.name}.py"
-                self.assertTrue(ui.is_file(), f"{panel.name}: no {ui.name}")
-                self.assertTrue(py.is_file(), f"{panel.name}: no {py.name}")
-                # A package, so the slot scan imports the class by its module path
-                # (a loose-file load hides a broken panel's import error).
-                self.assertTrue((panel / "__init__.py").is_file(), f"{panel.name}: no __init__.py")
-                expected = "".join(p.title() for p in panel.name.split("_")) + "Slots"
+    def test_each_tool_pairs_its_ui_with_its_slots_class(self):
+        # A package, so the slot scan imports each class by its module path (a
+        # loose-file load hides a broken tool's import error).
+        self.assertTrue((TOOL_SLOTS_DIR / "__init__.py").is_file(), "slots/tools: no __init__.py")
+        for tool in _tools():
+            with self.subTest(tool=tool):
+                ui, py = TOOL_UI_DIR / f"{tool}.ui", TOOL_SLOTS_DIR / f"{tool}.py"
+                self.assertTrue(ui.is_file(), f"{tool}: no ui/tools/{ui.name}")
+                self.assertTrue(py.is_file(), f"{tool}: no slots/tools/{py.name}")
+                expected = "".join(p.title() for p in tool.split("_")) + "Slots"
                 classes = [
                     n.name
                     for n in ast.parse(py.read_text(encoding="utf-8")).body
                     if isinstance(n, ast.ClassDef) and n.name.endswith("Slots")
                 ]
-                self.assertEqual(classes, [expected], panel.name)
+                self.assertEqual(classes, [expected], tool)
 
-    def test_every_widget_a_panel_reads_is_in_its_ui(self):
-        for panel in _panel_dirs():
-            with self.subTest(panel=panel.name):
-                py = panel / f"{panel.name}.py"
-                widgets = _ui_names(panel / f"{panel.name}.ui")
+    def test_every_widget_a_tool_reads_is_in_its_ui(self):
+        for tool in _tools():
+            with self.subTest(tool=tool):
+                py = TOOL_SLOTS_DIR / f"{tool}.py"
+                widgets = _ui_names(TOOL_UI_DIR / f"{tool}.ui")
                 unknown = sorted(_ui_reads(py) - widgets)
                 self.assertEqual(unknown, [], f"{py.name} reads widgets its .ui lacks")
                 inits = {
@@ -423,13 +426,11 @@ class TestEveryPanelIsOneUiAndOneSlotsClass(unittest.TestCase):
                     sorted(inits - widgets), [], f"{py.name} inits widgets its .ui lacks"
                 )
 
-    def test_the_panel_checks_are_not_vacuous(self):
-        """Guard the guard: a moved panel root would pass the checks above empty."""
-        self.assertTrue(_panel_dirs(), f"no panel folders under {PANELS_DIR}")
-        reads = set().union(
-            *(_ui_reads(d / f"{d.name}.py") for d in _panel_dirs())
-        )
-        self.assertTrue(reads, "no self.ui reads found in any panel")
+    def test_the_tool_checks_are_not_vacuous(self):
+        """Guard the guard: a moved tool root would pass the checks above empty."""
+        self.assertTrue(_tools(), f"no tools under {TOOL_UI_DIR}")
+        reads = set().union(*(_ui_reads(TOOL_SLOTS_DIR / f"{t}.py") for t in _tools()))
+        self.assertTrue(reads, "no self.ui reads found in any tool")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ from unittest import mock
 
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots._slots import Slots
-from tentacle.ui.panels.duplicate_radial.duplicate_radial import DuplicateRadialSlots
+from tentacle.slots.tools.duplicate_radial import DuplicateRadialSlots
 
 
 def _panel(values=None):

@@ -657,9 +657,10 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             self._process()
 
     def test_a_shared_tool_panel_opens_sticky_over_the_host_toolkit(self):
-        """A panel in ``ui/panels/`` opens the way the Duplicate menu opens it: from
-        tentacle's folder, bound to its one Slots class over ``mtk``, sticky by the
-        panel tag (the rule mayatk's own panels had by their package tag)."""
+        """A shared tool (``ui/tools/`` + ``slots/tools/``) opens the way the Duplicate
+        menu opens it: from tentacle's folder, bound to its one Slots class over
+        ``mtk``, sticky by the panel tag (the rule mayatk's own panels had by their
+        package tag)."""
         from pathlib import Path
 
         import mayatk as mtk
@@ -673,8 +674,8 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             filepath = self.mm.sb.registry.ui_registry.get(
                 filename="duplicate_radial", return_field="filepath"
             )
-            panels = Path(tentacle.__file__).resolve().parent / "ui" / "panels"
-            self.assertTrue(Path(filepath).resolve().is_relative_to(panels), filepath)
+            tools = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
+            self.assertTrue(Path(filepath).resolve().is_relative_to(tools), filepath)
             slots = self.mm.sb.get_slots_instance(ui)
             self.assertEqual(type(slots).__name__, "DuplicateRadialSlots")
             self.assertIs(slots.tk, mtk)
