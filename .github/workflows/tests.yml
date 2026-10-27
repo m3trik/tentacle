@@ -186,3 +186,70 @@ jobs:
 
       - name: Registry matches source
         run: python m3trik/scripts/generate_api_registry.py tentacle --check
+
+  guardrails:
+    # The layout's guardrails (CODE_STANDARD section 3), strict on the new
+    # layout: ruff's house set plus its size, banned-Qt and print rules
+    # (pyproject.toml; unmoved code sits in its per-file ignores), the layer
+    # order with its product and role rules (check_layers.py), and the
+    # written-once rule (check_dcc_twins.py), which compares the new layout
+    # with the four libraries, so they are checked out as siblings at dev.
+    # ruff is pinned: an unpinned one turns an upstream rule change into a red
+    # build nobody caused.
+    name: Layout guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tentacle
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/m3trik
+          ref: main
+          path: m3trik
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/pythontk
+          ref: dev
+          path: pythontk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/uitk
+          ref: dev
+          path: uitk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/mayatk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: mayatk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/blendertk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: blendertk
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install ruff
+        run: pip install ruff==0.15.17
+
+      - name: ruff check
+        working-directory: tentacle
+        run: ruff check tentacle
+
+      - name: Layer order, product and role rules
+        run: python m3trik/scripts/check_layers.py --check tentacle
+
+      - name: Written once
+        run: python m3trik/scripts/check_dcc_twins.py --check --written-once tentacle

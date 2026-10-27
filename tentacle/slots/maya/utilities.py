@@ -1,7 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
 import maya.mel as mel
-import mayatk as mtk
 from tentacle import SlotsMaya
 
 
