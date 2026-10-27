@@ -396,6 +396,9 @@ class TestEveryPanelIsOneUiAndOneSlotsClass(unittest.TestCase):
                 ui, py = panel / f"{panel.name}.ui", panel / f"{panel.name}.py"
                 self.assertTrue(ui.is_file(), f"{panel.name}: no {ui.name}")
                 self.assertTrue(py.is_file(), f"{panel.name}: no {py.name}")
+                # A package, so the slot scan imports the class by its module path
+                # (a loose-file load hides a broken panel's import error).
+                self.assertTrue((panel / "__init__.py").is_file(), f"{panel.name}: no __init__.py")
                 expected = "".join(p.title() for p in panel.name.split("_")) + "Slots"
                 classes = [
                     n.name
