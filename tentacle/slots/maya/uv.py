@@ -588,29 +588,28 @@ class UvSlots(UvMixin, SlotsMaya):
         with self.sb.progress(text=f"Working: Pack UVs ({method})") as update:
             update()
             cmds.undoInfo(openChunk=True, chunkName="UV Pack")
-            cmds.refresh(suspend=True)
             try:
-                result = mtk.UvUtils.pack_uvs(
-                    selection,
-                    engine="xatlas" if method == "xatlas" else "u3d",
-                    map_size=map_size,
-                    udim=UDIM,
-                    coverage=menu.cmb015.currentData(),
-                    preserve_3d=menu.cmb009.currentData() == 1,  # Preserve 3D
-                    rotate=menu.chk044.isChecked(),
-                    brute_force=menu.chk043.isChecked(),
-                    pre_rotate=menu.cmb010.currentData(),
-                    rotate_step=menu.s011.value(),
-                    rotate_min=menu.s012.value(),
-                    rotate_max=menu.s013.value(),
-                    mutations=menu.s014.value(),
-                    scale_mode=menu.cmb018.currentData(),
-                    tiles=(tiles_u, tiles_v),
-                )
+                with mtk.CoreUtils.suspended_refresh():
+                    result = mtk.UvUtils.pack_uvs(
+                        selection,
+                        engine="xatlas" if method == "xatlas" else "u3d",
+                        map_size=map_size,
+                        udim=UDIM,
+                        coverage=menu.cmb015.currentData(),
+                        preserve_3d=menu.cmb009.currentData() == 1,  # Preserve 3D
+                        rotate=menu.chk044.isChecked(),
+                        brute_force=menu.chk043.isChecked(),
+                        pre_rotate=menu.cmb010.currentData(),
+                        rotate_step=menu.s011.value(),
+                        rotate_min=menu.s012.value(),
+                        rotate_max=menu.s013.value(),
+                        mutations=menu.s014.value(),
+                        scale_mode=menu.cmb018.currentData(),
+                        tiles=(tiles_u, tiles_v),
+                    )
             except (RuntimeError, ValueError) as engine_error:
                 error = engine_error
             finally:
-                cmds.refresh(suspend=False)
                 cmds.undoInfo(closeChunk=True)
         if error is not None:
             self.sb.message_box(
@@ -1513,8 +1512,7 @@ class UvSlots(UvMixin, SlotsMaya):
                 "Stack a selection first; Unstack restores the pre-stack positions."
             )
             return
-        cmds.refresh(suspend=True)
-        try:
+        with mtk.CoreUtils.suspended_refresh():
             live = [uv for uv, _, _ in snapshot if cmds.objExists(uv)]
             if live:
                 cmds.polyPinUV(live, value=0.0)  # pins block polyEditUV
@@ -1522,8 +1520,6 @@ class UvSlots(UvMixin, SlotsMaya):
                 if cmds.objExists(uv):
                     cmds.polyEditUV(uv, uValue=u, vValue=v, relative=False)
             mtk.UvUtils.set_uv_pin_weights([uv for uv, _, _ in snapshot], weights)
-        finally:
-            cmds.refresh(suspend=False)
 
     def b031(self):
         """Open UV Editor"""
