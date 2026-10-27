@@ -264,5 +264,5 @@ print("\n".join(lines))
 # Count only check lines — notes//headers in `lines` must never pad the score.
 results = [line for line in lines if line.startswith(("OK  ", "FAIL"))]
 failed = sum(1 for line in results if line.startswith("FAIL"))
-print(f"===RESULT=== {len(results) - failed}/{len(results)} passed")
+print(f"===RESULT: {'FAIL' if failed else 'PASS'}=== ({len(results) - failed}/{len(results)})")
 sys.exit(1 if failed else 0)
