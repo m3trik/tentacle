@@ -88,7 +88,7 @@ def greeting(string, outputToConsole=True):
     result = string.format(hr=hr, pyver=pyver, modver=modver)
 
     if outputToConsole:
-        print(result)
+        print(result)  # noqa: T201 -- greeting() prints only when asked to
     return result
 
 

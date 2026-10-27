@@ -101,8 +101,79 @@ target-version = "py39"
 exclude = ["docs/parity_map.py"]
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
+# E4/E7/E9/F: the house set. The rest are the layout's guardrails (CODE_STANDARD
+# section 3): small objects (C901, PLR0904, PLR0915), Qt only through qtpy and no
+# PyMEL (TID251), no print (T201). They hold on the new layout -- tools/, core/,
+# ui/panels/ and composed slots -- and unmoved code sits in the per-file ignores
+# below, which shrink as each tool or category moves.
+select = ["E4", "E7", "E9", "F", "C901", "PLR0904", "PLR0915", "TID251", "T201"]
 ignore = ["E402"]  # house pattern: try-guarded DCC imports precede the other imports
+# PLR0904 is a preview rule: explicit-preview-rules turns on only the preview
+# rules selected by code, so the stable rules behave as before (measured
+# 2026-10-26: the same 56 E/F findings with and without).
+preview = true
+explicit-preview-rules = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.ruff.lint.pylint]
+max-public-methods = 60
+max-statements = 100
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"PySide6".msg = "Qt only through qtpy (CODE_STANDARD section 4)"
+"PySide2".msg = "Qt only through qtpy (CODE_STANDARD section 4)"
+"PyQt5".msg = "Qt only through qtpy (CODE_STANDARD section 4)"
+"PyQt6".msg = "Qt only through qtpy (CODE_STANDARD section 4)"
+"pymel".msg = "No PyMEL: maya.cmds only"
 
 [tool.ruff.lint.per-file-ignores]
 "**/templates/**" = ["F821"]  # exec-templates carry __PLACEHOLDER__ tokens substituted at run time
+# Unmoved code: the guardrails start on the new layout, not here.
+"tentacle/tcl*.py" = ["C901", "PLR0904", "PLR0915", "T201"]
+"tentacle/slots/_*.py" = ["C901", "PLR0904", "PLR0915", "T201"]
+"tentacle/slots/maya/**" = ["C901", "PLR0904", "PLR0915", "T201"]
+"tentacle/slots/blender/**" = ["C901", "PLR0904", "PLR0915", "T201"]
+# A bootstrap: it runs before qtpy is installed, and prints to the host console.
+"tentacle/tentacle_installer.py" = ["C901", "PLR0904", "PLR0915", "T201", "TID251"]
+"test/**" = ["C901", "PLR0904", "PLR0915", "T201"]
+"docs/**" = ["C901", "PLR0904", "PLR0915", "T201"]
+
+[tool.m3trik.layers]
+# CODE_STANDARD section 0 (Parts): this package's parts, top first. A module may
+# import its own part or any part below it; "a | b" makes peers of one rank.
+# Checked by m3trik/scripts/check_layers.py against a frozen baseline of today's
+# exceptions. tools/ and core/ join below "slots | ui" with the first pilot.
+order = [
+    # The host entry points: each builds the menus and injects its toolkit.
+    "tcl_maya | tcl_blender | tcl_max",
+    "tcl",
+    "slots | ui",
+]
+
+[tool.m3trik.roles.groups]
+# Import groups the layout's roles forbid (CODE_STANDARD section 3), as dotted
+# roots: "maya" covers maya.cmds, never mayatk.
+maya = ["maya", "pymel", "mayatk"]
+blender = ["bpy", "bmesh", "mathutils", "blendertk"]
+halves = ["tentacle.tools.*.maya", "tentacle.tools.*.blender"]
+qt = ["qtpy", "uitk", "PySide6", "PySide2", "shiboken6", "shiboken2"]
+ui = ["tentacle.ui", "tentacle.slots"]
+entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max"]
+
+[tool.m3trik.roles.forbid]
+# Strict from the first file, never frozen; the most specific path wins. A
+# tool's model and the shared models are host- and Qt-free; its API picks a
+# half; each half touches only its own host; a panel or composed Slots class
+# reaches the host only through a tool's API or self.tk.
+"tools" = ["maya", "blender", "qt", "ui", "entry"]
+"tools/*/model" = ["maya", "blender", "halves", "qt", "ui", "entry"]
+"tools/*/maya" = ["blender", "qt", "ui", "entry"]
+"tools/*/blender" = ["maya", "qt", "ui", "entry"]
+"core" = ["maya", "blender", "halves", "qt", "ui", "entry"]
+"ui/panels" = ["maya", "blender", "halves", "entry"]
+"slots" = ["maya", "blender", "halves", "entry"]
+# The per-host categories: exempt until each merges into one composed class.
+"slots/maya" = []
+"slots/blender" = []
