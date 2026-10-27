@@ -253,3 +253,6 @@ jobs:
 
       - name: Written once
         run: python m3trik/scripts/check_dcc_twins.py --check --written-once tentacle
+
+      - name: Saved names survive
+        run: python m3trik/scripts/check_saved_names.py --check tentacle
