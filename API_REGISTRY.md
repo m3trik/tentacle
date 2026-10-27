@@ -963,12 +963,12 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--arnold"></a>
 ### `slots/maya/arnold.py`
 
-- **[`class ArnoldSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/arnold.py#L9)**
+- **[`class ArnoldSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/arnold.py#L8)**
 
 <a id="slots--maya--cache"></a>
 ### `slots/maya/cache.py`
 
-- **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L9)**
+- **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L8)**
 
 <a id="slots--maya--cameras"></a>
 ### `slots/maya/cameras.py`
@@ -992,12 +992,12 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--constrain"></a>
 ### `slots/maya/constrain.py`
 
-- **[`class ConstrainSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/constrain.py#L9)**
+- **[`class ConstrainSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/constrain.py#L8)**
 
 <a id="slots--maya--control"></a>
 ### `slots/maya/control.py`
 
-- **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L9)**
+- **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L8)**
 
 <a id="slots--maya--crease"></a>
 ### `slots/maya/crease.py`
@@ -1010,12 +1010,12 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--curves"></a>
 ### `slots/maya/curves.py`
 
-- **[`class CurvesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/curves.py#L9)**
+- **[`class CurvesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/curves.py#L8)**
 
 <a id="slots--maya--deform"></a>
 ### `slots/maya/deform.py`
 
-- **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L9)**
+- **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L8)**
 
 <a id="slots--maya--deformation"></a>
 ### `slots/maya/deformation.py`
@@ -1086,7 +1086,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--edit_mesh"></a>
 ### `slots/maya/edit_mesh.py`
 
-- **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L9)**
+- **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L8)**
 
 <a id="slots--maya--editors"></a>
 ### `slots/maya/editors.py`
@@ -1113,27 +1113,27 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--effects"></a>
 ### `slots/maya/effects.py`
 
-- **[`class EffectsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/effects.py#L9)**
+- **[`class EffectsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/effects.py#L8)**
 
 <a id="slots--maya--fields_solvers"></a>
 ### `slots/maya/fields_solvers.py`
 
-- **[`class FieldsSolversSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fields_solvers.py#L9)**
+- **[`class FieldsSolversSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fields_solvers.py#L8)**
 
 <a id="slots--maya--fluids"></a>
 ### `slots/maya/fluids.py`
 
-- **[`class FluidsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fluids.py#L9)**
+- **[`class FluidsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fluids.py#L8)**
 
 <a id="slots--maya--generate"></a>
 ### `slots/maya/generate.py`
 
-- **[`class GenerateSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/generate.py#L9)**
+- **[`class GenerateSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/generate.py#L8)**
 
 <a id="slots--maya--help"></a>
 ### `slots/maya/help.py`
 
-- **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L9)**
+- **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L8)**
 
 <a id="slots--maya--hud"></a>
 ### `slots/maya/hud.py`
@@ -1151,7 +1151,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--key"></a>
 ### `slots/maya/key.py`
 
-- **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L9)**
+- **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L8)**
 
 <a id="slots--maya--lighting"></a>
 ### `slots/maya/lighting.py`
@@ -1166,7 +1166,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`
 
-- **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L9)**
+- **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L8)**
 
 <a id="slots--maya--main"></a>
 ### `slots/maya/main.py`
@@ -1178,7 +1178,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--mash"></a>
 ### `slots/maya/mash.py`
 
-- **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L9)**
+- **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L8)**
 
 <a id="slots--maya--materials"></a>
 ### `slots/maya/materials.py`
@@ -1217,37 +1217,37 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`
 
-- **[`class MeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh.py#L9)**
+- **[`class MeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh.py#L8)**
 
 <a id="slots--maya--mesh_display"></a>
 ### `slots/maya/mesh_display.py`
 
-- **[`class MeshDisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_display.py#L9)**
+- **[`class MeshDisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_display.py#L8)**
 
 <a id="slots--maya--mesh_tools"></a>
 ### `slots/maya/mesh_tools.py`
 
-- **[`class MeshToolsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_tools.py#L9)**
+- **[`class MeshToolsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_tools.py#L8)**
 
 <a id="slots--maya--ncloth"></a>
 ### `slots/maya/ncloth.py`
 
-- **[`class NClothSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/ncloth.py#L9)**
+- **[`class NClothSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/ncloth.py#L8)**
 
 <a id="slots--maya--nconstraint"></a>
 ### `slots/maya/nconstraint.py`
 
-- **[`class NConstraintSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nconstraint.py#L9)**
+- **[`class NConstraintSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nconstraint.py#L8)**
 
 <a id="slots--maya--nhair"></a>
 ### `slots/maya/nhair.py`
 
-- **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L9)**
+- **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L8)**
 
 <a id="slots--maya--normals"></a>
 ### `slots/maya/normals.py`
 
-- **[`class NormalsSlots(NormalsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/normals.py#L9)**
+- **[`class NormalsSlots(NormalsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/normals.py#L8)**
   - `NormalsSlots.tb001_init(self, widget)` — Initialize Set Normals By Angle
   - `NormalsSlots.tb001(self, widget)` — Set Normals By Angle
   - `NormalsSlots.tb004_init(self, widget)` — Initialize Average Normals
@@ -1262,7 +1262,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--nparticles"></a>
 ### `slots/maya/nparticles.py`
 
-- **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L9)**
+- **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L8)**
 
 <a id="slots--maya--nurbs"></a>
 ### `slots/maya/nurbs.py`
@@ -1295,7 +1295,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--playback"></a>
 ### `slots/maya/playback.py`
 
-- **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L9)**
+- **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L8)**
 
 <a id="slots--maya--polygons"></a>
 ### `slots/maya/polygons.py`
@@ -1363,7 +1363,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--render"></a>
 ### `slots/maya/render.py`
 
-- **[`class RenderSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L9)**
+- **[`class RenderSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L8)**
 
 <a id="slots--maya--rendering"></a>
 ### `slots/maya/rendering.py`
@@ -1436,7 +1436,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--select"></a>
 ### `slots/maya/select.py`
 
-- **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L9)**
+- **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L8)**
 
 <a id="slots--maya--selection"></a>
 ### `slots/maya/selection.py`
@@ -1492,17 +1492,17 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
 
-- **[`class SkeletonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skeleton.py#L9)**
+- **[`class SkeletonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skeleton.py#L8)**
 
 <a id="slots--maya--skin"></a>
 ### `slots/maya/skin.py`
 
-- **[`class SkinSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skin.py#L9)**
+- **[`class SkinSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skin.py#L8)**
 
 <a id="slots--maya--stereo"></a>
 ### `slots/maya/stereo.py`
 
-- **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L9)**
+- **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L8)**
 
 <a id="slots--maya--subdivision"></a>
 ### `slots/maya/subdivision.py`
@@ -1525,7 +1525,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--surfaces"></a>
 ### `slots/maya/surfaces.py`
 
-- **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L9)**
+- **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L8)**
 
 <a id="slots--maya--symmetry"></a>
 ### `slots/maya/symmetry.py`
@@ -1542,12 +1542,12 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--texturing"></a>
 ### `slots/maya/texturing.py`
 
-- **[`class TexturingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/texturing.py#L9)**
+- **[`class TexturingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/texturing.py#L8)**
 
 <a id="slots--maya--toon"></a>
 ### `slots/maya/toon.py`
 
-- **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L9)**
+- **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L8)**
 
 <a id="slots--maya--transform"></a>
 ### `slots/maya/transform.py`
@@ -1584,7 +1584,7 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--utilities"></a>
 ### `slots/maya/utilities.py`
 
-- **[`class UtilitiesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/utilities.py#L8)**
+- **[`class UtilitiesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/utilities.py#L7)**
   - `UtilitiesSlots.b000(self)` — Measure: create a distance-measure tool between two points.
   - `UtilitiesSlots.b001(self)` — Annotation: create an annotation (text label) node.
   - `UtilitiesSlots.b002(self)` — Calculator: open the calculator tool.
@@ -1621,12 +1621,12 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`
 
-- **[`class VisualizeSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/visualize.py#L9)**
+- **[`class VisualizeSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/visualize.py#L8)**
 
 <a id="slots--maya--windows"></a>
 ### `slots/maya/windows.py`
 
-- **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L9)**
+- **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L8)**
 
 <a id="tcl"></a>
 ### `tcl.py`
