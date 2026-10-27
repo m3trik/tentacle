@@ -150,6 +150,8 @@ order = [
     "tcl_maya | tcl_blender | tcl_max",
     "tcl",
     "slots | ui",
+    # A tool's halves, its API and its model; ui/panels and slots call it.
+    "tools",
 ]
 
 [tool.m3trik.roles.groups]
