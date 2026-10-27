@@ -452,3 +452,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `ui/panels/duplicate_radial/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
 - `class DuplicateRadialSlots(Slots)`
   - methods: header_init, s015_init, s016_init, b001_init, perform_operation, regroup_copies
+
+### `ui/panels/emissive_groups/emissive_groups.py` — Emissive Groups: named face groups whose emissive regions a game engine gates.
+- `class EmissiveGroupsSlots(Slots)`
+  - methods: header_init, txt000_init, tbl000_init, b000, b001, b002, b003, tb000_init, tb000, select_members, remove_group, weights_all_on, weights_all_off, make_weights_keyable, key_weights, remove_keyable_weights, compact_slots, republish_export

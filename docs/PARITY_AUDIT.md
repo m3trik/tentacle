@@ -10,8 +10,8 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **47 present** pairs (of Maya's 50), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **60%** (1501/2516 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 49), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **60%** (1496/2511 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 60% with 1 module(s) absent (render_utils); 1 panel ports open.
 
@@ -32,7 +32,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | edit_utils | 166 | 182 | 126 | 76% |
 | env_utils | 497 | 325 | 240 | 48% |
 | light_utils | 170 | 130 | 106 | 62% |
-| mat_utils | 374 | 290 | 255 | 68% |
+| mat_utils | 366 | 282 | 247 | 67% |
 | node_utils | 159 | 73 | 63 | 40% |
 | nurbs_utils | 26 | 26 | 15 | 58% |
 | render_utils **(ABSENT)** | 13 | 0 | 0 | 0% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 76 | 91 | 34 | 45% |
 | uv_utils | 166 | 154 | 134 | 81% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2516** | **1923** | **1501** | **60%** |
+| **TOTAL (unique)** | **2511** | **1918** | **1496** | **60%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -52,7 +52,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (47) — worst first by logic
+### Present pairs (46) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
@@ -99,7 +99,6 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | DynamicPipe | 0→0 | 0→1 | 1→1 | 207→212 | 102% | 100% | clean |
 | TextureCombine | 4→4 | 4→4 | 26→26 | 1122→1177 | 105% | 100% | clean |
 | Mirror | 0→0 | 0→0 | 10→10 | 271→289 | 107% | 100% | clean |
-| EmissiveGroups | 3→3 | 15→14 | 7→7 | 1384→1499 | 108% | 100% | clean |
 | Curtain | 0→0 | 0→1 | 13→13 | 481→528 | 110% | 100% | clean |
 | ImageToPlane | 3→3 | 1→1 | 8→8 | 244→268 | 110% | 100% | clean |
 | ArticulatedRig | 1→1 | 2→2 | 17→17 | 782→867 | 111% | 100% | clean |

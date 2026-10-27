@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>260</width>
+    <height>340</height>
+   </rect>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <property name="accessibleDescription">
+   <string>Group faces into emissive regions a game engine can toggle or dim independently.</string>
+  </property>
+  <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>260</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_1">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="Header" name="header">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>EMISSIVE GROUPS</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_add">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="LineEdit" name="txt000">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Name for the new group. Leave blank to auto-name.
+Typing an existing name adds the selection to that group.</string>
+          </property>
+          <property name="placeholderText">
+           <string>Group name</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="PushButton" name="b000">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Create a group from the selected faces or meshes.
+Each group takes the next free channel slot (max 4).</string>
+          </property>
+          <property name="text">
+           <string>Add</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="TableWidget" name="tbl000">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>140</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Groups in slot order.
+Drag or click the Weight cell to set a group's default weight (0 = off, 1 = full).
+Right-click a row for select / remove.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_ops">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="PushButton" name="b001">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Remove the selected group.
+Its slot is retired, not reused — existing engine bindings stay valid.</string>
+          </property>
+          <property name="text">
+           <string>Remove</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="PushButton" name="b002">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Select the group's member faces.</string>
+          </property>
+          <property name="text">
+           <string>Select</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="PushButton" name="b003">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Check for empty groups, overlapping membership,
+orphaned sets and foreign color sets.</string>
+          </property>
+          <property name="text">
+           <string>Validate</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="PushButton" name="tb000">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Bake group membership and publish the export manifest.
+Vertex Color rides the FBX; Mask Texture writes an _EMask image.</string>
+        </property>
+        <property name="text">
+         <string>Bake</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Footer" name="footer" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>uitk.widgets.pushButton.PushButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uitk.widgets.lineEdit.LineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uitk.widgets.tableWidget.TableWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -119,6 +119,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`tcl_maya.py`](#tcl_maya)
 - [`tentacle_installer.py`](#tentacle_installer) — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 - [`ui/panels/duplicate_radial/duplicate_radial.py`](#ui--panels--duplicate_radial--duplicate_radial) — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+- [`ui/panels/emissive_groups/emissive_groups.py`](#ui--panels--emissive_groups--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 
 ---
 
@@ -1721,3 +1722,28 @@ Duplicate Radial: copies of the selection in a radial pattern about a pivot.
   - `DuplicateRadialSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
   - `DuplicateRadialSlots.perform_operation(self, objects, contract=None)` — Duplicate *objects* radially from the panel's values.
   - `DuplicateRadialSlots.regroup_copies(self)` — The commit's finalize step: the host groups the committed copies.
+
+<a id="ui--panels--emissive_groups--emissive_groups"></a>
+### `ui/panels/emissive_groups/emissive_groups.py`
+
+Emissive Groups: named face groups whose emissive regions a game engine gates.
+
+- **[`class EmissiveGroupsSlots(Slots)`](tentacle/tentacle/ui/panels/emissive_groups/emissive_groups.py#L14)** — Switchboard slots for the ``emissive_groups.ui`` panel.
+  - `EmissiveGroupsSlots.header_init(self, widget) -> None`
+  - `EmissiveGroupsSlots.txt000_init(self, widget) -> None` — Group-name field — clearable back to the auto-derived name.
+  - `EmissiveGroupsSlots.tbl000_init(self, widget) -> None` — Table setup: one-time construction, then (re)wire signals and populate.
+  - `EmissiveGroupsSlots.b000(self) -> None` — Add (or extend) a group from the selection.
+  - `EmissiveGroupsSlots.b001(self) -> None` — Remove the selected group (retires its slot).
+  - `EmissiveGroupsSlots.b002(self) -> None` — Select the group's member faces.
+  - `EmissiveGroupsSlots.b003(self) -> None` — Validate authoring state.
+  - `EmissiveGroupsSlots.tb000_init(self, widget) -> None` — Initialize Bake.
+  - `EmissiveGroupsSlots.tb000(self, widget) -> None` — Bake membership and publish the export manifest.
+  - `EmissiveGroupsSlots.select_members(self) -> None`
+  - `EmissiveGroupsSlots.remove_group(self) -> None`
+  - `EmissiveGroupsSlots.weights_all_on(self) -> None`
+  - `EmissiveGroupsSlots.weights_all_off(self) -> None`
+  - `EmissiveGroupsSlots.make_weights_keyable(self) -> None`
+  - `EmissiveGroupsSlots.key_weights(self) -> None`
+  - `EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
+  - `EmissiveGroupsSlots.compact_slots(self) -> None`
+  - `EmissiveGroupsSlots.republish_export(self) -> None`

@@ -10843,6 +10843,186 @@
         }
       ],
       "constants": []
+    },
+    {
+      "relpath": "ui/panels/emissive_groups/emissive_groups.py",
+      "summary": "Emissive Groups: named face groups whose emissive regions a game engine gates.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "EmissiveGroupsSlots",
+          "summary": "Switchboard slots for the ``emissive_groups.ui`` panel.",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "EmissiveGroupsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "EmissiveGroupsSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Group-name field — clearable back to the auto-derived name.",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "EmissiveGroupsSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Table setup: one-time construction, then (re)wire signals and populate.",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "EmissiveGroupsSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Add (or extend) a group from the selection.",
+              "line": 367,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "EmissiveGroupsSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove the selected group (retires its slot).",
+              "line": 380,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "EmissiveGroupsSlots.b002",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select the group's member faces.",
+              "line": 384,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "EmissiveGroupsSlots.b003",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Validate authoring state.",
+              "line": 388,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "EmissiveGroupsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Initialize Bake.",
+              "line": 398,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "EmissiveGroupsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Bake membership and publish the export manifest.",
+              "line": 471,
+              "deprecated": false
+            },
+            {
+              "name": "select_members",
+              "qualname": "EmissiveGroupsSlots.select_members",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 490,
+              "deprecated": false
+            },
+            {
+              "name": "remove_group",
+              "qualname": "EmissiveGroupsSlots.remove_group",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 500,
+              "deprecated": false
+            },
+            {
+              "name": "weights_all_on",
+              "qualname": "EmissiveGroupsSlots.weights_all_on",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 508,
+              "deprecated": false
+            },
+            {
+              "name": "weights_all_off",
+              "qualname": "EmissiveGroupsSlots.weights_all_off",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 511,
+              "deprecated": false
+            },
+            {
+              "name": "make_weights_keyable",
+              "qualname": "EmissiveGroupsSlots.make_weights_keyable",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 519,
+              "deprecated": false
+            },
+            {
+              "name": "key_weights",
+              "qualname": "EmissiveGroupsSlots.key_weights",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 530,
+              "deprecated": false
+            },
+            {
+              "name": "remove_keyable_weights",
+              "qualname": "EmissiveGroupsSlots.remove_keyable_weights",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 543,
+              "deprecated": false
+            },
+            {
+              "name": "compact_slots",
+              "qualname": "EmissiveGroupsSlots.compact_slots",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 553,
+              "deprecated": false
+            },
+            {
+              "name": "republish_export",
+              "qualname": "EmissiveGroupsSlots.republish_export",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 562,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
     }
   ]
 }

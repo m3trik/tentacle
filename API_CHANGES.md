@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (22)
+## Added (41)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -31,6 +31,25 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.regroup_copies(self)`
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.s015_init(self, widget)`
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.s016_init(self, widget)`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots(class)`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b000(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b001(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b002(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.b003(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.compact_slots(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.header_init(self, widget) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.key_weights(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.make_weights_keyable(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.remove_group(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.republish_export(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.select_members(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tb000(self, widget) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tb000_init(self, widget) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.tbl000_init(self, widget) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.txt000_init(self, widget) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.weights_all_off(self) -> None`
+- `ui/panels/emissive_groups/emissive_groups.py::EmissiveGroupsSlots.weights_all_on(self) -> None`
 
 ## Moved (22)
 

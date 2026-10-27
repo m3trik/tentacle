@@ -40,7 +40,8 @@ from tentacle import tcl_blender as tb
 DOMAINS = [
     "animation", "blender#startmenu", "cameras", "crease", "curtain", "cut_on_axis",
     "deformation", "display", "duplicate", "duplicate_grid", "duplicate_linear",
-    "duplicate_radial", "edit", "editors", "hdr_manager", "hud#startmenu",
+    "duplicate_radial", "edit", "editors", "emissive_groups", "hdr_manager",
+    "hud#startmenu",
     "lighting", "main", "materials", "mirror", "normals", "nurbs", "pivot",
     "polygons", "preferences", "reference_manager", "rendering", "rigging",
     "scene", "selection", "settings", "subdivision", "symmetry", "transform",
