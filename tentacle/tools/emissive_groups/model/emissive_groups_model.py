@@ -48,7 +48,7 @@ FaceMap = Dict[str, List[int]]
 class _EmissiveGroupsModelInternal:
     """Implementation-detail base for :class:`EmissiveGroupsModel`."""
 
-    PREFIX = "emissiveGroup_"
+    SET_PREFIX = "emissiveGroup_"
     COLOR_SET = "emissiveGroups"
     #: The ``data_export`` manifest's channel; the ``data_internal`` registry
     #: keeps its own (``ptk.SceneRecords.EMISSIVE_REGISTRY``).
@@ -66,7 +66,7 @@ class _EmissiveGroupsModelInternal:
 
     def _store(self, name: str) -> str:
         """The membership store's (and weight attr's) name for group *name*."""
-        return f"{self.PREFIX}{name}"
+        return f"{self.SET_PREFIX}{name}"
 
     def _refresh_export_if_published(self) -> None:
         """Keep an already-published manifest current, never create one.
@@ -119,13 +119,13 @@ class _EmissiveGroupsModelInternal:
         warnings = [
             f"{where} has no registry entry — re-add it with add_group({name!r}) "
             "to assign a slot."
-            for where, name in self.adapter.membership_stores(self.PREFIX)
+            for where, name in self.adapter.membership_stores(self.SET_PREFIX)
             if name not in known
         ]
         # An FBX REimport restores the carrier's keyable weights but not the
         # registry (data_internal never rides the FBX).
-        for attr in self.adapter.carrier_weights(self.PREFIX):
-            name = attr[len(self.PREFIX) :]
+        for attr in self.adapter.carrier_weights(self.SET_PREFIX):
+            name = attr[len(self.SET_PREFIX) :]
             if name not in known:
                 warnings.append(
                     f"Carrier attr {attr!r} has no registry entry — a stale "
@@ -141,7 +141,7 @@ class _EmissiveGroupsModelInternal:
         return tris
 
 
-class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin):
+class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin, ptk.HelpMixin):
     """Author, bake, and export named emissive face groups (see module doc).
 
     All state lives in the scene, so an instance holds only its host adapter:
@@ -212,6 +212,11 @@ class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin):
                 "attr": entry.get("attr"),
             }
         return out
+
+    def weight_attrs(self) -> Dict[str, str]:
+        """``{group: keyable weight attr}`` for the groups that have one, read
+        from the registry alone (no membership scan)."""
+        return {e["name"]: e["attr"] for e in self._registry().groups() if e.get("attr")}
 
     def select_group(self, name: str) -> None:
         """Select the group's faces."""

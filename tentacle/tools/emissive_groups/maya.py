@@ -38,16 +38,27 @@ class _MayaEmissiveGroupsInternal:
 
     @classmethod
     def _face_map(cls, components) -> FaceMap:
-        """Face components (flattened) as a ``FaceMap`` keyed by long transform."""
-        out: FaceMap = {}
-        transforms: Dict[str, Optional[str]] = {}  # one query per node, not per face
+        """Face components as a ``FaceMap`` keyed by long transform.
+
+        Read compact (``f[a:b]`` ranges, as ``filterExpand -ex 0`` gives them)
+        and expanded here: a flattened list of a dense mesh's faces costs Maya
+        one string per face, on every panel refresh.
+        """
+        out: Dict[str, set] = {}
+        transforms: Dict[str, Optional[str]] = {}  # one query per node, not per range
         for comp in components:
-            node, _, index = comp.partition(".f[")
+            node, _, span = comp.partition(".f[")
             if node not in transforms:
                 transforms[node] = cls._transform(node)
-            if transforms[node]:
-                out.setdefault(transforms[node], []).append(int(index.rstrip("]")))
-        return {obj: sorted(set(indices)) for obj, indices in out.items()}
+            if not transforms[node]:
+                continue
+            start, _, stop = span.rstrip("]").partition(":")
+            indices = out.setdefault(transforms[node], set())
+            if start == "*":  # the whole mesh
+                indices.update(range(int(cmds.polyEvaluate(node, face=True))))
+            else:
+                indices.update(range(int(start), int(stop or start) + 1))
+        return {obj: sorted(indices) for obj, indices in out.items()}
 
     @staticmethod
     def _components(face_map: FaceMap) -> List[str]:
@@ -98,7 +109,7 @@ class MayaEmissiveGroups(_MayaEmissiveGroupsInternal):
         if not source:
             return {}
         converted = cmds.polyListComponentConversion(source, toFace=True) or []
-        return self._face_map(cmds.filterExpand(converted, sm=34, expand=True) or [])
+        return self._face_map(cmds.filterExpand(converted, sm=34, expand=False) or [])
 
     def add_members(self, store: str, face_map: FaceMap) -> None:
         comps = self._components(face_map)
@@ -115,7 +126,7 @@ class MayaEmissiveGroups(_MayaEmissiveGroupsInternal):
         if not cmds.objExists(store):
             return None
         found = cmds.sets(store, q=True) or []
-        return self._face_map(cmds.filterExpand(found, sm=34, expand=True) or [])
+        return self._face_map(cmds.filterExpand(found, sm=34, expand=False) or [])
 
     def select(self, face_map: FaceMap) -> None:
         cmds.select(self._components(face_map), replace=True)

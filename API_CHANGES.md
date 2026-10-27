@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (136)
+## Added (137)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -119,6 +119,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.transfer_in(self, payload: dict, ctx: 'ptk.TransferContext') -> None`
 - `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.transfer_out(self, ctx: 'ptk.TransferContext') -> Optional[dict]`
 - `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.validate(self) -> List[str]`
+- `tools/emissive_groups/model/emissive_groups_model.py::EmissiveGroupsModel.weight_attrs(self) -> Dict[str, str]`
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots(class)`
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.b001_init(self, widget)`
 - `ui/panels/duplicate_radial/duplicate_radial.py::DuplicateRadialSlots.header_init(self, widget)`

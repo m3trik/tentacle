@@ -466,8 +466,8 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
   - methods: faces, add_members, remove_members, members, select, membership_stores, carrier_weights, weight_exists, ensure_weight, delete_weight, sync_weight, key_weight, foreign_color_sets, write_colors, uv_triangles, mask_path, object_names, face_count, mesh, merge_stores, discard_stores, publish, extra_warnings
 
 ### `tools/emissive_groups/model/emissive_groups_model.py` — Emissive groups: named face sets that gate emissive regions at runtime.
-- `class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin)`
-  - methods: add_group, remove_group, list_groups, select_group, set_default, compact_slots, make_weights_keyable, remove_keyable_weights, key_weight, validate, bake_vertex_colors, bake_mask, transfer_out, transfer_in, merge_carrier, discard_carrier, export_record, refresh_export_metadata
+- `class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`
+  - methods: add_group, remove_group, list_groups, weight_attrs, select_group, set_default, compact_slots, make_weights_keyable, remove_keyable_weights, key_weight, validate, bake_vertex_colors, bake_mask, transfer_out, transfer_in, merge_carrier, discard_carrier, export_record, refresh_export_metadata
 
 ### `ui/panels/duplicate_radial/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
 - `class DuplicateRadialSlots(Slots)`

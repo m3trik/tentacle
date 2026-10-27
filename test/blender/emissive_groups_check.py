@@ -15,10 +15,20 @@ import traceback
 from pathlib import Path
 
 MONO = Path(__file__).resolve().parents[3]
-for pkg in ("pythontk", "tentacle", "blendertk"):
+for pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     p = str(MONO / pkg)
     if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
+os.environ.setdefault("QT_API", "pyside6")
+# A throwaway Blender: keep its settings off the developer's live uitk stores.
+from uitk.testing import TestSandbox  # noqa: E402
+
+try:
+    TestSandbox.activate()
+except ImportError:  # a first launch: tentacle provisions Qt as it imports
+    from tentacle import tcl_blender  # noqa: E402, F401
+
+    TestSandbox.activate()
 
 lines = []
 
@@ -440,6 +450,35 @@ try:
         any("Leftover export curve proxy" in w for w in EmissiveGroups.validate()),
     )
     BlenderEmissiveGroups.remove_export_curve_proxies()
+
+    # --- the stager reads the registry alone; the engine's meanings kept ----
+    check(
+        "weight_attrs names the keyable groups from the registry",
+        all(a.startswith("emissiveGroup_") for a in EmissiveGroups.weight_attrs().values())
+        and set(EmissiveGroups.weight_attrs()) <= set(EmissiveGroups.list_groups()),
+        EmissiveGroups.weight_attrs(),
+    )
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.mesh.primitive_cube_add()
+    gone = bpy.context.active_object
+    gone.name = "eg_gone"
+    EmissiveGroups.add_group("cleared", {"eg_gone": [2]})
+    attr = gone.data.attributes["emissiveGroup_cleared"]
+    for item in attr.data:
+        item.value = False  # every member face deleted from the group
+    check(
+        "a group with no member face reads missing",
+        EmissiveGroups.list_groups()["cleared"]["missing"] is True,
+        EmissiveGroups.list_groups()["cleared"],
+    )
+    for obj in bpy.data.objects:
+        obj.select_set(obj.name == "eg_gone")
+    EmissiveGroups.add_group("picked", {})
+    check(
+        "an empty face map takes the selection",
+        EmissiveGroups.list_groups()["picked"]["faces"] == 6,
+        EmissiveGroups.list_groups()["picked"],
+    )
 
 except Exception:
     traceback.print_exc()

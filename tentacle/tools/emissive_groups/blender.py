@@ -85,8 +85,8 @@ class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal):
     def faces(self, faces=None) -> FaceMap:
         import bpy
 
-        if not faces:
-            return self._selected_faces() if faces is None else {}
+        if not faces:  # None or empty: the selection, as Blender's engine read it
+            return self._selected_faces()
         out: FaceMap = {}
         for name, indices in dict(faces).items():
             obj = bpy.data.objects.get(str(name))
@@ -127,7 +127,9 @@ class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal):
             indices = np.flatnonzero(values)
             if indices.size:
                 out[obj.name] = indices.tolist()
-        return out
+        # No member face anywhere reads as missing (the panel's "(missing)"),
+        # an attribute left with none included.
+        return out or None
 
     def select(self, face_map: FaceMap) -> None:
         import bpy
@@ -323,9 +325,8 @@ class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal):
         if carrier is None:
             return []
         proxies = []
-        for name, group in EmissiveGroups.list_groups().items():
-            attr = group.get("attr")
-            fc = cls._weight_fcurve(attr) if attr else None
+        for name, attr in EmissiveGroups.weight_attrs().items():
+            fc = cls._weight_fcurve(attr)
             if fc is None or not len(fc.keyframe_points):
                 continue
             # The shared transport (also RenderEffects'), stamped with this

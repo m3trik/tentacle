@@ -11077,7 +11077,7 @@
               "kind": "method",
               "signature": "(self, face_map: FaceMap) -> None",
               "summary": "",
-              "line": 132,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -11086,7 +11086,7 @@
               "kind": "method",
               "signature": "(self, prefix: str)",
               "summary": "",
-              "line": 147,
+              "line": 149,
               "deprecated": false
             },
             {
@@ -11095,7 +11095,7 @@
               "kind": "method",
               "signature": "(self, prefix: str) -> List[str]",
               "summary": "",
-              "line": 155,
+              "line": 157,
               "deprecated": false
             },
             {
@@ -11104,7 +11104,7 @@
               "kind": "method",
               "signature": "(self, attr: str) -> bool",
               "summary": "",
-              "line": 159,
+              "line": 161,
               "deprecated": false
             },
             {
@@ -11113,7 +11113,7 @@
               "kind": "method",
               "signature": "(self, attr: str, default: float) -> str",
               "summary": "",
-              "line": 163,
+              "line": 165,
               "deprecated": false
             },
             {
@@ -11122,7 +11122,7 @@
               "kind": "method",
               "signature": "(self, attr: str) -> bool",
               "summary": "",
-              "line": 175,
+              "line": 177,
               "deprecated": false
             },
             {
@@ -11131,7 +11131,7 @@
               "kind": "method",
               "signature": "(self, attr: str, value: float) -> None",
               "summary": "",
-              "line": 189,
+              "line": 191,
               "deprecated": false
             },
             {
@@ -11140,7 +11140,7 @@
               "kind": "method",
               "signature": "(self, attr: str, value: Optional[float], frame: Optional[float]) -> str",
               "summary": "",
-              "line": 194,
+              "line": 196,
               "deprecated": false
             },
             {
@@ -11149,7 +11149,7 @@
               "kind": "method",
               "signature": "(self, objects: List[str], color_set: str) -> Dict[str, List[str]]",
               "summary": "",
-              "line": 206,
+              "line": 208,
               "deprecated": false
             },
             {
@@ -11158,7 +11158,7 @@
               "kind": "method",
               "signature": "(self, obj: str, channels, color_set: str) -> None",
               "summary": "",
-              "line": 217,
+              "line": 219,
               "deprecated": false
             },
             {
@@ -11167,7 +11167,7 @@
               "kind": "method",
               "signature": "(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list",
               "summary": "",
-              "line": 235,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -11176,7 +11176,7 @@
               "kind": "method",
               "signature": "(self, suffix: str) -> str",
               "summary": "",
-              "line": 250,
+              "line": 252,
               "deprecated": false
             },
             {
@@ -11185,7 +11185,7 @@
               "kind": "method",
               "signature": "(self, objects) -> List[str]",
               "summary": "",
-              "line": 266,
+              "line": 268,
               "deprecated": false
             },
             {
@@ -11194,7 +11194,7 @@
               "kind": "method",
               "signature": "(self, obj: str) -> int",
               "summary": "",
-              "line": 269,
+              "line": 271,
               "deprecated": false
             },
             {
@@ -11203,7 +11203,7 @@
               "kind": "method",
               "signature": "(self, name: str) -> Optional[str]",
               "summary": "",
-              "line": 274,
+              "line": 276,
               "deprecated": false
             },
             {
@@ -11212,7 +11212,7 @@
               "kind": "method",
               "signature": "(self, stores: List[str], ctx) -> None",
               "summary": "Nothing to do: the attributes arrive on their meshes.",
-              "line": 280,
+              "line": 282,
               "deprecated": false
             },
             {
@@ -11221,7 +11221,7 @@
               "kind": "method",
               "signature": "(self, stores: List[str], ctx) -> None",
               "summary": "Nothing to do: the attributes leave with their meshes.",
-              "line": 283,
+              "line": 285,
               "deprecated": false
             },
             {
@@ -11230,7 +11230,7 @@
               "kind": "method",
               "signature": "(self, records) -> None",
               "summary": "",
-              "line": 288,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -11239,7 +11239,7 @@
               "kind": "method",
               "signature": "(self) -> List[str]",
               "summary": "Leftover curve proxies: export-transient, so one outside an export",
-              "line": 291,
+              "line": 293,
               "deprecated": false
             },
             {
@@ -11248,7 +11248,7 @@
               "kind": "classmethod",
               "signature": "(cls) -> List",
               "summary": "Stage the keyed-weight FBX transport (the ``emissive_groups`` export",
-              "line": 306,
+              "line": 308,
               "deprecated": false
             },
             {
@@ -11257,7 +11257,7 @@
               "kind": "classmethod",
               "signature": "(cls) -> List[str]",
               "summary": "Delete every staged curve proxy (marker-matched) and its action.",
-              "line": 352,
+              "line": 353,
               "deprecated": false
             }
           ]
@@ -11273,7 +11273,7 @@
         {
           "name": "MayaEmissiveGroups",
           "summary": "The Maya scene operations of the Emissive Groups model",
-          "line": 85,
+          "line": 96,
           "bases": [
             "_MayaEmissiveGroupsInternal"
           ],
@@ -11284,7 +11284,7 @@
               "kind": "method",
               "signature": "(self, faces=None) -> FaceMap",
               "summary": "",
-              "line": 93,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -11293,7 +11293,7 @@
               "kind": "method",
               "signature": "(self, store: str, face_map: FaceMap) -> None",
               "summary": "",
-              "line": 103,
+              "line": 114,
               "deprecated": false
             },
             {
@@ -11302,7 +11302,7 @@
               "kind": "method",
               "signature": "(self, store: str) -> None",
               "summary": "",
-              "line": 110,
+              "line": 121,
               "deprecated": false
             },
             {
@@ -11311,7 +11311,7 @@
               "kind": "method",
               "signature": "(self, store: str) -> Optional[FaceMap]",
               "summary": "",
-              "line": 114,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -11320,7 +11320,7 @@
               "kind": "method",
               "signature": "(self, face_map: FaceMap) -> None",
               "summary": "",
-              "line": 120,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -11329,7 +11329,7 @@
               "kind": "method",
               "signature": "(self, prefix: str)",
               "summary": "",
-              "line": 123,
+              "line": 134,
               "deprecated": false
             },
             {
@@ -11338,7 +11338,7 @@
               "kind": "method",
               "signature": "(self, prefix: str) -> List[str]",
               "summary": "",
-              "line": 132,
+              "line": 143,
               "deprecated": false
             },
             {
@@ -11347,7 +11347,7 @@
               "kind": "method",
               "signature": "(self, attr: str) -> bool",
               "summary": "",
-              "line": 138,
+              "line": 149,
               "deprecated": false
             },
             {
@@ -11356,7 +11356,7 @@
               "kind": "method",
               "signature": "(self, attr: str, default: float) -> str",
               "summary": "",
-              "line": 144,
+              "line": 155,
               "deprecated": false
             },
             {
@@ -11365,7 +11365,7 @@
               "kind": "method",
               "signature": "(self, attr: str) -> bool",
               "summary": "",
-              "line": 161,
+              "line": 172,
               "deprecated": false
             },
             {
@@ -11374,7 +11374,7 @@
               "kind": "method",
               "signature": "(self, attr: str, value: float) -> None",
               "summary": "",
-              "line": 172,
+              "line": 183,
               "deprecated": false
             },
             {
@@ -11383,7 +11383,7 @@
               "kind": "method",
               "signature": "(self, attr: str, value: Optional[float], frame: Optional[float]) -> str",
               "summary": "",
-              "line": 180,
+              "line": 191,
               "deprecated": false
             },
             {
@@ -11392,7 +11392,7 @@
               "kind": "method",
               "signature": "(self, objects: List[str], color_set: str) -> Dict[str, List[str]]",
               "summary": "",
-              "line": 192,
+              "line": 203,
               "deprecated": false
             },
             {
@@ -11401,7 +11401,7 @@
               "kind": "method",
               "signature": "(self, obj: str, channels, color_set: str) -> None",
               "summary": "",
-              "line": 204,
+              "line": 215,
               "deprecated": false
             },
             {
@@ -11410,7 +11410,7 @@
               "kind": "method",
               "signature": "(self, obj: str, indices: List[int], uv_set: Optional[str]) -> list",
               "summary": "",
-              "line": 218,
+              "line": 229,
               "deprecated": false
             },
             {
@@ -11419,7 +11419,7 @@
               "kind": "method",
               "signature": "(self, suffix: str) -> str",
               "summary": "",
-              "line": 238,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -11428,7 +11428,7 @@
               "kind": "method",
               "signature": "(self, objects) -> List[str]",
               "summary": "",
-              "line": 252,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -11437,7 +11437,7 @@
               "kind": "method",
               "signature": "(self, obj: str) -> int",
               "summary": "",
-              "line": 255,
+              "line": 266,
               "deprecated": false
             },
             {
@@ -11446,7 +11446,7 @@
               "kind": "method",
               "signature": "(self, name: str) -> Optional[str]",
               "summary": "",
-              "line": 258,
+              "line": 269,
               "deprecated": false
             },
             {
@@ -11455,7 +11455,7 @@
               "kind": "method",
               "signature": "(self, stores: List[str], ctx) -> None",
               "summary": "",
-              "line": 261,
+              "line": 272,
               "deprecated": false
             },
             {
@@ -11464,7 +11464,7 @@
               "kind": "method",
               "signature": "(self, stores: List[str], ctx) -> None",
               "summary": "",
-              "line": 273,
+              "line": 284,
               "deprecated": false
             },
             {
@@ -11473,7 +11473,7 @@
               "kind": "method",
               "signature": "(self, records) -> None",
               "summary": "",
-              "line": 279,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -11482,7 +11482,7 @@
               "kind": "method",
               "signature": "(self) -> List[str]",
               "summary": "",
-              "line": 282,
+              "line": 293,
               "deprecated": false
             }
           ]
@@ -11501,7 +11501,8 @@
           "line": 144,
           "bases": [
             "_EmissiveGroupsModelInternal",
-            "pythontk.LoggingMixin"
+            "pythontk.LoggingMixin",
+            "pythontk.HelpMixin"
           ],
           "members": [
             {
@@ -11532,12 +11533,21 @@
               "deprecated": false
             },
             {
+              "name": "weight_attrs",
+              "qualname": "EmissiveGroupsModel.weight_attrs",
+              "kind": "method",
+              "signature": "(self) -> Dict[str, str]",
+              "summary": "``{group: keyable weight attr}`` for the groups that have one, read",
+              "line": 216,
+              "deprecated": false
+            },
+            {
               "name": "select_group",
               "qualname": "EmissiveGroupsModel.select_group",
               "kind": "method",
               "signature": "(self, name: str) -> None",
               "summary": "Select the group's faces.",
-              "line": 216,
+              "line": 221,
               "deprecated": false
             },
             {
@@ -11546,7 +11556,7 @@
               "kind": "method",
               "signature": "(self, name: str, default: float) -> None",
               "summary": "Set the group's default gate weight (0-1; clamped).",
-              "line": 223,
+              "line": 228,
               "deprecated": false
             },
             {
@@ -11555,7 +11565,7 @@
               "kind": "method",
               "signature": "(self) -> List[int]",
               "summary": "Reclaim retired slots.",
-              "line": 231,
+              "line": 236,
               "deprecated": false
             },
             {
@@ -11564,7 +11574,7 @@
               "kind": "method",
               "signature": "(self, names=None) -> Dict[str, str]",
               "summary": "Add a keyable 0-1 weight per group on the ``data_export`` carrier.",
-              "line": 251,
+              "line": 256,
               "deprecated": false
             },
             {
@@ -11573,7 +11583,7 @@
               "kind": "method",
               "signature": "(self, names=None) -> List[str]",
               "summary": "Delete the keyable weights, animation included, and clear the",
-              "line": 281,
+              "line": 286,
               "deprecated": false
             },
             {
@@ -11582,7 +11592,7 @@
               "kind": "method",
               "signature": "(self, name: str, value: Optional[float] = None, frame: Optional[float] = None, auto_keyable: bool = True) -> str",
               "summary": "Key one group's weight on the carrier.",
-              "line": 305,
+              "line": 310,
               "deprecated": false
             },
             {
@@ -11591,7 +11601,7 @@
               "kind": "method",
               "signature": "(self) -> List[str]",
               "summary": "Non-fatal authoring warnings (empty list = clean).",
-              "line": 339,
+              "line": 344,
               "deprecated": false
             },
             {
@@ -11600,7 +11610,7 @@
               "kind": "method",
               "signature": "(self, force: bool = False) -> dict",
               "summary": "Bake membership into the ``emissiveGroups`` RGBA color set.",
-              "line": 371,
+              "line": 376,
               "deprecated": false
             },
             {
@@ -11609,7 +11619,7 @@
               "kind": "method",
               "signature": "(self, output_path: Optional[str] = None, resolution: int = 512, padding_px: int = 4, uv_set: Optional[str] = None) -> dict",
               "summary": "Rasterize membership into an ``_EMask`` RGBA texture (channels encoding).",
-              "line": 414,
+              "line": 419,
               "deprecated": false
             },
             {
@@ -11618,7 +11628,7 @@
               "kind": "method",
               "signature": "(self, ctx: 'ptk.TransferContext') -> Optional[dict]",
               "summary": "The emissive registry's hand-off payload: the registry, each group's",
-              "line": 476,
+              "line": 481,
               "deprecated": false
             },
             {
@@ -11627,7 +11637,7 @@
               "kind": "method",
               "signature": "(self, payload: dict, ctx: 'ptk.TransferContext') -> None",
               "summary": "Land a received payload (:meth:`transfer_out`'s shape, from either",
-              "line": 503,
+              "line": 508,
               "deprecated": false
             },
             {
@@ -11636,7 +11646,7 @@
               "kind": "method",
               "signature": "(self, carriers, other, ctx) -> None",
               "summary": "Another scene's groups merged into the registry: its membership",
-              "line": 547,
+              "line": 552,
               "deprecated": false
             },
             {
@@ -11645,7 +11655,7 @@
               "kind": "method",
               "signature": "(self, carriers, other, ctx) -> None",
               "summary": "Another scene's groups were dropped: the membership stores it brought,",
-              "line": 554,
+              "line": 559,
               "deprecated": false
             },
             {
@@ -11654,7 +11664,7 @@
               "kind": "method",
               "signature": "(self, ctx: 'ptk.ExportContext') -> Optional['ptk.Record']",
               "summary": "The ``emissive_groups`` manifest record, or ``None`` when no group",
-              "line": 565,
+              "line": 570,
               "deprecated": false
             },
             {
@@ -11663,7 +11673,7 @@
               "kind": "method",
               "signature": "(self) -> Optional[str]",
               "summary": "Republish the ``emissive_groups`` channel on the ``data_export``",
-              "line": 580,
+              "line": 585,
               "deprecated": false
             }
           ]

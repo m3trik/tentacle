@@ -1790,7 +1790,7 @@ Emissive Groups' Blender half: one boolean FACE attribute per group on its
 
 Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
 
-- **[`class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/maya.py#L85)** — The Maya scene operations of the Emissive Groups model
+- **[`class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/maya.py#L96)** — The Maya scene operations of the Emissive Groups model
   - `MayaEmissiveGroups.faces(self, faces=None) -> FaceMap`
   - `MayaEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
   - `MayaEmissiveGroups.remove_members(self, store: str) -> None`
@@ -1820,10 +1820,11 @@ Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
 
 Emissive groups: named face sets that gate emissive regions at runtime.
 
-- **[`class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin)`](tentacle/tentacle/tools/emissive_groups/model/emissive_groups_model.py#L144)** — Author, bake, and export named emissive face groups (see module doc).
+- **[`class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`](tentacle/tentacle/tools/emissive_groups/model/emissive_groups_model.py#L144)** — Author, bake, and export named emissive face groups (see module doc).
   - `EmissiveGroupsModel.add_group(self, name: str, faces=None, default: float = 1.0) -> str` — Create a group from faces (or the selection), or extend one.
   - `EmissiveGroupsModel.remove_group(self, name: str) -> None` — Delete a group's membership, registry entry and any keyable weight;
   - `EmissiveGroupsModel.list_groups(self) -> Dict[str, dict]` — ``{name: {"slot", "default", "faces"(count), "missing"(membership
+  - `EmissiveGroupsModel.weight_attrs(self) -> Dict[str, str]` — ``{group: keyable weight attr}`` for the groups that have one, read
   - `EmissiveGroupsModel.select_group(self, name: str) -> None` — Select the group's faces.
   - `EmissiveGroupsModel.set_default(self, name: str, default: float) -> None` — Set the group's default gate weight (0-1; clamped).
   - `EmissiveGroupsModel.compact_slots(self) -> List[int]` — Reclaim retired slots.
