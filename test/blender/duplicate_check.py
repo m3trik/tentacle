@@ -227,8 +227,9 @@ try:
     check("b005: uninstance makes data single-user", other2.data is not src2.data)
 
     print("\n".join(lines))
-    print("RESULT:", "PASS" if all(l.startswith("OK") for l in lines) else "FAIL")
+    ok = sum(1 for l in lines if l.startswith("OK"))
+    print(f"===RESULT: {'PASS' if ok == len(lines) else 'FAIL'}=== ({ok}/{len(lines)})")
 
 except Exception:
     print("HARNESS ERROR:\n" + traceback.format_exc())
-    print("RESULT: FAIL")
+    print("===RESULT: FAIL===")

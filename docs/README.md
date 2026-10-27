@@ -1,4 +1,4 @@
-[![Tests](https://img.shields.io/badge/Tests-1212%20passed-brightgreen.svg)](../test/)
+[![Tests](https://img.shields.io/badge/Tests-1216%20passed-brightgreen.svg)](../test/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![PyPI](https://img.shields.io/pypi/v/tentacletk.svg)](https://pypi.org/project/tentacletk/)
 ![Platform](https://img.shields.io/badge/Platform-Windows%2C%20Linux-lightgrey.svg)

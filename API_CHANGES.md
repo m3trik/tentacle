@@ -1,5 +1,5 @@
 # tentacle — API Changes
 
-_Diff vs the last release (origin/main @ c3c5218d)._
+_Diff vs the last release (origin/main @ c55b8700)._
 
-No public API changes since the last release (origin/main @ c3c5218d).
+No public API changes since the last release (origin/main @ c55b8700).

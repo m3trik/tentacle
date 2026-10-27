@@ -36,6 +36,8 @@ Pointed runs (any mode):
     python run_tests.py test_scene test_uv          # named modules (test/ or test/slots/)
     python run_tests.py test_scene -k footer        # ...and only tests matching "footer"
     python run_tests.py test_marking_menu_gui --in-maya   # Maya-hosted modules, fresh Maya
+    python run_tests.py --in-blender                      # headless Blender checks, fresh Blender each
+    python run_tests.py edit_slot uv_slot --in-blender    # ...named ones only
 A pointed run never stamps the badge. For the modules a change reaches:
 ``python m3trik/scripts/affected_tests.py <files> --run``.
 
@@ -51,6 +53,7 @@ Other flags:
 """
 import argparse
 import datetime
+import importlib.util
 import io
 import os
 import re
@@ -679,6 +682,59 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                 print(f"[WARN] Failed to close Maya gracefully: {e}")
 
 
+def headless_blender_checks(blender_dir: Path, names=None) -> list:
+    """The Blender checks a fresh background Blender runs: each
+    ``*_check.py`` in *blender_dir* whose usage line runs it with
+    ``blender --background``. One that drives a real window says plain
+    ``blender --python`` and is run by hand (its docstring says how).
+
+    Parameters:
+        blender_dir: ``test/blender``.
+        names: Check names to keep (``uv_slot``, ``uv_slot_check`` or
+            ``uv_slot_check.py``); ``None`` keeps all.
+    """
+    checks = sorted(
+        path
+        for path in blender_dir.glob("*_check.py")
+        if "blender --background" in path.read_text(encoding="utf-8", errors="ignore")
+    )
+    if names:
+        wanted = {n[:-3] if n.endswith(".py") else n for n in names}
+        wanted |= {f"{n}_check" for n in wanted}
+        checks = [path for path in checks if path.stem in wanted]
+    return checks
+
+
+def _run_in_blender(test_dir: Path, monorepo: Path, names, blender=None) -> int:
+    """``--in-blender``: each headless Blender check in its own FRESH background
+    Blender, through blendertk's runner -- the one launcher (a throwaway temp
+    root, uitk's settings sandbox, ``--factory-startup``), never an open
+    session. Returns the exit code."""
+    blender_dir = test_dir / "blender"
+    unknown = [n for n in names or () if not headless_blender_checks(blender_dir, [n])]
+    if unknown:
+        print(f"[ERROR] No headless Blender check named: {', '.join(unknown)}")
+        return 2
+    runner_file = monorepo / "blendertk" / "test" / "run_tests.py"
+    if not runner_file.is_file():
+        print(f"[ERROR] --in-blender needs the blendertk checkout beside tentacle ({runner_file}).")
+        return 2
+    spec = importlib.util.spec_from_file_location("_blendertk_run_tests", runner_file)
+    runner_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runner_module)
+    exe = runner_module.find_blender(blender)
+    if not exe:
+        print("[ERROR] Blender not found (pass --blender or set BLENDERTK_BLENDER).")
+        return 2
+
+    class _Runner(runner_module.BlenderTestRunner):
+        def discover(self, patterns=None):
+            return headless_blender_checks(blender_dir, patterns)
+
+    result = _Runner(exe, test_dir=blender_dir).run(names or None)
+    return 0 if result["suites"] and not result["failed_suites"] else 1
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run tentacle test suite")
     parser.add_argument(
@@ -718,6 +774,18 @@ def main():
         action="store_true",
         help="Keep the launched Maya open after tests (only with --in-maya).",
     )
+    parser.add_argument(
+        "--in-blender",
+        action="store_true",
+        help="Run the headless Blender checks (test/blender, each in its own "
+        "FRESH background Blender, through blendertk's runner); the modules "
+        "named are check names. Never an open Blender session.",
+    )
+    parser.add_argument(
+        "--blender",
+        default=None,
+        help="Blender executable for --in-blender (else BLENDERTK_BLENDER, the newest install).",
+    )
     args = parser.parse_args()
 
     verbosity = 0 if args.quiet else args.verbose
@@ -730,6 +798,10 @@ def main():
         sys.path.insert(0, str(root_dir))
     if str(test_dir) not in sys.path:
         sys.path.insert(0, str(test_dir))
+
+    # --in-blender: the Blender checks, by check name, before the test_ modules.
+    if args.in_blender:
+        sys.exit(_run_in_blender(test_dir, monorepo, args.modules, args.blender))
 
     # A name nothing answers to means the run would not cover what was asked for.
     stems, unknown = TestRunner.resolve_modules(test_dir, args.modules)

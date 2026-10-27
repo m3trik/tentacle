@@ -86,5 +86,56 @@ class TestPointedRuns(unittest.TestCase):
         self.assertIn("\n..\n", out.getvalue().replace("\r", ""))
 
 
+class TestBlenderChecks(unittest.TestCase):
+    """``--in-blender`` runs each Blender check whose usage line runs it in a
+    background Blender; one that drives a real window is run by hand."""
+
+    def _dir(self, files):
+        import shutil
+        import tempfile
+
+        root = Path(tempfile.mkdtemp(prefix="tcl_blender_checks_"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        for name, usage in files.items():
+            (root / name).write_text(f'"""Check.\n\n    {usage}\n"""\n', encoding="utf-8")
+        return root
+
+    def test_only_checks_run_in_a_background_blender_are_discovered(self):
+        root = self._dir({
+            "edit_slot_check.py": "blender --background --factory-startup --python edit_slot_check.py",
+            "gui_drag_check.py": "blender --python gui_drag_check.py",
+            "_input.py": "blender --background --python _input.py",
+        })
+        self.assertEqual([p.name for p in rt.headless_blender_checks(root)], ["edit_slot_check.py"])
+
+    def test_a_named_check_answers_with_or_without_its_suffix(self):
+        root = self._dir({
+            "edit_slot_check.py": "blender --background --python edit_slot_check.py",
+            "uv_slot_check.py": "blender --background --python uv_slot_check.py",
+        })
+        for name in ("uv_slot", "uv_slot_check", "uv_slot_check.py"):
+            self.assertEqual([p.name for p in rt.headless_blender_checks(root, [name])], ["uv_slot_check.py"])
+
+    def test_a_typo_among_named_checks_stops_the_run(self):
+        """A name no headless check answers to means the run would not cover
+        what was asked for -- refused before any Blender starts."""
+        def checks(_dir, names=None):  # the real lookup's shape: what answers, kept
+            return [Path("edit_slot_check.py")] if names is None or "edit_slot" in names else []
+
+        never = AssertionError("the run went on to load a Blender runner")
+        with mock.patch.object(rt, "headless_blender_checks", side_effect=checks), \
+                mock.patch.object(rt.importlib.util, "spec_from_file_location", side_effect=never):
+            out = io.StringIO()
+            with mock.patch("sys.stdout", out):
+                code = rt._run_in_blender(TEST_DIR, TEST_DIR.parents[1], ["edit_slot", "edti_slot"])
+        self.assertEqual(code, 2)
+        self.assertIn("edti_slot", out.getvalue())
+
+    def test_the_real_headless_checks_are_found(self):
+        found = rt.headless_blender_checks(TEST_DIR / "blender")
+        self.assertIn("edit_slot_check.py", [p.name for p in found])
+        self.assertNotIn("native_drag_check.py", [p.name for p in found])
+
+
 if __name__ == "__main__":
     unittest.main()
