@@ -128,7 +128,8 @@ class _EmissiveGroupsModelInternal:
             name = attr[len(self.SET_PREFIX) :]
             if name not in known:
                 warnings.append(
-                    f"Carrier attr {attr!r} has no registry entry — a stale "
+                    f"Carrier {self.adapter.WEIGHT_NOUN} {attr!r} has no "
+                    "registry entry — a stale "
                     "keyable weight (removed or imported group); re-add the "
                     f"group or remove_keyable_weights([{name!r}])."
                 )
@@ -362,7 +363,8 @@ class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin, ptk.He
         for obj, others in self.adapter.foreign_color_sets(objects, self.COLOR_SET).items():
             for other in others:
                 warnings.append(
-                    f"{obj}: foreign color set {other!r} — Unity imports only one "
+                    f"{obj}: foreign {self.adapter.COLOR_SET_NOUN} {other!r} — "
+                    "Unity imports only one "
                     "color stream; vertex-color encoding may not survive."
                 )
         for msg in warnings:
@@ -397,7 +399,8 @@ class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin, ptk.He
         foreign = self.adapter.foreign_color_sets(objects, self.COLOR_SET)
         if foreign and not force:
             raise ValueError(
-                f"Foreign color set(s) present: {foreign} — Unity imports only "
+                f"Foreign {self.adapter.COLOR_SET_NOUN}(s) present: {foreign} — "
+                "Unity imports only "
                 "one color stream. Remove them, use the channels encoding, or "
                 "pass force=True."
             )
@@ -411,7 +414,8 @@ class EmissiveGroupsModel(_EmissiveGroupsModelInternal, ptk.LoggingMixin, ptk.He
         registry.set_encoding("vertex-color")
         manifest = self.refresh_export_metadata()
         self.logger.info(
-            f"Baked {len(groups)} group(s) into color set {self.COLOR_SET!r} on "
+            f"Baked {len(groups)} group(s) into {self.adapter.COLOR_SET_NOUN} "
+            f"{self.COLOR_SET!r} on "
             f"{len(objects)} mesh(es)."
         )
         return json.loads(manifest)

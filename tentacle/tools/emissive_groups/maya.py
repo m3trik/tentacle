@@ -98,6 +98,8 @@ class MayaEmissiveGroups(_MayaEmissiveGroupsInternal):
     (``EmissiveGroupsAdapter``)."""
 
     data_nodes = mtk.DataNodes
+    COLOR_SET_NOUN = "color set"
+    WEIGHT_NOUN = "attr"
 
     # Membership --------------------------------------------------------
 

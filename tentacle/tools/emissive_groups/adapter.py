@@ -23,11 +23,20 @@ class EmissiveGroupsAdapter(Protocol):
     #: manifest are read and written through it.
     data_nodes: Any
 
+    #: What the host calls a mesh's vertex-color layer ("color set") and a
+    #: carrier weight ("attr"): the model's messages say it in the host's words.
+    COLOR_SET_NOUN: str
+    WEIGHT_NOUN: str
+
     # Membership --------------------------------------------------------
 
     def faces(self, faces=None) -> FaceMap:
         """*faces* (a ``FaceMap``, or the host's own spelling) or, for ``None``,
-        the selected faces, as a ``FaceMap``; empty when there are none."""
+        the selected faces, as a ``FaceMap``; empty when there are none.
+
+        Blender also reads an EMPTY *faces* as the selection, as its engine
+        always did; Maya reads it as no faces.
+        """
 
     def add_members(self, store: str, face_map: FaceMap) -> None:
         """Add *face_map* to *store*, creating it when absent."""

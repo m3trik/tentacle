@@ -1820,7 +1820,7 @@ Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
 
 Emissive groups: named face sets that gate emissive regions at runtime.
 
-- **[`class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`](tentacle/tentacle/tools/emissive_groups/model/emissive_groups_model.py#L144)** — Author, bake, and export named emissive face groups (see module doc).
+- **[`class EmissiveGroupsModel(_EmissiveGroupsModelInternal, pythontk.LoggingMixin, pythontk.HelpMixin)`](tentacle/tentacle/tools/emissive_groups/model/emissive_groups_model.py#L145)** — Author, bake, and export named emissive face groups (see module doc).
   - `EmissiveGroupsModel.add_group(self, name: str, faces=None, default: float = 1.0) -> str` — Create a group from faces (or the selection), or extend one.
   - `EmissiveGroupsModel.remove_group(self, name: str) -> None` — Delete a group's membership, registry entry and any keyable weight;
   - `EmissiveGroupsModel.list_groups(self) -> Dict[str, dict]` — ``{name: {"slot", "default", "faces"(count), "missing"(membership

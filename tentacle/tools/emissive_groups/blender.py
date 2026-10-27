@@ -79,6 +79,8 @@ class BlenderEmissiveGroups(_BlenderEmissiveGroupsInternal):
     (``EmissiveGroupsAdapter``), and its export stager."""
 
     data_nodes = btk.DataNodes
+    COLOR_SET_NOUN = "color attribute"
+    WEIGHT_NOUN = "prop"
 
     # Membership --------------------------------------------------------
 

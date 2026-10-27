@@ -179,7 +179,7 @@ Verified: pythontk engine tests (37); the tool's model (tentacle's
 `test_emissive_groups_model.py`, 18, plain Python); its Maya half
 (`test_emissive_groups.py`, 40, fresh Maya: Maya→FBX→Maya round-trips of the
 color-set values, the user property and the **keyed weight curves**); its
-Blender half (`test/blender/emissive_groups_check.py`, 62 checks, headless,
+Blender half (`test/blender/emissive_groups_check.py`, 65 checks, headless,
 the curve-proxy FBX round trip included); panel wiring (tentacle's `test_emissive_groups_panel.py`, 21, in a
 fresh GUI Maya — the uitk `TableWidget` hard-crashes mayapy in batch); the
 panel loads and shows in a fresh GUI Blender (tentacle's

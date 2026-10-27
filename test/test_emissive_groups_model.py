@@ -50,6 +50,8 @@ class _Host:
     carrier's weights and their keys, color sets, a selection."""
 
     data_nodes = _Store
+    COLOR_SET_NOUN = "color set"
+    WEIGHT_NOUN = "attr"
 
     def __init__(self, meshes=None):
         self.meshes = dict(meshes or {"cube": 6, "ball": 8})
@@ -240,6 +242,22 @@ class TestValidate(_ModelCase):
     def test_a_clean_scene_warns_nothing(self):
         self.model.add_group("a", {"cube": [0]})
         self.assertEqual(self.model.validate(), [])
+
+    def test_messages_speak_the_hosts_own_nouns(self):
+        """A message true in one host is a bug in the other (CODE_STANDARD
+        §15): Blender has color attributes and custom properties, not Maya's
+        color sets and attrs."""
+        self.host.COLOR_SET_NOUN = "color attribute"
+        self.host.WEIGHT_NOUN = "prop"
+        self.model.add_group("a", {"cube": [0]})
+        self.host.weights["emissiveGroup_ghost"] = 1.0
+        self.host.foreign = {"cube": ["Col"]}
+        text = "\n".join(self.model.validate())
+        self.assertIn("foreign color attribute 'Col'", text)
+        self.assertIn("Carrier prop 'emissiveGroup_ghost'", text)
+        self.assertNotIn("color set", text)
+        with self.assertRaisesRegex(ValueError, r"Foreign color attribute\(s\) present"):
+            self.model.bake_vertex_colors()
 
 
 class TestBakes(_ModelCase):

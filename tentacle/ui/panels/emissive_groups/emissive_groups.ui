@@ -212,7 +212,7 @@ Its slot is retired, not reused — existing engine bindings stay valid.</string
           </property>
           <property name="toolTip">
            <string>Check for empty groups, overlapping membership,
-orphaned sets and foreign color sets.</string>
+orphaned groups and foreign vertex-color layers.</string>
           </property>
           <property name="text">
            <string>Validate</string>
