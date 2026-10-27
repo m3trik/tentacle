@@ -97,7 +97,7 @@ try:
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
     from tentacle.slots.blender.selection import SelectionSlots
     from tentacle.slots.blender.transform import TransformSlots
-    from tentacle.slots.blender.normals import NormalsSlots
+    from tentacle.slots.normals import NormalsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.blender.polygons import PolygonsSlots
     from tentacle.slots.blender.uv import UvSlots
     from tentacle.slots.blender.animation import AnimationSlots
@@ -143,6 +143,7 @@ try:
     bpy.context.view_layer.objects.active = src
 
     slot = make_slot(NormalsSlots)
+    slot.sb.tk = btk  # a composed Slots class reaches its host through Slots.tk
     slot.b002()
     check("normals b002 transfers custom split normals", tgt.data.has_custom_normals)
 

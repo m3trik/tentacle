@@ -38,7 +38,6 @@ DEFAULT_INCLUDE = {
     "slots._lighting": "LightingMixin",
     "slots._main": "MainMixin",
     "slots._materials": "MaterialsMixin",
-    "slots._normals": "NormalsMixin",
     "slots._nurbs": "NurbsMixin",
     "slots._pivot": "PivotMixin",
     "slots._preferences": "PreferencesMixin",
@@ -51,10 +50,18 @@ DEFAULT_INCLUDE = {
     "slots._uv": "UvMixin",
 }
 
+#: Public names merged away (CODE_STANDARD section 5): no alias, so a read raises
+#: MovedNameError naming the new home. ``{name: (new home, version)}``; a category
+#: composed into one Slots class lists the mixin its forks shared.
+MOVED_NAMES = {
+    "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),
+}
+
 
 bootstrap_package(
     globals(),
     include=DEFAULT_INCLUDE,
+    moved=MOVED_NAMES,
 )
 
 

@@ -43,7 +43,7 @@ from xml.etree import ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 UI_DIR = ROOT / "tentacle" / "ui"
-#: Tool panels: one folder each, its ``.ui`` and its one Slots class (``Tcl.register_panels``).
+#: Tool panels: one folder each, its ``.ui`` and its one Slots class (``Tcl.register_shared``).
 PANELS_DIR = UI_DIR / "panels"
 
 #: DCC -> the marking-menu subdir holding its submenu .ui files (e.g.
@@ -85,13 +85,20 @@ ALLOWLIST: dict[str, str] = {}
 
 
 def _slot_files(dcc: str) -> list[Path]:
-    """Concrete slot modules for *dcc* (excludes package marker + DCC base)."""
+    """Concrete slot modules for *dcc*: its own (excludes package marker + DCC base),
+    plus the composed ``slots/<category>.py`` classes every host shares."""
     skip = _skip_slots(dcc)
-    return sorted(
+    own = [
         f
         for f in (SLOTS_ROOT / dcc).glob("*.py")
         if f.name not in skip and not f.name.startswith("__")
-    )
+    ]
+    return sorted(own + _composed_files())
+
+
+def _composed_files() -> list[Path]:
+    """The composed Slots modules: ``slots/<category>.py``, one class for every host."""
+    return sorted(f for f in SLOTS_ROOT.glob("*.py") if not f.name.startswith("_"))
 
 
 def _ui_widget_names(ui_path: Path) -> list[str]:

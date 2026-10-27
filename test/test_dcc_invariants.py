@@ -203,6 +203,50 @@ def _dict_entries(class_node, name):
     return {}
 
 
+def _composed_files():
+    """The composed Slots modules: ``slots/<category>.py``, one class every host shares."""
+    return sorted(f for f in SLOTS_ROOT.glob("*.py") if not f.name.startswith("_"))
+
+
+class TestComposedSlots(unittest.TestCase):
+    """A composed ``slots/<category>.py`` replaces that category's per-host forks: one
+    ``<Base>Slots(Slots)`` (the name uitk binds and shortcut overrides key on), and no
+    fork left beside it (two classes of one name break the Slots lookup)."""
+
+    def test_each_defines_one_slots_subclass_named_base_slots(self):
+        offenders = {}
+        for f in _composed_files():
+            found = [
+                name
+                for name, bases in _parse_classes(f.read_text(encoding="utf-8"))
+                if "Slots" in bases
+            ]
+            if found != [f.stem.title().replace("_", "") + "Slots"]:
+                offenders[f.name] = found
+        self.assertEqual(offenders, {}, f"Composed modules off the rule: {offenders}")
+
+    def test_no_host_fork_is_left_beside_one(self):
+        forks = [
+            f"{dcc}/{f.name}"
+            for f in _composed_files()
+            for dcc in DCCS
+            if (SLOTS_ROOT / dcc / f.name).exists()
+        ]
+        self.assertEqual(forks, [], "per-host forks of a composed category remain")
+
+    def test_unique_object_names(self):
+        offenders = {}
+        for f in _composed_files():
+            names = _set_object_names(f.read_text(encoding="utf-8"))
+            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+            if dupes:
+                offenders[f.name] = dupes
+        self.assertEqual(offenders, {}, f"duplicate widget objectNames: {offenders}")
+
+    def test_the_composed_checks_are_not_vacuous(self):
+        self.assertTrue(_composed_files(), f"no composed Slots module in {SLOTS_ROOT}")
+
+
 class TestSceneHandoffSymmetry(unittest.TestCase):
     """Each DCC's Scene panel can BOTH read and write the other DCC's native format --
     and USD, the one format both read and write, under the same labels on each side.

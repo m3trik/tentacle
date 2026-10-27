@@ -4,7 +4,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `__init__.py`
 - `greeting(string, outputToConsole=True)`
-- constants: DEFAULT_INCLUDE
+- constants: DEFAULT_INCLUDE, MOVED_NAMES
 
 ### `slots/_animation.py` — Text the animation panel's Maya and Blender forks say identically.
 - `class AnimationMixin`
@@ -36,10 +36,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
   - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, txt000_init, b006_init, b006, b033, b014, header_init, b003, list001_init
-
-### `slots/_normals.py` — Behavior shared by the Maya and Blender ``normals`` panels.
-- `class NormalsMixin`
-  - methods: tb010_init
 
 ### `slots/_nurbs.py` — Behavior shared by the Maya and Blender ``nurbs`` panels.
 - `class NurbsMixin`
@@ -142,10 +138,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
   - methods: b_shader_editor, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b004, b013, b015, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
-
-### `slots/blender/normals.py`
-- `class NormalsSlots(NormalsMixin, SlotsBlender)`
-  - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b006, tb010, b002, b004
 
 ### `slots/blender/nurbs.py`
 - `class NurbsSlots(NurbsMixin, SlotsBlender)`
@@ -323,10 +315,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/nhair.py`
 - `class NHairSlots(SlotsMaya)`
 
-### `slots/maya/normals.py`
-- `class NormalsSlots(NormalsMixin, SlotsMaya)`
-  - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010
-
 ### `slots/maya/nparticles.py`
 - `class NParticlesSlots(SlotsMaya)`
 
@@ -419,10 +407,14 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/windows.py`
 - `class WindowsSlots(SlotsMaya)`
 
+### `slots/normals.py` — Normals: one Slots class for both hosts.
+- `class NormalsSlots(Slots)`
+  - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
+
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, register_panels, chord_bindings, banner, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, register_shared, chord_bindings, banner, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

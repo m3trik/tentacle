@@ -591,17 +591,20 @@ class Tcl(_TclInternal):
         return cls.qt_key_name(stored or key_show)
 
     @staticmethod
-    def register_panels(switchboard):
-        """Register ``ui/panels/`` on *switchboard*: one folder per tool panel, holding its
-        ``.ui`` and its one Slots class, shared by every host (CODE_STANDARD section 3).
+    def register_shared(switchboard):
+        """Register on *switchboard* what every host shares (CODE_STANDARD section 3).
 
-        Recursive, and tagged ``UiHandler.PANEL_TAG`` so a panel opens sticky in any host
-        (the hosts' handlers defer to that rule). Both entry points call this, so the panel
-        root is written once.
+        ``slots/``: the composed Slots classes, one per category, reaching their host
+        through ``Slots.tk``. ``ui/panels/``: one folder per tool panel, holding its ``.ui``
+        and its one Slots class; recursive, and tagged ``UiHandler.PANEL_TAG`` so a panel
+        opens sticky in any host (the hosts' handlers defer to that rule). Both entry
+        points call this, so the shared roots are written once.
         """
         from uitk import UiHandler
 
-        panels = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui", "panels")
+        root = os.path.dirname(os.path.abspath(__file__))
+        panels = os.path.join(root, "ui", "panels")
+        switchboard.register(slot_location=os.path.join(root, "slots"))
         switchboard.register(
             ui_location=panels,
             slot_location=panels,

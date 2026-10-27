@@ -1562,8 +1562,8 @@ class TclBlender(MarkingMenu):
         )
         # The toolkit a Slots class shared by both hosts calls (Slots.tk).
         self.sb.tk = btk
-        # The shared tool panels (ui/panels/), sticky in either host.
-        Tcl.register_panels(self.sb)
+        # The composed Slots classes and the tool panels both hosts share.
+        Tcl.register_shared(self.sb)
 
         # External apps — the same standalone ``extapps`` panels Maya uses.
         # They self-describe via ``extapps``'s ``uitk.external_apps.in_process``

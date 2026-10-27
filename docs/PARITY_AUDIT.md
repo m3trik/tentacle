@@ -8,10 +8,10 @@
 
 | Layer | What it measures | Result |
 |:--|:--|:--|
-| **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 215, Blender 216 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
-| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (344/405) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
+| **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
+| **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
 | **3. Tool panels** | co-located `*Slots` tools | **47 present** pairs (of Maya's 50), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **60%** (1495/2512 names); 1 modules absent: render_utils |
+| **4. Helper surface** | public names, Blender covers of mayatk | **60%** (1501/2516 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 60% with 1 module(s) absent (render_utils); 1 panel ports open.
 
@@ -27,9 +27,9 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | anim_utils | 430 | 391 | 340 | 79% |
 | audio_utils | 74 | 37 | 21 | 28% |
 | cam_utils | 10 | 16 | 4 | 40% |
-| core_utils | 178 | 86 | 60 | 34% |
+| core_utils | 182 | 87 | 61 | 34% |
 | display_utils | 44 | 44 | 18 | 41% |
-| edit_utils | 166 | 177 | 126 | 76% |
+| edit_utils | 166 | 182 | 126 | 76% |
 | env_utils | 497 | 325 | 240 | 48% |
 | light_utils | 170 | 130 | 106 | 62% |
 | mat_utils | 374 | 290 | 255 | 68% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 76 | 91 | 34 | 45% |
 | uv_utils | 166 | 154 | 134 | 81% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2512** | **1917** | **1495** | **60%** |
+| **TOTAL (unique)** | **2516** | **1923** | **1501** | **60%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -139,7 +139,7 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | lighting | 4→3 | 75% | 2→2 |  |
 | main | 8→8 | 100% | 0→0 |  |
 | materials | 12→10 | 83% | 4→2 ⚠ |  |
-| normals | 5→5 | 100% | 5→5 |  |
+| normals | 0→0 | — | 0→0 |  |
 | nurbs | 19→8 | 42% | 4→4 |  |
 | pivot | 12→6 | 50% | 8→8 |  |
 | polygons | 24→24 | 100% | 19→19 |  |
@@ -154,7 +154,7 @@ The 27 shared menus both DCCs load. *Controls* = `.add(` calls (option-box sub-c
 | transform | 33→25 | 76% | 14→13 ⚠ |  |
 | utilities | 0→0 | — | 0→0 |  |
 | uv | 44→29 | 66% | 12→12 |  |
-| **TOTAL** | **405→344** | **85%** | | **0** |
+| **TOTAL** | **400→339** | **85%** | | **0** |
 
 ---
 

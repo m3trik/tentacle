@@ -137,14 +137,22 @@ class TestChordBindings(unittest.TestCase):
         self.assertEqual(Tcl.chord_bindings(), Tcl.chord_bindings(Tcl.DEFAULT_KEY))
 
 
-class TestPanelRoot(unittest.TestCase):
-    """``register_panels`` — the shared ``ui/panels/`` root, sticky in any host."""
+class TestSharedRoots(unittest.TestCase):
+    """``register_shared`` — the composed ``slots/`` and the ``ui/panels/`` root, sticky
+    in any host."""
 
-    def test_registers_the_packaged_root_recursively_under_the_panel_tag(self):
+    def test_registers_the_composed_slots(self):
+        sb = mock.Mock()
+        Tcl.register_shared(sb)
+        first = sb.register.call_args_list[0].kwargs
+        self.assertEqual(first, {"slot_location": first["slot_location"]})
+        self.assertEqual(Path(first["slot_location"]), PKG / "slots")
+
+    def test_registers_the_packaged_panel_root_recursively_under_the_panel_tag(self):
         from uitk import UiHandler
 
         sb = mock.Mock()
-        Tcl.register_panels(sb)
+        Tcl.register_shared(sb)
         kwargs = sb.register.call_args.kwargs
         panels = PKG / "ui" / "panels"
         self.assertTrue(panels.is_dir())
@@ -163,9 +171,9 @@ class TestPanelRoot(unittest.TestCase):
                 ast.unparse(node)
                 for node in ast.walk(tree)
                 if isinstance(node, ast.Call)
-                and ast.unparse(node.func) == "Tcl.register_panels"
+                and ast.unparse(node.func) == "Tcl.register_shared"
             ]
-            self.assertEqual(calls, ["Tcl.register_panels(self.sb)"], module)
+            self.assertEqual(calls, ["Tcl.register_shared(self.sb)"], module)
 
 
 class TestHostDetection(unittest.TestCase):

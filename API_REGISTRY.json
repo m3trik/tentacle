@@ -12,7 +12,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 61,
+          "line": 68,
           "deprecated": false
         }
       ],
@@ -25,6 +25,15 @@
           "signature": "",
           "summary": "",
           "line": 11,
+          "deprecated": false
+        },
+        {
+          "name": "MOVED_NAMES",
+          "qualname": "MOVED_NAMES",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 56,
           "deprecated": false
         }
       ]
@@ -419,31 +428,6 @@
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Materials / Texture Maps / External / Utilities.",
               "line": 832,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_normals.py",
-      "summary": "Behavior shared by the Maya and Blender ``normals`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NormalsMixin",
-          "summary": "Shared ``normals`` panel behavior.",
-          "line": 9,
-          "bases": [],
-          "members": [
-            {
-              "name": "tb010_init",
-              "qualname": "NormalsMixin.tb010_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Reverse Normals: Maya's five ``polyNormal`` modes, 1:1 in",
-              "line": 12,
               "deprecated": false
             }
           ]
@@ -2859,115 +2843,6 @@
               "signature": "(self)",
               "summary": "Substance Bridge",
               "line": 768,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/normals.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NormalsSlots",
-          "summary": "Blender port of the shared ``normals`` menu.",
-          "line": 7,
-          "bases": [
-            "NormalsMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb001_init",
-              "qualname": "NormalsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 20,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "NormalsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Normals By Angle",
-              "line": 48,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "NormalsSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 72,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "NormalsSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Average Normals — soften edges so vertex normals are averaged across shared faces;",
-              "line": 82,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "NormalsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Soften Edge Normals (smooth shading).",
-              "line": 100,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "NormalsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Harden Edge Normals (flat shading).",
-              "line": 107,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "NormalsSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Set To Face (vertex normals follow faces = flat shading).",
-              "line": 114,
-              "deprecated": false
-            },
-            {
-              "name": "tb010",
-              "qualname": "NormalsSlots.tb010",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reverse Normals (Maya polyNormal modes: Reverse / Propagate / Conform /",
-              "line": 120,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "NormalsSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Transfer Normals (active mesh → other selected, native Data-Transfer",
-              "line": 140,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "NormalsSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle lock/unlock vertex normals — Maya parity (m_lock_vertex_normals): report the",
-              "line": 147,
               "deprecated": false
             }
           ]
@@ -7456,115 +7331,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/normals.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NormalsSlots",
-          "summary": "",
-          "line": 8,
-          "bases": [
-            "NormalsMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb001_init",
-              "qualname": "NormalsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Set Normals By Angle",
-              "line": 12,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "NormalsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Normals By Angle",
-              "line": 46,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "NormalsSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Average Normals",
-              "line": 82,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "NormalsSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Average Normals",
-              "line": 91,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "NormalsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Soften Edge Normals",
-              "line": 116,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "NormalsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Harden all selected edges.",
-              "line": 120,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "NormalsSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Transfer Normals",
-              "line": 124,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "NormalsSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle lock/unlock vertex normals.",
-              "line": 136,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "NormalsSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Set To Face: set vertex normals to match their face normals (faceted shading).",
-              "line": 140,
-              "deprecated": false
-            },
-            {
-              "name": "tb010",
-              "qualname": "NormalsSlots.tb010",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reverse Normals",
-              "line": 144,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/nparticles.py",
       "summary": "",
       "functions": [],
@@ -10182,6 +9948,123 @@
       "constants": []
     },
     {
+      "relpath": "slots/normals.py",
+      "summary": "Normals: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "NormalsSlots",
+          "summary": "",
+          "line": 13,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tb001_init",
+              "qualname": "NormalsSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Set Normals By Angle",
+              "line": 26,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "NormalsSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Normals By Angle",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "NormalsSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Average Normals",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "NormalsSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Average Normals",
+              "line": 102,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "NormalsSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Soften Edge Normals",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "NormalsSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Harden Edge Normals",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "NormalsSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Transfer Normals: from the first selected (Maya) or active (Blender)",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "NormalsSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Toggle lock/unlock normals.",
+              "line": 131,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "NormalsSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set To Face: vertex normals follow their faces (faceted shading).",
+              "line": 141,
+              "deprecated": false
+            },
+            {
+              "name": "tb010_init",
+              "qualname": "NormalsSlots.tb010_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "tb010",
+              "qualname": "NormalsSlots.tb010",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reverse Normals",
+              "line": 164,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "tcl.py",
       "summary": "The host-agnostic entry point — one launcher snippet for every DCC.",
       "functions": [],
@@ -10267,11 +10150,11 @@
               "deprecated": false
             },
             {
-              "name": "register_panels",
-              "qualname": "Tcl.register_panels",
+              "name": "register_shared",
+              "qualname": "Tcl.register_shared",
               "kind": "staticmethod",
               "signature": "(switchboard)",
-              "summary": "Register ``ui/panels/`` on *switchboard*: one folder per tool panel, holding its",
+              "summary": "Register on *switchboard* what every host shares (CODE_STANDARD section 3).",
               "line": 594,
               "deprecated": false
             },
@@ -10281,7 +10164,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 613,
+              "line": 616,
               "deprecated": false
             },
             {
@@ -10290,7 +10173,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 633,
+              "line": 636,
               "deprecated": false
             },
             {
@@ -10299,7 +10182,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 668,
+              "line": 671,
               "deprecated": false
             },
             {

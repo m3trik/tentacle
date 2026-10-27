@@ -688,5 +688,23 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             self._process()
 
 
+    def test_a_composed_slots_class_binds_over_the_host_toolkit(self):
+        """``slots/normals.py`` (registered by the entry point) is what the normals menu
+        binds in Maya: one class for both hosts, reaching Maya through ``mtk``."""
+        import mayatk as mtk
+
+        shown = self.mm.show("normals")
+        self._process()
+        try:
+            ui = self.mm.sb.get_ui("normals")
+            slots = self.mm.sb.get_slots_instance(ui)
+            self.assertEqual(type(slots).__module__, "tentacle.slots.normals")
+            self.assertIs(slots.tk, mtk)
+        finally:
+            if shown is not None:
+                shown.hide()
+            self.mm.hide()
+            self._process()
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

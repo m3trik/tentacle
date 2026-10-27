@@ -13,7 +13,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - [`slots/_main.py`](#slots--_main) — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
-- [`slots/_normals.py`](#slots--_normals) — Behavior shared by the Maya and Blender ``normals`` panels.
 - [`slots/_nurbs.py`](#slots--_nurbs) — Behavior shared by the Maya and Blender ``nurbs`` panels.
 - [`slots/_pivot.py`](#slots--_pivot) — Behavior shared by the Maya and Blender ``pivot`` panels.
 - [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
@@ -39,7 +38,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/lighting.py`](#slots--blender--lighting)
 - [`slots/blender/main.py`](#slots--blender--main)
 - [`slots/blender/materials.py`](#slots--blender--materials)
-- [`slots/blender/normals.py`](#slots--blender--normals)
 - [`slots/blender/nurbs.py`](#slots--blender--nurbs)
 - [`slots/blender/pivot.py`](#slots--blender--pivot)
 - [`slots/blender/polygons.py`](#slots--blender--polygons)
@@ -88,7 +86,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/ncloth.py`](#slots--maya--ncloth)
 - [`slots/maya/nconstraint.py`](#slots--maya--nconstraint)
 - [`slots/maya/nhair.py`](#slots--maya--nhair)
-- [`slots/maya/normals.py`](#slots--maya--normals)
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
 - [`slots/maya/nurbs.py`](#slots--maya--nurbs)
 - [`slots/maya/pivot.py`](#slots--maya--pivot)
@@ -115,6 +112,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
+- [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -127,8 +125,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L61) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L56) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -215,14 +214,6 @@ Shared, DCC-agnostic behavior for the ``materials`` panel.
   - `MaterialsMixin.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
   - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
-
-<a id="slots--_normals"></a>
-### `slots/_normals.py`
-
-Behavior shared by the Maya and Blender ``normals`` panels.
-
-- **[`class NormalsMixin`](tentacle/tentacle/slots/_normals.py#L9)** — Shared ``normals`` panel behavior.
-  - `NormalsMixin.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, 1:1 in
 
 <a id="slots--_nurbs"></a>
 ### `slots/_nurbs.py`
@@ -588,21 +579,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.b025(self)` — Brush Splat Workflow
   - `MaterialsSlots.b019(self)` — Marmoset Bridge
   - `MaterialsSlots.b020(self)` — Substance Bridge
-
-<a id="slots--blender--normals"></a>
-### `slots/blender/normals.py`
-
-- **[`class NormalsSlots(NormalsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/normals.py#L7)** — Blender port of the shared ``normals`` menu.
-  - `NormalsSlots.tb001_init(self, widget)`
-  - `NormalsSlots.tb001(self, widget)` — Set Normals By Angle
-  - `NormalsSlots.tb004_init(self, widget)`
-  - `NormalsSlots.tb004(self, widget)` — Average Normals — soften edges so vertex normals are averaged across shared faces;
-  - `NormalsSlots.b000(self)` — Soften Edge Normals (smooth shading).
-  - `NormalsSlots.b001(self)` — Harden Edge Normals (flat shading).
-  - `NormalsSlots.b006(self)` — Set To Face (vertex normals follow faces = flat shading).
-  - `NormalsSlots.tb010(self, widget)` — Reverse Normals (Maya polyNormal modes: Reverse / Propagate / Conform /
-  - `NormalsSlots.b002(self)` — Transfer Normals (active mesh → other selected, native Data-Transfer
-  - `NormalsSlots.b004(self)` — Toggle lock/unlock vertex normals — Maya parity (m_lock_vertex_normals): report the
 
 <a id="slots--blender--nurbs"></a>
 ### `slots/blender/nurbs.py`
@@ -1246,21 +1222,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L8)**
 
-<a id="slots--maya--normals"></a>
-### `slots/maya/normals.py`
-
-- **[`class NormalsSlots(NormalsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/normals.py#L8)**
-  - `NormalsSlots.tb001_init(self, widget)` — Initialize Set Normals By Angle
-  - `NormalsSlots.tb001(self, widget)` — Set Normals By Angle
-  - `NormalsSlots.tb004_init(self, widget)` — Initialize Average Normals
-  - `NormalsSlots.tb004(self, widget)` — Average Normals
-  - `NormalsSlots.b000(self)` — Soften Edge Normals
-  - `NormalsSlots.b001(self)` — Harden all selected edges.
-  - `NormalsSlots.b002(self)` — Transfer Normals
-  - `NormalsSlots.b004(self)` — Toggle lock/unlock vertex normals.
-  - `NormalsSlots.b006(self)` — Set To Face: set vertex normals to match their face normals (faceted shading).
-  - `NormalsSlots.tb010(self, widget)` — Reverse Normals
-
 <a id="slots--maya--nparticles"></a>
 ### `slots/maya/nparticles.py`
 
@@ -1630,6 +1591,24 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L8)**
 
+<a id="slots--normals"></a>
+### `slots/normals.py`
+
+Normals: one Slots class for both hosts.
+
+- **[`class NormalsSlots(Slots)`](tentacle/tentacle/slots/normals.py#L13)**
+  - `NormalsSlots.tb001_init(self, widget)` — Initialize Set Normals By Angle
+  - `NormalsSlots.tb001(self, widget)` — Set Normals By Angle
+  - `NormalsSlots.tb004_init(self, widget)` — Initialize Average Normals
+  - `NormalsSlots.tb004(self, widget)` — Average Normals
+  - `NormalsSlots.b000(self)` — Soften Edge Normals
+  - `NormalsSlots.b001(self)` — Harden Edge Normals
+  - `NormalsSlots.b002(self)` — Transfer Normals: from the first selected (Maya) or active (Blender)
+  - `NormalsSlots.b004(self)` — Toggle lock/unlock normals.
+  - `NormalsSlots.b006(self)` — Set To Face: vertex normals follow their faces (faceted shading).
+  - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
+  - `NormalsSlots.tb010(self, widget)` — Reverse Normals
+
 <a id="tcl"></a>
 ### `tcl.py`
 
@@ -1644,7 +1623,7 @@ The host-agnostic entry point — one launcher snippet for every DCC.
   - `Tcl.dispose_retired(instances)` *(static)* — Schedule deletion of the pre-reload marking menus in *instances*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
   - `Tcl.resolve_key(cls, key_show=None, context_tags=None)` *(class)* — The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.
-  - `Tcl.register_panels(switchboard)` *(static)* — Register ``ui/panels/`` on *switchboard*: one folder per tool panel, holding its
+  - `Tcl.register_shared(switchboard)` *(static)* — Register on *switchboard* what every host shares (CODE_STANDARD section 3).
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
   - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
