@@ -91,10 +91,11 @@ class TestBlenderChecks(unittest.TestCase):
     background Blender; one that drives a real window is run by hand."""
 
     def _dir(self, files):
+        import shutil
         import tempfile
 
         root = Path(tempfile.mkdtemp(prefix="tcl_blender_checks_"))
-        self.addCleanup(lambda: __import__("shutil").rmtree(root, ignore_errors=True))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         for name, usage in files.items():
             (root / name).write_text(f'"""Check.\n\n    {usage}\n"""\n', encoding="utf-8")
         return root
