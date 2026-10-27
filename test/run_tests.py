@@ -710,6 +710,11 @@ def _run_in_blender(test_dir: Path, monorepo: Path, names, blender=None) -> int:
     Blender, through blendertk's runner -- the one launcher (a throwaway temp
     root, uitk's settings sandbox, ``--factory-startup``), never an open
     session. Returns the exit code."""
+    blender_dir = test_dir / "blender"
+    unknown = [n for n in names or () if not headless_blender_checks(blender_dir, [n])]
+    if unknown:
+        print(f"[ERROR] No headless Blender check named: {', '.join(unknown)}")
+        return 2
     runner_file = monorepo / "blendertk" / "test" / "run_tests.py"
     if not runner_file.is_file():
         print(f"[ERROR] --in-blender needs the blendertk checkout beside tentacle ({runner_file}).")
@@ -720,10 +725,6 @@ def _run_in_blender(test_dir: Path, monorepo: Path, names, blender=None) -> int:
     exe = runner_module.find_blender(blender)
     if not exe:
         print("[ERROR] Blender not found (pass --blender or set BLENDERTK_BLENDER).")
-        return 2
-    blender_dir = test_dir / "blender"
-    if names and not headless_blender_checks(blender_dir, names):
-        print(f"[ERROR] No headless Blender check named: {', '.join(names)}")
         return 2
 
     class _Runner(runner_module.BlenderTestRunner):
