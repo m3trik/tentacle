@@ -134,6 +134,7 @@ CI runs `test_package.py`, `test_slot_integrity.py`, `test_ui_integrity.py`, and
 
 - [`API_REGISTRY.md`](../API_REGISTRY.md) — every public class/method, with file:line links.
 - [`CHANGELOG.md`](../CHANGELOG.md) — notable changes.
+- [Emissive groups → Unity](emissive_groups.md) — the Emissive Groups tool: runtime-toggleable emissive regions, their scene data, records and Unity side.
 - [`CLAUDE.md`](../CLAUDE.md) — contributor conventions.
 - [`uitk/docs/MARKING_MENU.md`](https://github.com/m3trik/uitk/blob/main/docs/MARKING_MENU.md) — chord syntax, gesture mechanics.
 

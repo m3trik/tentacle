@@ -1790,7 +1790,7 @@ Emissive Groups' Blender half: one boolean FACE attribute per group on its
 
 Emissive Groups' Maya half: one ``objectSet`` of faces per group, keyable
 
-- **[`class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/maya.py#L83)** — The Maya scene operations of the Emissive Groups model
+- **[`class MayaEmissiveGroups(_MayaEmissiveGroupsInternal)`](tentacle/tentacle/tools/emissive_groups/maya.py#L85)** — The Maya scene operations of the Emissive Groups model
   - `MayaEmissiveGroups.faces(self, faces=None) -> FaceMap`
   - `MayaEmissiveGroups.add_members(self, store: str, face_map: FaceMap) -> None`
   - `MayaEmissiveGroups.remove_members(self, store: str) -> None`
@@ -1858,7 +1858,7 @@ Duplicate Radial: copies of the selection in a radial pattern about a pivot.
 
 Emissive Groups: named face groups whose emissive regions a game engine gates.
 
-- **[`class EmissiveGroupsSlots(Slots)`](tentacle/tentacle/ui/panels/emissive_groups/emissive_groups.py#L14)** — Switchboard slots for the ``emissive_groups.ui`` panel.
+- **[`class EmissiveGroupsSlots(Slots)`](tentacle/tentacle/ui/panels/emissive_groups/emissive_groups.py#L15)** — Switchboard slots for the ``emissive_groups.ui`` panel.
   - `EmissiveGroupsSlots.header_init(self, widget) -> None`
   - `EmissiveGroupsSlots.txt000_init(self, widget) -> None` — Group-name field — clearable back to the auto-derived name.
   - `EmissiveGroupsSlots.tbl000_init(self, widget) -> None` — Table setup: one-time construction, then (re)wire signals and populate.

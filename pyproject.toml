@@ -70,6 +70,18 @@ Issues = "https://github.com/m3trik/tentacle/issues"
 [project.entry-points."uitk.external_app_providers"]
 extapps = "extapps"
 
+# Record hooks (pythontk ``SceneRecords.registered_hooks``): the libraries' FBX
+# exporters and record stores merge these under their own rows, read from this
+# metadata alone, so a batch export finds a tool without importing tentacle.
+# ``<host>.<role>.<key>`` = ``module:Owner.method``.
+[project.entry-points."m3trik.scene_records"]
+"maya.producer.emissive_groups" = "tentacle.tools.emissive_groups.maya:EmissiveGroups.export_record"
+"maya.owner.emissive_registry" = "tentacle.tools.emissive_groups.maya:EmissiveGroups"
+"blender.producer.emissive_groups" = "tentacle.tools.emissive_groups.blender:EmissiveGroups.export_record"
+"blender.owner.emissive_registry" = "tentacle.tools.emissive_groups.blender:EmissiveGroups"
+"blender.stager.emissive_groups.prepare" = "tentacle.tools.emissive_groups.blender:BlenderEmissiveGroups.create_export_curve_proxies"
+"blender.stager.emissive_groups.finish" = "tentacle.tools.emissive_groups.blender:BlenderEmissiveGroups.remove_export_curve_proxies"
+
 [tool.setuptools.dynamic]
 version = {attr = "tentacle.__version__"}
 readme = {file = "docs/README.md", content-type = "text/markdown"}

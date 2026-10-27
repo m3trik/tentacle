@@ -2,20 +2,21 @@
 # coding=utf-8
 """Emissive Groups: named face groups whose emissive regions a game engine gates.
 
-One Slots class for both hosts; the engine is the host toolkit's
-``EmissiveGroups`` (``self.tk``).
+One Slots class for both hosts; the engine is the Emissive Groups tool
+(``tools/emissive_groups``) in the running host, reached from ``self.tk``.
 """
 
 from typing import Optional
 
 from tentacle import Slots
+from tentacle.tools.emissive_groups.api import EmissiveGroupsApi
 
 
 class EmissiveGroupsSlots(Slots):
     """Switchboard slots for the ``emissive_groups.ui`` panel.
 
-    Composition over inheritance: a thin driver over the host's ``EmissiveGroups``
-    (``self.tk``)
+    Composition over inheritance: a thin driver over the Emissive Groups tool
+    (``self.engine``)
     — no authoring or bake logic lives here. The table lists groups in slot
     order; the **Weight** column is scrub- and click-editable (Maya
     channel-box idiom) and writes each group's default gate weight. **Bake**
@@ -32,6 +33,7 @@ class EmissiveGroupsSlots(Slots):
     def __init__(self, switchboard):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.emissive_groups
+        self.engine = EmissiveGroupsApi.for_toolkit(self.tk)
         self._updating = False
         self._scrub_start = None
         self._scrub_value = None
@@ -279,7 +281,7 @@ class EmissiveGroupsSlots(Slots):
         table = self.ui.tbl000
         self._updating = True
         try:
-            groups = self.tk.EmissiveGroups.list_groups()
+            groups = self.engine.list_groups()
             table.setRowCount(len(groups))
             QtWidgets = self.sb.QtWidgets
             Qt = self.sb.QtCore.Qt
@@ -314,7 +316,7 @@ class EmissiveGroupsSlots(Slots):
         name = self._group_at(row)
         if not name:
             return
-        self.tk.EmissiveGroups.set_default(name, weight)
+        self.engine.set_default(name, weight)
         self._refresh_table()
 
     def _on_cell_changed(self, row, col) -> None:
@@ -336,7 +338,7 @@ class EmissiveGroupsSlots(Slots):
 
     def _on_scrub_started(self, row, col) -> None:
         name = self._group_at(row)
-        groups = self.tk.EmissiveGroups.list_groups()
+        groups = self.engine.list_groups()
         self._scrub_start = groups[name]["default"] if name in groups else None
         self._scrub_value = None
 
@@ -368,9 +370,9 @@ class EmissiveGroupsSlots(Slots):
         """Add (or extend) a group from the selection."""
         name = self.ui.txt000.text().strip()
         if not name:
-            name = f"group_{len(self.tk.EmissiveGroups.list_groups())}"
+            name = f"group_{len(self.engine.list_groups())}"
         try:
-            self.tk.EmissiveGroups.add_group(name)
+            self.engine.add_group(name)
         except ValueError as error:
             self.sb.message_box(str(error))
             return
@@ -387,7 +389,7 @@ class EmissiveGroupsSlots(Slots):
 
     def b003(self) -> None:
         """Validate authoring state."""
-        warnings = self.tk.EmissiveGroups.validate()
+        warnings = self.engine.validate()
         self.sb.message_box(
             "<br>".join(warnings) if warnings else "Emissive groups: clean."
         )
@@ -473,10 +475,10 @@ class EmissiveGroupsSlots(Slots):
         menu = widget.option_box.menu
         try:
             if menu.cmb000.currentIndex() == 0:
-                self.tk.EmissiveGroups.bake_vertex_colors(force=menu.chk000.isChecked())
+                self.engine.bake_vertex_colors(force=menu.chk000.isChecked())
                 message = "Vertex colors baked and manifest published."
             else:
-                manifest = self.tk.EmissiveGroups.bake_mask(
+                manifest = self.engine.bake_mask(
                     resolution=menu.s000.value(), padding_px=menu.s001.value()
                 )
                 message = f"Mask baked: {manifest.get('mask', '')}"
@@ -493,7 +495,7 @@ class EmissiveGroupsSlots(Slots):
             self.sb.message_box("Select a group row first.")
             return
         try:
-            self.tk.EmissiveGroups.select_group(name)
+            self.engine.select_group(name)
         except ValueError as error:
             self.sb.message_box(str(error))
 
@@ -502,7 +504,7 @@ class EmissiveGroupsSlots(Slots):
         if not name:
             self.sb.message_box("Select a group row first.")
             return
-        self.tk.EmissiveGroups.remove_group(name)
+        self.engine.remove_group(name)
         self._refresh_table()
 
     def weights_all_on(self) -> None:
@@ -512,13 +514,13 @@ class EmissiveGroupsSlots(Slots):
         self._set_all_weights(0.0)
 
     def _set_all_weights(self, weight: float) -> None:
-        for name in self.tk.EmissiveGroups.list_groups():
-            self.tk.EmissiveGroups.set_default(name, weight)
+        for name in self.engine.list_groups():
+            self.engine.set_default(name, weight)
         self._refresh_table()
 
     def make_weights_keyable(self) -> None:
         try:
-            plugs = self.tk.EmissiveGroups.make_weights_keyable()
+            plugs = self.engine.make_weights_keyable()
         except ValueError as error:
             self.sb.message_box(str(error))
             return
@@ -530,18 +532,18 @@ class EmissiveGroupsSlots(Slots):
     def key_weights(self) -> None:
         keyable = [
             name
-            for name, data in self.tk.EmissiveGroups.list_groups().items()
+            for name, data in self.engine.list_groups().items()
             if data.get("attr")
         ]
         if not keyable:
             self.sb.message_box("No keyable weights — run Make Weights Keyable first.")
             return
         for name in keyable:
-            self.tk.EmissiveGroups.key_weight(name)
+            self.engine.key_weight(name)
         self.sb.message_box(f"Keyed {len(keyable)} weight(s) at the current frame.")
 
     def remove_keyable_weights(self) -> None:
-        removed = self.tk.EmissiveGroups.remove_keyable_weights()
+        removed = self.engine.remove_keyable_weights()
         self.sb.message_box(
             f"Removed keyable weight(s): {', '.join(removed)}."
             if removed
@@ -551,7 +553,7 @@ class EmissiveGroupsSlots(Slots):
     # Header menu ----------------------------------------------------------
 
     def compact_slots(self) -> None:
-        reclaimed = self.tk.EmissiveGroups.compact_slots()
+        reclaimed = self.engine.compact_slots()
         self.sb.message_box(
             f"Reclaimed slot(s): {reclaimed}. Re-bake and re-export."
             if reclaimed
@@ -560,7 +562,7 @@ class EmissiveGroupsSlots(Slots):
         self._refresh_table()
 
     def republish_export(self) -> None:
-        payload = self.tk.EmissiveGroups.refresh_export_metadata()
+        payload = self.engine.refresh_export_metadata()
         self.sb.message_box(
             "Manifest republished." if payload else "No groups; carrier cleared."
         )

@@ -7,7 +7,7 @@ uitk ``TableWidget``, and Qt table classes hard-crash mayapy in batch. It loads
 the way a bare host handler stands it up (``MayaUiHandler`` with tentacle's
 shared roots), so its Slots class reaches Maya through ``Slots.tk``.
 
-Where mayatk's ``test_emissive_groups.py`` covers the engine, this covers what
+Where ``test_emissive_groups.py`` covers the tool, this covers what
 the engine tests can't see: that the ``.ui`` parses and its uitk custom widgets
 resolve, the ``tb000`` option box builds with its controls, the table
 configures (columns / scrub / single-click edit) and re-wires its signals, and
@@ -21,6 +21,8 @@ from _host import MAYA_AVAILABLE, maya_module, qt_widgets_available
 
 cmds = maya_module("maya.cmds")
 mtk = maya_module("mayatk")
+_maya_half = maya_module("tentacle.tools.emissive_groups.maya")
+EmissiveGroups = _maya_half.EmissiveGroups if _maya_half else None
 
 
 @unittest.skipUnless(
@@ -54,12 +56,13 @@ class _PanelCase(unittest.TestCase):
 class TestPanelSurface(_PanelCase):
     """The .ui parses and every widget the slots address exists."""
 
-    def test_the_panel_is_tentacles_over_the_host_toolkit(self):
+    def test_the_panel_drives_the_tool_in_this_host(self):
         self.assertEqual(
             type(self.slots).__module__,
             "tentacle.ui.panels.emissive_groups.emissive_groups",
         )
         self.assertIs(self.slots.tk, mtk)
+        self.assertIs(self.slots.engine, EmissiveGroups)
 
     def test_widgets_resolve(self):
         for name in (
@@ -158,12 +161,12 @@ class TestPanelWorkflow(_PanelCase):
     def test_weight_cell_edit_writes_through(self):
         self._add("headlights", 0)
         self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("0.25")
-        self.assertEqual(mtk.EmissiveGroups.list_groups()["headlights"]["default"], 0.25)
+        self.assertEqual(EmissiveGroups.list_groups()["headlights"]["default"], 0.25)
 
     def test_unparseable_weight_reverts(self):
         self._add("headlights", 0)
         self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("bogus")
-        self.assertEqual(mtk.EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
+        self.assertEqual(EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
         self.assertEqual(self.ui.tbl000.item(0, self.slots.WEIGHT_COL).text(), "1")
 
     def test_scrub_previews_then_commits_on_release(self):
@@ -177,10 +180,10 @@ class TestPanelWorkflow(_PanelCase):
         # Cell previews the new value...
         self.assertEqual(self.ui.tbl000.item(0, col).text(), "0.5")
         # ...but nothing is committed until release.
-        self.assertEqual(mtk.EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
+        self.assertEqual(EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
         self.slots._on_scrub_finished(0, col)
         self.assertAlmostEqual(
-            mtk.EmissiveGroups.list_groups()["headlights"]["default"], 0.5, places=5
+            EmissiveGroups.list_groups()["headlights"]["default"], 0.5, places=5
         )
 
     def test_scrub_clamps(self):
@@ -191,7 +194,7 @@ class TestPanelWorkflow(_PanelCase):
             self.slots._on_scrub_moved(0, col, dx, 0)
             self.slots._on_scrub_finished(0, col)
             self.assertEqual(
-                mtk.EmissiveGroups.list_groups()["headlights"]["default"], expected
+                EmissiveGroups.list_groups()["headlights"]["default"], expected
             )
 
     def test_scrub_without_movement_is_a_noop(self):
@@ -200,18 +203,18 @@ class TestPanelWorkflow(_PanelCase):
         col = self.slots.WEIGHT_COL
         self.slots._on_scrub_started(0, col)
         self.slots._on_scrub_finished(0, col)
-        self.assertEqual(mtk.EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
+        self.assertEqual(EmissiveGroups.list_groups()["headlights"]["default"], 1.0)
 
     def test_weights_all_on_off(self):
         self._add("a", 0)
         self._add("b", 1)
         self.slots.weights_all_off()
         self.assertTrue(
-            all(g["default"] == 0.0 for g in mtk.EmissiveGroups.list_groups().values())
+            all(g["default"] == 0.0 for g in EmissiveGroups.list_groups().values())
         )
         self.slots.weights_all_on()
         self.assertTrue(
-            all(g["default"] == 1.0 for g in mtk.EmissiveGroups.list_groups().values())
+            all(g["default"] == 1.0 for g in EmissiveGroups.list_groups().values())
         )
 
     def test_select_members(self):
@@ -226,7 +229,7 @@ class TestPanelWorkflow(_PanelCase):
         self.ui.tbl000.setCurrentCell(0, 0)
         self.slots.b001()
         self.assertEqual(self.ui.tbl000.rowCount(), 1)
-        self.assertNotIn("a", mtk.EmissiveGroups.list_groups())
+        self.assertNotIn("a", EmissiveGroups.list_groups())
 
     def test_bake_vertex_colors_via_option_box(self):
         self._add("headlights", 0)
@@ -280,7 +283,7 @@ class TestPanelWorkflow(_PanelCase):
         self._fresh = type(self.slots)(self.slots.sb)
         self._fresh.tbl000_init(self.ui.tbl000)
         self.ui.tbl000.item(0, self.slots.WEIGHT_COL).setText("0.5")
-        self.assertEqual(mtk.EmissiveGroups.list_groups()["headlights"]["default"], 0.5)
+        self.assertEqual(EmissiveGroups.list_groups()["headlights"]["default"], 0.5)
 
 
 if __name__ == "__main__":
