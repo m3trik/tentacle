@@ -157,7 +157,8 @@ order = [
 # roots: "maya" covers maya.cmds, never mayatk.
 maya = ["maya", "pymel", "mayatk"]
 blender = ["bpy", "bmesh", "mathutils", "blendertk"]
-halves = ["tentacle.tools.*.maya", "tentacle.tools.*.blender"]
+maya_half = ["tentacle.tools.*.maya"]
+blender_half = ["tentacle.tools.*.blender"]
 qt = ["qtpy", "uitk", "PySide6", "PySide2", "shiboken6", "shiboken2"]
 ui = ["tentacle.ui", "tentacle.slots"]
 entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max"]
@@ -165,15 +166,15 @@ entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.
 [tool.m3trik.roles.forbid]
 # Strict from the first file, never frozen; the most specific path wins. A
 # tool's model and the shared models are host- and Qt-free; its API picks a
-# half; each half touches only its own host; a panel or composed Slots class
+# half; each half touches only its own host, never the other half; a panel or composed Slots class
 # reaches the host only through a tool's API or self.tk.
 "tools" = ["maya", "blender", "qt", "ui", "entry"]
-"tools/*/model" = ["maya", "blender", "halves", "qt", "ui", "entry"]
-"tools/*/maya" = ["blender", "qt", "ui", "entry"]
-"tools/*/blender" = ["maya", "qt", "ui", "entry"]
-"core" = ["maya", "blender", "halves", "qt", "ui", "entry"]
-"ui/panels" = ["maya", "blender", "halves", "entry"]
-"slots" = ["maya", "blender", "halves", "entry"]
+"tools/*/model" = ["maya", "blender", "maya_half", "blender_half", "qt", "ui", "entry"]
+"tools/*/maya" = ["blender", "blender_half", "qt", "ui", "entry"]
+"tools/*/blender" = ["maya", "maya_half", "qt", "ui", "entry"]
+"core" = ["maya", "blender", "maya_half", "blender_half", "qt", "ui", "entry"]
+"ui/panels" = ["maya", "blender", "maya_half", "blender_half", "entry"]
+"slots" = ["maya", "blender", "maya_half", "blender_half", "entry"]
 # The per-host categories: exempt until each merges into one composed class.
 "slots/maya" = []
 "slots/blender" = []
