@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (986)
+## Added (994)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -632,6 +632,10 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.track_selected(self) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt000_init(self, widget) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt_output_dir_init(self, widget) -> None`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots(class)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.b000(self)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.bridge_class(self)`
+- `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.select_initial_template_index(self, pairs)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots(class)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.b001(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.cmb001_init(self, widget)`
@@ -859,6 +863,10 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/snap.py::SnapSlots.b002(self)`
 - `slots/tools/snap.py::SnapSlots.b002_init(self, widget)`
 - `slots/tools/snap.py::SnapSlots.header_init(self, widget)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots(class)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.b000(self)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.bridge_class(self)`
+- `slots/tools/substance_bridge.py::SubstanceBridgeSlots.select_initial_template_index(self, pairs)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots(class)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`

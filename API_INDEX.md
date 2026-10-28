@@ -631,6 +631,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class LightmapBakerSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb000_init, btn_reset_defaults_init, cmb002_init, cmb_scope_init, set_exclusions_init, set_exclusions, select_exclusions, clear_exclusions, set_isolation_init, set_isolation, select_isolation, clear_isolation, cmb_resolution_init, spn_samples_init, spn_gi_samples_init, spn_bounces_init, cmb_device_init, txt_output_dir_init, txt000_init, b000, cmb_page_init, cmb_page, tbl_maps_init, select_by_state, open_map_folder, combine_selected, fix_all, track_selected, revert_selected, rebake_selected, show_bake_state, open_output
 
+### `slots/tools/marmoset_bridge.py` — Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
+- `class MarmosetBridgeSlots(HostBridge)`
+  - methods: bridge_class, select_initial_template_index, b000
+
 ### `slots/tools/mat_updater.py` — Material Updater: rework scene materials for a target workflow preset,
 - `class MatUpdaterSlots(Slots)`
   - methods: logger, header_init, selection_mode, move_to_folder, shader_type, cmb001_init, b001
@@ -682,6 +686,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/snap.py` — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - `class SnapSlots(Slots)`
   - methods: header_init, b000_init, b000, b001_init, b001, b002_init, b002
+
+### `slots/tools/substance_bridge.py` — Substance Bridge: send the selection to Substance Painter through a template.
+- `class SubstanceBridgeSlots(HostBridge)`
+  - methods: bridge_class, select_initial_template_index, b000
 
 ### `slots/tools/telescope_rig.py` — Telescope Rig: nested segments that extend and retract between a base and an
 - `class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`

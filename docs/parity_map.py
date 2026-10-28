@@ -590,12 +590,6 @@ DEFAULT_DELTAS = {
 # --------------------------------------------------------------------------- Maya-only panels
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
-    # MarmosetBridgeSlots / SubstanceBridgeSlots: stale "no twin" rows removed 2026-07-08 -- both
-    # now ship real native blendertk twins (blendertk/mat_utils/{marmoset,substance}_bridge/
-    # *_bridge_slots.py -- full BlenderBridgeSlotsBase panels with co-located .ui + RPC clients +
-    # FBX export + Painter/Toolbag handoff), discovered by BlenderUiHandler and launched from
-    # materials.py b019/b020 via marking_menu.show(), exactly like Maya. Same condition that retired
-    # the five below on 2026-07-03/04; these two were missed. Track any residual gaps via panel rows.
     "BlenderBridgeSlots": {"status": "counterpart", "to": "MayaBridgeSlots",
                            "reason": "cross-DCC send pair — each package ships the bridge named "
                                      "after its TARGET app"},

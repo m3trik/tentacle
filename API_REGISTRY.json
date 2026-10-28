@@ -16015,6 +16015,51 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/marmoset_bridge.py",
+      "summary": "Marmoset Bridge: send the selection to Marmoset Toolbag through a template.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MarmosetBridgeSlots",
+          "summary": "",
+          "line": 24,
+          "bases": [
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "MarmosetBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 111,
+              "deprecated": false
+            },
+            {
+              "name": "select_initial_template_index",
+              "qualname": "MarmosetBridgeSlots.select_initial_template_index",
+              "kind": "method",
+              "signature": "(self, pairs)",
+              "summary": "Prefer 'bake (roundtrip)' then 'bake (send_to)', else the first entry.",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "MarmosetBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Send the Scope's objects with the chosen template + mode.",
+              "line": 175,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/mat_updater.py",
       "summary": "Material Updater: rework scene materials for a target workflow preset,",
       "functions": [],
@@ -18171,6 +18216,51 @@
               "signature": "(self)",
               "summary": "Snap to Grid button.",
               "line": 141,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/substance_bridge.py",
+      "summary": "Substance Bridge: send the selection to Substance Painter through a template.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SubstanceBridgeSlots",
+          "summary": "",
+          "line": 23,
+          "bases": [
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "SubstanceBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 107,
+              "deprecated": false
+            },
+            {
+              "name": "select_initial_template_index",
+              "qualname": "SubstanceBridgeSlots.select_initial_template_index",
+              "kind": "method",
+              "signature": "(self, pairs)",
+              "summary": "Default the panel to ``import (send_to)`` when it is available.",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "SubstanceBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Send the Scope's objects with the chosen template + mode.",
+              "line": 167,
               "deprecated": false
             }
           ]

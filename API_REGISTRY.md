@@ -168,6 +168,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
 - [`slots/tools/light_rig.py`](#slots--tools--light_rig) — Light Rigs: save the scene's lights as named rigs, swap between them and
 - [`slots/tools/lightmap_baker.py`](#slots--tools--lightmap_baker) — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
+- [`slots/tools/marmoset_bridge.py`](#slots--tools--marmoset_bridge) — Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
@@ -181,6 +182,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/shots.py`](#slots--tools--shots) — Shots: the scene's shot settings, the selected shot's fields and edits, and
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
+- [`slots/tools/substance_bridge.py`](#slots--tools--substance_bridge) — Substance Bridge: send the selection to Substance Painter through a template.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
 - [`slots/tools/texture_combine.py`](#slots--tools--texture_combine) — Texture Combine: several materials into one atlas and one material, in
 - [`slots/tools/texture_path_editor.py`](#slots--tools--texture_path_editor) — Texture Path Editor: inspect and fix the scene's texture paths.
@@ -2623,6 +2625,16 @@ Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
   - `LightmapBakerSlots.show_bake_state(self) -> None` — Show the scene's bake state, map by map, in a viewer
   - `LightmapBakerSlots.open_output(self) -> None` — Open the bake's output folder in the file manager.
 
+<a id="slots--tools--marmoset_bridge"></a>
+### `slots/tools/marmoset_bridge.py`
+
+Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
+
+- **[`class MarmosetBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/marmoset_bridge.py#L24)**
+  - `MarmosetBridgeSlots.bridge_class(self)` *(property)*
+  - `MarmosetBridgeSlots.select_initial_template_index(self, pairs)` — Prefer 'bake (roundtrip)' then 'bake (send_to)', else the first entry.
+  - `MarmosetBridgeSlots.b000(self)` — Send the Scope's objects with the chosen template + mode.
+
 <a id="slots--tools--mat_updater"></a>
 ### `slots/tools/mat_updater.py`
 
@@ -2927,6 +2939,16 @@ Snap: vertices to a target surface, to the closest target vertex, or to the grid
   - `SnapSlots.b001(self)` — Snap to Closest Vertex button.
   - `SnapSlots.b002_init(self, widget)` — Initialize Snap to Grid button option box.
   - `SnapSlots.b002(self)` — Snap to Grid button.
+
+<a id="slots--tools--substance_bridge"></a>
+### `slots/tools/substance_bridge.py`
+
+Substance Bridge: send the selection to Substance Painter through a template.
+
+- **[`class SubstanceBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/substance_bridge.py#L23)**
+  - `SubstanceBridgeSlots.bridge_class(self)` *(property)*
+  - `SubstanceBridgeSlots.select_initial_template_index(self, pairs)` — Default the panel to ``import (send_to)`` when it is available.
+  - `SubstanceBridgeSlots.b000(self)` — Send the Scope's objects with the chosen template + mode.
 
 <a id="slots--tools--telescope_rig"></a>
 ### `slots/tools/telescope_rig.py`

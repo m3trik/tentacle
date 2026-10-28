@@ -758,8 +758,8 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self._launch_extapp("gaussian_splat_workflow")
 
     # ------------------------------------------------------------------ bridges
-    # Native blendertk panels, 1:1 with mayatk's (co-located ``.ui`` + ``*Slots``, discovered by
-    # BlenderUiHandler) — each exports the Blender selection and hands off to the external app
+    # The shared tentacle tools, the same panels as Maya's — each exports the Blender selection
+    # and hands off to the external app
     # directly. Maya objectNames mirrored (Marmoset b019 / Substance b020). Unity's bridge is
     # exposed from the Scene menu (``scene.py`` b016), mirroring Maya.
     def b019(self):
