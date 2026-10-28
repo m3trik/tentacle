@@ -216,8 +216,8 @@ try:
           f"{seams_before}->{seams_after}")
     bpy.ops.object.mode_set(mode="OBJECT")
 
-    # ---- b000 launches blendertk's Texture Combine panel (its Transfer mode's
-    # checks moved with the code to blendertk's test_texture_combine_transfer_mode).
+    # ---- b000 launches the shared Texture Combine panel (its Transfer mode's
+    # checks are tentacle's test_texture_combine_panel).
     shown = []
     slot.sb.handlers = NS(marking_menu=NS(show=shown.append))
     slot.b000()

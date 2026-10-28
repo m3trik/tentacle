@@ -133,8 +133,8 @@ try:
           f"a={tuple(a.location)}")
 
     # ---- normals b002: data transfer ---------------------------------------------------------
-    # (uv b000's UV pass moved with the Transfer tool to blendertk's Texture Combine panel:
-    # blendertk's test_texture_combine_transfer_mode drives it on real geometry.)
+    # (uv b000's UV pass moved with the Transfer tool to the shared Texture Combine panel's
+    # Transfer mode; blendertk's test_texture_combine drives the engine on real geometry.)
     reset()
     src = add_cube("Src")
     tgt = add_cube("Tgt", (3, 0, 0))

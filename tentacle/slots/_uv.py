@@ -42,9 +42,9 @@ class UvMixin:
         return result
 
     # ------------------------------------------------------------------ b000  Texture Combine
-    # The standalone panel co-located with each engine (mayatk / blendertk
-    # ``uv_utils.texture_combine``): its Combine mode merges materials into one
-    # atlas in place; its Transfer mode is what this button's option box was.
+    # The shared Texture Combine tool (``slots/tools/texture_combine.py``): its
+    # Combine mode merges materials into one atlas in place; its Transfer mode is
+    # what this button's option box was.
     def b000_init(self, widget):
         """The Texture Combine launcher: a plain button, the panel is the UI."""
         widget.setText("Texture Combine...")

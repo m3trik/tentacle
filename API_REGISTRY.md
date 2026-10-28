@@ -126,6 +126,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/store_follow.py`](#slots--tools--_shot_manifest--store_follow) — The Shot Manifest panel following the scene's store: its events (a shot
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
@@ -152,6 +153,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
 - [`slots/tools/render_effects.py`](#slots--tools--render_effects) — Render Effects: key per-object opacity fades and highlight pulses for export.
+- [`slots/tools/scene_exporter.py`](#slots--tools--scene_exporter) — Scene Exporter: batch-export the scene through its task/check pipeline.
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
@@ -159,6 +161,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
+- [`slots/tools/texture_combine.py`](#slots--tools--texture_combine) — Texture Combine: several materials into one atlas and one material, in
 - [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
@@ -1801,6 +1804,40 @@ The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 
 - **[`class ViewCombosMixin`](tentacle/tentacle/slots/tools/_shot_manifest/view_combos.py#L25)** — The view row, mixed into ``ShotManifestController``.
 
+<a id="slots--tools--_texture_combine--transfer_mode"></a>
+### `slots/tools/_texture_combine/transfer_mode.py`
+
+The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
+
+- **[`class TransferMode`](tentacle/tentacle/slots/tools/_texture_combine/transfer_mode.py#L30)** — Transfer mode's decisions and its run, over the panel's widgets.
+  - `TransferMode.ui(self)` *(property)*
+  - `TransferMode.tk(self)` *(property)* — The host toolkit (the panel's ``Slots.tk``).
+  - `TransferMode.terms(self)` *(property)* — The host's words for its selection convention and UV channels.
+  - `TransferMode.init_transfer(self, widget) -> None`
+  - `TransferMode.init_source(self, widget) -> None`
+  - `TransferMode.init_targets(self, widget) -> None`
+  - `TransferMode.init_resolution(self, widget) -> None`
+  - `TransferMode.init_uv_sets(self, src, dst) -> None`
+  - `TransferMode.init_lightmaps(self, widget) -> None`
+  - `TransferMode.source_tooltip(self) -> str` — Live tooltip for the Store Source Meshes icon -- what is stored NOW.
+  - `TransferMode.capture_source(self) -> None`
+  - `TransferMode.select_source(self) -> None` — Select the stored source meshes -- the capture, made visible.
+  - `TransferMode.clear_source(self) -> None`
+  - `TransferMode.passes(cls, source_mode, transfer_mode) -> Tuple[bool, bool]` *(class)* — ``(do_uvs, do_textures)`` for a Source / Transfer pair (Auto unresolved
+  - `TransferMode.resolve_auto(self, source_meshes, has_lightmap=None) -> str` — Auto's run-time pick: Textures once any source material carries a map
+  - `TransferMode.source_note(self, mode) -> str`
+  - `TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
+  - `TransferMode.pair(self, targets, sources, do_uvs)` — ``(pairs, error)`` for mesh sources (Stored / Last).
+  - `TransferMode.gate(self, mode, scope, source, targets, do_uvs, do_textures, notes=('', ''))` — ``(pairs, targets, others, refusal)`` -- the run's refusals and pairs.
+  - `TransferMode.lightmap_probe(self)`
+  - `TransferMode.sync(self) -> None` — Grey every row the current Source / Transfer pair makes meaningless.
+  - `TransferMode.run(self) -> None` — Transfer UVs OR textures -- one pass per run, one undo step.
+  - `TransferMode.derived_name(self, source, targets) -> str` — A blank Output Name: the source's common name (else the targets').
+  - `TransferMode.texture_pass(self, targets, source) -> str` — The texture pass (and, with Include Lightmaps, the lightmap pass).
+  - `TransferMode.read_files(self, targets) -> set` — Path keys of the maps the materials *targets* wear read now.
+  - `TransferMode.overwrite_note(cls, before, results, warnings) -> str` *(class)* — Overwrite target's report: the files rewritten where they are (the
+  - `TransferMode.lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]`
+
 <a id="slots--tools--articulated_rig"></a>
 ### `slots/tools/articulated_rig.py`
 
@@ -2248,6 +2285,37 @@ Render Effects: key per-object opacity fades and highlight pulses for export.
   - `RenderEffectsSlots.btn_webxr_init(self, widget)`
   - `RenderEffectsSlots.btn_webxr(self, widget=None)` — Preview the shown page's effect in WebXR.
 
+<a id="slots--tools--scene_exporter"></a>
+### `slots/tools/scene_exporter.py`
+
+Scene Exporter: batch-export the scene through its task/check pipeline.
+
+- **[`class SceneExporterSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/scene_exporter.py#L28)**
+  - `SceneExporterSlots.confirm(self, question: str) -> bool` — The engine's consent seam as the panel's modal Yes/No.
+  - `SceneExporterSlots.decide_check_failure(self, check: str, messages: List[str], remaining: List[str]) -> str` — The engine's check-failure seam as the panel's three-button dialog.
+  - `SceneExporterSlots.workspace(self) -> str` *(property)* — The current workspace's root (the dialogs' start folder);
+  - `SceneExporterSlots.header_init(self, widget)` — Initialize the header widget (its help;
+  - `SceneExporterSlots.cmb000_init(self, widget) -> None` — Init FBX Preset — a Settings row (``cmb008``), created by
+  - `SceneExporterSlots.txt000_init(self, widget) -> None` — Init Output Directory
+  - `SceneExporterSlots.output_name_preview(self) -> str` — Live tooltip for the Output Filename field.
+  - `SceneExporterSlots.txt001_init(self, widget) -> None` — Init Output Name
+  - `SceneExporterSlots.cmb001_init(self, widget) -> None` — Tasks — scene-prep steps the engine dispatches (``TASK_ORDER``),
+  - `SceneExporterSlots.cmb002_init(self, widget) -> None` — Validation Checks — the gates that abort the write, grouped by tag.
+  - `SceneExporterSlots.cmb007_init(self, widget) -> None` — Export Preset — the whole panel's run configuration under a name.
+  - `SceneExporterSlots.cmb008_init(self, widget) -> None` — Settings — what is written and from what (the scene-prep steps are
+  - `SceneExporterSlots.ignore_groups_init(self, widget) -> None` — Init Ignore Groups — a Settings row (``cmb008``), created by
+  - `SceneExporterSlots.export_data_node_init(self, widget) -> None` — Init Export Scene Data Node — a Settings row (``cmb008``).
+  - `SceneExporterSlots.cmb004_init(self, widget) -> None` — Init Output Format — FBX (default), GLB, FBX + GLB, or USD.
+  - `SceneExporterSlots.cmb005_init(self, widget) -> None` — Init Texture Template — optionally convert textures to a registry workflow.
+  - `SceneExporterSlots.b000(self) -> None` — Export: run the scene export with the configured tasks and settings.
+  - `SceneExporterSlots.b010(self) -> None` — Set Output Directory
+  - `SceneExporterSlots.b012(self) -> None` — Browse for Output File -- name the export after an existing file.
+  - `SceneExporterSlots.b006(self) -> None` — Open Output Directory
+  - `SceneExporterSlots.b007(self) -> None` — Open FBX Preset Directory -- the host's own FBX preset folder, where
+  - `SceneExporterSlots.b008(self) -> None` — Edit FBX Preset -- the host's edit surface for the selected preset
+  - `SceneExporterSlots.save_output_dir(self, output_dir: str) -> None` — Record the output directory into the recent values plugin.
+  - `SceneExporterSlots.save_output_name(self, output_name: str) -> None` — Record the output filename into the recent values plugin.
+
 <a id="slots--tools--shader_templates"></a>
 ### `slots/tools/shader_templates.py`
 
@@ -2386,6 +2454,55 @@ Telescope Rig: nested segments that extend and retract between a base and an
   - `TelescopeRigSlots.header_init(self, widget)` — Configure header help text.
   - `TelescopeRigSlots.build_rig(self)` — Build Telescope Rig: rig the selected segments between their handles.
   - `TelescopeRigSlots.remove_rig(self)` — Remove Telescope Rig: tear down the rigs on the selection, or the
+
+<a id="slots--tools--texture_combine"></a>
+### `slots/tools/texture_combine.py`
+
+Texture Combine: several materials into one atlas and one material, in
+
+- **[`class TextureCombineSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/texture_combine.py#L36)** — Switchboard slots for the ``texture_combine.ui`` panel.
+  - `TextureCombineSlots.header_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_mode_init(self, widget) -> None`
+  - `TextureCombineSlots.open_output_folder(self) -> None`
+  - `TextureCombineSlots.cmb_set_init(self, widget) -> None`
+  - `TextureCombineSlots.select_set(self) -> None`
+  - `TextureCombineSlots.recombine_set(self) -> None`
+  - `TextureCombineSlots.restore_set(self) -> None`
+  - `TextureCombineSlots.forget_set(self) -> None`
+  - `TextureCombineSlots.tbl_sources_init(self, widget) -> None`
+  - `TextureCombineSlots.parse_scale(text: str) -> Optional[float]` *(static)* — ``0.33``, ``1/3`` or ``33%`` as a float, ``None`` when unreadable.
+  - `TextureCombineSlots.select_row_members(self) -> None`
+  - `TextureCombineSlots.remove_override(self) -> None`
+  - `TextureCombineSlots.reset_scales(self) -> None`
+  - `TextureCombineSlots.b001(self) -> None` — Add the selected meshes as one mesh override row each.
+  - `TextureCombineSlots.b002(self) -> None` — Add the islands under the selected faces as an override row.
+  - `TextureCombineSlots.cmb_sizing_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_normalize_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_atlas_init(self, widget) -> None`
+  - `TextureCombineSlots.s_spacing_init(self, widget) -> None`
+  - `TextureCombineSlots.chk_rotate_init(self, widget) -> None`
+  - `TextureCombineSlots.chk_lightmaps_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_tt_transfer_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_tt_source_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_tt_targets_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_tt_resolution_init(self, widget) -> None`
+  - `TextureCombineSlots.t_tt_dst_uvset_init(self, widget) -> None`
+  - `TextureCombineSlots.chk_tt_lightmaps_init(self, widget) -> None`
+  - `TextureCombineSlots.t_name_init(self, widget) -> None`
+  - `TextureCombineSlots.record_name(self, name: str) -> None`
+  - `TextureCombineSlots.t_output_init(self, widget) -> None`
+  - `TextureCombineSlots.cmb_quality_init(self, widget) -> None`
+  - `TextureCombineSlots.s_padding_init(self, widget) -> None`
+  - `TextureCombineSlots.chk_assign_init(self, widget) -> None`
+  - `TextureCombineSlots.t_affix_init(self, widget) -> None`
+  - `TextureCombineSlots.material_affix(self)` — ``(assign_prefix, assign_suffix)`` from the affix row (blank: Auto).
+  - `TextureCombineSlots.cmb_shader_init(self, widget) -> None`
+  - `TextureCombineSlots.overwrites_target(self) -> bool` — Whether the Material row re-uses the target's material in place --
+  - `TextureCombineSlots.assign_options(self) -> Dict[str, Any]`
+  - `TextureCombineSlots.sync_shared(self, textures: bool = True) -> None` — Transfer mode: the Output / Material rows follow the texture pass.
+  - `TextureCombineSlots.status(self, text: str) -> None`
+  - `TextureCombineSlots.b000(self) -> None` — Run the current mode.
+  - `TextureCombineSlots.combine(self) -> None`
 
 <a id="slots--tools--tube_rig"></a>
 ### `slots/tools/tube_rig.py`

@@ -12,11 +12,9 @@
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
 | ReferenceManager | 0 | 0 | 14 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
-| SceneExporter | 0 | 2 | 3 | 0 | open |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | Shots | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
-| TextureCombine | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 1 | 5 | OK |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
 
@@ -135,8 +133,6 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 
 ## Open work (ledgered `pending`)
 
-- **SceneExporter** `check_default_materials` — task_definitions:check_definitions QCheckBox 'Check For Default Materials'  [pending] not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)
-- **SceneExporter** `verify_deliverables` — task_definitions:check_definitions QCheckBox 'Verify The Written File'  [pending] post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass
 - **LightRig** `panel` — mayatk LightRig (2026-10-17, save / swap / restore named light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')
 - **lighting** `cmb000` — optbox QComboBox None  [pending] tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG).
 - **materials** `cmb_opacity_scope` — optbox QComboBox None  [pending] tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice.
@@ -151,4 +147,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 13 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 15 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 11 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.

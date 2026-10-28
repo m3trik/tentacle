@@ -383,9 +383,7 @@ def _go():
     # Neutralize the real slot BEFORE the panel is built: a fired b007 would
     # otherwise os.startfile an Explorer window mid-harness. The recorder
     # counts the button's own `clicked` — unaffected by this.
-    from blendertk.env_utils.scene_exporter.scene_exporter_slots import (
-        SceneExporterSlots,
-    )
+    from tentacle.slots.tools.scene_exporter import SceneExporterSlots
 
     SceneExporterSlots.b007 = lambda self: None
 

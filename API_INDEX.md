@@ -458,6 +458,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_shot_manifest/view_combos.py` — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - `class ViewCombosMixin`
 
+### `slots/tools/_texture_combine/transfer_mode.py` — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
+- `class TransferMode`
+  - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, passes, resolve_auto, source_note, auto_note, pair, gate, lightmap_probe, sync, run, derived_name, texture_pass, read_files, overwrite_note, lightmap_pass
+
 ### `slots/tools/articulated_rig.py` — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - `class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, btn_ik_fk_init, parse_limits, refresh_table, btn_analyze, btn_build, btn_grab, btn_ik_fk, match_end_control, btn_rest, btn_insert, btn_fold, btn_limits_from_pose, btn_clear_limits, btn_rebuild, btn_remove
@@ -564,6 +568,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class RenderEffectsSlots(Slots)`
   - methods: header_init, cmb_effect_init, cmb_effect, stk_effects_init, ui_field, focus, unfocus, b000, btn_remove, btn_webxr_init, btn_webxr
 
+### `slots/tools/scene_exporter.py` — Scene Exporter: batch-export the scene through its task/check pipeline.
+- `class SceneExporterSlots(Slots, pythontk.LoggingMixin)`
+  - methods: confirm, decide_check_failure, workspace, header_init, cmb000_init, txt000_init, output_name_preview, txt001_init, cmb001_init, cmb002_init, cmb007_init, cmb008_init, ignore_groups_init, export_data_node_init, cmb004_init, cmb005_init, b000, b010, b012, b006, b007, b008, save_output_dir, save_output_name
+
 ### `slots/tools/shader_templates.py` — Shader Templates: save a material's shader network as a reusable template
 - `class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`
   - methods: source_images_dir, header_init, lbl_graph_material, lbl_open_templates_dir, cmb002_init, refresh_templates, rename_template_safe, lbl000, lbl001, lbl002, b000, b001, b002
@@ -591,6 +599,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/telescope_rig.py` — Telescope Rig: nested segments that extend and retract between a base and an
 - `class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, build_rig, remove_rig
+
+### `slots/tools/texture_combine.py` — Texture Combine: several materials into one atlas and one material, in
+- `class TextureCombineSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb_mode_init, open_output_folder, cmb_set_init, select_set, recombine_set, restore_set, forget_set, tbl_sources_init, parse_scale, select_row_members, remove_override, reset_scales, b001, b002, cmb_sizing_init, cmb_normalize_init, cmb_atlas_init, s_spacing_init, chk_rotate_init, chk_lightmaps_init, cmb_tt_transfer_init, cmb_tt_source_init, cmb_tt_targets_init, cmb_tt_resolution_init, t_tt_dst_uvset_init, chk_tt_lightmaps_init, t_name_init, record_name, t_output_init, cmb_quality_init, s_padding_init, chk_assign_init, t_affix_init, material_affix, cmb_shader_init, overwrites_target, assign_options, sync_shared, status, b000, combine
 
 ### `slots/tools/tube_rig.py` — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - `class TubeRigSlots(Slots)`

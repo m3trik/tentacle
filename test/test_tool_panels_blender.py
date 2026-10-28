@@ -137,6 +137,63 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
             menu.presets.value_applier, slots._convention_editor.apply_preset
         )
 
+    def test_scene_exporter_fbx_preset_row_keeps_its_option_box(self):
+        """The FBX Preset row (cmb000) carries its own option box: the wrap swaps
+        the combo for its container INSIDE a WidgetComboBox row (replaceWidget), a
+        structure nothing else covers. The row stays, the menu holds Open / Edit,
+        the Settings combo has no actions section, and the two preset stores sit
+        in different folders (the 2026-08-19 window-template / FBX-store
+        collision)."""
+        ui, _slots = self._loaded("scene_exporter")
+        ui.show()  # offscreen; drives row registration -> cmb000_init -> wrap
+        self.addCleanup(ui.close)
+        self.app.processEvents()
+        self.assertIn(ui.cmb000, ui.cmb008._widget_items.values())
+        buttons = sorted(
+            b.text()
+            for b in ui.cmb000.option_box.menu.findChildren(QtWidgets.QPushButton)
+            if b.text()
+        )
+        self.assertIn("Open FBX Preset Directory", buttons)
+        self.assertIn("Edit FBX Preset", buttons)
+        self.assertFalse(ui.cmb008.actions)
+        fbx = str(self.btk.SceneExporter._preset_store().user_dir).replace("\\", "/")
+        templates = str(ui.presets.preset_dir).replace("\\", "/")
+        self.assertTrue(fbx.endswith("blendertk/fbx_presets"), fbx)
+        self.assertNotEqual(fbx, templates)
+
+    def test_scene_exporter_preset_warnings_reach_the_panel_log(self):
+        """The window PresetManager warns on its class-shared logger, which the
+        panel's log redirect never wires, so the panel adopts it: loading a preset
+        missing a covered key puts the schema-drift warning in txt003 (it was
+        console-only)."""
+        import json
+
+        import pythontk as ptk
+
+        ui, _slots = self._loaded("scene_exporter")
+        ui.show()
+        self.addCleanup(ui.close)
+        self.app.processEvents()
+        manager = ui.presets
+        before = manager.preset_dir
+        self.addCleanup(setattr, manager, "preset_dir", before)
+        with ptk.TempArtifacts("tcl_se_presets", policy="scoped") as store:
+            manager.preset_dir = store.dir_path()  # off the live store
+            path = manager.save("stale_probe")
+            with open(path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+            covered = [k for k in data if not k.startswith("_")]
+            del data[covered[0]]
+            with open(path, "w", encoding="utf-8") as fh:
+                json.dump(data, fh)
+            ui.txt003.clear()
+            manager.load("stale_probe")
+            self.app.processEvents()
+            log = ui.txt003.toPlainText()
+        self.assertIn("doesn't cover", log)
+        self.assertIn("Re-save the preset", log)
+
 
 if __name__ == "__main__":
     unittest.main()

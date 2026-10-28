@@ -7,10 +7,9 @@ orchestration over mayatk and cmds. The testable units worth pinning
 at this layer:
 
 - get_map_size: the cmb003 value-carrier read (not a click handler).
-- b000: launches the Texture Combine panel (its Transfer mode's tests moved
-  with the code to mayatk's ``test_texture_combine_transfer_mode``; UvMixin's
-  Blender-only Transfer option box and its tests retired 2026-10-17 for
-  blendertk's twin and ``test_texture_combine_transfer_mode``).
+- b000: launches the shared Texture Combine panel (its Transfer mode's tests
+  are ``test_texture_combine_panel``; UvMixin's Blender-only Transfer option
+  box retired 2026-10-17).
 - b005 (Cut UVs): the "selected edges vs whole mesh" routing.
 """
 

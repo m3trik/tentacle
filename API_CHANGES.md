@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (494)
+## Added (590)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -90,6 +90,34 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
 - `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode(class)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.capture_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.clear_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.derived_name(self, source, targets) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.gate(self, mode, scope, source, targets, do_uvs, do_textures, notes=('', ''))`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_lightmaps(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_resolution(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_source(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_targets(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_transfer(self, widget) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_uv_sets(self, src, dst) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_probe(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.overwrite_note(cls, before, results, warnings) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.pair(self, targets, sources, do_uvs)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.passes(cls, source_mode, transfer_mode) -> Tuple[bool, bool]`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.read_files(self, targets) -> set`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.resolve_auto(self, source_meshes, has_lightmap=None) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.run(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.select_source(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_note(self, mode) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_tooltip(self) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.sync(self) -> None`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.terms(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.texture_pass(self, targets, source) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.tk(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.ui(self)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots(class)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_analyze(self)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_build(self)`
@@ -381,6 +409,31 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/render_effects.py::RenderEffectsSlots.stk_effects_init(self, widget)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.ui_field(self, name)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.unfocus(self, *_args) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots(class)`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b000(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b006(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b007(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b008(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b010(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.b012(self) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb001_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb002_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb004_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb005_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb007_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.cmb008_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.confirm(self, question: str) -> bool`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.decide_check_failure(self, check: str, messages: List[str], remaining: List[str]) -> str`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.export_data_node_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.header_init(self, widget)`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.ignore_groups_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.output_name_preview(self) -> str`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.save_output_dir(self, output_dir: str) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.save_output_name(self, output_name: str) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.txt000_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.txt001_init(self, widget) -> None`
+- `slots/tools/scene_exporter.py::SceneExporterSlots.workspace(self) -> str`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots(class)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b000(self)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b001(self)`
@@ -478,6 +531,49 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.remove_rig(self)`
+- `slots/tools/texture_combine.py::TextureCombineSlots(class)`
+- `slots/tools/texture_combine.py::TextureCombineSlots.assign_options(self) -> Dict[str, Any]`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b000(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b001(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.b002(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_assign_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_lightmaps_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_rotate_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.chk_tt_lightmaps_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_atlas_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_mode_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_normalize_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_quality_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_set_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_shader_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_sizing_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_resolution_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_source_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_targets_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.cmb_tt_transfer_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.combine(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.forget_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.header_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.material_affix(self)`
+- `slots/tools/texture_combine.py::TextureCombineSlots.open_output_folder(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.overwrites_target(self) -> bool`
+- `slots/tools/texture_combine.py::TextureCombineSlots.parse_scale(text: str) -> Optional[float]`
+- `slots/tools/texture_combine.py::TextureCombineSlots.recombine_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.record_name(self, name: str) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.remove_override(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.reset_scales(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.restore_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.s_padding_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.s_spacing_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.select_row_members(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.select_set(self) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.status(self, text: str) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.sync_shared(self, textures: bool = True) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_affix_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_name_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_output_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.t_tt_dst_uvset_init(self, widget) -> None`
+- `slots/tools/texture_combine.py::TextureCombineSlots.tbl_sources_init(self, widget) -> None`
 - `slots/tools/tube_rig.py::TubeRigSlots(class)`
 - `slots/tools/tube_rig.py::TubeRigSlots.apply_mode(self, index: int)`
 - `slots/tools/tube_rig.py::TubeRigSlots.b000(self)`

@@ -29,35 +29,12 @@ is keyed ``"<control>.<property>"``.
 
 # --------------------------------------------------------------------------- co-located panels
 CONTROLS = {
-    # Scene Exporter rows come from task_definitions.py (the panel builds them from the
-    # dict literals; the sweep reads those as controls since 2026-09-13). The engine-side
-    # twin of this list is blendertk's TaskManager.PARITY_GAPS, pinned by its suite.
-    "scene_exporter_slots": {
-        "set_workspace": {"status": "na", "reason": "no Blender project-directory switch; the .blend's folder is the workspace"},
-        "conform_shape_names": {"status": "na", "reason": "no transform/shape pair to conform in Blender, and mesh-data names never reach the FBX"},
-        "flatten_sheared_chains": {"status": "na", "reason": "a Blender object's local matrix is loc/rot/scale, so a sheared chain cannot be authored"},
-        "check_default_materials": {"status": "pending", "reason": "not yet ported: objects on no material / the default material (blendertk TaskManager.PARITY_GAPS)"},
-        "verify_deliverables": {"status": "pending", "reason": "post-write deliverable verification (ptk.ExportVerifier over the written FBX/GLB) is not wired into blendertk's exporter -- so a GLB-only export's images are never measured against Max Texture Size, which the pre-write check leaves to that pass"},
-    },
     "arnold_bridge": {
         "config_buttons:menu": {"status": "na", "reason": "the panel is permanently inert (no Arnold-for-Blender integration at all); ArnoldBridgeSlots.header_init deliberately defines no menu actions -- see the file's own module docstring"},
         "config_buttons:collapse": {"status": "na", "reason": "same as config_buttons:menu"},
         "config_buttons:hide": {"status": "na", "reason": "same as config_buttons:menu"},
         "select_bridged": {"status": "na", "reason": "Cycles/EEVEE read one Principled BSDF graph -- there is no parallel Arnold-preview material to select back to (see _NOT_AVAILABLE in blendertk's arnold_bridge.py)"},
     },
-    # Both panels are scene_exporter/scene_exporter_slots.py (mayatk's moved out of its
-    # engine module 2026-09-13). Ported 2026-07-04 -- cmb000 (FBX
-    # export-option preset combo) and its option-box b007/b008 are real, built 1:1 by
-    # objectName against a pythontk.PresetStore-backed named-JSON-dict preset engine (see
-    # blendertk/blendertk/env_utils/scene_exporter/_scene_exporter.py's module docstring for why
-    # that design was chosen over Blender's native bl_options={'PRESET'} operator-preset system).
-    # b003/b004 (Add/Delete Preset) were dropped from BOTH panels 2026-08-06 -- a preset is a
-    # plain file, so it is added/deleted in the preset directory b007 opens.
-    # 2026-08-19: b007/b008 moved from the Settings combo's actions section onto cmb000's own
-    # option box in BOTH panels. 2026-08-20: mayatk's two directory controls (b005 Set / b013
-    # Use Default FBX Preset Directory) were removed -- the preset dir is now fixed on both
-    # sides (Maya user app dir / PresetStore user tier), so the option boxes are 1:1 and no
-    # entry is needed here anymore.
     # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
     # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
     # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
@@ -651,10 +628,6 @@ CONTROLS_SLOTS = {
 # list, the control is a counterpart (named after its target), or the value is actually set
 # post-population (static tool can't see it). Pure drift is fixed, never accepted.
 DEFAULT_DELTAS = {
-    "scene_exporter_slots": {
-        "check_hierarchy_vs_existing_fbx.setEnabled": "blendertk ships the row as a DISABLED placeholder (setEnabled False, unchecked) until the exporter-side hierarchy diff check is ported; see TaskManager.PARITY_GAPS",
-        "check_hierarchy_vs_existing_fbx.setChecked": "same as .setEnabled: the placeholder cannot default on",
-    },
     "channels_slots": {
         "cmb_attr_type.items": "Create-Attribute type combo: Maya offers bool/int/float/string/enum/double3; Blender offers bool/int/float/string/vector. 'enum' is dropped (na -- Blender ID custom props have no Maya-style enum type on arbitrary objects). 'double3' is BUILT 2026-07-08 as 'vector' (Blender's native term): create_attribute makes a 3-float XYZ array custom prop (obj[name]=(d,d,d) + id_properties_ui subtype='XYZ'), parse_value round-trips the '(x, y, z)' cell on edit, and the table already displayed/keyed vectors (_value_type='vector'). The 'double3'->'vector' label difference is the combo item rename.",
     },
@@ -706,11 +679,6 @@ DEFAULT_DELTAS = {
     # in the uv slot, so no "uv" entry is needed here.
     # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
     # Transfer mode (2026-10-17); its vocabulary deltas moved with it.
-    "texture_combine_slots": {
-        "cmb_tt_transfer.items": "Transfer mode combo: 'UV Set' is 'UV Map' in Blender's vocabulary (same three modes, same item data keys: auto / textures / uvs).",
-        "cmb_tt_source.items": "Transfer source combo: 'First Selected Mesh' (Maya keeps selection order) is 'Active Mesh' in Blender (the active object is the idiom for 'the one'), and its inverse 'All But Last Selected' is 'All But Active'; 'UV Sets' are 'UV Maps' in Blender's vocabulary. Same five modes, same item data keys (auto / first / last / stored / uvset).",
-        "cmb_shader.items": "Material row: both forks lead with 'Same as source' (the default -- a copy of the source's material on the new maps) and 'Same as target' and end with 'Overwrite target'; Maya labels the row 'Shader:' and offers, between them, the shader types mtk.ShaderConverter can rebuild the result on (Stingray PBS / Standard Surface / OpenPBR). Blender's material is one Principled node graph -- no shader-type axis -- so its row ('Material:') has the copies and the overwrite only.",
-    },
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
     },
