@@ -674,8 +674,11 @@ class BrowserPolicyGuiTest(unittest.TestCase):
         self.assertIn("duplicate_radial", names)
         for name in names:
             with self.subTest(tool=name):
-                self.mm.sb.handlers.marking_menu.show(name)
-                self._process()
+                # A Slots class that raises as it is built is only logged (and
+                # rebuilt on the next read), so the log is the check.
+                with self.assertNoLogs(self.mm.sb.logger, level="ERROR"):
+                    self.mm.sb.handlers.marking_menu.show(name)
+                    self._process()
                 ui = getattr(self.mm.sb.loaded_ui, name)
                 try:
                     self.assertTrue(ui.isVisible(), "the panel did not show")

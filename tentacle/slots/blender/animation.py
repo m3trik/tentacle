@@ -30,8 +30,8 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
     #: ``category -> [(label, objectName, tooltip)]`` for the header Tools list
     #: (was five separator sections of loose header buttons). Mirror of the Maya
     #: animation Tools list; Sequencing (Shot Manifest / Shot Sequencer) launches
-    #: the native blendertk shots panels (added 2026-07-12, after the Shots trio
-    #: shipped — previously omitted as Maya-only). Only Maya's Repair Visibility
+    #: the shared shots tools (added 2026-07-12, after the Shots trio shipped —
+    #: previously omitted as Maya-only). Only Maya's Repair Visibility
     #: Tangents stays omitted rather than shown as a dead entry. Reused
     #: objectNames carry the Maya label verbatim (cross-DCC QSettings rule).
     _TOOLS_ITEMS = {
@@ -1976,10 +1976,9 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ Shots pipeline (blendertk)
     def b000(self):
-        """Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
-        with mayatk's: shots realized on timeline markers + ``marker.camera_bind`` behind the
-        shared pythontk shots core. (Replaced the pre-2026-07-11 "Maya-shot-pipeline specific"
-        message box — the panel shipped in blendertk.)"""
+        """Open Shot Sequencer — tentacle's shared tool (slots/tools/shot_sequencer.py): shots
+        realized on timeline markers + ``marker.camera_bind`` behind the shared pythontk shots
+        core."""
         self.sb.handlers.marking_menu.show("shot_sequencer")
 
     def b004(self):

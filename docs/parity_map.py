@@ -295,12 +295,11 @@ CONTROLS_SLOTS = {
     # under another objectName/mechanism — both count as triaged-OK, like "na").
     "animation": {
         "Repair Visibility Tangents": {"status": "na", "reason": "Maya-only visibility-curve tangent repair (mtk.Diagnostics.repair_visibility_tangents); Blender keys boolean props CONSTANT natively and the Blender header docstring explicitly documents omitting the tool rather than showing a dead entry."},
-        # b000 / b004: removed 2026-07-12 — BUILT. The Shots trio shipped in blendertk 2026-07-11
-        # (anim_utils/shots/shot_sequencer + shot_manifest, sweep: 0 element deltas each), so the
-        # Blender animation slot's b000/b004 now launch those panels via
-        # sb.handlers.marking_menu.show("shot_sequencer"/"shot_manifest") — the exact mirror of
-        # slots/maya/animation.py. The old `divergent` rulings ("VSE / linked Scenes cover it")
-        # described the pre-port message-box stubs, which are gone.
+        # b000 / b004: removed 2026-07-12 — BUILT. The Shots trio is tentacle's shared tools
+        # (slots/tools/shot_sequencer + shot_manifest, one panel for both hosts since 2026-10-28),
+        # so both forks' b000/b004 launch them via
+        # sb.handlers.marking_menu.show("shot_sequencer"/"shot_manifest"). The old `divergent`
+        # rulings ("VSE / linked Scenes cover it") described the pre-port message-box stubs.
         "chk001": {"status": "divergent", "reason": "[Update] Blender's Go To Frame is a direct frame_set that always refreshes; Maya's auto-update playback toggle has no frame-nav analogue."},
         "chk007": {"status": "replaced", "to": "tb004 action-copy", "reason": "Blender tb004 transfers by duplicating the whole action, so fcurve handles/tangents always transfer — a tangents on/off toggle is inapplicable to that model."},
         "chk020": {"status": "na", "reason": "Delete Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box — channel scoping is covered by Dope Sheet/Graph Editor selection instead."},

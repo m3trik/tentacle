@@ -139,15 +139,18 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
                 start_dir=lambda: self.engine.current_workspace,
             )
             widget.option_box.add_option(self._browse_option)
+            # The field is a plain QLineEdit (no ``.menu`` of its own): the two
+            # rows go in its option box, where the help says they are. The
             # objectName must NOT shadow the .ui's b001 (same dispatch and
             # state key): named after its slot instead.
-            widget.menu.add(
+            menu = widget.option_box.menu
+            menu.add(
                 "QPushButton",
                 setText="Set To Workspace",
                 setObjectName="set_to_workspace",
                 setToolTip="Set the root folder to that of the current workspace.",
             )
-            widget.menu.add(
+            menu.add(
                 "QCheckBox",
                 setText="Recursive Search",
                 setObjectName="chk000",

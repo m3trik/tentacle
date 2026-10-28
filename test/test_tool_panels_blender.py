@@ -75,9 +75,7 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
             if name in NEEDS_BPY:
                 continue
             with self.subTest(tool=name):
-                ui = self.handler.get(name)
-                for _ in range(3):
-                    self.app.processEvents()
+                ui, slots = self._loaded(name)
                 self.assertIsNotNone(ui, f"{name} failed to load")
                 filepath = self.sb.registry.ui_registry.get(
                     filename=name, return_field="filepath"
@@ -85,7 +83,6 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
                 self.assertTrue(
                     Path(filepath).resolve().is_relative_to(self.tools_dir), filepath
                 )
-                slots = self.sb.get_slots_instance(ui)
                 self.assertEqual(type(slots).__module__, f"tentacle.slots.tools.{name}")
                 self.assertIs(slots.tk, self.btk)
                 if hasattr(slots, "preview"):
@@ -119,10 +116,14 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
         self.assertLessEqual(set(self.names), uis)
 
     def _loaded(self, name):
-        ui = self.handler.get(name)
-        for _ in range(3):
-            self.app.processEvents()
-        return ui, self.sb.get_slots_instance(ui)
+        """The tool's window and Slots, loaded as a host shows it. A Slots class
+        that raises as it is built is only logged (and rebuilt on the next
+        read), so the log is the check."""
+        with self.assertNoLogs(self.sb.logger, level="ERROR"):
+            ui = self.handler.get(name)
+            for _ in range(3):
+                self.app.processEvents()
+            return ui, self.sb.get_slots_instance(ui)
 
     def test_curtain_lists_the_hosts_built_in_presets(self):
         """The preset combo is uitk's PresetManager over blendertk's shipped

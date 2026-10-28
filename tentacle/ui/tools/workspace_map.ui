@@ -47,7 +47,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="txt000">
+       <widget class="LineEdit" name="txt000">
         <property name="toolTip">
          <string>Root directory to search for workspaces</string>
         </property>
@@ -212,6 +212,11 @@
    <class>Footer</class>
    <extends>QWidget</extends>
    <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uitk.widgets.lineEdit</header>
   </customwidget>
   <customwidget>
    <class>TreeWidget</class>
