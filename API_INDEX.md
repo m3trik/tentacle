@@ -512,6 +512,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class ImageTracerSlots(Slots)`
   - methods: header_init, txt000_init, chk000, blue_pencil_button, b002, b003, b004, b005
 
+### `slots/tools/key_stash.py` — Key Stash: park keys out of the working animation as clips, then preview or
+- `class KeyStashSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, store, refresh, refresh_from_scene, b000, b001, chk001, b003
+
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
   - methods: header_init, prepare_operation, perform_operation
@@ -523,6 +527,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - `class ShotManifestSlots(Slots)`
   - methods: header_init, btn_settings, b002, b003, b004
+
+### `slots/tools/smart_bake.py` — Smart Bake: bake what drives the scene's animation to keys, reversibly.
+- `class SmartBakeSlots(Slots, pythontk.LoggingMixin)`
+  - methods: cmb_scope_init, cmb_backup_init, header_init, b000, b001
 
 ### `slots/tools/snap.py` — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - `class SnapSlots(Slots)`

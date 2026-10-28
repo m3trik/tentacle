@@ -11723,6 +11723,97 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/key_stash.py",
+      "summary": "Key Stash: park keys out of the working animation as clips, then preview or",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KeyStashSlots",
+          "summary": "",
+          "line": 23,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "KeyStashSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Configure header buttons, the refresh action and the help text.",
+              "line": 47,
+              "deprecated": false
+            },
+            {
+              "name": "store",
+              "qualname": "KeyStashSlots.store",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host's active store, (re)bound to this panel's change listener.",
+              "line": 102,
+              "deprecated": false
+            },
+            {
+              "name": "refresh",
+              "qualname": "KeyStashSlots.refresh",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Repaint the clip list from the store.",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_from_scene",
+              "qualname": "KeyStashSlots.refresh_from_scene",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Header refresh: prune clips whose stored keys are gone, then repaint.",
+              "line": 160,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "KeyStashSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Store Keys",
+              "line": 220,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "KeyStashSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Retrieve",
+              "line": 237,
+              "deprecated": false
+            },
+            {
+              "name": "chk001",
+              "qualname": "KeyStashSlots.chk001",
+              "kind": "method",
+              "signature": "(self, checked: bool) -> None",
+              "summary": "Preview (toggle)",
+              "line": 261,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "KeyStashSlots.b003",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Drop",
+              "line": 281,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/mirror.py",
       "summary": "Mirror: mirror the selected meshes across an axis, with a live preview.",
       "functions": [],
@@ -12111,6 +12202,70 @@
               "signature": "(self)",
               "summary": "Export the manifest's rows (the option menu says how).",
               "line": 42,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/smart_bake.py",
+      "summary": "Smart Bake: bake what drives the scene's animation to keys, reversibly.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SmartBakeSlots",
+          "summary": "",
+          "line": 19,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "cmb_scope_init",
+              "qualname": "SmartBakeSlots.cmb_scope_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_backup_init",
+              "qualname": "SmartBakeSlots.cmb_backup_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 106,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "SmartBakeSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Configure header menu, refresh button, and help text.",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "SmartBakeSlots.b000",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Bake.",
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "SmartBakeSlots.b001",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Unbake.",
+              "line": 255,
               "deprecated": false
             }
           ]

@@ -93,32 +93,6 @@ CONTROLS = {
         "btn_select_carrier": {"status": "renamed", "to": "btn_reveal_sequencer", "reason": "'Select Carrier Node' selects Maya's data_internal carrier in the viewport; the VSE analogue reveals/selects the strip in the Sequencer editor ('Reveal In Sequencer'). Same 'find the underlying object' action, folded into the tb001 menu on both sides."},
         "btn_sync_audio": {"status": "renamed", "to": "btn_sync_range", "reason": "'Sync Audio to Timeline' rebuilds Maya's composite WAV/DG nodes from the track map; the VSE has no composite, so its sync ('Sync Scene Range') reconciles the scene frame range to the loaded clips. Both are the tb001 refresh/sync action folded from an icon into the menu."},
     },
-    # mayatk file stem is anim_utils/smart_bake/smart_bake_slots.py. Ported 2026-07-04 -- see
-    # blendertk/blendertk/anim_utils/smart_bake/_smart_bake.py + smart_bake_slots.py's module
-    # docstrings for the full "why" (Blender's nla.bake always writes a brand-new Action, so
-    # there is no separate override-layer-vs-base-layer bake target the way Maya's animLayer
-    # model has one; chk_use_override/chk_delete_sources collapse mayatk's separate
-    # layer/mute-driver checkboxes into a single mute-vs-delete-sources choice). cmb_scope,
-    # spn_sample_by, chk_preserve_outside, chk_optimize, label, and cmb_backup are reused 1:1
-    # by objectName (real Blender builds, verified against the .ui, not stubs).
-    "smart_bake_slots": {
-        "chk_bake_blendshapes": {
-            "status": "renamed", "to": "chk_bake_blend_shapes",
-            "reason": "same drive-blend-shape-weights bake capability, corrected snake_case spelling (blend_shapes, not blendshapes)",
-        },
-        "chk_delete_inputs": {
-            "status": "renamed", "to": "chk_delete_sources",
-            "reason": "same permanently-remove-drivers-after-baking capability; 'Delete Sources' matches the panel's own Mute Sources/Delete Sources wording pair (see chk_use_override)",
-        },
-        "cmb_bake_layer": {
-            "status": "replaced", "to": "chk_use_override",
-            "reason": "Override Layer / Base Layer bake-target selector (was chk_override_layer). Blender's bake always produces a brand-new Action -- there is no separate override-layer-vs-base-layer bake target to choose between, so there's no 'which layer' axis for this control to name; chk_use_override instead names the mute-vs-delete-sources choice that replaces it (see _smart_bake.py's module docstring)",
-        },
-        "chk_mute_drivers": {
-            "status": "na",
-            "reason": "only meaningful in mayatk as an alternative to use_override_layer=False base-layer bakes; blendertk has no base-layer-conversion bake mode, so chk_use_override's mute/delete choice already covers the full space",
-        },
-    },
     "reference_manager_slots": {  # mayatk env_utils/reference_manager/reference_manager_slots.py
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
         # btn_unlink_import_all: renamed to Maya's exact label + objectName (2026-07-20), so it

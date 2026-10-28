@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (238)
+## Added (253)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -183,6 +183,15 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/image_tracer.py::ImageTracerSlots.chk000(self, state)`
 - `slots/tools/image_tracer.py::ImageTracerSlots.header_init(self, widget)`
 - `slots/tools/image_tracer.py::ImageTracerSlots.txt000_init(self, widget)`
+- `slots/tools/key_stash.py::KeyStashSlots(class)`
+- `slots/tools/key_stash.py::KeyStashSlots.b000(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.b001(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.b003(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.chk001(self, checked: bool) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.header_init(self, widget) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.refresh(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.refresh_from_scene(self) -> None`
+- `slots/tools/key_stash.py::KeyStashSlots.store(self)`
 - `slots/tools/mirror.py::MirrorSlots(class)`
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
@@ -224,6 +233,12 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b004(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.btn_settings(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.header_init(self, widget)`
+- `slots/tools/smart_bake.py::SmartBakeSlots(class)`
+- `slots/tools/smart_bake.py::SmartBakeSlots.b000(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.b001(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.cmb_backup_init(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.cmb_scope_init(self, widget) -> None`
+- `slots/tools/smart_bake.py::SmartBakeSlots.header_init(self, widget) -> None`
 - `slots/tools/snap.py::SnapSlots(class)`
 - `slots/tools/snap.py::SnapSlots.b000(self)`
 - `slots/tools/snap.py::SnapSlots.b000_init(self, widget)`

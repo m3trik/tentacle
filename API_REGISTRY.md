@@ -139,9 +139,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
+- [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+- [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
@@ -1956,6 +1958,21 @@ Image Tracer: trace a raster image's contours into curves, then fill them
   - `ImageTracerSlots.b004(self)` — Build a mesh from the traced negative space.
   - `ImageTracerSlots.b005(self)` — Project the traced result onto a plane.
 
+<a id="slots--tools--key_stash"></a>
+### `slots/tools/key_stash.py`
+
+Key Stash: park keys out of the working animation as clips, then preview or
+
+- **[`class KeyStashSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/key_stash.py#L23)**
+  - `KeyStashSlots.header_init(self, widget) -> None` — Configure header buttons, the refresh action and the help text.
+  - `KeyStashSlots.store(self)` *(property)* — The host's active store, (re)bound to this panel's change listener.
+  - `KeyStashSlots.refresh(self) -> None` — Repaint the clip list from the store.
+  - `KeyStashSlots.refresh_from_scene(self) -> None` — Header refresh: prune clips whose stored keys are gone, then repaint.
+  - `KeyStashSlots.b000(self) -> None` — Store Keys
+  - `KeyStashSlots.b001(self) -> None` — Retrieve
+  - `KeyStashSlots.chk001(self, checked: bool) -> None` — Preview (toggle)
+  - `KeyStashSlots.b003(self) -> None` — Drop
+
 <a id="slots--tools--mirror"></a>
 ### `slots/tools/mirror.py`
 
@@ -2014,6 +2031,18 @@ Shot Manifest: a shot sheet checked against the scene, and the shots built from 
   - `ShotManifestSlots.b002(self)` — Assess the steps against the scene.
   - `ShotManifestSlots.b003(self)` — Build shots from loaded steps (or auto-detect from scene).
   - `ShotManifestSlots.b004(self)` — Export the manifest's rows (the option menu says how).
+
+<a id="slots--tools--smart_bake"></a>
+### `slots/tools/smart_bake.py`
+
+Smart Bake: bake what drives the scene's animation to keys, reversibly.
+
+- **[`class SmartBakeSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/smart_bake.py#L19)**
+  - `SmartBakeSlots.cmb_scope_init(self, widget) -> None`
+  - `SmartBakeSlots.cmb_backup_init(self, widget) -> None`
+  - `SmartBakeSlots.header_init(self, widget) -> None` — Configure header menu, refresh button, and help text.
+  - `SmartBakeSlots.b000(self, widget) -> None` — Bake.
+  - `SmartBakeSlots.b001(self, widget) -> None` — Unbake.
 
 <a id="slots--tools--snap"></a>
 ### `slots/tools/snap.py`
