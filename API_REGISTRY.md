@@ -6,36 +6,25 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
-- [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
-- [`slots/_main.py`](#slots--_main) — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_nurbs.py`](#slots--_nurbs) — Behavior shared by the Maya and Blender ``nurbs`` panels.
-- [`slots/_pivot.py`](#slots--_pivot) — Behavior shared by the Maya and Blender ``pivot`` panels.
-- [`slots/_preferences.py`](#slots--_preferences) — Shared, DCC-agnostic behavior for the ``preferences`` panel.
 - [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - [`slots/_rigging.py`](#slots--_rigging) — Behavior shared by the Maya and Blender ``rigging`` panels.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_selection.py`](#slots--_selection) — Behavior shared by the Maya and Blender ``selection`` panels.
-- [`slots/_settings.py`](#slots--_settings) — Shared, DCC-agnostic behavior for the ``settings`` panel.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_transform.py`](#slots--_transform) — Behavior shared by the Maya and Blender ``transform`` panels.
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/edit.py`](#slots--blender--edit)
-- [`slots/blender/editors.py`](#slots--blender--editors)
-- [`slots/blender/main.py`](#slots--blender--main)
 - [`slots/blender/materials.py`](#slots--blender--materials)
 - [`slots/blender/nurbs.py`](#slots--blender--nurbs)
-- [`slots/blender/pivot.py`](#slots--blender--pivot)
 - [`slots/blender/polygons.py`](#slots--blender--polygons)
-- [`slots/blender/preferences.py`](#slots--blender--preferences)
 - [`slots/blender/rendering.py`](#slots--blender--rendering)
 - [`slots/blender/rigging.py`](#slots--blender--rigging)
 - [`slots/blender/scene.py`](#slots--blender--scene)
 - [`slots/blender/selection.py`](#slots--blender--selection)
-- [`slots/blender/settings.py`](#slots--blender--settings)
 - [`slots/blender/subdivision.py`](#slots--blender--subdivision)
 - [`slots/blender/transform.py`](#slots--blender--transform)
 - [`slots/blender/uv.py`](#slots--blender--uv)
@@ -44,8 +33,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/deformation.py`](#slots--deformation) — Deformation: one Slots class for both hosts.
 - [`slots/display.py`](#slots--display) — Display: one Slots class for both hosts.
 - [`slots/duplicate.py`](#slots--duplicate) — Duplicate: one Slots class for both hosts.
+- [`slots/edit.py`](#slots--edit) — Edit: one Slots class for both hosts.
+- [`slots/editors.py`](#slots--editors) — Editors: the editor buttons and the All Editors list, one Slots class for both hosts.
 - [`slots/hud.py`](#slots--hud) — HUD: one Slots class for both hosts.
 - [`slots/lighting.py`](#slots--lighting) — Lighting: one Slots class for both hosts.
+- [`slots/main.py`](#slots--main) — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
@@ -54,9 +46,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/control.py`](#slots--maya--control)
 - [`slots/maya/curves.py`](#slots--maya--curves)
 - [`slots/maya/deform.py`](#slots--maya--deform)
-- [`slots/maya/edit.py`](#slots--maya--edit)
 - [`slots/maya/edit_mesh.py`](#slots--maya--edit_mesh)
-- [`slots/maya/editors.py`](#slots--maya--editors)
 - [`slots/maya/effects.py`](#slots--maya--effects)
 - [`slots/maya/fields_solvers.py`](#slots--maya--fields_solvers)
 - [`slots/maya/fluids.py`](#slots--maya--fluids)
@@ -64,7 +54,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/help.py`](#slots--maya--help)
 - [`slots/maya/key.py`](#slots--maya--key)
 - [`slots/maya/lighting_shading.py`](#slots--maya--lighting_shading)
-- [`slots/maya/main.py`](#slots--maya--main)
 - [`slots/maya/mash.py`](#slots--maya--mash)
 - [`slots/maya/materials.py`](#slots--maya--materials)
 - [`slots/maya/mesh.py`](#slots--maya--mesh)
@@ -75,17 +64,14 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/nhair.py`](#slots--maya--nhair)
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
 - [`slots/maya/nurbs.py`](#slots--maya--nurbs)
-- [`slots/maya/pivot.py`](#slots--maya--pivot)
 - [`slots/maya/playback.py`](#slots--maya--playback)
 - [`slots/maya/polygons.py`](#slots--maya--polygons)
-- [`slots/maya/preferences.py`](#slots--maya--preferences)
 - [`slots/maya/render.py`](#slots--maya--render)
 - [`slots/maya/rendering.py`](#slots--maya--rendering)
 - [`slots/maya/rigging.py`](#slots--maya--rigging)
 - [`slots/maya/scene.py`](#slots--maya--scene)
 - [`slots/maya/select.py`](#slots--maya--select)
 - [`slots/maya/selection.py`](#slots--maya--selection)
-- [`slots/maya/settings.py`](#slots--maya--settings)
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
 - [`slots/maya/skin.py`](#slots--maya--skin)
 - [`slots/maya/stereo.py`](#slots--maya--stereo)
@@ -98,6 +84,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/pivot.py`](#slots--pivot) — Pivot: one Slots class for both hosts.
+- [`slots/preferences.py`](#slots--preferences) — Preferences: one Slots class for both hosts.
+- [`slots/settings.py`](#slots--settings) — Settings: one Slots class for both hosts.
 - [`slots/symmetry.py`](#slots--symmetry) — Symmetry: one Slots class for both hosts.
 - [`slots/tools/__init__.py`](#slots--tools--__init__) — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 - [`slots/tools/_app_bridge/host_bridge.py`](#slots--tools--_app_bridge--host_bridge) — The app-bridge panels' one base, shared by both hosts.
@@ -210,7 +199,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L52) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L47) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -219,25 +208,6 @@ Text the animation panel's Maya and Blender forks say identically.
 
 - **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
   - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
-
-<a id="slots--_edit"></a>
-### `slots/_edit.py`
-
-Shared, DCC-agnostic behavior for the ``edit`` panel.
-
-- **[`class EditMixin`](tentacle/tentacle/slots/_edit.py#L17)** — DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).
-  - `EditMixin.mesh_cleanup_tooltip(self)` — Rich tooltip for the Mesh Cleanup button (``edit.tb000``).
-  - `EditMixin.cleanup_popup_html(header, rows)` *(static)* — Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.
-  - `EditMixin.cleanup_console_report(title, lines)` *(static)* — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
-  - `EditMixin.report_cleanup_failure(self, scope, mode_label, exc)` — Report a Mesh Cleanup failure through both channels — a detailed console line and a
-  - `EditMixin.cmb000_init(self, widget)` — Initialize the Transfer operations menu.
-
-<a id="slots--_main"></a>
-### `slots/_main.py`
-
-Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
-
-- **[`class MainMixin`](tentacle/tentacle/slots/_main.py#L25)** — Shared ``main`` Workspace-tab behavior.
 
 <a id="slots--_materials"></a>
 ### `slots/_materials.py`
@@ -268,32 +238,6 @@ Behavior shared by the Maya and Blender ``nurbs`` panels.
 
 - **[`class NurbsMixin`](tentacle/tentacle/slots/_nurbs.py#L9)** — Shared ``nurbs`` panel behavior.
   - `NurbsMixin.list000_init(self, widget)` — Initialize the Nurbs expandable list (root -> category -> curve action),
-
-<a id="slots--_pivot"></a>
-### `slots/_pivot.py`
-
-Behavior shared by the Maya and Blender ``pivot`` panels.
-
-- **[`class PivotMixin`](tentacle/tentacle/slots/_pivot.py#L10)** — Shared ``pivot`` panel behavior.
-  - `PivotMixin.b000(self)` — Center Pivot: Object
-  - `PivotMixin.b001(self)` — Center Pivot: Component
-  - `PivotMixin.b002(self, widget)` — Center Pivot: World
-
-<a id="slots--_preferences"></a>
-### `slots/_preferences.py`
-
-Shared, DCC-agnostic behavior for the ``preferences`` panel.
-
-- **[`class PreferencesMixin`](tentacle/tentacle/slots/_preferences.py#L22)** — DCC-agnostic ``preferences`` slot behavior.
-  - `PreferencesMixin.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
-  - `PreferencesMixin.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
-  - `PreferencesMixin.cmb005_init(self, widget)` — Standalone tool-window theme.
-  - `PreferencesMixin.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
-  - `PreferencesMixin.cmb006_init(self, widget)` — Presentation for tools whose external app / plugin isn't installed.
-  - `PreferencesMixin.cmb006(self, index, widget)` — Persist the chosen presentation policy and re-present the live gates.
-  - `PreferencesMixin.header_init(self, widget)` — Header menu — the manual re-probe that pairs with ``cmb006``.
-  - `PreferencesMixin.tb000(self)` — Re-check installed tools: drop the cached probes, then re-apply the gates.
-  - `PreferencesMixin.b011(self)` — Macro Manager — the unified uitk shortcut editor over the engine's
 
 <a id="slots--_rendering"></a>
 ### `slots/_rendering.py`
@@ -331,28 +275,6 @@ Behavior shared by the Maya and Blender ``selection`` panels.
 - **[`class SelectionMixin`](tentacle/tentacle/slots/_selection.py#L26)** — Shared ``selection`` panel behavior.
   - `SelectionMixin.list001_init(self, widget)` — Convert To: category rows that convert on click and expand on hover.
   - `SelectionMixin.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
-
-<a id="slots--_settings"></a>
-### `slots/_settings.py`
-
-Shared, DCC-agnostic behavior for the ``settings`` panel.
-
-- **[`class SettingsMixin`](tentacle/tentacle/slots/_settings.py#L18)** — DCC-agnostic ``settings`` slot behavior.
-  - `SettingsMixin.ecosystem_dists(cls, installed=None)` *(class)* — The distributions to check for updates in THIS host.
-  - `SettingsMixin.header_init(self, widget)` — Initialize header
-  - `SettingsMixin.tb000(self)` — Update Package
-  - `SettingsMixin.check_for_update(self)` — Check the whole ecosystem for updates and upgrade what's outdated.
-  - `SettingsMixin.b020(self)` — UI Style Editor
-  - `SettingsMixin.b021(self)` — Shortcut Editor
-  - `SettingsMixin.b022(self)` — UI Browser: open the tentacle UI browser (search, show/hide registered UIs).
-  - `SettingsMixin.b023(self)` — Global Shortcuts: open the shortcut editor focused on the global
-  - `SettingsMixin.b024(self)` — Preset Editor: every tool's presets in one window — lock, group into
-  - `SettingsMixin.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
-  - `SettingsMixin.cmb_bind_left_init(self, widget)` — Left mouse button.
-  - `SettingsMixin.cmb_bind_middle_init(self, widget)` — Middle mouse button.
-  - `SettingsMixin.cmb_bind_right_init(self, widget)` — Right mouse button.
-  - `SettingsMixin.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
-  - `SettingsMixin.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -463,59 +385,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
 
-<a id="slots--blender--edit"></a>
-### `slots/blender/edit.py`
-
-- **[`class EditSlots(EditMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L8)** — Blender port of the shared ``edit`` menu.
-  - `EditSlots.header_init(self, widget)`
-  - `EditSlots.b_channels(self)` — Channels — open the shared spreadsheet-style channel editor (over ``btk.Channels``).
-  - `EditSlots.tb000_init(self, widget)`
-  - `EditSlots.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
-  - `EditSlots.tb002(self, widget)` — Delete Selected (objects in object mode, components by select mode in edit mode).
-  - `EditSlots.list000_init(self, widget)` — Initialize Create Primitives list — 6 categories, mirroring Maya's Polygon/NURBS/
-  - `EditSlots.list000(self, item)` — Create Primitive — branch per category the way Maya's list000 does (Control/Curve/
-  - `EditSlots.list001_init(self, widget)` — Initialize Convert list.
-  - `EditSlots.list001(self, item)` — Convert the selected object(s) to another type (or run a Convert-list action that
-  - `EditSlots.b000(self)` — Cut On Axis
-  - `EditSlots.cmb000(self, index, widget)` — Transfer — dispatch the selected transfer operation.
-  - `EditSlots.tb001_init(self, widget)` — Optimize — relabel the shared "Delete History" button (its text lives in the shared
-  - `EditSlots.tb001(self, widget)` — Optimize — purge orphaned (zero-user) datablocks;
-  - `EditSlots.tb004_init(self, widget)` — Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock).
-  - `EditSlots.tb004(self, widget)` — Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make
-
-<a id="slots--blender--editors"></a>
-### `slots/blender/editors.py`
-
-- **[`class EditorsSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/editors.py#L7)** — Blender port of the shared ``editors`` menu.
-  - `EditorsSlots.list000_init(self, widget)` — Initialize the editors list (categories → Blender editors).
-  - `EditorsSlots.list000(self, item)` — Open the picked editor in a new window (category headers are nav-only).
-  - `EditorsSlots.b000(self)` — Attributes (Properties editor)
-  - `EditorsSlots.b001(self)` — Outliner
-  - `EditorsSlots.b002(self)` — Tool (active-tool settings live in the Properties editor's Tool tab)
-  - `EditorsSlots.b003(self)` — Layers (Blender's collections live in the Outliner)
-  - `EditorsSlots.b004(self)` — Channels (object data lives in the Properties editor)
-  - `EditorsSlots.b005(self)` — Node Editor (Shader Editor)
-  - `EditorsSlots.b006_init(self, widget)` — Relabel: Dependency Graph → Geometry Nodes.
-  - `EditorsSlots.b006(self)` — Geometry Nodes (substitute for Maya's Dependency Graph)
-  - `EditorsSlots.b007_init(self, widget)` — Relabel: Status Line → UV Editor.
-  - `EditorsSlots.b007(self)` — UV Editor (substitute for Maya's Status Line toggle)
-  - `EditorsSlots.b008_init(self, widget)` — Relabel: Shelf → Image Editor.
-  - `EditorsSlots.b008(self)` — Image Editor (substitute for Maya's Shelf toggle)
-  - `EditorsSlots.b009(self)` — Time & Range — toggle the Timeline docked along the bottom of the viewport, in place.
-  - `EditorsSlots.b010(self)` — Script Output — the shared ``uitk.ScriptOutput`` console (syntax-highlighted
-  - `EditorsSlots.b011(self)` — Command Line (Python Console)
-  - `EditorsSlots.b012_init(self, widget)` — Relabel: Help Line → Graph Editor.
-  - `EditorsSlots.b012(self)` — Graph Editor (substitute for Maya's Help Line toggle)
-  - `EditorsSlots.b013_init(self, widget)` — Relabel: Tool Box → Text Editor.
-  - `EditorsSlots.b013(self)` — Text Editor (substitute for Maya's Tool Box toggle)
-
-<a id="slots--blender--main"></a>
-### `slots/blender/main.py`
-
-- **[`class MainSlots(MainMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/main.py#L9)** — Blender port of the shared ``main`` start menu — a workspace switcher (primary) with
-  - `MainSlots.list000_init(self, widget)` — Initialize the Workspace tab.
-  - `MainSlots.list000(self, item)` — Workspace tab dispatch — editing actions, recent-workspace selection, and the
-
 <a id="slots--blender--materials"></a>
 ### `slots/blender/materials.py`
 
@@ -560,20 +429,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `NurbsSlots.b030(self)` — Extrude Curve Profile — build a surface from the selected curve(s), the Blender
   - `NurbsSlots.b056(self)` — Image Tracer (native wrap: trace the active image-empty to Grease Pencil,
 
-<a id="slots--blender--pivot"></a>
-### `slots/blender/pivot.py`
-
-- **[`class PivotSlots(PivotMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/pivot.py#L8)** — Blender port of the shared ``pivot`` menu.
-  - `PivotSlots.tb000_init(self, widget)`
-  - `PivotSlots.tb000(self, widget)` — Reset Pivot
-  - `PivotSlots.tb001_init(self, widget)`
-  - `PivotSlots.tb001(self, widget)` — Center Pivot
-  - `PivotSlots.tb002_init(self, widget)` — Transfer Pivot options — the Mirror combo only.
-  - `PivotSlots.tb002(self, widget)` — Transfer Pivot — move the selected objects' origins onto the **active** object's origin.
-  - `PivotSlots.tb003_init(self, widget)`
-  - `PivotSlots.tb003(self, widget)` — World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its
-  - `PivotSlots.b004(self)` — Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected
-
 <a id="slots--blender--polygons"></a>
 ### `slots/blender/polygons.py`
 
@@ -617,23 +472,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `PolygonsSlots.b038_init(self, widget)` — Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender
   - `PolygonsSlots.b038(self)` — Assign Invisible — unreachable (b038_init hides the button);
   - `PolygonsSlots.b049(self)` — Slide Edge — interactively slide the selected edge loop along the surface, the
-
-<a id="slots--blender--preferences"></a>
-### `slots/blender/preferences.py`
-
-- **[`class PreferencesSlots(PreferencesMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/preferences.py#L11)** — Blender port of the shared ``preferences`` menu.
-  - `PreferencesSlots.cmb001_init(self, widget)`
-  - `PreferencesSlots.cmb001(self, index, widget)` — Set Working Units: Linear
-  - `PreferencesSlots.cmb002_init(self, widget)`
-  - `PreferencesSlots.cmb002(self, index, widget)` — Set Working Units: Time (frame rate)
-  - `PreferencesSlots.s000_init(self, widget)`
-  - `PreferencesSlots.s001_init(self, widget)`
-  - `PreferencesSlots.b001(self)` — Color Settings → Blender Preferences (Themes).
-  - `PreferencesSlots.cmb003_init(self, widget)` — App-style / theme selector — mirrors Blender's Preferences > Themes dropdown.
-  - `PreferencesSlots.cmb003(self, index, widget)` — Apply the selected native theme preset (Blender's built-in, the user's own, or our
-  - `PreferencesSlots.b008(self)` — Hotkeys → Blender Preferences (Keymap).
-  - `PreferencesSlots.b009(self)` — Plug-In Manager → Blender Preferences (Add-ons).
-  - `PreferencesSlots.b010(self)` — Settings/Preferences → Blender Preferences (Interface).
 
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
@@ -738,12 +576,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SelectionSlots.list000_init(self, widget)` — Select by Type: hierarchical type list.
   - `SelectionSlots.tb004_init(self, widget)` — Select by Type settings menu (mirror of the Maya slot's tb004).
   - `SelectionSlots.list000(self, item)` — Select by Type (native bpy predicates via ``btk.Selection``).
-
-<a id="slots--blender--settings"></a>
-### `slots/blender/settings.py`
-
-- **[`class SettingsSlots(SettingsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/settings.py#L9)** — Blender fork of the shared ``settings`` menu.
-  - `SettingsSlots.tb001(self)` — Reload Scripts (tear down, reload the tentacle ecosystem in place, re-register).
 
 <a id="slots--blender--subdivision"></a>
 ### `slots/blender/subdivision.py`
@@ -892,6 +724,63 @@ Duplicate: one Slots class for both hosts.
   - `DuplicateSlots.b007(self)` — Duplicate Radial
   - `DuplicateSlots.b008(self)` — Duplicate Grid
 
+<a id="slots--edit"></a>
+### `slots/edit.py`
+
+Edit: one Slots class for both hosts.
+
+- **[`class EditSlots(Slots)`](tentacle/tentacle/slots/edit.py#L21)**
+  - `EditSlots.header_init(self, widget)` — Header menu: the submenu's Create / Convert lists, Channels and Cut On Axis.
+  - `EditSlots.b_channels(self)` — Channels: open the Channels panel.
+  - `EditSlots.b000(self)` — Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).
+  - `EditSlots.mesh_cleanup_tooltip(self)` — Rich tooltip for the Mesh Cleanup button (``tb000``).
+  - `EditSlots.tb000_init(self, widget)` — Initialize Mesh Cleanup.
+  - `EditSlots.tb000(self, widget)` — Mesh Cleanup: repair the problem geometry, or (Select) select it.
+  - `EditSlots.cleanup_popup_html(header, rows)` *(static)* — Minimal HTML for the Mesh Cleanup popup -- glanceable, one fact per line.
+  - `EditSlots.cleanup_console_report(self, title, lines)` — The detailed Mesh Cleanup report, to the host's console (Maya's Script
+  - `EditSlots.report_cleanup_failure(self, scope, mode, error)` — Report a failed Mesh Cleanup on both channels: the console and the popup.
+  - `EditSlots.tb001_init(self, widget)` — Initialize Delete History: construction history is Maya's (the
+  - `EditSlots.tb001(self, widget)` — Delete History: on the scope's objects, plus the option box's scene cleanups.
+  - `EditSlots.tb005_init(self, widget)` — Initialize Optimize: Blender's purge of unused data-blocks (the ``.ui``
+  - `EditSlots.tb005(self, widget)` — Optimize: purge the data-blocks nothing uses.
+  - `EditSlots.tb002(self, widget)` — Delete: the selected components, or the selected objects whole.
+  - `EditSlots.tb004_init(self, widget)` — Initialize Lock / Unlock: the combo names both states, and its text is
+  - `EditSlots.tb004(self, widget)` — Lock / Unlock: protect objects from accidental edits.
+  - `EditSlots.list000_init(self, widget)` — Initialize Create: the host's primitives by category, then its controls.
+  - `EditSlots.list000(self, item)` — Create the picked primitive, helper, light or control;
+  - `EditSlots.list001_init(self, widget)` — Initialize Convert: the host's conversions.
+  - `EditSlots.list001(self, item)` — Convert the selection: the picked conversion.
+  - `EditSlots.cmb000_init(self, widget)` — Initialize Transfer: the host's transfers.
+  - `EditSlots.cmb000(self, index, widget)` — Transfer: from the source (Maya: the first selected;
+
+<a id="slots--editors"></a>
+### `slots/editors.py`
+
+Editors: the editor buttons and the All Editors list, one Slots class for both hosts.
+
+- **[`class EditorsSlots(Slots)`](tentacle/tentacle/slots/editors.py#L22)**
+  - `EditorsSlots.list000_init(self, widget)` — Fill the editors list: the host's categories, each a flyout of the
+  - `EditorsSlots.list000(self, item)` — Open the picked editor;
+  - `EditorsSlots.b000(self)` — Attributes: the Attribute Editor (Blender: the Properties editor).
+  - `EditorsSlots.b001(self)` — Outliner.
+  - `EditorsSlots.b002(self)` — Tool: the tool settings (Blender: the Properties editor).
+  - `EditorsSlots.b003(self)` — Layers: the Layer Editor (Blender: the Outliner, where collections live).
+  - `EditorsSlots.b004(self)` — Channels: the Channel Box (Blender: the Properties editor).
+  - `EditorsSlots.b005(self)` — Node Editor (Blender: the Shader Editor).
+  - `EditorsSlots.b006(self)` — Dependency Graph: the Hypergraph hierarchy (Maya).
+  - `EditorsSlots.b014(self)` — Geometry Nodes (Blender).
+  - `EditorsSlots.b015(self)` — UV Editor (Blender).
+  - `EditorsSlots.b016(self)` — Image Editor (Blender).
+  - `EditorsSlots.b017(self)` — Graph Editor (Blender).
+  - `EditorsSlots.b018(self)` — Text Editor (Blender).
+  - `EditorsSlots.b007(self)` — Status Line (Maya).
+  - `EditorsSlots.b008(self)` — Shelf (Maya).
+  - `EditorsSlots.b009(self)` — Time & Range: the timeline (Maya: the Time and Range Sliders, hidden
+  - `EditorsSlots.b010(self)` — Script Output: the dockable console mirroring the session's output.
+  - `EditorsSlots.b011(self)` — Cmd Line: the command line (Blender: a docked Python Console).
+  - `EditorsSlots.b012(self)` — Help Line (Maya).
+  - `EditorsSlots.b013(self)` — Tool Box (Maya).
+
 <a id="slots--hud"></a>
 ### `slots/hud.py`
 
@@ -920,6 +809,15 @@ Lighting: one Slots class for both hosts.
   - `LightingSlots.b002(self)` — Launch Light Rigs: save, swap and restore named light rigs (Maya).
   - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
   - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture geometry.
+
+<a id="slots--main"></a>
+### `slots/main.py`
+
+Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
+
+- **[`class MainSlots(Slots)`](tentacle/tentacle/slots/main.py#L29)**
+  - `MainSlots.list000_init(self, widget)` — Initialize the Workspace tab.
+  - `MainSlots.list000(self, item)` — Workspace tab dispatch: the editing actions, recent-workspace selection,
 
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
@@ -1011,52 +909,10 @@ Lighting: one Slots class for both hosts.
 
 - **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L8)**
 
-<a id="slots--maya--edit"></a>
-### `slots/maya/edit.py`
-
-- **[`class EditSlots(EditMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/edit.py#L9)**
-  - `EditSlots.header_init(self, widget)` — Initialize header menu
-  - `EditSlots.tb000_init(self, widget)` — Initialize Mesh Cleanup
-  - `EditSlots.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
-  - `EditSlots.tb001_init(self, widget)` — Initialize Delete History
-  - `EditSlots.tb001(self, widget)` — Delete History
-  - `EditSlots.tb002(self, widget)` — Delete Selected
-  - `EditSlots.tb004_init(self, widget)` — Init Lock/Unlock Nodes
-  - `EditSlots.tb004(self, widget)` — Node Locking
-  - `EditSlots.b_channels(self)` — Channels: open the Channels panel.
-  - `EditSlots.b000(self)` — Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).
-  - `EditSlots.list000_init(self, widget)` — Initialize Create Primitives list.
-  - `EditSlots.list000(self, item)` — Create Primitive
-  - `EditSlots.list001_init(self, widget)` — Initialize Convert list.
-  - `EditSlots.list001(self, item)` — Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).
-  - `EditSlots.cmb000(self, index, widget)` — Transfer — dispatch the selected transfer operation.
-
 <a id="slots--maya--edit_mesh"></a>
 ### `slots/maya/edit_mesh.py`
 
 - **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L8)**
-
-<a id="slots--maya--editors"></a>
-### `slots/maya/editors.py`
-
-- **[`class EditorsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/editors.py#L9)**
-  - `EditorsSlots.list000_init(self, widget)` — Initialize the editors list (categories -> Maya editors), filtered
-  - `EditorsSlots.list000(self, item)` — Open the chosen Maya editor (category headers are nav-only).
-  - `EditorsSlots.b000(self)` — Attributes: open the Attribute Editor.
-  - `EditorsSlots.b001(self)` — Outliner: open the Outliner window.
-  - `EditorsSlots.b002(self)` — Tool: open the Tool Settings window.
-  - `EditorsSlots.b003(self)` — Layers: open the Channels / Layers panel.
-  - `EditorsSlots.b004(self)` — Channels: open the Channels / Layers panel.
-  - `EditorsSlots.b005(self)` — Node Editor: open the Node Editor window.
-  - `EditorsSlots.b006(self)` — Dependancy Graph
-  - `EditorsSlots.b007(self)` — Status Line: toggle the Status Line UI.
-  - `EditorsSlots.b008(self)` — Shelf: toggle the Shelf UI.
-  - `EditorsSlots.b009(self)` — Time & Range
-  - `EditorsSlots.b010(self)` — Script Output
-  - `EditorsSlots.b011(self)` — Command Line
-  - `EditorsSlots.b012(self)` — Help Line: toggle the Help Line UI.
-  - `EditorsSlots.b013(self)` — Tool Box: toggle the Toolbox UI.
-  - `EditorsSlots.getEditorWidget(self, name)` — Get a maya widget from a given name.
 
 <a id="slots--maya--effects"></a>
 ### `slots/maya/effects.py`
@@ -1092,13 +948,6 @@ Lighting: one Slots class for both hosts.
 ### `slots/maya/lighting_shading.py`
 
 - **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L8)**
-
-<a id="slots--maya--main"></a>
-### `slots/maya/main.py`
-
-- **[`class MainSlots(MainMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/main.py#L11)**
-  - `MainSlots.list000_init(self, widget)` — Initialize the Workspace tab.
-  - `MainSlots.list000(self, item)` — Workspace tab dispatch — editing actions, recent-workspace selection,
 
 <a id="slots--maya--mash"></a>
 ### `slots/maya/mash.py`
@@ -1188,20 +1037,6 @@ Lighting: one Slots class for both hosts.
   - `NurbsSlots.b016(self)` — Extract Curve
   - `NurbsSlots.b030(self)` — Extrude: extrude the selected NURBS curve(s) into a surface.
 
-<a id="slots--maya--pivot"></a>
-### `slots/maya/pivot.py`
-
-- **[`class PivotSlots(PivotMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/pivot.py#L9)**
-  - `PivotSlots.tb000_init(self, widget)`
-  - `PivotSlots.tb000(self, widget)` — Reset Pivot: reset the selected objects' pivot position and/or orientation.
-  - `PivotSlots.tb001_init(self, widget)`
-  - `PivotSlots.tb001(self, widget)` — Center Pivot
-  - `PivotSlots.tb002_init(self, widget)`
-  - `PivotSlots.tb002(self, widget)` — Transfer Pivot
-  - `PivotSlots.tb003_init(self, widget)` — Initialize World-Aligned Pivot options
-  - `PivotSlots.tb003(self, widget)` — World-Aligned Pivot: world-align the pivot of the selected objects or components.
-  - `PivotSlots.b004(self)` — Bake Pivot: bake the manipulator pivot's position and orientation into the transform.
-
 <a id="slots--maya--playback"></a>
 ### `slots/maya/playback.py`
 
@@ -1252,23 +1087,6 @@ Lighting: one Slots class for both hosts.
   - `PolygonsSlots.b049(self)` — Slide Edge Tool
   - `PolygonsSlots.b051(self)` — Offset Edgeloop
   - `PolygonsSlots.b053(self)` — Edit Edge Flow
-
-<a id="slots--maya--preferences"></a>
-### `slots/maya/preferences.py`
-
-- **[`class PreferencesSlots(PreferencesMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/preferences.py#L12)**
-  - `PreferencesSlots.cmb001_init(self, widget)` — Initializes the combo box with unit options.
-  - `PreferencesSlots.cmb001(self, index, widget)` — Set Working Units: Linear
-  - `PreferencesSlots.cmb002_init(self, widget)` — Initializes the combo box with frame rate options.
-  - `PreferencesSlots.cmb002(self, index, widget)` — Set Working Units: Time
-  - `PreferencesSlots.s000_init(self, widget)` — Initialize autosave max backups spinbox (widget is source of truth).
-  - `PreferencesSlots.s001_init(self, widget)` — Initialize autosave interval spinbox (widget is source of truth).
-  - `PreferencesSlots.b001(self)` — Color Settings
-  - `PreferencesSlots.cmb003_init(self, widget)` — App-style / color selector — the Maya-side counterpart to the Blender slot's ``cmb003``.
-  - `PreferencesSlots.cmb003(self, index, widget)` — Apply the selected shipped style (e.g.
-  - `PreferencesSlots.b008(self)` — Hotkeys: open Maya's native Hotkey Preferences window.
-  - `PreferencesSlots.b009(self)` — Plug-In Manager
-  - `PreferencesSlots.b010(self)` — Settings/Preferences
 
 <a id="slots--maya--render"></a>
 ### `slots/maya/render.py`
@@ -1392,12 +1210,6 @@ Lighting: one Slots class for both hosts.
   - `SelectionSlots.b001(self)` — Toggle Selectability
   - `SelectionSlots.get_selection_tool()` *(static)* — Queries the current selection tool in Maya.
   - `SelectionSlots.set_selection_tool(tool)` *(static)* — Sets the selection tool in Maya.
-
-<a id="slots--maya--settings"></a>
-### `slots/maya/settings.py`
-
-- **[`class SettingsSlots(SettingsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/settings.py#L13)** — Maya fork of the shared ``settings`` menu.
-  - `SettingsSlots.tb001(self)` — Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
@@ -1534,6 +1346,76 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.b006(self)` — Set To Face: vertex normals follow their faces (faceted shading).
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
+
+<a id="slots--pivot"></a>
+### `slots/pivot.py`
+
+Pivot: one Slots class for both hosts.
+
+- **[`class PivotSlots(Slots)`](tentacle/tentacle/slots/pivot.py#L17)**
+  - `PivotSlots.tb000_init(self, widget)` — Initialize Reset Pivot.
+  - `PivotSlots.tb000(self, widget)` — Reset Pivot: the selection's pivot position and/or orientation.
+  - `PivotSlots.tb001_init(self, widget)` — Initialize Center Pivot.
+  - `PivotSlots.tb001(self, widget)` — Center Pivot
+  - `PivotSlots.b000(self)` — Center Pivot: Object
+  - `PivotSlots.b001(self)` — Center Pivot: Component
+  - `PivotSlots.b002(self, widget)` — Center Pivot: World
+  - `PivotSlots.tb002_init(self, widget)` — Initialize Transfer Pivot.
+  - `PivotSlots.tb002(self, widget)` — Transfer Pivot: from the source (Maya: the first selected;
+  - `PivotSlots.tb003_init(self, widget)` — Initialize World-Aligned Pivot.
+  - `PivotSlots.tb003(self, widget)` — World-Aligned Pivot: the manipulator (temporary) or the object pivot
+  - `PivotSlots.b004(self)` — Bake Pivot: make the temporary pivot (Maya: the manipulator pivot;
+
+<a id="slots--preferences"></a>
+### `slots/preferences.py`
+
+Preferences: one Slots class for both hosts.
+
+- **[`class PreferencesSlots(Slots)`](tentacle/tentacle/slots/preferences.py#L19)**
+  - `PreferencesSlots.cmb004_init(self, widget)` — Marking-menu (radial startmenu / submenu) window theme.
+  - `PreferencesSlots.cmb004(self, index, widget)` — Apply the marking-menu theme (persists + re-themes live windows).
+  - `PreferencesSlots.cmb005_init(self, widget)` — Standalone tool-window theme.
+  - `PreferencesSlots.cmb005(self, index, widget)` — Apply the standalone-window theme (persists + re-themes live windows).
+  - `PreferencesSlots.cmb006_init(self, widget)` — Presentation for tools whose external app / plugin isn't installed:
+  - `PreferencesSlots.cmb006(self, index, widget)` — Persist the chosen presentation policy and re-present the live gates
+  - `PreferencesSlots.header_init(self, widget)` — Header menu: the manual re-probe that pairs with ``cmb006``.
+  - `PreferencesSlots.tb000(self)` — Re-check installed tools: drop the cached probes, then re-apply the gates.
+  - `PreferencesSlots.cmb001_init(self, widget)` — Working units: linear.
+  - `PreferencesSlots.cmb001(self, index, widget)` — Set Working Units: Linear.
+  - `PreferencesSlots.cmb002_init(self, widget)` — Working units: time (the frame rate).
+  - `PreferencesSlots.cmb002(self, index, widget)` — Set Working Units: Time (the frame rate;
+  - `PreferencesSlots.s000_init(self, widget)` — Autosave backups: the widget is the source of truth (its restored value
+  - `PreferencesSlots.s001_init(self, widget)` — Autosave interval in minutes;
+  - `PreferencesSlots.cmb003_init(self, widget)` — App style: the host's style list (Maya: the shipped color styles;
+  - `PreferencesSlots.cmb003(self, index, widget)` — Apply the picked style, as the host's own selector would.
+  - `PreferencesSlots.b001(self)` — Ui Color: the host's color settings (Blender: Preferences > Themes).
+  - `PreferencesSlots.b008(self)` — Hotkeys: the host's hotkey editor (Blender: Preferences > Keymap).
+  - `PreferencesSlots.b009(self)` — Plug-ins: the host's plug-in manager (Blender: Preferences > Add-ons).
+  - `PreferencesSlots.b010(self)` — Preferences: the host's preferences window (Blender: Interface).
+  - `PreferencesSlots.b011(self)` — Macro Manager: the uitk shortcut editor over the host's macros.
+
+<a id="slots--settings"></a>
+### `slots/settings.py`
+
+Settings: one Slots class for both hosts.
+
+- **[`class SettingsSlots(Slots)`](tentacle/tentacle/slots/settings.py#L20)**
+  - `SettingsSlots.ecosystem_dists(cls, installed=None)` *(class)* — The distributions to check for updates in THIS host.
+  - `SettingsSlots.header_init(self, widget)` — Initialize header
+  - `SettingsSlots.tb000(self)` — Update Package
+  - `SettingsSlots.tb001(self)` — Reload Scripts: tear tentacle down, reload the ecosystem in place, and
+  - `SettingsSlots.check_for_update(self)` — Check the whole ecosystem for updates and upgrade what's outdated.
+  - `SettingsSlots.b020(self)` — UI Style Editor
+  - `SettingsSlots.b021(self)` — Shortcut Editor
+  - `SettingsSlots.b022(self)` — UI Browser: open the tentacle UI browser (search, show/hide registered UIs).
+  - `SettingsSlots.b023(self)` — Global Shortcuts: the shortcut editor focused on the global triggers --
+  - `SettingsSlots.b024(self)` — Preset Editor: every tool's presets in one window -- lock, group into
+  - `SettingsSlots.cmb_bind_default_init(self, widget)` — Default menu (activation key only).
+  - `SettingsSlots.cmb_bind_left_init(self, widget)` — Left mouse button.
+  - `SettingsSlots.cmb_bind_middle_init(self, widget)` — Middle mouse button.
+  - `SettingsSlots.cmb_bind_right_init(self, widget)` — Right mouse button.
+  - `SettingsSlots.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
+  - `SettingsSlots.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
 
 <a id="slots--symmetry"></a>
 ### `slots/symmetry.py`
@@ -3250,7 +3132,7 @@ Utilities: one Slots class for both hosts.
 The host-agnostic entry point — one launcher snippet for every DCC.
 
 - **[`class QtPlatformUnavailable(RuntimeError)`](tentacle/tentacle/tcl.py#L39)** — Qt cannot open a window in this host process, so the marking menu is off.
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L377)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L452)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
   - `Tcl.prepare_reload(cls, host=None)` *(class)* — Release the host resources an in-place reload would ORPHAN.
@@ -3263,6 +3145,7 @@ The host-agnostic entry point — one launcher snippet for every DCC.
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
   - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
+  - `Tcl.reload(cls)` *(class)* — Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
   - `Tcl.engine_dists(cls, host)` *(class)* — Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
   - `Tcl.engine_install_hint(cls, host=None)` *(class)* — The pip line that installs *host*'s engine, naming the interpreter to use.
 

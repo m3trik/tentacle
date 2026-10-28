@@ -106,7 +106,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open Maya's native Preferences window.</string>
+     <string>Open the app's own preferences (Blender: Preferences, Interface).</string>
     </property>
     <property name="text">
      <string>&lt;app&gt; Preferences</string>
@@ -134,7 +134,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open Maya's native Plug-in Manager.</string>
+     <string>Open the app's plug-in manager (Blender: Preferences, Add-ons).</string>
     </property>
     <property name="text">
      <string>Plug-ins</string>
@@ -162,7 +162,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Open the hotkey preferences.</string>
+     <string>Open the app's hotkey editor (Blender: Preferences, Keymap).</string>
     </property>
     <property name="text">
      <string>Hotkeys</string>

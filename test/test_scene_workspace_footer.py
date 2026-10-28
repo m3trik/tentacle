@@ -4,7 +4,7 @@
 
 The workspace *controls* (Set Dir / Auto Set / Open Root / recent history) used
 to live here as a docked "Set Workspace" button; they now live in the main
-lower submenu's Workspace list (see ``slots/maya/main.py`` and
+lower submenu's Workspace list (see ``slots/main.py`` and
 ``test_main_workspace.py``). What remains in the scene module is the *status
 footer*: the current workspace name routed to the MainWindow footer via
 FooterStatusController.

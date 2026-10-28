@@ -2,8 +2,7 @@
 # coding=utf-8
 """Regression tests for tentacle.slots.blender.materials — AST-based, no ``bpy`` required.
 
-Pins the ``@btk.undoable`` decoration convention documented in
-``tentacle/slots/blender/edit.py`` ("the undoable wrap sits on the action helpers, not the
+Pins the ``@btk.undoable`` decoration convention ("the undoable wrap sits on the action helpers, not the
 list handlers — the handlers also fire for category/expand clicks, which would otherwise
 push no-op undo steps"): the Assign list's ``list000``/``list001`` dispatch handlers must
 stay undecorated, while the mutation helpers they call (and the sibling b-button actions)

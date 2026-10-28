@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 52,
+          "line": 47,
           "deprecated": false
         }
       ]
@@ -59,82 +59,6 @@
               "deprecated": false
             }
           ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_edit.py",
-      "summary": "Shared, DCC-agnostic behavior for the ``edit`` panel.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EditMixin",
-          "summary": "DCC-agnostic ``edit`` slot behavior (Mesh Cleanup user-feedback formatting).",
-          "line": 17,
-          "bases": [],
-          "members": [
-            {
-              "name": "mesh_cleanup_tooltip",
-              "qualname": "EditMixin.mesh_cleanup_tooltip",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rich tooltip for the Mesh Cleanup button (``edit.tb000``).",
-              "line": 20,
-              "deprecated": false
-            },
-            {
-              "name": "cleanup_popup_html",
-              "qualname": "EditMixin.cleanup_popup_html",
-              "kind": "staticmethod",
-              "signature": "(header, rows)",
-              "summary": "Minimal HTML for the Mesh Cleanup popup (``sb.message_box``) — glanceable, one fact per line.",
-              "line": 44,
-              "deprecated": false
-            },
-            {
-              "name": "cleanup_console_report",
-              "qualname": "EditMixin.cleanup_console_report",
-              "kind": "staticmethod",
-              "signature": "(title, lines)",
-              "summary": "Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).",
-              "line": 61,
-              "deprecated": false
-            },
-            {
-              "name": "report_cleanup_failure",
-              "qualname": "EditMixin.report_cleanup_failure",
-              "kind": "method",
-              "signature": "(self, scope, mode_label, exc)",
-              "summary": "Report a Mesh Cleanup failure through both channels — a detailed console line and a",
-              "line": 76,
-              "deprecated": false
-            },
-            {
-              "name": "cmb000_init",
-              "qualname": "EditMixin.cmb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the Transfer operations menu.",
-              "line": 84,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_main.py",
-      "summary": "Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MainMixin",
-          "summary": "Shared ``main`` Workspace-tab behavior.",
-          "line": 25,
-          "bases": [],
-          "members": []
         }
       ],
       "constants": []
@@ -316,146 +240,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/_pivot.py",
-      "summary": "Behavior shared by the Maya and Blender ``pivot`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PivotMixin",
-          "summary": "Shared ``pivot`` panel behavior.",
-          "line": 10,
-          "bases": [],
-          "members": [
-            {
-              "name": "b000",
-              "qualname": "PivotMixin.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Center Pivot: Object",
-              "line": 13,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "PivotMixin.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Center Pivot: Component",
-              "line": 19,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "PivotMixin.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Center Pivot: World",
-              "line": 25,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_preferences.py",
-      "summary": "Shared, DCC-agnostic behavior for the ``preferences`` panel.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PreferencesMixin",
-          "summary": "DCC-agnostic ``preferences`` slot behavior.",
-          "line": 22,
-          "bases": [],
-          "members": [
-            {
-              "name": "cmb004_init",
-              "qualname": "PreferencesMixin.cmb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Marking-menu (radial startmenu / submenu) window theme.",
-              "line": 69,
-              "deprecated": false
-            },
-            {
-              "name": "cmb004",
-              "qualname": "PreferencesMixin.cmb004",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Apply the marking-menu theme (persists + re-themes live windows).",
-              "line": 75,
-              "deprecated": false
-            },
-            {
-              "name": "cmb005_init",
-              "qualname": "PreferencesMixin.cmb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Standalone tool-window theme.",
-              "line": 79,
-              "deprecated": false
-            },
-            {
-              "name": "cmb005",
-              "qualname": "PreferencesMixin.cmb005",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Apply the standalone-window theme (persists + re-themes live windows).",
-              "line": 85,
-              "deprecated": false
-            },
-            {
-              "name": "cmb006_init",
-              "qualname": "PreferencesMixin.cmb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Presentation for tools whose external app / plugin isn't installed.",
-              "line": 100,
-              "deprecated": false
-            },
-            {
-              "name": "cmb006",
-              "qualname": "PreferencesMixin.cmb006",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Persist the chosen presentation policy and re-present the live gates.",
-              "line": 123,
-              "deprecated": false
-            },
-            {
-              "name": "header_init",
-              "qualname": "PreferencesMixin.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Header menu — the manual re-probe that pairs with ``cmb006``.",
-              "line": 134,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "PreferencesMixin.tb000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Re-check installed tools: drop the cached probes, then re-apply the gates.",
-              "line": 157,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "PreferencesMixin.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Macro Manager — the unified uitk shortcut editor over the engine's",
-              "line": 164,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/_rendering.py",
       "summary": "Shared, DCC-agnostic behavior for the ``rendering`` panel.",
       "functions": [],
@@ -591,157 +375,6 @@
               "signature": "(self, widget)",
               "summary": "Select by Type settings: open the scope/mode menu.",
               "line": 166,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_settings.py",
-      "summary": "Shared, DCC-agnostic behavior for the ``settings`` panel.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SettingsMixin",
-          "summary": "DCC-agnostic ``settings`` slot behavior.",
-          "line": 18,
-          "bases": [],
-          "members": [
-            {
-              "name": "ecosystem_dists",
-              "qualname": "SettingsMixin.ecosystem_dists",
-              "kind": "classmethod",
-              "signature": "(cls, installed=None)",
-              "summary": "The distributions to check for updates in THIS host.",
-              "line": 41,
-              "deprecated": false
-            },
-            {
-              "name": "header_init",
-              "qualname": "SettingsMixin.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize header",
-              "line": 76,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "SettingsMixin.tb000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Update Package",
-              "line": 98,
-              "deprecated": false
-            },
-            {
-              "name": "check_for_update",
-              "qualname": "SettingsMixin.check_for_update",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Check the whole ecosystem for updates and upgrade what's outdated.",
-              "line": 102,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "SettingsMixin.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Style Editor",
-              "line": 160,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "SettingsMixin.b021",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shortcut Editor",
-              "line": 164,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "SettingsMixin.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "SettingsMixin.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Global Shortcuts: open the shortcut editor focused on the global",
-              "line": 172,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "SettingsMixin.b024",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Preset Editor: every tool's presets in one window — lock, group into",
-              "line": 179,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_default_init",
-              "qualname": "SettingsMixin.cmb_bind_default_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Default menu (activation key only).",
-              "line": 230,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_init",
-              "qualname": "SettingsMixin.cmb_bind_left_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left mouse button.",
-              "line": 235,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_middle_init",
-              "qualname": "SettingsMixin.cmb_bind_middle_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Middle mouse button.",
-              "line": 242,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_right_init",
-              "qualname": "SettingsMixin.cmb_bind_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Right mouse button.",
-              "line": 249,
-              "deprecated": false
-            },
-            {
-              "name": "cmb_bind_left_right_init",
-              "qualname": "SettingsMixin.cmb_bind_left_right_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Left + Right mouse buttons.",
-              "line": 256,
-              "deprecated": false
-            },
-            {
-              "name": "b_reset_bindings",
-              "qualname": "SettingsMixin.b_reset_bindings",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
-              "line": 263,
               "deprecated": false
             }
           ]
@@ -1529,404 +1162,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/edit.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EditSlots",
-          "summary": "Blender port of the shared ``edit`` menu.",
-          "line": 8,
-          "bases": [
-            "EditMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "EditSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 143,
-              "deprecated": false
-            },
-            {
-              "name": "b_channels",
-              "qualname": "EditSlots.b_channels",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Channels — open the shared spreadsheet-style channel editor (over ``btk.Channels``).",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "EditSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 206,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "EditSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.",
-              "line": 393,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "EditSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Selected (objects in object mode, components by select mode in edit mode).",
-              "line": 663,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "EditSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Create Primitives list — 6 categories, mirroring Maya's Polygon/NURBS/",
-              "line": 687,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "EditSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Create Primitive — branch per category the way Maya's list000 does (Control/Curve/",
-              "line": 711,
-              "deprecated": false
-            },
-            {
-              "name": "list001_init",
-              "qualname": "EditSlots.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Convert list.",
-              "line": 815,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "EditSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Convert the selected object(s) to another type (or run a Convert-list action that",
-              "line": 826,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "EditSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cut On Axis",
-              "line": 876,
-              "deprecated": false
-            },
-            {
-              "name": "cmb000",
-              "qualname": "EditSlots.cmb000",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 899,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "EditSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Optimize — relabel the shared \"Delete History\" button (its text lives in the shared",
-              "line": 1007,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "EditSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Optimize — purge orphaned (zero-user) datablocks;",
-              "line": 1044,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "EditSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock).",
-              "line": 1065,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "EditSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make",
-              "line": 1084,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/editors.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EditorsSlots",
-          "summary": "Blender port of the shared ``editors`` menu.",
-          "line": 7,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "EditorsSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the editors list (categories → Blender editors).",
-              "line": 84,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "EditorsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Open the picked editor in a new window (category headers are nav-only).",
-              "line": 99,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "EditorsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Attributes (Properties editor)",
-              "line": 129,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "EditorsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Outliner",
-              "line": 133,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "EditorsSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Tool (active-tool settings live in the Properties editor's Tool tab)",
-              "line": 137,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "EditorsSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Layers (Blender's collections live in the Outliner)",
-              "line": 141,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "EditorsSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Channels (object data lives in the Properties editor)",
-              "line": 145,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "EditorsSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Node Editor (Shader Editor)",
-              "line": 149,
-              "deprecated": false
-            },
-            {
-              "name": "b006_init",
-              "qualname": "EditorsSlots.b006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Relabel: Dependency Graph → Geometry Nodes.",
-              "line": 153,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "EditorsSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Geometry Nodes (substitute for Maya's Dependency Graph)",
-              "line": 157,
-              "deprecated": false
-            },
-            {
-              "name": "b007_init",
-              "qualname": "EditorsSlots.b007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Relabel: Status Line → UV Editor.",
-              "line": 161,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "EditorsSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "UV Editor (substitute for Maya's Status Line toggle)",
-              "line": 165,
-              "deprecated": false
-            },
-            {
-              "name": "b008_init",
-              "qualname": "EditorsSlots.b008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Relabel: Shelf → Image Editor.",
-              "line": 169,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "EditorsSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Image Editor (substitute for Maya's Shelf toggle)",
-              "line": 173,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "EditorsSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Time & Range — toggle the Timeline docked along the bottom of the viewport, in place.",
-              "line": 177,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "EditorsSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Script Output — the shared ``uitk.ScriptOutput`` console (syntax-highlighted",
-              "line": 185,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "EditorsSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Command Line (Python Console)",
-              "line": 198,
-              "deprecated": false
-            },
-            {
-              "name": "b012_init",
-              "qualname": "EditorsSlots.b012_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Relabel: Help Line → Graph Editor.",
-              "line": 202,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "EditorsSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Graph Editor (substitute for Maya's Help Line toggle)",
-              "line": 206,
-              "deprecated": false
-            },
-            {
-              "name": "b013_init",
-              "qualname": "EditorsSlots.b013_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Relabel: Tool Box → Text Editor.",
-              "line": 210,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "EditorsSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Text Editor (substitute for Maya's Tool Box toggle)",
-              "line": 214,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/main.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MainSlots",
-          "summary": "Blender port of the shared ``main`` start menu — a workspace switcher (primary) with",
-          "line": 9,
-          "bases": [
-            "MainMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "MainSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the Workspace tab.",
-              "line": 34,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "MainSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Workspace tab dispatch — editing actions, recent-workspace selection, and the",
-              "line": 129,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/materials.py",
       "summary": "",
       "functions": [],
@@ -2263,106 +1498,6 @@
               "signature": "(self)",
               "summary": "Image Tracer (native wrap: trace the active image-empty to Grease Pencil,",
               "line": 548,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/pivot.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PivotSlots",
-          "summary": "Blender port of the shared ``pivot`` menu.",
-          "line": 8,
-          "bases": [
-            "PivotMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "PivotSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 29,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "PivotSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reset Pivot",
-              "line": 38,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "PivotSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 52,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "PivotSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Center Pivot",
-              "line": 68,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "PivotSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Pivot options — the Mirror combo only.",
-              "line": 85,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "PivotSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Pivot — move the selected objects' origins onto the **active** object's origin.",
-              "line": 112,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "PivotSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 198,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "PivotSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "World-Aligned Pivot — a faithful mirror of Maya's ``tb003`` *including its",
-              "line": 217,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "PivotSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bake Pivot — bake Blender's *temporary* pivot, the 3D cursor, into the selected",
-              "line": 238,
               "deprecated": false
             }
           ]
@@ -2732,133 +1867,6 @@
               "signature": "(self)",
               "summary": "Slide Edge — interactively slide the selected edge loop along the surface, the",
               "line": 653,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/preferences.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PreferencesSlots",
-          "summary": "Blender port of the shared ``preferences`` menu.",
-          "line": 11,
-          "bases": [
-            "PreferencesMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "cmb001_init",
-              "qualname": "PreferencesSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 112,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "PreferencesSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Set Working Units: Linear",
-              "line": 136,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "PreferencesSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 144,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "PreferencesSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Set Working Units: Time (frame rate)",
-              "line": 159,
-              "deprecated": false
-            },
-            {
-              "name": "s000_init",
-              "qualname": "PreferencesSlots.s000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "s001_init",
-              "qualname": "PreferencesSlots.s001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 177,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "PreferencesSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Color Settings → Blender Preferences (Themes).",
-              "line": 194,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003_init",
-              "qualname": "PreferencesSlots.cmb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "App-style / theme selector — mirrors Blender's Preferences > Themes dropdown.",
-              "line": 198,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003",
-              "qualname": "PreferencesSlots.cmb003",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Apply the selected native theme preset (Blender's built-in, the user's own, or our",
-              "line": 220,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "PreferencesSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hotkeys → Blender Preferences (Keymap).",
-              "line": 227,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "PreferencesSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Plug-In Manager → Blender Preferences (Add-ons).",
-              "line": 231,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "PreferencesSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Settings/Preferences → Blender Preferences (Interface).",
-              "line": 235,
               "deprecated": false
             }
           ]
@@ -3691,34 +2699,6 @@
               "signature": "(self, item)",
               "summary": "Select by Type (native bpy predicates via ``btk.Selection``).",
               "line": 703,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/settings.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SettingsSlots",
-          "summary": "Blender fork of the shared ``settings`` menu.",
-          "line": 9,
-          "bases": [
-            "SettingsMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb001",
-              "qualname": "SettingsSlots.tb001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reload Scripts (tear down, reload the tentacle ecosystem in place, re-register).",
-              "line": 28,
               "deprecated": false
             }
           ]
@@ -4746,6 +3726,429 @@
       "constants": []
     },
     {
+      "relpath": "slots/edit.py",
+      "summary": "Edit: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "EditSlots",
+          "summary": "",
+          "line": 21,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "EditSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu: the submenu's Create / Convert lists, Channels and Cut On Axis.",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "b_channels",
+              "qualname": "EditSlots.b_channels",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Channels: open the Channels panel.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "EditSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "mesh_cleanup_tooltip",
+              "qualname": "EditSlots.mesh_cleanup_tooltip",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rich tooltip for the Mesh Cleanup button (``tb000``).",
+              "line": 131,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "EditSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Mesh Cleanup.",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "EditSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Mesh Cleanup: repair the problem geometry, or (Select) select it.",
+              "line": 413,
+              "deprecated": false
+            },
+            {
+              "name": "cleanup_popup_html",
+              "qualname": "EditSlots.cleanup_popup_html",
+              "kind": "staticmethod",
+              "signature": "(header, rows)",
+              "summary": "Minimal HTML for the Mesh Cleanup popup -- glanceable, one fact per line.",
+              "line": 514,
+              "deprecated": false
+            },
+            {
+              "name": "cleanup_console_report",
+              "qualname": "EditSlots.cleanup_console_report",
+              "kind": "method",
+              "signature": "(self, title, lines)",
+              "summary": "The detailed Mesh Cleanup report, to the host's console (Maya's Script",
+              "line": 528,
+              "deprecated": false
+            },
+            {
+              "name": "report_cleanup_failure",
+              "qualname": "EditSlots.report_cleanup_failure",
+              "kind": "method",
+              "signature": "(self, scope, mode, error)",
+              "summary": "Report a failed Mesh Cleanup on both channels: the console and the popup.",
+              "line": 537,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "EditSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Delete History: construction history is Maya's (the",
+              "line": 543,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "EditSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete History: on the scope's objects, plus the option box's scene cleanups.",
+              "line": 580,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "EditSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Optimize: Blender's purge of unused data-blocks (the ``.ui``",
+              "line": 602,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "EditSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Optimize: purge the data-blocks nothing uses.",
+              "line": 625,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "EditSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete: the selected components, or the selected objects whole.",
+              "line": 638,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "EditSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Lock / Unlock: the combo names both states, and its text is",
+              "line": 646,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "EditSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lock / Unlock: protect objects from accidental edits.",
+              "line": 662,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "EditSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Create: the host's primitives by category, then its controls.",
+              "line": 675,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "EditSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Create the picked primitive, helper, light or control;",
+              "line": 694,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "EditSlots.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Convert: the host's conversions.",
+              "line": 714,
+              "deprecated": false
+            },
+            {
+              "name": "list001",
+              "qualname": "EditSlots.list001",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Convert the selection: the picked conversion.",
+              "line": 725,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "EditSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Transfer: the host's transfers.",
+              "line": 741,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000",
+              "qualname": "EditSlots.cmb000",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Transfer: from the source (Maya: the first selected;",
+              "line": 745,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/editors.py",
+      "summary": "Editors: the editor buttons and the All Editors list, one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "EditorsSlots",
+          "summary": "",
+          "line": 22,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "EditorsSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Fill the editors list: the host's categories, each a flyout of the",
+              "line": 42,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "EditorsSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Open the picked editor;",
+              "line": 51,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "EditorsSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Attributes: the Attribute Editor (Blender: the Properties editor).",
+              "line": 60,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "EditorsSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Outliner.",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "EditorsSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Tool: the tool settings (Blender: the Properties editor).",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "EditorsSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Layers: the Layer Editor (Blender: the Outliner, where collections live).",
+              "line": 72,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "EditorsSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Channels: the Channel Box (Blender: the Properties editor).",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "EditorsSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Node Editor (Blender: the Shader Editor).",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "EditorsSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Dependency Graph: the Hypergraph hierarchy (Maya).",
+              "line": 84,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "EditorsSlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Geometry Nodes (Blender).",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "b015",
+              "qualname": "EditorsSlots.b015",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UV Editor (Blender).",
+              "line": 92,
+              "deprecated": false
+            },
+            {
+              "name": "b016",
+              "qualname": "EditorsSlots.b016",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Image Editor (Blender).",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "b017",
+              "qualname": "EditorsSlots.b017",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Graph Editor (Blender).",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "b018",
+              "qualname": "EditorsSlots.b018",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Text Editor (Blender).",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "EditorsSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Status Line (Maya).",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "EditorsSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shelf (Maya).",
+              "line": 113,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "EditorsSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Time & Range: the timeline (Maya: the Time and Range Sliders, hidden",
+              "line": 117,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "EditorsSlots.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Script Output: the dockable console mirroring the session's output.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "EditorsSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cmd Line: the command line (Blender: a docked Python Console).",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "EditorsSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Help Line (Maya).",
+              "line": 130,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "EditorsSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Tool Box (Maya).",
+              "line": 134,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/hud.py",
       "summary": "HUD: one Slots class for both hosts.",
       "functions": [],
@@ -4909,6 +4312,42 @@
               "signature": "(self, widget)",
               "summary": "Create real area lights from the selected fixture geometry.",
               "line": 124,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/main.py",
+      "summary": "Main: the start menu hub and its Workspace tab, one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MainSlots",
+          "summary": "",
+          "line": 29,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "MainSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the Workspace tab.",
+              "line": 40,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "MainSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Workspace tab dispatch: the editing actions, recent-workspace selection,",
+              "line": 167,
               "deprecated": false
             }
           ]
@@ -5506,160 +4945,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/edit.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EditSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "EditMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "EditSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize header menu",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "EditSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Mesh Cleanup",
-              "line": 41,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "EditSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.",
-              "line": 253,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "EditSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Delete History",
-              "line": 382,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "EditSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete History",
-              "line": 456,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "EditSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Selected",
-              "line": 568,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "EditSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Lock/Unlock Nodes",
-              "line": 572,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "EditSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Node Locking",
-              "line": 587,
-              "deprecated": false
-            },
-            {
-              "name": "b_channels",
-              "qualname": "EditSlots.b_channels",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Channels: open the Channels panel.",
-              "line": 597,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "EditSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cut On Axis: open the Cut On Axis tool (slice objects along an axis plane).",
-              "line": 601,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "EditSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Create Primitives list.",
-              "line": 622,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "EditSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Create Primitive",
-              "line": 703,
-              "deprecated": false
-            },
-            {
-              "name": "list001_init",
-              "qualname": "EditSlots.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Convert list.",
-              "line": 777,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "EditSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Convert: convert the selected geometry between types (NURBS / polygon / subdiv / curve, etc.).",
-              "line": 789,
-              "deprecated": false
-            },
-            {
-              "name": "cmb000",
-              "qualname": "EditSlots.cmb000",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 839,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/edit_mesh.py",
       "summary": "",
       "functions": [],
@@ -5672,177 +4957,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/editors.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "EditorsSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "EditorsSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the editors list (categories -> Maya editors), filtered",
-              "line": 93,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "EditorsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Open the chosen Maya editor (category headers are nav-only).",
-              "line": 106,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "EditorsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Attributes: open the Attribute Editor.",
-              "line": 114,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "EditorsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Outliner: open the Outliner window.",
-              "line": 118,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "EditorsSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Tool: open the Tool Settings window.",
-              "line": 122,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "EditorsSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Layers: open the Channels / Layers panel.",
-              "line": 126,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "EditorsSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Channels: open the Channels / Layers panel.",
-              "line": 130,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "EditorsSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Node Editor: open the Node Editor window.",
-              "line": 134,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "EditorsSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Dependancy Graph",
-              "line": 138,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "EditorsSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Status Line: toggle the Status Line UI.",
-              "line": 177,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "EditorsSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shelf: toggle the Shelf UI.",
-              "line": 181,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "EditorsSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Time & Range",
-              "line": 185,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "EditorsSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Script Output",
-              "line": 199,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "EditorsSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Command Line",
-              "line": 205,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "EditorsSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Help Line: toggle the Help Line UI.",
-              "line": 209,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "EditorsSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Tool Box: toggle the Toolbox UI.",
-              "line": 213,
-              "deprecated": false
-            },
-            {
-              "name": "getEditorWidget",
-              "qualname": "EditorsSlots.getEditorWidget",
-              "kind": "method",
-              "signature": "(self, name)",
-              "summary": "Get a maya widget from a given name.",
-              "line": 217,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -5962,43 +5076,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/main.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MainSlots",
-          "summary": "",
-          "line": 11,
-          "bases": [
-            "MainMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "MainSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the Workspace tab.",
-              "line": 18,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "MainSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Workspace tab dispatch — editing actions, recent-workspace selection,",
-              "line": 126,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -6520,106 +5597,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/pivot.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PivotSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "PivotMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "PivotSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "PivotSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reset Pivot: reset the selected objects' pivot position and/or orientation.",
-              "line": 43,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "PivotSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 61,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "PivotSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Center Pivot",
-              "line": 83,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "PivotSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 102,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "PivotSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Pivot",
-              "line": 179,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "PivotSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize World-Aligned Pivot options",
-              "line": 199,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "PivotSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "World-Aligned Pivot: world-align the pivot of the selected objects or components.",
-              "line": 219,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "PivotSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bake Pivot: bake the manipulator pivot's position and orientation into the transform.",
-              "line": 237,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/playback.py",
       "summary": "",
       "functions": [],
@@ -7016,133 +5993,6 @@
               "signature": "(self)",
               "summary": "Edit Edge Flow",
               "line": 658,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/preferences.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PreferencesSlots",
-          "summary": "",
-          "line": 12,
-          "bases": [
-            "PreferencesMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "cmb001_init",
-              "qualname": "PreferencesSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initializes the combo box with unit options.",
-              "line": 27,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "PreferencesSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Set Working Units: Linear",
-              "line": 54,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "PreferencesSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initializes the combo box with frame rate options.",
-              "line": 60,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "PreferencesSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Set Working Units: Time",
-              "line": 88,
-              "deprecated": false
-            },
-            {
-              "name": "s000_init",
-              "qualname": "PreferencesSlots.s000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize autosave max backups spinbox (widget is source of truth).",
-              "line": 93,
-              "deprecated": false
-            },
-            {
-              "name": "s001_init",
-              "qualname": "PreferencesSlots.s001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize autosave interval spinbox (widget is source of truth).",
-              "line": 117,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "PreferencesSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Color Settings",
-              "line": 134,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003_init",
-              "qualname": "PreferencesSlots.cmb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "App-style / color selector — the Maya-side counterpart to the Blender slot's ``cmb003``.",
-              "line": 138,
-              "deprecated": false
-            },
-            {
-              "name": "cmb003",
-              "qualname": "PreferencesSlots.cmb003",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Apply the selected shipped style (e.g.",
-              "line": 146,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "PreferencesSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hotkeys: open Maya's native Hotkey Preferences window.",
-              "line": 152,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "PreferencesSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Plug-In Manager",
-              "line": 156,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "PreferencesSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Settings/Preferences",
-              "line": 160,
               "deprecated": false
             }
           ]
@@ -8098,34 +6948,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/settings.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SettingsSlots",
-          "summary": "Maya fork of the shared ``settings`` menu.",
-          "line": 13,
-          "bases": [
-            "SettingsMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb001",
-              "qualname": "SettingsSlots.tb001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reload Scripts (tear down, reload the ecosystem in place, rebuild deferred).",
-              "line": 31,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/skeleton.py",
       "summary": "",
       "functions": [],
@@ -8994,6 +7816,501 @@
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
               "line": 158,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/pivot.py",
+      "summary": "Pivot: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PivotSlots",
+          "summary": "",
+          "line": 17,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "PivotSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Reset Pivot.",
+              "line": 32,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "PivotSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset Pivot: the selection's pivot position and/or orientation.",
+              "line": 66,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "PivotSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Center Pivot.",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "PivotSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Center Pivot",
+              "line": 105,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "PivotSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Center Pivot: Object",
+              "line": 117,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "PivotSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Center Pivot: Component",
+              "line": 123,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "PivotSlots.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Center Pivot: World",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "PivotSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Transfer Pivot.",
+              "line": 136,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "PivotSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Pivot: from the source (Maya: the first selected;",
+              "line": 226,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "PivotSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize World-Aligned Pivot.",
+              "line": 251,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "PivotSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "World-Aligned Pivot: the manipulator (temporary) or the object pivot",
+              "line": 273,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "PivotSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bake Pivot: make the temporary pivot (Maya: the manipulator pivot;",
+              "line": 295,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/preferences.py",
+      "summary": "Preferences: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PreferencesSlots",
+          "summary": "",
+          "line": 19,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "cmb004_init",
+              "qualname": "PreferencesSlots.cmb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Marking-menu (radial startmenu / submenu) window theme.",
+              "line": 52,
+              "deprecated": false
+            },
+            {
+              "name": "cmb004",
+              "qualname": "PreferencesSlots.cmb004",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Apply the marking-menu theme (persists + re-themes live windows).",
+              "line": 58,
+              "deprecated": false
+            },
+            {
+              "name": "cmb005_init",
+              "qualname": "PreferencesSlots.cmb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Standalone tool-window theme.",
+              "line": 62,
+              "deprecated": false
+            },
+            {
+              "name": "cmb005",
+              "qualname": "PreferencesSlots.cmb005",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Apply the standalone-window theme (persists + re-themes live windows).",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "cmb006_init",
+              "qualname": "PreferencesSlots.cmb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Presentation for tools whose external app / plugin isn't installed:",
+              "line": 82,
+              "deprecated": false
+            },
+            {
+              "name": "cmb006",
+              "qualname": "PreferencesSlots.cmb006",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Persist the chosen presentation policy and re-present the live gates",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "PreferencesSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu: the manual re-probe that pairs with ``cmb006``.",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "PreferencesSlots.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-check installed tools: drop the cached probes, then re-apply the gates.",
+              "line": 127,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001_init",
+              "qualname": "PreferencesSlots.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Working units: linear.",
+              "line": 150,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "PreferencesSlots.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Set Working Units: Linear.",
+              "line": 169,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "PreferencesSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Working units: time (the frame rate).",
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "PreferencesSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Set Working Units: Time (the frame rate;",
+              "line": 195,
+              "deprecated": false
+            },
+            {
+              "name": "s000_init",
+              "qualname": "PreferencesSlots.s000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Autosave backups: the widget is the source of truth (its restored value",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "PreferencesSlots.s001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Autosave interval in minutes;",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003_init",
+              "qualname": "PreferencesSlots.cmb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "App style: the host's style list (Maya: the shipped color styles;",
+              "line": 223,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003",
+              "qualname": "PreferencesSlots.cmb003",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Apply the picked style, as the host's own selector would.",
+              "line": 235,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "PreferencesSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Ui Color: the host's color settings (Blender: Preferences > Themes).",
+              "line": 248,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "PreferencesSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hotkeys: the host's hotkey editor (Blender: Preferences > Keymap).",
+              "line": 252,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "PreferencesSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Plug-ins: the host's plug-in manager (Blender: Preferences > Add-ons).",
+              "line": 256,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "PreferencesSlots.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Preferences: the host's preferences window (Blender: Interface).",
+              "line": 260,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "PreferencesSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Macro Manager: the uitk shortcut editor over the host's macros.",
+              "line": 264,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/settings.py",
+      "summary": "Settings: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SettingsSlots",
+          "summary": "",
+          "line": 20,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "ecosystem_dists",
+              "qualname": "SettingsSlots.ecosystem_dists",
+              "kind": "classmethod",
+              "signature": "(cls, installed=None)",
+              "summary": "The distributions to check for updates in THIS host.",
+              "line": 39,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "SettingsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize header",
+              "line": 72,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "SettingsSlots.tb000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Update Package",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "SettingsSlots.tb001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reload Scripts: tear tentacle down, reload the ecosystem in place, and",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "check_for_update",
+              "qualname": "SettingsSlots.check_for_update",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Check the whole ecosystem for updates and upgrade what's outdated.",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "SettingsSlots.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Style Editor",
+              "line": 174,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "SettingsSlots.b021",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Shortcut Editor",
+              "line": 178,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "SettingsSlots.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
+              "line": 182,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "SettingsSlots.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Global Shortcuts: the shortcut editor focused on the global triggers --",
+              "line": 186,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "SettingsSlots.b024",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Preset Editor: every tool's presets in one window -- lock, group into",
+              "line": 192,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_default_init",
+              "qualname": "SettingsSlots.cmb_bind_default_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Default menu (activation key only).",
+              "line": 243,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_init",
+              "qualname": "SettingsSlots.cmb_bind_left_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left mouse button.",
+              "line": 248,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_middle_init",
+              "qualname": "SettingsSlots.cmb_bind_middle_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Middle mouse button.",
+              "line": 255,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_right_init",
+              "qualname": "SettingsSlots.cmb_bind_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Right mouse button.",
+              "line": 262,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_bind_left_right_init",
+              "qualname": "SettingsSlots.cmb_bind_left_right_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Left + Right mouse buttons.",
+              "line": 269,
+              "deprecated": false
+            },
+            {
+              "name": "b_reset_bindings",
+              "qualname": "SettingsSlots.b_reset_bindings",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
+              "line": 276,
               "deprecated": false
             }
           ]
@@ -19918,7 +19235,7 @@
         {
           "name": "Tcl",
           "summary": "Launch tentacle in whichever DCC is hosting this process.",
-          "line": 377,
+          "line": 452,
           "bases": [
             "_TclInternal"
           ],
@@ -19929,7 +19246,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.",
-              "line": 389,
+              "line": 464,
               "deprecated": false
             },
             {
@@ -19938,7 +19255,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None, include_self=True)",
               "summary": "Every ecosystem distribution THIS install actually uses, for *host*.",
-              "line": 408,
+              "line": 483,
               "deprecated": false
             },
             {
@@ -19947,7 +19264,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "Release the host resources an in-place reload would ORPHAN.",
-              "line": 438,
+              "line": 513,
               "deprecated": false
             },
             {
@@ -19956,7 +19273,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "Re-execute the ecosystem packages in dependency order, in place.",
-              "line": 499,
+              "line": 574,
               "deprecated": false
             },
             {
@@ -19965,7 +19282,7 @@
               "kind": "staticmethod",
               "signature": "(instances)",
               "summary": "Schedule deletion of the pre-reload marking menus in *instances*.",
-              "line": 538,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -19974,7 +19291,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None)",
               "summary": "Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.",
-              "line": 554,
+              "line": 629,
               "deprecated": false
             },
             {
@@ -19983,7 +19300,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, context_tags=None)",
               "summary": "The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.",
-              "line": 564,
+              "line": 639,
               "deprecated": false
             },
             {
@@ -19992,7 +19309,7 @@
               "kind": "staticmethod",
               "signature": "(context_tags=None)",
               "summary": "The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):",
-              "line": 594,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -20001,7 +19318,7 @@
               "kind": "staticmethod",
               "signature": "(switchboard)",
               "summary": "Register on *switchboard* what every host shares (CODE_STANDARD section 3).",
-              "line": 617,
+              "line": 692,
               "deprecated": false
             },
             {
@@ -20010,7 +19327,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 643,
+              "line": 718,
               "deprecated": false
             },
             {
@@ -20019,7 +19336,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 663,
+              "line": 738,
               "deprecated": false
             },
             {
@@ -20028,7 +19345,16 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 698,
+              "line": 773,
+              "deprecated": false
+            },
+            {
+              "name": "reload",
+              "qualname": "Tcl.reload",
+              "kind": "classmethod",
+              "signature": "(cls)",
+              "summary": "Settings > Reload Scripts: tear tentacle down, reload the ecosystem in",
+              "line": 804,
               "deprecated": false
             },
             {
@@ -20037,7 +19363,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.",
-              "line": 203,
+              "line": 278,
               "deprecated": false
             },
             {
@@ -20046,7 +19372,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The pip line that installs *host*'s engine, naming the interpreter to use.",
-              "line": 325,
+              "line": 400,
               "deprecated": false
             }
           ]

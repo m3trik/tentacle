@@ -330,26 +330,33 @@ try:
         assert_quiet_init(f"transform chk023 (snap={snap})", slot, ui, ("chk023",))
 
     # ================================================================ preferences
-    from tentacle.slots.blender.preferences import PreferencesSlots
+    import blendertk as btk
+    from tentacle.slots.preferences import PreferencesSlots
 
     bpy.context.scene.unit_settings.system = "METRIC"
     bpy.context.scene.unit_settings.length_unit = "CENTIMETERS"
     bpy.context.scene.render.fps = 30
+    bpy.context.scene.render.fps_base = 1.0
 
     ui = _Ui(cmb001=ComboBox(), cmb002=ComboBox())  # real widget — see the cmb005 note
+    for _combo in (ui.cmb001, ui.cmb002):
+        _combo.is_initialized = False  # set at registration; the shared init reads it
     slot = make_slot(PreferencesSlots, ui)
+    slot.sb.tk = btk  # the composed class reaches Blender through the toolkit
     slot.cmb001_init(ui.cmb001)
     slot.cmb002_init(ui.cmb002)
     check(
-        "preferences cmb001: seeds the scene's live length unit (CENTIMETERS)",
-        ui.cmb001.currentData() == "CENTIMETERS",
+        "preferences cmb001: seeds the scene's live length unit (centimeter)",
+        ui.cmb001.currentData() == "centimeter",
         f"got {ui.cmb001.currentData()!r}",
     )
     check(
-        "preferences cmb002: seeds the scene's live fps (30)",
-        int(ui.cmb002.currentData() or 0) == 30,
+        "preferences cmb002: seeds the scene's live fps (30: ntsc)",
+        ui.cmb002.currentData() == "ntsc",
         f"got {ui.cmb002.currentData()!r}",
     )
+    for _combo in (ui.cmb001, ui.cmb002):  # the live-sync subscriptions the init made
+        btk.ScriptJobManager.instance().unsubscribe_all(_combo)
     # Both combos are POPULATED inside the init, and `add` emits currentIndexChanged on its
     # own — so this also pins that populating is done under the seed's blocked scope.
     assert_quiet_init("preferences cmb001/cmb002", slot, ui, ("cmb001", "cmb002"))

@@ -1,40 +1,28 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.settings.
+"""Regression tests for tentacle.slots.settings, the one Settings Slots class.
 
-Most of settings.py is reload/teardown plumbing and widget wiring. The units
-worth pinning at this layer, after the marking-menu binding logic was
-centralized into uitk's ``MarkingMenu``:
+Host-free but for two calls: the updater's interpreter
+(``self.tk.EnvUtils.python_executable``) and Reload Scripts (the launcher's
+``Tcl.reload``, tested in ``test_tcl_launcher.py``). What's worth pinning here:
 
 - _get_startmenus: delegates to the marking menu's ``start_menu_names`` SSoT.
 - _on_binding_change: a route combo edit routes to ``marking_menu.set_route_target``
-  (bind by gesture, not a captured key string — stays correct across an
-  activation-key change).
+  (bind by gesture, not a captured key string -- correct across a key change).
 - b023: opens the focused "global_shortcuts" editor.
 - b_reset_bindings: resets marking-menu bindings to defaults.
+- tb001: Reload Scripts goes through the launcher and reports its failure.
+- check_for_update: the whole ecosystem, through the host's interpreter.
 
-Those four now live on ``SettingsMixin`` (``slots/_settings.py``, shared by the
-Maya + Blender forks); the tests still drive them through the concrete Maya
-``SettingsSlots`` class, so they also pin that the mixin extraction kept the
-inherited behavior reachable. ``SettingsMixin.check_for_update`` is covered
-directly at the bottom of this file — it is DCC-agnostic, so those cases need
-no Maya import path.
-
-The activation-key rewrite and repeat-last editing that used to live here now
-live in uitk (``MarkingMenu.set_activation_key`` + the external-binding command
-register) and are covered by uitk's test_marking_menu_shortcuts /
-test_shortcut_commands.
+The activation-key rewrite and repeat-last editing live in uitk
+(``MarkingMenu.set_activation_key``), covered by its own tests.
 """
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from tentacle.slots._settings import SettingsMixin
-
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-settings_module = maya_module("tentacle.slots.maya.settings")
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots.settings import SettingsSlots
 
 
 class _FakeRegistry:
@@ -43,13 +31,9 @@ class _FakeRegistry:
 
 
 class _FakeMarkingMenu:
-    """Stand-in for the registered marking menu (the binding SSoT).
-
-    settings.py reads/writes bindings through the marking menu's public API
-    (``start_menu_names`` / ``get_route_target`` / ``set_route_target`` /
-    ``bindings``), not ``configurable`` directly, because the real store is
-    host-namespaced in uitk.
-    """
+    """Stand-in for the registered marking menu (the binding SSoT): the slot reads
+    and writes bindings through its public API, not ``configurable``, because the
+    real store is host-namespaced in uitk."""
 
     def __init__(self, sb, default_bindings=None):
         self._sb = sb
@@ -81,12 +65,15 @@ class _FakeEditors:
 
 
 class _FakeSb:
-    def __init__(self, filenames=None, answer="Yes"):
+    def __init__(self, filenames=None, answer="Yes", python="python"):
         self.registry = _FakeRegistry(filenames=filenames)
         self.handlers = SimpleNamespace(marking_menu=_FakeMarkingMenu(self))
         self.editors = _FakeEditors()
         self.answer = answer  # what a modal message_box returns
         self.boxes = []  # (text, buttons) per message_box call
+        self.tk = SimpleNamespace(
+            EnvUtils=SimpleNamespace(python_executable=lambda: python)
+        )
 
     def message_box(self, text, *buttons):
         self.boxes.append((text, buttons))
@@ -94,12 +81,11 @@ class _FakeSb:
 
 
 def _settings_instance(sb):
-    inst = settings_module.SettingsSlots.__new__(settings_module.SettingsSlots)
+    inst = SettingsSlots.__new__(SettingsSlots)
     inst.sb = sb
     return inst
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
 class TestGetStartmenus(unittest.TestCase):
     """_get_startmenus delegates to the marking menu's start_menu_names."""
 
@@ -125,7 +111,6 @@ class TestGetStartmenus(unittest.TestCase):
         self.assertEqual(_settings_instance(_FakeSb(filenames=[]))._get_startmenus(), [])
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
 class TestRouteCombos(unittest.TestCase):
     """A route combo edit persists via the marking menu's gesture-keyed API."""
 
@@ -144,7 +129,6 @@ class TestRouteCombos(unittest.TestCase):
         sb.handlers.marking_menu.set_route_target(("RightButton",), "main#startmenu")
         inst = _settings_instance(sb)
         widget = SimpleNamespace(currentData=lambda: "main#startmenu")
-        # Should not raise / rewrite (value already matches).
         inst._on_binding_change(("RightButton",), widget)
         self.assertEqual(
             sb.handlers.marking_menu.get_route_target(("RightButton",)),
@@ -152,19 +136,11 @@ class TestRouteCombos(unittest.TestCase):
         )
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
-class TestGlobalShortcutsButton(unittest.TestCase):
-    """b023 launches the focused global-shortcuts editor."""
-
+class TestEditorsAndBindings(unittest.TestCase):
     def test_b023_opens_global_shortcuts_editor(self):
         sb = _FakeSb()
         _settings_instance(sb).b023()
         self.assertEqual(sb.editors.shown, ["global_shortcuts"])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires tentacle import path")
-class TestResetBindings(unittest.TestCase):
-    """b_reset_bindings restores the marking menu's default bindings."""
 
     def test_reset_sets_defaults(self):
         sb = _FakeSb()
@@ -175,20 +151,37 @@ class TestResetBindings(unittest.TestCase):
         self.assertEqual(sb.handlers.marking_menu.bindings, defaults)
 
 
-class _UpdaterHost(SettingsMixin):
-    """Minimal concrete host — the mixin is DCC-agnostic, so no Maya needed.
+class TestReloadScripts(unittest.TestCase):
+    """tb001 is the launcher's reload; only a failure that reaches the slot is the
+    panel's to report (Maya reports through Maya, its reload never raises)."""
 
-    ``ecosystem_dists`` is PINNED rather than derived: the real one reads this
-    interpreter's installed metadata (``Tcl.declared_dists``), so leaving it live would
-    make every updater assertion depend on whether the test host happens to have an
-    engine installed — passing in CI and inside Maya for different reasons. The
-    derivation itself is covered by :class:`TestEcosystemDistsDerivation`.
+    def test_reload_goes_through_the_launcher(self):
+        sb = _FakeSb()
+        with patch("tentacle.tcl.Tcl.reload", return_value=3) as reload:
+            _settings_instance(sb).tb001()
+        reload.assert_called_once_with()
+        self.assertEqual(sb.boxes, [])
+
+    def test_a_failed_reload_is_reported_escaped(self):
+        sb = _FakeSb()
+        with patch("tentacle.tcl.Tcl.reload", side_effect=RuntimeError("<boom>")):
+            _settings_instance(sb).tb001()
+        (text, _buttons), = sb.boxes
+        self.assertIn("Reload failed", text)
+        self.assertIn("&lt;boom&gt;", text)
+
+
+class _UpdaterHost(SettingsSlots):
+    """The slot class with ``ecosystem_dists`` PINNED: the real one reads this
+    interpreter's installed metadata (``Tcl.declared_dists``), so leaving it live
+    would make every updater assertion depend on what the test host has installed.
+    The derivation itself is covered by :class:`TestEcosystemDistsDerivation`.
     """
 
     #: A Maya install: base deps + Maya's engine extra + self. No ``blendertk``.
     DISTS = ("pythontk", "uitk", "mayatk", "tentacletk")
 
-    def __init__(self, sb, dists=None):
+    def __init__(self, sb, dists=None):  # no QObject / loaded .ui needed here
         self.sb = sb
         self._dists = self.DISTS if dists is None else dists
 
@@ -196,17 +189,15 @@ class _UpdaterHost(SettingsMixin):
         self.seen_installed = installed  # the real one uses it; pin that it arrives
         return self._dists
 
-    def _update_python_path(self):
-        return "python"
-
 
 class _FakePkgMgr:
     installed = {}
     latest = {}
     updated_with = None
+    python_path = None
 
     def __init__(self, python_path=None):
-        self.python_path = python_path
+        type(self).python_path = python_path
 
     def list_packages(self):
         return dict(type(self).installed)
@@ -220,12 +211,9 @@ class _FakePkgMgr:
 
 
 class TestCheckForUpdate(unittest.TestCase):
-    """The updater diffs the WHOLE ecosystem, not just tentacletk.
-
-    A fix routinely ships as a dependency patch release with no tentacletk
-    bump, and pip's only-if-needed upgrade strategy leaves satisfied pins
-    untouched — the old single-dist check answered "already the latest
-    version" while e.g. uitk went stale (dep-blind regression, 2026-08-06).
+    """The updater diffs the WHOLE ecosystem, not just tentacletk: a fix routinely
+    ships as a dependency patch with no tentacletk bump, and pip's only-if-needed
+    strategy leaves satisfied pins untouched (dep-blind regression, 2026-08-06).
     """
 
     ALL_CURRENT = {d: "1.0" for d in _UpdaterHost.DISTS}
@@ -234,10 +222,14 @@ class TestCheckForUpdate(unittest.TestCase):
         _FakePkgMgr.installed = installed
         _FakePkgMgr.latest = latest
         _FakePkgMgr.updated_with = None
-        sb = _FakeSb(answer=answer)
-        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+        sb = _FakeSb(answer=answer, python="C:/maya/bin/mayapy.exe")
+        with patch("tentacle.slots.settings.ptk.PackageManager", _FakePkgMgr):
             _UpdaterHost(sb).check_for_update()
         return sb
+
+    def test_pip_runs_through_the_hosts_interpreter(self):
+        self._run(dict(self.ALL_CURRENT), dict(self.ALL_CURRENT))
+        self.assertEqual(_FakePkgMgr.python_path, "C:/maya/bin/mayapy.exe")
 
     def test_stale_dependency_is_detected_without_a_tentacletk_bump(self):
         latest = dict(self.ALL_CURRENT)
@@ -271,16 +263,12 @@ class TestCheckForUpdate(unittest.TestCase):
         self.assertEqual(_FakePkgMgr.updated_with, "mayatk")
 
     def test_an_unreachable_lookup_is_not_reported_as_outdated(self):
-        """A failed index lookup comes back None; comparing installed != None
-        would offer a bogus "update" to a version that was never read."""
         latest = dict(self.ALL_CURRENT)
         del latest["uitk"]  # lookup failed for this one only
         self._run(dict(self.ALL_CURRENT), latest)
         self.assertIsNone(_FakePkgMgr.updated_with)
 
     def test_every_lookup_failing_reports_a_failure_not_all_current(self):
-        """If nothing resolved, the check failed — saying "already the latest
-        version" would be a confident claim built on zero information."""
         sb = self._run(dict(self.ALL_CURRENT), {})
         self.assertIsNone(_FakePkgMgr.updated_with)
         self.assertTrue(any("failed" in text for text, _b in sb.boxes))
@@ -290,7 +278,7 @@ class TestCheckForUpdate(unittest.TestCase):
         _FakePkgMgr.installed = dict(self.ALL_CURRENT)
         _FakePkgMgr.latest = dict(self.ALL_CURRENT)
         sb = _FakeSb()
-        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+        with patch("tentacle.slots.settings.ptk.PackageManager", _FakePkgMgr):
             with patch.object(
                 _FakePkgMgr, "list_packages", side_effect=RuntimeError("no network")
             ):
@@ -298,9 +286,8 @@ class TestCheckForUpdate(unittest.TestCase):
         self.assertTrue(any("failed" in text for text, _b in sb.boxes))
 
     def test_dialog_buttons_are_qt_standard_names(self):
-        # MessageBox silently DROPS non-StandardButton names, leaving the
-        # dialog without its affirmative action — pin that the confirm dialog
-        # only ever uses real Qt names.
+        # MessageBox silently DROPS non-StandardButton names, leaving the dialog
+        # without its affirmative action.
         qt_names = {
             "Ok", "Open", "Save", "Cancel", "Close", "Discard", "Apply",
             "Reset", "RestoreDefaults", "Help", "SaveAll", "Yes", "YesToAll",
@@ -314,26 +301,20 @@ class TestCheckForUpdate(unittest.TestCase):
 
 
 class TestEcosystemDistsDerivation(unittest.TestCase):
-    """The updater's dist list is DERIVED per host, not hardcoded.
-
-    The engines are extras, so a Maya install has no ``blendertk``. A hardcoded list
-    naming both made the updater read the absent one as ``installed=None != latest``,
-    report "blendertk not installed -> X.Y.Z", and pip-install the other DCC's engine
-    into mayapy on the next update click.
-    """
+    """The updater's dist list is DERIVED per host, not hardcoded: the engines are
+    extras, so a Maya install has no ``blendertk``, and a hardcoded list naming
+    both made the updater pip-install the other DCC's engine into mayapy."""
 
     def test_the_hosts_engine_is_included_and_the_others_is_not(self):
-        """Drives the REAL derivation against the REAL metadata — only the detected host
-        is faked. Stubbing ``declared_dists`` here would assert nothing but the stub."""
         from tentacle.tcl import Tcl
 
         if not Tcl._requires():
             self.skipTest("no installed metadata (source checkout)")
 
         with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
-            maya = SettingsMixin.ecosystem_dists()
+            maya = SettingsSlots.ecosystem_dists()
         with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "blender")):
-            blender = SettingsMixin.ecosystem_dists()
+            blender = SettingsSlots.ecosystem_dists()
 
         self.assertIn("mayatk", maya)
         self.assertNotIn("blendertk", maya)
@@ -341,9 +322,6 @@ class TestEcosystemDistsDerivation(unittest.TestCase):
         self.assertNotIn("mayatk", blender)
 
     def test_an_already_installed_foreign_engine_keeps_being_maintained(self):
-        """The upgrade path for the ENTIRE existing user base: today's release hard-pins
-        both engines, so every Maya install already has a `blendertk` sitting in mayapy.
-        Dropping it from the check would freeze it at its installed version forever."""
         from tentacle.tcl import Tcl
 
         if not Tcl._requires():
@@ -356,27 +334,22 @@ class TestEcosystemDistsDerivation(unittest.TestCase):
             "tentacletk": "1.0",
         }
         with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
-            dists = SettingsMixin.ecosystem_dists(installed)
+            dists = SettingsSlots.ecosystem_dists(installed)
         self.assertIn("blendertk", dists)
         self.assertIn("mayatk", dists)
 
     def test_an_absent_foreign_engine_is_never_added(self):
-        """The bug this whole change fixes: a Maya install must not be told the Blender
-        engine is "not installed -> X.Y.Z" and have pip fetch it into mayapy."""
         from tentacle.tcl import Tcl
 
         if not Tcl._requires():
             self.skipTest("no installed metadata (source checkout)")
         installed = {"pythontk": "1.0", "uitk": "1.0", "mayatk": "1.0", "tentacletk": "1.0"}
         with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
-            self.assertNotIn("blendertk", SettingsMixin.ecosystem_dists(installed))
-        # ...and with no installed map at all, still never speculatively added
+            self.assertNotIn("blendertk", SettingsSlots.ecosystem_dists(installed))
         with patch("tentacle.tcl.Tcl.host", classmethod(lambda cls: "maya")):
-            self.assertNotIn("blendertk", SettingsMixin.ecosystem_dists())
+            self.assertNotIn("blendertk", SettingsSlots.ecosystem_dists())
 
     def test_the_updater_passes_the_installed_map_through(self):
-        """If `check_for_update` stopped forwarding it, the foreign-engine rule above
-        would be unreachable and every existing install would silently lose coverage."""
         seen = {}
 
         class _Host(_UpdaterHost):
@@ -386,47 +359,55 @@ class TestEcosystemDistsDerivation(unittest.TestCase):
 
         _FakePkgMgr.installed = {"pythontk": "1.0", "tentacletk": "1.0"}
         _FakePkgMgr.latest = {"pythontk": "1.0", "tentacletk": "1.0"}
-        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+        with patch("tentacle.slots.settings.ptk.PackageManager", _FakePkgMgr):
             _Host(_FakeSb()).check_for_update()
         self.assertEqual(seen["installed"], {"pythontk": "1.0", "tentacletk": "1.0"})
 
     def test_the_static_fallback_names_no_engine_at_all(self):
-        """Reached when metadata is unreadable and the host is unknown — naming either
-        engine there would reintroduce the bug for exactly the users who hit it."""
-        self.assertNotIn("mayatk", SettingsMixin.ECOSYSTEM_DISTS)
-        self.assertNotIn("blendertk", SettingsMixin.ECOSYSTEM_DISTS)
-        self.assertIn("tentacletk", SettingsMixin.ECOSYSTEM_DISTS)
+        self.assertNotIn("mayatk", SettingsSlots.ECOSYSTEM_DISTS)
+        self.assertNotIn("blendertk", SettingsSlots.ECOSYSTEM_DISTS)
+        self.assertIn("tentacletk", SettingsSlots.ECOSYSTEM_DISTS)
 
     def test_empty_metadata_falls_back_instead_of_checking_nothing(self):
-        """A source checkout has no metadata. An empty list would make the updater
-        silently check zero packages and report "could not reach the package index"."""
         with patch("tentacle.tcl.Tcl.declared_dists", return_value=()):
             self.assertEqual(
-                SettingsMixin.ecosystem_dists(), SettingsMixin.ECOSYSTEM_DISTS
+                SettingsSlots.ecosystem_dists(), SettingsSlots.ECOSYSTEM_DISTS
             )
 
     def test_an_unimportable_launcher_falls_back(self):
         with patch("tentacle.tcl.Tcl.declared_dists", side_effect=RuntimeError("boom")):
             self.assertEqual(
-                SettingsMixin.ecosystem_dists(), SettingsMixin.ECOSYSTEM_DISTS
+                SettingsSlots.ecosystem_dists(), SettingsSlots.ECOSYSTEM_DISTS
             )
 
     def test_the_updater_consumes_the_derived_list_not_the_constant(self):
-        """Pins the wiring: if ``check_for_update`` reverted to reading the class
-        constant, the per-host derivation would be dead code and the bug would return.
-
-        The derived list must contain a dist the CONSTANT does not, and that dist must
-        be the outdated one — otherwise the assertion passes under either wiring.
-        """
-        self.assertNotIn("mayatk", SettingsMixin.ECOSYSTEM_DISTS)  # fixture premise
+        """If ``check_for_update`` reverted to reading the class constant, the
+        per-host derivation would be dead code: the derived list must hold a dist
+        the CONSTANT does not, and that dist must be the outdated one."""
+        self.assertNotIn("mayatk", SettingsSlots.ECOSYSTEM_DISTS)  # fixture premise
 
         host = _UpdaterHost(_FakeSb(), dists=("pythontk", "mayatk", "tentacletk"))
         _FakePkgMgr.installed = {"pythontk": "1.0", "mayatk": "1.0", "tentacletk": "1.0"}
         _FakePkgMgr.latest = {"pythontk": "1.0", "mayatk": "2.0", "tentacletk": "1.0"}
         _FakePkgMgr.updated_with = None
-        with patch("tentacle.slots._settings.ptk.PackageManager", _FakePkgMgr):
+        with patch("tentacle.slots.settings.ptk.PackageManager", _FakePkgMgr):
             host.check_for_update()
         self.assertEqual(_FakePkgMgr.updated_with, "mayatk")
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestUpdaterInMaya(unittest.TestCase):
+    """Over the real ``mtk``, pip runs through this Maya's mayapy."""
+
+    def test_the_interpreter_is_mayapy(self):
+        mtk = maya_module("mayatk")
+        sb = _FakeSb()
+        sb.tk = mtk
+        _FakePkgMgr.installed = {d: "1.0" for d in _UpdaterHost.DISTS}
+        _FakePkgMgr.latest = dict(_FakePkgMgr.installed)
+        with patch("tentacle.slots.settings.ptk.PackageManager", _FakePkgMgr):
+            _UpdaterHost(sb).check_for_update()
+        self.assertEqual(_FakePkgMgr.python_path, mtk.EnvUtils.get_env_info("mayapy"))
 
 
 if __name__ == "__main__":

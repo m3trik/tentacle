@@ -10,13 +10,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class AnimationMixin`
   - methods: list000_init
 
-### `slots/_edit.py` — Shared, DCC-agnostic behavior for the ``edit`` panel.
-- `class EditMixin`
-  - methods: mesh_cleanup_tooltip, cleanup_popup_html, cleanup_console_report, report_cleanup_failure, cmb000_init
-
-### `slots/_main.py` — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
-- `class MainMixin`
-
 ### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - `class MaterialsMixin`
   - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, txt000_init, b006_init, b006, b033, b014, header_init, b003, list001_init
@@ -24,14 +17,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/_nurbs.py` — Behavior shared by the Maya and Blender ``nurbs`` panels.
 - `class NurbsMixin`
   - methods: list000_init
-
-### `slots/_pivot.py` — Behavior shared by the Maya and Blender ``pivot`` panels.
-- `class PivotMixin`
-  - methods: b000, b001, b002
-
-### `slots/_preferences.py` — Shared, DCC-agnostic behavior for the ``preferences`` panel.
-- `class PreferencesMixin`
-  - methods: cmb004_init, cmb004, cmb005_init, cmb005, cmb006_init, cmb006, header_init, tb000, b011
 
 ### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - `class RenderingMixin`
@@ -46,10 +31,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/_selection.py` — Behavior shared by the Maya and Blender ``selection`` panels.
 - `class SelectionMixin`
   - methods: list001_init, tb004
-
-### `slots/_settings.py` — Shared, DCC-agnostic behavior for the ``settings`` panel.
-- `class SettingsMixin`
-  - methods: ecosystem_dists, header_init, tb000, check_for_update, b020, b021, b022, b023, b024, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
@@ -74,18 +55,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
 
-### `slots/blender/edit.py`
-- `class EditSlots(EditMixin, SlotsBlender)`
-  - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000, tb001_init, tb001, tb004_init, tb004
-
-### `slots/blender/editors.py`
-- `class EditorsSlots(SlotsBlender)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006_init, b006, b007_init, b007, b008_init, b008, b009, b010, b011, b012_init, b012, b013_init, b013
-
-### `slots/blender/main.py`
-- `class MainSlots(MainMixin, SlotsBlender)`
-  - methods: list000_init, list000
-
 ### `slots/blender/materials.py`
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
   - methods: b_shader_editor, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b004, b013, b015, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
@@ -94,17 +63,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NurbsSlots(NurbsMixin, SlotsBlender)`
   - methods: b058, tb000_init, tb000, tb001_init, tb001, list000, b030, b056
 
-### `slots/blender/pivot.py`
-- `class PivotSlots(PivotMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b004
-
 ### `slots/blender/polygons.py`
 - `class PolygonsSlots(SlotsBlender)`
   - methods: header_init, tb000_init, tb000, b005, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b001, b003, b006, b007, b008, b009, b011, b012, b022, b032, b047, b051, b043, b000, b053, b034, b038_init, b038, b049
-
-### `slots/blender/preferences.py`
-- `class PreferencesSlots(PreferencesMixin, SlotsBlender)`
-  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010
 
 ### `slots/blender/rendering.py`
 - `class RenderingSlots(RenderingMixin, SlotsBlender)`
@@ -121,10 +82,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/selection.py`
 - `class SelectionSlots(SelectionMixin, SlotsBlender)`
   - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, list001, chk004_init, chk004, chk005_init, chk006_init, chk007_init, chk005, chk006, chk007, b001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, cmb002_init, cmb002, cmb001_init, cmb001, list000_init, tb004_init, list000
-
-### `slots/blender/settings.py`
-- `class SettingsSlots(SettingsMixin, SlotsBlender)`
-  - methods: tb001
 
 ### `slots/blender/subdivision.py`
 - `class SubdivisionSlots(SlotsBlender)`
@@ -158,6 +115,14 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class DuplicateSlots(Slots)`
   - methods: header_init, tb002_init, tb002, tb000_init, tb000, tb001_init, tb001, b005, b000, b006, b007, b008
 
+### `slots/edit.py` — Edit: one Slots class for both hosts.
+- `class EditSlots(Slots)`
+  - methods: header_init, b_channels, b000, mesh_cleanup_tooltip, tb000_init, tb000, cleanup_popup_html, cleanup_console_report, report_cleanup_failure, tb001_init, tb001, tb005_init, tb005, tb002, tb004_init, tb004, list000_init, list000, list001_init, list001, cmb000_init, cmb000
+
+### `slots/editors.py` — Editors: the editor buttons and the All Editors list, one Slots class for both hosts.
+- `class EditorsSlots(Slots)`
+  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b014, b015, b016, b017, b018, b007, b008, b009, b010, b011, b012, b013
+
 ### `slots/hud.py` — HUD: one Slots class for both hosts.
 - `class HudSlots(Slots)`
   - methods: hudTextEdit_init, request_hud_build, construct_hud, insert_scene_status, insert_selection_info, insert_component_info, evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
@@ -165,6 +130,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/lighting.py` — Lighting: one Slots class for both hosts.
 - `class LightingSlots(Slots)`
   - methods: b000, b001, b002, tb000_init, tb000
+
+### `slots/main.py` — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
+- `class MainSlots(Slots)`
+  - methods: list000_init, list000
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -192,16 +161,8 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/deform.py`
 - `class DeformSlots(SlotsMaya)`
 
-### `slots/maya/edit.py`
-- `class EditSlots(EditMixin, SlotsMaya)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb002, tb004_init, tb004, b_channels, b000, list000_init, list000, list001_init, list001, cmb000
-
 ### `slots/maya/edit_mesh.py`
 - `class EditMeshSlots(SlotsMaya)`
-
-### `slots/maya/editors.py`
-- `class EditorsSlots(SlotsMaya)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b008, b009, b010, b011, b012, b013, getEditorWidget
 
 ### `slots/maya/effects.py`
 - `class EffectsSlots(SlotsMaya)`
@@ -223,10 +184,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/lighting_shading.py`
 - `class LightingShadingSlots(SlotsMaya)`
-
-### `slots/maya/main.py`
-- `class MainSlots(MainMixin, SlotsMaya)`
-  - methods: list000_init, list000
 
 ### `slots/maya/mash.py`
 - `class MashSlots(SlotsMaya)`
@@ -260,20 +217,12 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NurbsSlots(NurbsMixin, SlotsMaya)`
   - methods: list000, b056, b058, tb000_init, tb000, tb001_init, tb001, b016, b030
 
-### `slots/maya/pivot.py`
-- `class PivotSlots(PivotMixin, SlotsMaya)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b004
-
 ### `slots/maya/playback.py`
 - `class PlaybackSlots(SlotsMaya)`
 
 ### `slots/maya/polygons.py`
 - `class PolygonsSlots(SlotsMaya)`
   - methods: header_init, chk008, chk009, chk010, tb000_init, tb000, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, b000, b001, b003, b005, b006, b007, b008, b009, b011, b012, b022, b032, b034, b038, b043, b047, b049, b051, b053
-
-### `slots/maya/preferences.py`
-- `class PreferencesSlots(PreferencesMixin, SlotsMaya)`
-  - methods: cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, b001, cmb003_init, cmb003, b008, b009, b010
 
 ### `slots/maya/render.py`
 - `class RenderSlots(SlotsMaya)`
@@ -296,10 +245,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/selection.py`
 - `class SelectionSlots(SelectionMixin, SlotsMaya)`
   - methods: list000_init, list000, tb004_init, cmb002_init, cmb002, cmb001_init, cmb001, list001, b002_init, b002, b003_init, b003, b004_init, b004, b005_init, b005, b006_init, b006, b007_init, b007, chk000, chk001, chk002, chk005_init, chk005, chk006, chk007, chk004, chkxxx, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, b001, get_selection_tool, set_selection_tool
-
-### `slots/maya/settings.py`
-- `class SettingsSlots(SettingsMixin, SlotsMaya)`
-  - methods: tb001
 
 ### `slots/maya/skeleton.py`
 - `class SkeletonSlots(SlotsMaya)`
@@ -340,6 +285,18 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/normals.py` — Normals: one Slots class for both hosts.
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
+
+### `slots/pivot.py` — Pivot: one Slots class for both hosts.
+- `class PivotSlots(Slots)`
+  - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b002, tb002_init, tb002, tb003_init, tb003, b004
+
+### `slots/preferences.py` — Preferences: one Slots class for both hosts.
+- `class PreferencesSlots(Slots)`
+  - methods: cmb004_init, cmb004, cmb005_init, cmb005, cmb006_init, cmb006, header_init, tb000, cmb001_init, cmb001, cmb002_init, cmb002, s000_init, s001_init, cmb003_init, cmb003, b001, b008, b009, b010, b011
+
+### `slots/settings.py` — Settings: one Slots class for both hosts.
+- `class SettingsSlots(Slots)`
+  - methods: ecosystem_dists, header_init, tb000, tb001, check_for_update, b020, b021, b022, b023, b024, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
 
 ### `slots/symmetry.py` — Symmetry: one Slots class for both hosts.
 - `class SymmetrySlots(Slots)`
@@ -744,7 +701,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, chord_bindings, banner, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, chord_bindings, banner, launch, reload, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

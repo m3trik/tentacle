@@ -190,7 +190,7 @@ def find_mel_string_constants(source: str) -> List[Tuple[int, str]]:
     """Return MEL-shaped string literals that live inside dict/list values
     at module or class scope.
 
-    Catches the ``_CONVERT_COMMANDS`` pattern: a constant table of MEL
+    Catches the dispatch-table pattern (e.g. mayatk ``EditUtils._CONVERSIONS``): a constant table of MEL
     snippets later passed to ``mel.eval(cmd)`` where ``cmd`` is a runtime
     lookup the AST scanner cannot follow.
 

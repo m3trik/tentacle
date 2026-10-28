@@ -2,10 +2,15 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (28)
+## Removed (34)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
+- `slots/blender/editors.py::EditorsSlots.b006_init` — was `(self, widget)`
+- `slots/blender/editors.py::EditorsSlots.b007_init` — was `(self, widget)`
+- `slots/blender/editors.py::EditorsSlots.b008_init` — was `(self, widget)`
+- `slots/blender/editors.py::EditorsSlots.b012_init` — was `(self, widget)`
+- `slots/blender/editors.py::EditorsSlots.b013_init` — was `(self, widget)`
 - `slots/blender/hud.py::HudSelectionMixin` — was `(class)`
 - `slots/blender/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, active) -> None`
 - `slots/blender/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
@@ -28,6 +33,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/display.py::DisplaySlots.b022` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b023` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b024` — was `(self)`
+- `slots/maya/editors.py::EditorsSlots.getEditorWidget` — was `(self, name)`
 - `slots/maya/hud.py::HudSelectionMixin` — was `(class)`
 - `slots/maya/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, selection) -> None`
 - `slots/maya/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
@@ -35,13 +41,19 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/maya/hud.py::WarningsMixin` — was `(class)`
 
-## Moved out (15)
+## Moved out (52)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.list000_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_duplicate.py::DuplicateMixin` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
 - `slots/_duplicate.py::DuplicateMixin.header_init` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cleanup_console_report` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cleanup_popup_html` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.cmb000_init` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.mesh_cleanup_tooltip` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
+- `slots/_edit.py::EditMixin.report_cleanup_failure` → `tentacle.slots.edit.EditSlots` (from 0.17.0)
 - `slots/_hud_warnings.py::HudWarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
 - `slots/_hud_warnings.py::HudWarningsMixin.evaluate_warnings` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
 - `slots/_hud_warnings.py::HudWarningsMixin.hudTextEdit_init` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
@@ -50,10 +62,41 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_hud_warnings.py::HudWarningsMixin.insert_warning_icons` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
 - `slots/_lighting.py::LightingMixin` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
 - `slots/_lighting.py::LightingMixin.kelvin_tooltip` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/_main.py::MainMixin` → `tentacle.slots.main.MainSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b000` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b001` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_pivot.py::PivotMixin.b002` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.b011` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb004` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb004_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb005` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb005_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb006` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.cmb006_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.header_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_preferences.py::PreferencesMixin.tb000` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b020` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b021` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b022` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b023` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b024` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.b_reset_bindings` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.check_for_update` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_default_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_left_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_left_right_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_middle_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.cmb_bind_right_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.ecosystem_dists` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.header_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_settings.py::SettingsMixin.tb000` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 
-## Added (1192)
+## Added (1293)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -101,6 +144,51 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/duplicate.py::DuplicateSlots.tb001_init(self, widget)`
 - `slots/duplicate.py::DuplicateSlots.tb002(self, widget)`
 - `slots/duplicate.py::DuplicateSlots.tb002_init(self, widget)`
+- `slots/edit.py::EditSlots(class)`
+- `slots/edit.py::EditSlots.b000(self)`
+- `slots/edit.py::EditSlots.b_channels(self)`
+- `slots/edit.py::EditSlots.cleanup_console_report(self, title, lines)`
+- `slots/edit.py::EditSlots.cleanup_popup_html(header, rows)`
+- `slots/edit.py::EditSlots.cmb000(self, index, widget)`
+- `slots/edit.py::EditSlots.cmb000_init(self, widget)`
+- `slots/edit.py::EditSlots.header_init(self, widget)`
+- `slots/edit.py::EditSlots.list000(self, item)`
+- `slots/edit.py::EditSlots.list000_init(self, widget)`
+- `slots/edit.py::EditSlots.list001(self, item)`
+- `slots/edit.py::EditSlots.list001_init(self, widget)`
+- `slots/edit.py::EditSlots.mesh_cleanup_tooltip(self)`
+- `slots/edit.py::EditSlots.report_cleanup_failure(self, scope, mode, error)`
+- `slots/edit.py::EditSlots.tb000(self, widget)`
+- `slots/edit.py::EditSlots.tb000_init(self, widget)`
+- `slots/edit.py::EditSlots.tb001(self, widget)`
+- `slots/edit.py::EditSlots.tb001_init(self, widget)`
+- `slots/edit.py::EditSlots.tb002(self, widget)`
+- `slots/edit.py::EditSlots.tb004(self, widget)`
+- `slots/edit.py::EditSlots.tb004_init(self, widget)`
+- `slots/edit.py::EditSlots.tb005(self, widget)`
+- `slots/edit.py::EditSlots.tb005_init(self, widget)`
+- `slots/editors.py::EditorsSlots(class)`
+- `slots/editors.py::EditorsSlots.b000(self)`
+- `slots/editors.py::EditorsSlots.b001(self)`
+- `slots/editors.py::EditorsSlots.b002(self)`
+- `slots/editors.py::EditorsSlots.b003(self)`
+- `slots/editors.py::EditorsSlots.b004(self)`
+- `slots/editors.py::EditorsSlots.b005(self)`
+- `slots/editors.py::EditorsSlots.b006(self)`
+- `slots/editors.py::EditorsSlots.b007(self)`
+- `slots/editors.py::EditorsSlots.b008(self)`
+- `slots/editors.py::EditorsSlots.b009(self)`
+- `slots/editors.py::EditorsSlots.b010(self)`
+- `slots/editors.py::EditorsSlots.b011(self)`
+- `slots/editors.py::EditorsSlots.b012(self)`
+- `slots/editors.py::EditorsSlots.b013(self)`
+- `slots/editors.py::EditorsSlots.b014(self)`
+- `slots/editors.py::EditorsSlots.b015(self)`
+- `slots/editors.py::EditorsSlots.b016(self)`
+- `slots/editors.py::EditorsSlots.b017(self)`
+- `slots/editors.py::EditorsSlots.b018(self)`
+- `slots/editors.py::EditorsSlots.list000(self, item)`
+- `slots/editors.py::EditorsSlots.list000_init(self, widget)`
 - `slots/hud.py::HudSlots(class)`
 - `slots/hud.py::HudSlots.construct_hud(self) -> None`
 - `slots/hud.py::HudSlots.evaluate_warnings(self) -> list`
@@ -118,6 +206,9 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/lighting.py::LightingSlots.b002(self)`
 - `slots/lighting.py::LightingSlots.tb000(self, widget)`
 - `slots/lighting.py::LightingSlots.tb000_init(self, widget)`
+- `slots/main.py::MainSlots(class)`
+- `slots/main.py::MainSlots.list000(self, item)`
+- `slots/main.py::MainSlots.list000_init(self, widget)`
 - `slots/normals.py::NormalsSlots(class)`
 - `slots/normals.py::NormalsSlots.b000(self)`
 - `slots/normals.py::NormalsSlots.b001(self)`
@@ -130,6 +221,58 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/pivot.py::PivotSlots(class)`
+- `slots/pivot.py::PivotSlots.b000(self)`
+- `slots/pivot.py::PivotSlots.b001(self)`
+- `slots/pivot.py::PivotSlots.b002(self, widget)`
+- `slots/pivot.py::PivotSlots.b004(self)`
+- `slots/pivot.py::PivotSlots.tb000(self, widget)`
+- `slots/pivot.py::PivotSlots.tb000_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb001(self, widget)`
+- `slots/pivot.py::PivotSlots.tb001_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb002(self, widget)`
+- `slots/pivot.py::PivotSlots.tb002_init(self, widget)`
+- `slots/pivot.py::PivotSlots.tb003(self, widget)`
+- `slots/pivot.py::PivotSlots.tb003_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots(class)`
+- `slots/preferences.py::PreferencesSlots.b001(self)`
+- `slots/preferences.py::PreferencesSlots.b008(self)`
+- `slots/preferences.py::PreferencesSlots.b009(self)`
+- `slots/preferences.py::PreferencesSlots.b010(self)`
+- `slots/preferences.py::PreferencesSlots.b011(self)`
+- `slots/preferences.py::PreferencesSlots.cmb001(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb001_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb002(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb002_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb003(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb003_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb004(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb004_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb005(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb005_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb006(self, index, widget)`
+- `slots/preferences.py::PreferencesSlots.cmb006_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.header_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.s000_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.s001_init(self, widget)`
+- `slots/preferences.py::PreferencesSlots.tb000(self)`
+- `slots/settings.py::SettingsSlots(class)`
+- `slots/settings.py::SettingsSlots.b020(self)`
+- `slots/settings.py::SettingsSlots.b021(self)`
+- `slots/settings.py::SettingsSlots.b022(self)`
+- `slots/settings.py::SettingsSlots.b023(self)`
+- `slots/settings.py::SettingsSlots.b024(self)`
+- `slots/settings.py::SettingsSlots.b_reset_bindings(self)`
+- `slots/settings.py::SettingsSlots.check_for_update(self)`
+- `slots/settings.py::SettingsSlots.cmb_bind_default_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_left_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_left_right_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_middle_init(self, widget)`
+- `slots/settings.py::SettingsSlots.cmb_bind_right_init(self, widget)`
+- `slots/settings.py::SettingsSlots.ecosystem_dists(cls, installed=None)`
+- `slots/settings.py::SettingsSlots.header_init(self, widget)`
+- `slots/settings.py::SettingsSlots.tb000(self)`
+- `slots/settings.py::SettingsSlots.tb001(self)`
 - `slots/symmetry.py::SymmetrySlots(class)`
 - `slots/symmetry.py::SymmetrySlots.chk000(self, state, widget)`
 - `slots/symmetry.py::SymmetrySlots.chk000_init(self, widget)`
@@ -1246,9 +1389,10 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/utilities.py::UtilitiesSlots.b002(self)`
 - `slots/utilities.py::UtilitiesSlots.b003(self)`
 - `tcl.py::Tcl.register_shared(switchboard)`
+- `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (145)
+## Moved (267)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1290,6 +1434,39 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/duplicate.py::DuplicateSlots.tb001_init`
 - `slots/blender/duplicate.py::DuplicateSlots.tb002`
 - `slots/blender/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/blender/edit.py::EditSlots`
+- `slots/blender/edit.py::EditSlots.b000`
+- `slots/blender/edit.py::EditSlots.b_channels`
+- `slots/blender/edit.py::EditSlots.cmb000`
+- `slots/blender/edit.py::EditSlots.header_init`
+- `slots/blender/edit.py::EditSlots.list000`
+- `slots/blender/edit.py::EditSlots.list000_init`
+- `slots/blender/edit.py::EditSlots.list001`
+- `slots/blender/edit.py::EditSlots.list001_init`
+- `slots/blender/edit.py::EditSlots.tb000`
+- `slots/blender/edit.py::EditSlots.tb000_init`
+- `slots/blender/edit.py::EditSlots.tb001`
+- `slots/blender/edit.py::EditSlots.tb001_init`
+- `slots/blender/edit.py::EditSlots.tb002`
+- `slots/blender/edit.py::EditSlots.tb004`
+- `slots/blender/edit.py::EditSlots.tb004_init`
+- `slots/blender/editors.py::EditorsSlots`
+- `slots/blender/editors.py::EditorsSlots.b000`
+- `slots/blender/editors.py::EditorsSlots.b001`
+- `slots/blender/editors.py::EditorsSlots.b002`
+- `slots/blender/editors.py::EditorsSlots.b003`
+- `slots/blender/editors.py::EditorsSlots.b004`
+- `slots/blender/editors.py::EditorsSlots.b005`
+- `slots/blender/editors.py::EditorsSlots.b006`
+- `slots/blender/editors.py::EditorsSlots.b007`
+- `slots/blender/editors.py::EditorsSlots.b008`
+- `slots/blender/editors.py::EditorsSlots.b009`
+- `slots/blender/editors.py::EditorsSlots.b010`
+- `slots/blender/editors.py::EditorsSlots.b011`
+- `slots/blender/editors.py::EditorsSlots.b012`
+- `slots/blender/editors.py::EditorsSlots.b013`
+- `slots/blender/editors.py::EditorsSlots.list000`
+- `slots/blender/editors.py::EditorsSlots.list000_init`
 - `slots/blender/hud.py::HudSlots`
 - `slots/blender/hud.py::HudSlots.construct_hud`
 - `slots/blender/hud.py::HudSlots.request_hud_build`
@@ -1299,6 +1476,9 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/lighting.py::LightingSlots.b002`
 - `slots/blender/lighting.py::LightingSlots.tb000`
 - `slots/blender/lighting.py::LightingSlots.tb000_init`
+- `slots/blender/main.py::MainSlots`
+- `slots/blender/main.py::MainSlots.list000`
+- `slots/blender/main.py::MainSlots.list000_init`
 - `slots/blender/normals.py::NormalsSlots`
 - `slots/blender/normals.py::NormalsSlots.b000`
 - `slots/blender/normals.py::NormalsSlots.b001`
@@ -1310,6 +1490,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/normals.py::NormalsSlots.tb004`
 - `slots/blender/normals.py::NormalsSlots.tb004_init`
 - `slots/blender/normals.py::NormalsSlots.tb010`
+- `slots/blender/pivot.py::PivotSlots`
+- `slots/blender/pivot.py::PivotSlots.b004`
+- `slots/blender/pivot.py::PivotSlots.tb000`
+- `slots/blender/pivot.py::PivotSlots.tb000_init`
+- `slots/blender/pivot.py::PivotSlots.tb001`
+- `slots/blender/pivot.py::PivotSlots.tb001_init`
+- `slots/blender/pivot.py::PivotSlots.tb002`
+- `slots/blender/pivot.py::PivotSlots.tb002_init`
+- `slots/blender/pivot.py::PivotSlots.tb003`
+- `slots/blender/pivot.py::PivotSlots.tb003_init`
+- `slots/blender/preferences.py::PreferencesSlots`
+- `slots/blender/preferences.py::PreferencesSlots.b001`
+- `slots/blender/preferences.py::PreferencesSlots.b008`
+- `slots/blender/preferences.py::PreferencesSlots.b009`
+- `slots/blender/preferences.py::PreferencesSlots.b010`
+- `slots/blender/preferences.py::PreferencesSlots.cmb001`
+- `slots/blender/preferences.py::PreferencesSlots.cmb001_init`
+- `slots/blender/preferences.py::PreferencesSlots.cmb002`
+- `slots/blender/preferences.py::PreferencesSlots.cmb002_init`
+- `slots/blender/preferences.py::PreferencesSlots.cmb003`
+- `slots/blender/preferences.py::PreferencesSlots.cmb003_init`
+- `slots/blender/preferences.py::PreferencesSlots.s000_init`
+- `slots/blender/preferences.py::PreferencesSlots.s001_init`
+- `slots/blender/settings.py::SettingsSlots`
+- `slots/blender/settings.py::SettingsSlots.tb001`
 - `slots/blender/symmetry.py::SymmetrySlots`
 - `slots/blender/symmetry.py::SymmetrySlots.chk000`
 - `slots/blender/symmetry.py::SymmetrySlots.chk000_init`
@@ -1364,6 +1569,39 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/duplicate.py::DuplicateSlots.tb001_init`
 - `slots/maya/duplicate.py::DuplicateSlots.tb002`
 - `slots/maya/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/maya/edit.py::EditSlots`
+- `slots/maya/edit.py::EditSlots.b000`
+- `slots/maya/edit.py::EditSlots.b_channels`
+- `slots/maya/edit.py::EditSlots.cmb000`
+- `slots/maya/edit.py::EditSlots.header_init`
+- `slots/maya/edit.py::EditSlots.list000`
+- `slots/maya/edit.py::EditSlots.list000_init`
+- `slots/maya/edit.py::EditSlots.list001`
+- `slots/maya/edit.py::EditSlots.list001_init`
+- `slots/maya/edit.py::EditSlots.tb000`
+- `slots/maya/edit.py::EditSlots.tb000_init`
+- `slots/maya/edit.py::EditSlots.tb001`
+- `slots/maya/edit.py::EditSlots.tb001_init`
+- `slots/maya/edit.py::EditSlots.tb002`
+- `slots/maya/edit.py::EditSlots.tb004`
+- `slots/maya/edit.py::EditSlots.tb004_init`
+- `slots/maya/editors.py::EditorsSlots`
+- `slots/maya/editors.py::EditorsSlots.b000`
+- `slots/maya/editors.py::EditorsSlots.b001`
+- `slots/maya/editors.py::EditorsSlots.b002`
+- `slots/maya/editors.py::EditorsSlots.b003`
+- `slots/maya/editors.py::EditorsSlots.b004`
+- `slots/maya/editors.py::EditorsSlots.b005`
+- `slots/maya/editors.py::EditorsSlots.b006`
+- `slots/maya/editors.py::EditorsSlots.b007`
+- `slots/maya/editors.py::EditorsSlots.b008`
+- `slots/maya/editors.py::EditorsSlots.b009`
+- `slots/maya/editors.py::EditorsSlots.b010`
+- `slots/maya/editors.py::EditorsSlots.b011`
+- `slots/maya/editors.py::EditorsSlots.b012`
+- `slots/maya/editors.py::EditorsSlots.b013`
+- `slots/maya/editors.py::EditorsSlots.list000`
+- `slots/maya/editors.py::EditorsSlots.list000_init`
 - `slots/maya/hud.py::HudSlots`
 - `slots/maya/hud.py::HudSlots.construct_hud`
 - `slots/maya/hud.py::HudSlots.request_hud_build`
@@ -1373,6 +1611,9 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/lighting.py::LightingSlots.b002`
 - `slots/maya/lighting.py::LightingSlots.tb000`
 - `slots/maya/lighting.py::LightingSlots.tb000_init`
+- `slots/maya/main.py::MainSlots`
+- `slots/maya/main.py::MainSlots.list000`
+- `slots/maya/main.py::MainSlots.list000_init`
 - `slots/maya/normals.py::NormalsSlots`
 - `slots/maya/normals.py::NormalsSlots.b000`
 - `slots/maya/normals.py::NormalsSlots.b001`
@@ -1384,6 +1625,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/normals.py::NormalsSlots.tb004`
 - `slots/maya/normals.py::NormalsSlots.tb004_init`
 - `slots/maya/normals.py::NormalsSlots.tb010`
+- `slots/maya/pivot.py::PivotSlots`
+- `slots/maya/pivot.py::PivotSlots.b004`
+- `slots/maya/pivot.py::PivotSlots.tb000`
+- `slots/maya/pivot.py::PivotSlots.tb000_init`
+- `slots/maya/pivot.py::PivotSlots.tb001`
+- `slots/maya/pivot.py::PivotSlots.tb001_init`
+- `slots/maya/pivot.py::PivotSlots.tb002`
+- `slots/maya/pivot.py::PivotSlots.tb002_init`
+- `slots/maya/pivot.py::PivotSlots.tb003`
+- `slots/maya/pivot.py::PivotSlots.tb003_init`
+- `slots/maya/preferences.py::PreferencesSlots`
+- `slots/maya/preferences.py::PreferencesSlots.b001`
+- `slots/maya/preferences.py::PreferencesSlots.b008`
+- `slots/maya/preferences.py::PreferencesSlots.b009`
+- `slots/maya/preferences.py::PreferencesSlots.b010`
+- `slots/maya/preferences.py::PreferencesSlots.cmb001`
+- `slots/maya/preferences.py::PreferencesSlots.cmb001_init`
+- `slots/maya/preferences.py::PreferencesSlots.cmb002`
+- `slots/maya/preferences.py::PreferencesSlots.cmb002_init`
+- `slots/maya/preferences.py::PreferencesSlots.cmb003`
+- `slots/maya/preferences.py::PreferencesSlots.cmb003_init`
+- `slots/maya/preferences.py::PreferencesSlots.s000_init`
+- `slots/maya/preferences.py::PreferencesSlots.s001_init`
+- `slots/maya/settings.py::SettingsSlots`
+- `slots/maya/settings.py::SettingsSlots.tb001`
 - `slots/maya/symmetry.py::SymmetrySlots`
 - `slots/maya/symmetry.py::SymmetrySlots.chk000`
 - `slots/maya/symmetry.py::SymmetrySlots.chk000_init`

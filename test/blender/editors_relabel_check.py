@@ -1,16 +1,17 @@
-"""GUI harness: the editors start-menu buttons relabel + open real editors (no dead links).
+"""GUI harness: the editors start menu shows Blender's buttons and hides Maya's (no dead links).
 
 Launch a **fresh** GUI Blender (never an existing session)::
 
     blender --factory-startup --python tentacle/test/blender/editors_relabel_check.py
 
-The five Maya buttons with no Blender analogue (Dependency Graph / Status Line / Shelf /
-Help Line / Tool Box) are relabeled per-DCC in ``EditorsSlots.bNNN_init`` to a substitute editor;
-the shared ``.ui`` keeps the Maya text for the Maya slot, so the relabel must happen live on
-the loaded widget. This shows the editors menu through the real ``tcl.show()`` path and reads
-the actual ``QPushButton.text()`` to prove the relabel took (and that kept buttons are
-untouched). Editor *opening* itself is proven separately (every ui_type opens — probe), so the
-no-dead-links guarantee is the headless check in ``deepened_slots_check.py``.
+The start menu's ``.ui`` is shared by both hosts. Maya's main-window chrome toggles and its
+Dependency Graph (``b006``/``b007``/``b008``/``b012``/``b013``) have no Blender counterpart, so the
+``.ui`` tags them ``requires="maya"``; the editors Blender shows in their place
+(``b014``-``b018``: Geometry Nodes, UV, Image, Graph and Text editors) are ``requires="blender"``.
+uitk's ``Switchboard.apply_visibility_policy`` hides a widget whose tag the host lacks. This shows
+the editors menu through the real ``tcl.show()`` path and reads each button's live visibility and
+label (the policy runs at registration, so only the loaded widget proves it). Editor *opening* is
+proven headless by ``deepened_slots_check.py`` (every name a Blender editor).
 """
 import sys
 import os
@@ -33,21 +34,23 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
 
     TestSandbox.activate()
 
-import bpy
-from tentacle import tcl_blender as tb
+import bpy  # noqa: E402 - after the sandbox, as every GUI harness
+from tentacle import tcl_blender as tb  # noqa: E402
 
 lines = []
 
-# expected live label after _init relabel (substitute editor names)
-EXPECTED_RELABEL = {
-    "b006": "Geometry Nodes",
-    "b007": "UV Editor",
-    "b008": "Image Editor",
-    "b012": "Graph Editor",
-    "b013": "Text Editor",
+# Blender's buttons: their label, shown
+BLENDER_BUTTONS = {
+    "b014": "Geometry Nodes",
+    "b015": "UV Editor",
+    "b016": "Image Editor",
+    "b017": "Graph Editor",
+    "b018": "Text Editor",
 }
-# a couple of kept buttons whose .ui label must be untouched by the Blender slot
-EXPECTED_KEPT = {"b001": "Outliner", "b005": "Node Editor"}
+# Maya's buttons: hidden here by their requires tag
+MAYA_BUTTONS = ("b006", "b007", "b008", "b012", "b013")
+# buttons both hosts serve keep their .ui label
+SHARED = {"b001": "Outliner", "b005": "Node Editor"}
 
 
 def log(*a):
@@ -71,23 +74,38 @@ def _run():
 
         app = QtWidgets.QApplication.instance()
         tcl = tb._KeymapBridge.tcl
-        # The 14 editor buttons live in the radial start-menu UI (where the per-button
-        # _init relabel fires); 'editors' is a base shell without them.
         shown = tcl.show("editors#startmenu")
         for _ in range(20):
             app.processEvents()
         ui = tcl.sb.get_ui("editors#startmenu")
 
-        def btn_text(name):
-            w = ui.findChild(QtWidgets.QAbstractButton, name)
-            return w.text() if w is not None else None
+        def button(name):
+            return ui.findChild(QtWidgets.QAbstractButton, name)
 
-        for name, expected in EXPECTED_RELABEL.items():
-            got = btn_text(name)
-            check(f"{name} relabeled to '{expected}'", got == expected, f"text={got!r}")
-        for name, expected in EXPECTED_KEPT.items():
-            got = btn_text(name)
-            check(f"{name} keeps its .ui label '{expected}'", got == expected, f"text={got!r}")
+        for name, label in BLENDER_BUTTONS.items():
+            w = button(name)
+            check(
+                f"{name} shows '{label}'",
+                w is not None and not w.isHidden() and w.text() == label,
+                f"hidden={w is not None and w.isHidden()} text={w.text() if w else None!r}",
+            )
+        for name in MAYA_BUTTONS:
+            w = button(name)
+            check(
+                f"{name} (Maya's) is hidden by its requires tag",
+                w is not None
+                and w.isHidden()
+                and getattr(w, "hidden_by_policy", None) == "requires",
+                f"hidden={w is not None and w.isHidden()} "
+                f"policy={getattr(w, 'hidden_by_policy', None)}",
+            )
+        for name, label in SHARED.items():
+            w = button(name)
+            check(
+                f"{name} keeps its .ui label '{label}'",
+                w is not None and not w.isHidden() and w.text() == label,
+                f"text={w.text() if w else None!r}",
+            )
 
         if shown is not None:
             shown.hide()

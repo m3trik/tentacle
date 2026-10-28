@@ -149,7 +149,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Bake the manipulator pivot's current position and orientation into the object's transform.</string>
+     <string>Bake the temporary pivot (Maya: the manipulator pivot; Blender: the 3D cursor) into the selected objects' pivots, geometry unmoved.</string>
     </property>
     <property name="text">
      <string>Bake</string>
@@ -223,7 +223,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Move the pivot point of the object to the center of the selected components</string>
+     <string>Move the pivot point of the object to the center of the selected components (Blender: the geometry's median).</string>
     </property>
     <property name="text">
      <string>Component</string>

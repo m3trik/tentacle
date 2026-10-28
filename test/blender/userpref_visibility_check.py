@@ -14,8 +14,8 @@ Preferences window foregrounded on click 1, re-raising it even when buried (meas
 failure mode is **cross-process foreground** (user last in Maya, clicking straight onto the Qt
 panel): Windows denies GHOST the foreground transfer, the window opens/reuses fully obscured, and
 retries never raise it — an invisible success that reads as a dead button.
-``PreferencesSlots._open_preferences`` now surfaces op failures and explicitly lifts the window
-(``_raise_ghost_window``); this harness pins the whole path.
+``btk.UiUtils.open_preferences`` (what the shared ``PreferencesSlots.b008`` calls) surfaces op
+failures and explicitly lifts the window (``_raise_native_window``); this harness pins the whole path.
 
 Flow: full tentacle startup, ``preferences`` shown as a standalone window holding OS foreground,
 then programmatic ``b008`` clicks — clean click, redundant click, and a retry with the prefs

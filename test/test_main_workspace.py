@@ -1,252 +1,61 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Tests for the main lower submenu's Workspace list (slots/maya/main.py).
+"""Tests for the Workspace tab of tentacle.slots.main (the one Main Slots class).
 
-The workspace controls (Set Dir / Auto Set / Open Root + recent-workspace
-history) live in the Main slot's ``list000`` — the existing Workspace Browser —
-with the current workspace's directory browser below them. Dir-browser rows
-carry a folder icon (``IconManager.set_label_icon``) that sets them apart from
-the action rows. Recent workspaces are backed by a shared ``RecentValuesStore``
-(valid Maya workspaces only).
-
-AST checks run without Maya; the workspace.mel validation is exercised against a
-real Maya when available.
+The tab (``list000``): Set Workspace (browse -> offer to build a default
+workspace -> open), Auto Set Workspace, Recent Workspaces, Edit Workspace, the
+current workspace's dir browser and the Scene Directory row. It reaches its host
+only through ``self.tk``: a fake toolkit records what each step asks of it (plain
+pytest), and in Maya the same class drives the real ``mtk``. Blender-shaped
+answers are pinned in ``test_main_workspace_blender.py``; the operations
+themselves (``EnvUtils.is_workspace`` / ``set_current_workspace`` / ...) in mayatk
+and blendertk.
 """
 
-import ast
 import os
-import types
+import shutil
+import tempfile
 import unittest
-from pathlib import Path
+from unittest import mock
 
-ROOT = Path(__file__).resolve().parent.parent
-MAIN_PY = ROOT / "tentacle" / "slots" / "maya" / "main.py"
-MAIN_MIXIN_PY = ROOT / "tentacle" / "slots" / "_main.py"
+import pythontk as ptk
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.main import MainSlots
 
 cmds = maya_module("maya.cmds")
-main_module = maya_module("tentacle.slots.maya.main")
 
 
-class ModuleAST:
-    def __init__(self, source: str):
-        self.source = source
-        self.tree = ast.parse(source)
+class _Store:
+    """A ``RecentValuesStore`` double: each settings key's history, shared by the
+    stores built on it (as QSettings is)."""
 
-    def _find(self, class_name, method_name):
-        for cls in ast.walk(self.tree):
-            if isinstance(cls, ast.ClassDef) and cls.name == class_name:
-                for fn in cls.body:
-                    if (
-                        isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))
-                        and fn.name == method_name
-                    ):
-                        return fn
-        return None
+    histories = {}
 
-    def has_method(self, class_name, method_name):
-        return self._find(class_name, method_name) is not None
+    def __init__(self, settings_key=None, validator=None, **_):
+        self.key = settings_key
+        self.validator = validator
+        self._values = _Store.histories.setdefault(settings_key, [])
 
-    def method_source(self, class_name, method_name):
-        fn = self._find(class_name, method_name)
-        return ast.get_source_segment(self.source, fn) or "" if fn else ""
+    @property
+    def values(self):
+        return list(self._values)
 
+    def add(self, value):
+        if value not in self._values:
+            self._values.append(value)
 
-class TestMainMixinStructure(unittest.TestCase):
-    """The browse → offer → build → open flow lives ONCE in ``slots/_main.py``
-    (``MainMixin``); each fork supplies only the engine hooks."""
+    def record(self, value):
+        if value in self._values:
+            self._values.remove(value)
+        self._values.insert(0, value)
 
-    @classmethod
-    def setUpClass(cls):
-        cls.mod = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8"))
+    def valid_values(self):
+        return [v for v in self._values if self.validator is None or self.validator(v)]
 
-    def test_shared_flow_and_hooks_declared(self):
-        for name in (
-            "_set_workspace_interactive",
-            "_set_workspace_from_path",
-            # hooks — declared (raise NotImplementedError) so a fork that forgets
-            # one fails loudly instead of silently inheriting a wrong default
-            "_current_workspace_root",
-            "_current_scene_path",
-            "_browse_workspace_dir",
-            "_is_workspace",
-            "_create_default_workspace",
-            "_switch_to_workspace",
-        ):
-            self.assertTrue(
-                self.mod.has_method("MainMixin", name), f"MainMixin must define {name}"
-            )
-
-    def test_set_workspace_offers_then_builds_then_opens(self):
-        """Set Workspace on a folder that is not a project must OFFER to build a
-        default workspace there from the shared template — marker AND rule folders.
-
-        Regression: Maya's row was a bare ``mel.eval("SetProject")``. Maya's own
-        "Create default workspace" answer calls
-        ``sp_createAndSetDefaultProject($path, false)`` — the ``false`` is
-        *createDirectories* — so it writes a lone ``workspace.mel`` and no
-        ``scenes/``, ``sourceimages/`` … folders; Blender's twin just pinned the
-        pick. The shared flow: browse → offer (never build unasked; Retry
-        re-browses) → build via the fork's ``_create_default_workspace`` → open.
-        """
-        src = self.mod.method_source("MainMixin", "_set_workspace_interactive")
-        for needle in (
-            "_browse_workspace_dir",
-            "_is_workspace",
-            "message_box",
-            '"Retry"',
-            "_create_default_workspace",
-            "_switch_to_workspace",
-        ):
-            self.assertIn(needle, src, f"_set_workspace_interactive must use {needle}")
-        self.assertNotIn("SetProject", src)
-
-    def test_recent_selection_validates(self):
-        src = self.mod.method_source("MainMixin", "_set_workspace_from_path")
-        self.assertIn("_is_workspace", src)
-        self.assertIn("_switch_to_workspace", src)
-
-
-class TestMainWorkspaceStructure(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.mod = ModuleAST(MAIN_PY.read_text(encoding="utf-8"))
-
-    def test_workspace_methods_present(self):
-        for name in (
-            "list000_init",
-            "list000",
-            "_is_workspace",
-            "_auto_set_workspace",
-            "_switch_to_workspace",
-            # MainMixin hooks
-            "_current_workspace_root",
-            "_current_scene_path",
-            "_browse_workspace_dir",
-            "_create_default_workspace",
-        ):
-            self.assertTrue(
-                self.mod.has_method("MainSlots", name), f"MainSlots must define {name}"
-            )
-
-    def test_list000_adds_scene_dir_row(self):
-        self.assertIn(
-            "self._add_scene_dir_row(widget)",
-            self.mod.method_source("MainSlots", "list000_init"),
-        )
-
-    def test_scene_path_hook_ignores_batch_phantom(self):
-        """The hook reads ``mtk.EnvUtils.saved_scene_path`` (behavior pinned by
-        mayatk's ``TestSavedScenePath``), not ``sceneName``: batch Maya reports
-        an unsaved scene as a phantom ``<project>/untitled`` whose folder exists,
-        so the Scene Directory row would offer the project root."""
-        src = self.mod.method_source("MainSlots", "_current_scene_path")
-        self.assertIn("mtk.EnvUtils.saved_scene_path()", src)
-        self.assertNotIn('get_env_info("scene")', src)
-
-    def test_does_not_reimplement_shared_flow(self):
-        for name in (
-            "_set_workspace_interactive",
-            "_set_workspace_from_path",
-            "_add_scene_dir_row",
-        ):
-            self.assertFalse(
-                self.mod.has_method("MainSlots", name),
-                f"{name} belongs to MainMixin — the fork must not re-implement it",
-            )
-        self.assertIn("class MainSlots(MainMixin, SlotsMaya)", self.mod.source)
-
-    def test_hooks_use_the_shared_template_and_native_browser(self):
-        """The build hook is ``mtk.create_workspace`` (the same template Workspace
-        Map ▸ New Project builds from); the browser is Maya's ``fileDialog2``."""
-        self.assertIn(
-            "mtk.create_workspace",
-            self.mod.method_source("MainSlots", "_create_default_workspace"),
-        )
-        self.assertIn(
-            "fileDialog2", self.mod.method_source("MainSlots", "_browse_workspace_dir")
-        )
-
-    def test_list000_builds_store_and_actions(self):
-        """list000_init must build the store, add the editing actions, render the
-        store's recent values, and icon the dir-browser row."""
-        init = self.mod.method_source("MainSlots", "list000_init")
-        for needle in (
-            "RecentValuesStore",
-            "workspace_recent_projects",  # shared key → history carries over
-            "__set_dir__",
-            "__auto__",
-            'set_label_icon(w, "folder_filled")',  # dir-browser root row gets a folder icon
-            "valid_values",
-            "display_map",
-        ):
-            self.assertIn(needle, init, f"list000_init must reference {needle}")
-
-    def test_no_separator_between_actions_and_browser(self):
-        """The old titled separator is gone — the folder icon on the dir rows is the
-        differentiator now, so no Separator widget should be constructed or imported."""
-        init = self.mod.method_source("MainSlots", "list000_init")
-        self.assertNotIn("Separator(", init, "no Separator widget should be added")
-        self.assertNotIn("widgets.separator", init, "no Separator import should remain")
-
-    def test_dir_browser_rows_get_folder_icon(self):
-        """Every dir-browser row (root + each nested folder) is marked with the
-        folder icon so it reads as a directory, not an action."""
-        init = self.mod.method_source("MainSlots", "list000_init")
-        self.assertIn('set_label_icon(w, "folder_filled")', init)
-        populate = self.mod.method_source("MainSlots", "_populate_dir_sublist")
-        self.assertIn('set_label_icon(item, "folder_filled")', populate)
-
-    def test_auto_and_recents_nest_under_set_workspace(self):
-        """Auto Set + Recent Workspaces live in the Set Workspace flyout, not at
-        the root — the root holds only Set Workspace and the dir browser."""
-        init = self.mod.method_source("MainSlots", "list000_init")
-        # Both the auto action and the recents sub-flyout are added to the Set
-        # Workspace sublist (captured as ``set_ws``), not directly to ``widget``.
-        self.assertIn('set_ws.sublist.add("Auto Set Workspace"', init)
-        self.assertIn('set_ws.sublist.add("Recent Workspaces")', init)
-
-    def test_list000_dispatches_all_row_kinds(self):
-        # The fork keeps the decorated handler; the body is MainMixin's, shared
-        # with the Blender fork.
-        self.assertIn(
-            "self._dispatch_workspace_item(item)",
-            self.mod.method_source("MainSlots", "list000"),
-        )
-        src = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8")).method_source(
-            "MainMixin", "_dispatch_workspace_item"
-        )
-        for needle in (
-            "_set_workspace_interactive",
-            "_auto_set_workspace",
-            "_set_workspace_from_path",
-            "__recent__",
-            "isdir",  # directory-browser entries (incl. workspace root) open in explorer
-        ):
-            self.assertIn(needle, src, f"list000 must handle {needle}")
-
-    def test_switch_opens_through_native_setproject(self):
-        """``_switch_to_workspace`` opens via MEL ``setProject "<path>"`` (the
-        no-popup form) rather than a raw ``workspace -o`` so recent projects /
-        project-window refresh / browser prefs behave exactly as Maya's own
-        Set Project — the flow this slot replaced. (Headless it falls back to a
-        plain ``workspace -o`` — ``setProject``'s ``savePrefs`` tail is GUI-only.)"""
-        src = self.mod.method_source("MainSlots", "_switch_to_workspace")
-        self.assertIn('setProject "', src)
-        self.assertIn("about(batch=True)", src)
-
-    def test_editor_row_opens_native_project_window(self):
-        """The Edit Workspace row opens Maya's native Project Window (blendertk's
-        twin row opens its own workspace_editor panel)."""
-        init = self.mod.method_source("MainSlots", "list000_init")
-        self.assertIn('widget.add("Edit Workspace", data="__editor__")', init)
-        dispatch = ModuleAST(MAIN_MIXIN_PY.read_text(encoding="utf-8")).method_source(
-            "MainMixin", "_dispatch_workspace_item"
-        )
-        self.assertIn("__editor__", dispatch)
-        src = self.mod.method_source("MainSlots", "_open_workspace_editor")
-        self.assertIn("ProjectWindow", src)
+    def display_map(self, values):
+        return {v: os.path.basename(v) for v in values}
 
 
 class _StubRow:
@@ -264,258 +73,323 @@ class _StubRow:
 class _StubList:
     def __init__(self):
         self.rows = []
+        self.is_initialized = False
 
     def add(self, label, data=None, **kwargs):
         row = _StubRow(label, data, kwargs)
         self.rows.append(row)
         return row
 
+    def clear(self):
+        self.rows = []
 
-class TestSceneDirRow(unittest.TestCase):
-    """``MainMixin._add_scene_dir_row`` — the Workspace tab's link to the open
-    scene's folder. Present (folder icon, full path as tooltip) only when the
-    scene is saved and its folder exists; a click opens it through the
-    dispatcher's directory branch. DCC-free: the scene comes from the fork's
-    ``_current_scene_path`` hook, stubbed here."""
+    def apply_preset(self, name):
+        self.preset = name
 
+    def setVisible(self, visible):
+        pass
+
+    def labels(self):
+        return [r.label for r in self.rows]
+
+
+def _mark(path):
+    """Make *path* a workspace (a ``workspace.mel``)."""
+    os.makedirs(path, exist_ok=True)
+    with open(os.path.join(path, "workspace.mel"), "w") as f:
+        f.write("//Maya workspace stub\n")
+    return path
+
+
+class _MainCase(unittest.TestCase):
     def setUp(self):
-        import pythontk as ptk
-        from tentacle.slots._main import MainMixin
-
-        self.tmp = ptk.TempArtifacts("tentacle_main_scene_dir", policy="scoped")
-        self.root = self.tmp.dir_path()
-        self.icons = []
-        self.scene = ""
-        self.inst = MainMixin()
-        self.inst._current_scene_path = lambda: self.scene
-        self.inst.sb = types.SimpleNamespace(
-            IconManager=types.SimpleNamespace(
-                set_label_icon=lambda w, name: self.icons.append((w, name))
-            ),
-            handlers=types.SimpleNamespace(
-                marking_menu=types.SimpleNamespace(hide=lambda: None)
-            ),
-            message_box=lambda *a, **k: None,
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        _Store.histories = {}
+        self.sb = mock.MagicMock()
+        self.sb.ShortcutManager.host_namespace_suffix.return_value = "_maya"
+        self.sb.RecentValuesStore = _Store
+        self.slots = MainSlots(self.sb)
+        self.env = self.sb.tk.EnvUtils
+        self.ui_utils = self.sb.tk.UiUtils
+        self.env.workspace_root.return_value = ""
+        self.env.saved_scene_path.return_value = ""
+        self.env.get_recent_projects.return_value = []
+        self.env.is_workspace.side_effect = lambda p: bool(p) and os.path.isfile(
+            os.path.join(str(p), "workspace.mel")
         )
-        self.list = _StubList()
+        self.root = tempfile.mkdtemp(prefix="tentacle_main_ws_")
+        self.addCleanup(shutil.rmtree, self.root, True)
 
-    def tearDown(self):
-        self.tmp.cleanup()
+    def _messages(self):
+        return [c.args[0] for c in self.sb.message_box.call_args_list]
+
+
+class TestWorkspaceTab(_MainCase):
+    def test_the_rows_in_order(self):
+        widget = _StubList()
+        self.slots.list000_init(widget)
+        self.assertEqual(widget.labels(), ["Set Workspace", "Edit Workspace"])
+        self.assertEqual(widget.rows[0].data, "__set_dir__")
+        self.assertEqual(widget.rows[0].sublist.labels(), ["Auto Set Workspace"])
+        self.assertEqual(widget.rows[1].data, "__editor__")
+        self.assertEqual(widget.preset, "expand_right")
+
+    def test_the_workspace_row_browses_its_folders(self):
+        os.makedirs(os.path.join(self.root, "scenes"))
+        self.env.workspace_root.return_value = self.root + "/"
+        widget = _StubList()
+        self.slots.list000_init(widget)
+        row = widget.rows[2]
+        self.assertEqual(row.label, os.path.basename(self.root))
+        self.assertEqual(row.data, os.path.normpath(self.root))
+        self.assertEqual(row.sublist.labels(), ["scenes"])
+        self.sb.IconManager.set_label_icon.assert_any_call(row, "folder_filled")
+
+    def test_recents_are_kept_under_the_hosts_key(self):
+        """QSettings is shared by both hosts: each keeps its own history."""
+        self.slots.list000_init(_StubList())
+        self.assertEqual(self.slots._workspace_store.key, "workspace_recent_projects_maya")
+        self.sb.ShortcutManager.host_namespace_suffix.assert_called_with(
+            self.sb.context_tags
+        )
+
+    def test_the_shared_key_history_carries_over_once(self):
+        """The history kept under the pre-namespacing key (Maya's) seeds the host's
+        key on its first use, so no recent workspace is lost."""
+        ws = _mark(os.path.join(self.root, "proj"))
+        _Store.histories["workspace_recent_projects"] = [ws]
+        widget = _StubList()
+        self.slots.list000_init(widget)
+        self.assertEqual(self.slots._workspace_store.values, [ws])
+        recent = widget.rows[0].sublist.rows[1]
+        self.assertEqual(recent.label, "Recent Workspaces")
+        self.assertEqual(recent.sublist.rows[0].data, ("__recent__", ws))
+
+    def test_the_hosts_recent_projects_seed_it_valid_only(self):
+        ws = _mark(os.path.join(self.root, "proj"))
+        plain = os.path.join(self.root, "plain")
+        os.makedirs(plain)
+        self.env.get_recent_projects.return_value = [ws, plain]
+        self.slots.list000_init(_StubList())
+        self.assertEqual(self.slots._workspace_store.values, [ws])
+        self.env.get_recent_projects.assert_called_with(slice(0, 10))
+
+
+class TestSceneDirRow(_MainCase):
+    """The link to the open scene's folder: present (folder icon, full path as
+    tooltip) only when the scene is saved and its folder exists."""
 
     def test_saved_scene_adds_folder_row(self):
-        # Maya's ``file -q -sceneName`` is forward-slashed; the row's data must
-        # be native so the system file browser opens it reliably.
-        self.scene = os.path.join(self.root, "shot_010.ma").replace("\\", "/")
-        self.inst._add_scene_dir_row(self.list)
-        (row,) = self.list.rows
+        # Maya names a scene forward-slashed; the row's data must be native.
+        self.env.saved_scene_path.return_value = os.path.join(
+            self.root, "shot_010.ma"
+        ).replace("\\", "/")
+        rows = _StubList()
+        self.slots._add_scene_dir_row(rows)
+        (row,) = rows.rows
         self.assertEqual(row.label, "Scene Directory")
         self.assertEqual(row.data, os.path.normpath(self.root))
         self.assertEqual(row.kwargs.get("setToolTip"), os.path.normpath(self.root))
-        self.assertEqual(self.icons, [(row, "folder_filled")])
+        self.sb.IconManager.set_label_icon.assert_called_once_with(row, "folder_filled")
 
-    def test_click_opens_scene_folder_in_explorer(self):
-        from unittest import mock
-
-        import pythontk as ptk
-
-        self.scene = os.path.join(self.root, "shot_010.ma")
-        self.inst._add_scene_dir_row(self.list)
+    def test_click_opens_the_folder_and_copy_path_copies_it(self):
+        self.env.saved_scene_path.return_value = os.path.join(self.root, "shot.ma")
+        rows = _StubList()
+        self.slots._add_scene_dir_row(rows)
         with mock.patch.object(ptk.FileUtils, "open_explorer") as open_explorer:
-            self.inst._dispatch_workspace_item(self.list.rows[0])
+            self.slots.list000(rows.rows[0])
         open_explorer.assert_called_once_with(os.path.normpath(self.root))
-
-    def test_flyout_copy_path_puts_folder_on_clipboard(self):
-        """The row's flyout holds ``Copy Path``; a click puts the scene folder's
-        full (native) path on the clipboard."""
-        from unittest import mock
-
-        self.scene = os.path.join(self.root, "shot_010.ma").replace("\\", "/")
-        self.inst._add_scene_dir_row(self.list)
-        (copy_row,) = self.list.rows[0].sublist.rows
+        (copy_row,) = rows.rows[0].sublist.rows
         self.assertEqual(copy_row.label, "Copy Path")
-        clipboard = mock.Mock()
-        self.inst.sb.QtWidgets = types.SimpleNamespace(
-            QApplication=types.SimpleNamespace(clipboard=lambda: clipboard)
-        )
-        self.inst._dispatch_workspace_item(copy_row)
+        self.slots.list000(copy_row)
+        clipboard = self.sb.QtWidgets.QApplication.clipboard.return_value
         clipboard.setText.assert_called_once_with(os.path.normpath(self.root))
 
-    def test_unsaved_scene_adds_nothing(self):
-        self.inst._add_scene_dir_row(self.list)
-        self.assertEqual(self.list.rows, [])
-
-    def test_missing_folder_adds_nothing(self):
-        self.scene = os.path.join(self.root, "moved_away", "shot_010.ma")
-        self.inst._add_scene_dir_row(self.list)
-        self.assertEqual(self.list.rows, [])
+    def test_unsaved_or_moved_scene_adds_nothing(self):
+        rows = _StubList()
+        self.slots._add_scene_dir_row(rows)
+        self.env.saved_scene_path.return_value = os.path.join(self.root, "gone", "a.ma")
+        self.slots._add_scene_dir_row(rows)
+        self.assertEqual(rows.rows, [])
 
 
-class _StubSb:
-    def __init__(self, choice=None):
-        self.choice = choice
-        self.messages = []
-        # Setters call self.sb.handlers.marking_menu.hide(); stub it out.
-        self.handlers = types.SimpleNamespace(
-            marking_menu=types.SimpleNamespace(hide=lambda: None)
-        )
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-        return self.choice
-
-
-class _StubStore:
-    def __init__(self):
-        self.recorded = []
-
-    def record(self, value):
-        self.recorded.append(value)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSetWorkspaceFromPath(unittest.TestCase):
-    """MainSlots._set_workspace_from_path validates workspace.mel before switching."""
+class TestSetWorkspace(_MainCase):
+    """Browse -> offer to build a default workspace -> open; nothing built unasked."""
 
     def setUp(self):
-        import pythontk as ptk
+        super().setUp()
+        self.slots._workspace_store = _Store(settings_key="k")
 
-        cmds.file(new=True, force=True)
-        self._before = cmds.workspace(query=True, rd=True)
-        self.inst = main_module.MainSlots.__new__(main_module.MainSlots)
-        self.inst.sb = _StubSb()
-        self.inst._workspace_store = _StubStore()
-        self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")
-        self.root = self.tmp.dir_path()
+    def _pick(self, *paths):
+        self.ui_utils.browse_directory.side_effect = list(paths)
 
-    def tearDown(self):
-        # Restore the workspace BEFORE removing the folder Maya may be pointed at —
-        # a leaked switch bleeds into every later test's "current workspace".
-        cmds.workspace(self._before, openWorkspace=True)
-        self.tmp.cleanup()
-        cmds.file(new=True, force=True)
+    def test_a_workspace_opens_without_an_offer(self):
+        ws = _mark(os.path.join(self.root, "proj"))
+        self._pick(ws)
+        self.slots._set_workspace_interactive()
+        self.env.create_workspace.assert_not_called()
+        self.env.set_current_workspace.assert_called_once_with(os.path.normpath(ws))
+        self.assertEqual(self.slots._workspace_store.values, [os.path.normpath(ws)])
+        self.assertEqual(self._messages(), ["Workspace set to <hl>proj</hl>."])
 
-    def test_rejects_path_with_no_workspace_mel(self):
-        before = cmds.workspace(query=True, rd=True)
-        self.inst._set_workspace_from_path(self.root)
-        self.assertEqual(before, cmds.workspace(query=True, rd=True))
-        self.assertTrue(self.inst.sb.messages, "Expected a user-visible warning")
-        self.assertEqual(self.inst._workspace_store.recorded, [])
+    def test_the_offer_accepted_builds_then_opens(self):
+        self._pick(self.root)
+        self.sb.message_box.return_value = "Yes"
+        self.slots._set_workspace_interactive()
+        self.env.create_workspace.assert_called_once_with(os.path.normpath(self.root))
+        self.env.set_current_workspace.assert_called_once_with(os.path.normpath(self.root))
 
-    def test_accepts_path_with_workspace_mel(self):
-        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
-            f.write("//Maya workspace stub\n")
-        self.inst._set_workspace_from_path(self.root)
-        new_ws = cmds.workspace(query=True, rd=True)
-        self.assertEqual(
-            os.path.normpath(new_ws).lower(), os.path.normpath(self.root).lower()
-        )
-        # Selecting a recent workspace bumps it to most-recent in the store.
-        self.assertIn(self.root, self.inst._workspace_store.recorded)
+    def test_retry_re_browses_from_the_picks_parent(self):
+        plain = os.path.join(self.root, "plain")
+        os.makedirs(plain)
+        ws = _mark(os.path.join(self.root, "proj"))
+        self._pick(plain, ws)
+        self.sb.message_box.return_value = "Retry"
+        self.slots._set_workspace_interactive()
+        second = self.ui_utils.browse_directory.call_args_list[1]
+        self.assertEqual(second.args[0], os.path.normpath(self.root))
+        self.env.create_workspace.assert_not_called()
+        self.env.set_current_workspace.assert_called_once_with(os.path.normpath(ws))
 
-    def test_message_shows_real_name_for_trailing_slash_path(self):
-        """A stored recent-workspace entry with a trailing separator (what
-        Maya's raw ``workspace -q -rd`` returns, and what a stale
-        pre-normpath history entry may still carry) must still show the
-        real workspace name — not collapse to a bare period.
+    def test_the_offer_declined_changes_nothing(self):
+        self._pick(self.root)
+        self.sb.message_box.return_value = "Cancel"
+        self.slots._set_workspace_interactive()
+        self.env.create_workspace.assert_not_called()
+        self.env.set_current_workspace.assert_not_called()
 
-        Regression: ``os.path.basename()`` on a trailing-slash path returns
-        ``""``, so ``f"Workspace set to {name}."`` rendered as literally
-        "Workspace set to ." with the sentence's own period misread as the
-        workspace name.
-        """
-        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
-            f.write("//Maya workspace stub\n")
-        trailing = self.root + os.sep
-        self.inst._set_workspace_from_path(trailing)
-        text = self.inst.sb.messages[-1][0][0]
-        expected_name = os.path.basename(os.path.normpath(self.root))
-        self.assertIn(expected_name, text)
-        self.assertNotIn("set to .", text)
+    def test_a_dismissed_browser_is_a_noop(self):
+        self._pick("")
+        self.slots._set_workspace_interactive()
+        self.env.set_current_workspace.assert_not_called()
+        self.sb.message_box.assert_not_called()
+
+    def test_it_starts_beside_the_current_workspace(self):
+        self.env.workspace_root.return_value = os.path.join(self.root, "current")
+        self._pick("")
+        self.slots._set_workspace_interactive()
+        args = self.ui_utils.browse_directory.call_args
+        self.assertEqual(args.args[0], os.path.normpath(self.root))
+        self.assertEqual(args.kwargs, {"caption": "Set Workspace", "ok_caption": "Set"})
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSetWorkspaceInteractive(unittest.TestCase):
-    """MainSlots._set_workspace_interactive: browse → (offer + build) → open.
+class TestSwitching(_MainCase):
+    def setUp(self):
+        super().setUp()
+        self.slots._workspace_store = _Store(settings_key="k")
 
-    The directory browser is stubbed at ``main_module.cmds.fileDialog2`` (the
-    slot's own reference); the offer is answered through ``_StubSb.choice``.
-    """
+    def test_a_recent_path_is_re_validated(self):
+        self.slots._set_workspace_from_path(self.root)
+        self.env.set_current_workspace.assert_not_called()
+        self.assertEqual(self._messages(), ["Not a valid workspace."])
+
+    def test_the_message_names_a_trailing_slash_path(self):
+        """``basename`` of a trailing-separator path is "": the message would read
+        "Workspace set to ."."""
+        ws = _mark(os.path.join(self.root, "proj"))
+        self.slots._set_workspace_from_path(ws + os.sep)
+        self.assertIn("proj", self._messages()[-1])
+
+    def test_auto_set_opens_the_scenes_workspace(self):
+        ws = _mark(os.path.join(self.root, "proj"))
+        self.env.find_workspace_using_path.return_value = ws
+        self.slots._auto_set_workspace()
+        self.env.set_current_workspace.assert_called_once_with(os.path.normpath(ws))
+        self.env.find_workspace_using_path.return_value = None
+        self.slots._auto_set_workspace()
+        self.assertEqual(self._messages()[-1], "No workspace found.")
+
+    def test_edit_workspace_opens_the_project_window_where_no_tool_serves(self):
+        """Maya: tentacle's Workspace Editor is not served (``slots.tools.HOSTS``),
+        so the row opens the host's own Project Window."""
+        self.sb.ui_name_resolves.return_value = False
+        self.ui_utils.open_editor.return_value = "ProjectWindow"
+        self.slots._open_workspace_editor()
+        self.ui_utils.open_editor.assert_called_once_with("Project Window")
+        self.sb.handlers.marking_menu.show.assert_not_called()
+        self.sb.ui_name_resolves.assert_called_once_with("workspace_editor")
+        self.ui_utils.open_editor.return_value = None
+        self.slots._open_workspace_editor()
+        self.assertIn("Project Window", self._messages()[-1])
+
+
+class TestDispatch(_MainCase):
+    def test_each_row_kind_reaches_its_step(self):
+        for name in (
+            "_set_workspace_interactive",
+            "_auto_set_workspace",
+            "_open_workspace_editor",
+            "_set_workspace_from_path",
+        ):
+            setattr(self.slots, name, mock.Mock(name=name))
+        for data in ("__set_dir__", "__auto__", "__editor__", ("__recent__", "C:/p")):
+            self.slots.list000(_StubRow("row", data, {}))
+        self.slots._set_workspace_interactive.assert_called_once_with()
+        self.slots._auto_set_workspace.assert_called_once_with()
+        self.slots._open_workspace_editor.assert_called_once_with()
+        self.slots._set_workspace_from_path.assert_called_once_with("C:/p")
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestWorkspaceInMaya(_MainCase):
+    """The same class over the real ``mtk``: a ``workspace.mel`` is what makes a
+    workspace, and accepting the offer builds the template's rule folders."""
 
     def setUp(self):
-        import pythontk as ptk
-
+        super().setUp()
         cmds.file(new=True, force=True)
         self._before = cmds.workspace(query=True, rd=True)
-        self.inst = main_module.MainSlots.__new__(main_module.MainSlots)
-        self.inst.sb = _StubSb()
-        self.inst._workspace_store = _StubStore()
-        self.tmp = ptk.TempArtifacts("tentacle_main_ws", policy="scoped")
-        self.root = self.tmp.dir_path()
-        self._orig_dialog = main_module.cmds.fileDialog2
+        self.mtk = maya_module("mayatk")
+        self.sb.tk = self.mtk
+        self.slots._workspace_store = _Store(settings_key="k")
 
     def tearDown(self):
-        main_module.cmds.fileDialog2 = self._orig_dialog
+        # Restore the workspace BEFORE the folder Maya may point at goes.
         cmds.workspace(self._before, openWorkspace=True)
-        self.tmp.cleanup()
         cmds.file(new=True, force=True)
-
-    def _pick(self, path):
-        main_module.cmds.fileDialog2 = lambda *a, **k: [path] if path else None
 
     def _same(self, a, b):
         return os.path.normcase(os.path.normpath(a)) == os.path.normcase(
             os.path.normpath(b)
         )
 
-    def test_unmarked_folder_offer_accepted_builds_marker_and_rule_folders(self):
-        """THE bug: accepting the offer must leave the standard rule folders on
-        disk (not just workspace.mel), and Maya must be switched to it."""
-        import pythontk as ptk
+    def test_a_folder_without_workspace_mel_is_refused(self):
+        self.slots._set_workspace_from_path(self.root)
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self._before))
+        self.assertEqual(self._messages(), ["Not a valid workspace."])
 
-        self._pick(self.root)
-        self.inst.sb.choice = "Yes"
-        self.inst._set_workspace_interactive()
+    def test_a_marked_folder_opens(self):
+        _mark(self.root)
+        self.slots._set_workspace_from_path(self.root)
+        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
+        self.assertEqual(self.slots._workspace_store.values, [os.path.normpath(self.root)])
+
+    def test_the_offer_accepted_builds_marker_and_rule_folders(self):
+        with mock.patch.object(
+            self.mtk.UiUtils, "browse_directory", return_value=self.root
+        ):
+            self.sb.message_box.return_value = "Yes"
+            self.slots._set_workspace_interactive()
         ws = ptk.Workspace.load(self.root)
         self.assertTrue(ws.is_marked, "workspace.mel must be written")
-        rule_dirs = {
-            v
-            for v in ptk.DEFAULT_FILE_RULES.values()
-            if v != "." and not os.path.isabs(v)
-        }
-        for rel in rule_dirs:
+        for rel in {
+            v for v in ptk.DEFAULT_FILE_RULES.values() if v != "." and not os.path.isabs(v)
+        }:
             self.assertTrue(
-                os.path.isdir(os.path.join(self.root, rel)),
-                f"missing rule folder {rel}",
+                os.path.isdir(os.path.join(self.root, rel)), f"missing rule folder {rel}"
             )
         self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
-        self.assertTrue(
-            any(self._same(r, self.root) for r in self.inst._workspace_store.recorded)
-        )
 
-    def test_unmarked_folder_offer_declined_creates_nothing(self):
-        self._pick(self.root)
-        self.inst.sb.choice = "Cancel"
-        self.inst._set_workspace_interactive()
-        self.assertEqual(os.listdir(self.root), [], "nothing may be written on Cancel")
-        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self._before))
-        self.assertEqual(self.inst._workspace_store.recorded, [])
-
-    def test_marked_folder_opens_without_offer(self):
-        with open(os.path.join(self.root, "workspace.mel"), "w") as f:
-            f.write('//Maya Project Definition\n\nworkspace -fr "scene" "scenes";\n')
-        self._pick(self.root)
-        self.inst.sb.choice = "Cancel"  # would abort if an offer were (wrongly) made
-        self.inst._set_workspace_interactive()
-        self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self.root))
-        # A project's own rules win — no template folders imposed on an existing one.
-        self.assertFalse(os.path.isdir(os.path.join(self.root, "sourceimages")))
-
-    def test_dismissed_browser_is_a_noop(self):
-        self._pick(None)
-        self.inst._set_workspace_interactive()
+    def test_the_offer_declined_writes_nothing(self):
+        with mock.patch.object(
+            self.mtk.UiUtils, "browse_directory", return_value=self.root
+        ):
+            self.sb.message_box.return_value = "Cancel"
+            self.slots._set_workspace_interactive()
         self.assertEqual(os.listdir(self.root), [])
         self.assertTrue(self._same(cmds.workspace(query=True, rd=True), self._before))
-        self.assertEqual(self.inst.sb.messages, [])
 
 
 if __name__ == "__main__":

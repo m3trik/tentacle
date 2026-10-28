@@ -1516,33 +1516,68 @@ class TestReloadRoutesThroughTheSharedTeardown(unittest.TestCase):
     def _source(self, *parts):
         return (PKG.joinpath(*parts)).read_text(encoding="utf-8")
 
+    def _maya_reload(self):
+        source = self._source("tcl.py")
+        return source[source.index("def _reload_maya") : source.index("def _report_maya")]
+
+    def test_the_settings_slot_reloads_through_the_launcher(self):
+        source = self._source("slots", "settings.py")
+        body = source[source.index("def tb001") : source.index("def check_for_update")]
+        self.assertIn("Tcl.reload()", body)
+
     def test_maya_reload_tears_down_then_rebuilds_deferred(self):
-        source = self._source("slots", "maya", "settings.py")
-        self.assertIn("Tcl.prepare_reload(", source)
-        self.assertIn("executeDeferred(", source)
-        self.assertIn("dispose_retired(", source)
+        body = self._maya_reload()
+        self.assertIn("prepare_reload(", body)
+        self.assertIn("executeDeferred(", body)
+        self.assertIn("dispose_retired(", body)
 
     def test_maya_reload_rebuilds_even_when_the_reload_raises(self):
         """The teardown has already retired the menu by then, so bailing out
         would strand the session with no marking menu at all."""
-        source = self._source("slots", "maya", "settings.py")
-        body = source[source.index("def tb001") : source.index("def _report")]
+        body = self._maya_reload()
         handler = body[body.index("except Exception as error:") :]
         self.assertIn("executeDeferred(rebuild)", handler)
 
     def test_maya_reload_does_not_rebuild_inside_the_click(self):
-        """The rebuild belongs on the idle queue: this slot's own frame is in a
+        """The rebuild belongs on the idle queue: the slot that asked is in a
         module the reload re-executes, and constructing a marking menu while Qt
         is still delivering the click that triggered it destroys and rebuilds
         widget trees underneath the event."""
-        source = self._source("slots", "maya", "settings.py")
-        body = source[source.index("def tb001") : source.index("def _report")]
-        self.assertNotIn("TclMaya(", body, "must not construct the menu in-frame")
+        self.assertNotIn("TclMaya(", self._maya_reload(), "must not construct in-frame")
 
     def test_blender_reload_tears_down_then_rebuilds_deferred(self):
         source = self._source("tcl_blender.py")
         self.assertIn('Tcl.prepare_reload("blender")', source)
         self.assertIn("dispose_retired(", source)
+
+
+class TestReloadDispatch(unittest.TestCase):
+    """``Tcl.reload`` routes to the running host's reload, as ``launch`` routes
+    to its launch, so the shared Settings slot calls it without a host branch."""
+
+    def test_each_host_reaches_its_own_reload(self):
+        for host in ("maya", "blender"):
+            with self.subTest(host=host), mock.patch.object(
+                Tcl, "host", classmethod(lambda cls, h=host: h)
+            ), mock.patch.object(
+                Tcl, f"_reload_{host}", classmethod(lambda cls: 7)
+            ):
+                self.assertEqual(Tcl.reload(), 7)
+
+    def test_no_host_or_one_without_a_reload_raises(self):
+        for host in (None, "max"):
+            with self.subTest(host=host), mock.patch.object(
+                Tcl, "host", classmethod(lambda cls, h=host: h)
+            ):
+                with self.assertRaises(RuntimeError):
+                    Tcl.reload()
+
+    def test_blender_reload_is_tcl_blenders(self):
+        reloaded = types.SimpleNamespace(reload=lambda: 12)
+        with mock.patch.object(
+            Tcl, "_import_entry", classmethod(lambda cls, host, module: reloaded)
+        ), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(Tcl._reload_blender(), 12)
 
 
 if __name__ == "__main__":

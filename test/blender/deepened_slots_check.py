@@ -1081,17 +1081,16 @@ try:
           f"{bare and bare.name} {bare and bare.get('maya_node_type')!r}")
 
     # ---- edit Create > Helper: a Locator and a Null Group, each typed its Maya node --------
-    from tentacle.slots.blender.edit import EditSlots
-
+    # (btk.Primitives.create, what the shared Edit panel's Create list calls)
     reset()
-    EditSlots._HELPERS["Locator"]()
+    btk.Primitives.create("Helper", "Locator")
     helper = bpy.context.view_layer.objects.active
     check("edit Create > Helper > Locator adds a typed locator Empty",
           helper is not None and helper.type == "EMPTY"
           and helper.get("maya_node_type") == "locator",
           f"{helper and helper.name}")
     reset()
-    EditSlots._HELPERS["Null Group"]()  # childless: untyped, it read as a locator
+    btk.Primitives.create("Helper", "Null Group")  # childless: untyped, it read as a locator
     null = bpy.context.view_layer.objects.active
     check("edit Create > Helper > Null Group adds a typed group Empty, its arrows kept",
           null is not None and null.get("maya_node_type") == "group"
@@ -1208,7 +1207,7 @@ try:
     import os as _os
     import shutil as _shutil
     import tempfile as _tempfile
-    from tentacle.slots.blender.main import MainSlots
+    from tentacle.slots.main import MainSlots
 
     class _SubStub:
         def __init__(self):
@@ -1236,10 +1235,10 @@ try:
     # Folder rows take the "folder_filled" icon through the switchboard's IconManager.
     slot = make_slot(
         MainSlots,
-        sb=NS(IconManager=NS(set_label_icon=lambda *a, **k: None)),
+        sb=NS(IconManager=NS(set_label_icon=lambda *a, **k: None), tk=btk),
     )
     root = _SubStub()
-    slot._populate_dir_contents(root, proj, max_depth=2)
+    slot._populate_dir_sublist(root, proj, max_depth=2)
     names = [i.text for i in root.added]
     # Folders only, like Maya's tree -- a click opens the folder in the system browser.
     check("workspace lists the sub-folders, not the files",
@@ -1253,41 +1252,49 @@ try:
     bpy.ops.wm.read_homefile(use_empty=True)
     _shutil.rmtree(proj, ignore_errors=True)
 
-    # ---- editors: every button + list entry opens a REAL editor (no dead links) ------------
-    from tentacle.slots.blender.editors import EditorsSlots
+    # ---- editors: every Blender button + list entry opens a REAL editor (no dead links) -----
+    # The composed EditorsSlots names editors the mayatk way; blendertk resolves each to
+    # its own editor (EDITOR_TYPES aliases). The buttons the .ui tags requires="maya" are
+    # hidden here, so only the ones Blender shows are driven.
+    from tentacle.slots.editors import EditorsSlots
 
     valid = set(btk.get_editor_types())
-    bad_buttons = {b: e for b, e in EditorsSlots._BUTTON_EDITORS.items() if e not in valid}
-    check("every editor button opens a real editor", not bad_buttons, f"{bad_buttons}")
-    bad_list = [e for items in EditorsSlots._EDITORS.values() for e in items if e not in valid]
+    bad_list = [
+        e
+        for items in btk.UiUtils.get_editor_categories().values()
+        for e in items
+        if e not in valid
+    ]
     check("every editors-list entry opens a real editor", not bad_list, f"{bad_list}")
 
-    # relabel: the five no-analogue Maya buttons show their substitute editor's name
-    class _Btn:
-        def __init__(self, name):
-            self._n, self.text_ = name, None
-        def objectName(self):
-            return self._n
-        def setText(self, t):
-            self.text_ = t
-        def setToolTip(self, t):
-            pass
-
+    asked = []
     eslot = make_slot(EditorsSlots)
-    relabeled = {}
-    for bn in EditorsSlots._RELABELED:
-        btn = _Btn(bn)
-        getattr(eslot, bn + "_init")(btn)
-        relabeled[bn] = btn.text_
-    check("substituted buttons relabel to their editor",
-          relabeled == {b: EditorsSlots._BUTTON_EDITORS[b] for b in EditorsSlots._RELABELED},
-          f"{relabeled}")
-    # each substitute editor must be unique across all 14 buttons (distinct from the kept
-    # buttons AND from each other) — count==1 in the full value list proves both.
-    vals = list(EditorsSlots._BUTTON_EDITORS.values())
-    subs = [EditorsSlots._BUTTON_EDITORS[b] for b in EditorsSlots._RELABELED]
-    check("each substitute editor is unique among the buttons",
-          all(vals.count(e) == 1 for e in subs), f"{subs}")
+    eslot.sb.tk = NS(
+        UiUtils=NS(
+            open_editor=lambda e: asked.append(e) or "ok",
+            toggle_editor=lambda e: asked.append(e) or True,
+            get_editor_types=btk.get_editor_types,
+        ),
+        ScriptConsole=NS(toggle=lambda: None),
+    )
+    blender_buttons = (
+        "b000", "b001", "b002", "b003", "b004", "b005", "b009", "b011",
+        "b014", "b015", "b016", "b017", "b018",
+    )
+    for bn in blender_buttons:
+        getattr(eslot, bn)()
+    bad_buttons = [e for e in asked if e not in valid]
+    check(
+        "every Blender editor button opens a real editor",
+        len(asked) == len(blender_buttons) and not bad_buttons,
+        f"asked={asked} bad={bad_buttons}",
+    )
+    blender_only = asked[-5:]
+    check(
+        "the five Blender-only buttons open five distinct editors",
+        len(set(blender_only)) == 5,
+        f"{blender_only}",
+    )
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

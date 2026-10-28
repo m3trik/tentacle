@@ -308,7 +308,7 @@ class TestViewLayerAccessUnderOverride(unittest.TestCase):
         "selected_editable_objects",
     )
     # (file, method): why the access is not an Object's view-layer state
-    _ALLOW = {("edit.py", "_reselect_faces"): "BMFace.select_set on an edit bmesh"}
+    _ALLOW = {}
 
     def _unguarded(self, tree):
         parents = {c: p for p in ast.walk(tree) for c in ast.iter_child_nodes(p)}

@@ -156,6 +156,43 @@
              <property name="text">
               <string>Status Line</string>
              </property>
+             <property name="requires" stdset="0">
+              <string>maya</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="b015">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>30</y>
+               <width>91</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Open the UV Editor in a new window.</string>
+             </property>
+             <property name="whatsThis">
+              <string>dynLayout</string>
+             </property>
+             <property name="text">
+              <string>UV Editor</string>
+             </property>
+             <property name="requires" stdset="0">
+              <string>blender</string>
+             </property>
             </widget>
             <widget class="QPushButton" name="b009">
              <property name="geometry">
@@ -179,7 +216,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Toggle the Time Slider and Range Slider UI.</string>
+              <string>Toggle the timeline (Maya: the Time and Range Sliders; Blender: the docked Timeline).</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -218,6 +255,43 @@
              <property name="text">
               <string>Shelf</string>
              </property>
+             <property name="requires" stdset="0">
+              <string>maya</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="b016">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>10</y>
+               <width>91</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Open the Image Editor in a new window.</string>
+             </property>
+             <property name="whatsThis">
+              <string>dynLayout</string>
+             </property>
+             <property name="text">
+              <string>Image Editor</string>
+             </property>
+             <property name="requires" stdset="0">
+              <string>blender</string>
+             </property>
             </widget>
             <widget class="QPushButton" name="b011">
              <property name="geometry">
@@ -241,7 +315,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Toggle the Command Line UI.</string>
+              <string>Toggle the command line (Blender: a Python Console docked under the viewport).</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -280,6 +354,43 @@
              <property name="text">
               <string>Help Line</string>
              </property>
+             <property name="requires" stdset="0">
+              <string>maya</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="b017">
+             <property name="geometry">
+              <rect>
+               <x>225</x>
+               <y>60</y>
+               <width>91</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Open the Graph Editor in a new window.</string>
+             </property>
+             <property name="whatsThis">
+              <string>dynLayout</string>
+             </property>
+             <property name="text">
+              <string>Graph Editor</string>
+             </property>
+             <property name="requires" stdset="0">
+              <string>blender</string>
+             </property>
             </widget>
             <widget class="QPushButton" name="b013">
              <property name="geometry">
@@ -311,6 +422,43 @@
              <property name="text">
               <string>Tool Box</string>
              </property>
+             <property name="requires" stdset="0">
+              <string>maya</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="b018">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>60</y>
+               <width>91</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>21</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Open the Text Editor in a new window.</string>
+             </property>
+             <property name="whatsThis">
+              <string>dynLayout</string>
+             </property>
+             <property name="text">
+              <string>Text Editor</string>
+             </property>
+             <property name="requires" stdset="0">
+              <string>blender</string>
+             </property>
             </widget>
             <widget class="QPushButton" name="b010">
              <property name="geometry">
@@ -334,7 +482,7 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>Toggle the Script Output console (docked to the Time Slider).</string>
+              <string>Toggle the Script Output console, docked by the timeline.</string>
              </property>
              <property name="whatsThis">
               <string>dynLayout</string>
@@ -387,7 +535,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Open the Channels/Layers panel.</string>
+           <string>Open the Channel Box (Blender: the Properties editor).</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -418,7 +566,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Open the Tool Settings window.</string>
+           <string>Open the tool settings (Blender: the Properties editor).</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -449,7 +597,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Open the Attribute Editor.</string>
+           <string>Open the Attribute Editor (Blender: the Properties editor).</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -511,7 +659,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Open the Channels/Layers panel.</string>
+           <string>Open the Layer Editor (Blender: the Outliner, where collections live).</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>
@@ -550,6 +698,43 @@
           <property name="text">
            <string>Dependency Graph</string>
           </property>
+          <property name="requires" stdset="0">
+           <string>maya</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="b014">
+          <property name="geometry">
+           <rect>
+            <x>105</x>
+            <y>160</y>
+            <width>116</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>21</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Open the Geometry Nodes editor in a new window.</string>
+          </property>
+          <property name="whatsThis">
+           <string>dynLayout</string>
+          </property>
+          <property name="text">
+           <string>Geometry Nodes</string>
+          </property>
+          <property name="requires" stdset="0">
+           <string>blender</string>
+          </property>
          </widget>
          <widget class="QPushButton" name="b005">
           <property name="geometry">
@@ -573,7 +758,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Open the Node Editor window.</string>
+           <string>Open the Node Editor (Blender: the Shader Editor).</string>
           </property>
           <property name="whatsThis">
            <string>dynLayout</string>

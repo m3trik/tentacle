@@ -198,6 +198,81 @@ class _TclInternal:
 
         return TclMax(**kwargs)
 
+    # ---------------------------------------------------------------- reload (Settings)
+    @classmethod
+    def _reload_maya(cls):
+        """Maya: retire, reload, then rebuild DEFERRED onto the idle queue.
+
+        The rebuild cannot run in this frame: the slot that asked belongs to a
+        module the reload re-executes, and building a marking menu while Qt is
+        still dispatching that click destroys and constructs widget trees under
+        the event being delivered. ``Tcl.launch`` defers on its own, so the new
+        instance comes up on an idle tick with every stale frame unwound. The
+        report goes through Maya (:meth:`_report_maya`), never the retired panel.
+        """
+        import html
+
+        from maya.utils import executeDeferred
+
+        retired = cls.prepare_reload("maya")
+
+        def rebuild():
+            from tentacle import Tcl as ReloadedTcl
+
+            try:
+                ReloadedTcl.launch()
+            finally:
+                cls.dispose_retired(retired)
+            return None
+
+        try:
+            reloaded = cls.reload_packages("maya")
+        except Exception as error:
+            # The teardown already retired the menu, so returning here would
+            # strand the session with no marking menu at all -- a worse place than
+            # the stale one it started from. Rebuild from whatever is loaded.
+            print(f"# Error: tentacle: reload failed: {error} #")
+            executeDeferred(rebuild)
+            cls._report_maya(f"Tentacle reload FAILED: {html.escape(str(error))}")
+            return 0
+
+        executeDeferred(rebuild)
+        # reload_packages already NAMED each failure on the console; the line here
+        # only says the reload was partial. Tolerant access: an older pythontk
+        # returns a plain list rather than a ReloadReport.
+        failed = getattr(reloaded, "failed", ())
+        if failed:
+            cls._report_maya(
+                f"Tentacle reloaded {len(reloaded)} modules, "
+                f"{len(failed)} FAILED (see the script editor)."
+            )
+        else:
+            cls._report_maya(f"Tentacle reloaded ({len(reloaded)} modules).")
+        return len(reloaded)
+
+    @staticmethod
+    def _report_maya(message):
+        """Report through MAYA (an in-view message and the script editor): a
+        ``message_box`` would render on the switchboard the reload just retired."""
+        try:
+            from maya import cmds
+
+            cmds.inViewMessage(amg=message, pos="topCenter", fade=True)
+        except Exception:  # no viewport (batch) -- the console still gets it
+            pass
+        print(f"# Result: {message} #")
+
+    @classmethod
+    def _reload_blender(cls):
+        """Blender: ``tcl_blender.reload()`` tears tentacle's own surface down
+        (keymap, operator, poller, the Script Output dock) on top of
+        :meth:`prepare_reload`, reloads, and re-registers on the next timer tick.
+        It raises when the reload itself fails, before re-registering."""
+        tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
+        count = tcl_blender.reload()
+        print(f"tentacle: reloaded {count} module(s); re-registering on the next tick.")
+        return count
+
     # ---------------------------------------------------------------- engine extras
     @classmethod
     def engine_dists(cls, host):
@@ -411,7 +486,7 @@ class Tcl(_TclInternal):
         The base dependencies plus, when *host* names one, that host's engine extra —
         so a Maya install reports ``mayatk`` and never ``blendertk``, and a package the
         host cannot use can't be reported stale (or silently reinstalled) by the updater
-        in ``slots/_settings.py``, which is this method's caller.
+        in ``slots/settings.py`` (``SettingsSlots.ecosystem_dists``), this method's caller.
 
         Read from installed metadata, so it tracks ``pyproject.toml`` with no second
         copy. Returns ``()`` on a source checkout with no metadata — a caller that must
@@ -724,6 +799,28 @@ class Tcl(_TclInternal):
         if key_show is not None:
             kwargs["key_show"] = key_show
         return getattr(cls, f"_launch_{host}")(**kwargs)
+
+    @classmethod
+    def reload(cls):
+        """Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
+        place and rebuild it, the way the running host requires (the twin of
+        :meth:`launch`: ``_reload_maya`` / ``_reload_blender``).
+
+        Returns:
+            int: The number of modules reloaded (0 after a Maya reload that failed
+            and rebuilt from what was loaded).
+
+        Raises:
+            RuntimeError: No supported host, or one with no reload; Blender's
+                reload when it fails.
+        """
+        host = cls.host()
+        reload = getattr(cls, f"_reload_{host}", None) if host else None
+        if reload is None:
+            raise RuntimeError(
+                f"tentacle: Reload Scripts runs inside Maya or Blender (host: {host})."
+            )
+        return reload()
 
 
 # --------------------------------------------------------------------------------------------

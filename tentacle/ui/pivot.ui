@@ -178,7 +178,7 @@ Use the option box to align the manipulator pivot instead of the object pivot.</
             </size>
            </property>
            <property name="toolTip">
-            <string>Transfer the pivot orientation from the first given object to the remaining given objects.</string>
+            <string>Transfer the pivot from the source object (Maya: the first selected; Blender: the active object) to the other selected objects.</string>
            </property>
            <property name="text">
             <string>Transfer</string>
@@ -242,7 +242,7 @@ Use the option box to choose which to reset.</string>
             </size>
            </property>
            <property name="toolTip">
-            <string>Bake the manipulator pivot's current position and orientation into the object's transform.</string>
+            <string>Bake the temporary pivot (Maya: the manipulator pivot; Blender: the 3D cursor) into the selected objects' pivots, geometry unmoved.</string>
            </property>
            <property name="text">
             <string>Bake</string>

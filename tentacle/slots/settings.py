@@ -1,34 +1,27 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Shared, DCC-agnostic behavior for the ``settings`` panel.
+"""Settings: one Slots class for both hosts.
 
-The per-panel home for logic the Maya and Blender ``SettingsSlots`` forks share (mixed in
-ahead of their ``SlotsMaya`` / ``SlotsBlender`` base). Grow this class rather than adding a
-new module per feature — see the convention in ``tentacle/CLAUDE.md``.
-
-Currently: the header Package menu (Update / Reload entries), the ecosystem-wide
-in-app updater, the uitk editor launchers, and the marking-menu binding combos.
-Only ``tb001`` (Reload Scripts) and the pip interpreter stay DCC-specific.
+Tentacle's own settings: the header's Package menu (Update Package, Reload
+Scripts), the uitk editor launchers and the marking-menu binding combos. The
+updater drives pip through the host's own interpreter
+(``self.tk.EnvUtils.python_executable``: mayapy, or Blender's bundled Python);
+Reload Scripts is the launcher's (``Tcl.reload``), which tears tentacle down and
+rebuilds it the way its host requires.
 """
+
 import html
 
 import pythontk as ptk
 
+from tentacle import Slots
 
-class SettingsMixin:
-    """DCC-agnostic ``settings`` slot behavior.
 
-    ``tb000`` — ecosystem update check; ``b020``–``b024`` — uitk editors;
-    ``cmb_bind_*`` / ``b_reset_bindings`` — marking-menu route combos.
-
-    Concrete slots provide ``_update_python_path()`` (the interpreter whose
-    environment pip checks and upgrades) and ``tb001`` (Reload Scripts).
-    """
-
+class SettingsSlots(Slots):
     # The distributions the updater checks and upgrades together. A fix routinely
     # ships as a dependency patch with no tentacletk bump (push.ps1 releases each
     # package independently), and pip's only-if-needed upgrade strategy would leave
-    # an already-satisfied pin untouched — so checking tentacletk alone reports
+    # an already-satisfied pin untouched -- so checking tentacletk alone reports
     # "up to date" while e.g. uitk stays stale.
     #
     # Fallback only. The live list is DERIVED per host by :meth:`ecosystem_dists`
@@ -37,6 +30,11 @@ class SettingsMixin:
     # "blendertk not installed -> X.Y.Z" and pip-install it on the next update.
     ECOSYSTEM_DISTS = ("pythontk", "uitk", "tentacletk")
 
+    def __init__(self, switchboard):
+        super().__init__(switchboard)
+        self.ui = self.sb.loaded_ui.settings
+        self.submenu = self.sb.loaded_ui.settings_submenu
+
     @classmethod
     def ecosystem_dists(cls, installed=None):
         """The distributions to check for updates in THIS host.
@@ -44,20 +42,18 @@ class SettingsMixin:
         Base dependencies + the running host's engine extra + ``tentacletk``, straight
         from the installed metadata (see :meth:`tentacle.Tcl.declared_dists`), so the
         set tracks ``pyproject.toml`` and never reports the other DCC's engine as
-        missing. Falls back to :attr:`ECOSYSTEM_DISTS` when metadata is unreadable — a
-        source checkout, or a vendored copy — where reporting the engine-free base beats
+        missing. Falls back to :attr:`ECOSYSTEM_DISTS` when metadata is unreadable -- a
+        source checkout, or a vendored copy -- where reporting the engine-free base beats
         reporting nothing.
 
         Parameters:
             installed (dict): ``{dist: version}`` as returned by
                     ``PackageManager.list_packages``. Any OTHER host's engine that is
-                    already present is added, so it keeps being maintained. This is not
-                    a corner case: every install made before the engines became extras
-                    hard-pinned BOTH, so the whole existing user base has the other
-                    DCC's engine sitting in its environment — and dropping it from the
-                    check would silently freeze it at its installed version forever.
-                    Present-only, so a missing engine is still never installed (that
-                    reinstall-the-wrong-engine behavior is the bug this method fixes).
+                    already present is added, so it keeps being maintained: every
+                    install made before the engines became extras hard-pinned BOTH,
+                    and dropping the other one would freeze it at its installed
+                    version forever. Present-only, so a missing engine is still
+                    never installed.
         """
         try:
             from tentacle import Tcl
@@ -76,7 +72,7 @@ class SettingsMixin:
     def header_init(self, widget):
         """Initialize header"""
         if not widget.is_initialized:
-            # Every entry is a one-shot action — dismiss the menu once one is triggered.
+            # Every entry is a one-shot action -- dismiss the menu once one is triggered.
             widget.menu.hide_on_trigger = True
             widget.menu.add(
                 self.sb.registered_widgets.Separator,
@@ -99,14 +95,32 @@ class SettingsMixin:
         """Update Package"""
         self.check_for_update()
 
+    def tb001(self):
+        """Reload Scripts: tear tentacle down, reload the ecosystem in place, and
+        rebuild it on the host's next idle tick (``Tcl.reload``). Maya reports
+        through Maya itself, never this panel, which the reload retires."""
+        from tentacle import Tcl
+
+        try:
+            Tcl.reload()
+        except Exception as error:
+            print(f"Tentacle reload failed: {error}")
+            self.sb.message_box(
+                "<b>Reload failed.</b><br><small>{}</small>".format(
+                    html.escape(str(error))
+                )
+            )
+
     def check_for_update(self):
         """Check the whole ecosystem for updates and upgrade what's outdated."""
-        pkg_mgr = ptk.PackageManager(python_path=self._update_python_path())
+        pkg_mgr = ptk.PackageManager(
+            python_path=self.tk.EnvUtils.python_executable()
+        )
         try:
             installed_all = pkg_mgr.list_packages()  # one pip call for every version
             # Concurrent, and failure-isolating: a lookup that could not reach
             # the index comes back None. Comparing against None would read as
-            # "outdated", so an unknown is skipped rather than reported — but if
+            # "outdated", so an unknown is skipped rather than reported -- but if
             # NONE of them resolved, the check itself failed and must say so
             # instead of quietly claiming everything is current.
             dists = self.ecosystem_dists(installed_all)
@@ -134,7 +148,7 @@ class SettingsMixin:
                 f"<small>{dist} {installed} → <hl>{latest}</hl></small>"
                 for dist, installed, latest in outdated
             )
-            # message_box buttons must be Qt StandardButton NAMES — anything
+            # message_box buttons must be Qt StandardButton NAMES -- anything
             # else is dropped and leaves the dialog without its affirmative.
             user_choice = self.sb.message_box(
                 f"<b>Update available. Install now?</b><br>{rows}", "Yes", "No"
@@ -170,14 +184,13 @@ class SettingsMixin:
         self.sb.editors.show("ui_browser")
 
     def b023(self):
-        """Global Shortcuts: open the shortcut editor focused on the global
-        triggers — the marking-menu activation key, repeat-last, and reopen-last
-        UI. Replaces the inline activation-key / repeat-last key-sequence editors;
-        the marking-menu chord→menu targets stay in the Menu Bindings combos."""
+        """Global Shortcuts: the shortcut editor focused on the global triggers --
+        the marking-menu activation key, repeat-last, and reopen-last UI. The
+        marking-menu chord->menu targets stay in the Menu Bindings combos."""
         self.sb.editors.show("global_shortcuts")
 
     def b024(self):
-        """Preset Editor: every tool's presets in one window — lock, group into
+        """Preset Editor: every tool's presets in one window -- lock, group into
         collections, back up, and import/share (uitk ``PresetEditor``)."""
         self.sb.editors.show("preset_editor")
 
@@ -186,7 +199,7 @@ class SettingsMixin:
     # -------------------------------------------------------------------------
 
     def _get_startmenus(self) -> list:
-        """Available startmenu UIs — via the marking menu's SSoT helper."""
+        """Available startmenu UIs -- via the marking menu's SSoT helper."""
         mm = self.sb.handlers.marking_menu
         return mm.start_menu_names(short=False) if mm is not None else []
 

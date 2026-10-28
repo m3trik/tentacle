@@ -31,17 +31,12 @@ DEFAULT_INCLUDE = {
     # Tools list both forks build identically), so it is mixed in per panel for
     # the same reason as the rest.
     "slots._animation": "AnimationMixin",
-    "slots._edit": "EditMixin",
-    "slots._main": "MainMixin",
     "slots._materials": "MaterialsMixin",
     "slots._nurbs": "NurbsMixin",
-    "slots._pivot": "PivotMixin",
-    "slots._preferences": "PreferencesMixin",
     "slots._rendering": "RenderingMixin",
     "slots._rigging": "RiggingMixin",
     "slots._scene": "SceneMixin",
     "slots._selection": "SelectionMixin",
-    "slots._settings": "SettingsMixin",
     "slots._transform": "TransformMixin",
     "slots._uv": "UvMixin",
 }
@@ -55,6 +50,11 @@ MOVED_NAMES = {
     "DuplicateMixin": ("tentacle.slots.duplicate.DuplicateSlots", "0.17.0"),
     "LightingMixin": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),
     "HudWarningsMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "EditMixin": ("tentacle.slots.edit.EditSlots", "0.17.0"),
+    "MainMixin": ("tentacle.slots.main.MainSlots", "0.17.0"),
+    "PivotMixin": ("tentacle.slots.pivot.PivotSlots", "0.17.0"),
+    "PreferencesMixin": ("tentacle.slots.preferences.PreferencesSlots", "0.17.0"),
+    "SettingsMixin": ("tentacle.slots.settings.SettingsSlots", "0.17.0"),
 }
 
 

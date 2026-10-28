@@ -15,7 +15,7 @@ on a workstation without Maya.
 | `test_cmds_references.py` | Every `cmds.X(...)` call site in the slots resolves (`hasattr(maya.cmds, "X")` is `True`). Catches typos like `cmds.displayInfo` (doesn't exist). |
 | `test_mel_references.py` | First token of every `mel.eval("Y …")` literal string resolves via `whatIs`. Reports unknowns as failures so missing MEL procs surface immediately. |
 | `test_fstring_mel_references.py` | First token of every `mel.eval(f"Y …{expr}…")` static prefix resolves via `whatIs`. Same class of typo as above but for f-string forms (`manipPivotReset`, `texStraightenUVs`, etc.). |
-| `test_dynamic_mel_commands.py` | MEL strings stored in module/class-level constant tables (e.g. `_CONVERT_COMMANDS` in `edit.py`) are scanned for first-token resolvability. Catches typos in dispatch tables that the call-site scanner can't follow. |
+| `test_dynamic_mel_commands.py` | MEL strings stored in module/class-level constant tables (e.g. a MEL dispatch table in a `slots/maya/` fork) are scanned for first-token resolvability. Catches typos in dispatch tables that the call-site scanner can't follow. |
 | `test_namespace_references.py` | Every `mtk.X(.Y)?` and `ptk.X(.Y)?` chain in the slots resolves against the actual `mayatk` / `pythontk` package. Both use a dynamic attribute resolver, so missing names don't fail at import — only at click time. |
 
 The tests deliberately **do not** instantiate slot classes or run their

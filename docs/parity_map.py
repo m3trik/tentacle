@@ -191,30 +191,8 @@ HANDLERS = {
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
     "animation": {},
-    "edit": {
-        # tb001_init: removed 2026-07-17 — BUILT. Blender's tb001 is repurposed from the old
-        # not-applicable "Delete History" message-box stub into "Optimize" (bpy.data.orphans_purge),
-        # so it now ships a real tb001_init (runtime relabel + a Recursive/Include-Linked option
-        # box) matching Maya's — no longer intentionally absent, so no ledger entry is needed.
-        # tb004_init: removed 2026-07-17 — BUILT. Blender's tb004 is repurposed from the old
-        # not-applicable stub into an Object-Lock toggle (hide_select = make unselectable, the
-        # intent-analogue of Maya's node lock), so it now ships a real tb004_init building the
-        # cmb_lock Lock/Unlock selector — matching Maya's. No entry needed.
-    },
-    "pivot": {
-        # tb002_init: BUILT 2026-07-28 — Blender's tb002 gained a real option box carrying the
-        # Mirror combo (cmb000; see CONTROLS_SLOTS['pivot'] for the per-control triage). The
-        # chk005-009 channel/space/bake toggles stay absent (ledgered there).
-        # tb003_init: removed 2026-07-18 — BUILT. Blender's tb003 (World-Aligned Pivot) is no
-        # longer a not-applicable stub: it now ships a real tb003_init building the Manip Pivot
-        # option (chk010) 1:1 with Maya's, and the slot mirrors both halves (manip-on → Global
-        # transform orientation, off → apply-rotation). Matched on both sides, so no entry needed.
-    },
     "polygons": {},
-    "preferences": {},
     "rigging": {},
-    "settings": {
-    },
     "subdivision": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
     # took the Transfer tool UvMixin's option box was).
@@ -250,21 +228,6 @@ CONTROLS_SLOTS = {
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
     },
-    "edit": {
-        "chk012": {"status": "na", "reason": "Maya polyCleanup 'holed polys' checks faces containing holes; Blender BMesh faces cannot hold holes (no holed-face data model) and blender/edit.py documents Holed as not mirrored (no bmesh primitive)."},
-        "chk016": {"status": "na", "reason": "Maya-only data model: Maya stores per-vertex-shareable UVs that cleanup can 'unshare'; Blender UVs are always per-loop so shared-across-vertices UVs cannot exist; blender/edit.py documents Shared-UV as not mirrored."},
-        "chk018": {"status": "na", "reason": "Maya lamina faces (faces sharing all edges) are structurally impossible in BMesh (duplicate faces over one vert set are rejected); blender/edit.py documents Lamina as not mirrored; near-coincident doubles are covered by chk025 Overlapping Faces."},
-        "chk019": {"status": "replaced", "to": "tb001 Optimize (bpy.data.orphans_purge)", "reason": "Maya tb001 Delete History option 'Delete Unused Nodes' (MLdeleteUnused + empty-group purge). Blender's tb001 is repurposed as Optimize, which purges orphaned (zero-user) datablocks — the same 'remove unused nodes' capability, expressed as a button-level purge rather than a per-run checkbox (recursion/linked scope are its own chk_purge_* options)."},
-        "chk020": {"status": "na", "reason": "'Delete Deformers' toggles deleting full vs non-deformer construction history (cmds.delete ch=True vs bakePartialHistory) — the construction-history part of Delete History, which does not exist in Blender (modifier stack is non-destructive). Only the purge-unused subset (chk019/chk030) maps onto the repurposed tb001 Optimize; deformer/history deletion has no analogue."},
-        "chk026": {"status": "na", "reason": "tb000 pre-cleanup option 'Delete History' bakes non-deformer construction history (bakePartialHistory) before polyCleanup; Blender has no construction history so the pre-pass is meaningless, per the documented drop in blender/edit.py."},
-        # cmb_lock: now BUILT on both DCCs with the same objectName (tb004 Object Locking) — the
-        # missing-control na entry is obsolete. The only divergence is the combo item labels
-        # ('Unlock/Lock Objects' on Blender vs 'Unlock/Lock Nodes' on Maya — Blender has objects,
-        # not DG nodes), an intentional Blender-idiomatic rename tracked as an accepted item delta.
-        "cmb_lock": {"status": "accepted-delta", "reason": "tb004 Object Locking Lock/Unlock selector — same objectName + capability; combo items read 'Unlock/Lock Objects' (Blender toggles hide_select on objects) vs Maya's 'Unlock/Lock Nodes' (cmds.lockNode on DG nodes)."},
-        "chk030": {"status": "replaced", "to": "tb001 Optimize (bpy.data.orphans_purge)", "reason": "Maya tb001 Delete History option running MEL 'OptimizeScene' (the scene optimizer). Blender's repurposed tb001 Optimize IS the analogue — bpy.data.orphans_purge drops every unused datablock, Blender's counterpart to Optimize Scene's unused-node removal (the construction-history part of the same button stays na — see chk020)."},
-        "cmb_del_scope": {"status": "na", "reason": "Scope selector (Selected / Visible / All Geometry) for Maya's Delete History — replaces the old dead chk031 'For All Objects' checkbox (tb001 never read it). Blender's tb001 Optimize purges orphaned datablocks, which by definition have zero users, so there is no selected-vs-all scope for unused data; the purge is inherently file-wide and needs no scope control."},
-    },
     "materials": {
         "b007": {"status": "renamed", "to": "b_shader_editor", "reason": "Hypershade Editor -> 'Shader Editor' header button (btk.open_editor, Blender's Hypershade analogue)"},
         "tb002": {"status": "pending", "reason": "Enable Viewport Opacity — wires each material's opacity map (in-network, or found beside its other textures on disk) into the slot its shader type honors, so transparency shows in the viewport. Maya's engine side is mtk.MatUtils.enable_viewport_opacity / get_mats_by_scope / find_opacity_source. The Blender twin is buildable on the same shape: find the image texture whose path resolves to an Opacity map, connect its Alpha into the Principled BSDF Alpha socket, and switch the material to blended surface rendering (4.2+ surface_render_method='BLENDED'; blend_method='BLEND' before that) — needs a live Blender pass to pin the version-dependent property, so it is tracked as open work rather than guessed."},
@@ -287,23 +250,6 @@ CONTROLS_SLOTS = {
         "s002": {"status": "na", "reason": "Revolve 'Degree' = NURBS surface degree; the Screw-modifier mesh has no degree — explicitly excused in the blender slot's tb000 comment."},
         "s006": {"status": "na", "reason": "Revolve 'Tolerance' value pairs with chk009's use-tolerance NURBS build flag; excused together in the blender slot's tb000 comment."},
         "s007": {"status": "na", "reason": "Loft 'Angle Loft: Spans' pairs with chk010's angle-loft mode; excused together with angle-loft in the blender slot's documented drops."},
-    },
-    "pivot": {
-        "chk001": {"status": "na", "reason": "Reset Pivot Orientation drives Maya manipPivotReset's orientation channel; Blender's object origin is a point with no manipulator-pivot orientation — Blender tb000_init deliberately ships only chk000 and the module docstring documents the single-baked-origin model."},
-        "chk005": {"status": "replaced", "to": "tb002 always-on translate (btk.transfer_pivot)", "reason": "Translate is Blender's only pivot channel, so the toggle is meaningless; the capability runs unconditionally via btk.transfer_pivot(translate=True) in the Blender tb002 (whose option box, since 2026-07-28, carries only the Mirror combo)."},
-        "chk006": {"status": "na", "reason": "Rotate-pivot transfer has no Blender analogue — btk.transfer_pivot accepts rotate= only for signature parity and no-ops (Blender has no separate rotate pivot)."},
-        "chk007": {"status": "na", "reason": "Scale-pivot transfer has no Blender analogue — btk.transfer_pivot accepts scale= only for signature parity and no-ops (Blender has no separate scale pivot)."},
-        "chk008": {"status": "na", "reason": "Transfer-Pivot Bake toggle bakes Maya pivot values into the transform node; Blender's tb002 has no such per-transfer toggle (origins are always baked; its option box carries only the Mirror combo). The standalone Bake Pivot button (b004) is a real op now — origin_set(ORIGIN_CURSOR), baking the 3D-cursor pivot into the origin — but exposes no option box, so this Transfer-Pivot toggle has no Blender twin."},
-        "chk009": {"status": "na", "reason": "World Space toggle is meaningless in Blender's transfer model — btk.transfer_pivot documents world_space as implicit (origin read via matrix_world; 3D-cursor snap is world-space by construction)."},
-        # cmb000 (Transfer-Pivot Mirror) BUILT 2026-07-28: the new tb002_init builds the Mirror
-        # combo (None/X/Y/Z) 1:1 with Maya's, and btk.transfer_pivot gained mirror= (reflects
-        # the source origin across the chosen world axis-plane before the ORIGIN_CURSOR snap —
-        # the position level of mtk's mirror; rotate/scale conjugation stays N/A, single-point
-        # origin). Verified headless in test_xform_utils.py. No delta.
-        # chk010: removed 2026-07-18 — BUILT. Blender's tb003_init now builds the Manip Pivot
-        # option 1:1 with Maya's (same objectName/label/default), so it matches on both sides.
-        # The behavioral mapping (manip-on → Global orientation, off → apply-rotation) lives in
-        # the slot code, not the widget properties, so there's no surface delta to ledger.
     },
     "polygons": {
         "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
@@ -455,9 +401,6 @@ DEFAULT_DELTAS = {
     },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
-    },
-    "edit": {
-        "cmb000.items": "Deliberately different item list (Transfer menu): Blender's Data-Transfer operator works one data-layer at a time, so Maya's single 'Attribute Values' dialog (UVs/vertex colors/weights/normals together) is broken out into its natural granular items (UVs / Vertex Colors / Vertex Group Weights / Custom Normals); 'Shading Sets' is renamed to Blender's own term 'Material Slots'. Maya's 'Maps' (Cycles-scale bake setup) and 'Vertex Order' (interactive click-to-match reindex, no bpy primitive) are intentionally dropped rather than added as inert entries — see the _TRANSFER_OPS comment in blender/edit.py.",
     },
     "subdivision": {
         "cmb000.items": "Decimate 'Reduce' item names its output metric by each host's native algorithm: Maya = Quadric Error % ('Reduce (Quadric Error %)', data 'qem', cmds.polyReduce QEM), Blender = Collapse % ('Reduce (Collapse %)', data 'collapse', Decimate modifier collapse mode). Same Reduce slot/operation; only the metric name in the item text (and its data token) differs to match each DCC's native reduction.",

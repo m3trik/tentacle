@@ -2,12 +2,12 @@
 # coding=utf-8
 """GUI harness: editors ``b009`` (docked Timeline toggle) + ``b010`` (script-output skin).
 
-Drives the **real** ``EditorsSlots`` slot methods in a fresh GUI Blender so both run the way a live
-click does (never an existing session)::
+Drives the **real** shared ``EditorsSlots`` slot methods over ``btk`` (``self.tk``) in a fresh GUI
+Blender so both run the way a live click does (never an existing session)::
 
     blender --factory-startup --python tentacle/test/blender/editors_toggle_check.py
 
-* **b009** — Maya parity is a *docked* toggle (``btk.toggle_editor("Timeline")``): first click
+* **b009** — Maya parity is a *docked* toggle (``btk.UiUtils.toggle_editor("Timeline")``): first click
   closes the docked Timeline in place, second click re-docks it along the bottom of the viewport
   — never spawning a floating window. Asserts the area count, the re-dock geometry (bottom +
   viewport-width), and that no new window appears.
@@ -75,9 +75,12 @@ def ck(name, cond, extra=""):
 
 
 def make_slot(cls):
-    """Instance without the UI-loading ``__init__`` (b009/b010 touch neither sb.ui nor loaded_ui)."""
+    """Instance without the UI-loading ``__init__`` (b009/b010 touch neither sb.ui nor loaded_ui);
+    the shared class reaches Blender through the toolkit the entry point puts on ``sb.tk``."""
+    import blendertk as btk
+
     slot = cls.__new__(cls)
-    slot.sb = NS(message_box=lambda *a, **k: None)
+    slot.sb = NS(message_box=lambda *a, **k: None, tk=btk)
     return slot
 
 
@@ -103,7 +106,7 @@ def _b009():
 
         if tb._KeymapBridge.tcl is None:
             tb.launch()
-        from tentacle.slots.blender.editors import EditorsSlots
+        from tentacle.slots.editors import EditorsSlots
 
         slot = make_slot(EditorsSlots)
         win0 = bpy.context.window_manager.windows[0]
@@ -153,7 +156,7 @@ def _main_areas():
 
 def _b010_show():
     try:
-        from tentacle.slots.blender.editors import EditorsSlots
+        from tentacle.slots.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
@@ -262,7 +265,7 @@ def _b010_measure():
 
 def _b010_hide():
     try:
-        from tentacle.slots.blender.editors import EditorsSlots
+        from tentacle.slots.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
@@ -297,7 +300,7 @@ def _b010_hide():
 
 def _b010_reshow():
     try:
-        from tentacle.slots.blender.editors import EditorsSlots
+        from tentacle.slots.editors import EditorsSlots
         from blendertk.env_utils import script_output as so
         from qtpy import QtWidgets
 
