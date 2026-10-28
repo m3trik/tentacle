@@ -913,7 +913,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host toolkit (``mtk`` / ``btk``) the entry point set on the",
-              "line": 49,
+              "line": 55,
               "deprecated": false
             },
             {
@@ -922,7 +922,25 @@
               "kind": "staticmethod",
               "signature": "(widget, seed=None) -> None",
               "summary": "Declare that *widget*'s value mirrors live DCC state, optionally seeding it.",
-              "line": 75,
+              "line": 81,
+              "deprecated": false
+            },
+            {
+              "name": "require_selection",
+              "qualname": "Slots.require_selection",
+              "kind": "method",
+              "signature": "(self, message=None)",
+              "summary": "The selection, or ``None`` -- after a message box -- when it is empty.",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "activate_tool",
+              "qualname": "Slots.activate_tool",
+              "kind": "method",
+              "signature": "(self, tool) -> bool",
+              "summary": "Activate a viewport tool through the host toolkit and confirm it, or say",
+              "line": 144,
               "deprecated": false
             },
             {
@@ -931,7 +949,7 @@
               "kind": "method",
               "signature": "(self, sublist, widget_class=None, **kwargs)",
               "summary": "Add a slot-wired widget as an ExpandableList sublist entry.",
-              "line": 115,
+              "line": 166,
               "deprecated": false
             },
             {
@@ -940,7 +958,7 @@
               "kind": "method",
               "signature": "(self, widget, resolve_spec) -> bool",
               "summary": "Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.",
-              "line": 200,
+              "line": 251,
               "deprecated": false
             },
             {
@@ -949,7 +967,7 @@
               "kind": "method",
               "signature": "(self) -> int",
               "summary": "Re-probe every gated app and re-present its widgets.",
-              "line": 246,
+              "line": 297,
               "deprecated": false
             },
             {
@@ -958,7 +976,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two viewport-camera views in slot history.",
-              "line": 268,
+              "line": 319,
               "deprecated": false
             },
             {
@@ -967,7 +985,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
-              "line": 299,
+              "line": 350,
               "deprecated": false
             }
           ]
@@ -1087,7 +1105,7 @@
         {
           "name": "SlotsBlender",
           "summary": "App specific methods inherited by all other Blender slot classes.",
-          "line": 8,
+          "line": 7,
           "bases": [
             "Slots"
           ],
@@ -1097,8 +1115,8 @@
               "qualname": "SlotsBlender.selected_objects",
               "kind": "staticmethod",
               "signature": "()",
-              "summary": "The current object selection (filtered of ``None``) — shared by all Blender slots.",
-              "line": 15,
+              "summary": "The current object selection: ``btk.CoreUtils.selected_objects`` (the",
+              "line": 22,
               "deprecated": false
             },
             {
@@ -1106,8 +1124,8 @@
               "qualname": "SlotsBlender.active_object",
               "kind": "staticmethod",
               "signature": "()",
-              "summary": "The active object (or ``None``) — shared by all Blender slots.",
-              "line": 26,
+              "summary": "The active object (or ``None``): ``btk.CoreUtils.active_object`` (the",
+              "line": 29,
               "deprecated": false
             },
             {
@@ -1115,8 +1133,8 @@
               "qualname": "SlotsBlender.effective_fps",
               "kind": "staticmethod",
               "signature": "() -> float",
-              "summary": "The scene frame rate as the user understands it — ``fps / fps_base`` — shared by all",
-              "line": 35,
+              "summary": "The scene frame rate as the user understands it, ``fps / fps_base`` (an",
+              "line": 36,
               "deprecated": false
             },
             {
@@ -1124,8 +1142,8 @@
               "qualname": "SlotsBlender.ensure_edit_mode",
               "kind": "method",
               "signature": "(self, obj_type='MESH', select_mode=None)",
-              "summary": "Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally",
-              "line": 45,
+              "summary": "Put an object of ``obj_type`` into Edit Mode, optionally setting the mesh",
+              "line": 42,
               "deprecated": false
             },
             {
@@ -1133,8 +1151,8 @@
               "qualname": "SlotsBlender.ensure_object_mode",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,",
-              "line": 83,
+              "summary": "Leave Edit (or any other) Mode before object-level work:",
+              "line": 49,
               "deprecated": false
             },
             {
@@ -1142,8 +1160,8 @@
               "qualname": "SlotsBlender.set_viewport_tool",
               "kind": "method",
               "signature": "(self, tool_id, label=None, edit_type=None)",
-              "summary": "Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /",
-              "line": 104,
+              "summary": "Activate a builtin viewport tool by idname: ``btk.UiUtils.set_tool``,",
+              "line": 59,
               "deprecated": false
             },
             {
@@ -1152,7 +1170,7 @@
               "kind": "staticmethod",
               "signature": "(op_path)",
               "summary": "The ``bpy.ops`` callable at a dotted path (``\"wm.link\"``), or None when the",
-              "line": 161,
+              "line": 80,
               "deprecated": false
             },
             {
@@ -1160,8 +1178,8 @@
               "qualname": "SlotsBlender.invoke_op",
               "kind": "method",
               "signature": "(self, op_path, **kwargs)",
-              "summary": "Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a",
-              "line": 167,
+              "summary": "Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``):",
+              "line": 85,
               "deprecated": false
             },
             {
@@ -1169,8 +1187,8 @@
               "qualname": "SlotsBlender.transfer_from_active",
               "kind": "method",
               "signature": "(self, data_type, **kwargs)",
-              "summary": "Run native Data-Transfer from the active mesh to the other selected meshes",
-              "line": 187,
+              "summary": "Run native Data Transfer from the active mesh to the other selected meshes",
+              "line": 99,
               "deprecated": false
             }
           ]
@@ -1602,7 +1620,7 @@
               "qualname": "AnimationSlots.b000",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1",
+              "summary": "Open Shot Sequencer — tentacle's shared tool (slots/tools/shot_sequencer.py): shots",
               "line": 1978,
               "deprecated": false
             },
@@ -1612,7 +1630,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked",
-              "line": 1985,
+              "line": 1984,
               "deprecated": false
             },
             {
@@ -1621,7 +1639,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working",
-              "line": 1990,
+              "line": 1989,
               "deprecated": false
             }
           ]
@@ -5182,7 +5200,7 @@
               "qualname": "SlotsMaya.require_selection",
               "kind": "method",
               "signature": "(self, message=None, **kwargs)",
-              "summary": "The current selection, or ``None`` — after a message box — when it is empty.",
+              "summary": "The current selection, or ``None`` -- after a message box -- when it is empty.",
               "line": 20,
               "deprecated": false
             }
@@ -9966,7 +9984,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Set Normals By Angle",
-              "line": 26,
+              "line": 20,
               "deprecated": false
             },
             {
@@ -9975,7 +9993,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Set Normals By Angle",
-              "line": 68,
+              "line": 62,
               "deprecated": false
             },
             {
@@ -9984,7 +10002,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Average Normals",
-              "line": 90,
+              "line": 84,
               "deprecated": false
             },
             {
@@ -9993,7 +10011,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Average Normals",
-              "line": 102,
+              "line": 96,
               "deprecated": false
             },
             {
@@ -10002,7 +10020,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Soften Edge Normals",
-              "line": 110,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -10011,7 +10029,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Harden Edge Normals",
-              "line": 114,
+              "line": 108,
               "deprecated": false
             },
             {
@@ -10020,7 +10038,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Transfer Normals: from the first selected (Maya) or active (Blender)",
-              "line": 118,
+              "line": 112,
               "deprecated": false
             },
             {
@@ -10029,7 +10047,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle lock/unlock normals.",
-              "line": 131,
+              "line": 125,
               "deprecated": false
             },
             {
@@ -10038,7 +10056,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Set To Face: vertex normals follow their faces (faceted shading).",
-              "line": 141,
+              "line": 135,
               "deprecated": false
             },
             {
@@ -10047,7 +10065,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both",
-              "line": 145,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -10056,7 +10074,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
-              "line": 164,
+              "line": 158,
               "deprecated": false
             }
           ]
@@ -12467,6 +12485,1039 @@
           "line": 25,
           "bases": [],
           "members": []
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/clip_menu.py",
+      "summary": "Clip context menus and clip-level key operations.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ClipMenuMixin",
+          "summary": "Clip and gap context menus, and the clip-level key operations they run.",
+          "line": 20,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_clip_menu",
+              "qualname": "ClipMenuMixin.on_clip_menu",
+              "kind": "method",
+              "signature": "(self, menu, clip_id: int) -> None",
+              "summary": "Add domain-specific actions to a clip's context menu.",
+              "line": 25,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_menu",
+              "qualname": "ClipMenuMixin.on_gap_menu",
+              "kind": "method",
+              "signature": "(self, menu, gap_start: float, gap_end: float) -> None",
+              "summary": "Add domain-specific actions to a gap overlay's context menu.",
+              "line": 347,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/clip_motion.py",
+      "summary": "Clip and key motion for the Shot Sequencer panel: moving and resizing clips,",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ClipMotionMixin",
+          "summary": "Clip move / resize, per-key drag and delete handlers.",
+          "line": 26,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_clip_resized",
+              "qualname": "ClipMotionMixin.on_clip_resized",
+              "kind": "method",
+              "signature": "(self, clip_id: int, new_start: float, new_duration: float) -> None",
+              "summary": "Handle one clip's edge drag -- see :meth:`_commit_clip_resizes`.",
+              "line": 49,
+              "deprecated": false
+            },
+            {
+              "name": "on_clips_batch_resized",
+              "qualname": "ClipMotionMixin.on_clips_batch_resized",
+              "kind": "method",
+              "signature": "(self, resizes) -> None",
+              "summary": "Handle an edge drag that scaled a SELECTION of clips as one unit.",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "on_clip_moved",
+              "qualname": "ClipMotionMixin.on_clip_moved",
+              "kind": "method",
+              "signature": "(self, clip_id: int, new_start: float) -> None",
+              "summary": "Handle clip move -- routes to audio or shot-level logic.",
+              "line": 545,
+              "deprecated": false
+            },
+            {
+              "name": "on_clips_batch_moved",
+              "qualname": "ClipMotionMixin.on_clips_batch_moved",
+              "kind": "method",
+              "signature": "(self, moves) -> None",
+              "summary": "Handle a batch of clip moves (group drag), syncing once at the end.",
+              "line": 591,
+              "deprecated": false
+            },
+            {
+              "name": "on_keys_moved",
+              "qualname": "ClipMotionMixin.on_keys_moved",
+              "kind": "method",
+              "signature": "(self, clip_id: int, changes: list) -> None",
+              "summary": "Move individual keyframes on the curves, then refresh.",
+              "line": 791,
+              "deprecated": false
+            },
+            {
+              "name": "on_keys_batch_moved",
+              "qualname": "ClipMotionMixin.on_keys_batch_moved",
+              "kind": "method",
+              "signature": "(self, groups) -> None",
+              "summary": "Commit one key drag that spanned any number of clips.",
+              "line": 800,
+              "deprecated": false
+            },
+            {
+              "name": "on_keys_deleted",
+              "qualname": "ClipMotionMixin.on_keys_deleted",
+              "kind": "method",
+              "signature": "(self, clip_id: int, times: list) -> None",
+              "summary": "Delete individual keyframes from the curves, then refresh.",
+              "line": 858,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "FLOAT_ZERO_EPS",
+          "qualname": "FLOAT_ZERO_EPS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 19,
+          "deprecated": false
+        },
+        {
+          "name": "KEY_MATCH_EPS",
+          "qualname": "KEY_MATCH_EPS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 21,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/controller.py",
+      "summary": "The Shot Sequencer panel's controller: :class:`ShotSequencerController`.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotSequencerController",
+          "summary": "Business logic controller bridging SequencerWidget ↔ ShotSequencer.",
+          "line": 49,
+          "bases": [
+            "SceneCallbacksMixin",
+            "UndoLedgerMixin",
+            "ShotLaneMixin",
+            "ClipMenuMixin",
+            "KeyMenuMixin",
+            "WidgetSyncMixin",
+            "SceneSelectionMixin",
+            "TransportMixin",
+            "GapManagerMixin",
+            "ClipMotionMixin",
+            "ShotNavMixin",
+            "MarkerManagerMixin",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "host",
+              "qualname": "ShotSequencerController.host",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host library's ``SequencerHost``: every scene call the panel",
+              "line": 171,
+              "deprecated": false
+            },
+            {
+              "name": "sequencer",
+              "qualname": "ShotSequencerController.sequencer",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "Return the host's ShotSequencer, lazily created over the active store.",
+              "line": 232,
+              "deprecated": false
+            },
+            {
+              "name": "active_shot_id",
+              "qualname": "ShotSequencerController.active_shot_id",
+              "kind": "property",
+              "signature": "(self) -> Optional[int]",
+              "summary": "Return the shot_id currently selected, or the first shot's id.",
+              "line": 349,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/gap_manager.py",
+      "summary": "Gap and range-highlight handlers for the Shot Sequencer controller.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GapManagerMixin",
+          "summary": "Mixin supplying gap-overlay and range-highlight handlers.",
+          "line": 21,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_range_highlight_changed",
+              "qualname": "GapManagerMixin.on_range_highlight_changed",
+              "kind": "method",
+              "signature": "(self, start: float, end: float) -> None",
+              "summary": "Update the active shot when a range-highlight handle is dragged.",
+              "line": 42,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_resized",
+              "qualname": "GapManagerMixin.on_gap_resized",
+              "kind": "method",
+              "signature": "(self, original_next_start: float, new_next_start: float) -> None",
+              "summary": "Handle a right-edge gap drag: the following shot's ``.start``.",
+              "line": 180,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_left_resized",
+              "qualname": "GapManagerMixin.on_gap_left_resized",
+              "kind": "method",
+              "signature": "(self, original_prev_end: float, new_prev_end: float) -> None",
+              "summary": "Handle a left-edge gap drag: the preceding shot's ``.end``.",
+              "line": 240,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_moved",
+              "qualname": "GapManagerMixin.on_gap_moved",
+              "kind": "method",
+              "signature": "(self, old_start: float, old_end: float, new_start: float, new_end: float) -> None",
+              "summary": "Handle body gap drag — slide the gap while preserving its width.",
+              "line": 299,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_lock_changed",
+              "qualname": "GapManagerMixin.on_gap_lock_changed",
+              "kind": "method",
+              "signature": "(self, gap_start: float, gap_end: float, locked: bool) -> None",
+              "summary": "Handle a single gap's lock state being toggled via context menu.",
+              "line": 417,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_lock_all",
+              "qualname": "GapManagerMixin.on_gap_lock_all",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Lock all gaps so they are preserved during respace.",
+              "line": 472,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_unlock_all",
+              "qualname": "GapManagerMixin.on_gap_unlock_all",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Unlock all gaps so they follow the global gap value.",
+              "line": 481,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "TIME_SNAP_EPS",
+          "qualname": "TIME_SNAP_EPS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 16,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/key_menu.py",
+      "summary": "Key context menus and the edits run over a key selection, for the Shot",
+      "functions": [],
+      "classes": [
+        {
+          "name": "KeyMenuMixin",
+          "summary": "Key context menus, tangent edits and drags, and the key-selection edits.",
+          "line": 20,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_key_menu",
+              "qualname": "KeyMenuMixin.on_key_menu",
+              "kind": "method",
+              "signature": "(self, menu, key_groups: list) -> None",
+              "summary": "Add the key actions to a key's context menu.",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "on_keys_tangent_dragged",
+              "qualname": "KeyMenuMixin.on_keys_tangent_dragged",
+              "kind": "method",
+              "signature": "(self, groups: list, side: str, broken: bool) -> None",
+              "summary": "Write the tangents a dragged handle asks for on the keys' curves.",
+              "line": 165,
+              "deprecated": false
+            },
+            {
+              "name": "register_key_targets",
+              "qualname": "KeyMenuMixin.register_key_targets",
+              "kind": "method",
+              "signature": "(self, editor_name: str, source) -> None",
+              "summary": "Resolve the key shortcuts' targets through *source* while the",
+              "line": 475,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/marker_manager.py",
+      "summary": "Marker persistence for the shot sequencer controller.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MarkerManagerMixin",
+          "summary": "Mixin supplying marker CRUD persistence.",
+          "line": 40,
+          "bases": [
+            "_MarkerManagerMixinInternal"
+          ],
+          "members": [
+            {
+              "name": "on_marker_added",
+              "qualname": "MarkerManagerMixin.on_marker_added",
+              "kind": "method",
+              "signature": "(self, marker_id: int, time: float) -> None",
+              "summary": "Persist a newly added marker.",
+              "line": 49,
+              "deprecated": false
+            },
+            {
+              "name": "on_marker_moved",
+              "qualname": "MarkerManagerMixin.on_marker_moved",
+              "kind": "method",
+              "signature": "(self, marker_id: int, new_time: float) -> None",
+              "summary": "Update persisted marker time.",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "on_marker_changed",
+              "qualname": "MarkerManagerMixin.on_marker_changed",
+              "kind": "method",
+              "signature": "(self, marker_id: int) -> None",
+              "summary": "Update persisted marker note/color.",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "on_marker_removed",
+              "qualname": "MarkerManagerMixin.on_marker_removed",
+              "kind": "method",
+              "signature": "(self, marker_id: int) -> None",
+              "summary": "Remove marker from persistent store.",
+              "line": 72,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/scene_callbacks.py",
+      "summary": "Scene events for the shot sequencer: undo/redo, key edits, time changes.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneCallbacksMixin",
+          "summary": "Scene event hooks: undo/redo, key edits and time changes refresh the widget.",
+          "line": 18,
+          "bases": [],
+          "members": [
+            {
+              "name": "remove_callbacks",
+              "qualname": "SceneCallbacksMixin.remove_callbacks",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Detach every scene hook and store listener (call on teardown).",
+              "line": 58,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/scene_selection.py",
+      "summary": "Tracks and the scene selection.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneSelectionMixin",
+          "summary": "Tracks, and the scene selection that follows the sequencer's.",
+          "line": 22,
+          "bases": [],
+          "members": [
+            {
+              "name": "hide_track",
+              "qualname": "SceneSelectionMixin.hide_track",
+              "kind": "method",
+              "signature": "(self, track_names) -> None",
+              "summary": "Hide one or more tracks by name, persist, and rebuild the widget.",
+              "line": 25,
+              "deprecated": false
+            },
+            {
+              "name": "show_track",
+              "qualname": "SceneSelectionMixin.show_track",
+              "kind": "method",
+              "signature": "(self, track_name: str) -> None",
+              "summary": "Un-hide a track by object name, persist, and rebuild the widget.",
+              "line": 35,
+              "deprecated": false
+            },
+            {
+              "name": "delete_track",
+              "qualname": "SceneSelectionMixin.delete_track",
+              "kind": "method",
+              "signature": "(self, track_names) -> None",
+              "summary": "Permanently remove objects from all shots and rebuild the widget.",
+              "line": 42,
+              "deprecated": false
+            },
+            {
+              "name": "on_selection_changed",
+              "qualname": "SceneSelectionMixin.on_selection_changed",
+              "kind": "method",
+              "signature": "(self, clip_ids: list) -> None",
+              "summary": "Select the clicked clips' objects, and their CHANNEL if they name one.",
+              "line": 52,
+              "deprecated": false
+            },
+            {
+              "name": "on_track_selected",
+              "qualname": "SceneSelectionMixin.on_track_selected",
+              "kind": "method",
+              "signature": "(self, track_names: list) -> None",
+              "summary": "Select the objects whose track labels were clicked in the header.",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "on_sub_track_selected",
+              "qualname": "SceneSelectionMixin.on_sub_track_selected",
+              "kind": "method",
+              "signature": "(self, rows: list) -> None",
+              "summary": "Select a channel when its sub-row label is clicked in the header.",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "on_clip_locked",
+              "qualname": "SceneSelectionMixin.on_clip_locked",
+              "kind": "method",
+              "signature": "(self, clip_id: int, locked: bool) -> None",
+              "summary": "Persist per-object clip lock and propagate to sibling clips.",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "on_track_menu",
+              "qualname": "SceneSelectionMixin.on_track_menu",
+              "kind": "method",
+              "signature": "(self, menu, track_names) -> None",
+              "summary": "Add the track actions to the track header's context menu.",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "on_header_menu",
+              "qualname": "SceneSelectionMixin.on_header_menu",
+              "kind": "method",
+              "signature": "(self, menu) -> None",
+              "summary": "Add settings actions to the header background context menu (none).",
+              "line": 200,
+              "deprecated": false
+            },
+            {
+              "name": "on_key_selection_changed",
+              "qualname": "SceneSelectionMixin.on_key_selection_changed",
+              "kind": "method",
+              "signature": "(self, key_groups: list) -> None",
+              "summary": "Sync the host's Graph Editor key selection to the sequencer's.",
+              "line": 249,
+              "deprecated": false
+            },
+            {
+              "name": "on_clip_renamed",
+              "qualname": "SceneSelectionMixin.on_clip_renamed",
+              "kind": "method",
+              "signature": "(self, clip_id: int, new_label: str) -> None",
+              "summary": "Inline rename of a clip: display-only (an object's name owns its",
+              "line": 389,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/shot_edit_dialog.py",
+      "summary": "The Shot Sequencer's small shot dialog: :class:`ShotEditDialog`.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotEditDialog",
+          "summary": "Lightweight dialog for creating or editing a shot.",
+          "line": 13,
+          "bases": [],
+          "members": [
+            {
+              "name": "show",
+              "qualname": "ShotEditDialog.show",
+              "kind": "staticmethod",
+              "signature": "(parent=None, name: str = '', start: float = 1.0, end: float = 100.0, description: str = '', title: str = 'Shot', validate=None)",
+              "summary": "Show a modal dialog and return the result tuple or ``None``.",
+              "line": 20,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/shot_lane.py",
+      "summary": "The shot lane: its context menu and the shot structure edits.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotLaneMixin",
+          "summary": "The shot lane's menus and the shot structure edits they run.",
+          "line": 20,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_zone_context_menu",
+              "qualname": "ShotLaneMixin.on_zone_context_menu",
+              "kind": "method",
+              "signature": "(self, zone: str, time: float, global_pos) -> None",
+              "summary": "Build a context menu specific to the clicked zone.",
+              "line": 25,
+              "deprecated": false
+            },
+            {
+              "name": "delete_shot",
+              "qualname": "ShotLaneMixin.delete_shot",
+              "kind": "method",
+              "signature": "(self, shot_id: int) -> None",
+              "summary": "Delete *shot_id* with its contents, closing the timeline behind it.",
+              "line": 313,
+              "deprecated": false
+            },
+            {
+              "name": "delete_shots",
+              "qualname": "ShotLaneMixin.delete_shots",
+              "kind": "method",
+              "signature": "(self, scope: str = 'stale') -> None",
+              "summary": "Delete the shots of *scope*, after naming them.",
+              "line": 347,
+              "deprecated": false
+            },
+            {
+              "name": "move_shot_to_position",
+              "qualname": "ShotLaneMixin.move_shot_to_position",
+              "kind": "method",
+              "signature": "(self, shot_id: int, position: int) -> None",
+              "summary": "Re-slot *shot_id* at 1-based *position*, pushing the rest along.",
+              "line": 379,
+              "deprecated": false
+            },
+            {
+              "name": "merge_shot_with",
+              "qualname": "ShotLaneMixin.merge_shot_with",
+              "kind": "method",
+              "signature": "(self, shot_id: int, other_id: int) -> None",
+              "summary": "Fuse two neighbouring shots into one spanning both.",
+              "line": 399,
+              "deprecated": false
+            },
+            {
+              "name": "split_shot_at",
+              "qualname": "ShotLaneMixin.split_shot_at",
+              "kind": "method",
+              "signature": "(self, shot_id: int, time: float) -> None",
+              "summary": "Cut *shot_id* in two at *time*, leaving its content where it is.",
+              "line": 410,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/shot_layer.py",
+      "summary": "The shot layer: the Shot Sequencer's shots on uitk's timeline.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GapOverlay",
+          "summary": "Diagonal-hatch overlay for a gap between shots (behaviour).",
+          "line": 30,
+          "bases": [],
+          "members": [
+            {
+              "name": "item_class",
+              "qualname": "GapOverlay.item_class",
+              "kind": "classmethod",
+              "signature": "(cls, sb)",
+              "summary": "The gap's scene-item class: this behaviour first, then uitk's",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "boundingRect",
+              "qualname": "GapOverlay.boundingRect",
+              "kind": "method",
+              "signature": "(self) -> QtCore.QRectF",
+              "summary": "",
+              "line": 176,
+              "deprecated": false
+            },
+            {
+              "name": "hoverEnterEvent",
+              "qualname": "GapOverlay.hoverEnterEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 197,
+              "deprecated": false
+            },
+            {
+              "name": "hoverLeaveEvent",
+              "qualname": "GapOverlay.hoverLeaveEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 203,
+              "deprecated": false
+            },
+            {
+              "name": "hoverMoveEvent",
+              "qualname": "GapOverlay.hoverMoveEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 210,
+              "deprecated": false
+            },
+            {
+              "name": "mousePressEvent",
+              "qualname": "GapOverlay.mousePressEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 230,
+              "deprecated": false
+            },
+            {
+              "name": "mouseMoveEvent",
+              "qualname": "GapOverlay.mouseMoveEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 266,
+              "deprecated": false
+            },
+            {
+              "name": "mouseReleaseEvent",
+              "qualname": "GapOverlay.mouseReleaseEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 362,
+              "deprecated": false
+            },
+            {
+              "name": "contextMenuEvent",
+              "qualname": "GapOverlay.contextMenuEvent",
+              "kind": "method",
+              "signature": "(self, event)",
+              "summary": "",
+              "line": 390,
+              "deprecated": false
+            },
+            {
+              "name": "paint",
+              "qualname": "GapOverlay.paint",
+              "kind": "method",
+              "signature": "(self, painter: QtGui.QPainter, option, widget=None)",
+              "summary": "",
+              "line": 425,
+              "deprecated": false
+            }
+          ]
+        },
+        {
+          "name": "ShotLayer",
+          "summary": "The Shot Sequencer's layer on a ``SequencerWidget`` (module docstring).",
+          "line": 478,
+          "bases": [
+            "QtCore.QObject"
+          ],
+          "members": [
+            {
+              "name": "of",
+              "qualname": "ShotLayer.of",
+              "kind": "classmethod",
+              "signature": "(cls, sequencer, sb)",
+              "summary": "The shot layer on *sequencer*, added on first use.",
+              "line": 560,
+              "deprecated": false
+            },
+            {
+              "name": "set_shot_blocks",
+              "qualname": "ShotLayer.set_shot_blocks",
+              "kind": "method",
+              "signature": "(self, blocks: list) -> None",
+              "summary": "Show one band per shot on the lane.",
+              "line": 576,
+              "deprecated": false
+            },
+            {
+              "name": "clear_shot_blocks",
+              "qualname": "ShotLayer.clear_shot_blocks",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove every band from the lane.",
+              "line": 588,
+              "deprecated": false
+            },
+            {
+              "name": "selected_shot",
+              "qualname": "ShotLayer.selected_shot",
+              "kind": "method",
+              "signature": "(self) -> Optional[dict]",
+              "summary": "The block marked ``active``, or ``None``.",
+              "line": 593,
+              "deprecated": false
+            },
+            {
+              "name": "shot_block_at",
+              "qualname": "ShotLayer.shot_block_at",
+              "kind": "method",
+              "signature": "(self, time: float) -> Optional[dict]",
+              "summary": "The block containing *time*, or ``None``.",
+              "line": 605,
+              "deprecated": false
+            },
+            {
+              "name": "add_gap_overlay",
+              "qualname": "ShotLayer.add_gap_overlay",
+              "kind": "method",
+              "signature": "(self, start: float, end: float, color: str = '#555555', alpha: int = 120, locked: bool = False, tail: bool = False, head: bool = False) -> None",
+              "summary": "Add a diagonal-hatch overlay for a gap between shots.",
+              "line": 618,
+              "deprecated": false
+            },
+            {
+              "name": "clear_gap_overlays",
+              "qualname": "ShotLayer.clear_gap_overlays",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove every gap overlay (deferred-safe: a release may be on the stack).",
+              "line": 645,
+              "deprecated": false
+            },
+            {
+              "name": "set_all_gap_overlays_locked",
+              "qualname": "ShotLayer.set_all_gap_overlays_locked",
+              "kind": "method",
+              "signature": "(self, locked: bool) -> None",
+              "summary": "Set the locked state on every gap overlay.",
+              "line": 651,
+              "deprecated": false
+            },
+            {
+              "name": "show_gap_overlays",
+              "qualname": "ShotLayer.show_gap_overlays",
+              "kind": "property",
+              "signature": "(self) -> bool",
+              "summary": "Whether the gap overlays show (the timeline menu's Show Gap Overlays).",
+              "line": 666,
+              "deprecated": false
+            },
+            {
+              "name": "paint_lane",
+              "qualname": "ShotLayer.paint_lane",
+              "kind": "method",
+              "signature": "(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None",
+              "summary": "Draw one band per shot in the lane's strip.",
+              "line": 721,
+              "deprecated": false
+            },
+            {
+              "name": "mouse_press",
+              "qualname": "ShotLayer.mouse_press",
+              "kind": "method",
+              "signature": "(self, event) -> bool",
+              "summary": "Ctrl+Shift+Click anywhere switches to the shot there;",
+              "line": 788,
+              "deprecated": false
+            },
+            {
+              "name": "mouse_move",
+              "qualname": "ShotLayer.mouse_move",
+              "kind": "method",
+              "signature": "(self, event) -> bool",
+              "summary": "A lane drag's move (Alt: about the centre);",
+              "line": 816,
+              "deprecated": false
+            },
+            {
+              "name": "mouse_release",
+              "qualname": "ShotLayer.mouse_release",
+              "kind": "method",
+              "signature": "(self, event) -> bool",
+              "summary": "End a lane drag: the highlight emits if a bound moved.",
+              "line": 828,
+              "deprecated": false
+            },
+            {
+              "name": "gesture_group_at",
+              "qualname": "ShotLayer.gesture_group_at",
+              "kind": "method",
+              "signature": "(self, viewport_pos) -> Optional[str]",
+              "summary": "``\"Shot bounds\"`` over the lane's grabs, a cap or the highlight's",
+              "line": 835,
+              "deprecated": false
+            },
+            {
+              "name": "claims_press",
+              "qualname": "ShotLayer.claims_press",
+              "kind": "method",
+              "signature": "(self, scene_pos) -> bool",
+              "summary": "An unlocked gap's PAINTED rect keeps a press from the range",
+              "line": 857,
+              "deprecated": false
+            },
+            {
+              "name": "legend",
+              "qualname": "ShotLayer.legend",
+              "kind": "method",
+              "signature": "(self, editor: str, rows: Tuple) -> Tuple",
+              "summary": "The track editor's legend with the shot grammar: the shot groups",
+              "line": 879,
+              "deprecated": false
+            },
+            {
+              "name": "context_entries",
+              "qualname": "ShotLayer.context_entries",
+              "kind": "method",
+              "signature": "(self, time: float, entries: list) -> list",
+              "summary": "The timeline menu: the range overlays are the shots', and the gap",
+              "line": 892,
+              "deprecated": false
+            },
+            {
+              "name": "menu_zone",
+              "qualname": "ShotLayer.menu_zone",
+              "kind": "method",
+              "signature": "(self, zone: str, time: float) -> str",
+              "summary": "A right-click at a time some shot covers is the shot lane's,",
+              "line": 914,
+              "deprecated": false
+            },
+            {
+              "name": "time_bounds",
+              "qualname": "ShotLayer.time_bounds",
+              "kind": "method",
+              "signature": "(self) -> Optional[Tuple[float, float]]",
+              "summary": "The shots' and gaps' extent: a shot that no longer encloses any",
+              "line": 925,
+              "deprecated": false
+            },
+            {
+              "name": "relayout",
+              "qualname": "ShotLayer.relayout",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Re-derive the gaps' geometry: their height follows the rows.",
+              "line": 934,
+              "deprecated": false
+            },
+            {
+              "name": "clear",
+              "qualname": "ShotLayer.clear",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "The widget was cleared: no gaps, no bands.",
+              "line": 939,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/shot_nav.py",
+      "summary": "Shot navigation and combobox synchronization.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotNavMixin",
+          "summary": "Mixin supplying shot selection and navigation.",
+          "line": 19,
+          "bases": [],
+          "members": [
+            {
+              "name": "select_shot",
+              "qualname": "ShotNavMixin.select_shot",
+              "kind": "method",
+              "signature": "(self, shot_id: int) -> None",
+              "summary": "Set the view's playback range to the shot and select its objects.",
+              "line": 39,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_block_clicked",
+              "qualname": "ShotNavMixin.on_shot_block_clicked",
+              "kind": "method",
+              "signature": "(self, shot_name: str) -> None",
+              "summary": "Select a shot by name when its block is clicked in the shot lane.",
+              "line": 325,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/transport.py",
+      "summary": "Transport: the playhead, audio scrub and the transport row.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransportMixin",
+          "summary": "The playhead, audible scrubbing and the transport button row.",
+          "line": 15,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_playhead_moved",
+              "qualname": "TransportMixin.on_playhead_moved",
+              "kind": "method",
+              "signature": "(self, frame: float) -> None",
+              "summary": "Move the scene's time to the widget playhead.",
+              "line": 18,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/undo_ledger.py",
+      "summary": "The shot sequencer's undo ledger.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "UndoLedgerMixin",
+          "summary": "Shot-boundary restore points, and the panel's Undo / Redo.",
+          "line": 13,
+          "bases": [],
+          "members": [
+            {
+              "name": "on_undo",
+              "qualname": "UndoLedgerMixin.on_undo",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Handle undo_requested from the widget: one step of the host's undo,",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "on_redo",
+              "qualname": "UndoLedgerMixin.on_redo",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Handle redo_requested from the widget (see :meth:`on_undo`).",
+              "line": 69,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_shot_sequencer/widget_sync.py",
+      "summary": "Widget sync: rebuilding the sequencer from the scene.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "WidgetSyncMixin",
+          "summary": "Rebuilding the widget from the scene: tracks, clips, sub-rows, decoration.",
+          "line": 25,
+          "bases": [],
+          "members": [
+            {
+              "name": "refresh",
+              "qualname": "WidgetSyncMixin.refresh",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Clear cached segments and rebuild the sequencer widget.",
+              "line": 197,
+              "deprecated": false
+            }
+          ]
         }
       ],
       "constants": []
@@ -17926,6 +18977,79 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/shot_sequencer.py",
+      "summary": "Shot Sequencer: the scene's shots on a timeline -- objects as tracks, keys as",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotSequencerSlots",
+          "summary": "Switchboard slots for the ``shot_sequencer.ui`` panel.",
+          "line": 34,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ShotSequencerSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Build the header menu.",
+              "line": 559,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_shot",
+              "qualname": "ShotSequencerSlots.cmb_shot",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "A shot (or, in Markers mode, a marker) picked in the dropdown.",
+              "line": 770,
+              "deprecated": false
+            },
+            {
+              "name": "spn_snap",
+              "qualname": "ShotSequencerSlots.spn_snap",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Set the snap interval on the sequencer widget.",
+              "line": 788,
+              "deprecated": false
+            },
+            {
+              "name": "btn_colors",
+              "qualname": "ShotSequencerSlots.btn_colors",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the attribute color configuration dialog.",
+              "line": 794,
+              "deprecated": false
+            },
+            {
+              "name": "btn_shortcuts",
+              "qualname": "ShotSequencerSlots.btn_shortcuts",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the sequencer shortcut editor.",
+              "line": 813,
+              "deprecated": false
+            },
+            {
+              "name": "btn_shot_settings",
+              "qualname": "ShotSequencerSlots.btn_shot_settings",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the shared Shots panel (pinned, as Edit Shot does).",
+              "line": 821,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/shots.py",
       "summary": "Shots: the scene's shot settings, the selected shot's fields and edits, and",
       "functions": [],
@@ -19535,7 +20659,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The workspace-name filter.",
-              "line": 164,
+              "line": 167,
               "deprecated": false
             },
             {
@@ -19544,7 +20668,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The workspace tree, its double-click and its right-click menu.",
-              "line": 170,
+              "line": 173,
               "deprecated": false
             },
             {
@@ -19553,7 +20677,7 @@
               "kind": "method",
               "signature": "(self, text: Optional[str] = None) -> None",
               "summary": "Retarget the scan at the root field's directory (rescans only when it",
-              "line": 195,
+              "line": 198,
               "deprecated": false
             },
             {
@@ -19562,7 +20686,7 @@
               "kind": "method",
               "signature": "(self, filter_text: Optional[str] = None) -> None",
               "summary": "Rebuild the tree from the last scan, narrowed to *filter_text*.",
-              "line": 217,
+              "line": 220,
               "deprecated": false
             },
             {
@@ -19571,7 +20695,7 @@
               "kind": "method",
               "signature": "(self, tree_data: Dict) -> None",
               "summary": "Clear and refill the tree: a row per parent folder, its workspaces",
-              "line": 221,
+              "line": 224,
               "deprecated": false
             },
             {
@@ -19580,7 +20704,7 @@
               "kind": "method",
               "signature": "(self, invalidate: bool = False) -> None",
               "summary": "Refill the tree;",
-              "line": 244,
+              "line": 247,
               "deprecated": false
             },
             {
@@ -19589,7 +20713,7 @@
               "kind": "method",
               "signature": "(self) -> Optional[Dict]",
               "summary": "The workspace row under the tree cursor, or None (a folder row is none).",
-              "line": 250,
+              "line": 253,
               "deprecated": false
             },
             {
@@ -19598,7 +20722,7 @@
               "kind": "method",
               "signature": "(self, text) -> None",
               "summary": "",
-              "line": 260,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -19607,7 +20731,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Browse for the root directory.",
-              "line": 264,
+              "line": 267,
               "deprecated": false
             },
             {
@@ -19616,7 +20740,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Set to Workspace.",
-              "line": 276,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -19625,7 +20749,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Refresh: rescan the root.",
-              "line": 280,
+              "line": 283,
               "deprecated": false
             },
             {
@@ -19634,7 +20758,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Set the root to the current workspace's folder.",
-              "line": 284,
+              "line": 287,
               "deprecated": false
             },
             {
@@ -19643,7 +20767,7 @@
               "kind": "method",
               "signature": "(self, checked) -> None",
               "summary": "Recursive Search: rescan when it changes.",
-              "line": 288,
+              "line": 291,
               "deprecated": false
             },
             {
@@ -19652,7 +20776,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Make the selected workspace the current project.",
-              "line": 300,
+              "line": 303,
               "deprecated": false
             },
             {
@@ -19661,7 +20785,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Open the selected workspace's folder in the file browser.",
-              "line": 309,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -19670,7 +20794,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Create a project under the root from the ACTIVE template.",
-              "line": 316,
+              "line": 319,
               "deprecated": false
             },
             {
@@ -19679,7 +20803,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Mark the ROOT directory as a shared Maya/Blender project.",
-              "line": 330,
+              "line": 333,
               "deprecated": false
             },
             {
@@ -19688,7 +20812,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Publish the ACTIVE project's file rules as a named workspace template.",
-              "line": 349,
+              "line": 352,
               "deprecated": false
             }
           ]

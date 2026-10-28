@@ -69,7 +69,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: tk, mirror_app_state, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
+  - methods: tk, mirror_app_state, require_selection, activate_tool, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/_transform.py` — Behavior shared by the Maya and Blender ``transform`` panels.
 - `class TransformMixin`
@@ -513,6 +513,70 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_shot_manifest/view_combos.py` — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - `class ViewCombosMixin`
 
+### `slots/tools/_shot_sequencer/clip_menu.py` — Clip context menus and clip-level key operations.
+- `class ClipMenuMixin`
+  - methods: on_clip_menu, on_gap_menu
+
+### `slots/tools/_shot_sequencer/clip_motion.py` — Clip and key motion for the Shot Sequencer panel: moving and resizing clips,
+- constants: FLOAT_ZERO_EPS, KEY_MATCH_EPS
+- `class ClipMotionMixin`
+  - methods: on_clip_resized, on_clips_batch_resized, on_clip_moved, on_clips_batch_moved, on_keys_moved, on_keys_batch_moved, on_keys_deleted
+
+### `slots/tools/_shot_sequencer/controller.py` — The Shot Sequencer panel's controller: :class:`ShotSequencerController`.
+- `class ShotSequencerController(SceneCallbacksMixin, UndoLedgerMixin, ShotLaneMixin, ClipMenuMixin, KeyMenuMixin, WidgetSyncMixin, SceneSelectionMixin, TransportMixin, GapManagerMixin, ClipMotionMixin, ShotNavMixin, MarkerManagerMixin, pythontk.LoggingMixin)`
+  - methods: host, sequencer, active_shot_id
+
+### `slots/tools/_shot_sequencer/gap_manager.py` — Gap and range-highlight handlers for the Shot Sequencer controller.
+- constants: TIME_SNAP_EPS
+- `class GapManagerMixin`
+  - methods: on_range_highlight_changed, on_gap_resized, on_gap_left_resized, on_gap_moved, on_gap_lock_changed, on_gap_lock_all, on_gap_unlock_all
+
+### `slots/tools/_shot_sequencer/key_menu.py` — Key context menus and the edits run over a key selection, for the Shot
+- `class KeyMenuMixin`
+  - methods: on_key_menu, on_keys_tangent_dragged, register_key_targets
+
+### `slots/tools/_shot_sequencer/marker_manager.py` — Marker persistence for the shot sequencer controller.
+- `class MarkerManagerMixin(_MarkerManagerMixinInternal)`
+  - methods: on_marker_added, on_marker_moved, on_marker_changed, on_marker_removed
+
+### `slots/tools/_shot_sequencer/scene_callbacks.py` — Scene events for the shot sequencer: undo/redo, key edits, time changes.
+- `class SceneCallbacksMixin`
+  - methods: remove_callbacks
+
+### `slots/tools/_shot_sequencer/scene_selection.py` — Tracks and the scene selection.
+- `class SceneSelectionMixin`
+  - methods: hide_track, show_track, delete_track, on_selection_changed, on_track_selected, on_sub_track_selected, on_clip_locked, on_track_menu, on_header_menu, on_key_selection_changed, on_clip_renamed
+
+### `slots/tools/_shot_sequencer/shot_edit_dialog.py` — The Shot Sequencer's small shot dialog: :class:`ShotEditDialog`.
+- `class ShotEditDialog`
+  - methods: show
+
+### `slots/tools/_shot_sequencer/shot_lane.py` — The shot lane: its context menu and the shot structure edits.
+- `class ShotLaneMixin`
+  - methods: on_zone_context_menu, delete_shot, delete_shots, move_shot_to_position, merge_shot_with, split_shot_at
+
+### `slots/tools/_shot_sequencer/shot_layer.py` — The shot layer: the Shot Sequencer's shots on uitk's timeline.
+- `class GapOverlay`
+  - methods: item_class, boundingRect, hoverEnterEvent, hoverLeaveEvent, hoverMoveEvent, mousePressEvent, mouseMoveEvent, mouseReleaseEvent, contextMenuEvent, paint
+- `class ShotLayer(QtCore.QObject)`
+  - methods: of, set_shot_blocks, clear_shot_blocks, selected_shot, shot_block_at, add_gap_overlay, clear_gap_overlays, set_all_gap_overlays_locked, show_gap_overlays, paint_lane, mouse_press, mouse_move, mouse_release, gesture_group_at, claims_press, legend, context_entries, menu_zone, time_bounds, relayout, clear
+
+### `slots/tools/_shot_sequencer/shot_nav.py` — Shot navigation and combobox synchronization.
+- `class ShotNavMixin`
+  - methods: select_shot, on_shot_block_clicked
+
+### `slots/tools/_shot_sequencer/transport.py` — Transport: the playhead, audio scrub and the transport row.
+- `class TransportMixin`
+  - methods: on_playhead_moved
+
+### `slots/tools/_shot_sequencer/undo_ledger.py` — The shot sequencer's undo ledger.
+- `class UndoLedgerMixin`
+  - methods: on_undo, on_redo
+
+### `slots/tools/_shot_sequencer/widget_sync.py` — Widget sync: rebuilding the sequencer from the scene.
+- `class WidgetSyncMixin`
+  - methods: refresh
+
 ### `slots/tools/_shots/controller.py` — The Shots panel's controller: the scene's shot settings, the selected shot's
 - `class ShotsController(pythontk.LoggingMixin)`
   - methods: remove_callbacks, refresh_state, shot_label, on_navigate_shot, on_new_shot, on_detection_changed, on_detection_mode_changed, on_initial_length_changed, on_snap_whole_frames_changed, on_drop_stale_shots_changed, on_fit_mode_changed, on_gap_changed, on_shot_selected, on_shot_name_changed, on_shot_start_changed, on_shot_end_changed, on_shot_desc_changed, delete_scope, label_delete_shots, swap_mode, swap_target, swap_retain, label_swap_shot, label_shift_all, label_apply_gap, on_delete_shot, confirm_removal, on_delete_shots, on_move_shot, on_swap_shot, on_trim_empty, on_trim_all_shots, on_shift_all_shots, on_add_space
@@ -686,6 +750,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - `class ShotManifestSlots(Slots)`
   - methods: header_init, btn_settings, b002, b003, b004
+
+### `slots/tools/shot_sequencer.py` — Shot Sequencer: the scene's shots on a timeline -- objects as tracks, keys as
+- `class ShotSequencerSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb_shot, spn_snap, btn_colors, btn_shortcuts, btn_shot_settings
 
 ### `slots/tools/shots.py` — Shots: the scene's shot settings, the selected shot's fields and edits, and
 - `class ShotsSlots(Slots)`

@@ -7,9 +7,11 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (1007)
+## Added (1117)
 
 - `__init__.py::MOVED_NAMES(constant)`
+- `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
+- `slots/_slots.py::Slots.require_selection(self, message=None)`
 - `slots/_slots.py::Slots.tk(self)`
 - `slots/normals.py::NormalsSlots(class)`
 - `slots/normals.py::NormalsSlots.b000(self)`
@@ -268,6 +270,107 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
 - `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin(class)`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin.on_clip_menu(self, menu, clip_id: int) -> None`
+- `slots/tools/_shot_sequencer/clip_menu.py::ClipMenuMixin.on_gap_menu(self, menu, gap_start: float, gap_end: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin(class)`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clip_moved(self, clip_id: int, new_start: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clip_resized(self, clip_id: int, new_start: float, new_duration: float) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clips_batch_moved(self, moves) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_clips_batch_resized(self, resizes) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_batch_moved(self, groups) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_deleted(self, clip_id: int, times: list) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::ClipMotionMixin.on_keys_moved(self, clip_id: int, changes: list) -> None`
+- `slots/tools/_shot_sequencer/clip_motion.py::FLOAT_ZERO_EPS(constant)`
+- `slots/tools/_shot_sequencer/clip_motion.py::KEY_MATCH_EPS(constant)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController(class)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.active_shot_id(self) -> Optional[int]`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.host(self)`
+- `slots/tools/_shot_sequencer/controller.py::ShotSequencerController.sequencer(self)`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin(class)`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_left_resized(self, original_prev_end: float, new_prev_end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_lock_all(self) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_lock_changed(self, gap_start: float, gap_end: float, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_moved(self, old_start: float, old_end: float, new_start: float, new_end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_resized(self, original_next_start: float, new_next_start: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_gap_unlock_all(self) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::GapManagerMixin.on_range_highlight_changed(self, start: float, end: float) -> None`
+- `slots/tools/_shot_sequencer/gap_manager.py::TIME_SNAP_EPS(constant)`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin(class)`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.on_key_menu(self, menu, key_groups: list) -> None`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.on_keys_tangent_dragged(self, groups: list, side: str, broken: bool) -> None`
+- `slots/tools/_shot_sequencer/key_menu.py::KeyMenuMixin.register_key_targets(self, editor_name: str, source) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin(class)`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_added(self, marker_id: int, time: float) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_changed(self, marker_id: int) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_moved(self, marker_id: int, new_time: float) -> None`
+- `slots/tools/_shot_sequencer/marker_manager.py::MarkerManagerMixin.on_marker_removed(self, marker_id: int) -> None`
+- `slots/tools/_shot_sequencer/scene_callbacks.py::SceneCallbacksMixin(class)`
+- `slots/tools/_shot_sequencer/scene_callbacks.py::SceneCallbacksMixin.remove_callbacks(self) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin(class)`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.delete_track(self, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.hide_track(self, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_clip_locked(self, clip_id: int, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_clip_renamed(self, clip_id: int, new_label: str) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_header_menu(self, menu) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_key_selection_changed(self, key_groups: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_selection_changed(self, clip_ids: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_sub_track_selected(self, rows: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_track_menu(self, menu, track_names) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.on_track_selected(self, track_names: list) -> None`
+- `slots/tools/_shot_sequencer/scene_selection.py::SceneSelectionMixin.show_track(self, track_name: str) -> None`
+- `slots/tools/_shot_sequencer/shot_edit_dialog.py::ShotEditDialog(class)`
+- `slots/tools/_shot_sequencer/shot_edit_dialog.py::ShotEditDialog.show(parent=None, name: str = '', start: float = 1.0, end: float = 100.0, description: str = '', title: str = 'Shot', validate=None)`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin(class)`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.delete_shot(self, shot_id: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.delete_shots(self, scope: str = 'stale') -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.merge_shot_with(self, shot_id: int, other_id: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.move_shot_to_position(self, shot_id: int, position: int) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.on_zone_context_menu(self, zone: str, time: float, global_pos) -> None`
+- `slots/tools/_shot_sequencer/shot_lane.py::ShotLaneMixin.split_shot_at(self, shot_id: int, time: float) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay(class)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.boundingRect(self) -> QtCore.QRectF`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.contextMenuEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverEnterEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverLeaveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.hoverMoveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.item_class(cls, sb)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mouseMoveEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mousePressEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.mouseReleaseEvent(self, event)`
+- `slots/tools/_shot_sequencer/shot_layer.py::GapOverlay.paint(self, painter: QtGui.QPainter, option, widget=None)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer(class)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.add_gap_overlay(self, start: float, end: float, color: str = '#555555', alpha: int = 120, locked: bool = False, tail: bool = False, head: bool = False) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.claims_press(self, scene_pos) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear_gap_overlays(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.clear_shot_blocks(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.context_entries(self, time: float, entries: list) -> list`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.gesture_group_at(self, viewport_pos) -> Optional[str]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.legend(self, editor: str, rows: Tuple) -> Tuple`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.menu_zone(self, zone: str, time: float) -> str`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_move(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_press(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.mouse_release(self, event) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.of(cls, sequencer, sb)`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.paint_lane(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.relayout(self) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.selected_shot(self) -> Optional[dict]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.set_all_gap_overlays_locked(self, locked: bool) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.set_shot_blocks(self, blocks: list) -> None`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.shot_block_at(self, time: float) -> Optional[dict]`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.show_gap_overlays(self) -> bool`
+- `slots/tools/_shot_sequencer/shot_layer.py::ShotLayer.time_bounds(self) -> Optional[Tuple[float, float]]`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin(class)`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin.on_shot_block_clicked(self, shot_name: str) -> None`
+- `slots/tools/_shot_sequencer/shot_nav.py::ShotNavMixin.select_shot(self, shot_id: int) -> None`
+- `slots/tools/_shot_sequencer/transport.py::TransportMixin(class)`
+- `slots/tools/_shot_sequencer/transport.py::TransportMixin.on_playhead_moved(self, frame: float) -> None`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin(class)`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin.on_redo(self) -> None`
+- `slots/tools/_shot_sequencer/undo_ledger.py::UndoLedgerMixin.on_undo(self) -> None`
+- `slots/tools/_shot_sequencer/widget_sync.py::WidgetSyncMixin(class)`
+- `slots/tools/_shot_sequencer/widget_sync.py::WidgetSyncMixin.refresh(self) -> None`
 - `slots/tools/_shots/controller.py::ShotsController(class)`
 - `slots/tools/_shots/controller.py::ShotsController.confirm_removal(self, shots, scope: str = 'stale') -> bool`
 - `slots/tools/_shots/controller.py::ShotsController.delete_scope(self) -> str`
@@ -830,6 +933,13 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b004(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.btn_settings(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.header_init(self, widget)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots(class)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_colors(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_shortcuts(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.btn_shot_settings(self)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.cmb_shot(self, index)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.header_init(self, widget)`
+- `slots/tools/shot_sequencer.py::ShotSequencerSlots.spn_snap(self, value)`
 - `slots/tools/shots.py::ShotsSlots(class)`
 - `slots/tools/shots.py::ShotsSlots.b000(self)`
 - `slots/tools/shots.py::ShotsSlots.btn_add_leading_space(self)`

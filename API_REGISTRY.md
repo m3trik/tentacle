@@ -139,6 +139,21 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/store_follow.py`](#slots--tools--_shot_manifest--store_follow) — The Shot Manifest panel following the scene's store: its events (a shot
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- [`slots/tools/_shot_sequencer/clip_menu.py`](#slots--tools--_shot_sequencer--clip_menu) — Clip context menus and clip-level key operations.
+- [`slots/tools/_shot_sequencer/clip_motion.py`](#slots--tools--_shot_sequencer--clip_motion) — Clip and key motion for the Shot Sequencer panel: moving and resizing clips,
+- [`slots/tools/_shot_sequencer/controller.py`](#slots--tools--_shot_sequencer--controller) — The Shot Sequencer panel's controller: :class:`ShotSequencerController`.
+- [`slots/tools/_shot_sequencer/gap_manager.py`](#slots--tools--_shot_sequencer--gap_manager) — Gap and range-highlight handlers for the Shot Sequencer controller.
+- [`slots/tools/_shot_sequencer/key_menu.py`](#slots--tools--_shot_sequencer--key_menu) — Key context menus and the edits run over a key selection, for the Shot
+- [`slots/tools/_shot_sequencer/marker_manager.py`](#slots--tools--_shot_sequencer--marker_manager) — Marker persistence for the shot sequencer controller.
+- [`slots/tools/_shot_sequencer/scene_callbacks.py`](#slots--tools--_shot_sequencer--scene_callbacks) — Scene events for the shot sequencer: undo/redo, key edits, time changes.
+- [`slots/tools/_shot_sequencer/scene_selection.py`](#slots--tools--_shot_sequencer--scene_selection) — Tracks and the scene selection.
+- [`slots/tools/_shot_sequencer/shot_edit_dialog.py`](#slots--tools--_shot_sequencer--shot_edit_dialog) — The Shot Sequencer's small shot dialog: :class:`ShotEditDialog`.
+- [`slots/tools/_shot_sequencer/shot_lane.py`](#slots--tools--_shot_sequencer--shot_lane) — The shot lane: its context menu and the shot structure edits.
+- [`slots/tools/_shot_sequencer/shot_layer.py`](#slots--tools--_shot_sequencer--shot_layer) — The shot layer: the Shot Sequencer's shots on uitk's timeline.
+- [`slots/tools/_shot_sequencer/shot_nav.py`](#slots--tools--_shot_sequencer--shot_nav) — Shot navigation and combobox synchronization.
+- [`slots/tools/_shot_sequencer/transport.py`](#slots--tools--_shot_sequencer--transport) — Transport: the playhead, audio scrub and the transport row.
+- [`slots/tools/_shot_sequencer/undo_ledger.py`](#slots--tools--_shot_sequencer--undo_ledger) — The shot sequencer's undo ledger.
+- [`slots/tools/_shot_sequencer/widget_sync.py`](#slots--tools--_shot_sequencer--widget_sync) — Widget sync: rebuilding the sequencer from the scene.
 - [`slots/tools/_shots/controller.py`](#slots--tools--_shots--controller) — The Shots panel's controller: the scene's shot settings, the selected shot's
 - [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - [`slots/tools/_unity_bridge/_unity_panel.py`](#slots--tools--_unity_bridge--_unity_panel) — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
@@ -182,6 +197,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+- [`slots/tools/shot_sequencer.py`](#slots--tools--shot_sequencer) — Shot Sequencer: the scene's shots on a timeline -- objects as tracks, keys as
 - [`slots/tools/shots.py`](#slots--tools--shots) — Shots: the scene's shot settings, the selected shot's fields and edits, and
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
@@ -394,6 +410,8 @@ Shared, DCC-agnostic behavior for the ``settings`` panel.
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L9)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.tk(self)` *(property)* — The host toolkit (``mtk`` / ``btk``) the entry point set on the
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
+  - `Slots.require_selection(self, message=None)` — The selection, or ``None`` -- after a message box -- when it is empty.
+  - `Slots.activate_tool(self, tool) -> bool` — Activate a viewport tool through the host toolkit and confirm it, or say
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
   - `Slots.gate_on_app(self, widget, resolve_spec) -> bool` — Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
   - `Slots.recheck_app_gates(self) -> int` — Re-probe every gated app and re-present its widgets.
@@ -425,16 +443,16 @@ Behavior shared by the Maya and Blender UV panels.
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
 
-- **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L8)** — App specific methods inherited by all other Blender slot classes.
-  - `SlotsBlender.selected_objects()` *(static)* — The current object selection (filtered of ``None``) — shared by all Blender slots.
-  - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``) — shared by all Blender slots.
-  - `SlotsBlender.effective_fps() -> float` *(static)* — The scene frame rate as the user understands it — ``fps / fps_base`` — shared by all
-  - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode (Maya's *component* mode), optionally
-  - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level surgery — data-block reassignment,
-  - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport workspace tool (knife / loop-cut / poly-build /
+- **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L7)** — App specific methods inherited by all other Blender slot classes.
+  - `SlotsBlender.selected_objects()` *(static)* — The current object selection: ``btk.CoreUtils.selected_objects`` (the
+  - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``): ``btk.CoreUtils.active_object`` (the
+  - `SlotsBlender.effective_fps() -> float` *(static)* — The scene frame rate as the user understands it, ``fps / fps_base`` (an
+  - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode, optionally setting the mesh
+  - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level work:
+  - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport tool by idname: ``btk.UiUtils.set_tool``,
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
-  - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``), degrading to a
-  - `SlotsBlender.transfer_from_active(self, data_type, **kwargs)` — Run native Data-Transfer from the active mesh to the other selected meshes
+  - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``):
+  - `SlotsBlender.transfer_from_active(self, data_type, **kwargs)` — Run native Data Transfer from the active mesh to the other selected meshes
 
 <a id="slots--blender--animation"></a>
 ### `slots/blender/animation.py`
@@ -485,7 +503,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `AnimationSlots.tb021_init(self, widget)`
   - `AnimationSlots.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
   - `AnimationSlots.tb020(self, widget)` — Smart Bake
-  - `AnimationSlots.b000(self)` — Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
+  - `AnimationSlots.b000(self)` — Open Shot Sequencer — tentacle's shared tool (slots/tools/shot_sequencer.py): shots
   - `AnimationSlots.b004(self)` — Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked
   - `AnimationSlots.b006(self)` — Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working
 
@@ -962,7 +980,7 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/_slots_maya.py`
 
 - **[`class SlotsMaya(Slots)`](tentacle/tentacle/slots/maya/_slots_maya.py#L8)** — App specific methods inherited by all other app specific slot classes.
-  - `SlotsMaya.require_selection(self, message=None, **kwargs)` — The current selection, or ``None`` — after a message box — when it is empty.
+  - `SlotsMaya.require_selection(self, message=None, **kwargs)` — The current selection, or ``None`` -- after a message box -- when it is empty.
 
 <a id="slots--maya--animation"></a>
 ### `slots/maya/animation.py`
@@ -2090,6 +2108,197 @@ The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 
 - **[`class ViewCombosMixin`](tentacle/tentacle/slots/tools/_shot_manifest/view_combos.py#L25)** — The view row, mixed into ``ShotManifestController``.
 
+<a id="slots--tools--_shot_sequencer--clip_menu"></a>
+### `slots/tools/_shot_sequencer/clip_menu.py`
+
+Clip context menus and clip-level key operations.
+
+- **[`class ClipMenuMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_menu.py#L20)** — Clip and gap context menus, and the clip-level key operations they run.
+  - `ClipMenuMixin.on_clip_menu(self, menu, clip_id: int) -> None` — Add domain-specific actions to a clip's context menu.
+  - `ClipMenuMixin.on_gap_menu(self, menu, gap_start: float, gap_end: float) -> None` — Add domain-specific actions to a gap overlay's context menu.
+
+<a id="slots--tools--_shot_sequencer--clip_motion"></a>
+### `slots/tools/_shot_sequencer/clip_motion.py`
+
+Clip and key motion for the Shot Sequencer panel: moving and resizing clips,
+
+- [`FLOAT_ZERO_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L19) — constant
+- [`KEY_MATCH_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L21) — constant
+- **[`class ClipMotionMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L26)** — Clip move / resize, per-key drag and delete handlers.
+  - `ClipMotionMixin.on_clip_resized(self, clip_id: int, new_start: float, new_duration: float) -> None` — Handle one clip's edge drag -- see :meth:`_commit_clip_resizes`.
+  - `ClipMotionMixin.on_clips_batch_resized(self, resizes) -> None` — Handle an edge drag that scaled a SELECTION of clips as one unit.
+  - `ClipMotionMixin.on_clip_moved(self, clip_id: int, new_start: float) -> None` — Handle clip move -- routes to audio or shot-level logic.
+  - `ClipMotionMixin.on_clips_batch_moved(self, moves) -> None` — Handle a batch of clip moves (group drag), syncing once at the end.
+  - `ClipMotionMixin.on_keys_moved(self, clip_id: int, changes: list) -> None` — Move individual keyframes on the curves, then refresh.
+  - `ClipMotionMixin.on_keys_batch_moved(self, groups) -> None` — Commit one key drag that spanned any number of clips.
+  - `ClipMotionMixin.on_keys_deleted(self, clip_id: int, times: list) -> None` — Delete individual keyframes from the curves, then refresh.
+
+<a id="slots--tools--_shot_sequencer--controller"></a>
+### `slots/tools/_shot_sequencer/controller.py`
+
+The Shot Sequencer panel's controller: :class:`ShotSequencerController`.
+
+- **[`class ShotSequencerController(SceneCallbacksMixin, UndoLedgerMixin, ShotLaneMixin, ClipMenuMixin, KeyMenuMixin, WidgetSyncMixin, SceneSelectionMixin, TransportMixin, GapManagerMixin, ClipMotionMixin, ShotNavMixin, MarkerManagerMixin, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_shot_sequencer/controller.py#L49)** — Business logic controller bridging SequencerWidget ↔ ShotSequencer.
+  - `ShotSequencerController.host(self)` *(property)* — The host library's ``SequencerHost``: every scene call the panel
+  - `ShotSequencerController.sequencer(self)` *(property)* — Return the host's ShotSequencer, lazily created over the active store.
+  - `ShotSequencerController.active_shot_id(self) -> Optional[int]` *(property)* — Return the shot_id currently selected, or the first shot's id.
+
+<a id="slots--tools--_shot_sequencer--gap_manager"></a>
+### `slots/tools/_shot_sequencer/gap_manager.py`
+
+Gap and range-highlight handlers for the Shot Sequencer controller.
+
+- [`TIME_SNAP_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/gap_manager.py#L16) — constant
+- **[`class GapManagerMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/gap_manager.py#L21)** — Mixin supplying gap-overlay and range-highlight handlers.
+  - `GapManagerMixin.on_range_highlight_changed(self, start: float, end: float) -> None` — Update the active shot when a range-highlight handle is dragged.
+  - `GapManagerMixin.on_gap_resized(self, original_next_start: float, new_next_start: float) -> None` — Handle a right-edge gap drag: the following shot's ``.start``.
+  - `GapManagerMixin.on_gap_left_resized(self, original_prev_end: float, new_prev_end: float) -> None` — Handle a left-edge gap drag: the preceding shot's ``.end``.
+  - `GapManagerMixin.on_gap_moved(self, old_start: float, old_end: float, new_start: float, new_end: float) -> None` — Handle body gap drag — slide the gap while preserving its width.
+  - `GapManagerMixin.on_gap_lock_changed(self, gap_start: float, gap_end: float, locked: bool) -> None` — Handle a single gap's lock state being toggled via context menu.
+  - `GapManagerMixin.on_gap_lock_all(self) -> None` — Lock all gaps so they are preserved during respace.
+  - `GapManagerMixin.on_gap_unlock_all(self) -> None` — Unlock all gaps so they follow the global gap value.
+
+<a id="slots--tools--_shot_sequencer--key_menu"></a>
+### `slots/tools/_shot_sequencer/key_menu.py`
+
+Key context menus and the edits run over a key selection, for the Shot
+
+- **[`class KeyMenuMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/key_menu.py#L20)** — Key context menus, tangent edits and drags, and the key-selection edits.
+  - `KeyMenuMixin.on_key_menu(self, menu, key_groups: list) -> None` — Add the key actions to a key's context menu.
+  - `KeyMenuMixin.on_keys_tangent_dragged(self, groups: list, side: str, broken: bool) -> None` — Write the tangents a dragged handle asks for on the keys' curves.
+  - `KeyMenuMixin.register_key_targets(self, editor_name: str, source) -> None` — Resolve the key shortcuts' targets through *source* while the
+
+<a id="slots--tools--_shot_sequencer--marker_manager"></a>
+### `slots/tools/_shot_sequencer/marker_manager.py`
+
+Marker persistence for the shot sequencer controller.
+
+- **[`class MarkerManagerMixin(_MarkerManagerMixinInternal)`](tentacle/tentacle/slots/tools/_shot_sequencer/marker_manager.py#L40)** — Mixin supplying marker CRUD persistence.
+  - `MarkerManagerMixin.on_marker_added(self, marker_id: int, time: float) -> None` — Persist a newly added marker.
+  - `MarkerManagerMixin.on_marker_moved(self, marker_id: int, new_time: float) -> None` — Update persisted marker time.
+  - `MarkerManagerMixin.on_marker_changed(self, marker_id: int) -> None` — Update persisted marker note/color.
+  - `MarkerManagerMixin.on_marker_removed(self, marker_id: int) -> None` — Remove marker from persistent store.
+
+<a id="slots--tools--_shot_sequencer--scene_callbacks"></a>
+### `slots/tools/_shot_sequencer/scene_callbacks.py`
+
+Scene events for the shot sequencer: undo/redo, key edits, time changes.
+
+- **[`class SceneCallbacksMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/scene_callbacks.py#L18)** — Scene event hooks: undo/redo, key edits and time changes refresh the widget.
+  - `SceneCallbacksMixin.remove_callbacks(self) -> None` — Detach every scene hook and store listener (call on teardown).
+
+<a id="slots--tools--_shot_sequencer--scene_selection"></a>
+### `slots/tools/_shot_sequencer/scene_selection.py`
+
+Tracks and the scene selection.
+
+- **[`class SceneSelectionMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/scene_selection.py#L22)** — Tracks, and the scene selection that follows the sequencer's.
+  - `SceneSelectionMixin.hide_track(self, track_names) -> None` — Hide one or more tracks by name, persist, and rebuild the widget.
+  - `SceneSelectionMixin.show_track(self, track_name: str) -> None` — Un-hide a track by object name, persist, and rebuild the widget.
+  - `SceneSelectionMixin.delete_track(self, track_names) -> None` — Permanently remove objects from all shots and rebuild the widget.
+  - `SceneSelectionMixin.on_selection_changed(self, clip_ids: list) -> None` — Select the clicked clips' objects, and their CHANNEL if they name one.
+  - `SceneSelectionMixin.on_track_selected(self, track_names: list) -> None` — Select the objects whose track labels were clicked in the header.
+  - `SceneSelectionMixin.on_sub_track_selected(self, rows: list) -> None` — Select a channel when its sub-row label is clicked in the header.
+  - `SceneSelectionMixin.on_clip_locked(self, clip_id: int, locked: bool) -> None` — Persist per-object clip lock and propagate to sibling clips.
+  - `SceneSelectionMixin.on_track_menu(self, menu, track_names) -> None` — Add the track actions to the track header's context menu.
+  - `SceneSelectionMixin.on_header_menu(self, menu) -> None` — Add settings actions to the header background context menu (none).
+  - `SceneSelectionMixin.on_key_selection_changed(self, key_groups: list) -> None` — Sync the host's Graph Editor key selection to the sequencer's.
+  - `SceneSelectionMixin.on_clip_renamed(self, clip_id: int, new_label: str) -> None` — Inline rename of a clip: display-only (an object's name owns its
+
+<a id="slots--tools--_shot_sequencer--shot_edit_dialog"></a>
+### `slots/tools/_shot_sequencer/shot_edit_dialog.py`
+
+The Shot Sequencer's small shot dialog: :class:`ShotEditDialog`.
+
+- **[`class ShotEditDialog`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_edit_dialog.py#L13)** — Lightweight dialog for creating or editing a shot.
+  - `ShotEditDialog.show(parent=None, name: str = '', start: float = 1.0, end: float = 100.0, description: str = '', title: str = 'Shot', validate=None)` *(static)* — Show a modal dialog and return the result tuple or ``None``.
+
+<a id="slots--tools--_shot_sequencer--shot_lane"></a>
+### `slots/tools/_shot_sequencer/shot_lane.py`
+
+The shot lane: its context menu and the shot structure edits.
+
+- **[`class ShotLaneMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_lane.py#L20)** — The shot lane's menus and the shot structure edits they run.
+  - `ShotLaneMixin.on_zone_context_menu(self, zone: str, time: float, global_pos) -> None` — Build a context menu specific to the clicked zone.
+  - `ShotLaneMixin.delete_shot(self, shot_id: int) -> None` — Delete *shot_id* with its contents, closing the timeline behind it.
+  - `ShotLaneMixin.delete_shots(self, scope: str = 'stale') -> None` — Delete the shots of *scope*, after naming them.
+  - `ShotLaneMixin.move_shot_to_position(self, shot_id: int, position: int) -> None` — Re-slot *shot_id* at 1-based *position*, pushing the rest along.
+  - `ShotLaneMixin.merge_shot_with(self, shot_id: int, other_id: int) -> None` — Fuse two neighbouring shots into one spanning both.
+  - `ShotLaneMixin.split_shot_at(self, shot_id: int, time: float) -> None` — Cut *shot_id* in two at *time*, leaving its content where it is.
+
+<a id="slots--tools--_shot_sequencer--shot_layer"></a>
+### `slots/tools/_shot_sequencer/shot_layer.py`
+
+The shot layer: the Shot Sequencer's shots on uitk's timeline.
+
+- **[`class GapOverlay`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_layer.py#L30)** — Diagonal-hatch overlay for a gap between shots (behaviour).
+  - `GapOverlay.item_class(cls, sb)` *(class)* — The gap's scene-item class: this behaviour first, then uitk's
+  - `GapOverlay.boundingRect(self) -> QtCore.QRectF`
+  - `GapOverlay.hoverEnterEvent(self, event)`
+  - `GapOverlay.hoverLeaveEvent(self, event)`
+  - `GapOverlay.hoverMoveEvent(self, event)`
+  - `GapOverlay.mousePressEvent(self, event)`
+  - `GapOverlay.mouseMoveEvent(self, event)`
+  - `GapOverlay.mouseReleaseEvent(self, event)`
+  - `GapOverlay.contextMenuEvent(self, event)`
+  - `GapOverlay.paint(self, painter: QtGui.QPainter, option, widget=None)`
+- **[`class ShotLayer(QtCore.QObject)`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_layer.py#L478)** — The Shot Sequencer's layer on a ``SequencerWidget`` (module docstring).
+  - `ShotLayer.of(cls, sequencer, sb)` *(class)* — The shot layer on *sequencer*, added on first use.
+  - `ShotLayer.set_shot_blocks(self, blocks: list) -> None` — Show one band per shot on the lane.
+  - `ShotLayer.clear_shot_blocks(self) -> None` — Remove every band from the lane.
+  - `ShotLayer.selected_shot(self) -> Optional[dict]` — The block marked ``active``, or ``None``.
+  - `ShotLayer.shot_block_at(self, time: float) -> Optional[dict]` — The block containing *time*, or ``None``.
+  - `ShotLayer.add_gap_overlay(self, start: float, end: float, color: str = '#555555', alpha: int = 120, locked: bool = False, tail: bool = False, head: bool = False) -> None` — Add a diagonal-hatch overlay for a gap between shots.
+  - `ShotLayer.clear_gap_overlays(self) -> None` — Remove every gap overlay (deferred-safe: a release may be on the stack).
+  - `ShotLayer.set_all_gap_overlays_locked(self, locked: bool) -> None` — Set the locked state on every gap overlay.
+  - `ShotLayer.show_gap_overlays(self) -> bool` *(property)* — Whether the gap overlays show (the timeline menu's Show Gap Overlays).
+  - `ShotLayer.paint_lane(self, painter: QtGui.QPainter, rect: QtCore.QRectF) -> None` — Draw one band per shot in the lane's strip.
+  - `ShotLayer.mouse_press(self, event) -> bool` — Ctrl+Shift+Click anywhere switches to the shot there;
+  - `ShotLayer.mouse_move(self, event) -> bool` — A lane drag's move (Alt: about the centre);
+  - `ShotLayer.mouse_release(self, event) -> bool` — End a lane drag: the highlight emits if a bound moved.
+  - `ShotLayer.gesture_group_at(self, viewport_pos) -> Optional[str]` — ``"Shot bounds"`` over the lane's grabs, a cap or the highlight's
+  - `ShotLayer.claims_press(self, scene_pos) -> bool` — An unlocked gap's PAINTED rect keeps a press from the range
+  - `ShotLayer.legend(self, editor: str, rows: Tuple) -> Tuple` — The track editor's legend with the shot grammar: the shot groups
+  - `ShotLayer.context_entries(self, time: float, entries: list) -> list` — The timeline menu: the range overlays are the shots', and the gap
+  - `ShotLayer.menu_zone(self, zone: str, time: float) -> str` — A right-click at a time some shot covers is the shot lane's,
+  - `ShotLayer.time_bounds(self) -> Optional[Tuple[float, float]]` — The shots' and gaps' extent: a shot that no longer encloses any
+  - `ShotLayer.relayout(self) -> None` — Re-derive the gaps' geometry: their height follows the rows.
+  - `ShotLayer.clear(self) -> None` — The widget was cleared: no gaps, no bands.
+
+<a id="slots--tools--_shot_sequencer--shot_nav"></a>
+### `slots/tools/_shot_sequencer/shot_nav.py`
+
+Shot navigation and combobox synchronization.
+
+- **[`class ShotNavMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_nav.py#L19)** — Mixin supplying shot selection and navigation.
+  - `ShotNavMixin.select_shot(self, shot_id: int) -> None` — Set the view's playback range to the shot and select its objects.
+  - `ShotNavMixin.on_shot_block_clicked(self, shot_name: str) -> None` — Select a shot by name when its block is clicked in the shot lane.
+
+<a id="slots--tools--_shot_sequencer--transport"></a>
+### `slots/tools/_shot_sequencer/transport.py`
+
+Transport: the playhead, audio scrub and the transport row.
+
+- **[`class TransportMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/transport.py#L15)** — The playhead, audible scrubbing and the transport button row.
+  - `TransportMixin.on_playhead_moved(self, frame: float) -> None` — Move the scene's time to the widget playhead.
+
+<a id="slots--tools--_shot_sequencer--undo_ledger"></a>
+### `slots/tools/_shot_sequencer/undo_ledger.py`
+
+The shot sequencer's undo ledger.
+
+- **[`class UndoLedgerMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/undo_ledger.py#L13)** — Shot-boundary restore points, and the panel's Undo / Redo.
+  - `UndoLedgerMixin.on_undo(self) -> None` — Handle undo_requested from the widget: one step of the host's undo,
+  - `UndoLedgerMixin.on_redo(self) -> None` — Handle redo_requested from the widget (see :meth:`on_undo`).
+
+<a id="slots--tools--_shot_sequencer--widget_sync"></a>
+### `slots/tools/_shot_sequencer/widget_sync.py`
+
+Widget sync: rebuilding the sequencer from the scene.
+
+- **[`class WidgetSyncMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/widget_sync.py#L25)** — Rebuilding the widget from the scene: tracks, clips, sub-rows, decoration.
+  - `WidgetSyncMixin.refresh(self) -> None` — Clear cached segments and rebuild the sequencer widget.
+
 <a id="slots--tools--_shots--controller"></a>
 ### `slots/tools/_shots/controller.py`
 
@@ -2909,6 +3118,19 @@ Shot Manifest: a shot sheet checked against the scene, and the shots built from 
   - `ShotManifestSlots.b002(self)` — Assess the steps against the scene.
   - `ShotManifestSlots.b003(self)` — Build shots from loaded steps (or auto-detect from scene).
   - `ShotManifestSlots.b004(self)` — Export the manifest's rows (the option menu says how).
+
+<a id="slots--tools--shot_sequencer"></a>
+### `slots/tools/shot_sequencer.py`
+
+Shot Sequencer: the scene's shots on a timeline -- objects as tracks, keys as
+
+- **[`class ShotSequencerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/shot_sequencer.py#L34)** — Switchboard slots for the ``shot_sequencer.ui`` panel.
+  - `ShotSequencerSlots.header_init(self, widget)` — Build the header menu.
+  - `ShotSequencerSlots.cmb_shot(self, index)` — A shot (or, in Markers mode, a marker) picked in the dropdown.
+  - `ShotSequencerSlots.spn_snap(self, value)` — Set the snap interval on the sequencer widget.
+  - `ShotSequencerSlots.btn_colors(self)` — Open the attribute color configuration dialog.
+  - `ShotSequencerSlots.btn_shortcuts(self)` — Open the sequencer shortcut editor.
+  - `ShotSequencerSlots.btn_shot_settings(self)` — Open the shared Shots panel (pinned, as Edit Shot does).
 
 <a id="slots--tools--shots"></a>
 ### `slots/tools/shots.py`
