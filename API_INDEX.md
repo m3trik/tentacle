@@ -10,10 +10,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class AnimationMixin`
   - methods: list000_init
 
-### `slots/_materials.py` — Shared, DCC-agnostic behavior for the ``materials`` panel.
-- `class MaterialsMixin`
-  - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, txt000_init, b006_init, b006, b033, b014, header_init, b003, list001_init
-
 ### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
 - `class SceneMixin`
   - methods: tb003, list003_init, b019, tb001_init, tb001, tb002_init, tb002
@@ -36,10 +32,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
-
-### `slots/blender/materials.py`
-- `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
-  - methods: b_shader_editor, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b004, b013, b015, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
@@ -88,6 +80,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/main.py` — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 - `class MainSlots(Slots)`
   - methods: list000_init, list000
+
+### `slots/materials.py` — Materials: one Slots class for both hosts.
+- `class MaterialsSlots(Slots)`
+  - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, lbl004, lbl006, txt000_init, b006_init, b006, b004, b033, b014, b015, header_init, list000_init, list000, select_by_mat, b003, list001_init, list001, b007, b013, tb001_init, tb001, tb002_init, tb002, b009, b010, b011, b018, b019, b020, b021, b026, b027, b008, b016, b022, b023, b024, b025
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -141,10 +137,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/mash.py`
 - `class MashSlots(SlotsMaya)`
-
-### `slots/maya/materials.py`
-- `class MaterialsSlots(MaterialsMixin, SlotsMaya)`
-  - methods: b007, list000_init, list000, list001, select_by_mat, b015, lbl004, lbl006, b004, b008, b009, b026, b027, b010, b011, b013, b016, b018, tb001_init, tb001, tb002_init, tb002, b021, b019, b020, b022, b023, b024, b025
 
 ### `slots/maya/mesh.py`
 - `class MeshSlots(SlotsMaya)`

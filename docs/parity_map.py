@@ -132,15 +132,6 @@ CONTROLS_SLOTS = {
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
     },
-    "materials": {
-        "b007": {"status": "renamed", "to": "b_shader_editor", "reason": "Hypershade Editor -> 'Shader Editor' header button (btk.open_editor, Blender's Hypershade analogue)"},
-        "tb002": {"status": "pending", "reason": "Enable Viewport Opacity — wires each material's opacity map (in-network, or found beside its other textures on disk) into the slot its shader type honors, so transparency shows in the viewport. Maya's engine side is mtk.MatUtils.enable_viewport_opacity / get_mats_by_scope / find_opacity_source. The Blender twin is buildable on the same shape: find the image texture whose path resolves to an Opacity map, connect its Alpha into the Principled BSDF Alpha socket, and switch the material to blended surface rendering (4.2+ surface_render_method='BLENDED'; blend_method='BLEND' before that) — needs a live Blender pass to pin the version-dependent property, so it is tracked as open work rather than guessed."},
-        "cmb_opacity_scope": {"status": "pending", "reason": "tb002 scope combo (Selected Objects / Visible Objects / All Scene Materials) — rides the tb002 port; maps onto a btk.MatUtils.get_mats_by_scope twin (selection, visible objects, bpy.data.materials). Named cmb_opacity_scope, not cmb_scope: tb001's option box already owns that objectName, and the objectName is the StateManager key, so two scope combos under one name overwrite each other's persisted choice."},
-        "chk_depth_peeling": {"status": "na", "reason": "tb002 option switching Viewport 2.0 to depth-peeled transparency (hardwareRenderingGlobals.transparencyAlgorithm). EEVEE has no depth-peeling mode — its transparency sorting is per-material (render method / sort order), not a viewport-wide algorithm — so there is no toggle to mirror."},
-        "chk_exclude_defaults": {"status": "na", "reason": "Blender has no auto-created default materials to filter from the report; drop documented in tb001_init"},
-        "chk_hide_defaults": {"status": "na", "reason": "Material-list filter (the filter field's option box, Maya's _list_filters hook): Blender has no auto-created default materials (lambert1 etc.) to hide, so its hook returns none and the field shows no option box"},
-        "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the material list (the filter field's option box), for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
-    },
     "uv": {
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
         "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
@@ -212,9 +203,6 @@ CONTROLS_SLOTS = {
 # list, the control is a counterpart (named after its target), or the value is actually set
 # post-population (static tool can't see it). Pure drift is fixed, never accepted.
 DEFAULT_DELTAS = {
-    "materials": {
-        "chk_include_optimization.setChecked": "Environment-driven default (documented in-file: builder comment + tooltip + docstring). Same ptk.MapOptimizer toggle, but Blender's bundled Python lacks Pillow, so the map-analysis report degrades to per-texture 'unavailable'; opt-in avoids a noise-filled default report. Maya's tooltip assumes PIL present.",
-    },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
     },

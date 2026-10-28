@@ -16,22 +16,11 @@ DEFAULT_INCLUDE = {
     "slots._slots": "Slots",
     "slots.maya._slots_maya": "SlotsMaya",
     "slots.blender._slots_blender": "SlotsBlender",
-    # Per-panel shared mixins (slots/_<panel>.py). Registered so a concrete panel
-    # pulls its mixin and its DCC base from ONE package-namespace import
-    # (``from tentacle import SceneMixin, SlotsMaya``) instead of two deep module
-    # paths. They are deliberately NOT folded into the DCC bases: nearly every
-    # mixin defines widget-named slot methods (SceneMixin.tb002,
-    # MaterialsMixin.b003, PreferencesMixin.cmb004/cmb005), and those
-    # objectNames are reused across panels — 12 .ui files carry a ``tb002``,
-    # only 8 Maya slot files define one. Inherited from a shared base, the
-    # panels that DON'T define their own would silently bind their widget to
-    # another panel's slot. Mixing in per panel keeps each name owned by exactly
-    # the panels that opted in.
-    # AnimationMixin, too, now defines a widget-named slot (``list000_init``, the
-    # Tools list both forks build identically), so it is mixed in per panel for
-    # the same reason as the rest.
+    # The shared mixins of the categories still forked (slots/_<category>.py),
+    # until each is composed into one class (slots/<category>.py; MOVED_NAMES
+    # below). Mixed in per panel, never folded into the DCC bases: a mixin's
+    # widget-named slots (``tb002``) would bind every panel's same-named widget.
     "slots._animation": "AnimationMixin",
-    "slots._materials": "MaterialsMixin",
     "slots._scene": "SceneMixin",
     "slots._uv": "UvMixin",
 }
@@ -55,6 +44,7 @@ MOVED_NAMES = {
     "TransformMixin": ("tentacle.slots.transform.TransformSlots", "0.17.0"),
     "RiggingMixin": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
     "RenderingMixin": ("tentacle.slots.rendering.RenderingSlots", "0.17.0"),
+    "MaterialsMixin": ("tentacle.slots.materials.MaterialsSlots", "0.17.0"),
 }
 
 

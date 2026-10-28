@@ -6,14 +6,12 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
-- [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/materials.py`](#slots--blender--materials)
 - [`slots/blender/scene.py`](#slots--blender--scene)
 - [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
@@ -26,6 +24,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/hud.py`](#slots--hud) — HUD: one Slots class for both hosts.
 - [`slots/lighting.py`](#slots--lighting) — Lighting: one Slots class for both hosts.
 - [`slots/main.py`](#slots--main) — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
+- [`slots/materials.py`](#slots--materials) — Materials: one Slots class for both hosts.
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
@@ -43,7 +42,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/key.py`](#slots--maya--key)
 - [`slots/maya/lighting_shading.py`](#slots--maya--lighting_shading)
 - [`slots/maya/mash.py`](#slots--maya--mash)
-- [`slots/maya/materials.py`](#slots--maya--materials)
 - [`slots/maya/mesh.py`](#slots--maya--mesh)
 - [`slots/maya/mesh_display.py`](#slots--maya--mesh_display)
 - [`slots/maya/mesh_tools.py`](#slots--maya--mesh_tools)
@@ -185,9 +183,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L58) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L42) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L31) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -196,28 +194,6 @@ Text the animation panel's Maya and Blender forks say identically.
 
 - **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
   - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
-
-<a id="slots--_materials"></a>
-### `slots/_materials.py`
-
-Shared, DCC-agnostic behavior for the ``materials`` panel.
-
-- **[`class MaterialsMixin`](tentacle/tentacle/slots/_materials.py#L72)** — DCC-agnostic ``materials`` slot behavior: the material table, the current
-  - `MaterialsMixin.tbl000_init(self, widget)` — The material table: built once, re-wired and refilled on every show.
-  - `MaterialsMixin.b028(self, widget=None)` — Assign the highlighted material to the selection.
-  - `MaterialsMixin.b029(self, widget=None)` — Select what uses the highlighted material, as assigned.
-  - `MaterialsMixin.b030(self, widget=None)` — Select every object using the highlighted material.
-  - `MaterialsMixin.b031(self, widget=None)` — Narrow the selection to what uses the highlighted material.
-  - `MaterialsMixin.b032(self, widget=None)` — Merge the highlighted duplicates into the materials they duplicate.
-  - `MaterialsMixin.lbl002(self, widget=None)` — Delete the highlighted materials.
-  - `MaterialsMixin.txt000_init(self, widget)` — The filter field: hides the rows whose name does not hold its text.
-  - `MaterialsMixin.b006_init(self, widget)`
-  - `MaterialsMixin.b006(self, widget=None)` — New material onto the selection (:meth:`_new_mat`);
-  - `MaterialsMixin.b033(self, widget=None)` — Select the objects carrying no material.
-  - `MaterialsMixin.b014(self, widget=None)` — Remove Duplicate Materials: merge every duplicate in the scene into
-  - `MaterialsMixin.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
-  - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
-  - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
 
 <a id="slots--_scene"></a>
 ### `slots/_scene.py`
@@ -333,37 +309,6 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/blender.py`
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
-
-<a id="slots--blender--materials"></a>
-### `slots/blender/materials.py`
-
-- **[`class MaterialsSlots(MaterialsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/materials.py#L10)** — Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against
-  - `MaterialsSlots.b_shader_editor(self)` — Shader Editor — Blender's analogue of Maya's Hypershade.
-  - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
-  - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
-  - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the text-view dialog.
-  - `MaterialsSlots.list000_init(self, widget)` — The submenu's Assign list: assign-current root + New / Random + the
-  - `MaterialsSlots.list000(self, item)` — Assign list: root assigns the current material;
-  - `MaterialsSlots.list001(self, item)` — Dispatch a Tools-list selection to its slot method.
-  - `MaterialsSlots.b004(self, widget=None)` — Assign Random
-  - `MaterialsSlots.b013(self)` — Reload Scene Textures
-  - `MaterialsSlots.b015(self, widget=None)` — Delete All Unused Materials
-  - `MaterialsSlots.lbl004(self)` — Select Node — select the object(s) using the current material.
-  - `MaterialsSlots.lbl006(self)` — Open in Editor — graph the current material in the Shader Editor.
-  - `MaterialsSlots.b021(self)` — Image to Plane — open the panel (batch image→plane with aspect sizing, material affix
-  - `MaterialsSlots.b010(self)` — Texture Path Editor — the shared tool over ``btk.TexturePathEditor`` (list / repath /
-  - `MaterialsSlots.b009(self)` — Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR
-  - `MaterialsSlots.b027(self)` — Emissive Groups — co-located blendertk panel (named face groups a game engine gates at
-  - `MaterialsSlots.b011(self)` — Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /
-  - `MaterialsSlots.b018(self)` — Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material
-  - `MaterialsSlots.b008(self)` — Map Packer
-  - `MaterialsSlots.b016(self)` — Map Converter
-  - `MaterialsSlots.b022(self)` — Map Compositor
-  - `MaterialsSlots.b023(self)` — Metashape Workflow
-  - `MaterialsSlots.b024(self)` — RealityCapture Workflow
-  - `MaterialsSlots.b025(self)` — Brush Splat Workflow
-  - `MaterialsSlots.b019(self)` — Marmoset Bridge
-  - `MaterialsSlots.b020(self)` — Substance Bridge
 
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
@@ -587,6 +532,57 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
   - `MainSlots.list000_init(self, widget)` — Initialize the Workspace tab.
   - `MainSlots.list000(self, item)` — Workspace tab dispatch: the editing actions, recent-workspace selection,
 
+<a id="slots--materials"></a>
+### `slots/materials.py`
+
+Materials: one Slots class for both hosts.
+
+- **[`class MaterialsSlots(Slots)`](tentacle/tentacle/slots/materials.py#L59)** — The material table, the current material, the header menu, the submenu's
+  - `MaterialsSlots.tbl000_init(self, widget)` — The material table: built once, re-wired and refilled on every show.
+  - `MaterialsSlots.b028(self, widget=None)` — Assign the highlighted material to the selection.
+  - `MaterialsSlots.b029(self, widget=None)` — Select what uses the highlighted material, as assigned.
+  - `MaterialsSlots.b030(self, widget=None)` — Select every object using the highlighted material.
+  - `MaterialsSlots.b031(self, widget=None)` — Narrow the selection to what uses the highlighted material.
+  - `MaterialsSlots.b032(self, widget=None)` — Merge the highlighted duplicates into the materials they duplicate.
+  - `MaterialsSlots.lbl002(self, widget=None)` — Delete the highlighted materials.
+  - `MaterialsSlots.lbl004(self, widget=None)` — Show Attributes: the current material in the host's attribute view
+  - `MaterialsSlots.lbl006(self, widget=None)` — Open in Editor: graph the current material in the shader editor.
+  - `MaterialsSlots.txt000_init(self, widget)` — The filter field: hides the rows whose name does not hold its text.
+  - `MaterialsSlots.b006_init(self, widget)`
+  - `MaterialsSlots.b006(self, widget=None)` — New material onto the selection (:meth:`_new_mat`);
+  - `MaterialsSlots.b004(self, widget=None)` — Assign Random: a new random-colored material onto the selection;
+  - `MaterialsSlots.b033(self, widget=None)` — Select the objects carrying no material.
+  - `MaterialsSlots.b014(self, widget=None)` — Remove Duplicate Materials: merge every duplicate in the scene into
+  - `MaterialsSlots.b015(self, widget=None)` — Delete All Unused Materials (one Undo;
+  - `MaterialsSlots.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
+  - `MaterialsSlots.list000_init(self, widget)` — Assign list: the current material at the root, then New, Random and
+  - `MaterialsSlots.list000(self, item)` — Dispatch an Assign list release.
+  - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
+  - `MaterialsSlots.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
+  - `MaterialsSlots.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
+  - `MaterialsSlots.list001(self, item)` — Dispatch a Tools-list selection to its slot method.
+  - `MaterialsSlots.b007(self, widget=None)` — Shader Editor: the host's (Maya: the Hypershade;
+  - `MaterialsSlots.b013(self, widget=None)` — Reload Scene Textures, then reset the viewport.
+  - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info: its option box.
+  - `MaterialsSlots.tb001(self, widget)` — Get Material Info: render a formatted report to the viewer dialog.
+  - `MaterialsSlots.tb002_init(self, widget)` — Enable Viewport Opacity (Maya: its Tools row is ``requires="maya"``):
+  - `MaterialsSlots.tb002(self, widget)` — Enable Viewport Opacity: wire opacity maps for the chosen scope.
+  - `MaterialsSlots.b009(self, widget=None)` — Game Shader.
+  - `MaterialsSlots.b010(self, widget=None)` — Texture Path Editor.
+  - `MaterialsSlots.b011(self, widget=None)` — Shader Templates.
+  - `MaterialsSlots.b018(self, widget=None)` — Mat Updater: reprocess scene materials' textures and re-wire them.
+  - `MaterialsSlots.b019(self, widget=None)` — Marmoset Bridge.
+  - `MaterialsSlots.b020(self, widget=None)` — Substance Bridge.
+  - `MaterialsSlots.b021(self, widget=None)` — Image to Plane.
+  - `MaterialsSlots.b026(self, widget=None)` — Arnold Preview Shader (Maya: a parallel aiStandardSurface for in-Maya
+  - `MaterialsSlots.b027(self, widget=None)` — Emissive Groups.
+  - `MaterialsSlots.b008(self, widget=None)` — Map Packer.
+  - `MaterialsSlots.b016(self, widget=None)` — Map Converter.
+  - `MaterialsSlots.b022(self, widget=None)` — Map Compositor.
+  - `MaterialsSlots.b023(self, widget=None)` — Metashape Workflow.
+  - `MaterialsSlots.b024(self, widget=None)` — RealityCapture Workflow.
+  - `MaterialsSlots.b025(self, widget=None)` — Brush Splat Workflow.
+
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
 
@@ -721,40 +717,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 ### `slots/maya/mash.py`
 
 - **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L8)**
-
-<a id="slots--maya--materials"></a>
-### `slots/maya/materials.py`
-
-- **[`class MaterialsSlots(MaterialsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/materials.py#L13)**
-  - `MaterialsSlots.b007(self)` — Hypershade Editor
-  - `MaterialsSlots.list000_init(self, widget)` — Assign list: scene materials + 'New' + 'Random'.
-  - `MaterialsSlots.list000(self, item)` — Dispatch Assign list selection.
-  - `MaterialsSlots.list001(self, item)` — Dispatch Tools list selection to the matching slot method.
-  - `MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)` — Select the geometry carrying the current material.
-  - `MaterialsSlots.b015(self, widget)` — Delete Unused Materials
-  - `MaterialsSlots.lbl004(self)` — Select and Show Attributes: Show Material Attributes in the Attribute Editor.
-  - `MaterialsSlots.lbl006(self)` — Open material in editor
-  - `MaterialsSlots.b004(self, widget)` — Assign Random
-  - `MaterialsSlots.b008(self, widget)` — Map Packer
-  - `MaterialsSlots.b009(self, widget)` — Create Game Shader
-  - `MaterialsSlots.b026(self, widget)` — Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;
-  - `MaterialsSlots.b027(self, widget)` — Emissive Groups
-  - `MaterialsSlots.b010(self, widget)` — Texture Path Editor
-  - `MaterialsSlots.b011(self, widget)` — Shader Templates
-  - `MaterialsSlots.b013(self)` — Reload Textures and Reset Viewport
-  - `MaterialsSlots.b016(self)` — Map Converter
-  - `MaterialsSlots.b018(self, widget)` — Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.
-  - `MaterialsSlots.tb001_init(self, widget)` — Get Material Info — option box.
-  - `MaterialsSlots.tb001(self, widget)` — Get Material Info — render a formatted report to the viewer dialog.
-  - `MaterialsSlots.tb002_init(self, widget)` — Enable Viewport Opacity — option box.
-  - `MaterialsSlots.tb002(self, widget)` — Enable Viewport Opacity — wire opacity maps for the chosen scope.
-  - `MaterialsSlots.b021(self, widget)` — Image to Plane
-  - `MaterialsSlots.b019(self, widget)` — Marmoset Bridge
-  - `MaterialsSlots.b020(self, widget)` — Substance Bridge
-  - `MaterialsSlots.b022(self, widget)` — Map Compositor
-  - `MaterialsSlots.b023(self, widget)` — Metashape Workflow
-  - `MaterialsSlots.b024(self, widget)` — RealityCapture Workflow
-  - `MaterialsSlots.b025(self, widget)` — Brush Splat Workflow
 
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`

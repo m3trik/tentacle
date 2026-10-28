@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (46)
+## Removed (47)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
@@ -18,6 +18,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/blender/hud.py::WarningsMixin` — was `(class)`
 - `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
+- `slots/blender/materials.py::MaterialsSlots.b_shader_editor` — was `(self)`
 - `slots/blender/polygons.py::PolygonsSlots.b038_init` — was `(self, widget)`
 - `slots/blender/transform.py::TransformSlots.tb004` — was `(self, widget)`
 - `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
@@ -53,7 +54,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (61)
+## Moved out (77)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -75,6 +76,22 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_lighting.py::LightingMixin` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
 - `slots/_lighting.py::LightingMixin.kelvin_tooltip` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
 - `slots/_main.py::MainMixin` → `tentacle.slots.main.MainSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b003` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b006` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b006_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b014` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b028` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b029` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b030` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b031` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b032` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.b033` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.header_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.lbl002` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.list001_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.tbl000_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/_materials.py::MaterialsMixin.txt000_init` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_nurbs.py::NurbsMixin` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
@@ -117,7 +134,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 
-## Added (1466)
+## Added (1511)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -230,6 +247,51 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/main.py::MainSlots(class)`
 - `slots/main.py::MainSlots.list000(self, item)`
 - `slots/main.py::MainSlots.list000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots(class)`
+- `slots/materials.py::MaterialsSlots.b003(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b004(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b006(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b006_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.b007(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b008(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b009(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b010(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b011(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b013(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b014(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b015(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b016(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b018(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b019(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b020(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b021(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b022(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b023(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b024(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b025(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b026(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b027(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b028(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b029(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b030(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b031(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b032(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.b033(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.header_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.lbl002(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.lbl004(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.lbl006(self, widget=None)`
+- `slots/materials.py::MaterialsSlots.list000(self, item)`
+- `slots/materials.py::MaterialsSlots.list000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.list001(self, item)`
+- `slots/materials.py::MaterialsSlots.list001_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.select_by_mat(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)`
+- `slots/materials.py::MaterialsSlots.tb001(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb001_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb002(self, widget)`
+- `slots/materials.py::MaterialsSlots.tb002_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.tbl000_init(self, widget)`
+- `slots/materials.py::MaterialsSlots.txt000_init(self, widget)`
 - `slots/normals.py::NormalsSlots(class)`
 - `slots/normals.py::NormalsSlots.b000(self)`
 - `slots/normals.py::NormalsSlots.b001(self)`
@@ -1586,7 +1648,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (574)
+## Moved (630)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1673,6 +1735,32 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/main.py::MainSlots`
 - `slots/blender/main.py::MainSlots.list000`
 - `slots/blender/main.py::MainSlots.list000_init`
+- `slots/blender/materials.py::MaterialsSlots`
+- `slots/blender/materials.py::MaterialsSlots.b004`
+- `slots/blender/materials.py::MaterialsSlots.b008`
+- `slots/blender/materials.py::MaterialsSlots.b009`
+- `slots/blender/materials.py::MaterialsSlots.b010`
+- `slots/blender/materials.py::MaterialsSlots.b011`
+- `slots/blender/materials.py::MaterialsSlots.b013`
+- `slots/blender/materials.py::MaterialsSlots.b015`
+- `slots/blender/materials.py::MaterialsSlots.b016`
+- `slots/blender/materials.py::MaterialsSlots.b018`
+- `slots/blender/materials.py::MaterialsSlots.b019`
+- `slots/blender/materials.py::MaterialsSlots.b020`
+- `slots/blender/materials.py::MaterialsSlots.b021`
+- `slots/blender/materials.py::MaterialsSlots.b022`
+- `slots/blender/materials.py::MaterialsSlots.b023`
+- `slots/blender/materials.py::MaterialsSlots.b024`
+- `slots/blender/materials.py::MaterialsSlots.b025`
+- `slots/blender/materials.py::MaterialsSlots.b027`
+- `slots/blender/materials.py::MaterialsSlots.lbl004`
+- `slots/blender/materials.py::MaterialsSlots.lbl006`
+- `slots/blender/materials.py::MaterialsSlots.list000`
+- `slots/blender/materials.py::MaterialsSlots.list000_init`
+- `slots/blender/materials.py::MaterialsSlots.list001`
+- `slots/blender/materials.py::MaterialsSlots.select_by_mat`
+- `slots/blender/materials.py::MaterialsSlots.tb001`
+- `slots/blender/materials.py::MaterialsSlots.tb001_init`
 - `slots/blender/normals.py::NormalsSlots`
 - `slots/blender/normals.py::NormalsSlots.b000`
 - `slots/blender/normals.py::NormalsSlots.b001`
@@ -1959,6 +2047,36 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/main.py::MainSlots`
 - `slots/maya/main.py::MainSlots.list000`
 - `slots/maya/main.py::MainSlots.list000_init`
+- `slots/maya/materials.py::MaterialsSlots`
+- `slots/maya/materials.py::MaterialsSlots.b004`
+- `slots/maya/materials.py::MaterialsSlots.b007`
+- `slots/maya/materials.py::MaterialsSlots.b008`
+- `slots/maya/materials.py::MaterialsSlots.b009`
+- `slots/maya/materials.py::MaterialsSlots.b010`
+- `slots/maya/materials.py::MaterialsSlots.b011`
+- `slots/maya/materials.py::MaterialsSlots.b013`
+- `slots/maya/materials.py::MaterialsSlots.b015`
+- `slots/maya/materials.py::MaterialsSlots.b016`
+- `slots/maya/materials.py::MaterialsSlots.b018`
+- `slots/maya/materials.py::MaterialsSlots.b019`
+- `slots/maya/materials.py::MaterialsSlots.b020`
+- `slots/maya/materials.py::MaterialsSlots.b021`
+- `slots/maya/materials.py::MaterialsSlots.b022`
+- `slots/maya/materials.py::MaterialsSlots.b023`
+- `slots/maya/materials.py::MaterialsSlots.b024`
+- `slots/maya/materials.py::MaterialsSlots.b025`
+- `slots/maya/materials.py::MaterialsSlots.b026`
+- `slots/maya/materials.py::MaterialsSlots.b027`
+- `slots/maya/materials.py::MaterialsSlots.lbl004`
+- `slots/maya/materials.py::MaterialsSlots.lbl006`
+- `slots/maya/materials.py::MaterialsSlots.list000`
+- `slots/maya/materials.py::MaterialsSlots.list000_init`
+- `slots/maya/materials.py::MaterialsSlots.list001`
+- `slots/maya/materials.py::MaterialsSlots.select_by_mat`
+- `slots/maya/materials.py::MaterialsSlots.tb001`
+- `slots/maya/materials.py::MaterialsSlots.tb001_init`
+- `slots/maya/materials.py::MaterialsSlots.tb002`
+- `slots/maya/materials.py::MaterialsSlots.tb002_init`
 - `slots/maya/normals.py::NormalsSlots`
 - `slots/maya/normals.py::NormalsSlots.b000`
 - `slots/maya/normals.py::NormalsSlots.b001`

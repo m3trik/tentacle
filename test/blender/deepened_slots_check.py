@@ -766,7 +766,7 @@ try:
     # (a baked pair needs no lightmap step: blendertk's LightmapBaker groups a duplicate's
     # atlas with the one it duplicates -- covered by blendertk/test/test_lightmap_baker.py)
     import blendertk as btk
-    from tentacle.slots.blender.materials import MaterialsSlots
+    from tentacle.slots.materials import MaterialsSlots
 
     reset()
     told = []
@@ -777,7 +777,9 @@ try:
         dup_mat.node_tree.nodes.new("ShaderNodeTexImage").image = dup_img
         btk.assign_mat(add_cube(name, (3 * i, 0, 0)), dup_mat)
     slot = make_slot(
-        MaterialsSlots, sb=NS(message_box=told.append), _refresh_material_lists=lambda: None
+        MaterialsSlots,
+        sb=NS(message_box=told.append, tk=btk),
+        _refresh_material_lists=lambda: None,
     )
     slot.b014()
     left = {bpy.data.objects[n].material_slots[0].material.name for n in ("DupChkA", "DupChkB")}
@@ -811,7 +813,12 @@ try:
             btk.create_mat("standard", name="TblGeoNodes")
         )
         add_cube("TblGeoNodes_geo", (12, 0, 0)).modifiers.new("GN", "NODES").node_group = gn_tree
-        slot = make_slot(MaterialsSlots, ui=NS())
+        slot = make_slot(
+            MaterialsSlots,
+            ui=NS(),
+            sb=NS(message_box=lambda *a, **k: None, tk=btk),
+            _refresh_material_lists=lambda *a, **k: None,
+        )
         names = ["TblCrateA", "TblCrateB", "TblWood", "TblOld", "TblKept", "TblGeoNodes"]
         rows = {row["name"] for row in slot._material_rows()}
         details = slot._material_details(names)
@@ -828,8 +835,8 @@ try:
         for obj in bpy.data.objects:
             obj.select_set(obj.name == "TblCrateA_geo")
         selected = slot._selected_mat_names()
-        merged = slot._merge_duplicates({"TblCrateB": "TblCrateA"})
-        slot._delete_materials(["TblOld"])
+        merged = btk.MatUtils.merge_duplicate_materials({"TblCrateB": "TblCrateA"})
+        btk.MatUtils.delete_mats(["TblOld"])
         slot._current = "TblWood"
         renamed = slot._rename_current("TblTimber")
         check("materials table: selection's materials, merge, delete and rename",

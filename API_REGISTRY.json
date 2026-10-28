@@ -12,7 +12,7 @@
           "kind": "function",
           "signature": "(string, outputToConsole=True)",
           "summary": "Format a string using preset variables.",
-          "line": 68,
+          "line": 58,
           "deprecated": false
         }
       ],
@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 42,
+          "line": 31,
           "deprecated": false
         }
       ]
@@ -56,157 +56,6 @@
               "signature": "(self, widget)",
               "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
               "line": 469,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_materials.py",
-      "summary": "Shared, DCC-agnostic behavior for the ``materials`` panel.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MaterialsMixin",
-          "summary": "DCC-agnostic ``materials`` slot behavior: the material table, the current",
-          "line": 72,
-          "bases": [],
-          "members": [
-            {
-              "name": "tbl000_init",
-              "qualname": "MaterialsMixin.tbl000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "The material table: built once, re-wired and refilled on every show.",
-              "line": 136,
-              "deprecated": false
-            },
-            {
-              "name": "b028",
-              "qualname": "MaterialsMixin.b028",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Assign the highlighted material to the selection.",
-              "line": 611,
-              "deprecated": false
-            },
-            {
-              "name": "b029",
-              "qualname": "MaterialsMixin.b029",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Select what uses the highlighted material, as assigned.",
-              "line": 617,
-              "deprecated": false
-            },
-            {
-              "name": "b030",
-              "qualname": "MaterialsMixin.b030",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Select every object using the highlighted material.",
-              "line": 622,
-              "deprecated": false
-            },
-            {
-              "name": "b031",
-              "qualname": "MaterialsMixin.b031",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Narrow the selection to what uses the highlighted material.",
-              "line": 627,
-              "deprecated": false
-            },
-            {
-              "name": "b032",
-              "qualname": "MaterialsMixin.b032",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Merge the highlighted duplicates into the materials they duplicate.",
-              "line": 632,
-              "deprecated": false
-            },
-            {
-              "name": "lbl002",
-              "qualname": "MaterialsMixin.lbl002",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Delete the highlighted materials.",
-              "line": 642,
-              "deprecated": false
-            },
-            {
-              "name": "txt000_init",
-              "qualname": "MaterialsMixin.txt000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "The filter field: hides the rows whose name does not hold its text.",
-              "line": 649,
-              "deprecated": false
-            },
-            {
-              "name": "b006_init",
-              "qualname": "MaterialsMixin.b006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 683,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "MaterialsMixin.b006",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "New material onto the selection (:meth:`_new_mat`);",
-              "line": 686,
-              "deprecated": false
-            },
-            {
-              "name": "b033",
-              "qualname": "MaterialsMixin.b033",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Select the objects carrying no material.",
-              "line": 693,
-              "deprecated": false
-            },
-            {
-              "name": "b014",
-              "qualname": "MaterialsMixin.b014",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Remove Duplicate Materials: merge every duplicate in the scene into",
-              "line": 697,
-              "deprecated": false
-            },
-            {
-              "name": "header_init",
-              "qualname": "MaterialsMixin.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "The header: a refresh button, and a menu of the Tools list then",
-              "line": 720,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "MaterialsMixin.b003",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Get + Select (submenu): adopt the selection's material, then select its users.",
-              "line": 808,
-              "deprecated": false
-            },
-            {
-              "name": "list001_init",
-              "qualname": "MaterialsMixin.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tools list: Setup / Materials / Texture Maps / External / Utilities.",
-              "line": 832,
               "deprecated": false
             }
           ]
@@ -1043,259 +892,6 @@
             "SlotsBlender"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/materials.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MaterialsSlots",
-          "summary": "Blender port of the shared ``materials`` menu — mirrors the Maya slot's workflow against",
-          "line": 10,
-          "bases": [
-            "MaterialsMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "b_shader_editor",
-              "qualname": "MaterialsSlots.b_shader_editor",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shader Editor — Blender's analogue of Maya's Hypershade.",
-              "line": 122,
-              "deprecated": false
-            },
-            {
-              "name": "select_by_mat",
-              "qualname": "MaterialsSlots.select_by_mat",
-              "kind": "method",
-              "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
-              "summary": "Select the geometry carrying the current material.",
-              "line": 280,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "MaterialsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Material Info — option box.",
-              "line": 419,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "MaterialsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Material Info — render a formatted report to the text-view dialog.",
-              "line": 454,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "MaterialsSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "The submenu's Assign list: assign-current root + New / Random + the",
-              "line": 514,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "MaterialsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Assign list: root assigns the current material;",
-              "line": 533,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "MaterialsSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Tools-list selection to its slot method.",
-              "line": 587,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "MaterialsSlots.b004",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Assign Random",
-              "line": 604,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "MaterialsSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reload Scene Textures",
-              "line": 634,
-              "deprecated": false
-            },
-            {
-              "name": "b015",
-              "qualname": "MaterialsSlots.b015",
-              "kind": "method",
-              "signature": "(self, widget=None)",
-              "summary": "Delete All Unused Materials",
-              "line": 640,
-              "deprecated": false
-            },
-            {
-              "name": "lbl004",
-              "qualname": "MaterialsSlots.lbl004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Select Node — select the object(s) using the current material.",
-              "line": 647,
-              "deprecated": false
-            },
-            {
-              "name": "lbl006",
-              "qualname": "MaterialsSlots.lbl006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open in Editor — graph the current material in the Shader Editor.",
-              "line": 660,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "MaterialsSlots.b021",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Image to Plane — open the panel (batch image→plane with aspect sizing, material affix",
-              "line": 672,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "MaterialsSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Texture Path Editor — the shared tool over ``btk.TexturePathEditor`` (list / repath /",
-              "line": 678,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "MaterialsSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 684,
-              "deprecated": false
-            },
-            {
-              "name": "b027",
-              "qualname": "MaterialsSlots.b027",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Emissive Groups — co-located blendertk panel (named face groups a game engine gates at",
-              "line": 689,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "MaterialsSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 694,
-              "deprecated": false
-            },
-            {
-              "name": "b018",
-              "qualname": "MaterialsSlots.b018",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 699,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "MaterialsSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Map Packer",
-              "line": 736,
-              "deprecated": false
-            },
-            {
-              "name": "b016",
-              "qualname": "MaterialsSlots.b016",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Map Converter",
-              "line": 740,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "MaterialsSlots.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Map Compositor",
-              "line": 744,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "MaterialsSlots.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Metashape Workflow",
-              "line": 748,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "MaterialsSlots.b024",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "RealityCapture Workflow",
-              "line": 752,
-              "deprecated": false
-            },
-            {
-              "name": "b025",
-              "qualname": "MaterialsSlots.b025",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Brush Splat Workflow",
-              "line": 756,
-              "deprecated": false
-            },
-            {
-              "name": "b019",
-              "qualname": "MaterialsSlots.b019",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Marmoset Bridge",
-              "line": 765,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "MaterialsSlots.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Substance Bridge",
-              "line": 769,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -2797,6 +2393,420 @@
       "constants": []
     },
     {
+      "relpath": "slots/materials.py",
+      "summary": "Materials: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MaterialsSlots",
+          "summary": "The material table, the current material, the header menu, the submenu's",
+          "line": 59,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tbl000_init",
+              "qualname": "MaterialsSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The material table: built once, re-wired and refilled on every show.",
+              "line": 287,
+              "deprecated": false
+            },
+            {
+              "name": "b028",
+              "qualname": "MaterialsSlots.b028",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Assign the highlighted material to the selection.",
+              "line": 832,
+              "deprecated": false
+            },
+            {
+              "name": "b029",
+              "qualname": "MaterialsSlots.b029",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Select what uses the highlighted material, as assigned.",
+              "line": 838,
+              "deprecated": false
+            },
+            {
+              "name": "b030",
+              "qualname": "MaterialsSlots.b030",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Select every object using the highlighted material.",
+              "line": 843,
+              "deprecated": false
+            },
+            {
+              "name": "b031",
+              "qualname": "MaterialsSlots.b031",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Narrow the selection to what uses the highlighted material.",
+              "line": 848,
+              "deprecated": false
+            },
+            {
+              "name": "b032",
+              "qualname": "MaterialsSlots.b032",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Merge the highlighted duplicates into the materials they duplicate.",
+              "line": 853,
+              "deprecated": false
+            },
+            {
+              "name": "lbl002",
+              "qualname": "MaterialsSlots.lbl002",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Delete the highlighted materials.",
+              "line": 863,
+              "deprecated": false
+            },
+            {
+              "name": "lbl004",
+              "qualname": "MaterialsSlots.lbl004",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Show Attributes: the current material in the host's attribute view",
+              "line": 869,
+              "deprecated": false
+            },
+            {
+              "name": "lbl006",
+              "qualname": "MaterialsSlots.lbl006",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Open in Editor: graph the current material in the shader editor.",
+              "line": 888,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "MaterialsSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The filter field: hides the rows whose name does not hold its text.",
+              "line": 897,
+              "deprecated": false
+            },
+            {
+              "name": "b006_init",
+              "qualname": "MaterialsSlots.b006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 939,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "MaterialsSlots.b006",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "New material onto the selection (:meth:`_new_mat`);",
+              "line": 942,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "MaterialsSlots.b004",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Assign Random: a new random-colored material onto the selection;",
+              "line": 961,
+              "deprecated": false
+            },
+            {
+              "name": "b033",
+              "qualname": "MaterialsSlots.b033",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Select the objects carrying no material.",
+              "line": 975,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "MaterialsSlots.b014",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Remove Duplicate Materials: merge every duplicate in the scene into",
+              "line": 979,
+              "deprecated": false
+            },
+            {
+              "name": "b015",
+              "qualname": "MaterialsSlots.b015",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Delete All Unused Materials (one Undo;",
+              "line": 991,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "MaterialsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The header: a refresh button, and a menu of the Tools list then",
+              "line": 1012,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "MaterialsSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Assign list: the current material at the root, then New, Random and",
+              "line": 1059,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "MaterialsSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Dispatch an Assign list release.",
+              "line": 1082,
+              "deprecated": false
+            },
+            {
+              "name": "select_by_mat",
+              "qualname": "MaterialsSlots.select_by_mat",
+              "kind": "method",
+              "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
+              "summary": "Select the geometry carrying the current material.",
+              "line": 1156,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "MaterialsSlots.b003",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Get + Select (submenu): adopt the selection's material, then select its users.",
+              "line": 1224,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "MaterialsSlots.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tools list: Setup / Materials / Texture Maps / External / Utilities.",
+              "line": 1248,
+              "deprecated": false
+            },
+            {
+              "name": "list001",
+              "qualname": "MaterialsSlots.list001",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Dispatch a Tools-list selection to its slot method.",
+              "line": 1291,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "MaterialsSlots.b007",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Shader Editor: the host's (Maya: the Hypershade;",
+              "line": 1296,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "MaterialsSlots.b013",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Reload Scene Textures, then reset the viewport.",
+              "line": 1302,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "MaterialsSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Material Info: its option box.",
+              "line": 1314,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "MaterialsSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Material Info: render a formatted report to the viewer dialog.",
+              "line": 1385,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "MaterialsSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Enable Viewport Opacity (Maya: its Tools row is ``requires=\"maya\"``):",
+              "line": 1459,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "MaterialsSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Enable Viewport Opacity: wire opacity maps for the chosen scope.",
+              "line": 1491,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "MaterialsSlots.b009",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Game Shader.",
+              "line": 1531,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "MaterialsSlots.b010",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Texture Path Editor.",
+              "line": 1535,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "MaterialsSlots.b011",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Shader Templates.",
+              "line": 1539,
+              "deprecated": false
+            },
+            {
+              "name": "b018",
+              "qualname": "MaterialsSlots.b018",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Mat Updater: reprocess scene materials' textures and re-wire them.",
+              "line": 1543,
+              "deprecated": false
+            },
+            {
+              "name": "b019",
+              "qualname": "MaterialsSlots.b019",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Marmoset Bridge.",
+              "line": 1547,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "MaterialsSlots.b020",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Substance Bridge.",
+              "line": 1551,
+              "deprecated": false
+            },
+            {
+              "name": "b021",
+              "qualname": "MaterialsSlots.b021",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Image to Plane.",
+              "line": 1555,
+              "deprecated": false
+            },
+            {
+              "name": "b026",
+              "qualname": "MaterialsSlots.b026",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Arnold Preview Shader (Maya: a parallel aiStandardSurface for in-Maya",
+              "line": 1559,
+              "deprecated": false
+            },
+            {
+              "name": "b027",
+              "qualname": "MaterialsSlots.b027",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Emissive Groups.",
+              "line": 1564,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "MaterialsSlots.b008",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Map Packer.",
+              "line": 1629,
+              "deprecated": false
+            },
+            {
+              "name": "b016",
+              "qualname": "MaterialsSlots.b016",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Map Converter.",
+              "line": 1633,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "MaterialsSlots.b022",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Map Compositor.",
+              "line": 1637,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "MaterialsSlots.b023",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Metashape Workflow.",
+              "line": 1641,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "MaterialsSlots.b024",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "RealityCapture Workflow.",
+              "line": 1645,
+              "deprecated": false
+            },
+            {
+              "name": "b025",
+              "qualname": "MaterialsSlots.b025",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Brush Splat Workflow.",
+              "line": 1649,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/maya/_slots_maya.py",
       "summary": "",
       "functions": [],
@@ -3534,286 +3544,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/materials.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "MaterialsSlots",
-          "summary": "",
-          "line": 13,
-          "bases": [
-            "MaterialsMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "b007",
-              "qualname": "MaterialsSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hypershade Editor",
-              "line": 125,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "MaterialsSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Assign list: scene materials + 'New' + 'Random'.",
-              "line": 131,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "MaterialsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch Assign list selection.",
-              "line": 161,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "MaterialsSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch Tools list selection to the matching slot method.",
-              "line": 235,
-              "deprecated": false
-            },
-            {
-              "name": "select_by_mat",
-              "qualname": "MaterialsSlots.select_by_mat",
-              "kind": "method",
-              "signature": "(self, shell=False, in_selection=False, get_first=False, add=False, unassigned=False)",
-              "summary": "Select the geometry carrying the current material.",
-              "line": 385,
-              "deprecated": false
-            },
-            {
-              "name": "b015",
-              "qualname": "MaterialsSlots.b015",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Unused Materials",
-              "line": 454,
-              "deprecated": false
-            },
-            {
-              "name": "lbl004",
-              "qualname": "MaterialsSlots.lbl004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Select and Show Attributes: Show Material Attributes in the Attribute Editor.",
-              "line": 459,
-              "deprecated": false
-            },
-            {
-              "name": "lbl006",
-              "qualname": "MaterialsSlots.lbl006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open material in editor",
-              "line": 467,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "MaterialsSlots.b004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Assign Random",
-              "line": 487,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "MaterialsSlots.b008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Map Packer",
-              "line": 537,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "MaterialsSlots.b009",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create Game Shader",
-              "line": 543,
-              "deprecated": false
-            },
-            {
-              "name": "b026",
-              "qualname": "MaterialsSlots.b026",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Arnold Preview Shader (parallel aiStandardSurface for in-Maya Arnold preview;",
-              "line": 547,
-              "deprecated": false
-            },
-            {
-              "name": "b027",
-              "qualname": "MaterialsSlots.b027",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Emissive Groups",
-              "line": 552,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "MaterialsSlots.b010",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Texture Path Editor",
-              "line": 556,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "MaterialsSlots.b011",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Shader Templates",
-              "line": 560,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "MaterialsSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reload Textures and Reset Viewport",
-              "line": 564,
-              "deprecated": false
-            },
-            {
-              "name": "b016",
-              "qualname": "MaterialsSlots.b016",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Map Converter",
-              "line": 571,
-              "deprecated": false
-            },
-            {
-              "name": "b018",
-              "qualname": "MaterialsSlots.b018",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Update Materials (Material Updater) — reprocess scene materials' textures and re-wire them.",
-              "line": 629,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "MaterialsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Material Info — option box.",
-              "line": 640,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "MaterialsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Material Info — render a formatted report to the viewer dialog.",
-              "line": 711,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "MaterialsSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Enable Viewport Opacity — option box.",
-              "line": 829,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "MaterialsSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Enable Viewport Opacity — wire opacity maps for the chosen scope.",
-              "line": 859,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "MaterialsSlots.b021",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Image to Plane",
-              "line": 898,
-              "deprecated": false
-            },
-            {
-              "name": "b019",
-              "qualname": "MaterialsSlots.b019",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Marmoset Bridge",
-              "line": 902,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "MaterialsSlots.b020",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Substance Bridge",
-              "line": 906,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "MaterialsSlots.b022",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Map Compositor",
-              "line": 910,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "MaterialsSlots.b023",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Metashape Workflow",
-              "line": 914,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "MaterialsSlots.b024",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "RealityCapture Workflow",
-              "line": 918,
-              "deprecated": false
-            },
-            {
-              "name": "b025",
-              "qualname": "MaterialsSlots.b025",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Brush Splat Workflow",
-              "line": 922,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []

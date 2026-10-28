@@ -70,7 +70,7 @@ flowchart LR
 `uitk.Switchboard` pairs each `.ui` file with a slot module **of the same basename**, then connects each widget's `objectName` to a method of the same name on the slot class:
 
 ```
-ui/materials.ui          ──pairs with──►   slots/maya/materials.py
+ui/materials.ui          ──pairs with──►   slots/materials.py
   └─ widget objectName "b005"  ──calls──►    def b005(self): ...
   └─ widget objectName "b005"  ──setup──►    def b005_init(self, widget): ...  (optional)
 ```

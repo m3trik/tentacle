@@ -1,129 +1,124 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Tests for the materials panel's shared half, ``MaterialsMixin`` (DCC-agnostic).
+"""Tests for the materials panel: ``MaterialsSlots``, one class for both hosts.
 
 The panel is a material table (``tbl000``): one row per material, its swatch and name,
 optional Type / Users / Textures columns, then Status / Select / Assign icon columns, a
 filter field (``txt000``) and + (``b006``) above it, a summary in the footer. The table,
-the current material, the row menu, the status fixes and the header menu all live on the
-mixin; each DCC fork supplies only the data hooks.
+the current material, the row menu, the status fixes and the header menu are the class's;
+every scene read and write is the host toolkit's ``MatUtils`` (``self.tk``), by name.
 
-Two halves here:
+Three parts here:
 
-- AST / XML pins (import-free — the DCC modules need ``maya.cmds`` / ``bpy``): both forks
-  mix the shared class in, supply every hook, and no longer reach for the retired
-  ``cmb002`` combo; the ``.ui`` carries the table and the submenu keeps its Assign list.
-- The table itself, acted on in offscreen Qt over a fake DCC host: the cells are clicked,
-  the filter typed into, a name edited, the row menu fitted, as a user would.
+- Pins on the module and the ``.ui``: no host import, no fork left, every widget the
+  forks served still has its slot, the Tools rows well formed; the ``.ui`` carries the
+  table and the submenu keeps its Assign list.
+- The issue judgment and Remove Duplicate Materials over a recording toolkit.
+- The table itself, acted on in offscreen Qt over a fake toolkit: the cells are
+  clicked, the filter typed into, a name edited, the row menu fitted, as a user would.
 
-Added: 2026-10-22 (replaces the combo-era cmb002 wiring tests).
+(The module keeps its pre-composition name: it covered the shared mixin the class
+replaced.) Added: 2026-10-22 (replaces the combo-era cmb002 wiring tests).
 """
 import ast
+import contextlib
 import os
 import sys
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from tentacle.slots._materials import MaterialsMixin  # noqa: E402
+from qtpy import QtCore, QtTest, QtWidgets  # noqa: E402
 
-MAYA_FILE = ROOT / "tentacle" / "slots" / "maya" / "materials.py"
-BLENDER_FILE = ROOT / "tentacle" / "slots" / "blender" / "materials.py"
-MIXIN_FILE = ROOT / "tentacle" / "slots" / "_materials.py"
+QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+from uitk.managers.icon_manager import IconManager  # noqa: E402
+from uitk.widgets.expandableList import ExpandableList  # noqa: E402
+from uitk.widgets.footer import Footer  # noqa: E402
+from uitk.widgets.header import Header  # noqa: E402
+from uitk.widgets.lineEdit import LineEdit  # noqa: E402
+from uitk.widgets.tableWidget import TableWidget  # noqa: E402
+
+from tentacle.slots._slots import Slots  # noqa: E402
+from tentacle.slots.materials import MaterialsSlots  # noqa: E402
+
+SLOTS_DIR = ROOT / "tentacle" / "slots"
+MODULE_FILE = SLOTS_DIR / "materials.py"
 UI_DIR = ROOT / "tentacle" / "ui"
 
-#: What each fork supplies the mixin.
-HOOKS = (
-    "_material_rows",
-    "_material_icon",
-    "_script_job_manager",
-    "_material_facts",
-    "_duplicate_pairs",
-    "_selected_mat_names",
-    "_selection_mats",
-    "_assign_named",
-    "_delete_materials",
-    "_merge_duplicates",
-    "_rename_current",
-    "select_by_mat",
-    "lbl004",
-    "lbl006",
-    "b010",
+#: Every widget-named slot the per-host forks served (and their inits).
+WIDGET_SLOTS = (
+    "b003", "b004", "b006", "b006_init", "b007", "b008", "b009", "b010", "b011",
+    "b013", "b014", "b015", "b016", "b018", "b019", "b020", "b021", "b022", "b023",
+    "b024", "b025", "b026", "b027", "b028", "b029", "b030", "b031", "b032", "b033",
+    "lbl002", "lbl004", "lbl006", "list000", "list000_init", "list001",
+    "list001_init", "tb001", "tb001_init", "tb002", "tb002_init", "tbl000_init",
+    "txt000_init", "header_init",
 )
 
 
-def _classdef(path, name="MaterialsSlots"):
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    return next(
-        (n for n in ast.walk(tree) if isinstance(n, ast.ClassDef) and n.name == name),
-        None,
-    )
+class _NoMigration(unittest.TestCase):
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
 
 
-def _method(classdef, name):
-    return next(
-        (
-            b
-            for b in classdef.body
-            if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef)) and b.name == name
-        ),
-        None,
-    )
+class TestTheOneClass(unittest.TestCase):
+    """One class serves both hosts, reaching them only through ``self.tk``."""
 
+    def test_the_mixin_and_the_forks_are_gone(self):
+        for rel in ("_materials.py", "maya/materials.py", "blender/materials.py"):
+            with self.subTest(rel=rel):
+                self.assertFalse((SLOTS_DIR / rel).exists(), rel)
 
-class TestForksSupplyTheHooks(unittest.TestCase):
-    """Both forks mix the shared class in and supply every hook it calls."""
+    def test_no_host_is_imported_or_named(self):
+        tree = ast.parse(MODULE_FILE.read_text(encoding="utf-8"))
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imported |= {alias.name.split(".")[0] for alias in node.names}
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                imported.add(node.module.split(".")[0])
+        self.assertFalse(imported & {"maya", "bpy", "mayatk", "blendertk"}, imported)
+        names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+        self.assertFalse(names & {"cmds", "mel", "bpy", "mtk", "btk"}, names)
 
-    def test_both_mix_in_the_shared_class(self):
-        for path in (MAYA_FILE, BLENDER_FILE):
-            with self.subTest(path=path.name):
-                bases = {b.id for b in _classdef(path).bases if isinstance(b, ast.Name)}
-                self.assertIn("MaterialsMixin", bases)
-
-    def test_every_hook_is_supplied(self):
-        for path in (MAYA_FILE, BLENDER_FILE):
-            cls = _classdef(path)
-            for hook in HOOKS:
-                with self.subTest(path=path.name, hook=hook):
-                    self.assertIsNotNone(_method(cls, hook), f"{path.name} lacks {hook}")
-
-    def test_rename_current_returns_the_name(self):
-        for path in (MAYA_FILE, BLENDER_FILE):
-            with self.subTest(path=path.name):
-                method = _method(_classdef(path), "_rename_current")
-                self.assertTrue(
-                    any(isinstance(n, ast.Return) and n.value is not None
-                        for n in ast.walk(method))
-                )
-
-    def test_the_shared_parts_are_not_forked(self):
-        """The table, the row menu and the header are the mixin's alone."""
-        for path in (MAYA_FILE, BLENDER_FILE):
-            cls = _classdef(path)
-            for name in ("tbl000_init", "header_init", "lbl002", "b003", "list001_init",
-                         "_adopt_selection_mat", "_set_current", "_current_mat",
-                         "b014", "_material_details", "_material_issue"):
-                with self.subTest(path=path.name, name=name):
-                    self.assertIsNone(_method(cls, name), f"{path.name} forks {name}")
-
-    def test_the_forks_report_facts_and_never_word_an_issue(self):
-        """The issue's precedence and wording live once, on the mixin.
-        Added: 2026-10-24"""
-        for path in (MAYA_FILE, BLENDER_FILE):
-            text = path.read_text(encoding="utf-8")
-            for wording in ("is missing", "A duplicate of", "Nothing uses it", "more)"):
-                with self.subTest(path=path.name, wording=wording):
-                    self.assertNotIn(wording, text)
+    def test_every_widget_the_forks_served_has_its_slot(self):
+        for name in WIDGET_SLOTS:
+            with self.subTest(name=name):
+                self.assertTrue(callable(getattr(MaterialsSlots, name, None)), name)
 
     def test_no_slot_reaches_for_the_retired_combo(self):
-        for path in (MAYA_FILE, BLENDER_FILE, MIXIN_FILE):
-            with self.subTest(path=path.name):
-                self.assertNotIn("cmb002", path.read_text(encoding="utf-8"))
+        self.assertNotIn("cmb002", MODULE_FILE.read_text(encoding="utf-8"))
+
+    def test_the_tools_rows_are_well_formed(self):
+        """``(label, slot, tooltip[, requires])``: every slot defined, a host tag
+        naming a host, and the one-host rows the ones the other host lacks."""
+        tagged = {}
+        for category, rows in MaterialsSlots._TOOLS_ITEMS.items():
+            labels = [row[0] for row in rows]
+            self.assertEqual(len(labels), len(set(labels)), category)
+            for label, slot, *rest in rows:
+                with self.subTest(row=label):
+                    self.assertTrue(callable(getattr(MaterialsSlots, slot, None)), slot)
+                    self.assertLessEqual(len(rest), 2)
+                    if len(rest) == 2:
+                        self.assertIn(rest[1], ("maya", "blender"))
+                        tagged[slot] = rest[1]
+        self.assertEqual(tagged, {"b026": "maya", "tb002": "maya"})
+
+    def test_the_list_filters_are_mayas(self):
+        """Blender has no built-in default materials and no Arnold shaders."""
+        self.assertEqual(
+            {row[0]: row[4] for row in MaterialsSlots._LIST_FILTERS},
+            {"chk_hide_defaults": "maya", "chk_hide_arnold": "maya"},
+        )
 
 
 class TestPanelUi(unittest.TestCase):
@@ -163,34 +158,44 @@ class _FakeListWidget:
         self.ui = self._Surface({"submenu"} if submenu else set())
 
 
-class TestAssignRootText(unittest.TestCase):
+def _mock_slots():
+    """A MaterialsSlots over a MagicMock switchboard (its ``.tk`` records)."""
+    sb = mock.MagicMock()
+    slots = MaterialsSlots(sb)
+    slots.ui = type("_UI", (), {})()
+    return slots, sb
+
+
+class TestAssignRootText(_NoMigration):
     """The submenu's Assign root names the current material by its leaf."""
 
-    def _host(self, current):
-        host = MaterialsMixin()
-        host._current = current
-        return host
+    def _slots(self, current):
+        slots, _sb = _mock_slots()
+        slots._current = current
+        return slots
 
     def test_names_the_current_material(self):
-        host = self._host("metal_mat")
-        self.assertEqual(host._assign_root_text(_FakeListWidget(True)), "Assign: metal_mat")
+        slots = self._slots("metal_mat")
+        self.assertEqual(slots._assign_root_text(_FakeListWidget(True)), "Assign: metal_mat")
 
     def test_by_its_leaf(self):
-        host = self._host("grp|metal_mat")
-        self.assertEqual(host._assign_root_text(_FakeListWidget(True)), "Assign: metal_mat")
+        slots = self._slots("grp|metal_mat")
+        self.assertEqual(slots._assign_root_text(_FakeListWidget(True)), "Assign: metal_mat")
 
     def test_falls_back_with_nothing_current(self):
-        self.assertEqual(self._host(None)._assign_root_text(_FakeListWidget(True)), "Assign")
+        self.assertEqual(self._slots(None)._assign_root_text(_FakeListWidget(True)), "Assign")
 
-    def test_list000_init_builds_the_root_through_it(self):
-        for path in (MAYA_FILE, BLENDER_FILE):
-            with self.subTest(path=path.name):
-                init = _method(_classdef(path), "list000_init")
-                calls = {
-                    n.func.attr for n in ast.walk(init)
-                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-                }
-                self.assertIn("_assign_root_text", calls)
+    def test_the_assign_list_is_the_hosts_materials_but_defaults(self):
+        slots, sb = _mock_slots()
+        sb.tk.MatUtils.get_scene_mat_names.return_value = ["Crate", "Wood"]
+        widget = ExpandableList()
+        slots.list000_init(widget)
+        sb.tk.MatUtils.get_scene_mat_names.assert_called_once_with(exclude_defaults=True)
+        root = widget.get_items()[0]
+        self.assertEqual(root.item_text(), "Assign")
+        self.assertEqual(
+            [w.item_text() for w in root.sublist.get_items()], ["New", "Random", "Crate", "Wood"]
+        )
 
 
 def _facts(missing=(), duplicate_of=None, unused=False):
@@ -198,14 +203,15 @@ def _facts(missing=(), duplicate_of=None, unused=False):
             "missing": list(missing), "duplicate_of": duplicate_of, "unused": unused}
 
 
-class TestTheIssueIsJudgedOnce(unittest.TestCase):
-    """The forks report raw facts; the mixin picks the one issue to show -- a
-    missing texture, then a duplicate, then nothing using it -- and words it.
+class TestTheIssueIsJudgedOnce(_NoMigration):
+    """The host reports raw facts (``MatUtils.get_mat_facts``); the panel picks the
+    one issue to show -- a missing texture, then a duplicate, then nothing using
+    it -- and words it, the same in both hosts.
     Added: 2026-10-24 (both forks carried a copy of this)."""
 
     @staticmethod
     def issue(facts):
-        return MaterialsMixin._material_issue(facts)
+        return MaterialsSlots._material_issue(facts)
 
     def test_nothing_wrong_is_no_issue(self):
         self.assertIsNone(self.issue(_facts()))
@@ -227,236 +233,331 @@ class TestTheIssueIsJudgedOnce(unittest.TestCase):
         self.assertEqual(self.issue(_facts(unused=True)), ("unused", "Nothing uses it", None))
 
     def test_the_details_carry_the_judged_issue(self):
-        class _Host(MaterialsMixin):
-            def _material_facts(self, names):
-                return {n: _facts(duplicate_of="Crate") for n in names}
-
-        details = _Host()._material_details(["Crate1"])
+        slots, sb = _mock_slots()
+        sb.tk.MatUtils.get_mat_facts.side_effect = lambda names: {
+            n: _facts(duplicate_of="Crate") for n in names
+        }
+        details = slots._material_details(["Crate1"])
+        sb.tk.MatUtils.get_mat_facts.assert_called_once_with(["Crate1"])
         self.assertEqual(details["Crate1"]["issue"], ("duplicate", "A duplicate of Crate", "Crate"))
         self.assertEqual(details["Crate1"]["type"], "lambert")
 
 
-class TestRemoveDuplicateMaterials(unittest.TestCase):
-    """The header's Remove Duplicate Materials (``b014``), shared: it reports what
-    the merge removed, not what the finder found -- a merge can refuse a pair
+class TestRemoveDuplicateMaterials(_NoMigration):
+    """The header's Remove Duplicate Materials (``b014``): it reports what the
+    merge removed, not what the finder found -- a merge can refuse a pair
     (Maya: the original has no shading engine; a merge that fails only warns).
     Added: 2026-10-24"""
 
-    class _Host(MaterialsMixin):
-        def __init__(self, pairs, merged):
-            self.pairs, self.merged, self.calls, self.messages = pairs, merged, [], []
-            self.ui = type("_UI", (), {})()
-            self.sb = type("_SB", (), {"message_box": lambda _s, m: self.messages.append(m)})()
-
-        def _duplicate_pairs(self, names=None):
-            self.calls.append(("find", names))
-            return dict(self.pairs)
-
-        def _merge_duplicates(self, pairs):
-            self.calls.append(("merge", dict(pairs)))
-            return self.merged
+    def _slots(self, pairs, merged):
+        slots, sb = _mock_slots()
+        slots._refresh_material_lists = mock.Mock()
+        sb.tk.MatUtils.find_duplicate_materials.return_value = dict(pairs)
+        sb.tk.MatUtils.merge_duplicate_materials.return_value = merged
+        return slots, sb
 
     def test_it_reports_what_the_merge_removed(self):
-        host = self._Host({"Crate1": "Crate", "Crate2": "Crate"}, merged=1)
-        host.b014()
-        self.assertEqual(
-            host.calls,
-            [("find", None), ("merge", {"Crate1": "Crate", "Crate2": "Crate"})],
+        slots, sb = self._slots({"Crate1": "Crate", "Crate2": "Crate"}, merged=1)
+        slots.b014()
+        sb.tk.MatUtils.find_duplicate_materials.assert_called_once_with()
+        sb.tk.MatUtils.merge_duplicate_materials.assert_called_once_with(
+            {"Crate1": "Crate", "Crate2": "Crate"}
         )
-        self.assertEqual(host.messages, ["Removed <hl>1</hl> duplicate material."])
+        self.assertEqual(sb.message_box.call_args.args[0], "Removed <hl>1</hl> duplicate material.")
 
     def test_none_found_merges_nothing(self):
-        host = self._Host({}, merged=0)
-        host.b014()
-        self.assertEqual(host.calls, [("find", None)])
-        self.assertEqual(host.messages, ["No duplicate-texture materials found."])
+        slots, sb = self._slots({}, merged=0)
+        slots.b014()
+        sb.tk.MatUtils.merge_duplicate_materials.assert_not_called()
+        self.assertEqual(sb.message_box.call_args.args[0], "No duplicate-texture materials found.")
 
 
-try:
-    from qtpy import QtCore, QtTest, QtWidgets
+class TestOneHostOnlyControls(_NoMigration):
+    """A control only one host serves is hidden on the other (CODE_STANDARD
+    section 15: hidden, never a stub)."""
 
-    QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-    from uitk.widgets.expandableList import ExpandableList
-    from uitk.widgets.footer import Footer
-    from uitk.widgets.header import Header
-    from uitk.widgets.lineEdit import LineEdit
-    from uitk.managers.icon_manager import IconManager
-    from uitk.widgets.tableWidget import TableWidget
+    def test_exclude_default_materials_is_mayas(self):
+        slots, sb = _mock_slots()
+        made = {}
 
-    from tentacle.slots._slots import Slots
+        def add(_kind, **kwargs):
+            made[kwargs["setObjectName"]] = mock.MagicMock()
+            return made[kwargs["setObjectName"]]
 
-    HAVE_QT = True
-except Exception:  # noqa: BLE001 -- the import-free half still runs
-    HAVE_QT = False
+        widget = mock.MagicMock()
+        widget.option_box.menu.add.side_effect = add
+        slots.tb001_init(widget)
+        made["chk_exclude_defaults"].setProperty.assert_called_once_with("requires", "maya")
+        sb.apply_visibility_policy.assert_called_once_with(made["chk_exclude_defaults"])
+        data = [c.args[1] for c in made["cmb_scope"].addItem.call_args_list]
+        self.assertEqual(data, ["textures", "current", "all", "selected"])  # saved order
+
+    def test_get_material_info_asks_the_host_in_mayatks_call(self):
+        slots, sb = _mock_slots()
+        menu = mock.MagicMock()
+        menu.cmb_scope.currentData.return_value = "all"
+        menu.cmb_scope.currentText.return_value = "All Materials"
+        for name, checked in (
+            ("chk_exclude_defaults", True), ("chk_exclude_unassigned", False),
+            ("chk_include_textures", True), ("chk_include_metadata", True),
+            ("chk_include_optimization", False),
+        ):
+            getattr(menu, name).isChecked.return_value = checked
+        widget = mock.MagicMock()
+        widget.option_box.menu = menu
+        sb.tk.MatUtils.get_mat_info.return_value = [{"material": "Crate"}]
+        slots.tb001(widget)
+        kwargs = sb.tk.MatUtils.get_mat_info.call_args.kwargs
+        self.assertEqual(
+            {k: kwargs[k] for k in ("exclude_defaults", "exclude_unassigned",
+                                    "include_textures", "optimize_check")},
+            {"exclude_defaults": True, "exclude_unassigned": False,
+             "include_textures": True, "optimize_check": False},
+        )
+        sb.text_view_dialog.assert_called_once()
+
+    def test_the_current_material_report_drops_the_scope_filters(self):
+        slots, sb = _mock_slots()
+        slots._current = "Crate"
+        menu = mock.MagicMock()
+        menu.cmb_scope.currentData.return_value = "current"
+        widget = mock.MagicMock()
+        widget.option_box.menu = menu
+        sb.tk.MatUtils.get_mat_info.return_value = [{"material": "Crate"}]
+        slots.tb001(widget)
+        kwargs = sb.tk.MatUtils.get_mat_info.call_args.kwargs
+        self.assertEqual(kwargs["materials"], ["Crate"])
+        self.assertNotIn("exclude_defaults", kwargs)
+
+    def test_the_texture_report_filters_by_the_option_box(self):
+        slots, sb = _mock_slots()
+        menu = mock.MagicMock()
+        menu.cmb_scope.currentData.return_value = "textures"
+        menu.chk_exclude_defaults.isChecked.return_value = True
+        menu.chk_exclude_unassigned.isChecked.return_value = True
+        widget = mock.MagicMock()
+        widget.option_box.menu = menu
+        sb.tk.MatUtils.get_texture_info.return_value = []
+        slots.tb001(widget)
+        sb.tk.MatUtils.get_texture_info.assert_called_once_with(
+            exclude_defaults=True, exclude_unassigned=True
+        )
+        self.assertIn("No textures", sb.message_box.call_args.args[0])
+
+    def test_the_shader_editor_is_the_hypershade_by_name(self):
+        slots, sb = _mock_slots()
+        slots.b007()
+        sb.tk.UiUtils.open_editor.assert_called_once_with("Hypershade")
+
+    def test_the_converter_gets_the_hosts_scopes_and_a_picker(self):
+        slots, sb = _mock_slots()
+        ui = mock.MagicMock()
+        sb.handlers.external_app.launch.return_value = ui
+        sb.tk.EnvUtils.source_images_dir.return_value = "C:/proj/sourceimages"
+        provider = mock.Mock()
+        sb.tk.MatUtils.get_texture_scopes.return_value = {"Selected Objects": provider}
+        slots.b016()
+        sb.handlers.external_app.launch.assert_called_once_with("converter", show=False)
+        self.assertEqual(ui.slots.source_dir, "C:/proj/sourceimages")
+        labels = [c.args[0] for c in ui.slots.register_scope.call_args_list]
+        self.assertEqual(labels, ["Selected Objects", "Choose Materials..."])
+        sb.handlers.marking_menu.show.assert_called_once_with(ui)
+
+    def test_a_failed_extapp_launch_is_said(self):
+        slots, sb = _mock_slots()
+        sb.handlers.external_app.launch.side_effect = RuntimeError("not installed")
+        slots.b022()
+        self.assertIn("not installed", sb.message_box.call_args.args[0])
 
 
-if HAVE_QT:
+class _Window(QtWidgets.QMainWindow):
+    """The panel window: what the class reads off ``self.ui``."""
 
-    class _Window(QtWidgets.QMainWindow):
-        """The panel window: what the mixin reads off ``self.ui``."""
+    on_activated = QtCore.Signal()
 
-        on_activated = QtCore.Signal()
+    def has_tags(self, tag):
+        return False
 
-        def has_tags(self, tag):
-            return False
 
-    class _Jobs:
-        """A ScriptJobManager stand-in: records subscriptions, fires events."""
+class _Jobs:
+    """A ScriptJobManager stand-in: records subscriptions, fires events."""
 
-        def __init__(self):
-            self.subs = []
+    def __init__(self):
+        self.subs = []
 
-        def instance(self):
-            return self
+    def instance(self):
+        return self
 
-        def subscribe(self, event, callback, owner=None, ephemeral=False):
-            self.subs.append((event, callback, owner))
+    def subscribe(self, event, callback, owner=None, ephemeral=False):
+        self.subs.append((event, callback, owner))
 
-        def unsubscribe_all(self, owner):
-            self.subs = [s for s in self.subs if s[2] is not owner]
+    def unsubscribe_all(self, owner):
+        self.subs = [s for s in self.subs if s[2] is not owner]
 
-        def connect_cleanup(self, widget, owner):
-            pass
+    def connect_cleanup(self, widget, owner):
+        pass
 
-        def fire(self, event):
-            for name, callback, _owner in list(self.subs):
-                if name == event:
-                    callback()
+    def fire(self, event):
+        for name, callback, _owner in list(self.subs):
+            if name == event:
+                callback()
 
-    class _PanelHost(MaterialsMixin):
-        """A fake DCC fork: four materials, each with what it needs to show.
 
-        ``Crate`` is fine, ``Crate1`` duplicates it, ``Old`` is unused, ``Wood``
-        misses a texture. Every hook records what it was asked.
-        """
+class _FakeMatUtils:
+    """The host library's ``MatUtils`` as the panel calls it, over the host's
+    rows: ``Crate`` is fine, ``Crate1`` duplicates it, ``Old`` is unused, ``Wood``
+    misses a texture. Every write records what it was asked."""
 
-        _TOOLS_ITEMS = {
-            "Setup": [("Texture Path Editor", "b010", "")],
-            "Utilities": [("Reload Scene Textures", "b013", "")],
+    def __init__(self, host):
+        self.host = host
+        self.merged = None  # what a merge reports; None: every pair it was given
+
+    def get_scene_mat_names(self, exclude_defaults=False, exc_renderer=None):
+        rows = list(self.host.rows)
+        return [n for n in rows if n != "Old"] if exclude_defaults else rows
+
+    def get_mat_swatch_icon(self, name):
+        return None
+
+    def get_mat_facts(self, names):
+        return {
+            n: {"type": "lambert", "users": 0 if n == "Old" else 2, "textures": 1,
+                "missing": ["Wood_BaseColor.png"] if n == "Wood" else [],
+                "duplicate_of": "Crate" if n == "Crate1" else None,
+                "unused": n in self.host.unused}
+            for n in names
         }
-        _EXTERNAL_APP_GATES = {}
 
-        def __init__(self):
-            self.calls = []
-            self.messages = []
-            self.jobs = _Jobs()
-            self.on_selection = {"Crate"}
-            self.unused = {"Old"}
-            self.ui = _Window()
-            central = QtWidgets.QWidget()
-            layout = QtWidgets.QVBoxLayout(central)
-            self.ui.txt000 = LineEdit()
-            self.ui.tbl000 = TableWidget()
-            self.ui.footer = Footer()
-            for widget in (self.ui.txt000, self.ui.tbl000, self.ui.footer):
-                layout.addWidget(widget)
-            self.ui.setCentralWidget(central)
-            self.ui.resize(320, 260)
-            self.ui.tbl000.is_initialized = False
-            self.sb = type(
-                "_SB",
-                (),
-                {
-                    "QtWidgets": QtWidgets,
-                    "QtCore": QtCore,
-                    "IconManager": IconManager,
-                    "registered_widgets": type(
-                        "_W", (), {"ExpandableList": ExpandableList}
-                    ),
-                    "message_box": lambda _s, m: self.messages.append(m),
-                },
-            )()
-            self.rows = ["Crate", "Crate1", "Old", "Wood"]
+    def find_duplicate_materials(self, materials=None):
+        return {"Crate1": "Crate"} if "Crate1" in self.host.rows else {}
 
-        # -- the DCC hooks
-        def _material_rows(self):
-            return [{"name": n, "label": n} for n in self.rows]
+    def get_mat_names(self, objects=None):
+        return sorted(self.host.on_selection)
 
-        def _material_icon(self, name):
-            return None
+    def assign_mat(self, objects, name, create=True):
+        self.host.calls.append(("assign", name))
 
-        def _script_job_manager(self):
-            return self.jobs
+    def delete_mats(self, names):
+        self.host.calls.append(("delete", list(names)))
+        self.host.rows = [n for n in self.host.rows if n not in names]
+        return list(names)
 
-        def _material_facts(self, names):
-            return {
-                n: {"type": "lambert", "users": 0 if n == "Old" else 2, "textures": 1,
-                    "missing": ["Wood_BaseColor.png"] if n == "Wood" else [],
-                    "duplicate_of": "Crate" if n == "Crate1" else None,
-                    "unused": n in self.unused}
-                for n in names
-            }
+    def merge_duplicate_materials(self, pairs):
+        self.host.calls.append(("merge", dict(pairs)))
+        self.host.rows = [n for n in self.host.rows if n not in pairs]
+        return len(pairs) if self.merged is None else self.merged
 
-        def _duplicate_pairs(self, names=None):
-            return {"Crate1": "Crate"} if "Crate1" in self.rows else {}
+    def rename_mat(self, material, name):
+        self.host.calls.append(("rename", material, name))
+        self.host.rows = [name if n == material else n for n in self.host.rows]
+        return name
 
-        def _selected_mat_names(self):
-            return sorted(self.on_selection)
+    def select_by_mat(self, material, objects=None, shell=False, add=False):
+        self.host.calls.append(("select", material, dict(
+            shell=shell, in_selection=objects is not None, add=add, unassigned=False)))
+        return []
 
-        def _selection_mats(self):
-            return sorted(self.on_selection)
+    def select_unassigned(self, objects=None, add=False):
+        self.host.calls.append(("select", None, dict(
+            shell=True, in_selection=objects is not None, add=add, unassigned=True)))
+        return []
 
-        def _assign_named(self, name):
-            self.calls.append(("assign", name))
-            self._set_current(name)
+    def show_mat_attributes(self, material):
+        self.host.calls.append(("node", material))
+        return [material]
 
-        def _delete_materials(self, names):
-            self.calls.append(("delete", list(names)))
-            self.rows = [n for n in self.rows if n not in names]
+    def graph_materials(self, material):
+        self.host.calls.append(("editor", material))
 
-        def _merge_duplicates(self, pairs):
-            self.calls.append(("merge", dict(pairs)))
-            self.rows = [n for n in self.rows if n not in pairs]
-            return len(pairs)
+    def assign_new_mat(self, objects=None):
+        self.host.calls.append(("new",))
+        return None  # Maya: its own window takes it from there
 
-        def _rename_current(self, text):
-            self.calls.append(("rename", self._current_mat(), text))
-            self.rows = [text if n == self._current_mat() else n for n in self.rows]
-            self._current = text
-            self._refresh_material_lists()
-            return text
-
-        def select_by_mat(self, shell=False, in_selection=False, get_first=False,
-                          add=False, unassigned=False):
-            if get_first and not unassigned:  # as both forks do
-                self._adopt_selection_mat()
-            self.calls.append(("select", self._current_mat(), dict(
-                shell=shell, in_selection=in_selection, add=add, unassigned=unassigned)))
-            return []
-
-        def lbl004(self, widget=None):
-            self.calls.append(("node", self._current_mat()))
-
-        def lbl006(self, widget=None):
-            self.calls.append(("editor", self._current_mat()))
-
-        def b010(self, widget=None):
-            self.calls.append(("texture_path_editor", self._current_mat()))
-
-        def b013(self, widget=None):
-            self.calls.append(("reload",))
-
-        def b004(self, widget=None):
-            self.calls.append(("random",))
-
-        def _new_mat(self):
-            self.calls.append(("new",))
-
-        # -- what tentacle's Slots base supplies
-        _call_slot = staticmethod(Slots._call_slot)
-
-        def add_slot_widget(self, sublist, **kwargs):
-            return sublist.add(kwargs.get("setText", ""))
-
-        def gate_on_app(self, widget, resolve_spec):
-            return True
+    def assign_random_mat(self, objects=None, previous=None):
+        self.host.calls.append(("random",))
+        return "Random1"
 
 
-@unittest.skipUnless(HAVE_QT, "Qt / uitk unavailable")
-class TestMaterialTable(unittest.TestCase):
-    """The table, acted on: what a click, a keystroke and an edit do."""
+class _FakeCoreUtils:
+    def __init__(self):
+        self.selection = ["obj"]
 
+    def selected_objects(self):
+        return list(self.selection)
+
+    @contextlib.contextmanager
+    def undo_chunk(self, name=""):
+        yield
+
+
+class _PanelHost(MaterialsSlots):
+    """The composed class over a fake toolkit and switchboard, its window real.
+
+    *context* is the host the switchboard serves (``requires`` tags it hides);
+    the Tools list is cut to two rows (their slots' panels open nowhere here).
+    """
+
+    _TOOLS_ITEMS = {
+        "Setup": [("Texture Path Editor", "b010", "")],
+        "Utilities": [("Reload Scene Textures", "b013", "")],
+    }
+
+    def __init__(self, context="maya"):
+        window = _Window()
+        central = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(central)
+        window.txt000 = LineEdit()
+        window.tbl000 = TableWidget()
+        window.footer = Footer()
+        for widget in (window.txt000, window.tbl000, window.footer):
+            layout.addWidget(widget)
+        window.setCentralWidget(central)
+        window.resize(320, 260)
+        window.tbl000.is_initialized = False
+        jobs, messages = _Jobs(), []
+        tk = type("_Tk", (), {})()
+        tk.CoreUtils = _FakeCoreUtils()
+        tk.ScriptJobManager = jobs
+
+        def policy(widget):
+            requires = widget.property("requires")
+            hidden = bool(requires) and requires != context
+            if hidden:
+                widget.setVisible(False)
+            return hidden
+
+        sb = type("_SB", (), {})()
+        sb.QtWidgets, sb.QtCore, sb.IconManager = QtWidgets, QtCore, IconManager
+        sb.registered_widgets = type("_W", (), {"ExpandableList": ExpandableList})
+        sb.message_box = messages.append
+        sb.loaded_ui = type("_L", (), {"materials": window, "materials_submenu": None})
+        sb.tk = tk
+        sb.apply_visibility_policy = policy
+        sb.handlers = type("_H", (), {})()
+        sb.handlers.marking_menu = type("_M", (), {})()
+        sb.handlers.marking_menu.show = lambda name: self.calls.append(
+            (name, self._current_mat())
+        )
+        super().__init__(sb)  # the QObject first: then the state it holds
+        self.calls = []
+        self.messages = messages
+        self.jobs = jobs
+        self.on_selection = {"Crate"}
+        self.unused = {"Old"}
+        self.rows = ["Crate", "Crate1", "Old", "Wood"]
+        self.mat_utils = tk.MatUtils = _FakeMatUtils(self)
+
+    # The Tools rows here are plain labels; gating is the base's, tested there.
+    def add_slot_widget(self, sublist, **kwargs):
+        return sublist.add(kwargs.get("setText", ""))
+
+    def gate_on_app(self, widget, resolve_spec):
+        return True
+
+
+class _TableCase(_NoMigration):
     def setUp(self):
+        super().setUp()
         self.host = _PanelHost()
         self.table = self.host.ui.tbl000
         self.host.txt000_init(self.host.ui.txt000)
@@ -485,9 +586,19 @@ class TestMaterialTable(unittest.TestCase):
         QtTest.QTest.mouseClick(self.table.viewport(), QtCore.Qt.LeftButton, modifier, point)
         self._settle()
 
+    def _names(self):
+        return [self.table.item(r, 0).text() for r in range(self.table.rowCount())]
+
+    def _wait_for_refill(self):
+        QtTest.QTest.qWait(self.host._REFILL_DELAY_MS * 3)
+        self._settle()
+
+
+class TestMaterialTable(_TableCase):
+    """The table, acted on: what a click, a keystroke and an edit do."""
+
     def test_each_material_is_a_row_and_the_details_follow(self):
-        names = [self.table.item(r, 0).text() for r in range(self.table.rowCount())]
-        self.assertEqual(names, ["Crate", "Crate1", "Old", "Wood"])
+        self.assertEqual(self._names(), ["Crate", "Crate1", "Old", "Wood"])
         self.assertEqual(self.table.item(self._row("Old"), self.host.COL_USERS).text(), "0")
         self.assertEqual(
             self.host._ICON_HEADERS,
@@ -531,13 +642,6 @@ class TestMaterialTable(unittest.TestCase):
                 QtTest.QTest.mouseClick(button, QtCore.Qt.LeftButton, modifier)
                 self._settle()
                 self.assertEqual(self.host.calls, [expected])
-
-    def _names(self):
-        return [self.table.item(r, 0).text() for r in range(self.table.rowCount())]
-
-    def _wait_for_refill(self):
-        QtTest.QTest.qWait(self.host._REFILL_DELAY_MS * 3)
-        self._settle()
 
     def test_an_undo_or_a_scene_opened_refills_it(self):
         for event in ("Undo", "Redo", "SceneOpened", "NewSceneOpened"):
@@ -662,7 +766,7 @@ class TestMaterialTable(unittest.TestCase):
         )
 
     def test_a_merge_the_verification_refuses_says_so(self):
-        self.host._merge_duplicates = lambda pairs: 0
+        self.host.mat_utils.merged = 0
         self._click("Crate1", self.host.COL_STATUS)
         self.assertEqual(
             self.host.ui.footer._status_text,
@@ -679,34 +783,6 @@ class TestMaterialTable(unittest.TestCase):
         self.assertEqual(shown, ["Crate", "Crate1"])
         self.host.ui.txt000.clear()
         self.assertFalse(any(self.table.isRowHidden(r) for r in range(4)))
-
-    def test_no_list_filters_no_option_box(self):
-        """Blender has none: an empty option box would be a dead button."""
-        self.assertIsNone(self.host.ui.txt000.option_box.get_menu(create=False))
-
-    def test_a_list_filter_narrows_the_list(self):
-        """Maya's Hide Default Materials shape: a checkbox in the filter field's
-        option box, read back by the rows hook, refilling when toggled."""
-
-        class _Filtered(_PanelHost):
-            def _list_filters(self):
-                return (("chk_hide_old", "Hide Old", "Hide the old one."),)
-
-            def _material_rows(self):
-                rows = super()._material_rows()
-                hide = self._list_option("chk_hide_old")
-                return [r for r in rows if not (hide and r["name"] == "Old")]
-
-        host = _Filtered()
-        host.txt000_init(host.ui.txt000)
-        host.tbl000_init(host.ui.tbl000)
-        chk = host.ui.txt000.option_box.menu.chk_hide_old
-        chk.setChecked(True)
-        self._settle()
-        table = host.ui.tbl000
-        names = [table.item(r, 0).text() for r in range(table.rowCount())]
-        self.assertEqual(names, ["Crate", "Crate1", "Wood"])
-        host.ui.deleteLater()
 
     def test_the_optional_columns_start_hidden(self):
         header = self.table.horizontalHeader()
@@ -744,12 +820,16 @@ class TestMaterialTable(unittest.TestCase):
         self._click("Wood", self.host.COL_NAME)
         self.host.b030()
         self.host.b031()
+        self.host.lbl004()
+        self.host.lbl006()
         self.host.lbl002()
         self.assertEqual(
             self.host.calls,
             [
                 ("select", "Wood", dict(shell=True, in_selection=False, add=False, unassigned=False)),
                 ("select", "Wood", dict(shell=False, in_selection=True, add=False, unassigned=False)),
+                ("node", "Wood"),
+                ("editor", "Wood"),
                 ("delete", ["Wood"]),
             ],
         )
@@ -762,8 +842,8 @@ class TestMaterialTable(unittest.TestCase):
         self.assertIsNotNone(self._row("Retired"), "the table refills with the new name")
 
     def test_restyling_a_row_is_no_rename(self):
-        """A label the DCC shortens its own way (a namespace kept) must not
-        read as edited when a mark restyles its cell."""
+        """A namespaced name (``ns:Crate``) must not read as edited when a mark
+        restyles its cell."""
         self.host.rows = ["ns:Crate", "Old"]
         self.host._refresh_material_lists()
         self._settle()
@@ -773,10 +853,12 @@ class TestMaterialTable(unittest.TestCase):
         self.assertEqual(self.host.calls, [])
 
     def test_the_selections_materials_are_marked_on_activation(self):
-        bold = lambda: {
-            n for n in self.host.rows
-            if self.table.item(self._row(n), self.host.COL_NAME).font().bold()
-        }
+        def bold():
+            return {
+                n for n in self.host.rows
+                if self.table.item(self._row(n), self.host.COL_NAME).font().bold()
+            }
+
         self.assertEqual(bold(), {"Crate"})
         self.host.on_selection = {"Wood"}
         self.host.ui.on_activated.emit()
@@ -789,7 +871,38 @@ class TestMaterialTable(unittest.TestCase):
         self.assertEqual(self.host.calls[-1][:2], ("select", "Crate"))
 
 
-@unittest.skipUnless(HAVE_QT, "Qt / uitk unavailable")
+class TestTheListFilters(_NoMigration):
+    """The filter field's option box holds the list filters the host serves."""
+
+    class _Filtered(_PanelHost):
+        _LIST_FILTERS = (
+            ("chk_hide_old", "Hide Old", "Hide the old one.", {"exclude_defaults": True}, "maya"),
+        )
+
+    def _host(self, context):
+        host = self._Filtered(context)
+        host.txt000_init(host.ui.txt000)
+        host.tbl000_init(host.ui.tbl000)
+        self.addCleanup(host.ui.deleteLater)
+        return host
+
+    def test_a_list_filter_narrows_the_list(self):
+        """A checkbox in the filter field's option box, its keywords passed to
+        ``MatUtils.get_scene_mat_names``, the list refilled when toggled."""
+        host = self._host("maya")
+        host.ui.txt000.option_box.menu.chk_hide_old.setChecked(True)
+        QtWidgets.QApplication.instance().processEvents()
+        table = host.ui.tbl000
+        names = [table.item(r, 0).text() for r in range(table.rowCount())]
+        self.assertEqual(names, ["Crate", "Crate1", "Wood"])
+
+    def test_a_host_serving_none_gets_no_option_box(self):
+        """Blender has none: an empty option box would be a dead button."""
+        host = self._host("blender")
+        self.assertIsNone(host.ui.txt000.option_box.get_menu(create=False))
+        self.assertEqual(host._list_filter_options(), {})
+
+
 class TestCallSlot(unittest.TestCase):
     """Slots._call_slot: the widget when the slot takes one, else bare --
     read off the signature, never by retrying on a TypeError."""
@@ -817,8 +930,7 @@ class TestCallSlot(unittest.TestCase):
         self.assertEqual(runs, ["w"])
 
 
-@unittest.skipUnless(HAVE_QT, "Qt / uitk unavailable")
-class TestHeaderMenu(unittest.TestCase):
+class TestHeaderMenu(_NoMigration):
     """Tools in the header: its categories are the roots, flying out on hover."""
 
     @staticmethod
@@ -847,6 +959,29 @@ class TestHeaderMenu(unittest.TestCase):
         tools.ui = _FakeListWidget._Surface({"submenu"})
         host.list001_init(tools)
         self.assertEqual(self._roots(tools), ["Tools"])
+
+    def test_a_row_one_host_serves_is_hidden_on_the_other(self):
+        class _Host(_PanelHost):
+            _TOOLS_ITEMS = {
+                "Utilities": [
+                    ("Reload Scene Textures", "b013", ""),
+                    ("Arnold Preview Shader", "b026", "", "maya"),
+                ],
+            }
+
+        for context, hidden in (("maya", False), ("blender", True)):
+            with self.subTest(context=context):
+                host = _Host(context)
+                tools = ExpandableList()
+                tools.ui = host.ui
+                host.list001_init(tools)
+                rows = {
+                    w.item_text(): w
+                    for w in tools.get_items()
+                    if w.parent_item_text() == "Utilities"
+                }
+                self.assertFalse(rows["Reload Scene Textures"].isHidden())
+                self.assertEqual(rows["Arnold Preview Shader"].isHidden(), hidden)
 
 
 if __name__ == "__main__":
