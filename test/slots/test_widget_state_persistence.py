@@ -408,9 +408,9 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
                 lst = ui.list001
                 # get_items() recurses; every row carrying a populated sublist is
                 # the root plus one category (categories fan out on hover).
-                from tentacle.slots._selection import SelectionMixin
+                from tentacle.slots.selection import SelectionSlots
 
-                groups = SelectionMixin._CONVERT_TO_GROUPS
+                groups = SelectionSlots._CONVERT_TO_GROUPS
                 branches = [
                     w
                     for w in lst.get_items()

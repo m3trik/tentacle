@@ -140,7 +140,11 @@ try:
             bpy.data.objects.remove(o, do_unlink=True)
 
     # ================================================================ selection
-    from tentacle.slots.blender.selection import SelectionSlots
+    from tentacle.slots.selection import SelectionSlots
+    import blendertk as btk
+
+    # The composed slots reach Blender through ``self.tk``: every recorder carries it.
+    _Recorder.tk = btk
 
     # -- chk005-007 Select Style: the reported bug --
     ui = _Ui(chk005=chk(), chk006=chk(), chk007=chk())

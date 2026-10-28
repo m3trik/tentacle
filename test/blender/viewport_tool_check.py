@@ -150,7 +150,8 @@ def tool_landed(context_mode, tool_id):
 def main():
     import bpy
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.polygons import PolygonsSlots
+    from tentacle.slots.polygons import PolygonsSlots  # composed: reaches Blender via sb.tk
+    import blendertk as btk
 
     # State which assertion level ran: a strict check that silently degrades reads exactly like
     # one that passed, so say it out loud rather than leaving a GUI-only leg invisibly skipped.
@@ -188,6 +189,7 @@ def main():
         reset()
         obj = add_cube()
         slot = make_slot(cls)
+        slot.sb.tk = btk  # the composed PolygonsSlots reaches Blender through self.tk
         getattr(slot, method)()
         landed, why = tool_landed("EDIT_MESH", tool_id)
         check(
@@ -219,6 +221,7 @@ def main():
     cube.select_set(True)
     bpy.context.view_layer.objects.active = curve
     slot = make_slot(PolygonsSlots)
+    slot.sb.tk = btk
     slot.b012()
     landed, why = tool_landed("EDIT_MESH", "builtin.knife")
     check(
@@ -233,6 +236,7 @@ def main():
     reset()
     add_curve()  # a curve is active; Multi-Cut has no mesh to work on
     slot = make_slot(PolygonsSlots)
+    slot.sb.tk = btk
     slot.b012()
     check(
         "Multi-Cut with no mesh reports a friendly message",

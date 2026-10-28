@@ -95,10 +95,10 @@ try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.selection import SelectionSlots
+    from tentacle.slots.selection import SelectionSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.blender.transform import TransformSlots
     from tentacle.slots.normals import NormalsSlots  # composed: both hosts, over sb.tk
-    from tentacle.slots.blender.polygons import PolygonsSlots
+    from tentacle.slots.polygons import PolygonsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.blender.uv import UvSlots
     from tentacle.slots.blender.animation import AnimationSlots
     import blendertk as btk
@@ -110,7 +110,8 @@ try:
     # Labels must be real _SELECTION_CONFIG leaves (what the list actually offers) — the old
     # flat-type labels ("Mesh"/"Empty") raise ValueError and no-op, passing only vacuously.
     # list000 reads its scope from the submenu's tb004 option box (all / selected / visible).
-    slot = make_slot(SelectionSlots, submenu=NS(tb004=NS(menu=NS(
+    slot = make_slot(SelectionSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk),
+                     submenu=NS(tb004=NS(menu=NS(
         cmb_bytype_scope=combo("all"), cmb_bytype_mode=combo("replace")))))
     slot.list000(NS(item_text=lambda: "Polygon Meshes", sublist=None, objectName=lambda: ""))
     sel = [o.name for o in bpy.context.selected_objects]
@@ -196,7 +197,7 @@ try:
     # The tool needs a windowed viewport for its modal loop; headless the slot must register
     # the operator, refuse cleanly (RuntimeError -> message_box), and not raise.
     ts = bpy.context.scene.tool_settings
-    slot = make_slot(PolygonsSlots)
+    slot = make_slot(PolygonsSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.b043()  # headless has no 3D viewport — must not raise (slot catches + messages)
     check("polygons b043 target-weld activation is safe headless", True)
     check("polygons b043 registers the modal operator",
@@ -641,12 +642,12 @@ try:
 
     # ---- polygons b000/b053 extension wrap: factory startup has no LoopTools ->
     #      the wrap-if-present path must point at the extension, not crash
-    from tentacle.slots.blender.polygons import PolygonsSlots
+    from tentacle.slots.polygons import PolygonsSlots
 
     reset()
     msgs = []
     slot = make_slot(PolygonsSlots)
-    slot.sb = NS(message_box=msgs.append)
+    slot.sb = NS(message_box=msgs.append, tk=btk)
     slot.b000()
     check("polygons b000 points at LoopTools when absent",
           msgs and "LoopTools" in msgs[-1], f"{msgs[-1:]}")
@@ -661,7 +662,7 @@ try:
     a.select_set(True)
     b.select_set(True)
     bpy.context.view_layer.objects.active = b
-    slot = make_slot(PolygonsSlots)
+    slot = make_slot(PolygonsSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.tb009(option_box(s005=spin(0.2), chk016=chk(True)))
     pos_a = sorted(tuple(round(c, 4) for c in (a.matrix_world @ v.co)) for v in a.data.vertices)
     pos_b = sorted(tuple(round(c, 4) for c in (b.matrix_world @ v.co)) for v in b.data.vertices)
@@ -685,7 +686,7 @@ try:
     next(iter(top.edges)).select = True
     _bm.update_edit_mesh(o.data)
     f0 = len(bm.faces)
-    slot = make_slot(PolygonsSlots)
+    slot = make_slot(PolygonsSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.b034()
     bm = _bm.from_edit_mesh(o.data)
     check("polygons b034 wedges the selected face", len(bm.faces) > f0,
@@ -715,7 +716,7 @@ try:
         pick(bm)
         bm.select_flush_mode()
         _bm.update_edit_mesh(o.data)
-        make_slot(PolygonsSlots).b009()
+        make_slot(PolygonsSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk)).b009()
         n = len(_bm.from_edit_mesh(o.data).verts)
         bpy.ops.object.mode_set(mode="OBJECT")
         return n
@@ -1002,8 +1003,9 @@ try:
     bm.verts.ensure_lookup_table()
     bm.verts[0].select = True
     _bm.update_edit_mesh(o.data)
-    slot = make_slot(SelectionSlots)
-    slot.b006(NS(objectName=lambda: "b006"))  # Shell -> whole connected mesh
+    slot = make_slot(SelectionSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
+    # a one-shot in Blender: the row's buttons are not checkable there
+    slot.b006(NS(objectName=lambda: "b006", isCheckable=lambda: False, isChecked=lambda: False))
     bm = _bm.from_edit_mesh(o.data)
     check("selection b006 (Shell) expands to the whole shell",
           all(v.select for v in bm.verts),

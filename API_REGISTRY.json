@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 47,
+          "line": 46,
           "deprecated": false
         }
       ]
@@ -341,40 +341,6 @@
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
               "line": 1044,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_selection.py",
-      "summary": "Behavior shared by the Maya and Blender ``selection`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SelectionMixin",
-          "summary": "Shared ``selection`` panel behavior.",
-          "line": 26,
-          "bases": [],
-          "members": [
-            {
-              "name": "list001_init",
-              "qualname": "SelectionMixin.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Convert To: category rows that convert on click and expand on hover.",
-              "line": 111,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "SelectionMixin.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select by Type settings: open the scope/mode menu.",
-              "line": 166,
               "deprecated": false
             }
           ]
@@ -1506,375 +1472,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/polygons.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PolygonsSlots",
-          "summary": "Blender port of the shared ``polygons`` menu.",
-          "line": 9,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "PolygonsSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 52,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "PolygonsSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 72,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "PolygonsSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Merge Vertices",
-              "line": 92,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "PolygonsSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Merge Vertices: Set Distance — set the merge threshold from two selected verts",
-              "line": 99,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "PolygonsSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 118,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "PolygonsSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Separate (split the mesh into loose parts, or by material).",
-              "line": 151,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "PolygonsSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 170,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "PolygonsSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Extrude (region together or per-face), then offset along normals.",
-              "line": 191,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "PolygonsSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 219,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "PolygonsSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Combine Selected Meshes (optionally one mesh per material / clustered by distance).",
-              "line": 266,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "PolygonsSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 284,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "PolygonsSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Detach (separate selected components into a new object;",
-              "line": 324,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "PolygonsSlots.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 337,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "PolygonsSlots.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Inset Face Region",
-              "line": 366,
-              "deprecated": false
-            },
-            {
-              "name": "tb007_init",
-              "qualname": "PolygonsSlots.tb007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 376,
-              "deprecated": false
-            },
-            {
-              "name": "tb007",
-              "qualname": "PolygonsSlots.tb007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Divide Facet (subdivide the selected components).",
-              "line": 395,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "PolygonsSlots.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 406,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "PolygonsSlots.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Boolean Operation (active mesh = base, other selected = operands).",
-              "line": 424,
-              "deprecated": false
-            },
-            {
-              "name": "tb009_init",
-              "qualname": "PolygonsSlots.tb009_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 449,
-              "deprecated": false
-            },
-            {
-              "name": "tb009",
-              "qualname": "PolygonsSlots.tb009",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Closest Verts (the other selected mesh's verts snap onto the ACTIVE mesh).",
-              "line": 464,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "PolygonsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fill Holes",
-              "line": 483,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "PolygonsSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Symmetrize",
-              "line": 488,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "PolygonsSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bridge (selected edge loops).",
-              "line": 493,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "PolygonsSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bridge Interactive — open the Bridge panel (Divisions / Offset + live Preview),",
-              "line": 497,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "PolygonsSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Weld Center: interactive target weld merging at the midpoint (mirror of Maya's",
-              "line": 503,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "PolygonsSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Collapse Component: faces per region, verts/edges at one center.",
-              "line": 510,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "PolygonsSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bevel — open the bevel panel (Width / Segments / Profile + live Preview),",
-              "line": 533,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "PolygonsSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode.",
-              "line": 538,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "PolygonsSlots.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Attach — Maya's Connect-components tool (dR_connectTool;",
-              "line": 543,
-              "deprecated": false
-            },
-            {
-              "name": "b032",
-              "qualname": "PolygonsSlots.b032",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Poke",
-              "line": 576,
-              "deprecated": false
-            },
-            {
-              "name": "b047",
-              "qualname": "PolygonsSlots.b047",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into",
-              "line": 580,
-              "deprecated": false
-            },
-            {
-              "name": "b051",
-              "qualname": "PolygonsSlots.b051",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Offset Edgeloop",
-              "line": 586,
-              "deprecated": false
-            },
-            {
-              "name": "b043",
-              "qualname": "PolygonsSlots.b043",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Target Weld: interactively merge one vertex onto another by dragging.",
-              "line": 590,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "PolygonsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Circularize (LoopTools Circle on the selected edge loop).",
-              "line": 620,
-              "deprecated": false
-            },
-            {
-              "name": "b053",
-              "qualname": "PolygonsSlots.b053",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Edit Edge Flow (Set Flow on the selected edge loops).",
-              "line": 625,
-              "deprecated": false
-            },
-            {
-              "name": "b034",
-              "qualname": "PolygonsSlots.b034",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Wedge (sweep the selected faces 90° around a selected hinge edge).",
-              "line": 634,
-              "deprecated": false
-            },
-            {
-              "name": "b038_init",
-              "qualname": "PolygonsSlots.b038_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender",
-              "line": 643,
-              "deprecated": false
-            },
-            {
-              "name": "b038",
-              "qualname": "PolygonsSlots.b038",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Assign Invisible — unreachable (b038_init hides the button);",
-              "line": 649,
-              "deprecated": false
-            },
-            {
-              "name": "b049",
-              "qualname": "PolygonsSlots.b049",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Slide Edge — interactively slide the selected edge loop along the surface, the",
-              "line": 653,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/rendering.py",
       "summary": "",
       "functions": [],
@@ -2347,358 +1944,6 @@
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
               "line": 777,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/selection.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SelectionSlots",
-          "summary": "Blender port of the shared ``selection`` menu.",
-          "line": 8,
-          "bases": [
-            "SelectionMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "SelectionSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 36,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "SelectionSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Nth",
-              "line": 62,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "SelectionSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 120,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "SelectionSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Similar — object-level similarity by topology / area / bounding-box metrics",
-              "line": 148,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "SelectionSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 216,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "SelectionSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Island (connected region;",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "SelectionSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 237,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "SelectionSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``).",
-              "line": 250,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "SelectionSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Convert the current selection to another component type (Maya Convert-To parity).",
-              "line": 299,
-              "deprecated": false
-            },
-            {
-              "name": "chk004_init",
-              "qualname": "SelectionSlots.chk004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).",
-              "line": 322,
-              "deprecated": false
-            },
-            {
-              "name": "chk004",
-              "qualname": "SelectionSlots.chk004",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.",
-              "line": 335,
-              "deprecated": false
-            },
-            {
-              "name": "chk005_init",
-              "qualname": "SelectionSlots.chk005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 342,
-              "deprecated": false
-            },
-            {
-              "name": "chk006_init",
-              "qualname": "SelectionSlots.chk006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Style: Lasso — mirrors the active tool;",
-              "line": 358,
-              "deprecated": false
-            },
-            {
-              "name": "chk007_init",
-              "qualname": "SelectionSlots.chk007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Style: Circle — mirrors the active tool;",
-              "line": 362,
-              "deprecated": false
-            },
-            {
-              "name": "chk005",
-              "qualname": "SelectionSlots.chk005",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Box (Marquee)",
-              "line": 373,
-              "deprecated": false
-            },
-            {
-              "name": "chk006",
-              "qualname": "SelectionSlots.chk006",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Lasso",
-              "line": 377,
-              "deprecated": false
-            },
-            {
-              "name": "chk007",
-              "qualname": "SelectionSlots.chk007",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Circle (Paint)",
-              "line": 381,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SelectionSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle Selectability of the selected object(s).",
-              "line": 387,
-              "deprecated": false
-            },
-            {
-              "name": "b002_init",
-              "qualname": "SelectionSlots.b002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Angle.",
-              "line": 464,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "SelectionSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Angle (one-shot expand).",
-              "line": 468,
-              "deprecated": false
-            },
-            {
-              "name": "b003_init",
-              "qualname": "SelectionSlots.b003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Border.",
-              "line": 472,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "SelectionSlots.b003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Border (one-shot expand).",
-              "line": 476,
-              "deprecated": false
-            },
-            {
-              "name": "b004_init",
-              "qualname": "SelectionSlots.b004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Loop.",
-              "line": 480,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "SelectionSlots.b004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Loop (one-shot expand).",
-              "line": 484,
-              "deprecated": false
-            },
-            {
-              "name": "b005_init",
-              "qualname": "SelectionSlots.b005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Ring.",
-              "line": 488,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SelectionSlots.b005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Ring (one-shot expand).",
-              "line": 492,
-              "deprecated": false
-            },
-            {
-              "name": "b006_init",
-              "qualname": "SelectionSlots.b006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Shell.",
-              "line": 496,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "SelectionSlots.b006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Shell (one-shot expand).",
-              "line": 500,
-              "deprecated": false
-            },
-            {
-              "name": "b007_init",
-              "qualname": "SelectionSlots.b007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: UV Edge Loop.",
-              "line": 504,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "SelectionSlots.b007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: UV Edge Loop (one-shot expand).",
-              "line": 508,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "SelectionSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Rig Picking Mode — hidden: the Maya modes (``mtk.Selection.set_rig_selection_mode``)",
-              "line": 513,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "SelectionSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Rig Picking Mode — unreachable (cmb002_init hides the combo).",
-              "line": 519,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001_init",
-              "qualname": "SelectionSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender",
-              "line": 523,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "SelectionSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Reorder Selection (sort via ``btk.reorder_objects``, record the order on",
-              "line": 552,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "SelectionSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select by Type: hierarchical type list.",
-              "line": 594,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "SelectionSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select by Type settings menu (mirror of the Maya slot's tb004).",
-              "line": 629,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "SelectionSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Select by Type (native bpy predicates via ``btk.Selection``).",
-              "line": 703,
               "deprecated": false
             }
           ]
@@ -5614,393 +4859,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/polygons.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "PolygonsSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "PolygonsSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Header",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "chk008",
-              "qualname": "PolygonsSlots.chk008",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Divide Facet: Split U",
-              "line": 33,
-              "deprecated": false
-            },
-            {
-              "name": "chk009",
-              "qualname": "PolygonsSlots.chk009",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Divide Facet: Split V",
-              "line": 37,
-              "deprecated": false
-            },
-            {
-              "name": "chk010",
-              "qualname": "PolygonsSlots.chk010",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Divide Facet: Tris",
-              "line": 41,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "PolygonsSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Merge Vertices",
-              "line": 45,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "PolygonsSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Merge Vertices",
-              "line": 64,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "PolygonsSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Separate",
-              "line": 78,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "PolygonsSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Separate: split a combined mesh into its disconnected shells (optionally per material).",
-              "line": 124,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "PolygonsSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Extrude",
-              "line": 140,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "PolygonsSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Extrude the selected faces, edges or vertices (an object extrudes its faces).",
-              "line": 164,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "PolygonsSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Combine",
-              "line": 189,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "PolygonsSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Combine Selected Meshes.",
-              "line": 233,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "PolygonsSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Detach",
-              "line": 254,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "PolygonsSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Detach: extract the selected faces into a new object (optionally duplicated/separated).",
-              "line": 293,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "PolygonsSlots.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Inset Face Region",
-              "line": 314,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "PolygonsSlots.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Inset Face Region",
-              "line": 326,
-              "deprecated": false
-            },
-            {
-              "name": "tb007_init",
-              "qualname": "PolygonsSlots.tb007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Divide Facet",
-              "line": 351,
-              "deprecated": false
-            },
-            {
-              "name": "tb007",
-              "qualname": "PolygonsSlots.tb007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Divide Facet",
-              "line": 377,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "PolygonsSlots.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Boolean Operation",
-              "line": 421,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "PolygonsSlots.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Boolean Operation",
-              "line": 439,
-              "deprecated": false
-            },
-            {
-              "name": "tb009_init",
-              "qualname": "PolygonsSlots.tb009_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Snap Closest Verts",
-              "line": 464,
-              "deprecated": false
-            },
-            {
-              "name": "tb009",
-              "qualname": "PolygonsSlots.tb009",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Closest Verts",
-              "line": 482,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "PolygonsSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Circularize: reshape the selected vertices, edges, or faces into an even circle.",
-              "line": 499,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "PolygonsSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fill Holes: cap open holes bounded by the mesh's border edges.",
-              "line": 510,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "PolygonsSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Symmetrize: mirror topology and edits across the active symmetry axis.",
-              "line": 514,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "PolygonsSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Merge Vertices: Set Distance",
-              "line": 518,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "PolygonsSlots.b006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Bridge: span two edge selections with new connecting faces (closes border edges).",
-              "line": 539,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "PolygonsSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Interactive Bridge",
-              "line": 554,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "PolygonsSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Weld Center: merge the selected vertices to their shared center point.",
-              "line": 558,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "PolygonsSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Collapse Component: faces each to their own point, edges/verts to one center.",
-              "line": 567,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "PolygonsSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Bevel: open the Bevel tool window.",
-              "line": 599,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "PolygonsSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Multi-Cut Tool",
-              "line": 603,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "PolygonsSlots.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Attach: connect components interactively with Maya's Connect tool.",
-              "line": 607,
-              "deprecated": false
-            },
-            {
-              "name": "b032",
-              "qualname": "PolygonsSlots.b032",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Poke: add a center vertex to each selected face, fanning it into triangles.",
-              "line": 611,
-              "deprecated": false
-            },
-            {
-              "name": "b034",
-              "qualname": "PolygonsSlots.b034",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Wedge: sweep the selected faces around a chosen edge into an arc.",
-              "line": 615,
-              "deprecated": false
-            },
-            {
-              "name": "b038",
-              "qualname": "PolygonsSlots.b038",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Assign Invisible",
-              "line": 624,
-              "deprecated": false
-            },
-            {
-              "name": "b043",
-              "qualname": "PolygonsSlots.b043",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Target Weld: interactively merge one vertex onto another by dragging.",
-              "line": 638,
-              "deprecated": false
-            },
-            {
-              "name": "b047",
-              "qualname": "PolygonsSlots.b047",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Insert Edgeloop",
-              "line": 646,
-              "deprecated": false
-            },
-            {
-              "name": "b049",
-              "qualname": "PolygonsSlots.b049",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Slide Edge Tool",
-              "line": 650,
-              "deprecated": false
-            },
-            {
-              "name": "b051",
-              "qualname": "PolygonsSlots.b051",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Offset Edgeloop",
-              "line": 654,
-              "deprecated": false
-            },
-            {
-              "name": "b053",
-              "qualname": "PolygonsSlots.b053",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Edit Edge Flow",
-              "line": 658,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/render.py",
       "summary": "",
       "functions": [],
@@ -6564,385 +5422,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/selection.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SelectionSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "SelectionMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "SelectionSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select by Type: Hierarchical type list.",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "SelectionSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Select by Type",
-              "line": 53,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "SelectionSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select by Type settings menu.",
-              "line": 87,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "SelectionSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Rig Picking Mode: mirrors the scene, never restored (see mirror_app_state).",
-              "line": 159,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "SelectionSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Rig Picking Mode",
-              "line": 175,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001_init",
-              "qualname": "SelectionSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Reorder Selection Init",
-              "line": 184,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "SelectionSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Reorder Selection",
-              "line": 209,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "SelectionSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Convert To: convert the component selection to verts, edges, faces, UVs, or shells.",
-              "line": 278,
-              "deprecated": false
-            },
-            {
-              "name": "b002_init",
-              "qualname": "SelectionSlots.b002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Angle.",
-              "line": 358,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "SelectionSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Angle (toggle).",
-              "line": 362,
-              "deprecated": false
-            },
-            {
-              "name": "b003_init",
-              "qualname": "SelectionSlots.b003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Border.",
-              "line": 366,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "SelectionSlots.b003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Border (toggle).",
-              "line": 370,
-              "deprecated": false
-            },
-            {
-              "name": "b004_init",
-              "qualname": "SelectionSlots.b004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Loop.",
-              "line": 374,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "SelectionSlots.b004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Loop (toggle).",
-              "line": 378,
-              "deprecated": false
-            },
-            {
-              "name": "b005_init",
-              "qualname": "SelectionSlots.b005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Ring.",
-              "line": 382,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SelectionSlots.b005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Edge Ring (toggle).",
-              "line": 386,
-              "deprecated": false
-            },
-            {
-              "name": "b006_init",
-              "qualname": "SelectionSlots.b006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Shell.",
-              "line": 390,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "SelectionSlots.b006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: Shell (toggle).",
-              "line": 394,
-              "deprecated": false
-            },
-            {
-              "name": "b007_init",
-              "qualname": "SelectionSlots.b007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: UV Edge Loop.",
-              "line": 398,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "SelectionSlots.b007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Selection constraint: UV Edge Loop (toggle).",
-              "line": 402,
-              "deprecated": false
-            },
-            {
-              "name": "chk000",
-              "qualname": "SelectionSlots.chk000",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Nth: uncheck other checkboxes",
-              "line": 406,
-              "deprecated": false
-            },
-            {
-              "name": "chk001",
-              "qualname": "SelectionSlots.chk001",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Nth: uncheck other checkboxes",
-              "line": 410,
-              "deprecated": false
-            },
-            {
-              "name": "chk002",
-              "qualname": "SelectionSlots.chk002",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Nth: uncheck other checkboxes",
-              "line": 414,
-              "deprecated": false
-            },
-            {
-              "name": "chk005_init",
-              "qualname": "SelectionSlots.chk005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create button group for radioboxes chk005, chk006, chk007",
-              "line": 418,
-              "deprecated": false
-            },
-            {
-              "name": "chk005",
-              "qualname": "SelectionSlots.chk005",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Marquee",
-              "line": 430,
-              "deprecated": false
-            },
-            {
-              "name": "chk006",
-              "qualname": "SelectionSlots.chk006",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Lasso",
-              "line": 435,
-              "deprecated": false
-            },
-            {
-              "name": "chk007",
-              "qualname": "SelectionSlots.chk007",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Select Style: Paint",
-              "line": 440,
-              "deprecated": false
-            },
-            {
-              "name": "chk004",
-              "qualname": "SelectionSlots.chk004",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Ignore Backfacing (Camera Based Selection)",
-              "line": 445,
-              "deprecated": false
-            },
-            {
-              "name": "chkxxx",
-              "qualname": "SelectionSlots.chkxxx",
-              "kind": "method",
-              "signature": "(self, **kwargs)",
-              "summary": "Transform Constraints: Constraint CheckBoxes",
-              "line": 454,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "SelectionSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 463,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "SelectionSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Nth: select edge loops/rings or shortest paths, stepping every Nth component.",
-              "line": 505,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "SelectionSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 586,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "SelectionSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Similar.",
-              "line": 623,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "SelectionSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 726,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "SelectionSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Island: Select Polygon Face Island",
-              "line": 779,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "SelectionSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 808,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "SelectionSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Edges By Angle",
-              "line": 827,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SelectionSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle Selectability",
-              "line": 841,
-              "deprecated": false
-            },
-            {
-              "name": "get_selection_tool",
-              "qualname": "SelectionSlots.get_selection_tool",
-              "kind": "staticmethod",
-              "signature": "()",
-              "summary": "Queries the current selection tool in Maya.",
-              "line": 846,
-              "deprecated": false
-            },
-            {
-              "name": "set_selection_tool",
-              "qualname": "SelectionSlots.set_selection_tool",
-              "kind": "staticmethod",
-              "signature": "(tool)",
-              "summary": "Sets the selection tool in Maya.",
-              "line": 859,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -7950,6 +6429,393 @@
       "constants": []
     },
     {
+      "relpath": "slots/polygons.py",
+      "summary": "Polygons: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PolygonsSlots",
+          "summary": "",
+          "line": 18,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "PolygonsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Header",
+              "line": 34,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "PolygonsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Merge Vertices",
+              "line": 52,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "PolygonsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Merge Vertices: the selected components, else every vertex of the",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "PolygonsSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Merge Vertices: Set Distance",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "PolygonsSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Separate",
+              "line": 107,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "PolygonsSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Separate: split each selected mesh into its loose parts (or per material).",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "PolygonsSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Extrude",
+              "line": 170,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "PolygonsSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Extrude the selected faces, edges or vertices.",
+              "line": 205,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "PolygonsSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Combine",
+              "line": 218,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "PolygonsSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Combine the selected meshes (optionally one mesh per material).",
+              "line": 268,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "PolygonsSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Detach",
+              "line": 285,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "PolygonsSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Detach the selected faces (optionally a copy, a new object, per face).",
+              "line": 327,
+              "deprecated": false
+            },
+            {
+              "name": "tb006_init",
+              "qualname": "PolygonsSlots.tb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Inset Face Region",
+              "line": 353,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "PolygonsSlots.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Inset Face Region",
+              "line": 382,
+              "deprecated": false
+            },
+            {
+              "name": "chk008",
+              "qualname": "PolygonsSlots.chk008",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Divide Facet: Split U",
+              "line": 395,
+              "deprecated": false
+            },
+            {
+              "name": "chk009",
+              "qualname": "PolygonsSlots.chk009",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Divide Facet: Split V",
+              "line": 399,
+              "deprecated": false
+            },
+            {
+              "name": "chk010",
+              "qualname": "PolygonsSlots.chk010",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Divide Facet: Tris",
+              "line": 403,
+              "deprecated": false
+            },
+            {
+              "name": "tb007_init",
+              "qualname": "PolygonsSlots.tb007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Divide Facet",
+              "line": 407,
+              "deprecated": false
+            },
+            {
+              "name": "tb007",
+              "qualname": "PolygonsSlots.tb007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Divide Facet",
+              "line": 450,
+              "deprecated": false
+            },
+            {
+              "name": "tb008_init",
+              "qualname": "PolygonsSlots.tb008_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Boolean Operation",
+              "line": 464,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "PolygonsSlots.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Boolean Operation",
+              "line": 486,
+              "deprecated": false
+            },
+            {
+              "name": "tb009_init",
+              "qualname": "PolygonsSlots.tb009_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Snap Closest Verts",
+              "line": 499,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "PolygonsSlots.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Closest Verts: the first selected mesh's vertices onto the last",
+              "line": 525,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "PolygonsSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Circularize: reshape the selected vertices, edges or faces into an even circle.",
+              "line": 546,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "PolygonsSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fill Hole: cap the open holes bounded by the selection's border edges.",
+              "line": 554,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "PolygonsSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Symmetrize: mirror the selected components across the symmetry axis.",
+              "line": 562,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "PolygonsSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bridge: span two edge selections with new faces.",
+              "line": 570,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "PolygonsSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bridge Interactive: open the Bridge tool window.",
+              "line": 579,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "PolygonsSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Target Weld Center: drag a vertex onto another;",
+              "line": 583,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "PolygonsSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Collapse: each selected face to its own point;",
+              "line": 587,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "PolygonsSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bevel: open the Bevel tool window.",
+              "line": 604,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "PolygonsSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Multi-Cut Tool",
+              "line": 608,
+              "deprecated": false
+            },
+            {
+              "name": "b022",
+              "qualname": "PolygonsSlots.b022",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Attach: connect the selected vertices and edges with new edges.",
+              "line": 612,
+              "deprecated": false
+            },
+            {
+              "name": "b032",
+              "qualname": "PolygonsSlots.b032",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Poke: add a center vertex to each selected face, fanning it into triangles.",
+              "line": 621,
+              "deprecated": false
+            },
+            {
+              "name": "b034",
+              "qualname": "PolygonsSlots.b034",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Wedge: sweep the selected faces around a selected edge into an arc.",
+              "line": 629,
+              "deprecated": false
+            },
+            {
+              "name": "b038",
+              "qualname": "PolygonsSlots.b038",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Assign Hole: toggle the selected faces' hole (invisible) state.",
+              "line": 638,
+              "deprecated": false
+            },
+            {
+              "name": "b043",
+              "qualname": "PolygonsSlots.b043",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Target Weld: drag a vertex onto another to weld it there.",
+              "line": 652,
+              "deprecated": false
+            },
+            {
+              "name": "b047",
+              "qualname": "PolygonsSlots.b047",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Insert Edgeloop",
+              "line": 663,
+              "deprecated": false
+            },
+            {
+              "name": "b049",
+              "qualname": "PolygonsSlots.b049",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Slide: slide the selected edge loops along their neighboring edges.",
+              "line": 667,
+              "deprecated": false
+            },
+            {
+              "name": "b051",
+              "qualname": "PolygonsSlots.b051",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Offset Edgeloop: add a loop on each side of the selected edges.",
+              "line": 671,
+              "deprecated": false
+            },
+            {
+              "name": "b053",
+              "qualname": "PolygonsSlots.b053",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Edit Edge Flow: adjust the selected edges to follow the surface curvature.",
+              "line": 680,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/preferences.py",
       "summary": "Preferences: one Slots class for both hosts.",
       "functions": [],
@@ -8149,6 +7015,402 @@
               "signature": "(self)",
               "summary": "Macro Manager: the uitk shortcut editor over the host's macros.",
               "line": 264,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/selection.py",
+      "summary": "Selection: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SelectionSlots",
+          "summary": "The ``selection`` panel.",
+          "line": 29,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "SelectionSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select by Type: hierarchical type list.",
+              "line": 39,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "SelectionSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Select by Type",
+              "line": 73,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "SelectionSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select by Type settings menu.",
+              "line": 101,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "SelectionSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select by Type settings: open the scope / mode menu.",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "SelectionSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Rig Picking Mode: mirrors the scene, never restored (see",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "SelectionSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Rig Picking Mode",
+              "line": 186,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001_init",
+              "qualname": "SelectionSlots.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reorder Selection Init",
+              "line": 212,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "SelectionSlots.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Reorder Selection: reselect the selection in the chosen order.",
+              "line": 224,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "SelectionSlots.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Convert To: category rows that convert on click and expand on hover.",
+              "line": 292,
+              "deprecated": false
+            },
+            {
+              "name": "list001",
+              "qualname": "SelectionSlots.list001",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Convert To: convert the component selection to verts, edges, faces, UVs or shells.",
+              "line": 325,
+              "deprecated": false
+            },
+            {
+              "name": "b002_init",
+              "qualname": "SelectionSlots.b002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Angle.",
+              "line": 413,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "SelectionSlots.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Angle.",
+              "line": 417,
+              "deprecated": false
+            },
+            {
+              "name": "b003_init",
+              "qualname": "SelectionSlots.b003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border.",
+              "line": 421,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "SelectionSlots.b003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Border.",
+              "line": 425,
+              "deprecated": false
+            },
+            {
+              "name": "b004_init",
+              "qualname": "SelectionSlots.b004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop.",
+              "line": 429,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "SelectionSlots.b004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Loop.",
+              "line": 433,
+              "deprecated": false
+            },
+            {
+              "name": "b005_init",
+              "qualname": "SelectionSlots.b005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring.",
+              "line": 437,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "SelectionSlots.b005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Edge Ring.",
+              "line": 441,
+              "deprecated": false
+            },
+            {
+              "name": "b006_init",
+              "qualname": "SelectionSlots.b006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell.",
+              "line": 445,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "SelectionSlots.b006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: Shell.",
+              "line": 449,
+              "deprecated": false
+            },
+            {
+              "name": "b007_init",
+              "qualname": "SelectionSlots.b007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop.",
+              "line": 453,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "SelectionSlots.b007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Selection constraint: UV Edge Loop.",
+              "line": 457,
+              "deprecated": false
+            },
+            {
+              "name": "chk004_init",
+              "qualname": "SelectionSlots.chk004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Ignore Backfacing mirrors the host's live state (never restored);",
+              "line": 462,
+              "deprecated": false
+            },
+            {
+              "name": "chk004",
+              "qualname": "SelectionSlots.chk004",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Ignore Backfacing: select only what faces the camera (Maya:",
+              "line": 471,
+              "deprecated": false
+            },
+            {
+              "name": "chk005_init",
+              "qualname": "SelectionSlots.chk005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Style: Marquee (and the three boxes' exclusive group).",
+              "line": 500,
+              "deprecated": false
+            },
+            {
+              "name": "chk006_init",
+              "qualname": "SelectionSlots.chk006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Style: Lasso",
+              "line": 505,
+              "deprecated": false
+            },
+            {
+              "name": "chk007_init",
+              "qualname": "SelectionSlots.chk007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Style: Paint (Blender: Circle Select)",
+              "line": 509,
+              "deprecated": false
+            },
+            {
+              "name": "chk005",
+              "qualname": "SelectionSlots.chk005",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Marquee",
+              "line": 517,
+              "deprecated": false
+            },
+            {
+              "name": "chk006",
+              "qualname": "SelectionSlots.chk006",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Lasso",
+              "line": 521,
+              "deprecated": false
+            },
+            {
+              "name": "chk007",
+              "qualname": "SelectionSlots.chk007",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Style: Paint",
+              "line": 525,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "SelectionSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Toggle Selectability of the selected objects.",
+              "line": 530,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "SelectionSlots.chk000",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Nth: uncheck other checkboxes",
+              "line": 547,
+              "deprecated": false
+            },
+            {
+              "name": "chk001",
+              "qualname": "SelectionSlots.chk001",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Nth: uncheck other checkboxes",
+              "line": 551,
+              "deprecated": false
+            },
+            {
+              "name": "chk002",
+              "qualname": "SelectionSlots.chk002",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Select Nth: uncheck other checkboxes",
+              "line": 555,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "SelectionSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Select Nth",
+              "line": 588,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "SelectionSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Nth: select edge loops, rings or paths, keeping every Nth component.",
+              "line": 609,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "SelectionSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Select Similar",
+              "line": 671,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "SelectionSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Similar: objects by the checked metrics;",
+              "line": 712,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "SelectionSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Select Island",
+              "line": 776,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "SelectionSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Island: the contiguous faces, around the selected ones, whose",
+              "line": 820,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "SelectionSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Select Edges By Angle",
+              "line": 840,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "SelectionSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Edges By Angle: the selected meshes' edges within the range.",
+              "line": 861,
               "deprecated": false
             }
           ]

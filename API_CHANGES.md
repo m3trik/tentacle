@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (34)
+## Removed (38)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
@@ -18,6 +18,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/blender/hud.py::WarningsMixin` — was `(class)`
 - `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
+- `slots/blender/polygons.py::PolygonsSlots.b038_init` — was `(self, widget)`
 - `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b001` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b002` — was `(self)`
@@ -40,8 +41,11 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/hud.py::StatusMixin` — was `(class)`
 - `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/maya/hud.py::WarningsMixin` — was `(class)`
+- `slots/maya/selection.py::SelectionSlots.chkxxx` — was `(self, **kwargs)`
+- `slots/maya/selection.py::SelectionSlots.get_selection_tool` — was `()`
+- `slots/maya/selection.py::SelectionSlots.set_selection_tool` — was `(tool)`
 
-## Moved out (52)
+## Moved out (55)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -79,6 +83,9 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_preferences.py::PreferencesMixin.cmb006_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
 - `slots/_preferences.py::PreferencesMixin.header_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
 - `slots/_preferences.py::PreferencesMixin.tb000` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin.list001_init` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/_selection.py::SelectionMixin.tb004` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin.b020` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin.b021` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
@@ -96,7 +103,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_settings.py::SettingsMixin.header_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin.tb000` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 
-## Added (1293)
+## Added (1378)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -234,6 +241,48 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/pivot.py::PivotSlots.tb002_init(self, widget)`
 - `slots/pivot.py::PivotSlots.tb003(self, widget)`
 - `slots/pivot.py::PivotSlots.tb003_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots(class)`
+- `slots/polygons.py::PolygonsSlots.b000(self)`
+- `slots/polygons.py::PolygonsSlots.b001(self)`
+- `slots/polygons.py::PolygonsSlots.b003(self)`
+- `slots/polygons.py::PolygonsSlots.b005(self)`
+- `slots/polygons.py::PolygonsSlots.b006(self)`
+- `slots/polygons.py::PolygonsSlots.b007(self)`
+- `slots/polygons.py::PolygonsSlots.b008(self)`
+- `slots/polygons.py::PolygonsSlots.b009(self)`
+- `slots/polygons.py::PolygonsSlots.b011(self)`
+- `slots/polygons.py::PolygonsSlots.b012(self)`
+- `slots/polygons.py::PolygonsSlots.b022(self)`
+- `slots/polygons.py::PolygonsSlots.b032(self)`
+- `slots/polygons.py::PolygonsSlots.b034(self)`
+- `slots/polygons.py::PolygonsSlots.b038(self)`
+- `slots/polygons.py::PolygonsSlots.b043(self)`
+- `slots/polygons.py::PolygonsSlots.b047(self)`
+- `slots/polygons.py::PolygonsSlots.b049(self)`
+- `slots/polygons.py::PolygonsSlots.b051(self)`
+- `slots/polygons.py::PolygonsSlots.b053(self)`
+- `slots/polygons.py::PolygonsSlots.chk008(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.chk009(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.chk010(self, state, widget)`
+- `slots/polygons.py::PolygonsSlots.header_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb000(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb000_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb002(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb002_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb003(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb003_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb004(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb004_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb005(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb005_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb006(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb006_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb007(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb007_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb008(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb008_init(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb009(self, widget)`
+- `slots/polygons.py::PolygonsSlots.tb009_init(self, widget)`
 - `slots/preferences.py::PreferencesSlots(class)`
 - `slots/preferences.py::PreferencesSlots.b001(self)`
 - `slots/preferences.py::PreferencesSlots.b008(self)`
@@ -256,6 +305,49 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/preferences.py::PreferencesSlots.s000_init(self, widget)`
 - `slots/preferences.py::PreferencesSlots.s001_init(self, widget)`
 - `slots/preferences.py::PreferencesSlots.tb000(self)`
+- `slots/selection.py::SelectionSlots(class)`
+- `slots/selection.py::SelectionSlots.b001(self)`
+- `slots/selection.py::SelectionSlots.b002(self, widget)`
+- `slots/selection.py::SelectionSlots.b002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b003(self, widget)`
+- `slots/selection.py::SelectionSlots.b003_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b004(self, widget)`
+- `slots/selection.py::SelectionSlots.b004_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b005(self, widget)`
+- `slots/selection.py::SelectionSlots.b005_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b006(self, widget)`
+- `slots/selection.py::SelectionSlots.b006_init(self, widget)`
+- `slots/selection.py::SelectionSlots.b007(self, widget)`
+- `slots/selection.py::SelectionSlots.b007_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk000(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk001(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk002(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk004(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk004_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk005(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk005_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk006(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk006_init(self, widget)`
+- `slots/selection.py::SelectionSlots.chk007(self, state, widget)`
+- `slots/selection.py::SelectionSlots.chk007_init(self, widget)`
+- `slots/selection.py::SelectionSlots.cmb001(self, index, widget)`
+- `slots/selection.py::SelectionSlots.cmb001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.cmb002(self, index, widget)`
+- `slots/selection.py::SelectionSlots.cmb002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.list000(self, item)`
+- `slots/selection.py::SelectionSlots.list000_init(self, widget)`
+- `slots/selection.py::SelectionSlots.list001(self, item)`
+- `slots/selection.py::SelectionSlots.list001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb000(self, widget)`
+- `slots/selection.py::SelectionSlots.tb000_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb001(self, widget)`
+- `slots/selection.py::SelectionSlots.tb001_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb002(self, widget)`
+- `slots/selection.py::SelectionSlots.tb002_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb003(self, widget)`
+- `slots/selection.py::SelectionSlots.tb003_init(self, widget)`
+- `slots/selection.py::SelectionSlots.tb004(self, widget)`
+- `slots/selection.py::SelectionSlots.tb004_init(self, widget)`
 - `slots/settings.py::SettingsSlots(class)`
 - `slots/settings.py::SettingsSlots.b020(self)`
 - `slots/settings.py::SettingsSlots.b021(self)`
@@ -1392,7 +1484,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (267)
+## Moved (424)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1500,6 +1592,45 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/pivot.py::PivotSlots.tb002_init`
 - `slots/blender/pivot.py::PivotSlots.tb003`
 - `slots/blender/pivot.py::PivotSlots.tb003_init`
+- `slots/blender/polygons.py::PolygonsSlots`
+- `slots/blender/polygons.py::PolygonsSlots.b000`
+- `slots/blender/polygons.py::PolygonsSlots.b001`
+- `slots/blender/polygons.py::PolygonsSlots.b003`
+- `slots/blender/polygons.py::PolygonsSlots.b005`
+- `slots/blender/polygons.py::PolygonsSlots.b006`
+- `slots/blender/polygons.py::PolygonsSlots.b007`
+- `slots/blender/polygons.py::PolygonsSlots.b008`
+- `slots/blender/polygons.py::PolygonsSlots.b009`
+- `slots/blender/polygons.py::PolygonsSlots.b011`
+- `slots/blender/polygons.py::PolygonsSlots.b012`
+- `slots/blender/polygons.py::PolygonsSlots.b022`
+- `slots/blender/polygons.py::PolygonsSlots.b032`
+- `slots/blender/polygons.py::PolygonsSlots.b034`
+- `slots/blender/polygons.py::PolygonsSlots.b038`
+- `slots/blender/polygons.py::PolygonsSlots.b043`
+- `slots/blender/polygons.py::PolygonsSlots.b047`
+- `slots/blender/polygons.py::PolygonsSlots.b049`
+- `slots/blender/polygons.py::PolygonsSlots.b051`
+- `slots/blender/polygons.py::PolygonsSlots.b053`
+- `slots/blender/polygons.py::PolygonsSlots.header_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb000`
+- `slots/blender/polygons.py::PolygonsSlots.tb000_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb002`
+- `slots/blender/polygons.py::PolygonsSlots.tb002_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb003`
+- `slots/blender/polygons.py::PolygonsSlots.tb003_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb004`
+- `slots/blender/polygons.py::PolygonsSlots.tb004_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb005`
+- `slots/blender/polygons.py::PolygonsSlots.tb005_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb006`
+- `slots/blender/polygons.py::PolygonsSlots.tb006_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb007`
+- `slots/blender/polygons.py::PolygonsSlots.tb007_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb008`
+- `slots/blender/polygons.py::PolygonsSlots.tb008_init`
+- `slots/blender/polygons.py::PolygonsSlots.tb009`
+- `slots/blender/polygons.py::PolygonsSlots.tb009_init`
 - `slots/blender/preferences.py::PreferencesSlots`
 - `slots/blender/preferences.py::PreferencesSlots.b001`
 - `slots/blender/preferences.py::PreferencesSlots.b008`
@@ -1513,6 +1644,44 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/preferences.py::PreferencesSlots.cmb003_init`
 - `slots/blender/preferences.py::PreferencesSlots.s000_init`
 - `slots/blender/preferences.py::PreferencesSlots.s001_init`
+- `slots/blender/selection.py::SelectionSlots`
+- `slots/blender/selection.py::SelectionSlots.b001`
+- `slots/blender/selection.py::SelectionSlots.b002`
+- `slots/blender/selection.py::SelectionSlots.b002_init`
+- `slots/blender/selection.py::SelectionSlots.b003`
+- `slots/blender/selection.py::SelectionSlots.b003_init`
+- `slots/blender/selection.py::SelectionSlots.b004`
+- `slots/blender/selection.py::SelectionSlots.b004_init`
+- `slots/blender/selection.py::SelectionSlots.b005`
+- `slots/blender/selection.py::SelectionSlots.b005_init`
+- `slots/blender/selection.py::SelectionSlots.b006`
+- `slots/blender/selection.py::SelectionSlots.b006_init`
+- `slots/blender/selection.py::SelectionSlots.b007`
+- `slots/blender/selection.py::SelectionSlots.b007_init`
+- `slots/blender/selection.py::SelectionSlots.chk004`
+- `slots/blender/selection.py::SelectionSlots.chk004_init`
+- `slots/blender/selection.py::SelectionSlots.chk005`
+- `slots/blender/selection.py::SelectionSlots.chk005_init`
+- `slots/blender/selection.py::SelectionSlots.chk006`
+- `slots/blender/selection.py::SelectionSlots.chk006_init`
+- `slots/blender/selection.py::SelectionSlots.chk007`
+- `slots/blender/selection.py::SelectionSlots.chk007_init`
+- `slots/blender/selection.py::SelectionSlots.cmb001`
+- `slots/blender/selection.py::SelectionSlots.cmb001_init`
+- `slots/blender/selection.py::SelectionSlots.cmb002`
+- `slots/blender/selection.py::SelectionSlots.cmb002_init`
+- `slots/blender/selection.py::SelectionSlots.list000`
+- `slots/blender/selection.py::SelectionSlots.list000_init`
+- `slots/blender/selection.py::SelectionSlots.list001`
+- `slots/blender/selection.py::SelectionSlots.tb000`
+- `slots/blender/selection.py::SelectionSlots.tb000_init`
+- `slots/blender/selection.py::SelectionSlots.tb001`
+- `slots/blender/selection.py::SelectionSlots.tb001_init`
+- `slots/blender/selection.py::SelectionSlots.tb002`
+- `slots/blender/selection.py::SelectionSlots.tb002_init`
+- `slots/blender/selection.py::SelectionSlots.tb003`
+- `slots/blender/selection.py::SelectionSlots.tb003_init`
+- `slots/blender/selection.py::SelectionSlots.tb004_init`
 - `slots/blender/settings.py::SettingsSlots`
 - `slots/blender/settings.py::SettingsSlots.tb001`
 - `slots/blender/symmetry.py::SymmetrySlots`
@@ -1635,6 +1804,48 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/pivot.py::PivotSlots.tb002_init`
 - `slots/maya/pivot.py::PivotSlots.tb003`
 - `slots/maya/pivot.py::PivotSlots.tb003_init`
+- `slots/maya/polygons.py::PolygonsSlots`
+- `slots/maya/polygons.py::PolygonsSlots.b000`
+- `slots/maya/polygons.py::PolygonsSlots.b001`
+- `slots/maya/polygons.py::PolygonsSlots.b003`
+- `slots/maya/polygons.py::PolygonsSlots.b005`
+- `slots/maya/polygons.py::PolygonsSlots.b006`
+- `slots/maya/polygons.py::PolygonsSlots.b007`
+- `slots/maya/polygons.py::PolygonsSlots.b008`
+- `slots/maya/polygons.py::PolygonsSlots.b009`
+- `slots/maya/polygons.py::PolygonsSlots.b011`
+- `slots/maya/polygons.py::PolygonsSlots.b012`
+- `slots/maya/polygons.py::PolygonsSlots.b022`
+- `slots/maya/polygons.py::PolygonsSlots.b032`
+- `slots/maya/polygons.py::PolygonsSlots.b034`
+- `slots/maya/polygons.py::PolygonsSlots.b038`
+- `slots/maya/polygons.py::PolygonsSlots.b043`
+- `slots/maya/polygons.py::PolygonsSlots.b047`
+- `slots/maya/polygons.py::PolygonsSlots.b049`
+- `slots/maya/polygons.py::PolygonsSlots.b051`
+- `slots/maya/polygons.py::PolygonsSlots.b053`
+- `slots/maya/polygons.py::PolygonsSlots.chk008`
+- `slots/maya/polygons.py::PolygonsSlots.chk009`
+- `slots/maya/polygons.py::PolygonsSlots.chk010`
+- `slots/maya/polygons.py::PolygonsSlots.header_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb000`
+- `slots/maya/polygons.py::PolygonsSlots.tb000_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb002`
+- `slots/maya/polygons.py::PolygonsSlots.tb002_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb003`
+- `slots/maya/polygons.py::PolygonsSlots.tb003_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb004`
+- `slots/maya/polygons.py::PolygonsSlots.tb004_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb005`
+- `slots/maya/polygons.py::PolygonsSlots.tb005_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb006`
+- `slots/maya/polygons.py::PolygonsSlots.tb006_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb007`
+- `slots/maya/polygons.py::PolygonsSlots.tb007_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb008`
+- `slots/maya/polygons.py::PolygonsSlots.tb008_init`
+- `slots/maya/polygons.py::PolygonsSlots.tb009`
+- `slots/maya/polygons.py::PolygonsSlots.tb009_init`
 - `slots/maya/preferences.py::PreferencesSlots`
 - `slots/maya/preferences.py::PreferencesSlots.b001`
 - `slots/maya/preferences.py::PreferencesSlots.b008`
@@ -1648,6 +1859,44 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/preferences.py::PreferencesSlots.cmb003_init`
 - `slots/maya/preferences.py::PreferencesSlots.s000_init`
 - `slots/maya/preferences.py::PreferencesSlots.s001_init`
+- `slots/maya/selection.py::SelectionSlots`
+- `slots/maya/selection.py::SelectionSlots.b001`
+- `slots/maya/selection.py::SelectionSlots.b002`
+- `slots/maya/selection.py::SelectionSlots.b002_init`
+- `slots/maya/selection.py::SelectionSlots.b003`
+- `slots/maya/selection.py::SelectionSlots.b003_init`
+- `slots/maya/selection.py::SelectionSlots.b004`
+- `slots/maya/selection.py::SelectionSlots.b004_init`
+- `slots/maya/selection.py::SelectionSlots.b005`
+- `slots/maya/selection.py::SelectionSlots.b005_init`
+- `slots/maya/selection.py::SelectionSlots.b006`
+- `slots/maya/selection.py::SelectionSlots.b006_init`
+- `slots/maya/selection.py::SelectionSlots.b007`
+- `slots/maya/selection.py::SelectionSlots.b007_init`
+- `slots/maya/selection.py::SelectionSlots.chk000`
+- `slots/maya/selection.py::SelectionSlots.chk001`
+- `slots/maya/selection.py::SelectionSlots.chk002`
+- `slots/maya/selection.py::SelectionSlots.chk004`
+- `slots/maya/selection.py::SelectionSlots.chk005`
+- `slots/maya/selection.py::SelectionSlots.chk005_init`
+- `slots/maya/selection.py::SelectionSlots.chk006`
+- `slots/maya/selection.py::SelectionSlots.chk007`
+- `slots/maya/selection.py::SelectionSlots.cmb001`
+- `slots/maya/selection.py::SelectionSlots.cmb001_init`
+- `slots/maya/selection.py::SelectionSlots.cmb002`
+- `slots/maya/selection.py::SelectionSlots.cmb002_init`
+- `slots/maya/selection.py::SelectionSlots.list000`
+- `slots/maya/selection.py::SelectionSlots.list000_init`
+- `slots/maya/selection.py::SelectionSlots.list001`
+- `slots/maya/selection.py::SelectionSlots.tb000`
+- `slots/maya/selection.py::SelectionSlots.tb000_init`
+- `slots/maya/selection.py::SelectionSlots.tb001`
+- `slots/maya/selection.py::SelectionSlots.tb001_init`
+- `slots/maya/selection.py::SelectionSlots.tb002`
+- `slots/maya/selection.py::SelectionSlots.tb002_init`
+- `slots/maya/selection.py::SelectionSlots.tb003`
+- `slots/maya/selection.py::SelectionSlots.tb003_init`
+- `slots/maya/selection.py::SelectionSlots.tb004_init`
 - `slots/maya/settings.py::SettingsSlots`
 - `slots/maya/settings.py::SettingsSlots.tb001`
 - `slots/maya/symmetry.py::SymmetrySlots`

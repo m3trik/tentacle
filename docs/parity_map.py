@@ -68,55 +68,6 @@ HANDLERS = {
         "list000:Extend (Options)": {"status": "na", "reason": "Tolerance-based parametric curve extension (extend by a distance/tolerance along the curve's own parameterization) with its dedicated option box; the rolled btk.NurbsUtils.extend_curve covers the plain linear Extend leaf, but the parametric options surface has no CV-level equivalent."},
         "list000:Extend on Surface": {"status": "na", "reason": "Extending a curve constrained to a NURBS surface has no Blender analogue (no parametric surface-constrained curve concept) -- see Extend (Options); the plain Extend leaf is covered by the rolled btk.NurbsUtils.extend_curve."},
     },
-    "selection": {
-        "chk000": {"status": "na", "reason": "QRadioButton siblings are auto-exclusive; Maya's manual "
-                                             "uncheck handlers are redundant on Blender"},
-        "chk001": {"status": "na", "reason": "see chk000"},
-        "chk002": {"status": "na", "reason": "see chk000"},
-        # list001 "Convert To" (the cmb003 combo until 2026-08-16; now an ExpandableList on the
-        # panel AND the submenu, both forks via SelectionMixin) -- ported 2026-07-06 from 7 to 15
-        # of Maya's 20 items (Vertex
-        # Perimeter, Contained Edges, Edge Perimeter, Contained Faces, Face Path, Face
-        # Perimeter, UV Shell, Shell Border added; touching-vs-contained on plain Faces/Edges
-        # fixed to match Maya -- see btk.Selection.convert_to's docstring). UV Shell Border / UV
-        # Perimeter / UV Edge Loop were BUILT 2026-07-13 (bmesh UV-graph helpers on btk.Selection --
-        # select_uv_shell_border / select_uv_perimeter / select_uv_edge_loop, keyed off a single
-        # UV-boundary test: a mesh-open edge OR a UV discontinuity where an edge's two faces assign
-        # different UVs to a shared vert, i.e. a seam that splits a manifold surface in UV space).
-        # Verified headlessly (blendertk/test/test_selection.py) against the two extremes that expose
-        # a wrong boundary test -- a smart-projected cube (6 one-face islands => every edge a seam)
-        # and a seamless grid (one island => no internal seams) -- incl. UV Edge Loop truncating a
-        # cross-loop at a real re-unwrapped seam (uv=3 < native=6). The 2 below stay genuinely NOT
-        # built (no Blender component analogue), not silently dropped:
-        "list001:Vertex Faces": {"status": "na", "reason": "Maya's vtxFace (PolySelectConvert 5) is its own per-corner sub-component type (like a split-normal/face-corner element, cmds type 70) -- a hybrid vertex-belonging-to-one-face component with no Blender selection-mode analogue (Blender's VERT/EDGE/FACE modes have no fourth 'corner' mode); Blender's nearest concept (custom split normals per-loop) lives in a completely different workflow (Mesh > Normals), not a selectable component."},
-        "list001:UV's": {"status": "na", "reason": "Maya's UV component (PolySelectConvert 4, cmds .map[]) is a persistent 3D-viewport component type; Blender has no such thing -- UV coordinates are only selectable from within the UV Editor's own uv_select_mode, not the 3D viewport's VERT/EDGE/FACE modes. UV Shell/UV Shell Border/UV Perimeter/UV Edge Loop are the UV-domain items with viewport-reachable bmesh analogues and ARE built (2026-07-13)."},
-        # list000 "Select by Type" leaves -- code-built control keys sourced from
-        # btk.Selection._SELECTION_CONFIG (blendertk/blendertk/edit_utils/selection.py), the
-        # mirror of mayatk's Selection._SELECTION_CONFIG. Ported 2026-07-04: the category
-        # breadth now matches mayatk 1:1 (Animation/Dynamics/Geometry/Hierarchy/Scene/UV, same
-        # leaf labels); these entries are the leaves that genuinely have no Blender Object-level
-        # analogue (sub-object / bone / brush-datablock concepts) and were intentionally NOT
-        # built, rather than silently dropped -- see the module's own docstring for the full
-        # per-leaf reasoning.
-        "list000:Clusters": {"status": "done-elsewhere", "to": "list000 Clusters (Hook-modifier carriers)", "reason": "BUILT 2026-07-11: the Blender Selection config now ships a 'Clusters' leaf in the same Animation category as Maya, selecting meshes that carry a Hook modifier (btk.Selection._select_by_modifier(objs,'HOOK')) -- Blender's control-object-driven per-vertex deformer, the direct analogue of Maya's cluster deformer, delivered via the same modifier-carrier idiom as the nCloths->CLOTH / Fluids->FLUID leaves. (The static sweep does not track list000 leaves, so this entry is documentation of the mapping decision.)"},
-        "list000:IK Handles": {"status": "na", "reason": "Maya IK handles are their own DAG transform; Blender IK is a bone-level Constraint living inside an Armature's data, not a separate selectable Object."},
-        "list000:Joints": {"status": "na", "reason": "Maya joints are DAG transforms; Blender bones live inside Armature data (pose bones), not as separate selectable Objects -- only the Armature Object itself is selectable."},
-        "list000:Brushes": {"status": "na", "reason": "Maya paint-effects brush nodes; Blender sculpt/paint brushes are tool datablocks (bpy.data.brushes), not selectable scene Objects."},
-        "list000:Dynamic Constraints": {"status": "na", "reason": "Maya's Nucleus dynamicConstraint (point/slide pin constraints for nCloth/nParticle) has no Blender analogue -- cloth pinning uses vertex groups, not constraint Objects. (Rigid Constraints, the OTHER Maya constraint leaf, DOES have a real analogue -- obj.rigid_body_constraint on an Empty -- and IS built; only the Nucleus dynamic-constraint concept is absent.)"},
-        "list000:Sculpts": {"status": "na", "reason": "Maya's implicitSphere/sculpt deformer nodes; Blender Sculpt Mode is a mesh edit mode, not a selectable Object type or deformer node."},
-        "list000:Wires": {"status": "done-elsewhere", "to": "list000 Wires (Curve-modifier carriers)", "reason": "BUILT 2026-07-11: the Blender Selection config now ships a 'Wires' leaf in the same Dynamics category as Maya, selecting meshes that carry a Curve modifier (btk.Selection._select_by_modifier(objs,'CURVE')) -- Blender's curve-driven mesh-deform (bpy.types.CurveModifier), the analogue of Maya's wire deformer, via the same modifier-carrier idiom. (list000 leaves are not tracked by the static sweep; documentation of the mapping.)"},
-        "list000:Templated Geometry": {"status": "na", "reason": "Maya's legacy 'template' display mode (dashed wireframe, non-selectable/non-renderable) has no Blender display-mode counterpart; Non-Selectable Geometry (hide_select) and Hidden Geometry (hide_get) already cover the adjacent non-selectable/hidden capabilities."},
-        # list000:Back-Facing / Front-Facing: BUILT 2026-07-13. The blendertk Selection config's UV
-        # category now ships both leaves (edit_utils/selection.py _SELECTION_CONFIG["UV"]) via
-        # _select_uv_face_orientation -- a bmesh signed-UV-area (shoelace over face.loops[].uv) pass:
-        # negative area = flipped/mirrored winding (Back-Facing), positive = normal (Front-Facing).
-        # Object-level granularity (selects objects CONTAINING such a face), matching the sibling UV
-        # leaves (Texture Borders / Unmapped). This is the UV-space winding filter, NOT the camera-
-        # depth backface pref (that's the separate, already-handled chk004). Verified headlessly
-        # (test_selection.py: a CCW-UV quad -> Front-Facing, a CW-UV quad -> Back-Facing). list000
-        # leaves are not tracked by the static sweep, so this is documentation of the built mapping.
-        "list000:nParticles": {"status": "replaced", "to": "list000 Particles", "reason": "Blender has one unified particle system (no separate classic-vs-Nucleus split like Maya's legacy Particles vs nParticles); EMITTER-type particle systems cover both roles under the single 'Particles' leaf."},
-    },
     "transform": {
         "chk021": {"status": "replaced", "to": "apply-model tb004",
                    "reason": "widget exists on both; Maya applies live on toggle, Blender reads at apply"},
@@ -191,7 +142,6 @@ HANDLERS = {
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
     "animation": {},
-    "polygons": {},
     "rigging": {},
     "subdivision": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
@@ -250,18 +200,6 @@ CONTROLS_SLOTS = {
         "s002": {"status": "na", "reason": "Revolve 'Degree' = NURBS surface degree; the Screw-modifier mesh has no degree — explicitly excused in the blender slot's tb000 comment."},
         "s006": {"status": "na", "reason": "Revolve 'Tolerance' value pairs with chk009's use-tolerance NURBS build flag; excused together in the blender slot's tb000 comment."},
         "s007": {"status": "na", "reason": "Loft 'Angle Loft: Spans' pairs with chk010's angle-loft mode; excused together with angle-loft in the blender slot's documented drops."},
-    },
-    "polygons": {
-        "chk016": {"status": "na", "reason": "Snap-Closest-Verts Freeze Transforms toggle: Maya-only cmds world-query workaround (btk.snap_closest_verts computes exact world-space math under any transform — its docstring says so). The Blender port initially carried it, where freeze(store=False) permanently zeroed both objects' channels for zero benefit; removed in the 2026-07 slot-audit fix sweep."},
-        "chk008": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet U-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
-        "chk009": {"status": "replaced", "to": "tb007 Cuts model (s009:number_cuts)", "reason": "Maya polySubdivideFacet V-split toggle; Blender tb007 uses native mesh.subdivide(number_cuts) which has no U/V direction"},
-        # chk023 (Uninstance-before-Combine) + chk024 (Uninstance-before-Separate) BUILT
-        # 2026-07-28: both hazards verified REAL in headless Blender 5.1 (join builds into the
-        # active object's shared datablock -> a linked sibling mutates into the combined
-        # geometry, refuting the 'may not exist' hypothesis; mesh.separate deletes the
-        # separated faces from every sibling). btk.combine_objects/separate_objects gained
-        # uninstance=True (default, mirroring mtk) via the existing NodeUtils.uninstance;
-        # slot checkboxes mirror Maya's names/defaults. No delta.
     },
     "rendering": {
         "chk001": {"status": "na", "reason": "IPR launches a Maya Render View interactive session via renderer-registered MEL procs (RenderUtils.start_ipr); Blender's interactive render is the rendered-viewport shading state, not a render-op option — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
@@ -343,20 +281,6 @@ CONTROLS_SLOTS = {
         # no packBox analogue), after tb000's existing tile-delta move. Same items/default as
         # Maya. No delta.
     },
-    "selection": {
-        "cmb002": {"status": "pending", "reason": "Rig Picking Mode (2026-10-14): mtk.Selection.set_rig_selection_mode lifts the display lock Maya rigs put on skinned meshes (shape overrideEnabled under a rig-driven overrideDisplayType) and, for Meshes Only, masks curves/joints via selectType. blendertk rigs lock no mesh today; a port would map Meshes Only to hide_select on armatures/curves. cmb002_init hides it in Blender."},
-        "chk003": {"status": "replaced", "to": "_ISLAND_DELIMIT model",
-                   "reason": "Maya Lock-Values+normal-range island model -> native select_linked delimiters"},
-        "s002": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
-        "s004": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
-        "s005": {"status": "replaced", "to": "_ISLAND_DELIMIT model", "reason": "see chk003"},
-        # chk009 (Reverse Order) BUILT 2026-07-28 with the cmb001 Reorder Selection port: the
-        # rolled btk.SelectionOrder tracker gives Blender an object selection order to reorder
-        # (depsgraph-diff click recording + explicit set_order), and btk.reorder_objects mirrors
-        # mtk's sort methods (creation_time -> session_uid, documented divergence). The old
-        # "no ordered selection" na is retired — that was the missing primitive, now rolled.
-        # No delta.
-    },
     "scene": {
         "b006": {"status": "renamed", "to": "b_cleanup", "reason": "see HANDLERS['scene']['b006']"},
         "b009": {"status": "na", "reason": "see HANDLERS['scene']"},
@@ -409,15 +333,6 @@ DEFAULT_DELTAS = {
         "s003.setValue": "Blender's Screw modifier takes ONE sweep angle computed as end-start (tb000: math.radians(s004-s003)); start=0 is the neutral origin. Matching Maya's 3 alongside its 3 end sweep would give a 0-degree (degenerate) revolve. Maya's 3/3 is itself drift from cmds.revolve defaults (ssw=0, esw=360).",
         "s004.setValue": "Screw has no independent end angle, only total sweep (end-start). 360 with start=0 = full revolution, matching cmds.revolve's documented esw default and Screw's native 360; matching Maya's 3 would make sweep 3-3=0 degrees (no geometry).",
         "s005.set_limits": "Value assigned directly to ScrewModifier.steps, whose RNA range is [2, 10000]; Maya's [0] minimum would allow 0/1 steps that Blender's property rejects/clamps. [1, 256] reflects Blender's supported revolution-step range.",
-    },
-    "polygons": {
-        "s001.setValue": "Blender s001 drives mesh.inset(thickness) in scene METERS; Maya's polyExtrudeFacet(offset) is cm-scale. 0.1 m is the meter-scale equivalent of a sensible default; Maya's 2.0 would be an absurd inset in Blender units.",
-        "s001.set_limits": "Same [0,100] range but Blender adds step=0.01/decimals=3 needed to edit a meter-scale inset thickness; Maya's coarse step is unusable at that scale.",
-        "s002.setValue": "0.0001 is mesh.remove_doubles' native threshold default (meters) and the b005 reset path resets to exactly that; Maya's 0.0005 is polyMergeVertex tolerance in cm — different units, and forcing it would desync b005's documented reset.",
-        "s002.set_limits": "Range/precision tuned to remove_doubles' meter-unit threshold (max 10, 4 decimals); Maya's [0,1000,…,5] is cm-scale merge tolerance — different operator units, not drift.",
-        "s004.setValue": "Different operator parameter: Maya s004 = int Divisions for polyExtrudeFacet(divisions); Blender s004 = signed distance for transform.shrink_fatten(value), whose no-op default is 0.0 (handler skips shrink_fatten when 0).",
-        "s004.set_limits": "Blender s004 is a signed float offset for shrink_fatten, so [-100,100,0.01,3] (negative = inward) is required; Maya's [0] is a min-only bound for an integer division count — different semantics.",
-        "s004.setPrefix": "'Offset: ' correctly labels the Blender control (shrink_fatten normal offset after extrude — Blender extrude has no divisions param); 'Divisions: ' would be false.",
     },
     "rendering": {
         "cmb016.setCurrentIndex": "Not a real delta: items are populated after add() via cmb016.addItem(label, data) (per-item quality data), then cmb016.setCurrentIndex(5) is called immediately — matching Maya's index 5. A setCurrentIndex kwarg inside add() would run on an empty combo (no-op); the static tool can't see the post-population call.",

@@ -1,763 +1,689 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.polygons.
+"""Regression tests for tentacle.slots.polygons, the one Polygons Slots class.
 
-The existing test_polygons_circularize covers b000. This file fills in
-the rest of the slot's behavioral surface — the units worth pinning are
-those with conditional routing or state-toggle logic:
-
-- tb003 (Extrude): Maya's own Extrude on the real selection (any mask),
-  with the option box's values -- and Maya's own settings left intact.
-- tb007 (Divide Facet): mode/dv/u/v/subdMethod values driven by a 3-way
-  U/V/Tris checkbox state, plus an "all U+V" special case.
-- tb008 (Boolean): 3 ops × interactive matrix (6 dispatch paths).
-- tb009 (Snap Closest Verts): exact-2-objects gate, ignores other counts.
-- tb005 (Detach): chk020 negation (separate_each → not keep_faces_together).
-- b005 (Set Distance): ValueError on != 2 vertices, falls back to default.
-- b006 (Bridge): RuntimeError fallback to bridge_connected_edges.
-- b038 (Assign Invisible): toggles based on current polyHole(q=True) state.
-- b009 (Collapse Component): faces collapse each (per object, instances folded,
-  any mask); edges/verts merge at one center; refusals named; one undo.
-- b011 / b007 marking-menu key names (drift detector).
+It reaches its host only through ``self.tk``: a fake toolkit (a MagicMock
+switchboard's ``tk``) records what each slot asks of it (plain pytest), and in
+Maya the same class drives the real ``mtk`` (``run_tests.py --in-maya``). Pinned
+here: each slot's call and arguments, how it words an empty result or a refusal,
+the option boxes' host tags, and in Maya the behaviors worth a real scene --
+Extrude's settings swap, Divide Facet's subdivision values, Collapse routing on
+the selection, Boolean's dispatch, Assign Hole's toggle, Set Distance, Bridge's
+fallback. The operations themselves are tested in mayatk and blendertk.
 """
 import unittest
+from types import SimpleNamespace
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
-
-cmds = maya_module("maya.cmds")
-mel = maya_module("maya.mel")
-polygons_module = maya_module("tentacle.slots.maya.polygons")
-
-
-class _FakeChk:
-    def __init__(self, state):
-        self._state = state
-
-    def isChecked(self):
-        return self._state
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.polygons import PolygonsSlots
 
 
-class _FakeSpin:
-    def __init__(self, val):
-        self._v = val
-
-    def value(self):
-        return self._v
-
-
-class _FakeCombo:
-    def __init__(self, text):
-        self._t = text
-
-    def currentText(self):
-        return self._t
+def _value(v):
+    """A widget answering both isChecked() and value()/currentText()."""
+    return SimpleNamespace(
+        isChecked=lambda: v, value=lambda: v, currentText=lambda: v
+    )
 
 
-class _FakeMenu:
-    def __init__(self, **attrs):
-        for k, v in attrs.items():
-            setattr(self, k, v)
+def _widget(**values):
+    """An option-box widget whose menu holds *values* by objectName."""
+    menu = SimpleNamespace(**{name: _value(v) for name, v in values.items()})
+    return SimpleNamespace(option_box=SimpleNamespace(menu=menu))
 
 
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
+class _SlotsCase(unittest.TestCase):
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = PolygonsSlots(self.sb)
+        self.tk = self.sb.tk
+
+    def messages(self):
+        return [c.args[0] for c in self.sb.message_box.call_args_list]
 
 
-class _FakeWidget:
-    def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
+class TestMergeVertices(_SlotsCase):
+    def test_tb000_merges_at_the_distance(self):
+        self.tk.EditUtils.merge_vertices.return_value = None
+        self.slots.tb000(_widget(s002=0.01))
+        self.tk.EditUtils.merge_vertices.assert_called_once_with(None, tolerance=0.01)
+        self.assertEqual(self.messages(), [])
+
+    def test_tb000_with_nothing_selected_says_so(self):
+        self.tk.EditUtils.merge_vertices.return_value = []
+        self.slots.tb000(_widget(s002=0.01))
+        self.assertIn("Merge Vertices", self.messages()[0])
+
+    def _spin(self):
+        spin = mock.MagicMock()
+        self.slots.ui = SimpleNamespace(
+            tb000=SimpleNamespace(option_box=SimpleNamespace(menu=SimpleNamespace(s002=spin)))
+        )
+        return spin
+
+    def test_b005_sets_the_measured_distance_and_leaves_component_mode(self):
+        spin = self._spin()
+        self.tk.Components.adjusted_distance_between_vertices.return_value = 0.5
+        self.slots.b005()
+        self.tk.Components.adjusted_distance_between_vertices.assert_called_once_with(
+            None, None, adjust=0.1, as_percentage=True
+        )
+        spin.setValue.assert_called_once_with(0.5)
+        self.tk.CoreUtils.ensure_object_mode.assert_called_once_with()
+        self.assertEqual(self.messages(), [])
+
+    def test_b005_without_two_vertices_resets_and_says_so(self):
+        spin = self._spin()
+        self.tk.Components.adjusted_distance_between_vertices.return_value = None
+        self.slots.b005()
+        spin.setValue.assert_called_once_with(PolygonsSlots.MERGE_DISTANCE)
+        self.tk.CoreUtils.ensure_object_mode.assert_not_called()
+        self.assertIn("two vertices", self.messages()[0])
 
 
-class _FakeMarkingMenu:
-    def __init__(self):
-        self.shown = []
+class TestObjectOperations(_SlotsCase):
+    def test_tb002_separate_by_material_groups_and_selects(self):
+        self.slots.tb002(_widget(chk021=True, chk022=False, chk024=True))
+        self.tk.EditUtils.separate_objects.assert_called_once_with(
+            None,
+            by_material=True,
+            group_by_material=True,
+            rename=False,
+            uninstance=True,
+            select=True,
+        )
 
-    def show(self, name):
-        self.shown.append(name)
+    def test_tb004_combine_needs_a_selection(self):
+        self.tk.CoreUtils.selected_objects.return_value = []
+        self.slots.tb004(_widget(chk003=False, chk004=False, s003=1.0, chk023=True))
+        self.tk.EditUtils.combine_objects.assert_not_called()
+        self.assertEqual(self.messages(), [Slots.NOTHING_SELECTED])
+
+    def test_tb004_combine_passes_its_options(self):
+        self.tk.CoreUtils.selected_objects.return_value = ["a", "b"]
+        self.tk.EditUtils.combine_objects.return_value = "a"
+        self.slots.tb004(_widget(chk003=True, chk004=True, s003=5.0, chk023=False))
+        self.tk.EditUtils.combine_objects.assert_called_once_with(
+            None, group_by_material=True, cluster_by_distance=True, threshold=5.0,
+            uninstance=False,
+        )
+        self.assertEqual(self.messages(), [])
+
+    def test_tb004_one_mesh_is_not_enough(self):
+        self.tk.CoreUtils.selected_objects.return_value = ["a"]
+        self.tk.EditUtils.combine_objects.return_value = None
+        self.slots.tb004(_widget(chk003=False, chk004=False, s003=1.0, chk023=True))
+        self.assertIn("two or more", self.messages()[0])
+
+    def test_tb005_one_object_per_face_turns_keep_faces_together_off(self):
+        self.tk.CoreUtils.selected_objects.return_value = ["f"]
+        self.tk.EditUtils.detach_components.return_value = ["piece"]
+        self.slots.tb005(_widget(chk014=True, chk015=True, chk020=True))
+        self.tk.EditUtils.detach_components.assert_called_once_with(
+            None, duplicate=True, separate=True, keep_faces_together=False
+        )
+        # the new object(s) read as objects
+        self.tk.CoreUtils.ensure_object_mode.assert_called_once_with()
+
+    def test_tb005_in_place_stays_in_component_mode(self):
+        self.tk.CoreUtils.selected_objects.return_value = ["f"]
+        self.tk.EditUtils.detach_components.return_value = []
+        self.slots.tb005(_widget(chk014=False, chk015=False, chk020=False))
+        self.tk.CoreUtils.ensure_object_mode.assert_not_called()
+        self.assertEqual(self.messages(), [])
+
+    def test_tb005_nothing_detached_says_so(self):
+        self.tk.CoreUtils.selected_objects.return_value = ["obj"]
+        self.tk.EditUtils.detach_components.return_value = []
+        self.slots.tb005(_widget(chk014=True, chk015=True, chk020=False))
+        self.assertIn("Detach", self.messages()[0])
+
+    def test_tb008_boolean_passes_the_operation_in_lowercase(self):
+        self.tk.EditUtils.boolean_objects.return_value = ["result"]
+        self.slots.tb008(_widget(cmb011="Intersection", chk017=True))
+        self.tk.EditUtils.boolean_objects.assert_called_once_with(
+            None, operation="intersection", interactive=True
+        )
+
+    def test_tb008_needs_two_meshes(self):
+        self.tk.EditUtils.boolean_objects.return_value = []
+        self.slots.tb008(_widget(cmb011="Union", chk017=False))
+        self.assertIn("two or more", self.messages()[0])
+
+    def test_tb009_snaps_the_source_onto_the_target(self):
+        self.tk.Snap.source_and_target.return_value = (["a"], "b")
+        self.tk.Snap.snap_to_closest_vertex.return_value = 8
+        self.slots.tb009(_widget(s005=5.0, chk016=True))
+        self.tk.Snap.snap_to_closest_vertex.assert_called_once_with(
+            "a", "b", tolerance=5.0, freeze_transforms=True
+        )
+        self.assertEqual(self.messages(), [])
+
+    def test_tb009_needs_exactly_two_meshes(self):
+        for pair in (([], None), (["a", "c"], "b")):
+            with self.subTest(pair=pair):
+                self.sb.message_box.reset_mock()
+                self.tk.Snap.source_and_target.return_value = pair
+                self.slots.tb009(_widget(s005=5.0, chk016=True))
+                self.assertIn("Select two meshes", self.messages()[0])
+        self.tk.Snap.snap_to_closest_vertex.assert_not_called()
+
+    def test_tb009_nothing_within_tolerance_says_so(self):
+        self.tk.Snap.source_and_target.return_value = (["a"], "b")
+        self.tk.Snap.snap_to_closest_vertex.return_value = 0
+        self.slots.tb009(_widget(s005=5.0, chk016=False))
+        self.assertIn("No vertices", self.messages()[0])
 
 
-class _FakeHandlers:
-    def __init__(self):
-        self.marking_menu = _FakeMarkingMenu()
+class TestComponentOperations(_SlotsCase):
+    def test_tb003_extrude_passes_its_options(self):
+        self.slots.tb003(_widget(chk002=False, s004=3, s011=0.25))
+        self.tk.Components.extrude.assert_called_once_with(
+            None, keep_faces_together=False, divisions=3, thickness=0.25
+        )
+
+    def test_tb006_inset_passes_its_options(self):
+        self.slots.tb006(_widget(s001=0.2, s010=-0.1, chk018=True))
+        self.tk.Components.inset_faces.assert_called_once_with(
+            None, offset=0.2, depth=-0.1, individual=True
+        )
+
+    def test_tb007_divide_passes_its_options(self):
+        self.slots.tb007(_widget(chk008=True, chk009=False, chk010=False, s009=2))
+        self.tk.Components.divide_faces.assert_called_once_with(
+            None, u=True, v=False, cuts=2, tris=False
+        )
+
+    BUTTONS = {
+        "b000": "circularize",
+        "b001": "fill_holes",
+        "b003": "symmetrize",
+        "b006": "bridge_edges",
+        "b022": "connect_components",
+        "b032": "poke_faces",
+        "b051": "offset_edge_loops",
+        "b053": "edit_edge_flow",
+    }
+
+    def test_each_button_runs_its_operation_on_the_selection(self):
+        for slot, op in self.BUTTONS.items():
+            with self.subTest(slot=slot):
+                getattr(self.tk.Components, op).return_value = ["mesh"]
+                getattr(self.slots, slot)()
+                getattr(self.tk.Components, op).assert_called_once_with(None)
+        self.assertEqual(self.messages(), [])
+
+    def test_each_button_says_when_there_is_nothing_to_act_on(self):
+        for slot, op in self.BUTTONS.items():
+            with self.subTest(slot=slot):
+                self.sb.message_box.reset_mock()
+                getattr(self.tk.Components, op).return_value = []
+                getattr(self.slots, slot)()
+                self.assertEqual(len(self.messages()), 1)
+
+    def test_a_refusal_is_shown_as_the_host_words_it(self):
+        self.tk.Components.circularize.side_effect = RuntimeError(
+            "Circularize needs the LoopTools add-on"
+        )
+        self.slots.b000()
+        self.assertEqual(self.messages(), ["Circularize needs the LoopTools add-on"])
+
+    def test_b009_collapse_reports(self):
+        cases = (
+            (([], []), "Nothing to collapse"),
+            ((["f"], ["e"]), "left as they are"),
+            ((["f"], []), None),
+        )
+        for result, expected in cases:
+            with self.subTest(result=result):
+                self.sb.message_box.reset_mock()
+                self.tk.Components.collapse_components.return_value = result
+                self.slots.b009()
+                if expected:
+                    self.assertIn(expected, self.messages()[0])
+                else:
+                    self.assertEqual(self.messages(), [])
+
+    def test_b034_wedge_says_when_nothing_wedged(self):
+        for result, says in ((0, True), ([], True), (1, False)):
+            with self.subTest(result=result):
+                self.sb.message_box.reset_mock()
+                self.tk.EditUtils.wedge.return_value = result
+                self.slots.b034()
+                self.assertEqual(bool(self.messages()), says)
+        self.tk.EditUtils.wedge.assert_called_with(None)
+
+    def test_b038_reports_the_new_hole_state(self):
+        self.tk.Components.toggle_face_holes.return_value = (True, ["f1", "f2"])
+        self.slots.b038()
+        self.assertIn("assigned as holes", self.messages()[0])
+        self.tk.Components.toggle_face_holes.return_value = []
+        self.slots.b038()
+        self.assertIn("face selection", self.messages()[1])
+
+    def test_b049_slide_shows_a_refusal(self):
+        self.tk.Components.slide_edges.side_effect = ValueError("Slide needs a mesh.")
+        self.slots.b049()
+        self.tk.Components.slide_edges.assert_called_once_with(None)
+        self.assertEqual(self.messages(), ["Slide needs a mesh."])
+
+    def test_target_weld_at_the_target_or_the_center(self):
+        self.slots.b043()
+        self.tk.TargetWeld.activate.assert_called_with(merge_to_center=False)
+        self.slots.b008()
+        self.tk.TargetWeld.activate.assert_called_with(merge_to_center=True)
+        self.tk.TargetWeld.activate.side_effect = RuntimeError("No 3D viewport")
+        self.slots.b043()
+        self.assertEqual(self.messages(), ["No 3D viewport"])
 
 
-class _RecordedSb:
-    def __init__(self):
-        self.messages = []
-        self.handlers = _FakeHandlers()
+class TestToolsAndWindows(_SlotsCase):
+    def test_viewport_tools_by_their_shared_names(self):
+        for slot, tool in (("b012", "Multi-Cut"), ("b047", "Insert Edgeloop")):
+            with self.subTest(slot=slot):
+                getattr(self.slots, slot)()
+                self.tk.UiUtils.set_tool.assert_called_with(tool)
+                self.assertIn(tool, self.messages()[-1])
 
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
+    def test_b007_b011_open_the_tool_windows(self):
+        self.slots.b007()
+        self.slots.b011()
+        self.assertEqual(
+            self.sb.handlers.marking_menu.show.call_args_list,
+            [mock.call("bridge"), mock.call("bevel")],
+        )
 
 
-class _MaskNamesNoType(unittest.TestCase):
-    """Selection-type mask cleared to how multi-component mode leaves it.
+class TestOptionBoxes(_SlotsCase):
+    def _init(self, name):
+        created = {}
+        widget = mock.MagicMock()
+        widget.option_box.menu.add.side_effect = lambda *a, **k: created.setdefault(
+            k.get("setObjectName"), mock.MagicMock()
+        )
+        getattr(self.slots, f"{name}_init")(widget)
+        return created
 
-    Slots must route on the selection itself: with this mask no vertex / edge
-    / facet query is true (under mayapy standalone every query answers None).
-    The three flags are restored so the GUI suite run is left as found.
-    """
+    def test_freeze_transforms_is_maya_s(self):
+        created = self._init("tb009")
+        created["chk016"].setProperty.assert_called_once_with("requires", "maya")
+        self.sb.apply_visibility_policy.assert_any_call(created["chk016"])
+        created["s005"].setProperty.assert_not_called()
 
-    MASK = ("vertex", "edge", "facet")
+    def test_divide_s_one_way_splits_are_maya_s(self):
+        created = self._init("tb007")
+        for name in ("chk008", "chk009"):
+            created[name].setProperty.assert_called_once_with("requires", "maya")
+        for name in ("chk010", "s009"):
+            created[name].setProperty.assert_not_called()
+
+    def test_inset_default_is_two_centimetres_in_working_units(self):
+        self.tk.Units.convert.return_value = 0.02
+        self._init("tb006")
+        self.tk.Units.convert.assert_called_once_with(2.0, "cm", "working")
+
+    def test_boolean_keeps_maya_s_item_order(self):
+        widget = mock.MagicMock()
+        self.slots.tb008_init(widget)
+        first = widget.option_box.menu.add.call_args_list[0]
+        self.assertEqual(first.kwargs["addItems"], ["Union", "Difference", "Intersection"])
+        self.assertEqual(first.kwargs["setCurrentText"], "Difference")
+
+
+# --------------------------------------------------------------------------- in Maya
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class _MayaCase(_SlotsCase):
+    """The same class over the real ``mtk``."""
 
     def setUp(self):
-        self._mask = {m: cmds.selectType(q=True, **{m: True}) for m in self.MASK}
-
-    def tearDown(self):
-        for m, on in self._mask.items():
-            if on is not None:  # None: standalone keeps no mask
-                cmds.selectType(**{m: on})
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.mtk = maya_module("mayatk")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = self.mtk
+        self.tk = self.mtk
+        self.addCleanup(self.cmds.file, new=True, force=True)
 
     def clear_mask(self):
-        cmds.selectType(**{m: False for m in self.MASK})
+        """The selection-type mask as multi-component mode leaves it (no type):
+        the operations must route on the selection itself. Restored after."""
+        mask = ("vertex", "edge", "facet")
+        saved = {m: self.cmds.selectType(q=True, **{m: True}) for m in mask}
+        self.addCleanup(
+            lambda: [
+                self.cmds.selectType(**{m: on}) for m, on in saved.items() if on is not None
+            ]
+        )
+        self.cmds.selectType(**{m: False for m in mask})
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb003Extrude(_MaskNamesNoType):
-    """tb003 runs Maya's own Extrude on the real selection with the option
-    box's values.
-
-    Real geometry, no command mocks. The old mocks pinned a no-op
-    ``polyExtrudeFacet(edit=1, ...)`` call: Maya's Extrude reads optionVars,
-    so the option box was silently ignored, and a ``selectType`` mask gate
-    dropped face selections made in multi-component mode.
-    """
-
+class TestExtrudeInMaya(_MayaCase):
     OPTION_VARS = (
         "polyKeepFacetsGrouped",
         "polyExtrudeFaceDivisions",
         "polyExtrudeEdgeDivisions",
         "polyExtrudeVertexDivisions",
+        "polyExtrudeFaceThickness",
+        "polyExtrudeEdgeThickness",
     )
 
     def setUp(self):
         super().setUp()
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-        self._saved = {
-            n: cmds.optionVar(q=n) if cmds.optionVar(exists=n) else None
-            for n in self.OPTION_VARS
-        }
+        cmds = self.cmds
+        saved = {n: cmds.optionVar(q=n) if cmds.optionVar(exists=n) else None for n in self.OPTION_VARS}
+
+        def restore():
+            for n, v in saved.items():
+                if v is None:
+                    cmds.optionVar(remove=n)
+                elif isinstance(v, float):
+                    cmds.optionVar(floatValue=(n, v))
+                else:
+                    cmds.optionVar(intValue=(n, v))
+
+        self.addCleanup(restore)
         # Maya's own Extrude settings: the slot must neither obey nor clobber them.
-        for n in self.OPTION_VARS:
+        for n in self.OPTION_VARS[:4]:
             cmds.optionVar(intValue=(n, 1))
 
-    def tearDown(self):
-        for n, v in self._saved.items():
-            if v is None:
-                cmds.optionVar(remove=n)
-            else:
-                cmds.optionVar(intValue=(n, v))
-        cmds.file(new=True, force=True)
-        super().tearDown()
-
-    def _extrude(self, *items, keep_together=False, divisions=3):
-        cmds.select(items)
+    def _extrude(self, *items, keep_together=False, divisions=3, thickness=0.0):
+        self.cmds.select(items)
         self.clear_mask()
-        menu = _FakeMenu(chk002=_FakeChk(keep_together), s004=_FakeSpin(divisions))
-        self.instance.tb003(_FakeWidget(menu))
+        self.slots.tb003(_widget(chk002=keep_together, s004=divisions, s011=thickness))
 
     def _node(self, node_type):
-        nodes = cmds.ls(type=node_type) or []
+        nodes = self.cmds.ls(type=node_type) or []
         self.assertEqual(len(nodes), 1, f"expected one {node_type}, got {nodes}")
         return nodes[0]
 
-    @staticmethod
-    def _center(face):
-        pts = cmds.xform(face, q=True, ws=True, t=True)
-        n = len(pts) // 3
-        return [sum(pts[i::3]) / n for i in range(3)]
-
     def test_no_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.tb003(
-            _FakeWidget(_FakeMenu(chk002=_FakeChk(True), s004=_FakeSpin(1)))
-        )
-        self.assertTrue(self.instance.sb.messages)
-        self.assertFalse(cmds.ls(type="polyExtrudeFace"))
+        self.cmds.select(clear=True)
+        self.slots.tb003(_widget(chk002=True, s004=1, s011=0.0))
+        self.assertTrue(self.messages())
+        self.assertFalse(self.cmds.ls(type="polyExtrudeFace"))
 
-    def test_single_face_plane_uses_option_box_values(self):
-        plane = cmds.polyPlane(sx=1, sy=1)[0]
-        self._extrude(f"{plane}.f[0]", keep_together=False, divisions=3)
+    def test_a_face_uses_the_option_box_values(self):
+        plane = self.cmds.polyPlane(sx=1, sy=1)[0]
+        self._extrude(f"{plane}.f[0]", keep_together=False, divisions=3, thickness=0.5)
         node = self._node("polyExtrudeFace")
-        self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
-        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 3)
+        self.assertFalse(self.cmds.getAttr(f"{node}.keepFacesTogether"))
+        self.assertEqual(self.cmds.getAttr(f"{node}.divisions"), 3)
+        self.assertAlmostEqual(self.cmds.getAttr(f"{node}.thickness"), 0.5, places=4)
 
-    def test_edge_extrude_uses_option_box_values(self):
-        cube = cmds.polyCube()[0]
-        self._extrude(f"{cube}.e[0]", keep_together=False, divisions=2)
-        node = self._node("polyExtrudeEdge")
-        self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
-        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 2)
-
-    def test_vertex_extrude_uses_divisions(self):
-        cube = cmds.polyCube()[0]
+    def test_an_edge_and_a_vertex_extrude_under_any_mask(self):
+        cube = self.cmds.polyCube()[0]
+        self._extrude(f"{cube}.e[0]", divisions=2)
+        self.assertEqual(self.cmds.getAttr(f"{self._node('polyExtrudeEdge')}.divisions"), 2)
         self._extrude(f"{cube}.vtx[0]", divisions=2)
-        node = self._node("polyExtrudeVertex")
-        self.assertEqual(cmds.getAttr(f"{node}.divisions"), 2)
+        self.assertEqual(self.cmds.getAttr(f"{self._node('polyExtrudeVertex')}.divisions"), 2)
 
-    def test_object_selection_extrudes_its_faces(self):
-        plane = cmds.polyPlane(sx=1, sy=1)[0]
+    def test_an_object_extrudes_its_faces(self):
+        plane = self.cmds.polyPlane(sx=1, sy=1)[0]
         self._extrude(plane)
         self._node("polyExtrudeFace")
 
     def test_faces_on_two_objects_extrude_each(self):
-        a = cmds.polyPlane(sx=1, sy=1)[0]
-        b = cmds.polyPlane(sx=1, sy=1)[0]
+        a = self.cmds.polyPlane(sx=1, sy=1)[0]
+        b = self.cmds.polyPlane(sx=1, sy=1)[0]
         self._extrude(f"{a}.f[0]", f"{b}.f[0]", keep_together=False)
-        nodes = cmds.ls(type="polyExtrudeFace") or []
-        self.assertEqual(len(nodes), 2)
-        for node in nodes:
-            self.assertFalse(cmds.getAttr(f"{node}.keepFacesTogether"))
+        self.assertEqual(len(self.cmds.ls(type="polyExtrudeFace") or []), 2)
 
-    def test_keep_together_off_pushes_each_face_along_its_own_normal(self):
-        # Adjacent faces with different normals: welded (kept together) they
-        # would share the corner verts and lean; apart, each rides its own.
-        cube = cmds.polyCube()[0]
-        faces = [f"{cube}.f[0]", f"{cube}.f[1]"]
-        normals = []
-        for f in faces:  # polyInfo's normals are unnormalized
-            v = [
-                float(c)
-                for c in cmds.polyInfo(f, faceNormals=True)[0].split(":")[1].split()
-            ]
-            length = sum(c * c for c in v) ** 0.5
-            normals.append([c / length for c in v])
-        before = [self._center(f) for f in faces]
-        self._extrude(*faces, keep_together=False, divisions=1)
-        cmds.setAttr(f"{self._node('polyExtrudeFace')}.localTranslateZ", 1.0)
-        for face, b, n in zip(faces, before, normals):
-            moved = [a - c for a, c in zip(self._center(face), b)]
-            for m, e in zip(moved, n):
-                self.assertAlmostEqual(m, e, places=4, msg=face)
-
-    def test_maya_extrude_settings_restored(self):
-        cmds.optionVar(remove="polyExtrudeVertexDivisions")  # absent stays absent
-        plane = cmds.polyPlane(sx=1, sy=1)[0]
+    def test_maya_s_extrude_settings_are_restored(self):
+        self.cmds.optionVar(remove="polyExtrudeVertexDivisions")  # absent stays absent
+        plane = self.cmds.polyPlane(sx=1, sy=1)[0]
         self._extrude(f"{plane}.f[0]", keep_together=False, divisions=3)
         for n in self.OPTION_VARS[:3]:
-            self.assertEqual(cmds.optionVar(q=n), 1, n)
-        self.assertFalse(cmds.optionVar(exists="polyExtrudeVertexDivisions"))
+            self.assertEqual(self.cmds.optionVar(q=n), 1, n)
+        self.assertFalse(self.cmds.optionVar(exists="polyExtrudeVertexDivisions"))
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb007DivideFacet(unittest.TestCase):
-    """tb007 sets dv/u/v/mode/subdMethod based on chk008/009/010."""
-
+class TestDivideFacetInMaya(_MayaCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        self._orig = cmds.polySubdivideFacet
+        super().setUp()
         self.calls = []
-        cmds.polySubdivideFacet = lambda *a, **kw: self.calls.append((a, kw))
-
-    def tearDown(self):
-        cmds.polySubdivideFacet = self._orig
-        cmds.file(new=True, force=True)
-
-    def _widget(self, u, v, tris):
-        return _FakeWidget(
-            _FakeMenu(
-                chk008=_FakeChk(u),
-                chk009=_FakeChk(v),
-                chk010=_FakeChk(tris),
-            )
+        patcher = mock.patch.object(
+            self.cmds, "polySubdivideFacet", lambda *a, **kw: self.calls.append(kw)
         )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.cube = self.cmds.polyCube(name="dv_facet")[0]
 
-    def _run_with_face_sel(self, widget):
-        cube = cmds.polyCube(name="dv_facet")[0]
-        cmds.select(f"{cube}.f[0]")
-        self.instance.tb007(widget)
+    def _divide(self, u, v, tris, cuts=1):
+        self.cmds.select(f"{self.cube}.f[0]")
+        self.slots.tb007(_widget(chk008=u, chk009=v, chk010=tris, s009=cuts))
+        self.assertEqual(len(self.calls), 1)
+        return self.calls[0]
 
     def test_no_face_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.tb007(self._widget(True, True, False))
-        self.assertTrue(self.instance.sb.messages)
+        self.cmds.select(clear=True)
+        self.slots.tb007(_widget(chk008=True, chk009=True, chk010=False, s009=1))
+        self.assertTrue(self.messages())
         self.assertEqual(self.calls, [])
 
-    def test_u_and_v_subdivides_into_quads(self):
-        """U+V (no tris): dv=1, subdMethod=0, u=v=0 — single quad subdivide."""
-        self._run_with_face_sel(self._widget(True, True, False))
-        self.assertEqual(len(self.calls), 1)
-        kw = self.calls[0][1]
-        self.assertEqual(kw["divisions"], 1)
-        self.assertEqual(kw["subdMethod"], 0)
-        self.assertEqual(kw["divisionsU"], 0)
-        self.assertEqual(kw["divisionsV"], 0)
-        self.assertEqual(kw["mode"], 0)
-
-    def test_only_u_sets_divisionsU_2(self):
-        """U only: divisionsU=2, divisionsV=0."""
-        self._run_with_face_sel(self._widget(True, False, False))
-        self.assertEqual(len(self.calls), 1)
-        kw = self.calls[0][1]
-        self.assertEqual(kw["divisionsU"], 2)
-        self.assertEqual(kw["divisionsV"], 0)
-
-    def test_only_v_sets_divisionsV_2(self):
-        """V only: divisionsV=2, divisionsU=0."""
-        self._run_with_face_sel(self._widget(False, True, False))
-        kw = self.calls[0][1]
-        self.assertEqual(kw["divisionsV"], 2)
-        self.assertEqual(kw["divisionsU"], 0)
-
-    def test_tris_mode_sets_mode_1_subd_method_0(self):
-        """Tris: mode=1 (triangles), dv=1, subdMethod=0."""
-        self._run_with_face_sel(self._widget(False, False, True))
-        kw = self.calls[0][1]
-        self.assertEqual(kw["mode"], 1)
-        self.assertEqual(kw["divisions"], 1)
-        self.assertEqual(kw["subdMethod"], 0)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb008Boolean(unittest.TestCase):
-    """tb008 dispatches across (Union/Difference/Intersection) × (interactive)."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
+    def test_u_and_v_subdivide_once_into_quads(self):
+        kw = self._divide(True, True, False)
+        self.assertEqual(
+            (kw["divisions"], kw["subdMethod"], kw["divisionsU"], kw["divisionsV"], kw["mode"]),
+            (1, 0, 0, 0, 0),
         )
-        self.instance.sb = _RecordedSb()
 
-        # Capture mtk.Macros.m_boolean and mel.eval.
-        import mayatk as mtk
-        self._orig_macro = mtk.Macros.m_boolean
-        self._orig_mel = mel.eval
-        self.macro_calls = []
+    def test_one_way_splits_in_two(self):
+        kw = self._divide(True, False, False)
+        self.assertEqual((kw["divisionsU"], kw["divisionsV"]), (2, 0))
+        self.calls.clear()
+        kw = self._divide(False, True, False)
+        self.assertEqual((kw["divisionsU"], kw["divisionsV"]), (0, 2))
+
+    def test_tris(self):
+        kw = self._divide(False, False, True)
+        self.assertEqual((kw["mode"], kw["divisions"], kw["subdMethod"]), (1, 1, 0))
+
+    def test_cuts_divide_linearly(self):
+        kw = self._divide(True, True, False, cuts=2)
+        self.assertEqual(
+            (kw["subdMethod"], kw["divisionsU"], kw["divisionsV"]), (1, 3, 3)
+        )
+
+
+class TestBooleanInMaya(_MayaCase):
+    def setUp(self):
+        super().setUp()
+        macro = mock.patch.object(self.mtk.Macros, "m_boolean", return_value="result")
+        self.macro = macro.start()
+        self.addCleanup(macro.stop)
+        mel = maya_module("maya.mel")
         self.mel_calls = []
-        mtk.Macros.m_boolean = lambda **kw: self.macro_calls.append(kw)
-        mel.eval = lambda s: self.mel_calls.append(s)
+        evaluate = mock.patch.object(mel, "eval", lambda s: self.mel_calls.append(s))
+        evaluate.start()
+        self.addCleanup(evaluate.stop)
 
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.Macros.m_boolean = self._orig_macro
-        mel.eval = self._orig_mel
-        cmds.file(new=True, force=True)
-
-    def _widget(self, mode, interactive):
-        return _FakeWidget(
-            _FakeMenu(cmb011=_FakeCombo(mode), chk017=_FakeChk(interactive))
-        )
-
-    def _select_two_cubes(self):
-        a = cmds.polyCube(name="bool_a")[0]
-        b = cmds.polyCube(name="bool_b")[0]
-        cmds.select([a, b])
+    def _two_cubes(self):
+        a = self.cmds.polyCube(name="bool_a")[0]
+        b = self.cmds.polyCube(name="bool_b")[0]
+        self.cmds.select([a, b])
+        return a, b
 
     def test_no_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.tb008(self._widget("Union", False))
-        self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(self.macro_calls, [])
+        self.cmds.select(clear=True)
+        self.slots.tb008(_widget(cmb011="Union", chk017=False))
+        self.assertTrue(self.messages())
+        self.macro.assert_not_called()
 
-    def test_union_non_interactive_calls_macro(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Union", False))
-        self.assertEqual(self.macro_calls, [{"operation": "union"}])
+    def test_baked_operations_run_the_macro(self):
+        for label in ("Union", "Difference", "Intersection"):
+            with self.subTest(label=label):
+                self.macro.reset_mock()
+                a, b = self._two_cubes()
+                self.slots.tb008(_widget(cmb011=label, chk017=False))
+                self.macro.assert_called_once()
+                self.assertEqual(self.macro.call_args.kwargs, {"operation": label.lower()})
+                self.assertEqual(set(self.macro.call_args.args[0]), {a, b})
 
-    def test_difference_non_interactive_calls_macro(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Difference", False))
-        self.assertEqual(self.macro_calls, [{"operation": "difference"}])
-
-    def test_intersection_non_interactive_calls_macro(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Intersection", False))
-        self.assertEqual(self.macro_calls, [{"operation": "intersection"}])
-
-    def test_union_interactive_calls_mel(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Union", True))
-        self.assertEqual(self.macro_calls, [])
-        self.assertIn("PolygonBooleanUnion", self.mel_calls)
-
-    def test_difference_interactive_calls_mel(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Difference", True))
-        self.assertIn("PolygonBooleanDifference", self.mel_calls)
-
-    def test_intersection_interactive_calls_mel(self):
-        self._select_two_cubes()
-        self.instance.tb008(self._widget("Intersection", True))
-        self.assertIn("PolygonBooleanIntersection", self.mel_calls)
+    def test_interactive_runs_maya_s_boolean_tool(self):
+        for label in ("Union", "Difference", "Intersection"):
+            with self.subTest(label=label):
+                self._two_cubes()
+                self.slots.tb008(_widget(cmb011=label, chk017=True))
+                self.assertIn(f"PolygonBoolean{label}", self.mel_calls)
+        self.macro.assert_not_called()
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb009SnapClosestVerts(unittest.TestCase):
-    """tb009 requires exactly 2 transforms; ignores 0, 1, 3+."""
-
+class TestSnapInMaya(_MayaCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
+        super().setUp()
+        snap = mock.patch.object(self.mtk.Snap, "snap_to_closest_vertex", return_value=8)
+        self.snap = snap.start()
+        self.addCleanup(snap.stop)
 
-        import mayatk as mtk
-        self._orig = mtk.EditUtils.snap_closest_verts
-        self.calls = []
-        mtk.EditUtils.snap_closest_verts = (
-            lambda *a, **kw: self.calls.append((a, kw))
-        )
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.EditUtils.snap_closest_verts = self._orig
-        cmds.file(new=True, force=True)
-
-    def _widget(self):
-        return _FakeWidget(_FakeMenu(s005=_FakeSpin(5.0), chk016=_FakeChk(True)))
-
-    def test_no_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.tb009(self._widget())
-        self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(self.calls, [])
+    def test_the_first_selected_snaps_onto_the_second(self):
+        a = self.cmds.polyCube(name="sn_a")[0]
+        b = self.cmds.polyCube(name="sn_b")[0]
+        self.cmds.select([a, b])
+        self.slots.tb009(_widget(s005=5.0, chk016=True))
+        self.snap.assert_called_once_with(a, b, tolerance=5.0, freeze_transforms=True)
 
     def test_one_object_warns(self):
-        a = cmds.polyCube(name="sn_a")[0]
-        cmds.select(a)
-        self.instance.tb009(self._widget())
-        self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(self.calls, [])
-
-    def test_two_objects_dispatches(self):
-        a = cmds.polyCube(name="sn_a2")[0]
-        b = cmds.polyCube(name="sn_b2")[0]
-        cmds.select([a, b])
-        self.instance.tb009(self._widget())
-        self.assertEqual(len(self.calls), 1)
-        # Forwarded as (obj1, obj2, tolerance, freezetransforms).
-        args, _ = self.calls[0]
-        self.assertEqual(args[0], a)
-        self.assertEqual(args[1], b)
-        self.assertEqual(args[2], 5.0)
-        self.assertTrue(args[3])
+        self.cmds.select(self.cmds.polyCube(name="sn_one")[0])
+        self.slots.tb009(_widget(s005=5.0, chk016=True))
+        self.assertTrue(self.messages())
+        self.snap.assert_not_called()
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb005Detach(unittest.TestCase):
-    """tb005 negates chk020 (separate_each → not keep_faces_together)."""
-
+class TestSetDistanceInMaya(_MayaCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        import mayatk as mtk
-        self._orig = mtk.EditUtils.detach_components
-        self.calls = []
-
-        def fake_detach(sel, **kwargs):
-            self.calls.append(kwargs)
-            return []
-
-        mtk.EditUtils.detach_components = fake_detach
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.EditUtils.detach_components = self._orig
-        cmds.file(new=True, force=True)
-
-    def _widget(self, duplicate, separate, separate_each):
-        return _FakeWidget(
-            _FakeMenu(
-                chk014=_FakeChk(duplicate),
-                chk015=_FakeChk(separate),
-                chk020=_FakeChk(separate_each),
-            )
+        super().setUp()
+        self.spin = mock.MagicMock()
+        self.slots.ui = SimpleNamespace(
+            tb000=SimpleNamespace(option_box=SimpleNamespace(menu=SimpleNamespace(s002=self.spin)))
         )
 
-    def test_separate_each_inverts_keep_faces_together(self):
-        cube = cmds.polyCube(name="det_a")[0]
-        cmds.select(f"{cube}.f[0]")
+    def test_two_vertices_set_their_gap_plus_a_tenth_percent(self):
+        plane = self.cmds.polyPlane(sx=1, sy=1, w=2, h=2)[0]
+        self.cmds.select([f"{plane}.vtx[0]", f"{plane}.vtx[1]"])
+        self.slots.b005()
+        (value,), _ = self.spin.setValue.call_args
+        self.assertAlmostEqual(value, 2.0 * 1.001, places=4)
 
-        # chk020=True (separate each) → keep_faces_together=False
-        self.instance.tb005(self._widget(True, True, True))
-        self.assertEqual(self.calls[-1]["keep_faces_together"], False)
-
-        # chk020=False (keep together) → keep_faces_together=True
-        cmds.select(f"{cube}.f[0]")
-        self.instance.tb005(self._widget(True, True, False))
-        self.assertEqual(self.calls[-1]["keep_faces_together"], True)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB005SetDistance(unittest.TestCase):
-    """b005 catches ValueError when selection isn't exactly 2 verts."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-
-        # Spin captures setValue; the slot reads it via ui.tb000.option_box.menu.s002.
-        class _Spin:
-            value_set = None
-
-            def setValue(self, v):
-                self.value_set = v
-
-        self._spin = _Spin()
-        from types import SimpleNamespace
-        self.instance.ui = SimpleNamespace(
-            tb000=SimpleNamespace(
-                option_box=SimpleNamespace(
-                    menu=SimpleNamespace(s002=self._spin)
-                )
-            )
-        )
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_non_two_vertex_selection_uses_default(self):
-        """0 verts (ValueError) → falls back to default 0.0005 baseline."""
-        cmds.select(clear=True)
-        self.instance.b005()
-        # The default fallback distance is 0.0005 (with adjustment).
-        # We just assert the spin got SOME value set (not crashed).
-        self.assertIsNotNone(self._spin.value_set)
+    def test_anything_else_resets_to_the_default(self):
+        self.cmds.select(clear=True)
+        self.slots.b005()
+        self.spin.setValue.assert_called_once_with(PolygonsSlots.MERGE_DISTANCE)
+        self.assertTrue(self.messages())
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB006Bridge(unittest.TestCase):
-    """b006 falls back to bridge_connected_edges on RuntimeError."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        # Capture both paths.
-        self._orig_bridge = cmds.polyBridgeEdge
-        self._orig_close = cmds.polyCloseBorder
-        self.bridge_calls = []
-        self.close_calls = []
-        cmds.polyBridgeEdge = lambda *a, **kw: (
-            self.bridge_calls.append((a, kw)) or "bridgeNode1"
-        )
-        cmds.polyCloseBorder = lambda *a, **kw: self.close_calls.append((a, kw))
-
-        import mayatk as mtk
-        self._orig_fb = mtk.Components.bridge_connected_edges
-        self.fallback_calls = []
-        mtk.Components.bridge_connected_edges = lambda e: self.fallback_calls.append(e)
-
-    def tearDown(self):
-        cmds.polyBridgeEdge = self._orig_bridge
-        cmds.polyCloseBorder = self._orig_close
-        import mayatk as mtk
-        mtk.Components.bridge_connected_edges = self._orig_fb
-        cmds.file(new=True, force=True)
-
+class TestBridgeInMaya(_MayaCase):
     def test_no_edge_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.b006(widget=None)
-        self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(self.bridge_calls, [])
+        self.cmds.select(clear=True)
+        self.slots.b006()
+        self.assertTrue(self.messages())
 
-    def test_runtime_error_falls_back_to_connected(self):
-        """When polyBridgeEdge raises, falls back to mtk.bridge_connected_edges."""
-        cube = cmds.polyCube(name="brg_cube")[0]
-        cmds.select(f"{cube}.e[0]")
+    def test_edges_sharing_a_vertex_fall_back_to_the_connected_bridge(self):
+        cube = self.cmds.polyCube(name="brg_cube")[0]
+        self.cmds.select(f"{cube}.e[0]")
+        fallback = mock.patch.object(self.mtk.Components, "bridge_connected_edges")
+        connected = fallback.start()
+        self.addCleanup(fallback.stop)
 
-        def raise_runtime(*a, **kw):
+        def refuse(*a, **kw):
             raise RuntimeError("bridge failed")
 
-        cmds.polyBridgeEdge = raise_runtime
-        self.instance.b006(widget=None)
-        self.assertEqual(len(self.fallback_calls), 1)
+        with mock.patch.object(self.cmds, "polyBridgeEdge", refuse):
+            self.slots.b006()
+        connected.assert_called_once()
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB038AssignInvisible(unittest.TestCase):
-    """b038 toggles polyHole assignment based on current state."""
-
+class TestAssignHoleInMaya(_MayaCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        self._orig = cmds.polyHole
+        super().setUp()
         self.calls = []
+        self.current = False
 
         def fake_hole(*a, **kw):
-            self.calls.append((a, kw))
-            if kw.get("q"):
-                return self._return_val
-            return None
+            self.calls.append(kw)
+            return self.current if kw.get("q") else None
 
-        cmds.polyHole = fake_hole
-        self._return_val = False  # default: not currently a hole
+        patcher = mock.patch.object(self.cmds, "polyHole", fake_hole)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
-    def tearDown(self):
-        cmds.polyHole = self._orig
-        cmds.file(new=True, force=True)
+    def _assigned(self):
+        return [kw["assignHole"] for kw in self.calls if not kw.get("q")]
 
     def test_no_face_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.b038()
-        self.assertTrue(self.instance.sb.messages)
-        # Only the filterExpand check — no polyHole calls.
+        self.cmds.select(clear=True)
+        self.slots.b038()
+        self.assertTrue(self.messages())
         self.assertEqual(self.calls, [])
 
-    def test_assigns_when_not_currently_hole(self):
-        cube = cmds.polyCube(name="ah_cube")[0]
-        cmds.select(f"{cube}.f[0]")
-        self._return_val = False  # not currently a hole
-        self.instance.b038()
-        # First call: query. Second: assign True.
-        # We can't strictly assert order if Maya's polyHole adds calls,
-        # but the second polyHole call should have assignHole=True.
-        assigns = [
-            kw for _, kw in self.calls if "assignHole" in kw and not kw.get("q")
-        ]
-        self.assertEqual(len(assigns), 1)
-        self.assertTrue(assigns[0]["assignHole"])
-
-    def test_unassigns_when_currently_hole(self):
-        cube = cmds.polyCube(name="ah_cube2")[0]
-        cmds.select(f"{cube}.f[0]")
-        self._return_val = True  # currently a hole
-        self.instance.b038()
-        assigns = [
-            kw for _, kw in self.calls if "assignHole" in kw and not kw.get("q")
-        ]
-        self.assertEqual(len(assigns), 1)
-        self.assertFalse(assigns[0]["assignHole"])
+    def test_assigns_when_not_a_hole_and_restores_when_it_is(self):
+        cube = self.cmds.polyCube(name="ah_cube")[0]
+        self.cmds.select(f"{cube}.f[0]")
+        self.slots.b038()
+        self.current = True
+        self.cmds.select(f"{cube}.f[0]")
+        self.slots.b038()
+        self.assertEqual(self._assigned(), [True, False])
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB009CollapseComponent(_MaskNamesNoType):
+class TestCollapseInMaya(_MayaCase):
     """b009 collapses each selected face to its own point; edges and vertices
     merge to their shared center. Routed on the selection, not the mask."""
 
     def setUp(self):
         super().setUp()
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-        self.plane = cmds.polyPlane(sx=3, sy=3)[0]  # 16 verts
-        self._history = cmds.constructionHistory(q=True, toggle=True)
+        self.plane = self.cmds.polyPlane(sx=3, sy=3)[0]  # 16 verts
+        history = self.cmds.constructionHistory(q=True, toggle=True)
+        self.addCleanup(self.cmds.constructionHistory, toggle=history)
 
-    def tearDown(self):
-        cmds.constructionHistory(toggle=self._history)
-        cmds.file(new=True, force=True)
-        super().tearDown()
-
-    @staticmethod
-    def _points(mesh):
-        pts = cmds.xform(f"{mesh}.vtx[*]", q=True, os=True, t=True)
+    def _points(self, mesh):
+        pts = self.cmds.xform(f"{mesh}.vtx[*]", q=True, os=True, t=True)
         return sorted(
             tuple(round(c, 4) for c in pts[i : i + 3]) for i in range(0, len(pts), 3)
         )
 
     def _collapse(self, *components):
-        cmds.select([f"{self.plane}.{c}" for c in components])
+        self.cmds.select([f"{self.plane}.{c}" for c in components])
         self.clear_mask()
-        self.instance.b009()
-        return cmds.polyEvaluate(self.plane, vertex=True)
+        self.slots.b009()
+        return self.cmds.polyEvaluate(self.plane, vertex=True)
 
-    def test_faces_collapse_each_to_its_own_point(self):
-        # Two corner faces: 3 verts lost each. MergeToCenter would weld all
-        # 8 into ONE point (9 left).
+    def test_faces_collapse_each_to_their_own_point(self):
         self.assertEqual(self._collapse("f[0]", "f[8]"), 10)
 
     def test_edges_merge_to_their_center(self):
         self.assertEqual(self._collapse("e[0]"), 15)
 
     def test_faces_on_two_instances_collapse_as_one_shape(self):
-        # Every pick names a face of ONE shape -- f[0] through both paths. A call
-        # per path collapsed f[0], then whatever face had renumbered into f[0].
-        ref = cmds.polyPlane(sx=3, sy=3)[0]
-        cmds.polyCollapseFacet([f"{ref}.f[0]", f"{ref}.f[8]"])
-        twin = cmds.instance(self.plane)[0]
-        cmds.select([f"{self.plane}.f[0]", f"{twin}.f[0]", f"{twin}.f[8]"])
+        ref = self.cmds.polyPlane(sx=3, sy=3)[0]
+        self.cmds.polyCollapseFacet([f"{ref}.f[0]", f"{ref}.f[8]"])
+        twin = self.cmds.instance(self.plane)[0]
+        self.cmds.select([f"{self.plane}.f[0]", f"{twin}.f[0]", f"{twin}.f[8]"])
         self.clear_mask()
-        self.instance.b009()
+        self.slots.b009()
         self.assertEqual(self._points(self.plane), self._points(ref))
 
-    def test_object_selection_is_refused(self):
-        # MergeToCenter converts an object pick to ALL its verts in the GUI.
-        cmds.select(self.plane)
-        self.instance.b009()
-        self.assertTrue(self.instance.sb.messages)
-        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 16)
-
-    def test_no_selection_is_refused(self):
-        cmds.select(clear=True)
-        self.instance.b009()
-        self.assertTrue(self.instance.sb.messages)
+    def test_an_object_selection_is_refused(self):
+        self.cmds.select(self.plane)
+        self.slots.b009()
+        self.assertTrue(self.messages())
+        self.assertEqual(self.cmds.polyEvaluate(self.plane, vertex=True), 16)
 
     def test_edges_beside_faces_are_named_not_dropped_silently(self):
         self.assertEqual(self._collapse("f[0]", "e[20]"), 13)
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_history_follows_the_toggle(self):
-        cmds.delete(self.plane, constructionHistory=True)  # Maya ignores -ch off
-        cmds.constructionHistory(toggle=False)  # on a mesh that has history
-        self._collapse("f[0]")
-        self.assertFalse(cmds.ls(type="polyCollapseF"))
+        self.assertTrue(self.messages())
 
     def test_one_undo_restores_every_object(self):
-        other = cmds.polyPlane(sx=3, sy=3)[0]
-        cmds.select([f"{self.plane}.f[0]", f"{other}.f[4]"])
+        other = self.cmds.polyPlane(sx=3, sy=3)[0]
+        self.cmds.select([f"{self.plane}.f[0]", f"{other}.f[4]"])
         self.clear_mask()
-        self.instance.b009()
-        cmds.undo()
-        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 16)
-        self.assertEqual(cmds.polyEvaluate(other, vertex=True), 16)
-
-    def test_faces_on_two_objects_collapse_per_object(self):
-        other = cmds.polyPlane(sx=3, sy=3)[0]
-        cmds.select([f"{self.plane}.f[0]", f"{self.plane}.f[8]", f"{other}.f[4]"])
-        self.clear_mask()
-        self.instance.b009()  # polyCollapseFacet refuses a multi-object list
-        self.assertEqual(cmds.polyEvaluate(self.plane, vertex=True), 10)
-        self.assertEqual(cmds.polyEvaluate(other, vertex=True), 13)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestMarkingMenuKeys(unittest.TestCase):
-    """b007 (Bridge), b011 (Bevel) drive marking_menu.show with fragile keys."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = polygons_module.PolygonsSlots.__new__(
-            polygons_module.PolygonsSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_b007_shows_bridge_menu(self):
-        self.instance.b007()
-        self.assertEqual(self.instance.sb.handlers.marking_menu.shown, ["bridge"])
-
-    def test_b011_shows_bevel_menu(self):
-        self.instance.b011()
-        self.assertEqual(self.instance.sb.handlers.marking_menu.shown, ["bevel"])
+        self.slots.b009()
+        self.cmds.undo()
+        self.assertEqual(self.cmds.polyEvaluate(self.plane, vertex=True), 16)
+        self.assertEqual(self.cmds.polyEvaluate(other, vertex=True), 16)
 
 
 if __name__ == "__main__":

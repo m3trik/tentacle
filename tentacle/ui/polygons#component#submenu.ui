@@ -423,7 +423,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Connect vertices, edges, and faces interactively, using Maya's Connect tool.</string>
+     <string>Connect the selected vertices and edges across their faces with new edges (Maya: its interactive Connect tool).</string>
     </property>
     <property name="text">
      <string>Attach</string>
@@ -528,9 +528,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Mirror selected mesh components across the topological symmetry axis.
+     <string>Mirror the selected mesh components across the symmetry axis.
 
-First select any components to mirror, then when prompted, select an edge to define an axis.</string>
+Maya: select the components to mirror, then, when prompted, the edge that defines the axis.</string>
     </property>
     <property name="text">
      <string>Symmetrize</string>

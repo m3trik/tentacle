@@ -1,4 +1,4 @@
-"""Manual harness for the Blender ``selection`` slot (``tentacle/slots/blender/selection.py``).
+"""Manual harness for the ``selection`` slot (``tentacle/slots/selection.py``) over blendertk.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -6,18 +6,19 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/selection_slot_check.py
 
-Pins two things end-to-end through the REAL slot class (not just the ``btk.Selection`` engine,
-which ``blendertk/test/test_selection.py`` already covers directly):
+Pins, end-to-end through the REAL composed slot class with ``sb.tk = btk`` (the
+``btk.Selection`` operations themselves are covered by ``blendertk/test/test_selection.py``):
 
-1. **list001 "Convert To"** — the 18-entry list (mayatk parity: 7→18 of Maya's 20; the
-   ``cmb003`` combo until 2026-08-16) dispatches every entry without raising against real
-   geometry, and the touching-vs-contained fix ("Faces" vs "Contained Faces" from an identical
-   seed) actually differs through the slot dispatch, not just the underlying engine call.
-2. **The ``loop_multi_select`` phantom-operator bug** — ``tb000``'s Edge Ring/Edge Loop radios
-   and the Selection-Constraint row's entries used to call a Blender operator that doesn't
-   exist (``bpy.ops.mesh.loop_multi_select``; ``hasattr`` lies, ``get_rna_type()`` proves it
-   fake) — fixed to ``select_edge_ring_multi``/``select_edge_loop_multi``. Pins real loop/ring
-   growth (not just "doesn't crash") through both call sites.
+1. **list001 "Convert To"** — the 18 rows Blender serves (Maya's 20 less Vertex Faces and UV's,
+   which Blender has no component for) dispatch without raising against real geometry, and
+   "Faces" (touching) differs from "Contained Faces" from an identical seed.
+2. **The ``loop_multi_select`` phantom-operator bug** — ``tb000``'s Edge Ring / Edge Loop paths
+   and the constraint row's Edge Ring once called an operator that does not exist; pins real
+   loop/ring growth through both call sites.
+3. **b001 Toggle Selectability** — a second click with nothing selected (Blender drops an
+   unselectable object from the selection) makes the objects selectable again.
+4. **Select by Type** — the scope pools (``btk.Selection.objects_in_scope``) and the Add /
+   Remove modes through ``list000``'s real dispatch.
 """
 import sys
 import os
@@ -49,10 +50,11 @@ def check(name, cond, detail=""):
     lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
 
 
-def make_slot(cls):
-    """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
+def make_slot(cls, tk):
+    """Instance without the UI-loading __init__ (headless: no loaded_ui); the
+    composed class reaches Blender through ``sb.tk``."""
     slot = cls.__new__(cls)
-    slot.sb = NS(message_box=lambda *a, **k: None)
+    slot.sb = NS(message_box=lambda *a, **k: None, tk=tk)
     return slot
 
 
@@ -75,29 +77,34 @@ def grid(cuts=6):
     return obj
 
 
+class _Leaf:
+    """A list leaf as the list handlers see it: no sublist, an unnamed row."""
+
+    sublist = None
+
+    def __init__(self, label):
+        self._label = label
+
+    def item_text(self):
+        return self._label
+
+    def objectName(self):
+        return ""
+
+
 try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.selection import SelectionSlots
+    from tentacle.slots.selection import SelectionSlots
+    import blendertk as btk
 
-    slot = make_slot(SelectionSlots)
+    slot = make_slot(SelectionSlots, btk)
 
-    class _Leaf:
-        """A Convert To list leaf as ``_dispatch_convert_to`` sees it."""
-
-        sublist = None
-
-        def __init__(self, label):
-            self._label = label
-
-        def item_text(self):
-            return self._label
-
-    # -- _CONVERT_TO_OPS: exactly the 18 expected entries, in order (the table IS the list) --
+    # -- the Convert To rows Blender serves: Maya's 20 less the two it has no component for --
     # This list also drives the dispatch loop, so a stale copy doesn't just fail the count --
-    # it silently skips leaves. Keep it in sync with the fork's _CONVERT_TO_OPS.
-    EXPECTED_CMB003 = [
+    # it silently skips rows.
+    EXPECTED_ROWS = [
         "Verts", "Vertex Perimeter",
         "Edges", "Edge Loop", "Edge Ring", "Contained Edges", "Edge Perimeter",
         "Border Edges",
@@ -105,10 +112,11 @@ try:
         "UV Shell", "UV Shell Border", "UV Perimeter", "UV Edge Loop",
         "Shell", "Shell Border",
     ]
-    check("_CONVERT_TO_OPS holds all 18 expected entries in order",
-          list(SelectionSlots._CONVERT_TO_OPS) == EXPECTED_CMB003, f"{list(SelectionSlots._CONVERT_TO_OPS)}")
+    rows = slot._convert_to_rows()
+    check("Convert To serves the 18 expected rows", rows == set(EXPECTED_ROWS),
+          f"{sorted(rows ^ set(EXPECTED_ROWS))}")
 
-    # -- list001: drive every entry through the real dispatch against real geometry --
+    # -- list001: drive every row through the real dispatch against real geometry --
     reset()
     obj = grid(6)
     bpy.ops.uv.smart_project()
@@ -165,7 +173,7 @@ try:
         bm.select_flush_mode()
         bmesh.update_edit_mesh(obj.data)
 
-    for label in EXPECTED_CMB003:
+    for label in EXPECTED_ROWS:
         seed_for(label)
         try:
             slot.list001(_Leaf(label))
@@ -174,8 +182,8 @@ try:
             ok, err = False, repr(e)
         check(f"list001 dispatches '{label}' without raising", ok, err)
 
-    # -- regression: 'Faces' (touching) must differ from 'Contained Faces' from an identical
-    #    1-vertex seed, through the REAL slot dispatch (not just the underlying engine call) --
+    # -- 'Faces' (touching) must differ from 'Contained Faces' from an identical 1-vertex seed,
+    #    through the REAL slot dispatch (not just the underlying engine call) --
     seed_for("Verts")
     slot.list001(_Leaf("Faces"))
     bm = bmesh.from_edit_mesh(obj.data)
@@ -192,27 +200,12 @@ try:
         f"touching={n_touching} contained={n_contained}",
     )
 
-    # -- loop_multi_select phantom-operator fix: tb000's Edge Ring / Edge Loop radios --
-    class _Chk:
-        def __init__(self, state):
-            self._state = state
-
-        def isChecked(self):
-            return self._state
-
-    class _Spin:
-        def value(self):
-            return 1
-
-    class _Menu:
-        def __init__(self, checked_name):
-            for n in ("chk000", "chk001", "chk002", "chk010", "chk021"):
-                setattr(self, n, _Chk(n == checked_name))
-            self.s003 = _Spin()
-
-    class _OptWidget:
-        def __init__(self, checked_name):
-            self.option_box = NS(menu=_Menu(checked_name))
+    # -- loop_multi_select phantom-operator fix: tb000's Edge Ring / Edge Loop paths --
+    def path_widget(checked_name):
+        menu = NS(s003=NS(value=lambda: 1))
+        for n in ("chk000", "chk001", "chk002", "chk010", "chk021"):
+            setattr(menu, n, NS(isChecked=lambda n=n: n == checked_name))
+        return NS(option_box=NS(menu=menu))
 
     def seed_one_interior_edge():
         bpy.ops.mesh.select_all(action="DESELECT")
@@ -225,20 +218,20 @@ try:
         bmesh.update_edit_mesh(obj.data)
 
     seed_one_interior_edge()
-    slot.tb000(_OptWidget("chk000"))  # Edge Ring
+    slot.tb000(path_widget("chk000"))  # Edge Ring
     bm = bmesh.from_edit_mesh(obj.data)
     n_ring = len([e for e in bm.edges if e.select])
-    check("tb000 Edge Ring (select_edge_ring_multi) grows beyond the 1 seed edge", n_ring > 1, f"got {n_ring}")
+    check("tb000 Edge Ring grows beyond the 1 seed edge", n_ring > 1, f"got {n_ring}")
 
     seed_one_interior_edge()
-    slot.tb000(_OptWidget("chk001"))  # Edge Loop
+    slot.tb000(path_widget("chk001"))  # Edge Loop
     bm = bmesh.from_edit_mesh(obj.data)
     n_loop = len([e for e in bm.edges if e.select])
-    check("tb000 Edge Loop (select_edge_loop_multi) grows beyond the 1 seed edge", n_loop > 1, f"got {n_loop}")
+    check("tb000 Edge Loop grows beyond the 1 seed edge", n_loop > 1, f"got {n_loop}")
 
-    # -- same fix, second call site: the Selection-Constraint row's Edge Ring (b005) --
+    # -- same fix, second call site: the constraint row's Edge Ring (b005), a one-shot here --
     seed_one_interior_edge()
-    slot.b005(NS(objectName=lambda: "b005"))
+    slot.b005(NS(objectName=lambda: "b005", isCheckable=lambda: False, isChecked=lambda: False))
     bm = bmesh.from_edit_mesh(obj.data)
     n_b005_ring = len([e for e in bm.edges if e.select])
     check("b005 (Edge Ring constraint) grows beyond the 1 seed edge", n_b005_ring > 1, f"got {n_b005_ring}")
@@ -247,39 +240,30 @@ try:
 
     # -- b001 Toggle Selectability round-trip: setting hide_select=True auto-deselects in
     #    Blender, so a naive toggle could turn selectability OFF but never back ON. Pin that a
-    #    second click (with nothing selected, because the objects were auto-deselected) restores
+    #    second click (nothing selected, the objects were auto-deselected) restores
     #    selectability and re-selects. --
     reset()
     bpy.ops.mesh.primitive_cube_add()
     ca = bpy.context.active_object
     bpy.ops.mesh.primitive_cube_add(location=(3, 0, 0))
     cb = bpy.context.active_object
-    ca.select_set(True); cb.select_set(True)
+    btk.CoreUtils.select([ca, cb])
 
     slot.b001()  # selection present -> OFF
-    off_ok = ca.hide_select and cb.hide_select and not slot.selected_objects()
-    check("b001 turns selectability OFF and Blender auto-deselects", off_ok,
-          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in slot.selected_objects()]}")
+    selected = btk.CoreUtils.selected_objects()
+    check("b001 turns selectability OFF and Blender auto-deselects",
+          ca.hide_select and cb.hide_select and not selected,
+          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in selected]}")
 
     slot.b001()  # nothing selected -> recover: ON + re-select
-    on_ok = (not ca.hide_select and not cb.hide_select
-             and {o.name for o in slot.selected_objects()} == {ca.name, cb.name})
-    check("b001 re-enables selectability from an empty selection (the reported bug)", on_ok,
-          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in slot.selected_objects()]}")
+    selected = btk.CoreUtils.selected_objects()
+    check("b001 re-enables selectability from an empty selection (the reported bug)",
+          not ca.hide_select and not cb.hide_select
+          and {o.name for o in selected} == {ca.name, cb.name},
+          f"hide_select=({ca.hide_select},{cb.hide_select}) selected={[o.name for o in selected]}")
 
-    # -- tb004 Select-by-Type settings: _by_type_scope_objects pools per the scope combo.
-    #    Notably pins that the Selected scope reads via selected_objects() (view_layer),
-    #    not bpy.context.selected_objects, which is [] in the Qt event-pump state. --
-    class _ScopeMenu:
-        def __init__(self, scope, mode="replace"):
-            self.cmb_bytype_scope = NS(currentData=lambda: scope)
-            self.cmb_bytype_mode = NS(currentData=lambda: mode)
-
-    def set_scope(scope, mode="replace"):
-        # tb004's settings menu is the button's own MenuMixin menu now (no
-        # option box), so the scope/mode reads go through ``.menu``.
-        slot.submenu = NS(tb004=NS(menu=_ScopeMenu(scope, mode)))
-
+    # -- Select by Type: the scope pools. Selected reads the window's view layer, not
+    #    bpy.context.selected_objects, which is [] in the Qt event-pump state. --
     reset()
     bpy.ops.mesh.primitive_cube_add()
     c_sel = bpy.context.active_object
@@ -288,47 +272,35 @@ try:
     bpy.ops.mesh.primitive_cube_add(location=(6, 0, 0))
     c_plain = bpy.context.active_object
     c_hidden.hide_set(True)
-    bpy.ops.object.select_all(action="DESELECT")
-    c_sel.select_set(True)
+    btk.CoreUtils.select([c_sel])
 
-    set_scope("selected")
-    pool = slot._by_type_scope_objects()
-    check("tb004 Selected scope pools exactly the selection", pool == [c_sel],
-          f"{[o.name for o in pool]}")
-
-    set_scope("visible")
-    pool = set(slot._by_type_scope_objects())
-    check("tb004 Visible scope excludes the hidden object",
+    pool = btk.Selection.objects_in_scope("selected")
+    check("Selected scope pools exactly the selection", pool == [c_sel], f"{[o.name for o in pool]}")
+    pool = set(btk.Selection.objects_in_scope("visible"))
+    check("Visible scope excludes the hidden object",
           c_hidden not in pool and {c_sel, c_plain} <= pool, f"{[o.name for o in pool]}")
-
-    set_scope(None)  # unset combo → "all"
-    pool = set(slot._by_type_scope_objects())
-    check("tb004 All scope pools every object", pool == {c_sel, c_hidden, c_plain},
+    pool = set(btk.Selection.objects_in_scope("all"))
+    check("All scope pools every object in the scene", pool == {c_sel, c_hidden, c_plain},
           f"{[o.name for o in pool]}")
 
-    # -- tb004 mode: Add / Remove flow end-to-end through list000's real dispatch --
-    class _Leaf:
-        sublist = None
-
-        def objectName(self):  # a real leaf row is an unnamed list item
-            return ""
-
-        def item_text(self):
-            return "Polygon Meshes"
+    # -- the mode: Add / Remove end-to-end through list000's real dispatch --
+    def set_scope(scope, mode="replace"):
+        menu = NS(cmb_bytype_scope=NS(currentData=lambda: scope),
+                  cmb_bytype_mode=NS(currentData=lambda: mode))
+        slot.submenu = NS(tb004=NS(menu=menu))
 
     set_scope("all", mode="add")
-    slot.list000(_Leaf())  # c_sel already selected; adds the other cubes.
-    # Blender natively refuses selection on hidden objects (select_set doesn't
-    # stick on c_hidden), so Add grows to the 2 selectable matches, not 3.
-    n_after_add = len(slot.selected_objects())
-    check("tb004 Mode: Add grows the selection to every selectable match", n_after_add == 2,
+    slot.list000(_Leaf("Polygon Meshes"))  # c_sel already selected; adds the other cubes.
+    # Blender refuses selection on hidden objects (select_set doesn't stick on c_hidden), so
+    # Add grows to the 2 selectable matches, not 3.
+    n_after_add = len(btk.CoreUtils.selected_objects())
+    check("Mode: Add grows the selection to every selectable match", n_after_add == 2,
           f"got {n_after_add}")
 
     set_scope("all", mode="remove")
-    slot.list000(_Leaf())
-    n_after_remove = len(slot.selected_objects())
-    check("tb004 Mode: Remove deselects the matches", n_after_remove == 0,
-          f"got {n_after_remove}")
+    slot.list000(_Leaf("Polygon Meshes"))
+    n_after_remove = len(btk.CoreUtils.selected_objects())
+    check("Mode: Remove deselects the matches", n_after_remove == 0, f"got {n_after_remove}")
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

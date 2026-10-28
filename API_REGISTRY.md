@@ -11,7 +11,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - [`slots/_rigging.py`](#slots--_rigging) — Behavior shared by the Maya and Blender ``rigging`` panels.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
-- [`slots/_selection.py`](#slots--_selection) — Behavior shared by the Maya and Blender ``selection`` panels.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_transform.py`](#slots--_transform) — Behavior shared by the Maya and Blender ``transform`` panels.
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
@@ -20,11 +19,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/blender/materials.py`](#slots--blender--materials)
 - [`slots/blender/nurbs.py`](#slots--blender--nurbs)
-- [`slots/blender/polygons.py`](#slots--blender--polygons)
 - [`slots/blender/rendering.py`](#slots--blender--rendering)
 - [`slots/blender/rigging.py`](#slots--blender--rigging)
 - [`slots/blender/scene.py`](#slots--blender--scene)
-- [`slots/blender/selection.py`](#slots--blender--selection)
 - [`slots/blender/subdivision.py`](#slots--blender--subdivision)
 - [`slots/blender/transform.py`](#slots--blender--transform)
 - [`slots/blender/uv.py`](#slots--blender--uv)
@@ -65,13 +62,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
 - [`slots/maya/nurbs.py`](#slots--maya--nurbs)
 - [`slots/maya/playback.py`](#slots--maya--playback)
-- [`slots/maya/polygons.py`](#slots--maya--polygons)
 - [`slots/maya/render.py`](#slots--maya--render)
 - [`slots/maya/rendering.py`](#slots--maya--rendering)
 - [`slots/maya/rigging.py`](#slots--maya--rigging)
 - [`slots/maya/scene.py`](#slots--maya--scene)
 - [`slots/maya/select.py`](#slots--maya--select)
-- [`slots/maya/selection.py`](#slots--maya--selection)
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
 - [`slots/maya/skin.py`](#slots--maya--skin)
 - [`slots/maya/stereo.py`](#slots--maya--stereo)
@@ -85,7 +80,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
 - [`slots/pivot.py`](#slots--pivot) — Pivot: one Slots class for both hosts.
+- [`slots/polygons.py`](#slots--polygons) — Polygons: one Slots class for both hosts.
 - [`slots/preferences.py`](#slots--preferences) — Preferences: one Slots class for both hosts.
+- [`slots/selection.py`](#slots--selection) — Selection: one Slots class for both hosts.
 - [`slots/settings.py`](#slots--settings) — Settings: one Slots class for both hosts.
 - [`slots/symmetry.py`](#slots--symmetry) — Symmetry: one Slots class for both hosts.
 - [`slots/tools/__init__.py`](#slots--tools--__init__) — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
@@ -199,7 +196,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L47) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L46) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -266,15 +263,6 @@ Behavior shared by the Maya and Blender ``scene`` panels.
   - `SceneMixin.tb001(self, widget)` — Get Scene Info — render the sectioned audit report to the viewer dialog.
   - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
   - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
-
-<a id="slots--_selection"></a>
-### `slots/_selection.py`
-
-Behavior shared by the Maya and Blender ``selection`` panels.
-
-- **[`class SelectionMixin`](tentacle/tentacle/slots/_selection.py#L26)** — Shared ``selection`` panel behavior.
-  - `SelectionMixin.list001_init(self, widget)` — Convert To: category rows that convert on click and expand on hover.
-  - `SelectionMixin.tb004(self, widget)` — Select by Type settings: open the scope/mode menu.
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -429,50 +417,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `NurbsSlots.b030(self)` — Extrude Curve Profile — build a surface from the selected curve(s), the Blender
   - `NurbsSlots.b056(self)` — Image Tracer (native wrap: trace the active image-empty to Grease Pencil,
 
-<a id="slots--blender--polygons"></a>
-### `slots/blender/polygons.py`
-
-- **[`class PolygonsSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/polygons.py#L9)** — Blender port of the shared ``polygons`` menu.
-  - `PolygonsSlots.header_init(self, widget)`
-  - `PolygonsSlots.tb000_init(self, widget)`
-  - `PolygonsSlots.tb000(self, widget)` — Merge Vertices
-  - `PolygonsSlots.b005(self)` — Merge Vertices: Set Distance — set the merge threshold from two selected verts
-  - `PolygonsSlots.tb002_init(self, widget)`
-  - `PolygonsSlots.tb002(self, widget)` — Separate (split the mesh into loose parts, or by material).
-  - `PolygonsSlots.tb003_init(self, widget)`
-  - `PolygonsSlots.tb003(self, widget)` — Extrude (region together or per-face), then offset along normals.
-  - `PolygonsSlots.tb004_init(self, widget)`
-  - `PolygonsSlots.tb004(self, widget)` — Combine Selected Meshes (optionally one mesh per material / clustered by distance).
-  - `PolygonsSlots.tb005_init(self, widget)`
-  - `PolygonsSlots.tb005(self, widget)` — Detach (separate selected components into a new object;
-  - `PolygonsSlots.tb006_init(self, widget)`
-  - `PolygonsSlots.tb006(self, widget)` — Inset Face Region
-  - `PolygonsSlots.tb007_init(self, widget)`
-  - `PolygonsSlots.tb007(self, widget)` — Divide Facet (subdivide the selected components).
-  - `PolygonsSlots.tb008_init(self, widget)`
-  - `PolygonsSlots.tb008(self, widget)` — Boolean Operation (active mesh = base, other selected = operands).
-  - `PolygonsSlots.tb009_init(self, widget)`
-  - `PolygonsSlots.tb009(self, widget)` — Snap Closest Verts (the other selected mesh's verts snap onto the ACTIVE mesh).
-  - `PolygonsSlots.b001(self)` — Fill Holes
-  - `PolygonsSlots.b003(self)` — Symmetrize
-  - `PolygonsSlots.b006(self)` — Bridge (selected edge loops).
-  - `PolygonsSlots.b007(self)` — Bridge Interactive — open the Bridge panel (Divisions / Offset + live Preview),
-  - `PolygonsSlots.b008(self)` — Weld Center: interactive target weld merging at the midpoint (mirror of Maya's
-  - `PolygonsSlots.b009(self)` — Collapse Component: faces per region, verts/edges at one center.
-  - `PolygonsSlots.b011(self)` — Bevel — open the bevel panel (Width / Segments / Profile + live Preview),
-  - `PolygonsSlots.b012(self)` — Multi-Cut Tool (Knife) — EDIT_MESH-only, so the mesh is put into component mode.
-  - `PolygonsSlots.b022(self)` — Attach — Maya's Connect-components tool (dR_connectTool;
-  - `PolygonsSlots.b032(self)` — Poke
-  - `PolygonsSlots.b047(self)` — Insert Edgeloop (Loop Cut tool) — EDIT_MESH-only, so the mesh is put into
-  - `PolygonsSlots.b051(self)` — Offset Edgeloop
-  - `PolygonsSlots.b043(self)` — Target Weld: interactively merge one vertex onto another by dragging.
-  - `PolygonsSlots.b000(self)` — Circularize (LoopTools Circle on the selected edge loop).
-  - `PolygonsSlots.b053(self)` — Edit Edge Flow (Set Flow on the selected edge loops).
-  - `PolygonsSlots.b034(self)` — Wedge (sweep the selected faces 90° around a selected hinge edge).
-  - `PolygonsSlots.b038_init(self, widget)` — Assign Invisible — hidden: Maya ``polyHole`` invisible/hole faces have no Blender
-  - `PolygonsSlots.b038(self)` — Assign Invisible — unreachable (b038_init hides the button);
-  - `PolygonsSlots.b049(self)` — Slide Edge — interactively slide the selected edge loop along the surface, the
-
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
 
@@ -534,48 +478,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b003(self)` — Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
   - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
-
-<a id="slots--blender--selection"></a>
-### `slots/blender/selection.py`
-
-- **[`class SelectionSlots(SelectionMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/selection.py#L8)** — Blender port of the shared ``selection`` menu.
-  - `SelectionSlots.tb000_init(self, widget)`
-  - `SelectionSlots.tb000(self, widget)` — Select Nth
-  - `SelectionSlots.tb001_init(self, widget)`
-  - `SelectionSlots.tb001(self, widget)` — Select Similar — object-level similarity by topology / area / bounding-box metrics
-  - `SelectionSlots.tb002_init(self, widget)`
-  - `SelectionSlots.tb002(self, widget)` — Select Island (connected region;
-  - `SelectionSlots.tb003_init(self, widget)`
-  - `SelectionSlots.tb003(self, widget)` — Select Edges By Angle (within the Low–High range, via ``btk.select_edges_by_angle``).
-  - `SelectionSlots.list001(self, item)` — Convert the current selection to another component type (Maya Convert-To parity).
-  - `SelectionSlots.chk004_init(self, widget)` — Reflect the live viewport X-ray state (the DCC owns it — see ``mirror_app_state``).
-  - `SelectionSlots.chk004(self, state, widget)` — Ignore Backfacing — toggle viewport X-ray (occlude) so only front faces select.
-  - `SelectionSlots.chk005_init(self, widget)`
-  - `SelectionSlots.chk006_init(self, widget)` — Select Style: Lasso — mirrors the active tool;
-  - `SelectionSlots.chk007_init(self, widget)` — Select Style: Circle — mirrors the active tool;
-  - `SelectionSlots.chk005(self, state, widget)` — Select Style: Box (Marquee)
-  - `SelectionSlots.chk006(self, state, widget)` — Select Style: Lasso
-  - `SelectionSlots.chk007(self, state, widget)` — Select Style: Circle (Paint)
-  - `SelectionSlots.b001(self)` — Toggle Selectability of the selected object(s).
-  - `SelectionSlots.b002_init(self, widget)` — Selection constraint: Angle.
-  - `SelectionSlots.b002(self, widget)` — Selection constraint: Angle (one-shot expand).
-  - `SelectionSlots.b003_init(self, widget)` — Selection constraint: Border.
-  - `SelectionSlots.b003(self, widget)` — Selection constraint: Border (one-shot expand).
-  - `SelectionSlots.b004_init(self, widget)` — Selection constraint: Edge Loop.
-  - `SelectionSlots.b004(self, widget)` — Selection constraint: Edge Loop (one-shot expand).
-  - `SelectionSlots.b005_init(self, widget)` — Selection constraint: Edge Ring.
-  - `SelectionSlots.b005(self, widget)` — Selection constraint: Edge Ring (one-shot expand).
-  - `SelectionSlots.b006_init(self, widget)` — Selection constraint: Shell.
-  - `SelectionSlots.b006(self, widget)` — Selection constraint: Shell (one-shot expand).
-  - `SelectionSlots.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
-  - `SelectionSlots.b007(self, widget)` — Selection constraint: UV Edge Loop (one-shot expand).
-  - `SelectionSlots.cmb002_init(self, widget)` — Rig Picking Mode — hidden: the Maya modes (``mtk.Selection.set_rig_selection_mode``)
-  - `SelectionSlots.cmb002(self, index, widget)` — Rig Picking Mode — unreachable (cmb002_init hides the combo).
-  - `SelectionSlots.cmb001_init(self, widget)` — Reorder Selection — backed by the rolled ``btk.SelectionOrder`` tracker (Blender
-  - `SelectionSlots.cmb001(self, index, widget)` — Reorder Selection (sort via ``btk.reorder_objects``, record the order on
-  - `SelectionSlots.list000_init(self, widget)` — Select by Type: hierarchical type list.
-  - `SelectionSlots.tb004_init(self, widget)` — Select by Type settings menu (mirror of the Maya slot's tb004).
-  - `SelectionSlots.list000(self, item)` — Select by Type (native bpy predicates via ``btk.Selection``).
 
 <a id="slots--blender--subdivision"></a>
 ### `slots/blender/subdivision.py`
@@ -1042,52 +944,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 
 - **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L8)**
 
-<a id="slots--maya--polygons"></a>
-### `slots/maya/polygons.py`
-
-- **[`class PolygonsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/polygons.py#L9)**
-  - `PolygonsSlots.header_init(self, widget)` — Initialize Header
-  - `PolygonsSlots.chk008(self, state, widget)` — Divide Facet: Split U
-  - `PolygonsSlots.chk009(self, state, widget)` — Divide Facet: Split V
-  - `PolygonsSlots.chk010(self, state, widget)` — Divide Facet: Tris
-  - `PolygonsSlots.tb000_init(self, widget)` — Initialize Merge Vertices
-  - `PolygonsSlots.tb000(self, widget)` — Merge Vertices
-  - `PolygonsSlots.tb002_init(self, widget)` — Initialize Separate
-  - `PolygonsSlots.tb002(self, widget)` — Separate: split a combined mesh into its disconnected shells (optionally per material).
-  - `PolygonsSlots.tb003_init(self, widget)` — Initialize Extrude
-  - `PolygonsSlots.tb003(self, widget)` — Extrude the selected faces, edges or vertices (an object extrudes its faces).
-  - `PolygonsSlots.tb004_init(self, widget)` — Initialize Combine
-  - `PolygonsSlots.tb004(self, widget)` — Combine Selected Meshes.
-  - `PolygonsSlots.tb005_init(self, widget)` — Initialize Detach
-  - `PolygonsSlots.tb005(self, widget)` — Detach: extract the selected faces into a new object (optionally duplicated/separated).
-  - `PolygonsSlots.tb006_init(self, widget)` — Initialize Inset Face Region
-  - `PolygonsSlots.tb006(self, widget)` — Inset Face Region
-  - `PolygonsSlots.tb007_init(self, widget)` — Initialize Divide Facet
-  - `PolygonsSlots.tb007(self, widget)` — Divide Facet
-  - `PolygonsSlots.tb008_init(self, widget)` — Initialize Boolean Operation
-  - `PolygonsSlots.tb008(self, widget)` — Boolean Operation
-  - `PolygonsSlots.tb009_init(self, widget)` — Initialize Snap Closest Verts
-  - `PolygonsSlots.tb009(self, widget)` — Snap Closest Verts
-  - `PolygonsSlots.b000(self)` — Circularize: reshape the selected vertices, edges, or faces into an even circle.
-  - `PolygonsSlots.b001(self)` — Fill Holes: cap open holes bounded by the mesh's border edges.
-  - `PolygonsSlots.b003(self)` — Symmetrize: mirror topology and edits across the active symmetry axis.
-  - `PolygonsSlots.b005(self)` — Merge Vertices: Set Distance
-  - `PolygonsSlots.b006(self, widget)` — Bridge: span two edge selections with new connecting faces (closes border edges).
-  - `PolygonsSlots.b007(self)` — Interactive Bridge
-  - `PolygonsSlots.b008(self)` — Weld Center: merge the selected vertices to their shared center point.
-  - `PolygonsSlots.b009(self)` — Collapse Component: faces each to their own point, edges/verts to one center.
-  - `PolygonsSlots.b011(self)` — Bevel: open the Bevel tool window.
-  - `PolygonsSlots.b012(self)` — Multi-Cut Tool
-  - `PolygonsSlots.b022(self)` — Attach: connect components interactively with Maya's Connect tool.
-  - `PolygonsSlots.b032(self)` — Poke: add a center vertex to each selected face, fanning it into triangles.
-  - `PolygonsSlots.b034(self)` — Wedge: sweep the selected faces around a chosen edge into an arc.
-  - `PolygonsSlots.b038(self)` — Assign Invisible
-  - `PolygonsSlots.b043(self)` — Target Weld: interactively merge one vertex onto another by dragging.
-  - `PolygonsSlots.b047(self)` — Insert Edgeloop
-  - `PolygonsSlots.b049(self)` — Slide Edge Tool
-  - `PolygonsSlots.b051(self)` — Offset Edgeloop
-  - `PolygonsSlots.b053(self)` — Edit Edge Flow
-
 <a id="slots--maya--render"></a>
 ### `slots/maya/render.py`
 
@@ -1165,51 +1021,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 ### `slots/maya/select.py`
 
 - **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L8)**
-
-<a id="slots--maya--selection"></a>
-### `slots/maya/selection.py`
-
-- **[`class SelectionSlots(SelectionMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/selection.py#L9)**
-  - `SelectionSlots.list000_init(self, widget)` — Select by Type: Hierarchical type list.
-  - `SelectionSlots.list000(self, item)` — Select by Type
-  - `SelectionSlots.tb004_init(self, widget)` — Select by Type settings menu.
-  - `SelectionSlots.cmb002_init(self, widget)` — Rig Picking Mode: mirrors the scene, never restored (see mirror_app_state).
-  - `SelectionSlots.cmb002(self, index, widget)` — Rig Picking Mode
-  - `SelectionSlots.cmb001_init(self, widget)` — Reorder Selection Init
-  - `SelectionSlots.cmb001(self, index, widget)` — Reorder Selection
-  - `SelectionSlots.list001(self, item)` — Convert To: convert the component selection to verts, edges, faces, UVs, or shells.
-  - `SelectionSlots.b002_init(self, widget)` — Selection constraint: Angle.
-  - `SelectionSlots.b002(self, widget)` — Selection constraint: Angle (toggle).
-  - `SelectionSlots.b003_init(self, widget)` — Selection constraint: Border.
-  - `SelectionSlots.b003(self, widget)` — Selection constraint: Border (toggle).
-  - `SelectionSlots.b004_init(self, widget)` — Selection constraint: Edge Loop.
-  - `SelectionSlots.b004(self, widget)` — Selection constraint: Edge Loop (toggle).
-  - `SelectionSlots.b005_init(self, widget)` — Selection constraint: Edge Ring.
-  - `SelectionSlots.b005(self, widget)` — Selection constraint: Edge Ring (toggle).
-  - `SelectionSlots.b006_init(self, widget)` — Selection constraint: Shell.
-  - `SelectionSlots.b006(self, widget)` — Selection constraint: Shell (toggle).
-  - `SelectionSlots.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
-  - `SelectionSlots.b007(self, widget)` — Selection constraint: UV Edge Loop (toggle).
-  - `SelectionSlots.chk000(self, state, widget)` — Select Nth: uncheck other checkboxes
-  - `SelectionSlots.chk001(self, state, widget)` — Select Nth: uncheck other checkboxes
-  - `SelectionSlots.chk002(self, state, widget)` — Select Nth: uncheck other checkboxes
-  - `SelectionSlots.chk005_init(self, widget)` — Create button group for radioboxes chk005, chk006, chk007
-  - `SelectionSlots.chk005(self, state, widget)` — Select Style: Marquee
-  - `SelectionSlots.chk006(self, state, widget)` — Select Style: Lasso
-  - `SelectionSlots.chk007(self, state, widget)` — Select Style: Paint
-  - `SelectionSlots.chk004(self, state, widget)` — Ignore Backfacing (Camera Based Selection)
-  - `SelectionSlots.chkxxx(self, **kwargs)` — Transform Constraints: Constraint CheckBoxes
-  - `SelectionSlots.tb000_init(self, widget)`
-  - `SelectionSlots.tb000(self, widget)` — Select Nth: select edge loops/rings or shortest paths, stepping every Nth component.
-  - `SelectionSlots.tb001_init(self, widget)`
-  - `SelectionSlots.tb001(self, widget)` — Select Similar.
-  - `SelectionSlots.tb002_init(self, widget)`
-  - `SelectionSlots.tb002(self, widget)` — Select Island: Select Polygon Face Island
-  - `SelectionSlots.tb003_init(self, widget)`
-  - `SelectionSlots.tb003(self, widget)` — Select Edges By Angle
-  - `SelectionSlots.b001(self)` — Toggle Selectability
-  - `SelectionSlots.get_selection_tool()` *(static)* — Queries the current selection tool in Maya.
-  - `SelectionSlots.set_selection_tool(tool)` *(static)* — Sets the selection tool in Maya.
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
@@ -1366,6 +1177,54 @@ Pivot: one Slots class for both hosts.
   - `PivotSlots.tb003(self, widget)` — World-Aligned Pivot: the manipulator (temporary) or the object pivot
   - `PivotSlots.b004(self)` — Bake Pivot: make the temporary pivot (Maya: the manipulator pivot;
 
+<a id="slots--polygons"></a>
+### `slots/polygons.py`
+
+Polygons: one Slots class for both hosts.
+
+- **[`class PolygonsSlots(Slots)`](tentacle/tentacle/slots/polygons.py#L18)**
+  - `PolygonsSlots.header_init(self, widget)` — Initialize Header
+  - `PolygonsSlots.tb000_init(self, widget)` — Initialize Merge Vertices
+  - `PolygonsSlots.tb000(self, widget)` — Merge Vertices: the selected components, else every vertex of the
+  - `PolygonsSlots.b005(self)` — Merge Vertices: Set Distance
+  - `PolygonsSlots.tb002_init(self, widget)` — Initialize Separate
+  - `PolygonsSlots.tb002(self, widget)` — Separate: split each selected mesh into its loose parts (or per material).
+  - `PolygonsSlots.tb003_init(self, widget)` — Initialize Extrude
+  - `PolygonsSlots.tb003(self, widget)` — Extrude the selected faces, edges or vertices.
+  - `PolygonsSlots.tb004_init(self, widget)` — Initialize Combine
+  - `PolygonsSlots.tb004(self, widget)` — Combine the selected meshes (optionally one mesh per material).
+  - `PolygonsSlots.tb005_init(self, widget)` — Initialize Detach
+  - `PolygonsSlots.tb005(self, widget)` — Detach the selected faces (optionally a copy, a new object, per face).
+  - `PolygonsSlots.tb006_init(self, widget)` — Initialize Inset Face Region
+  - `PolygonsSlots.tb006(self, widget)` — Inset Face Region
+  - `PolygonsSlots.chk008(self, state, widget)` — Divide Facet: Split U
+  - `PolygonsSlots.chk009(self, state, widget)` — Divide Facet: Split V
+  - `PolygonsSlots.chk010(self, state, widget)` — Divide Facet: Tris
+  - `PolygonsSlots.tb007_init(self, widget)` — Initialize Divide Facet
+  - `PolygonsSlots.tb007(self, widget)` — Divide Facet
+  - `PolygonsSlots.tb008_init(self, widget)` — Initialize Boolean Operation
+  - `PolygonsSlots.tb008(self, widget)` — Boolean Operation
+  - `PolygonsSlots.tb009_init(self, widget)` — Initialize Snap Closest Verts
+  - `PolygonsSlots.tb009(self, widget)` — Snap Closest Verts: the first selected mesh's vertices onto the last
+  - `PolygonsSlots.b000(self)` — Circularize: reshape the selected vertices, edges or faces into an even circle.
+  - `PolygonsSlots.b001(self)` — Fill Hole: cap the open holes bounded by the selection's border edges.
+  - `PolygonsSlots.b003(self)` — Symmetrize: mirror the selected components across the symmetry axis.
+  - `PolygonsSlots.b006(self)` — Bridge: span two edge selections with new faces.
+  - `PolygonsSlots.b007(self)` — Bridge Interactive: open the Bridge tool window.
+  - `PolygonsSlots.b008(self)` — Target Weld Center: drag a vertex onto another;
+  - `PolygonsSlots.b009(self)` — Collapse: each selected face to its own point;
+  - `PolygonsSlots.b011(self)` — Bevel: open the Bevel tool window.
+  - `PolygonsSlots.b012(self)` — Multi-Cut Tool
+  - `PolygonsSlots.b022(self)` — Attach: connect the selected vertices and edges with new edges.
+  - `PolygonsSlots.b032(self)` — Poke: add a center vertex to each selected face, fanning it into triangles.
+  - `PolygonsSlots.b034(self)` — Wedge: sweep the selected faces around a selected edge into an arc.
+  - `PolygonsSlots.b038(self)` — Assign Hole: toggle the selected faces' hole (invisible) state.
+  - `PolygonsSlots.b043(self)` — Target Weld: drag a vertex onto another to weld it there.
+  - `PolygonsSlots.b047(self)` — Insert Edgeloop
+  - `PolygonsSlots.b049(self)` — Slide: slide the selected edge loops along their neighboring edges.
+  - `PolygonsSlots.b051(self)` — Offset Edgeloop: add a loop on each side of the selected edges.
+  - `PolygonsSlots.b053(self)` — Edit Edge Flow: adjust the selected edges to follow the surface curvature.
+
 <a id="slots--preferences"></a>
 ### `slots/preferences.py`
 
@@ -1393,6 +1252,55 @@ Preferences: one Slots class for both hosts.
   - `PreferencesSlots.b009(self)` — Plug-ins: the host's plug-in manager (Blender: Preferences > Add-ons).
   - `PreferencesSlots.b010(self)` — Preferences: the host's preferences window (Blender: Interface).
   - `PreferencesSlots.b011(self)` — Macro Manager: the uitk shortcut editor over the host's macros.
+
+<a id="slots--selection"></a>
+### `slots/selection.py`
+
+Selection: one Slots class for both hosts.
+
+- **[`class SelectionSlots(Slots)`](tentacle/tentacle/slots/selection.py#L29)** — The ``selection`` panel.
+  - `SelectionSlots.list000_init(self, widget)` — Select by Type: hierarchical type list.
+  - `SelectionSlots.list000(self, item)` — Select by Type
+  - `SelectionSlots.tb004_init(self, widget)` — Select by Type settings menu.
+  - `SelectionSlots.tb004(self, widget)` — Select by Type settings: open the scope / mode menu.
+  - `SelectionSlots.cmb002_init(self, widget)` — Rig Picking Mode: mirrors the scene, never restored (see
+  - `SelectionSlots.cmb002(self, index, widget)` — Rig Picking Mode
+  - `SelectionSlots.cmb001_init(self, widget)` — Reorder Selection Init
+  - `SelectionSlots.cmb001(self, index, widget)` — Reorder Selection: reselect the selection in the chosen order.
+  - `SelectionSlots.list001_init(self, widget)` — Convert To: category rows that convert on click and expand on hover.
+  - `SelectionSlots.list001(self, item)` — Convert To: convert the component selection to verts, edges, faces, UVs or shells.
+  - `SelectionSlots.b002_init(self, widget)` — Selection constraint: Angle.
+  - `SelectionSlots.b002(self, widget)` — Selection constraint: Angle.
+  - `SelectionSlots.b003_init(self, widget)` — Selection constraint: Border.
+  - `SelectionSlots.b003(self, widget)` — Selection constraint: Border.
+  - `SelectionSlots.b004_init(self, widget)` — Selection constraint: Edge Loop.
+  - `SelectionSlots.b004(self, widget)` — Selection constraint: Edge Loop.
+  - `SelectionSlots.b005_init(self, widget)` — Selection constraint: Edge Ring.
+  - `SelectionSlots.b005(self, widget)` — Selection constraint: Edge Ring.
+  - `SelectionSlots.b006_init(self, widget)` — Selection constraint: Shell.
+  - `SelectionSlots.b006(self, widget)` — Selection constraint: Shell.
+  - `SelectionSlots.b007_init(self, widget)` — Selection constraint: UV Edge Loop.
+  - `SelectionSlots.b007(self, widget)` — Selection constraint: UV Edge Loop.
+  - `SelectionSlots.chk004_init(self, widget)` — Ignore Backfacing mirrors the host's live state (never restored);
+  - `SelectionSlots.chk004(self, state, widget)` — Ignore Backfacing: select only what faces the camera (Maya:
+  - `SelectionSlots.chk005_init(self, widget)` — Select Style: Marquee (and the three boxes' exclusive group).
+  - `SelectionSlots.chk006_init(self, widget)` — Select Style: Lasso
+  - `SelectionSlots.chk007_init(self, widget)` — Select Style: Paint (Blender: Circle Select)
+  - `SelectionSlots.chk005(self, state, widget)` — Select Style: Marquee
+  - `SelectionSlots.chk006(self, state, widget)` — Select Style: Lasso
+  - `SelectionSlots.chk007(self, state, widget)` — Select Style: Paint
+  - `SelectionSlots.b001(self)` — Toggle Selectability of the selected objects.
+  - `SelectionSlots.chk000(self, state, widget)` — Select Nth: uncheck other checkboxes
+  - `SelectionSlots.chk001(self, state, widget)` — Select Nth: uncheck other checkboxes
+  - `SelectionSlots.chk002(self, state, widget)` — Select Nth: uncheck other checkboxes
+  - `SelectionSlots.tb000_init(self, widget)` — Initialize Select Nth
+  - `SelectionSlots.tb000(self, widget)` — Select Nth: select edge loops, rings or paths, keeping every Nth component.
+  - `SelectionSlots.tb001_init(self, widget)` — Initialize Select Similar
+  - `SelectionSlots.tb001(self, widget)` — Select Similar: objects by the checked metrics;
+  - `SelectionSlots.tb002_init(self, widget)` — Initialize Select Island
+  - `SelectionSlots.tb002(self, widget)` — Select Island: the contiguous faces, around the selected ones, whose
+  - `SelectionSlots.tb003_init(self, widget)` — Initialize Select Edges By Angle
+  - `SelectionSlots.tb003(self, widget)` — Select Edges By Angle: the selected meshes' edges within the range.
 
 <a id="slots--settings"></a>
 ### `slots/settings.py`
