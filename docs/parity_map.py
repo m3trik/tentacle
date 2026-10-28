@@ -84,31 +84,6 @@ CONTROLS = {
             "reason": "ignore-empty-workspaces is moot; find_workspaces never returns empty dirs",
         },
     },
-    "channels_slots": {
-        # add_action (txt000 filter ON/OFF toggle) ported 2026-07-03 — mirrors mayatk
-        # channels_slots.py:144-164 verbatim (option_box.clear_option + 2-state add_action +
-        # _filter_enabled gate in _refresh_table). No longer a divergence.
-        # cmb_attr_type (Create-Attribute type combo) is a QComboBox, so its item-list difference is
-        # a report-only "combo item deltas (review)" line, not a gate -- disposition documented in
-        # DEFAULT_DELTAS['channels_slots']['cmb_attr_type.items'] (Maya's 'enum' is na; 'double3' was
-        # BUILT 2026-07-08 as Blender's native 'vector' 3-float array type). No CONTROLS entry: the
-        # combo control itself is present on both sides, and item-level keys can't be a 'renamed'
-        # CONTROL (the .ui-lint requires a renamed target to be a real control objectName).
-        "chk_keyable": {
-            "status": "na",
-            "reason": "every Blender custom prop is keyable; no per-attr keyable flag",
-        },
-        "le_enum_names": {
-            "status": "na",
-            "reason": "Blender custom props have no Maya-style enum type on arbitrary objects",
-        },
-        "Names:": {"status": "na", "reason": "label for the enum-names field (see le_enum_names)"},
-        "hdr_channel_control": {
-            "status": "na",
-            "reason": "Maya Channel Control editor; Blender -> Properties/Drivers/Graph editors",
-        },
-        "hdr_connection_editor": {"status": "na", "reason": "Maya Connection Editor; no Blender analogue"},
-    },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
         # removed 2026-07-08 -- all three ship in Blender under the IDENTICAL objectName (verified
@@ -302,7 +277,7 @@ HANDLERS = {
     # Blender 5.1) and are now ported (_component_id/_mat_override/_soft_edge_display/
     # _uv_distortion in _LIST000_ITEMS's View/Normals/UV categories) — no longer divergences, so
     # not ledgered below (matches this file's own convention: fixed drift is closed via a comment,
-    # not a status entry — see e.g. the hdr_manager/channels_slots blocks above). The prior class
+    # not a status entry). The prior class
     # docstring's "viewport/editor state has no per-object Blender analogue" rationale for these
     # four was incorrect: Maya's own controls are themselves viewport/editor state (not
     # per-object) too. Remaining entries below are permanent divergences (a different control
@@ -628,9 +603,6 @@ CONTROLS_SLOTS = {
 # list, the control is a counterpart (named after its target), or the value is actually set
 # post-population (static tool can't see it). Pure drift is fixed, never accepted.
 DEFAULT_DELTAS = {
-    "channels_slots": {
-        "cmb_attr_type.items": "Create-Attribute type combo: Maya offers bool/int/float/string/enum/double3; Blender offers bool/int/float/string/vector. 'enum' is dropped (na -- Blender ID custom props have no Maya-style enum type on arbitrary objects). 'double3' is BUILT 2026-07-08 as 'vector' (Blender's native term): create_attribute makes a 3-float XYZ array custom prop (obj[name]=(d,d,d) + id_properties_ui subtype='XYZ'), parse_value round-trips the '(x, y, z)' cell on edit, and the table already displayed/keyed vectors (_value_type='vector'). The 'double3'->'vector' label difference is the combo item rename.",
-    },
     "materials": {
         "chk_include_optimization.setChecked": "Environment-driven default (documented in-file: builder comment + tooltip + docstring). Same ptk.MapOptimizer toggle, but Blender's bundled Python lacks Pillow, so the map-analysis report degrades to per-texture 'unavailable'; opt-in avoids a noise-filled default report. Maya's tooltip assumes PIL present.",
     },

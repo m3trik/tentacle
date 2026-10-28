@@ -156,7 +156,7 @@ class EditSlots(EditMixin, SlotsBlender):
             setText="Channels",
             setObjectName="b_channels",
             setToolTip="Open the Channels panel — inspect / edit / lock / key the selected "
-            "object's transform channels and custom properties (mirror of Maya's Channels).",
+            "object's transform channels and custom properties (the same panel as Maya's).",
         )
         widget.menu.add(
             "QPushButton",
@@ -166,11 +166,10 @@ class EditSlots(EditMixin, SlotsBlender):
         )
 
     def b_channels(self):
-        """Channels — open the spreadsheet-style channel editor (btk.Channels panel).
+        """Channels — open the shared spreadsheet-style channel editor (over ``btk.Channels``).
 
-        Faithful mirror of Maya's Channels tool, co-located in blendertk
-        (``node_utils/attributes/channels``): a table of the object's transform channels +
-        custom properties with value editing, lock/key toggles, and create/delete/freeze actions.
+        A table of the object's transform channels + custom properties with value editing,
+        lock/key toggles, and create/delete/freeze actions -- the same panel as Maya's.
         Replaces the earlier native-substitute that just popped Blender's Properties editor."""
         self.sb.handlers.marking_menu.show("channels")
 

@@ -2063,7 +2063,7 @@
               "qualname": "EditSlots.b_channels",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Channels — open the spreadsheet-style channel editor (btk.Channels panel).",
+              "summary": "Channels — open the shared spreadsheet-style channel editor (over ``btk.Channels``).",
               "line": 168,
               "deprecated": false
             },
@@ -2073,7 +2073,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "",
-              "line": 207,
+              "line": 206,
               "deprecated": false
             },
             {
@@ -2082,7 +2082,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.",
-              "line": 394,
+              "line": 393,
               "deprecated": false
             },
             {
@@ -2091,7 +2091,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Delete Selected (objects in object mode, components by select mode in edit mode).",
-              "line": 664,
+              "line": 663,
               "deprecated": false
             },
             {
@@ -2100,7 +2100,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Create Primitives list — 6 categories, mirroring Maya's Polygon/NURBS/",
-              "line": 688,
+              "line": 687,
               "deprecated": false
             },
             {
@@ -2109,7 +2109,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Create Primitive — branch per category the way Maya's list000 does (Control/Curve/",
-              "line": 712,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -2118,7 +2118,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert list.",
-              "line": 816,
+              "line": 815,
               "deprecated": false
             },
             {
@@ -2127,7 +2127,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Convert the selected object(s) to another type (or run a Convert-list action that",
-              "line": 827,
+              "line": 826,
               "deprecated": false
             },
             {
@@ -2136,7 +2136,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cut On Axis",
-              "line": 877,
+              "line": 876,
               "deprecated": false
             },
             {
@@ -2145,7 +2145,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Transfer — dispatch the selected transfer operation.",
-              "line": 900,
+              "line": 899,
               "deprecated": false
             },
             {
@@ -2154,7 +2154,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize — relabel the shared \"Delete History\" button (its text lives in the shared",
-              "line": 1008,
+              "line": 1007,
               "deprecated": false
             },
             {
@@ -2163,7 +2163,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Optimize — purge orphaned (zero-user) datablocks;",
-              "line": 1045,
+              "line": 1044,
               "deprecated": false
             },
             {
@@ -2172,7 +2172,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Object Locking — Lock/Unlock selector (mirror of Maya's cmb_lock).",
-              "line": 1066,
+              "line": 1065,
               "deprecated": false
             },
             {
@@ -2181,7 +2181,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Object Locking — Blender's analogue of Maya's node lock: toggle ``hide_select`` (make",
-              "line": 1085,
+              "line": 1084,
               "deprecated": false
             }
           ]
@@ -10082,6 +10082,97 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/_channels/attribute_form.py",
+      "summary": "The Create Attribute popup: a one-shot form over the host's attribute types.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AttributeForm",
+          "summary": "Builds the Create Attribute popup.",
+          "line": 6,
+          "bases": [],
+          "members": [
+            {
+              "name": "show",
+              "qualname": "AttributeForm.show",
+              "kind": "classmethod",
+              "signature": "(cls, sb, parent, types, on_create, keyable=True)",
+              "summary": "Build and show the form.",
+              "line": 19,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_channels/enum_cell.py",
+      "summary": "The value cell of an enum attribute: its labels in a combobox, plus Rename /",
+      "functions": [],
+      "classes": [
+        {
+          "name": "EnumCell",
+          "summary": "Builds an enum row's value-cell combobox.",
+          "line": 7,
+          "bases": [],
+          "members": [
+            {
+              "name": "build",
+              "qualname": "EnumCell.build",
+              "kind": "classmethod",
+              "signature": "(cls, sb, attr_name, labels, indices, current, on_activated, on_action)",
+              "summary": "A combobox showing *labels* with *current* (a stored index) chosen.",
+              "line": 19,
+              "deprecated": false
+            },
+            {
+              "name": "show_index",
+              "qualname": "EnumCell.show_index",
+              "kind": "staticmethod",
+              "signature": "(combo, index)",
+              "summary": "Show stored *index* in *combo* without firing its handlers.",
+              "line": 64,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_channels/inline_rename.py",
+      "summary": "Rename the panel's target in place: the target field, and the footer in",
+      "functions": [],
+      "classes": [
+        {
+          "name": "InlineRename",
+          "summary": "Double-click-to-rename on a read-only line edit.",
+          "line": 9,
+          "bases": [],
+          "members": []
+        },
+        {
+          "name": "FooterRename",
+          "summary": "An inline rename page on a uitk ``Footer``.",
+          "line": 78,
+          "bases": [],
+          "members": [
+            {
+              "name": "edit",
+              "qualname": "FooterRename.edit",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Swap the footer's label for the line edit, holding the name.",
+              "line": 129,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/_shot_manifest/controller.py",
       "summary": "The Shot Manifest panel's controller: its state, the steps the table shows,",
       "functions": [],
@@ -11830,6 +11921,96 @@
               "signature": "(self)",
               "summary": "",
               "line": 186,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/channels.py",
+      "summary": "Channels: the selected objects' attributes in one editable table.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ChannelsSlots",
+          "summary": "Switchboard slots for the ``channels.ui`` panel.",
+          "line": 48,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "launch",
+              "qualname": "ChannelsSlots.launch",
+              "kind": "staticmethod",
+              "signature": "(sb, targets=None, filter=None, search=None)",
+              "summary": "Open the panel, optionally pre-targeted (:meth:`apply_launch_config`).",
+              "line": 372,
+              "deprecated": false
+            },
+            {
+              "name": "apply_launch_config",
+              "qualname": "ChannelsSlots.apply_launch_config",
+              "kind": "method",
+              "signature": "(self, targets=None, filter=None, search=None)",
+              "summary": "Pin *targets*, pick *filter* and set the *search* pattern, then refresh.",
+              "line": 390,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "ChannelsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create Attribute, the view toggles and the host's own editors.",
+              "line": 418,
+              "deprecated": false
+            },
+            {
+              "name": "show_create_menu",
+              "qualname": "ChannelsSlots.show_create_menu",
+              "kind": "method",
+              "signature": "(self, *args)",
+              "summary": "Show the Create Attribute form.",
+              "line": 553,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "ChannelsSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The host's filters, and an invert action on the combo's option box.",
+              "line": 839,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000",
+              "qualname": "ChannelsSlots.cmb000",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "Filter changed: refresh.",
+              "line": 866,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "ChannelsSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Wire the table, build its menu once, start watching the scene, refresh.",
+              "line": 882,
+              "deprecated": false
+            },
+            {
+              "name": "cleanup_scene_callbacks",
+              "qualname": "ChannelsSlots.cleanup_scene_callbacks",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "End every subscription this instance holds (scene, attributes,",
+              "line": 2178,
               "deprecated": false
             }
           ]

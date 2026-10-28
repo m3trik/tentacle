@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (590)
+## Added (607)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -24,6 +24,14 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
 - `slots/tools/_blendshape_animator/sort_item.py::NumericSortItem(class)`
+- `slots/tools/_channels/attribute_form.py::AttributeForm(class)`
+- `slots/tools/_channels/attribute_form.py::AttributeForm.show(cls, sb, parent, types, on_create, keyable=True)`
+- `slots/tools/_channels/enum_cell.py::EnumCell(class)`
+- `slots/tools/_channels/enum_cell.py::EnumCell.build(cls, sb, attr_name, labels, indices, current, on_activated, on_action)`
+- `slots/tools/_channels/enum_cell.py::EnumCell.show_index(combo, index)`
+- `slots/tools/_channels/inline_rename.py::FooterRename(class)`
+- `slots/tools/_channels/inline_rename.py::FooterRename.edit(self)`
+- `slots/tools/_channels/inline_rename.py::InlineRename(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
@@ -202,6 +210,15 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/calculator.py::CalculatorSlots.on_equal(self)`
 - `slots/tools/calculator.py::CalculatorSlots.on_input(self, text)`
 - `slots/tools/calculator.py::CalculatorSlots.sec_to_frames(self)`
+- `slots/tools/channels.py::ChannelsSlots(class)`
+- `slots/tools/channels.py::ChannelsSlots.apply_launch_config(self, targets=None, filter=None, search=None)`
+- `slots/tools/channels.py::ChannelsSlots.cleanup_scene_callbacks(self)`
+- `slots/tools/channels.py::ChannelsSlots.cmb000(self, index)`
+- `slots/tools/channels.py::ChannelsSlots.cmb000_init(self, widget)`
+- `slots/tools/channels.py::ChannelsSlots.header_init(self, widget)`
+- `slots/tools/channels.py::ChannelsSlots.launch(sb, targets=None, filter=None, search=None)`
+- `slots/tools/channels.py::ChannelsSlots.show_create_menu(self, *args)`
+- `slots/tools/channels.py::ChannelsSlots.tbl000_init(self, widget)`
 - `slots/tools/color_id.py::ColorIdSlots(class)`
 - `slots/tools/color_id.py::ColorIdSlots.b000(self) -> None`
 - `slots/tools/color_id.py::ColorIdSlots.b001(self) -> None`

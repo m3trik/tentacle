@@ -414,6 +414,19 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_blendshape_animator/sort_item.py` — A tween-tree row that sorts its numeric columns by number.
 - `class NumericSortItem(QtWidgets.QTreeWidgetItem)`
 
+### `slots/tools/_channels/attribute_form.py` — The Create Attribute popup: a one-shot form over the host's attribute types.
+- `class AttributeForm`
+  - methods: show
+
+### `slots/tools/_channels/enum_cell.py` — The value cell of an enum attribute: its labels in a combobox, plus Rename /
+- `class EnumCell`
+  - methods: build, show_index
+
+### `slots/tools/_channels/inline_rename.py` — Rename the panel's target in place: the target field, and the footer in
+- `class InlineRename`
+- `class FooterRename`
+  - methods: edit
+
 ### `slots/tools/_shot_manifest/controller.py` — The Shot Manifest panel's controller: its state, the steps the table shows,
 - `class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`
   - methods: build, assess
@@ -486,6 +499,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/calculator.py` — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - `class CalculatorSlots(Slots)`
   - methods: header_init, on_input, on_clear, on_backspace, on_equal, on_convert_units, get_fps, get_current_time, frames_to_sec, sec_to_frames
+
+### `slots/tools/channels.py` — Channels: the selected objects' attributes in one editable table.
+- `class ChannelsSlots(Slots)`
+  - methods: launch, apply_launch_config, header_init, show_create_menu, cmb000_init, cmb000, tbl000_init, cleanup_scene_callbacks
 
 ### `slots/tools/color_id.py` — Color ID: color-code objects across channels from a swatch palette.
 - `class ColorIdSlots(Slots)`

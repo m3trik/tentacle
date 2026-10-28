@@ -114,6 +114,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
 - [`slots/tools/_blendshape_animator/sort_item.py`](#slots--tools--_blendshape_animator--sort_item) — A tween-tree row that sorts its numeric columns by number.
+- [`slots/tools/_channels/attribute_form.py`](#slots--tools--_channels--attribute_form) — The Create Attribute popup: a one-shot form over the host's attribute types.
+- [`slots/tools/_channels/enum_cell.py`](#slots--tools--_channels--enum_cell) — The value cell of an enum attribute: its labels in a combobox, plus Rename /
+- [`slots/tools/_channels/inline_rename.py`](#slots--tools--_channels--inline_rename) — Rename the panel's target in place: the target field, and the footer in
 - [`slots/tools/_shot_manifest/controller.py`](#slots--tools--_shot_manifest--controller) — The Shot Manifest panel's controller: its state, the steps the table shows,
 - [`slots/tools/_shot_manifest/export_preview.py`](#slots--tools--_shot_manifest--export_preview) — The Shot Manifest's Export button (beside Assess): a live preview of the
 - [`slots/tools/_shot_manifest/header_menu.py`](#slots--tools--_shot_manifest--header_menu) — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
@@ -133,6 +136,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/blendshape_animator.py`](#slots--tools--blendshape_animator) — Blendshape Animator: build a morph between two meshes, add in-between
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
+- [`slots/tools/channels.py`](#slots--tools--channels) — Channels: the selected objects' attributes in one editable table.
 - [`slots/tools/color_id.py`](#slots--tools--color_id) — Color ID: color-code objects across channels from a swatch palette.
 - [`slots/tools/curtain.py`](#slots--tools--curtain) — Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
 - [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
@@ -527,7 +531,7 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class EditSlots(EditMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/edit.py#L8)** — Blender port of the shared ``edit`` menu.
   - `EditSlots.header_init(self, widget)`
-  - `EditSlots.b_channels(self)` — Channels — open the spreadsheet-style channel editor (btk.Channels panel).
+  - `EditSlots.b_channels(self)` — Channels — open the shared spreadsheet-style channel editor (over ``btk.Channels``).
   - `EditSlots.tb000_init(self, widget)`
   - `EditSlots.tb000(self, widget)` — Mesh Cleanup — Repair (fix) or, in Select mode, select the matched problem geometry.
   - `EditSlots.tb002(self, widget)` — Delete Selected (objects in object mode, components by select mode in edit mode).
@@ -1666,6 +1670,32 @@ A tween-tree row that sorts its numeric columns by number.
 
 - **[`class NumericSortItem(QtWidgets.QTreeWidgetItem)`](tentacle/tentacle/slots/tools/_blendshape_animator/sort_item.py#L8)** — A tree row that sorts the Weight and Frame columns by number.
 
+<a id="slots--tools--_channels--attribute_form"></a>
+### `slots/tools/_channels/attribute_form.py`
+
+The Create Attribute popup: a one-shot form over the host's attribute types.
+
+- **[`class AttributeForm`](tentacle/tentacle/slots/tools/_channels/attribute_form.py#L6)** — Builds the Create Attribute popup.
+  - `AttributeForm.show(cls, sb, parent, types, on_create, keyable=True)` *(class)* — Build and show the form.
+
+<a id="slots--tools--_channels--enum_cell"></a>
+### `slots/tools/_channels/enum_cell.py`
+
+The value cell of an enum attribute: its labels in a combobox, plus Rename /
+
+- **[`class EnumCell`](tentacle/tentacle/slots/tools/_channels/enum_cell.py#L7)** — Builds an enum row's value-cell combobox.
+  - `EnumCell.build(cls, sb, attr_name, labels, indices, current, on_activated, on_action)` *(class)* — A combobox showing *labels* with *current* (a stored index) chosen.
+  - `EnumCell.show_index(combo, index)` *(static)* — Show stored *index* in *combo* without firing its handlers.
+
+<a id="slots--tools--_channels--inline_rename"></a>
+### `slots/tools/_channels/inline_rename.py`
+
+Rename the panel's target in place: the target field, and the footer in
+
+- **[`class InlineRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L9)** — Double-click-to-rename on a read-only line edit.
+- **[`class FooterRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L78)** — An inline rename page on a uitk ``Footer``.
+  - `FooterRename.edit(self)` — Swap the footer's label for the line edit, holding the name.
+
 <a id="slots--tools--_shot_manifest--controller"></a>
 ### `slots/tools/_shot_manifest/controller.py`
 
@@ -1957,6 +1987,21 @@ Calculator: expressions, length units, and the scene's frame-rate helpers.
   - `CalculatorSlots.get_current_time(self)`
   - `CalculatorSlots.frames_to_sec(self)`
   - `CalculatorSlots.sec_to_frames(self)`
+
+<a id="slots--tools--channels"></a>
+### `slots/tools/channels.py`
+
+Channels: the selected objects' attributes in one editable table.
+
+- **[`class ChannelsSlots(Slots)`](tentacle/tentacle/slots/tools/channels.py#L48)** — Switchboard slots for the ``channels.ui`` panel.
+  - `ChannelsSlots.launch(sb, targets=None, filter=None, search=None)` *(static)* — Open the panel, optionally pre-targeted (:meth:`apply_launch_config`).
+  - `ChannelsSlots.apply_launch_config(self, targets=None, filter=None, search=None)` — Pin *targets*, pick *filter* and set the *search* pattern, then refresh.
+  - `ChannelsSlots.header_init(self, widget)` — Create Attribute, the view toggles and the host's own editors.
+  - `ChannelsSlots.show_create_menu(self, *args)` — Show the Create Attribute form.
+  - `ChannelsSlots.cmb000_init(self, widget)` — The host's filters, and an invert action on the combo's option box.
+  - `ChannelsSlots.cmb000(self, index)` — Filter changed: refresh.
+  - `ChannelsSlots.tbl000_init(self, widget)` — Wire the table, build its menu once, start watching the scene, refresh.
+  - `ChannelsSlots.cleanup_scene_callbacks(self)` — End every subscription this instance holds (scene, attributes,
 
 <a id="slots--tools--color_id"></a>
 ### `slots/tools/color_id.py`
