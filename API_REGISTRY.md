@@ -139,6 +139,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
+- [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
+- [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -1949,6 +1951,32 @@ Snap: vertices to a target surface, to the closest target vertex, or to the grid
   - `SnapSlots.b001(self)` — Snap to Closest Vertex button.
   - `SnapSlots.b002_init(self, widget)` — Initialize Snap to Grid button option box.
   - `SnapSlots.b002(self)` — Snap to Grid button.
+
+<a id="slots--tools--telescope_rig"></a>
+### `slots/tools/telescope_rig.py`
+
+Telescope Rig: nested segments that extend and retract between a base and an
+
+- **[`class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/telescope_rig.py#L19)**
+  - `TelescopeRigSlots.header_init(self, widget)` — Configure header help text.
+  - `TelescopeRigSlots.build_rig(self)` — Build Telescope Rig: rig the selected segments between their handles.
+  - `TelescopeRigSlots.remove_rig(self)` — Remove Telescope Rig: tear down the rigs on the selection, or the
+
+<a id="slots--tools--wheel_rig"></a>
+### `slots/tools/wheel_rig.py`
+
+Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
+
+- **[`class WheelRigSlots(Slots)`](tentacle/tentacle/slots/tools/wheel_rig.py#L15)**
+  - `WheelRigSlots.header_init(self, widget)` — Configure header menu with mode toggle and instructions.
+  - `WheelRigSlots.rig_name(self) -> str` *(property)* — The Rig Name field's text ("" when left to the default).
+  - `WheelRigSlots.movement_axis(self) -> str` *(property)* — The driver's travel channel the Axis combo names (``translateZ``).
+  - `WheelRigSlots.rotation_axis(self) -> str` *(property)* — The wheel rotation channel the Axis combo pairs with it (``rotateX``).
+  - `WheelRigSlots.set_wheel_height(self)` — Get Wheel Size: Wheel Height from the selected wheel's bounding box,
+  - `WheelRigSlots.txt000_init(self, widget)` — Rig-name field — optional, so clearing back to auto-naming is a state.
+  - `WheelRigSlots.s000_init(self, widget)` — Initialize the wheel height field's option-box menu.
+  - `WheelRigSlots.update_rig_name_placeholder(self)` — Show, as the Rig Name placeholder, the name a rig on the selection's
+  - `WheelRigSlots.b000(self)` — Rig Rotation: rig the selected wheels to the selected driver, or
 
 <a id="tcl"></a>
 ### `tcl.py`

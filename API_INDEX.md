@@ -512,6 +512,14 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class SnapSlots(Slots)`
   - methods: header_init, b000_init, b000, b001_init, b001, b002_init, b002
 
+### `slots/tools/telescope_rig.py` — Telescope Rig: nested segments that extend and retract between a base and an
+- `class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, build_rig, remove_rig
+
+### `slots/tools/wheel_rig.py` — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
+- `class WheelRigSlots(Slots)`
+  - methods: header_init, rig_name, movement_axis, rotation_axis, set_wheel_height, txt000_init, s000_init, update_rig_name_placeholder, b000
+
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`

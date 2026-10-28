@@ -11723,6 +11723,151 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/telescope_rig.py",
+      "summary": "Telescope Rig: nested segments that extend and retract between a base and an",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TelescopeRigSlots",
+          "summary": "",
+          "line": 19,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "TelescopeRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 56,
+              "deprecated": false
+            },
+            {
+              "name": "build_rig",
+              "qualname": "TelescopeRigSlots.build_rig",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Build Telescope Rig: rig the selected segments between their handles.",
+              "line": 186,
+              "deprecated": false
+            },
+            {
+              "name": "remove_rig",
+              "qualname": "TelescopeRigSlots.remove_rig",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Remove Telescope Rig: tear down the rigs on the selection, or the",
+              "line": 235,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/wheel_rig.py",
+      "summary": "Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel",
+      "functions": [],
+      "classes": [
+        {
+          "name": "WheelRigSlots",
+          "summary": "",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "WheelRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header menu with mode toggle and instructions.",
+              "line": 53,
+              "deprecated": false
+            },
+            {
+              "name": "rig_name",
+              "qualname": "WheelRigSlots.rig_name",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The Rig Name field's text (\"\" when left to the default).",
+              "line": 141,
+              "deprecated": false
+            },
+            {
+              "name": "movement_axis",
+              "qualname": "WheelRigSlots.movement_axis",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The driver's travel channel the Axis combo names (``translateZ``).",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "rotation_axis",
+              "qualname": "WheelRigSlots.rotation_axis",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The wheel rotation channel the Axis combo pairs with it (``rotateX``).",
+              "line": 158,
+              "deprecated": false
+            },
+            {
+              "name": "set_wheel_height",
+              "qualname": "WheelRigSlots.set_wheel_height",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Get Wheel Size: Wheel Height from the selected wheel's bounding box,",
+              "line": 162,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "WheelRigSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Rig-name field — optional, so clearing back to auto-naming is a state.",
+              "line": 240,
+              "deprecated": false
+            },
+            {
+              "name": "s000_init",
+              "qualname": "WheelRigSlots.s000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the wheel height field's option-box menu.",
+              "line": 244,
+              "deprecated": false
+            },
+            {
+              "name": "update_rig_name_placeholder",
+              "qualname": "WheelRigSlots.update_rig_name_placeholder",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Show, as the Rig Name placeholder, the name a rig on the selection's",
+              "line": 262,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "WheelRigSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rig Rotation: rig the selected wheels to the selected driver, or",
+              "line": 269,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "tcl.py",
       "summary": "The host-agnostic entry point — one launcher snippet for every DCC.",
       "functions": [],

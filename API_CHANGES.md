@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (175)
+## Added (189)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -183,6 +183,20 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/snap.py::SnapSlots.b002(self)`
 - `slots/tools/snap.py::SnapSlots.b002_init(self, widget)`
 - `slots/tools/snap.py::SnapSlots.header_init(self, widget)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots(class)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`
+- `slots/tools/telescope_rig.py::TelescopeRigSlots.remove_rig(self)`
+- `slots/tools/wheel_rig.py::WheelRigSlots(class)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.b000(self)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.header_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.movement_axis(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.rig_name(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.rotation_axis(self) -> str`
+- `slots/tools/wheel_rig.py::WheelRigSlots.s000_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.set_wheel_height(self)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.txt000_init(self, widget)`
+- `slots/tools/wheel_rig.py::WheelRigSlots.update_rig_name_placeholder(self)`
 - `tcl.py::Tcl.register_shared(switchboard)`
 
 ## Moved (22)
