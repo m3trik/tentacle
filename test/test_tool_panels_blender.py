@@ -7,7 +7,9 @@ stack with tentacle's shared roots registered, the way ``tcl_blender`` stands
 it up. Each tool's ``.ui`` compiles and binds to its one tentacle Slots class
 over blendertk (``Slots.tk``); a Preview panel's Create button is enabled (the
 ``.ui`` ships it disabled and Preview takes it over); the panel opens sticky by
-the panel tag. Maya's twin is ``test_marking_menu_gui.py`` (fresh GUI Maya).
+the panel tag. A tool Blender does not serve (``tentacle.slots.tools.HOSTS``) is
+never registered here, so nothing offers it. Maya's twin is
+``test_marking_menu_gui.py`` (fresh GUI Maya).
 """
 
 import os
@@ -60,7 +62,12 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
         cls.sb = cls.handler.sb
         Tcl.register_shared(cls.sb)
         cls.tools_dir = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
-        cls.names = sorted(p.stem for p in cls.tools_dir.glob("*.ui"))
+        # This switchboard may be another module's, built with no context (every
+        # tool registered): load only what tcl_blender's {"blender"} context serves.
+        cls.unserved = Tcl.unserved_tools({"blender"})
+        cls.names = sorted(
+            p.stem for p in cls.tools_dir.glob("*.ui") if p.stem not in cls.unserved
+        )
 
     def test_each_tool_binds_its_tentacle_slots_over_blendertk(self):
         self.assertIn("duplicate_radial", self.names)
@@ -90,6 +97,26 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
                     self.handler.default_persistence(ui),
                     self.handler.PERSISTENCE_STICKY,
                 )
+
+    def test_a_tool_blender_does_not_serve_is_never_registered(self):
+        """The launcher leaves a Maya tool out (``Tcl.register_shared`` under
+        tcl_blender's context): no .ui to load, no Slots class to bind, so no
+        menu, UI Browser row or ``marking_menu.show`` can open it."""
+        from uitk import Switchboard
+
+        from tentacle.tcl import Tcl
+
+        self.assertIn("light_rig", self.unserved)
+        sb = Switchboard(context_tags={"blender"})
+        Tcl.register_shared(sb)
+        uis = set(sb.registry.ui_registry.get("filename") or [])
+        classes = set(sb.registry.slot_registry.get("classname") or [])
+        for name in self.unserved:
+            with self.subTest(tool=name):
+                self.assertNotIn(name, uis)
+                slots = "".join(part.title() for part in name.split("_")) + "Slots"
+                self.assertNotIn(slots, classes)
+        self.assertLessEqual(set(self.names), uis)
 
     def _loaded(self, name):
         ui = self.handler.get(name)

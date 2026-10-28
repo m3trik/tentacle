@@ -2524,7 +2524,7 @@
               "qualname": "LightingSlots.b002_init",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Light Rigs -- hidden until ported: blendertk has no LightRig twin yet, so the",
+              "summary": "Light Rigs -- hidden until ported: the tool is Maya-only (tentacle's slots/tools",
               "line": 27,
               "deprecated": false
             },
@@ -2534,7 +2534,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Light Rigs -- unreachable (b002_init hides the button);",
-              "line": 32,
+              "line": 33,
               "deprecated": false
             },
             {
@@ -2543,7 +2543,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Lights From Geometry Init",
-              "line": 36,
+              "line": 37,
               "deprecated": false
             },
             {
@@ -2552,7 +2552,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Create real area lights from the selected fixture meshes.",
-              "line": 73,
+              "line": 74,
               "deprecated": false
             }
           ]
@@ -10065,6 +10065,23 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/__init__.py",
+      "summary": "Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``",
+      "functions": [],
+      "classes": [],
+      "constants": [
+        {
+          "name": "HOSTS",
+          "qualname": "HOSTS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 16,
+          "deprecated": false
+        }
+      ]
+    },
+    {
       "relpath": "slots/tools/_app_bridge/host_bridge.py",
       "summary": "The app-bridge panels' one base, shared by both hosts.",
       "functions": [],
@@ -13081,6 +13098,70 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/arnold_bridge.py",
+      "summary": "Arnold Preview Shader: add or remove the Arnold preview network beside each",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ArnoldBridgeSlots",
+          "summary": "",
+          "line": 19,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ArnoldBridgeSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The header menu's Select Bridged Materials, and the help text.",
+              "line": 32,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "ArnoldBridgeSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The Scope combo (Selected Objects by default).",
+              "line": 75,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "ArnoldBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Add Network.",
+              "line": 82,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "ArnoldBridgeSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove Network.",
+              "line": 86,
+              "deprecated": false
+            },
+            {
+              "name": "select_bridged",
+              "qualname": "ArnoldBridgeSlots.select_bridged",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Header menu: select every material that has a network (never the",
+              "line": 90,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/articulated_rig.py",
       "summary": "Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and",
       "functions": [],
@@ -15519,6 +15600,97 @@
               "signature": "(self) -> None",
               "summary": "Drop",
               "line": 281,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/light_rig.py",
+      "summary": "Light Rigs: save the scene's lights as named rigs, swap between them and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LightRigSlots",
+          "summary": "",
+          "line": 24,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "refresh",
+              "qualname": "LightRigSlots.refresh",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Re-read the library, select the scene's rig, and report the scene.",
+              "line": 71,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "LightRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 112,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "LightRigSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 140,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000",
+              "qualname": "LightRigSlots.cmb000",
+              "kind": "method",
+              "signature": "(self, index, widget) -> None",
+              "summary": "Show the picked rig (picking never changes the scene).",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "LightRigSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Apply the picked rig: it replaces the scene's rig (Swap Back returns).",
+              "line": 179,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "LightRigSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Swap Back: return to the rig the last Apply replaced.",
+              "line": 205,
+              "deprecated": false
+            },
+            {
+              "name": "open_rig_folder",
+              "qualname": "LightRigSlots.open_rig_folder",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Header menu: the folder the rig library lives in.",
+              "line": 215,
+              "deprecated": false
+            },
+            {
+              "name": "prompt_save",
+              "qualname": "LightRigSlots.prompt_save",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "＋: save the scene's rig under a new (or existing) name.",
+              "line": 272,
               "deprecated": false
             }
           ]
@@ -18983,6 +19155,314 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/workspace_editor.py",
+      "summary": "Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one",
+      "functions": [],
+      "classes": [
+        {
+          "name": "WorkspaceEditorSlots",
+          "summary": "",
+          "line": 41,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "WorkspaceEditorSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Rule add, view toggle, reset/clear, template combo, help text.",
+              "line": 57,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "WorkspaceEditorSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Project Root: one full path (browse + open-folder option-box actions).",
+              "line": 173,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "WorkspaceEditorSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "add_rule",
+              "qualname": "WorkspaceEditorSlots.add_rule",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Append an empty, editable rule row (saves once both cells are filled).",
+              "line": 427,
+              "deprecated": false
+            },
+            {
+              "name": "reset_row",
+              "qualname": "WorkspaceEditorSlots.reset_row",
+              "kind": "method",
+              "signature": "(self, row)",
+              "summary": "Reset *row*'s location to the active template's default for its rule.",
+              "line": 443,
+              "deprecated": false
+            },
+            {
+              "name": "remove_row",
+              "qualname": "WorkspaceEditorSlots.remove_row",
+              "kind": "method",
+              "signature": "(self, row)",
+              "summary": "Remove *row* and delete its rule from workspace.mel.",
+              "line": 454,
+              "deprecated": false
+            },
+            {
+              "name": "reset_rules",
+              "qualname": "WorkspaceEditorSlots.reset_rules",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Restore the default file rules (the active template's) and save.",
+              "line": 466,
+              "deprecated": false
+            },
+            {
+              "name": "clear_rules",
+              "qualname": "WorkspaceEditorSlots.clear_rules",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Remove every file rule and save (hand-written marker lines survive).",
+              "line": 471,
+              "deprecated": false
+            },
+            {
+              "name": "create_project",
+              "qualname": "WorkspaceEditorSlots.create_project",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Build the project at the current root: marker + the active template's rule",
+              "line": 477,
+              "deprecated": false
+            },
+            {
+              "name": "open_folder",
+              "qualname": "WorkspaceEditorSlots.open_folder",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the project root in the system file browser.",
+              "line": 496,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/workspace_map.py",
+      "summary": "Workspace Map: browse a folder tree of project workspaces and switch the",
+      "functions": [],
+      "classes": [
+        {
+          "name": "WorkspaceMapSlots",
+          "summary": "",
+          "line": 27,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "WorkspaceMapSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Project creation actions + help text.",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "WorkspaceMapSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The root directory field: browse, Set To Workspace, Recursive Search.",
+              "line": 132,
+              "deprecated": false
+            },
+            {
+              "name": "txt001_init",
+              "qualname": "WorkspaceMapSlots.txt001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The workspace-name filter.",
+              "line": 164,
+              "deprecated": false
+            },
+            {
+              "name": "tree000_init",
+              "qualname": "WorkspaceMapSlots.tree000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The workspace tree, its double-click and its right-click menu.",
+              "line": 170,
+              "deprecated": false
+            },
+            {
+              "name": "update_current_dir",
+              "qualname": "WorkspaceMapSlots.update_current_dir",
+              "kind": "method",
+              "signature": "(self, text: Optional[str] = None) -> None",
+              "summary": "Retarget the scan at the root field's directory (rescans only when it",
+              "line": 195,
+              "deprecated": false
+            },
+            {
+              "name": "update_tree",
+              "qualname": "WorkspaceMapSlots.update_tree",
+              "kind": "method",
+              "signature": "(self, filter_text: Optional[str] = None) -> None",
+              "summary": "Rebuild the tree from the last scan, narrowed to *filter_text*.",
+              "line": 217,
+              "deprecated": false
+            },
+            {
+              "name": "populate_tree",
+              "qualname": "WorkspaceMapSlots.populate_tree",
+              "kind": "method",
+              "signature": "(self, tree_data: Dict) -> None",
+              "summary": "Clear and refill the tree: a row per parent folder, its workspaces",
+              "line": 221,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_tree",
+              "qualname": "WorkspaceMapSlots.refresh_tree",
+              "kind": "method",
+              "signature": "(self, invalidate: bool = False) -> None",
+              "summary": "Refill the tree;",
+              "line": 244,
+              "deprecated": false
+            },
+            {
+              "name": "selected_workspace",
+              "qualname": "WorkspaceMapSlots.selected_workspace",
+              "kind": "method",
+              "signature": "(self) -> Optional[Dict]",
+              "summary": "The workspace row under the tree cursor, or None (a folder row is none).",
+              "line": 250,
+              "deprecated": false
+            },
+            {
+              "name": "filter_workspaces",
+              "qualname": "WorkspaceMapSlots.filter_workspaces",
+              "kind": "method",
+              "signature": "(self, text) -> None",
+              "summary": "",
+              "line": 260,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "WorkspaceMapSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Browse for the root directory.",
+              "line": 264,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "WorkspaceMapSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Set to Workspace.",
+              "line": 276,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "WorkspaceMapSlots.b002",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Refresh: rescan the root.",
+              "line": 280,
+              "deprecated": false
+            },
+            {
+              "name": "set_to_workspace",
+              "qualname": "WorkspaceMapSlots.set_to_workspace",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Set the root to the current workspace's folder.",
+              "line": 284,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "WorkspaceMapSlots.chk000",
+              "kind": "method",
+              "signature": "(self, checked) -> None",
+              "summary": "Recursive Search: rescan when it changes.",
+              "line": 288,
+              "deprecated": false
+            },
+            {
+              "name": "btn_open_workspace",
+              "qualname": "WorkspaceMapSlots.btn_open_workspace",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Make the selected workspace the current project.",
+              "line": 300,
+              "deprecated": false
+            },
+            {
+              "name": "btn_explore_folder",
+              "qualname": "WorkspaceMapSlots.btn_explore_folder",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Open the selected workspace's folder in the file browser.",
+              "line": 309,
+              "deprecated": false
+            },
+            {
+              "name": "new_project",
+              "qualname": "WorkspaceMapSlots.new_project",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Create a project under the root from the ACTIVE template.",
+              "line": 316,
+              "deprecated": false
+            },
+            {
+              "name": "mark_root",
+              "qualname": "WorkspaceMapSlots.mark_root",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Mark the ROOT directory as a shared Maya/Blender project.",
+              "line": 330,
+              "deprecated": false
+            },
+            {
+              "name": "save_template",
+              "qualname": "WorkspaceMapSlots.save_template",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Publish the ACTIVE project's file rules as a named workspace template.",
+              "line": 349,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "tcl.py",
       "summary": "The host-agnostic entry point — one launcher snippet for every DCC.",
       "functions": [],
@@ -19068,12 +19548,21 @@
               "deprecated": false
             },
             {
+              "name": "unserved_tools",
+              "qualname": "Tcl.unserved_tools",
+              "kind": "staticmethod",
+              "signature": "(context_tags=None)",
+              "summary": "The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):",
+              "line": 594,
+              "deprecated": false
+            },
+            {
               "name": "register_shared",
               "qualname": "Tcl.register_shared",
               "kind": "staticmethod",
               "signature": "(switchboard)",
               "summary": "Register on *switchboard* what every host shares (CODE_STANDARD section 3).",
-              "line": 594,
+              "line": 617,
               "deprecated": false
             },
             {
@@ -19082,7 +19571,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 615,
+              "line": 643,
               "deprecated": false
             },
             {
@@ -19091,7 +19580,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.",
-              "line": 635,
+              "line": 663,
               "deprecated": false
             },
             {
@@ -19100,7 +19589,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 670,
+              "line": 698,
               "deprecated": false
             },
             {

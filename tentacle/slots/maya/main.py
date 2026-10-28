@@ -68,7 +68,7 @@ class MainSlots(MainMixin, SlotsMaya):
                 recent.sublist.add(display[v], data=("__recent__", v))
 
         # Edit Workspace — Maya's native Project Window (create a project / customize
-        # its file rules; blendertk's twin row opens its workspace_editor panel).
+        # its file rules; Blender's twin row opens the Workspace Editor tool).
         widget.add("Edit Workspace", data="__editor__")
 
         # --- the current workspace dir browser ---
@@ -166,7 +166,7 @@ class MainSlots(MainMixin, SlotsMaya):
 
     def _open_workspace_editor(self):
         """Edit Workspace — Maya's native Project Window: create a project / customize
-        its file-rule folder structure (blendertk's twin row opens its own panel)."""
+        its file-rule folder structure (Blender's twin row opens the Workspace Editor tool)."""
         mel.eval("ProjectWindow")
         self.sb.handlers.marking_menu.hide()
 

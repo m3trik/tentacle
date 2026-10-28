@@ -411,6 +411,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
 
+### `slots/tools/__init__.py` — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
+- constants: HOSTS
+
 ### `slots/tools/_app_bridge/host_bridge.py` — The app-bridge panels' one base, shared by both hosts.
 - `class HostBridge(Slots.BridgeSlotsBase)`
   - methods: bridge_class, make_bridge, params_module, template_dir, list_template_modes, PRESETS_ROOT, resolve_scope_objects, scoped_objects, live_param_tooltip_blocks, set_bake_source_from_selection, select_bake_source, clear_bake_source
@@ -522,6 +525,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class UnityPanelMixin`
   - methods: template_dir, list_template_modes, default_output_dir
 
+### `slots/tools/arnold_bridge.py` — Arnold Preview Shader: add or remove the Arnold preview network beside each
+- `class ArnoldBridgeSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb000_init, b000, b001, select_bridged
+
 ### `slots/tools/articulated_rig.py` — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - `class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, btn_ik_fk_init, parse_limits, refresh_table, btn_analyze, btn_build, btn_grab, btn_ik_fk, match_end_control, btn_rest, btn_insert, btn_fold, btn_limits_from_pose, btn_clear_limits, btn_rebuild, btn_remove
@@ -616,6 +623,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class KeyStashSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, store, refresh, refresh_from_scene, b000, b001, chk001, b003
 
+### `slots/tools/light_rig.py` — Light Rigs: save the scene's lights as named rigs, swap between them and
+- `class LightRigSlots(Slots, pythontk.LoggingMixin)`
+  - methods: refresh, header_init, cmb000_init, cmb000, b000, b001, open_rig_folder, prompt_save
+
 ### `slots/tools/lightmap_baker.py` — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
 - `class LightmapBakerSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb000_init, btn_reset_defaults_init, cmb002_init, cmb_scope_init, set_exclusions_init, set_exclusions, select_exclusions, clear_exclusions, set_isolation_init, set_isolation, select_isolation, clear_isolation, cmb_resolution_init, spn_samples_init, spn_gi_samples_init, spn_bounces_init, cmb_device_init, txt_output_dir_init, txt000_init, b000, cmb_page_init, cmb_page, tbl_maps_init, select_by_state, open_map_folder, combine_selected, fix_all, track_selected, revert_selected, rebake_selected, show_bake_state, open_output
@@ -696,10 +707,18 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class WheelRigSlots(Slots)`
   - methods: header_init, rig_name, movement_axis, rotation_axis, set_wheel_height, txt000_init, s000_init, update_rig_name_placeholder, b000
 
+### `slots/tools/workspace_editor.py` — Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
+- `class WorkspaceEditorSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, txt000_init, tbl000_init, add_rule, reset_row, remove_row, reset_rules, clear_rules, create_project, open_folder
+
+### `slots/tools/workspace_map.py` — Workspace Map: browse a folder tree of project workspaces and switch the
+- `class WorkspaceMapSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, txt000_init, txt001_init, tree000_init, update_current_dir, update_tree, populate_tree, refresh_tree, selected_workspace, filter_workspaces, b000, b001, b002, set_to_workspace, chk000, btn_open_workspace, btn_explore_folder, new_project, mark_root, save_template
+
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, register_shared, chord_bindings, banner, launch, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, chord_bindings, banner, launch, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`

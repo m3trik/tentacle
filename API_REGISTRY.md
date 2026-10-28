@@ -113,6 +113,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/tools/__init__.py`](#slots--tools--__init__) — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 - [`slots/tools/_app_bridge/host_bridge.py`](#slots--tools--_app_bridge--host_bridge) — The app-bridge panels' one base, shared by both hosts.
 - [`slots/tools/_blendshape_animator/sort_item.py`](#slots--tools--_blendshape_animator--sort_item) — A tween-tree row that sorts its numeric columns by number.
 - [`slots/tools/_channels/attribute_form.py`](#slots--tools--_channels--attribute_form) — The Create Attribute popup: a one-shot form over the host's attribute types.
@@ -141,6 +142,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shots/controller.py`](#slots--tools--_shots--controller) — The Shots panel's controller: the scene's shot settings, the selected shot's
 - [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - [`slots/tools/_unity_bridge/_unity_panel.py`](#slots--tools--_unity_bridge--_unity_panel) — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
+- [`slots/tools/arnold_bridge.py`](#slots--tools--arnold_bridge) — Arnold Preview Shader: add or remove the Arnold preview network beside each
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
@@ -164,6 +166,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
+- [`slots/tools/light_rig.py`](#slots--tools--light_rig) — Light Rigs: save the scene's lights as named rigs, swap between them and
 - [`slots/tools/lightmap_baker.py`](#slots--tools--lightmap_baker) — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
@@ -184,6 +187,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - [`slots/tools/unity_bridge.py`](#slots--tools--unity_bridge) — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
+- [`slots/tools/workspace_editor.py`](#slots--tools--workspace_editor) — Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
+- [`slots/tools/workspace_map.py`](#slots--tools--workspace_map) — Workspace Map: browse a folder tree of project workspaces and switch the
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -607,7 +612,7 @@ Behavior shared by the Maya and Blender UV panels.
 - **[`class LightingSlots(LightingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L8)** — Blender port of the shared ``lighting`` menu.
   - `LightingSlots.b000(self)` — Launch the HDR Manager (world-environment HDRI panel).
   - `LightingSlots.b001(self)` — Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).
-  - `LightingSlots.b002_init(self, widget)` — Light Rigs -- hidden until ported: blendertk has no LightRig twin yet, so the
+  - `LightingSlots.b002_init(self, widget)` — Light Rigs -- hidden until ported: the tool is Maya-only (tentacle's slots/tools
   - `LightingSlots.b002(self)` — Light Rigs -- unreachable (b002_init hides the button);
   - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
   - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture meshes.
@@ -1679,6 +1684,13 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
 
+<a id="slots--tools--__init__"></a>
+### `slots/tools/__init__.py`
+
+Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
+
+- [`HOSTS`](tentacle/tentacle/slots/tools/__init__.py#L16) — constant
+
 <a id="slots--tools--_app_bridge--host_bridge"></a>
 ### `slots/tools/_app_bridge/host_bridge.py`
 
@@ -2158,6 +2170,18 @@ What every Unity panel shares: the 'Unity Project' row, the Editor combo, script
   - `UnityPanelMixin.list_template_modes(self)`
   - `UnityPanelMixin.default_output_dir(self) -> str`
 
+<a id="slots--tools--arnold_bridge"></a>
+### `slots/tools/arnold_bridge.py`
+
+Arnold Preview Shader: add or remove the Arnold preview network beside each
+
+- **[`class ArnoldBridgeSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/arnold_bridge.py#L19)**
+  - `ArnoldBridgeSlots.header_init(self, widget) -> None` — The header menu's Select Bridged Materials, and the help text.
+  - `ArnoldBridgeSlots.cmb000_init(self, widget) -> None` — The Scope combo (Selected Objects by default).
+  - `ArnoldBridgeSlots.b000(self) -> None` — Add Network.
+  - `ArnoldBridgeSlots.b001(self) -> None` — Remove Network.
+  - `ArnoldBridgeSlots.select_bridged(self) -> None` — Header menu: select every material that has a network (never the
+
 <a id="slots--tools--articulated_rig"></a>
 ### `slots/tools/articulated_rig.py`
 
@@ -2543,6 +2567,21 @@ Key Stash: park keys out of the working animation as clips, then preview or
   - `KeyStashSlots.b001(self) -> None` — Retrieve
   - `KeyStashSlots.chk001(self, checked: bool) -> None` — Preview (toggle)
   - `KeyStashSlots.b003(self) -> None` — Drop
+
+<a id="slots--tools--light_rig"></a>
+### `slots/tools/light_rig.py`
+
+Light Rigs: save the scene's lights as named rigs, swap between them and
+
+- **[`class LightRigSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/light_rig.py#L24)**
+  - `LightRigSlots.refresh(self) -> None` — Re-read the library, select the scene's rig, and report the scene.
+  - `LightRigSlots.header_init(self, widget) -> None`
+  - `LightRigSlots.cmb000_init(self, widget) -> None`
+  - `LightRigSlots.cmb000(self, index, widget) -> None` — Show the picked rig (picking never changes the scene).
+  - `LightRigSlots.b000(self) -> None` — Apply the picked rig: it replaces the scene's rig (Swap Back returns).
+  - `LightRigSlots.b001(self) -> None` — Swap Back: return to the rig the last Apply replaced.
+  - `LightRigSlots.open_rig_folder(self) -> None` — Header menu: the folder the rig library lives in.
+  - `LightRigSlots.prompt_save(self) -> None` — ＋: save the scene's rig under a new (or existing) name.
 
 <a id="slots--tools--lightmap_baker"></a>
 ### `slots/tools/lightmap_baker.py`
@@ -3027,6 +3066,50 @@ Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
   - `WheelRigSlots.update_rig_name_placeholder(self)` — Show, as the Rig Name placeholder, the name a rig on the selection's
   - `WheelRigSlots.b000(self)` — Rig Rotation: rig the selected wheels to the selected driver, or
 
+<a id="slots--tools--workspace_editor"></a>
+### `slots/tools/workspace_editor.py`
+
+Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
+
+- **[`class WorkspaceEditorSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/workspace_editor.py#L41)**
+  - `WorkspaceEditorSlots.header_init(self, widget)` — Rule add, view toggle, reset/clear, template combo, help text.
+  - `WorkspaceEditorSlots.txt000_init(self, widget)` — Project Root: one full path (browse + open-folder option-box actions).
+  - `WorkspaceEditorSlots.tbl000_init(self, widget)`
+  - `WorkspaceEditorSlots.add_rule(self)` — Append an empty, editable rule row (saves once both cells are filled).
+  - `WorkspaceEditorSlots.reset_row(self, row)` — Reset *row*'s location to the active template's default for its rule.
+  - `WorkspaceEditorSlots.remove_row(self, row)` — Remove *row* and delete its rule from workspace.mel.
+  - `WorkspaceEditorSlots.reset_rules(self)` — Restore the default file rules (the active template's) and save.
+  - `WorkspaceEditorSlots.clear_rules(self)` — Remove every file rule and save (hand-written marker lines survive).
+  - `WorkspaceEditorSlots.create_project(self)` — Build the project at the current root: marker + the active template's rule
+  - `WorkspaceEditorSlots.open_folder(self)` — Open the project root in the system file browser.
+
+<a id="slots--tools--workspace_map"></a>
+### `slots/tools/workspace_map.py`
+
+Workspace Map: browse a folder tree of project workspaces and switch the
+
+- **[`class WorkspaceMapSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/workspace_map.py#L27)**
+  - `WorkspaceMapSlots.header_init(self, widget)` — Project creation actions + help text.
+  - `WorkspaceMapSlots.txt000_init(self, widget)` — The root directory field: browse, Set To Workspace, Recursive Search.
+  - `WorkspaceMapSlots.txt001_init(self, widget)` — The workspace-name filter.
+  - `WorkspaceMapSlots.tree000_init(self, widget)` — The workspace tree, its double-click and its right-click menu.
+  - `WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None` — Retarget the scan at the root field's directory (rescans only when it
+  - `WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None` — Rebuild the tree from the last scan, narrowed to *filter_text*.
+  - `WorkspaceMapSlots.populate_tree(self, tree_data: Dict) -> None` — Clear and refill the tree: a row per parent folder, its workspaces
+  - `WorkspaceMapSlots.refresh_tree(self, invalidate: bool = False) -> None` — Refill the tree;
+  - `WorkspaceMapSlots.selected_workspace(self) -> Optional[Dict]` — The workspace row under the tree cursor, or None (a folder row is none).
+  - `WorkspaceMapSlots.filter_workspaces(self, text) -> None`
+  - `WorkspaceMapSlots.b000(self) -> None` — Browse for the root directory.
+  - `WorkspaceMapSlots.b001(self) -> None` — Set to Workspace.
+  - `WorkspaceMapSlots.b002(self) -> None` — Refresh: rescan the root.
+  - `WorkspaceMapSlots.set_to_workspace(self) -> None` — Set the root to the current workspace's folder.
+  - `WorkspaceMapSlots.chk000(self, checked) -> None` — Recursive Search: rescan when it changes.
+  - `WorkspaceMapSlots.btn_open_workspace(self) -> None` — Make the selected workspace the current project.
+  - `WorkspaceMapSlots.btn_explore_folder(self) -> None` — Open the selected workspace's folder in the file browser.
+  - `WorkspaceMapSlots.new_project(self) -> None` — Create a project under the root from the ACTIVE template.
+  - `WorkspaceMapSlots.mark_root(self) -> None` — Mark the ROOT directory as a shared Maya/Blender project.
+  - `WorkspaceMapSlots.save_template(self) -> None` — Publish the ACTIVE project's file rules as a named workspace template.
+
 <a id="tcl"></a>
 ### `tcl.py`
 
@@ -3041,6 +3124,7 @@ The host-agnostic entry point — one launcher snippet for every DCC.
   - `Tcl.dispose_retired(instances)` *(static)* — Schedule deletion of the pre-reload marking menus in *instances*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
   - `Tcl.resolve_key(cls, key_show=None, context_tags=None)` *(class)* — The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.
+  - `Tcl.unserved_tools(context_tags=None)` *(static)* — The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):
   - `Tcl.register_shared(switchboard)` *(static)* — Register on *switchboard* what every host shares (CODE_STANDARD section 3).
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
   - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.

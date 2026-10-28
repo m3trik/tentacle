@@ -191,8 +191,8 @@ class MainSlots(MainMixin, SlotsBlender):
         self.sb.handlers.marking_menu.hide()
 
     def _open_workspace_editor(self):
-        """Edit Workspace — the blendertk panel that creates a workspace and customizes
-        its file rules (Maya's twin row opens the native Project Window)."""
+        """Edit Workspace — the Workspace Editor tool (Blender-only) that creates a workspace and
+        customizes its file rules (Maya's twin row opens the native Project Window)."""
         self.sb.handlers.marking_menu.show("workspace_editor")
 
 

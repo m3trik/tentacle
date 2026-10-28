@@ -591,13 +591,38 @@ class Tcl(_TclInternal):
         return cls.qt_key_name(stored or key_show)
 
     @staticmethod
+    def unserved_tools(context_tags=None):
+        """The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):
+        what :meth:`register_shared` leaves out. An empty context (a bare test or dev
+        switchboard) serves every tool, uitk's rule for ``requires``.
+
+        Parameters:
+            context_tags (iterable): The host's tags (``{"maya"}``), as its entry
+                    point hands them to ``MarkingMenu``.
+
+        Returns:
+            list: Tool names, sorted.
+        """
+        # The tools' table, not this class's HOSTS (host -> its probe module).
+        from tentacle.slots.tools import HOSTS as TOOL_HOSTS
+
+        context = set(context_tags or ())
+        if not context:
+            return []
+        return sorted(
+            tool for tool, hosts in TOOL_HOSTS.items() if not context & set(hosts)
+        )
+
+    @staticmethod
     def register_shared(switchboard):
         """Register on *switchboard* what every host shares (CODE_STANDARD section 3).
 
         ``slots/``: the composed Slots classes, one per category, reaching their host
         through ``Slots.tk``. ``ui/tools/`` and ``slots/tools/``: each tool's ``.ui`` and its
         one Slots class, flat, paired by name, and tagged ``UiHandler.PANEL_TAG`` so a tool
-        opens sticky in any host (the hosts' handlers defer to that rule). Both entry
+        opens sticky in any host (the hosts' handlers defer to that rule). A tool one host
+        serves (``slots.tools.HOSTS``) is left out of the other (:meth:`unserved_tools` of
+        the switchboard's ``context_tags``), so nothing there offers it. Both entry
         points call this, so the shared roots are written once.
         """
         from uitk import UiHandler
@@ -605,10 +630,13 @@ class Tcl(_TclInternal):
         root = os.path.dirname(os.path.abspath(__file__))
         slots = os.path.join(root, "slots")
         switchboard.register(slot_location=slots)
+        unserved = Tcl.unserved_tools(getattr(switchboard, "context_tags", None))
         switchboard.register(
             ui_location=os.path.join(root, "ui", "tools"),
             slot_location=os.path.join(slots, "tools"),
             tags={UiHandler.PANEL_TAG},
+            # "<tool>.*": its .ui from ui/tools and its Slots module from slots/tools.
+            exclude=[f"{tool}.*" for tool in unserved] or None,
         )
 
     @classmethod

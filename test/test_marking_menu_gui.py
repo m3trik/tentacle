@@ -658,16 +658,19 @@ class BrowserPolicyGuiTest(unittest.TestCase):
 
     def test_every_shared_tool_opens_sticky_over_the_host_toolkit(self):
         """Each shared tool (``ui/tools/<tool>.ui`` + ``slots/tools/<tool>.py``)
-        opens the way its menu opens it: from tentacle's folder, bound to its one
-        Slots class over ``mtk``, sticky by the panel tag (the rule mayatk's own
-        panels had by their package tag). A Preview panel's preview is ``mtk``'s."""
+        Maya serves opens the way its menu opens it: from tentacle's folder, bound
+        to its one Slots class over ``mtk``, sticky by the panel tag (the rule
+        mayatk's own panels had by their package tag). A Preview panel's preview is
+        ``mtk``'s."""
         from pathlib import Path
 
         import mayatk as mtk
         import tentacle
+        from tentacle.tcl import Tcl
 
         tools = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
-        names = sorted(path.stem for path in tools.glob("*.ui"))
+        unserved = Tcl.unserved_tools(self.mm.sb.context_tags)
+        names = sorted(path.stem for path in tools.glob("*.ui") if path.stem not in unserved)
         self.assertIn("duplicate_radial", names)
         for name in names:
             with self.subTest(tool=name):
@@ -697,6 +700,20 @@ class BrowserPolicyGuiTest(unittest.TestCase):
                     ui.hide()
                     self._process()
 
+    def test_a_tool_maya_does_not_serve_is_never_offered(self):
+        """A Blender tool (``tentacle.slots.tools.HOSTS``) is left out of TclMaya's
+        registration: nothing resolves it, so no menu, UI Browser row or
+        ``marking_menu.show`` can open it (Maya's own Project Window is the
+        Workspace Editor's twin)."""
+        from tentacle.tcl import Tcl
+
+        unserved = Tcl.unserved_tools(self.mm.sb.context_tags)
+        self.assertIn("workspace_editor", unserved)
+        registered = set(self.mm.sb.registry.ui_registry.get("filename") or [])
+        for name in unserved:
+            with self.subTest(tool=name):
+                self.assertNotIn(name, registered)
+                self.assertFalse(self.mm.sb.handlers.ui.can_resolve(name))
 
     def test_a_composed_slots_class_binds_over_the_host_toolkit(self):
         """``slots/normals.py`` (registered by the entry point) is what the normals menu

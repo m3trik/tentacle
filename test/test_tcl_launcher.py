@@ -139,10 +139,18 @@ class TestChordBindings(unittest.TestCase):
 
 class TestSharedRoots(unittest.TestCase):
     """``register_shared`` — the composed ``slots/`` and the shared tools'
-    ``ui/tools/`` + ``slots/tools/`` pair, sticky in any host."""
+    ``ui/tools/`` + ``slots/tools/`` pair, sticky in any host, minus the tools the
+    host does not serve (``slots.tools.HOSTS``)."""
+
+    @staticmethod
+    def _registered(context_tags=frozenset()):
+        """The tool registration's kwargs on a switchboard of *context_tags*."""
+        sb = mock.Mock(context_tags=set(context_tags))
+        Tcl.register_shared(sb)
+        return sb.register.call_args.kwargs
 
     def test_registers_the_composed_slots(self):
-        sb = mock.Mock()
+        sb = mock.Mock(context_tags=set())
         Tcl.register_shared(sb)
         first = sb.register.call_args_list[0].kwargs
         self.assertEqual(first, {"slot_location": first["slot_location"]})
@@ -151,15 +159,45 @@ class TestSharedRoots(unittest.TestCase):
     def test_registers_the_flat_tool_pair_under_the_panel_tag(self):
         from uitk import UiHandler
 
-        sb = mock.Mock()
-        Tcl.register_shared(sb)
-        kwargs = sb.register.call_args.kwargs
+        kwargs = self._registered()
         ui, slots = PKG / "ui" / "tools", PKG / "slots" / "tools"
         self.assertTrue(ui.is_dir() and slots.is_dir())
         self.assertEqual(Path(kwargs["ui_location"]), ui)
         self.assertEqual(Path(kwargs["slot_location"]), slots)
         self.assertFalse(kwargs.get("recursive"), "flat: no folder per tool")
         self.assertEqual(kwargs["tags"], {UiHandler.PANEL_TAG})
+
+    def test_a_host_registers_only_the_tools_it_serves(self):
+        """A one-host tool's .ui and Slots module both stay out of the other host
+        (``"<tool>.*"``), so nothing there can offer it."""
+        from tentacle.slots.tools import HOSTS
+
+        for host in ("maya", "blender"):
+            with self.subTest(host=host):
+                left_out = sorted(t for t, hosts in HOSTS.items() if host not in hosts)
+                self.assertTrue(left_out, f"{host}: the check is vacuous")
+                self.assertEqual(
+                    self._registered({host})["exclude"], [f"{t}.*" for t in left_out]
+                )
+                self.assertEqual(Tcl.unserved_tools({host}), left_out)
+
+    def test_a_contextless_switchboard_registers_every_tool(self):
+        """uitk's rule: no context tags, no filtering (a bare test or dev switchboard)."""
+        self.assertIsNone(self._registered()["exclude"])
+        self.assertEqual(Tcl.unserved_tools(None), [])
+
+    def test_each_one_host_tool_is_a_tool_and_names_real_hosts(self):
+        """A stale row (a renamed tool, a misspelt host) would silently serve everywhere."""
+        from tentacle.slots.tools import HOSTS
+
+        tools = {p.stem for p in (PKG / "ui" / "tools").glob("*.ui")}
+        for tool, hosts in HOSTS.items():
+            with self.subTest(tool=tool):
+                self.assertIn(tool, tools)
+                self.assertTrue(set(hosts) and set(hosts) <= set(Tcl.HOSTS), hosts)
+                self.assertLess(
+                    set(hosts) & set(Tcl.ENGINES), set(Tcl.ENGINES), "serves both: no row"
+                )
 
     def test_each_host_entry_point_registers_it(self):
         """Read off the source: the entry points import only inside their host."""

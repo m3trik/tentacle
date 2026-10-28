@@ -10,10 +10,10 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **5 present** pairs (of Maya's 8), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 1 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **58%** (1303/2249 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **4 present** pairs (of Maya's 5), 0 open ports (tracked), 0 N/A by design, 1 counterpart-pair. 0 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **58%** (1302/2230 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 58% with 1 module(s) absent (render_utils); 1 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 58% with 1 module(s) absent (render_utils); 0 panel ports open.
 
 ---
 
@@ -30,9 +30,9 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | core_utils | 183 | 92 | 65 | 36% |
 | display_utils | 42 | 44 | 21 | 50% |
 | edit_utils | 146 | 164 | 108 | 74% |
-| env_utils | 436 | 297 | 228 | 52% |
-| light_utils | 130 | 100 | 77 | 59% |
-| mat_utils | 351 | 276 | 243 | 69% |
+| env_utils | 419 | 287 | 225 | 54% |
+| light_utils | 122 | 100 | 77 | 63% |
+| mat_utils | 349 | 276 | 243 | 70% |
 | node_utils | 166 | 84 | 75 | 45% |
 | nurbs_utils | 18 | 17 | 6 | 33% |
 | render_utils **(ABSENT)** | 13 | 0 | 0 | 0% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 73 | 85 | 31 | 42% |
 | uv_utils | 117 | 100 | 86 | 74% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2249** | **1710** | **1303** | **58%** |
+| **TOTAL (unique)** | **2230** | **1702** | **1302** | **58%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -52,28 +52,25 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (5) — worst first by logic
+### Present pairs (4) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
-| ArnoldBridge | 0→0 | 7→0 | 4→4 | 1016→158 | 16% | 100% | clean |
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 282→233 | 83% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 368→318 | 86% | 100% | clean |
 | SubstanceBridge | 1→1 | 0→0 | 2→2 | 294→273 | 93% | 100% | clean |
 | ShotSequencer | 1→1 | 18→18 | 2→2 | 916→874 | 95% | 100% | clean |
 
-### Open panel ports (1) — tracked in parity_map
+### Open panel ports (0) — tracked in parity_map
 
-- **LightRig** — mayatk LightRig (2026-10-17, save / swap / restore named light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin').
 
-### Not gaps (2)
+### Not gaps (1)
 
-- **WorkspaceMap** — N/A: Maya workspace-tree browser; Blender SHARES the workspace.mel project model (btk.current_workspace + the workspace_editor panel, 2026-07-18) and, since 2026-08-02, the workspace-template store — but the map/browser tree itself stays unported: the Reference Manager combo (which also creates + promotes projects) and the main.py Workspace tab cover discovery; port only if wanted.
 - **BlenderBridge** ↔ MayaBridgeSlots — cross-DCC send pair — each package ships the bridge named after its TARGET app.
 
-Blender-only panels (no mayatk counterpart): MayaBridge, WorkspaceEditor.
+Blender-only panels (no mayatk counterpart): MayaBridge.
 
 ---
 

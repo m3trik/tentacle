@@ -29,12 +29,6 @@ is keyed ``"<control>.<property>"``.
 
 # --------------------------------------------------------------------------- co-located panels
 CONTROLS = {
-    "arnold_bridge": {
-        "config_buttons:menu": {"status": "na", "reason": "the panel is permanently inert (no Arnold-for-Blender integration at all); ArnoldBridgeSlots.header_init deliberately defines no menu actions -- see the file's own module docstring"},
-        "config_buttons:collapse": {"status": "na", "reason": "same as config_buttons:menu"},
-        "config_buttons:hide": {"status": "na", "reason": "same as config_buttons:menu"},
-        "select_bridged": {"status": "na", "reason": "Cycles/EEVEE read one Principled BSDF graph -- there is no parallel Arnold-preview material to select back to (see _NOT_AVAILABLE in blendertk's arnold_bridge.py)"},
-    },
     # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
     # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
     # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
@@ -352,7 +346,7 @@ CONTROLS_SLOTS = {
         "cmb_del_scope": {"status": "na", "reason": "Scope selector (Selected / Visible / All Geometry) for Maya's Delete History — replaces the old dead chk031 'For All Objects' checkbox (tb001 never read it). Blender's tb001 Optimize purges orphaned datablocks, which by definition have zero users, so there is no selected-vs-all scope for unused data; the purge is inherently file-wide and needs no scope control."},
     },
     "lighting": {
-        "b002": {"status": "pending", "reason": "Light Rigs (2026-10-17): Maya's b002 opens mayatk's light_rig panel (save / swap / restore named light rigs). blendertk has no LightRig twin; b002_init hides the button in Blender until then. Ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')."},
+        "b002": {"status": "pending", "reason": "Light Rigs (2026-10-17): Maya's b002 opens the Light Rigs tool (save / swap / restore named light rigs), Maya-only in tentacle's slots/tools HOSTS until blendertk has a LightRig; b002_init hides the button in Blender until then. Ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')."},
         "cmb000": {"status": "pending", "reason": "tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG)."},
     },
     "materials": {
@@ -596,10 +590,6 @@ DEFAULT_DELTAS = {
 # --------------------------------------------------------------------------- Maya-only panels
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
-    "ArnoldBridgeSlots": {"status": "na", "reason": "no Arnold in Blender (Cycles/EEVEE)"},
-    "LightRigSlots": {"status": "pending", "reason": "mayatk LightRig (2026-10-17, save / swap / restore named "
-                      "light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in "
-                      ".claude/BACKLOG.md ('Light Rigs has no blendertk twin')"},
     # MarmosetBridgeSlots / SubstanceBridgeSlots: stale "no twin" rows removed 2026-07-08 -- both
     # now ship real native blendertk twins (blendertk/mat_utils/{marmoset,substance}_bridge/
     # *_bridge_slots.py -- full BlenderBridgeSlotsBase panels with co-located .ui + RPC clients +
@@ -624,24 +614,6 @@ PANELS = {
     # flush / fps-change rescale / Detection class. The only Maya-only names left are Maya MECHANISMS
     # (tangent snapshot/restore, DAG-path reconciliation, DG audio node binding, OpenMaya callbacks).
     # The slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
-    # WorkspaceEditorSlots (blendertk-only, the REVERSE direction — no mayatk twin by design,
-    # shipped 2026-07-18): create a shared Maya/Blender project workspace and customize its
-    # file rules (workspace.mel via pythontk.Workspace). Maya needs no twin panel — its native
-    # Project Window IS this editor; the two sides pair at the tentacle layer instead: both
-    # main.py Workspace tabs carry the same "Edit Workspace" row (Maya → mel ProjectWindow,
-    # Blender → marking_menu.show("workspace_editor")), pinned by test_main_workspace*.py.
-    # The one thing the native window can't do — build a project from a SAVED rule template —
-    # is shared at the engine layer instead (2026-08-02): ptk.WorkspaceTemplates is one
-    # unnamespaced store, read by btk.* and the new mtk.* twins alike, and Maya's entry point
-    # for it is WorkspaceMap's header menu (New Project / Save Rules As Template).
-    "WorkspaceMapSlots": {"status": "na",
-                          "reason": "Maya workspace-tree browser; Blender SHARES the "
-                                    "workspace.mel project model (btk.current_workspace + the "
-                                    "workspace_editor panel, 2026-07-18) and, since 2026-08-02, "
-                                    "the workspace-template store — but the map/browser tree "
-                                    "itself stays unported: the Reference Manager combo (which "
-                                    "also creates + promotes projects) and the main.py Workspace "
-                                    "tab cover discovery; port only if wanted"},
 }
 
 # --------------------------------------------------------------------------- file counterpart sets

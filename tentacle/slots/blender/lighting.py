@@ -25,8 +25,9 @@ class LightingSlots(LightingMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("lightmap_baker")
 
     def b002_init(self, widget):
-        """Light Rigs -- hidden until ported: blendertk has no LightRig twin yet, so the
-        button is hidden rather than shipped dead (same pattern as rigging.py's tb005)."""
+        """Light Rigs -- hidden until ported: the tool is Maya-only (tentacle's slots/tools
+        ``HOSTS``) while blendertk has no LightRig, so the button is hidden rather than
+        shipped dead (same pattern as rigging.py's tb005)."""
         widget.setVisible(False)
 
     def b002(self):

@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (937)
+## Added (986)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -23,6 +23,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/tools/__init__.py::HOSTS(constant)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge(class)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge.PRESETS_ROOT(self)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge.bridge_class(self)`
@@ -334,6 +335,12 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.default_output_dir(self) -> str`
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.list_template_modes(self)`
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.template_dir(self) -> Path`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots(class)`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b000(self) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b001(self) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.header_init(self, widget) -> None`
+- `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.select_bridged(self) -> None`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots(class)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_analyze(self)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_build(self)`
@@ -582,6 +589,15 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/key_stash.py::KeyStashSlots.refresh(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.refresh_from_scene(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.store(self)`
+- `slots/tools/light_rig.py::LightRigSlots(class)`
+- `slots/tools/light_rig.py::LightRigSlots.b000(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.b001(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.cmb000(self, index, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.header_init(self, widget) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.open_rig_folder(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.prompt_save(self) -> None`
+- `slots/tools/light_rig.py::LightRigSlots.refresh(self) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots(class)`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.b000(self) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.btn_reset_defaults_init(self, widget) -> None`
@@ -945,7 +961,40 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/wheel_rig.py::WheelRigSlots.set_wheel_height(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.txt000_init(self, widget)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.update_rig_name_placeholder(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots(class)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.add_rule(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.clear_rules(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.create_project(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.header_init(self, widget)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.open_folder(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.remove_row(self, row)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.reset_row(self, row)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.reset_rules(self)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.tbl000_init(self, widget)`
+- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.txt000_init(self, widget)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots(class)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.b000(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.b001(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.b002(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.btn_explore_folder(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.btn_open_workspace(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.chk000(self, checked) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.filter_workspaces(self, text) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.header_init(self, widget)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.mark_root(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.new_project(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.populate_tree(self, tree_data: Dict) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.refresh_tree(self, invalidate: bool = False) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.save_template(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.selected_workspace(self) -> Optional[Dict]`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.set_to_workspace(self) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.tree000_init(self, widget)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.txt000_init(self, widget)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.txt001_init(self, widget)`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None`
+- `slots/tools/workspace_map.py::WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None`
 - `tcl.py::Tcl.register_shared(switchboard)`
+- `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
 ## Moved (22)
 

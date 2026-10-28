@@ -5,7 +5,7 @@
 **Set Workspace** is one flow in both DCCs: browse for a directory → a pick that
 is not a workspace yet is OFFERED as a new default workspace built from the
 shared template (``workspace.mel`` AND its rule folders — the same template
-Workspace Map ▸ New Project and blendertk's Workspace Editor build from; *Retry*
+Workspace Map ▸ New Project and the Workspace Editor build from; *Retry*
 re-browses, like Maya's "Try again") → open it. It lives here because Maya's own
 ``SetProject`` writes a bare marker on "Create default workspace"
 (``sp_createAndSetDefaultProject($path, false)`` — the ``false`` is

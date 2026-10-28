@@ -24,8 +24,8 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
     ``substance_bridge``), each exporting the Blender selection and handing off to the matching
     external app directly (no extapps relay). Two bridges Maya keeps out of this menu are kept out
     here too: the **Unity** bridge lives in the **Scene** menu (``scene.py`` b016), and **Arnold**
-    (mayatk's in-Maya preview-shader bridge) has no Blender rendering equivalent — its panel exists
-    for structural parity (``marking_menu.show("arnold_bridge")``) but every widget is disabled.
+    (Maya's in-Maya preview-shader bridge) has no Blender rendering equivalent, so its tool is
+    Maya-only (tentacle's ``slots/tools`` ``HOSTS``) and Blender never offers it.
     """
 
     # Submenu Tools list. Categories group tools by *what they act on* (mirrors Maya):
