@@ -1508,8 +1508,8 @@ class TestB030Stack(unittest.TestCase):
 # shell_xform panel on 2026-07-09 (commit e80fcdc0, "UV transform cluster relocated to
 # the DCC engines") — UvSlots has no cmb002/cmb002_init anymore, so all 8 tests raised
 # AttributeError under mayapy. The capability's coverage now lives with the engine:
-# mayatk/mayatk/uv_utils/shell_xform.py + mayatk/test/test_uv_utils.py (op-level), and
-# the Blender twin via blendertk's shell_xform + tentacle/test/blender checks — the
+# the shared tool's test_shell_xform_panel.py + mayatk/test/test_uv_utils.py (op-level),
+# and blendertk/test/uv_shell_tools_check.py + tentacle/test/blender checks — the
 # same relocation note as test/blender/uv_slot_check.py's tb005/tb008 removal.
 
 

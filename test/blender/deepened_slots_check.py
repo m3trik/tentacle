@@ -189,8 +189,8 @@ try:
     seams = sum(1 for e in o.data.edges if e.use_seam)
     check("uv tb022 seams all 12 sharp cube edges", seams == 12, f"seams={seams}")
 
-    # (uv cmb002 / tb005 / tb006 / tb008 moved to the blendertk shell_xform panel — the
-    # tentacle Uv slot only launches it now; see blendertk/uv_utils/shell_xform.py.)
+    # (uv cmb002 / tb005 / tb006 / tb008 moved to the shared shell_xform tool — the
+    # tentacle Uv slot only launches it now; see slots/tools/shell_xform.py.)
 
     # ---- polygons b043: interactive target weld -----------------------------------------------
     # The tool needs a windowed viewport for its modal loop; headless the slot must register
@@ -938,7 +938,7 @@ try:
     check("uv b030 unstack restores positions and pins",
           btk.get_uv_coords([o], pins=True)[o.name] == before)
 
-    # (uv tb005 Straighten / tb006 Distribute moved to the blendertk shell_xform panel with
+    # (uv tb005 Straighten / tb006 Distribute moved to the shared shell_xform tool with
     # the rest of the transform cluster — no longer tentacle Uv slot methods.)
 
     # ---- scene b005: routes to the blendertk Naming panel; cameras b007 fails soft headless --

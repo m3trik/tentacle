@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (189)
+## Added (223)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -92,6 +92,9 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/bridge.py::BridgeSlots(class)`
+- `slots/tools/bridge.py::BridgeSlots.header_init(self, widget)`
+- `slots/tools/bridge.py::BridgeSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/calculator.py::CalculatorSlots(class)`
 - `slots/tools/calculator.py::CalculatorSlots.frames_to_sec(self)`
 - `slots/tools/calculator.py::CalculatorSlots.get_current_time(self)`
@@ -169,6 +172,37 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/mirror.py::MirrorSlots.prepare_operation(self, objects)`
+- `slots/tools/shell_xform.py::ShellXformSlots(class)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_avg(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_max(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_u_min(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_avg(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_max(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.align_v_min(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b023(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b024(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b025(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b026(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b034(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b035(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b036(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.b037(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.cmb_move_scope_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.gather_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.gather_to_udim(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.header_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.linear_align(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.open_uv_editor(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.orient_edges(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.orient_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.randomize_shells(self)`
+- `slots/tools/shell_xform.py::ShellXformSlots.s041(self, value, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb005(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb005_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb006(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb006_init(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb008(self, widget)`
+- `slots/tools/shell_xform.py::ShellXformSlots.tb008_init(self, widget)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots(class)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b002(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b003(self)`

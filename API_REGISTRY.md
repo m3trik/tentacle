@@ -126,6 +126,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
+- [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
 - [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
@@ -137,6 +138,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
+- [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
@@ -1783,6 +1785,15 @@ Bevel: chamfer the selected polygon edges, with a live preview.
   - `BevelSlots.header_init(self, widget)` — Configure header help text.
   - `BevelSlots.perform_operation(self, objects, contract=None)` — Bevel *objects* (Maya's Preview passes its cleanup *contract*).
 
+<a id="slots--tools--bridge"></a>
+### `slots/tools/bridge.py`
+
+Bridge: connect two open edge loops with new polygon faces, with a live preview.
+
+- **[`class BridgeSlots(Slots)`](tentacle/tentacle/slots/tools/bridge.py#L14)**
+  - `BridgeSlots.header_init(self, widget)` — Configure header help text.
+  - `BridgeSlots.perform_operation(self, objects, contract=None)` — Bridge *objects* (Maya's Preview passes its cleanup *contract*).
+
 <a id="slots--tools--calculator"></a>
 ### `slots/tools/calculator.py`
 
@@ -1925,6 +1936,43 @@ Mirror: mirror the selected meshes across an axis, with a live preview.
   - `MirrorSlots.header_init(self, widget)` — Configure header help text.
   - `MirrorSlots.prepare_operation(self, objects)` — Break instance links once, before the preview contract exists.
   - `MirrorSlots.perform_operation(self, objects, contract=None)` — Mirror *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--shell_xform"></a>
+### `slots/tools/shell_xform.py`
+
+Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
+
+- **[`class ShellXformSlots(Slots)`](tentacle/tentacle/slots/tools/shell_xform.py#L17)**
+  - `ShellXformSlots.header_init(self, widget)` — Header menu — Open UV Editor + panel help.
+  - `ShellXformSlots.cmb_move_scope_init(self, widget)` — Move scope — how far one arrow press travels, plus the snap button.
+  - `ShellXformSlots.b023(self)` — Move To UV Space: Left
+  - `ShellXformSlots.b024(self)` — Move To UV Space: Down
+  - `ShellXformSlots.b025(self)` — Move To UV Space: Up
+  - `ShellXformSlots.b026(self)` — Move To UV Space: Right
+  - `ShellXformSlots.gather_to_udim(self)` — Move shells sitting outside the selection's UDIM tile into it.
+  - `ShellXformSlots.b034(self)` — Flip U: mirror the selected UVs horizontally about each shell's center.
+  - `ShellXformSlots.b035(self)` — Flip V: mirror the selected UVs vertically about each shell's center.
+  - `ShellXformSlots.b036(self)` — Rotate the selected UVs counter-clockwise by the s041 angle.
+  - `ShellXformSlots.b037(self)` — Rotate the selected UVs clockwise by the s041 angle.
+  - `ShellXformSlots.s041(self, value, widget)` — Rotate Angle — passive input; read by the Rotate buttons (b036/b037).
+  - `ShellXformSlots.tb005_init(self, widget)` — Initialize Straighten UV
+  - `ShellXformSlots.tb005(self, widget)` — Straighten UV: selected UV edges within the angle snap flat;
+  - `ShellXformSlots.tb006_init(self, widget)` — Initialize Distribute
+  - `ShellXformSlots.tb006(self, widget)` — Distribute: lay the selected UV shells out in a row along U or V.
+  - `ShellXformSlots.tb008_init(self, widget)` — Initialize Mirror UVs.
+  - `ShellXformSlots.tb008(self, widget)` — Mirror UVs (footprint-preserving by default).
+  - `ShellXformSlots.align_u_min(self)` — Align the selected UVs to their minimum U (left).
+  - `ShellXformSlots.align_u_avg(self)` — Align the selected UVs to their average U (center).
+  - `ShellXformSlots.align_u_max(self)` — Align the selected UVs to their maximum U (right).
+  - `ShellXformSlots.align_v_min(self)` — Align the selected UVs to their minimum V (bottom).
+  - `ShellXformSlots.align_v_avg(self)` — Align the selected UVs to their average V (center).
+  - `ShellXformSlots.align_v_max(self)` — Align the selected UVs to their maximum V (top).
+  - `ShellXformSlots.linear_align(self)` — Linearly align the selected UVs between their two end points.
+  - `ShellXformSlots.orient_shells(self)` — Orient each shell to run parallel with its nearest U/V axis.
+  - `ShellXformSlots.orient_edges(self)` — Orient the shell so its selected edge runs along U or V.
+  - `ShellXformSlots.gather_shells(self)` — Gather the selected shells together toward the 0-1 UV space.
+  - `ShellXformSlots.randomize_shells(self)` — Randomly offset the selected shells;
+  - `ShellXformSlots.open_uv_editor(self)` — Open the host's UV Editor.
 
 <a id="slots--tools--shot_manifest"></a>
 ### `slots/tools/shot_manifest.py`

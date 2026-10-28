@@ -11,7 +11,7 @@ idiom in ``edit_slot_check.py`` / ``rendering_slot_check.py``) but everything do
 ``bpy``/bmesh state — this proves the widget objectNames the option boxes expose (tb000's
 cmb009/s004, tb004's chk022/s000, tb022's chk026) are wired to the real underlying geometry
 change, not just present in the .ui. (uv tb005/tb006/tb008 Straighten/Distribute/Mirror moved to
-the blendertk shell_xform panel and are covered there.)
+the shared shell_xform tool and are covered by its tests.)
 """
 import sys
 import os
@@ -190,7 +190,7 @@ try:
         bounds_c != bounds_a, f"c={bounds_c}",
     )
 
-    # ---- (uv tb005 Straighten / tb008 Mirror were relocated to the blendertk shell_xform panel;
+    # ---- (uv tb005 Straighten / tb008 Mirror were relocated to the shared shell_xform tool;
     # their coverage now lives there + in deepened_slots_check.py. The stale slot.tb005/tb008 calls
     # here raised AttributeError on the current Uv slot — removed 2026-07-11.)
 

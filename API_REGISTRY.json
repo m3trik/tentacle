@@ -10786,6 +10786,42 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/bridge.py",
+      "summary": "Bridge: connect two open edge loops with new polygon faces, with a live preview.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "BridgeSlots",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "BridgeSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 85,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "BridgeSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Bridge *objects* (Maya's Preview passes its cleanup *contract*).",
+              "line": 114,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/calculator.py",
       "summary": "Calculator: expressions, length units, and the scene's frame-rate helpers.",
       "functions": [],
@@ -11571,6 +11607,294 @@
               "signature": "(self, objects, contract=None)",
               "summary": "Mirror *objects* (Maya's Preview passes its cleanup *contract*).",
               "line": 179,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/shell_xform.py",
+      "summary": "Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShellXformSlots",
+          "summary": "",
+          "line": 17,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ShellXformSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu — Open UV Editor + panel help.",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_move_scope_init",
+              "qualname": "ShellXformSlots.cmb_move_scope_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move scope — how far one arrow press travels, plus the snap button.",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "b023",
+              "qualname": "ShellXformSlots.b023",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Left",
+              "line": 277,
+              "deprecated": false
+            },
+            {
+              "name": "b024",
+              "qualname": "ShellXformSlots.b024",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Down",
+              "line": 281,
+              "deprecated": false
+            },
+            {
+              "name": "b025",
+              "qualname": "ShellXformSlots.b025",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Up",
+              "line": 285,
+              "deprecated": false
+            },
+            {
+              "name": "b026",
+              "qualname": "ShellXformSlots.b026",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move To UV Space: Right",
+              "line": 289,
+              "deprecated": false
+            },
+            {
+              "name": "gather_to_udim",
+              "qualname": "ShellXformSlots.gather_to_udim",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move shells sitting outside the selection's UDIM tile into it.",
+              "line": 293,
+              "deprecated": false
+            },
+            {
+              "name": "b034",
+              "qualname": "ShellXformSlots.b034",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Flip U: mirror the selected UVs horizontally about each shell's center.",
+              "line": 328,
+              "deprecated": false
+            },
+            {
+              "name": "b035",
+              "qualname": "ShellXformSlots.b035",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Flip V: mirror the selected UVs vertically about each shell's center.",
+              "line": 332,
+              "deprecated": false
+            },
+            {
+              "name": "b036",
+              "qualname": "ShellXformSlots.b036",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rotate the selected UVs counter-clockwise by the s041 angle.",
+              "line": 342,
+              "deprecated": false
+            },
+            {
+              "name": "b037",
+              "qualname": "ShellXformSlots.b037",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rotate the selected UVs clockwise by the s041 angle.",
+              "line": 346,
+              "deprecated": false
+            },
+            {
+              "name": "s041",
+              "qualname": "ShellXformSlots.s041",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Rotate Angle — passive input; read by the Rotate buttons (b036/b037).",
+              "line": 350,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "ShellXformSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Straighten UV",
+              "line": 354,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "ShellXformSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Straighten UV: selected UV edges within the angle snap flat;",
+              "line": 387,
+              "deprecated": false
+            },
+            {
+              "name": "tb006_init",
+              "qualname": "ShellXformSlots.tb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Distribute",
+              "line": 415,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "ShellXformSlots.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Distribute: lay the selected UV shells out in a row along U or V.",
+              "line": 434,
+              "deprecated": false
+            },
+            {
+              "name": "tb008_init",
+              "qualname": "ShellXformSlots.tb008_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Mirror UVs.",
+              "line": 455,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "ShellXformSlots.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Mirror UVs (footprint-preserving by default).",
+              "line": 496,
+              "deprecated": false
+            },
+            {
+              "name": "align_u_min",
+              "qualname": "ShellXformSlots.align_u_min",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their minimum U (left).",
+              "line": 521,
+              "deprecated": false
+            },
+            {
+              "name": "align_u_avg",
+              "qualname": "ShellXformSlots.align_u_avg",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their average U (center).",
+              "line": 525,
+              "deprecated": false
+            },
+            {
+              "name": "align_u_max",
+              "qualname": "ShellXformSlots.align_u_max",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their maximum U (right).",
+              "line": 529,
+              "deprecated": false
+            },
+            {
+              "name": "align_v_min",
+              "qualname": "ShellXformSlots.align_v_min",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their minimum V (bottom).",
+              "line": 533,
+              "deprecated": false
+            },
+            {
+              "name": "align_v_avg",
+              "qualname": "ShellXformSlots.align_v_avg",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their average V (center).",
+              "line": 537,
+              "deprecated": false
+            },
+            {
+              "name": "align_v_max",
+              "qualname": "ShellXformSlots.align_v_max",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Align the selected UVs to their maximum V (top).",
+              "line": 541,
+              "deprecated": false
+            },
+            {
+              "name": "linear_align",
+              "qualname": "ShellXformSlots.linear_align",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Linearly align the selected UVs between their two end points.",
+              "line": 545,
+              "deprecated": false
+            },
+            {
+              "name": "orient_shells",
+              "qualname": "ShellXformSlots.orient_shells",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Orient each shell to run parallel with its nearest U/V axis.",
+              "line": 550,
+              "deprecated": false
+            },
+            {
+              "name": "orient_edges",
+              "qualname": "ShellXformSlots.orient_edges",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Orient the shell so its selected edge runs along U or V.",
+              "line": 561,
+              "deprecated": false
+            },
+            {
+              "name": "gather_shells",
+              "qualname": "ShellXformSlots.gather_shells",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Gather the selected shells together toward the 0-1 UV space.",
+              "line": 570,
+              "deprecated": false
+            },
+            {
+              "name": "randomize_shells",
+              "qualname": "ShellXformSlots.randomize_shells",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Randomly offset the selected shells;",
+              "line": 579,
+              "deprecated": false
+            },
+            {
+              "name": "open_uv_editor",
+              "qualname": "ShellXformSlots.open_uv_editor",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the host's UV Editor.",
+              "line": 594,
               "deprecated": false
             }
           ]

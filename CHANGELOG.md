@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Bridge and Shell Xform are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/maya/uv.py`, `slots/blender/uv.py` docstrings).** Bridge disables the options the host's Bridge lists as unsupported (Blender: Blend / Curve, Taper, Twist) and previews on open where the host's Preview can; Shell Xform's every button is one `UvUtils` call (Straighten's two in one undo chunk).
+  - Test(s): new `test_bridge_panel.py` and `test_shell_xform_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Telescope Rig and Wheel Rig are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Each is one Slots class over the host's engine: Telescope Rig asks it for the selection's roles and removes several rigs in one undo step; Wheel Rig builds through `WheelRig.from_selection` (one undo step) and shows the default rig name as the field's placeholder instead of writing a stored one into it. Wheel Rig's two retired widgets stay in its `.ui` (saved names), hidden.
   - Test(s): new `test_telescope_rig_panel.py` and `test_wheel_rig_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Mirror, Image Tracer and Curve To Tube are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Mirror disables the merge modes the host's mirror lacks (Blender: Extrude) and takes Maya's pivot watcher where the host has one; Image Tracer's Blue Pencil entries are enabled where the host can open Blue Pencil (Maya) and its errors are said in a message box in both hosts; Curve To Tube's Select Result runs through either host's Preview and its footer through the host's `CurveToTube.describe`. The `.ui` files and widget names are unchanged.

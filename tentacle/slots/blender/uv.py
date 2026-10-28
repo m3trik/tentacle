@@ -16,7 +16,7 @@ class UvSlots(UvMixin, SlotsBlender):
     an external unwrapping engine via ``btk.UvUtils.auto_unwrap`` (shared dispatch in
     :class:`~tentacle.slots._uv.UvMixin`). Data-level UV work (pin/stack/texel density/UV-set
     cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless);
-    move/transform/mirror/straighten/distribute live in the blendertk ``shell_xform`` panel
+    move/transform/mirror/straighten/distribute live in the shared ``shell_xform`` tool
     (launched via b033); UV / texture transfer and the material combine live in the blendertk
     ``texture_combine`` panel (launched via b000); RizomUV rides the
     blendertk bridge panel (round-trip presets + one-way send). The deferred Maya-only depth is in
@@ -759,8 +759,8 @@ class UvSlots(UvMixin, SlotsBlender):
     def b033(self):
         """Open the Shell Xform panel — the ``More..`` button in the Transform group.
 
-        Co-located blendertk tool in ``blendertk.uv_utils.shell_xform``
-        (``ShellXformSlots``), discovered by ``BlenderUiHandler``. Mirrors Maya's b033;
+        The shared tool (``slots/tools/shell_xform.py``, over ``btk.UvUtils``). Mirrors
+        Maya's b033;
         Pin (b029) and Stack (b030) sit beside it in the same group."""
         self.sb.handlers.marking_menu.show("shell_xform")
 

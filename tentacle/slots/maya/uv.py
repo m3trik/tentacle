@@ -1533,8 +1533,7 @@ class UvSlots(UvMixin, SlotsMaya):
         """Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).
 
         The ``More..`` button in the Transform group. The dedicated tool is
-        co-located with its engine in ``mayatk.uv_utils.shell_xform``
-        (``ShellXformSlots``) and auto-discovered by ``MayaUiHandler``; Pin
+        the shared ``slots/tools/shell_xform.py`` (over ``mtk.UvUtils``); Pin
         (b029) and Stack (b030) sit beside it in the same group.
         """
         self.sb.handlers.marking_menu.show("shell_xform")

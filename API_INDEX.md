@@ -459,6 +459,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class BevelSlots(Slots)`
   - methods: header_init, perform_operation
 
+### `slots/tools/bridge.py` — Bridge: connect two open edge loops with new polygon faces, with a live preview.
+- `class BridgeSlots(Slots)`
+  - methods: header_init, perform_operation
+
 ### `slots/tools/calculator.py` — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - `class CalculatorSlots(Slots)`
   - methods: header_init, on_input, on_clear, on_backspace, on_equal, on_convert_units, get_fps, get_current_time, frames_to_sec, sec_to_frames
@@ -503,6 +507,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
   - methods: header_init, prepare_operation, perform_operation
+
+### `slots/tools/shell_xform.py` — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
+- `class ShellXformSlots(Slots)`
+  - methods: header_init, cmb_move_scope_init, b023, b024, b025, b026, gather_to_udim, b034, b035, b036, b037, s041, tb005_init, tb005, tb006_init, tb006, tb008_init, tb008, align_u_min, align_u_avg, align_u_max, align_v_min, align_v_avg, align_v_max, linear_align, orient_shells, orient_edges, gather_shells, randomize_shells, open_uv_editor
 
 ### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - `class ShotManifestSlots(Slots)`
