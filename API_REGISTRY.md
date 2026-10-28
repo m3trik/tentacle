@@ -117,6 +117,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_channels/attribute_form.py`](#slots--tools--_channels--attribute_form) — The Create Attribute popup: a one-shot form over the host's attribute types.
 - [`slots/tools/_channels/enum_cell.py`](#slots--tools--_channels--enum_cell) — The value cell of an enum attribute: its labels in a combobox, plus Rename /
 - [`slots/tools/_channels/inline_rename.py`](#slots--tools--_channels--inline_rename) — Rename the panel's target in place: the target field, and the footer in
+- [`slots/tools/_hierarchy_sync/controller.py`](#slots--tools--_hierarchy_sync--controller) — The Hierarchy Sync panel's state: the reference path, the paths the user
+- [`slots/tools/_hierarchy_sync/tree_matcher.py`](#slots--tools--_hierarchy_sync--tree_matcher) — Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
+- [`slots/tools/_hierarchy_sync/tree_renderer.py`](#slots--tools--_hierarchy_sync--tree_renderer) — The Hierarchy Sync trees: filling them, the diff's colours, the ignored
 - [`slots/tools/_shot_manifest/controller.py`](#slots--tools--_shot_manifest--controller) — The Shot Manifest panel's controller: its state, the steps the table shows,
 - [`slots/tools/_shot_manifest/export_preview.py`](#slots--tools--_shot_manifest--export_preview) — The Shot Manifest's Export button (beside Assess): a live preview of the
 - [`slots/tools/_shot_manifest/header_menu.py`](#slots--tools--_shot_manifest--header_menu) — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
@@ -149,6 +152,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
 - [`slots/tools/game_shader.py`](#slots--tools--game_shader) — Game Shader: build a PBR material from a set of texture maps, packed for a
 - [`slots/tools/hdr_manager.py`](#slots--tools--hdr_manager) — HDR Manager: light the scene from an HDR environment map, spin it and adjust
+- [`slots/tools/hierarchy_sync.py`](#slots--tools--hierarchy_sync) — Hierarchy Sync: diff the scene's hierarchy against a reference file, then
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
@@ -779,7 +783,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
-  - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
+  - `SceneSlots.b004(self)` — Hierarchy Sync — diff / pull / fix the scene hierarchy against a reference .blend:
   - `SceneSlots.b003(self)` — Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
   - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
@@ -1696,6 +1700,78 @@ Rename the panel's target in place: the target field, and the footer in
 - **[`class FooterRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L78)** — An inline rename page on a uitk ``Footer``.
   - `FooterRename.edit(self)` — Swap the footer's label for the line edit, holding the name.
 
+<a id="slots--tools--_hierarchy_sync--controller"></a>
+### `slots/tools/_hierarchy_sync/controller.py`
+
+The Hierarchy Sync panel's state: the reference path, the paths the user
+
+- [`RECENT_LIMIT`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L24) — constant
+- [`LOG_LIMIT`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L27) — constant
+- **[`class HierarchySyncController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L30)** — The panel's state and the orchestration between it, the host's session
+  - `HierarchySyncController.diff_result(self) -> Optional[dict]` *(property)* — The session's last analysis (``None`` before one).
+  - `HierarchySyncController.reference_path(self) -> str` *(property)* — The reference scene's path (``""`` when none is set).
+  - `HierarchySyncController.update_header_tooltips(self) -> None` — Each tree's header tooltip: its file's full path.
+  - `HierarchySyncController.clear_analysis(self) -> None` — Drop the analysis and the held reference (the session's) and the
+  - `HierarchySyncController.on_window_hidden(self) -> None` — Release the reference while the panel is hidden.
+  - `HierarchySyncController.populate_reference_tree(self, tree_widget, reference_path: str = None) -> None` — Fill the reference tree from *reference_path*, loading it (or
+  - `HierarchySyncController.refresh_trees(self, restore_selection: bool = True) -> None` — Rebuild both trees.
+  - `HierarchySyncController.refresh_styling(self) -> None` — Diff colours (or none), then the ignored styling, on both trees.
+  - `HierarchySyncController.ignored_set(self, tree_widget) -> set` — The ignored paths of *tree_widget* (an empty set for another widget).
+  - `HierarchySyncController.is_path_ignored(self, tree_widget, path: str) -> bool` — Whether *path*, or an ancestor of it, is ignored in *tree_widget*.
+  - `HierarchySyncController.clear_ignored_paths(self) -> None` — Forget every ignored path, in both trees.
+  - `HierarchySyncController.effective_diff(self) -> Dict[str, list]` — The analysis' differences, the ignored paths left out (a reparent or
+  - `HierarchySyncController.log_diff_results(self) -> None` — Log the differences (ignored ones left out): the top-level missing
+  - `HierarchySyncController.write_diff_report(missing, extra, reparented, fuzzy_matches) -> Optional[str]` *(static)* — Write the full diff to a text file.
+  - `HierarchySyncController.coerce_str_list(value) -> List[str]` *(static)* — A settings value as a list: QSettings hands a one-item list back as
+  - `HierarchySyncController.get_recent_reference_scenes(self) -> List[str]` — The recent reference scenes that still exist (the last ten).
+  - `HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None` — Put *scene_path* last in the recent references (the last ten kept).
+
+<a id="slots--tools--_hierarchy_sync--tree_matcher"></a>
+### `slots/tools/_hierarchy_sync/tree_matcher.py`
+
+Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
+
+- [`PLACEHOLDERS`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_matcher.py#L22) — constant
+- **[`class TreePathMatcher(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_matcher.py#L33)** — Index a tree's items by path and find the items a diff path names.
+  - `TreePathMatcher.iter_items(widget)` *(static)* — Every item of *widget*, depth first in display order.
+  - `TreePathMatcher.item_path(item) -> str` *(static)* — The item's display path: its and its ancestors' names, root first.
+  - `TreePathMatcher.raw_item_path(item) -> str` *(static)* — The item's path by its nodes' own names (``_raw_name``: a Maya node's
+  - `TreePathMatcher.item_key(self, item) -> str` — The name the host takes *item*'s node by (a pull's target).
+  - `TreePathMatcher.build_tree_index(self, widget) -> Tuple[dict, dict, Dict[str, list]]` — Index *widget*'s items three ways for :meth:`find_path_matches`.
+  - `TreePathMatcher.find_path_matches(self, target_path: str, by_full: dict, by_clean_full: dict, by_last: dict, prefer_cleaned: bool = False, strict: bool = False) -> Tuple[List[Any], str]` — The items *target_path* names, and the strategy that found them.
+  - `TreePathMatcher.log_matching_debug(self, path, candidates, strategy, prefix='') -> None` — Log how *path* matched.
+
+<a id="slots--tools--_hierarchy_sync--tree_renderer"></a>
+### `slots/tools/_hierarchy_sync/tree_renderer.py`
+
+The Hierarchy Sync trees: filling them, the diff's colours, the ignored
+
+- [`ORIG_TOOLTIP_ROLE`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_renderer.py#L26) — constant
+- [`BROWSE_PLACEHOLDER`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_renderer.py#L29) — constant
+- [`OPEN_SCENE_PLACEHOLDER`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_renderer.py#L30) — constant
+- **[`class HierarchyTreeRenderer(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_hierarchy_sync/tree_renderer.py#L36)** — Owns the two trees' content and look;
+  - `HierarchyTreeRenderer.session(self)` *(property)* — The host's ``HierarchySyncSession``.
+  - `HierarchyTreeRenderer.matcher(self) -> TreePathMatcher` — A path matcher over the host's path rules, logging into the panel.
+  - `HierarchyTreeRenderer.populate_current_scene_tree(self, tree_widget) -> None` — Fill *tree_widget* with the current scene's hierarchy, or an Open
+  - `HierarchyTreeRenderer.populate_reference_tree(self, tree_widget, nodes, reference_name='Reference Scene') -> None` — Fill *tree_widget* with the reference's *nodes* (already loaded).
+  - `HierarchyTreeRenderer.show_reference_placeholder(self, tree_widget, reference_name='Reference Scene') -> None` — A 'Browse for Reference Scene' prompt in the reference tree.
+  - `HierarchyTreeRenderer.show_reference_error(self, tree_widget, reference_name='Reference Scene', message='File Not Found') -> None` — A status *message* in the reference tree.
+  - `HierarchyTreeRenderer.populate_tree_with_hierarchy(self, tree_widget, nodes, tree_type='current')` — Add *nodes* to *tree_widget*, nested as the scene nests them.
+  - `HierarchyTreeRenderer.apply_difference_formatting(self, tree001, tree000) -> None` — Colour the diff into both trees (tint selection while it shows).
+  - `HierarchyTreeRenderer.clear_tree_colors(self, tree_widget) -> None` — Drop the diff's colours and tooltips from every item;
+  - `HierarchyTreeRenderer.format_tree_differences(self, tree_widget, tree_type, matcher, by_full, by_clean, by_last) -> None` — Colour one tree: extras and the current side of a reparent in the
+  - `HierarchyTreeRenderer.apply_ignore_styling(self, tree_widget) -> None` — Style the ignored items: a directly ignored one struck through and
+  - `HierarchyTreeRenderer.build_item_path(item) -> str` *(static)* — *item*'s display path (what the ignored paths store).
+  - `HierarchyTreeRenderer.selected_item_keys(self, tree_widget) -> List[str]` — The names the host takes the selected items' nodes by (a pull's
+  - `HierarchyTreeRenderer.get_selected_tree_items(self, tree_widget) -> list` — *tree_widget*'s selected items, in selection order.
+  - `HierarchyTreeRenderer.count_tree_items(tree_widget) -> int` *(static)* — How many items *tree_widget* holds.
+  - `HierarchyTreeRenderer.store_tree_selection(self, tree_widget) -> List[str]` — The selected items' paths.
+  - `HierarchyTreeRenderer.restore_tree_selection(self, tree_widget, selected_paths) -> int` — Select the items at *selected_paths*;
+  - `HierarchyTreeRenderer.get_tree_structure(self, tree_widget) -> List[str]` — Every item's path, sorted: equal before and after a refresh when the
+  - `HierarchyTreeRenderer.condense_to_roots(paths) -> List[str]` *(static)* — Drop paths whose ancestor is also in *paths* (keep shallow roots).
+  - `HierarchyTreeRenderer.filter_to_leaves(paths) -> List[str]` *(static)* — Keep only paths that are not a parent of another path in *paths*.
+  - `HierarchyTreeRenderer.apply_diff_options(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None` — Select and expand the diff in the trees.
+
 <a id="slots--tools--_shot_manifest--controller"></a>
 ### `slots/tools/_shot_manifest/controller.py`
 
@@ -2178,6 +2254,38 @@ HDR Manager: light the scene from an HDR environment map, spin it and adjust
   - `HdrManagerSlots.ctx_select_transform(self) -> None` — Select the skydome's transform.
   - `HdrManagerSlots.ctx_select_file_node(self) -> None` — Select the file node feeding the skydome's HDR texture.
   - `HdrManagerSlots.ctx_reveal_in_explorer(self) -> None` — Reveal the environment's HDR file in the file manager;
+
+<a id="slots--tools--hierarchy_sync"></a>
+### `slots/tools/hierarchy_sync.py`
+
+Hierarchy Sync: diff the scene's hierarchy against a reference file, then
+
+- **[`class HierarchySyncSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/hierarchy_sync.py#L31)** — Switchboard slots for the ``hierarchy_sync.ui`` panel.
+  - `HierarchySyncSlots.session(self)` *(property)* — The host's ``HierarchySyncSession`` (the controller's).
+  - `HierarchySyncSlots.header_init(self, widget)` — The header menu (Dry Run, Log Level, Hide Ignored) and the help.
+  - `HierarchySyncSlots.tree000_init(self, widget)` — The reference tree: read-only, its menu, and its header's browse,
+  - `HierarchySyncSlots.tree001_init(self, widget)` — The current-scene tree: its menu, Delete key, header buttons,
+  - `HierarchySyncSlots.cmb_diff_options_init(self, widget)` — The Diff options, rows of the combo under the Diff button (each
+  - `HierarchySyncSlots.cmb_pull_options_init(self, widget)` — The Pull options, rows of the combo under the Pull button.
+  - `HierarchySyncSlots.tb002_init(self, widget)` — The Pull button's tooltip.
+  - `HierarchySyncSlots.tb003_init(self, widget)` — The Fix button's option box: what a repair does.
+  - `HierarchySyncSlots.tb001(self, state=None)` — Diff: analyze, colour the trees, log the differences, and select and
+  - `HierarchySyncSlots.tb002(self, state=None)` — Pull: bring the reference tree's selected objects into the scene.
+  - `HierarchySyncSlots.tb003(self, state=None)` — Fix: repair the scene toward the reference, as the Fix options say.
+  - `HierarchySyncSlots.b003(self)` — Browse for the reference scene.
+  - `HierarchySyncSlots.b009(self)` — Refresh the reference tree.
+  - `HierarchySyncSlots.b011(self)` — Show the differences in the trees.
+  - `HierarchySyncSlots.b012(self)` — Analyze (no auto-select or expand: that is Diff's) and refresh the trees.
+  - `HierarchySyncSlots.b005(self)` — Refresh the current-scene tree.
+  - `HierarchySyncSlots.b006(self)` — Select the selected items' objects in the scene.
+  - `HierarchySyncSlots.b007(self)` — Expand every item of the current-scene tree.
+  - `HierarchySyncSlots.b008(self)` — Collapse every item of the current-scene tree.
+  - `HierarchySyncSlots.b013(self)` — Ignore the reference tree's selected items.
+  - `HierarchySyncSlots.b014(self)` — Unignore the reference tree's selected items.
+  - `HierarchySyncSlots.b015(self)` — Ignore the current-scene tree's selected items.
+  - `HierarchySyncSlots.b016(self)` — Unignore the current-scene tree's selected items.
+  - `HierarchySyncSlots.b017(self)` — Rename current-scene items to reference names.
+  - `HierarchySyncSlots.b018(self)` — Delete the selected objects from the scene (their subtrees with them).
 
 <a id="slots--tools--image_to_plane"></a>
 ### `slots/tools/image_to_plane.py`

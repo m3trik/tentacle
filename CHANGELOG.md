@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Hierarchy Sync is a shared tool (new `ui/tools/` + `slots/tools/` pair; `slots/tools/_hierarchy_sync/`: the controller, the tree renderer, the path matcher).** The tree's items hold each host's node handle and the panel asks the host's `HierarchySyncSession` about it; the path cleaning and naming rules are the host's, passed in. Maya's Diff Mode combo is gone (the analysis is scene-wide in both hosts).
+  - Test(s): new `test_hierarchy_sync_panel.py` (fake toolkit, real offscreen Qt for the helpers, a fresh-Maya class).
 - **2026-10-28 -- Channels is a shared tool (new `ui/tools/` + `slots/tools/` pair; `slots/tools/_channels/`: the Create Attribute form, the enum cell, the inline renames).** Rows are keyed by name in both hosts; the editors, create types and keyable states come from the host's `Channels`; a scrub opens its undo chunk at the first move (a press with no move pushes nothing); the icon and menu actions re-bind on every init (they stayed bound to a reloaded panel's dead instance). Changed for Blender users, as in Maya: renaming needs one target, values read back in place, the selection survives a refresh.
   - Test(s): new `test_channels_panel.py`.
 - **2026-10-28 -- Scene Exporter and Texture Combine are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/tools/_texture_combine/transfer_mode.py`).** Scene Exporter composes the host's `SceneExporter` (its logger and prompts passed in) and keeps the registry-built task rows, declared in `RUNTIME_WIDGETS`; Texture Combine's Transfer mode is one controller over the host's `TextureTransfer.selection_sides`.

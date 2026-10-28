@@ -427,6 +427,21 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class FooterRename`
   - methods: edit
 
+### `slots/tools/_hierarchy_sync/controller.py` — The Hierarchy Sync panel's state: the reference path, the paths the user
+- constants: RECENT_LIMIT, LOG_LIMIT
+- `class HierarchySyncController(pythontk.LoggingMixin)`
+  - methods: diff_result, reference_path, update_header_tooltips, clear_analysis, on_window_hidden, populate_reference_tree, refresh_trees, refresh_styling, ignored_set, is_path_ignored, clear_ignored_paths, effective_diff, log_diff_results, write_diff_report, coerce_str_list, get_recent_reference_scenes, save_recent_reference_scene
+
+### `slots/tools/_hierarchy_sync/tree_matcher.py` — Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
+- constants: PLACEHOLDERS
+- `class TreePathMatcher(pythontk.LoggingMixin)`
+  - methods: iter_items, item_path, raw_item_path, item_key, build_tree_index, find_path_matches, log_matching_debug
+
+### `slots/tools/_hierarchy_sync/tree_renderer.py` — The Hierarchy Sync trees: filling them, the diff's colours, the ignored
+- constants: ORIG_TOOLTIP_ROLE, BROWSE_PLACEHOLDER, OPEN_SCENE_PLACEHOLDER
+- `class HierarchyTreeRenderer(pythontk.LoggingMixin)`
+  - methods: session, matcher, populate_current_scene_tree, populate_reference_tree, show_reference_placeholder, show_reference_error, populate_tree_with_hierarchy, apply_difference_formatting, clear_tree_colors, format_tree_differences, apply_ignore_styling, build_item_path, selected_item_keys, get_selected_tree_items, count_tree_items, store_tree_selection, restore_tree_selection, get_tree_structure, condense_to_roots, filter_to_leaves, apply_diff_options
+
 ### `slots/tools/_shot_manifest/controller.py` — The Shot Manifest panel's controller: its state, the steps the table shows,
 - `class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`
   - methods: build, assess
@@ -552,6 +567,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/hdr_manager.py` — HDR Manager: light the scene from an HDR environment map, spin it and adjust
 - `class HdrManagerSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb000_init, hdr_map, hdr_map_visibility, hdr_map_preview, cmb000, slider000, spn_intensity, spn_exposure, spn_resolution, spn_samples, spn_diffuse, spn_specular, add_hdr, open_sourceimages, clear_network, ctx_select_skydome, ctx_select_transform, ctx_select_file_node, ctx_reveal_in_explorer
+
+### `slots/tools/hierarchy_sync.py` — Hierarchy Sync: diff the scene's hierarchy against a reference file, then
+- `class HierarchySyncSlots(Slots, pythontk.LoggingMixin)`
+  - methods: session, header_init, tree000_init, tree001_init, cmb_diff_options_init, cmb_pull_options_init, tb002_init, tb003_init, tb001, tb002, tb003, b003, b009, b011, b012, b005, b006, b007, b008, b013, b014, b015, b016, b017, b018
 
 ### `slots/tools/image_to_plane.py` — Image to Plane: batch-create textured planes from image files.
 - `class ImageToPlaneSlots(Slots)`

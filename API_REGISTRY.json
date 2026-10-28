@@ -3820,7 +3820,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 211,
+              "line": 210,
               "deprecated": false
             },
             {
@@ -3829,7 +3829,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Recent Files",
-              "line": 251,
+              "line": 250,
               "deprecated": false
             },
             {
@@ -3838,7 +3838,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Recent Files",
-              "line": 264,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -3847,7 +3847,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 271,
+              "line": 270,
               "deprecated": false
             },
             {
@@ -3856,7 +3856,7 @@
               "kind": "method",
               "signature": "(self, index, widget)",
               "summary": "Autosave",
-              "line": 280,
+              "line": 279,
               "deprecated": false
             },
             {
@@ -3865,7 +3865,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Import",
-              "line": 285,
+              "line": 284,
               "deprecated": false
             },
             {
@@ -3874,7 +3874,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Import",
-              "line": 303,
+              "line": 302,
               "deprecated": false
             },
             {
@@ -3883,7 +3883,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Export.",
-              "line": 359,
+              "line": 358,
               "deprecated": false
             },
             {
@@ -3892,7 +3892,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Export.",
-              "line": 411,
+              "line": 410,
               "deprecated": false
             },
             {
@@ -3901,7 +3901,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 425,
+              "line": 424,
               "deprecated": false
             },
             {
@@ -3910,7 +3910,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 670,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -3919,7 +3919,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 685,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -3928,7 +3928,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 689,
+              "line": 688,
               "deprecated": false
             },
             {
@@ -3937,7 +3937,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 693,
+              "line": 692,
               "deprecated": false
             },
             {
@@ -3946,7 +3946,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /",
-              "line": 700,
+              "line": 699,
               "deprecated": false
             },
             {
@@ -3955,7 +3955,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Export Selection (FBX, selected objects only).",
-              "line": 706,
+              "line": 705,
               "deprecated": false
             },
             {
@@ -3964,7 +3964,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 713,
+              "line": 712,
               "deprecated": false
             },
             {
@@ -3973,7 +3973,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 730,
+              "line": 729,
               "deprecated": false
             },
             {
@@ -3981,8 +3981,8 @@
               "qualname": "SceneSlots.b004",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend",
-              "line": 755,
+              "summary": "Hierarchy Sync — diff / pull / fix the scene hierarchy against a reference .blend:",
+              "line": 754,
               "deprecated": false
             },
             {
@@ -3991,7 +3991,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:",
-              "line": 761,
+              "line": 759,
               "deprecated": false
             },
             {
@@ -4000,7 +4000,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,",
-              "line": 770,
+              "line": 768,
               "deprecated": false
             },
             {
@@ -4009,7 +4009,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 779,
+              "line": 777,
               "deprecated": false
             }
           ]
@@ -10173,6 +10173,522 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/_hierarchy_sync/controller.py",
+      "summary": "The Hierarchy Sync panel's state: the reference path, the paths the user",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HierarchySyncController",
+          "summary": "The panel's state and the orchestration between it, the host's session",
+          "line": 30,
+          "bases": [
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "diff_result",
+              "qualname": "HierarchySyncController.diff_result",
+              "kind": "property",
+              "signature": "(self) -> Optional[dict]",
+              "summary": "The session's last analysis (``None`` before one).",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "reference_path",
+              "qualname": "HierarchySyncController.reference_path",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The reference scene's path (``\"\"`` when none is set).",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "update_header_tooltips",
+              "qualname": "HierarchySyncController.update_header_tooltips",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Each tree's header tooltip: its file's full path.",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "clear_analysis",
+              "qualname": "HierarchySyncController.clear_analysis",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Drop the analysis and the held reference (the session's) and the",
+              "line": 97,
+              "deprecated": false
+            },
+            {
+              "name": "on_window_hidden",
+              "qualname": "HierarchySyncController.on_window_hidden",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Release the reference while the panel is hidden.",
+              "line": 103,
+              "deprecated": false
+            },
+            {
+              "name": "populate_reference_tree",
+              "qualname": "HierarchySyncController.populate_reference_tree",
+              "kind": "method",
+              "signature": "(self, tree_widget, reference_path: str = None) -> None",
+              "summary": "Fill the reference tree from *reference_path*, loading it (or",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_trees",
+              "qualname": "HierarchySyncController.refresh_trees",
+              "kind": "method",
+              "signature": "(self, restore_selection: bool = True) -> None",
+              "summary": "Rebuild both trees.",
+              "line": 139,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_styling",
+              "qualname": "HierarchySyncController.refresh_styling",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Diff colours (or none), then the ignored styling, on both trees.",
+              "line": 179,
+              "deprecated": false
+            },
+            {
+              "name": "ignored_set",
+              "qualname": "HierarchySyncController.ignored_set",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> set",
+              "summary": "The ignored paths of *tree_widget* (an empty set for another widget).",
+              "line": 191,
+              "deprecated": false
+            },
+            {
+              "name": "is_path_ignored",
+              "qualname": "HierarchySyncController.is_path_ignored",
+              "kind": "method",
+              "signature": "(self, tree_widget, path: str) -> bool",
+              "summary": "Whether *path*, or an ancestor of it, is ignored in *tree_widget*.",
+              "line": 199,
+              "deprecated": false
+            },
+            {
+              "name": "clear_ignored_paths",
+              "qualname": "HierarchySyncController.clear_ignored_paths",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Forget every ignored path, in both trees.",
+              "line": 204,
+              "deprecated": false
+            },
+            {
+              "name": "effective_diff",
+              "qualname": "HierarchySyncController.effective_diff",
+              "kind": "method",
+              "signature": "(self) -> Dict[str, list]",
+              "summary": "The analysis' differences, the ignored paths left out (a reparent or",
+              "line": 209,
+              "deprecated": false
+            },
+            {
+              "name": "log_diff_results",
+              "qualname": "HierarchySyncController.log_diff_results",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Log the differences (ignored ones left out): the top-level missing",
+              "line": 238,
+              "deprecated": false
+            },
+            {
+              "name": "write_diff_report",
+              "qualname": "HierarchySyncController.write_diff_report",
+              "kind": "staticmethod",
+              "signature": "(missing, extra, reparented, fuzzy_matches) -> Optional[str]",
+              "summary": "Write the full diff to a text file.",
+              "line": 316,
+              "deprecated": false
+            },
+            {
+              "name": "coerce_str_list",
+              "qualname": "HierarchySyncController.coerce_str_list",
+              "kind": "staticmethod",
+              "signature": "(value) -> List[str]",
+              "summary": "A settings value as a list: QSettings hands a one-item list back as",
+              "line": 370,
+              "deprecated": false
+            },
+            {
+              "name": "get_recent_reference_scenes",
+              "qualname": "HierarchySyncController.get_recent_reference_scenes",
+              "kind": "method",
+              "signature": "(self) -> List[str]",
+              "summary": "The recent reference scenes that still exist (the last ten).",
+              "line": 379,
+              "deprecated": false
+            },
+            {
+              "name": "save_recent_reference_scene",
+              "qualname": "HierarchySyncController.save_recent_reference_scene",
+              "kind": "method",
+              "signature": "(self, scene_path: str) -> None",
+              "summary": "Put *scene_path* last in the recent references (the last ten kept).",
+              "line": 386,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "RECENT_LIMIT",
+          "qualname": "RECENT_LIMIT",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 24,
+          "deprecated": false
+        },
+        {
+          "name": "LOG_LIMIT",
+          "qualname": "LOG_LIMIT",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 27,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "relpath": "slots/tools/_hierarchy_sync/tree_matcher.py",
+      "summary": "Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TreePathMatcher",
+          "summary": "Index a tree's items by path and find the items a diff path names.",
+          "line": 33,
+          "bases": [
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "iter_items",
+              "qualname": "TreePathMatcher.iter_items",
+              "kind": "staticmethod",
+              "signature": "(widget)",
+              "summary": "Every item of *widget*, depth first in display order.",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "item_path",
+              "qualname": "TreePathMatcher.item_path",
+              "kind": "staticmethod",
+              "signature": "(item) -> str",
+              "summary": "The item's display path: its and its ancestors' names, root first.",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "raw_item_path",
+              "qualname": "TreePathMatcher.raw_item_path",
+              "kind": "staticmethod",
+              "signature": "(item) -> str",
+              "summary": "The item's path by its nodes' own names (``_raw_name``: a Maya node's",
+              "line": 78,
+              "deprecated": false
+            },
+            {
+              "name": "item_key",
+              "qualname": "TreePathMatcher.item_key",
+              "kind": "method",
+              "signature": "(self, item) -> str",
+              "summary": "The name the host takes *item*'s node by (a pull's target).",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "build_tree_index",
+              "qualname": "TreePathMatcher.build_tree_index",
+              "kind": "method",
+              "signature": "(self, widget) -> Tuple[dict, dict, Dict[str, list]]",
+              "summary": "Index *widget*'s items three ways for :meth:`find_path_matches`.",
+              "line": 112,
+              "deprecated": false
+            },
+            {
+              "name": "find_path_matches",
+              "qualname": "TreePathMatcher.find_path_matches",
+              "kind": "method",
+              "signature": "(self, target_path: str, by_full: dict, by_clean_full: dict, by_last: dict, prefer_cleaned: bool = False, strict: bool = False) -> Tuple[List[Any], str]",
+              "summary": "The items *target_path* names, and the strategy that found them.",
+              "line": 144,
+              "deprecated": false
+            },
+            {
+              "name": "log_matching_debug",
+              "qualname": "TreePathMatcher.log_matching_debug",
+              "kind": "method",
+              "signature": "(self, path, candidates, strategy, prefix='') -> None",
+              "summary": "Log how *path* matched.",
+              "line": 190,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "PLACEHOLDERS",
+          "qualname": "PLACEHOLDERS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 22,
+          "deprecated": false
+        }
+      ]
+    },
+    {
+      "relpath": "slots/tools/_hierarchy_sync/tree_renderer.py",
+      "summary": "The Hierarchy Sync trees: filling them, the diff's colours, the ignored",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HierarchyTreeRenderer",
+          "summary": "Owns the two trees' content and look;",
+          "line": 36,
+          "bases": [
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "session",
+              "qualname": "HierarchyTreeRenderer.session",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host's ``HierarchySyncSession``.",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "matcher",
+              "qualname": "HierarchyTreeRenderer.matcher",
+              "kind": "method",
+              "signature": "(self) -> TreePathMatcher",
+              "summary": "A path matcher over the host's path rules, logging into the panel.",
+              "line": 59,
+              "deprecated": false
+            },
+            {
+              "name": "populate_current_scene_tree",
+              "qualname": "HierarchyTreeRenderer.populate_current_scene_tree",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> None",
+              "summary": "Fill *tree_widget* with the current scene's hierarchy, or an Open",
+              "line": 68,
+              "deprecated": false
+            },
+            {
+              "name": "populate_reference_tree",
+              "qualname": "HierarchyTreeRenderer.populate_reference_tree",
+              "kind": "method",
+              "signature": "(self, tree_widget, nodes, reference_name='Reference Scene') -> None",
+              "summary": "Fill *tree_widget* with the reference's *nodes* (already loaded).",
+              "line": 99,
+              "deprecated": false
+            },
+            {
+              "name": "show_reference_placeholder",
+              "qualname": "HierarchyTreeRenderer.show_reference_placeholder",
+              "kind": "method",
+              "signature": "(self, tree_widget, reference_name='Reference Scene') -> None",
+              "summary": "A 'Browse for Reference Scene' prompt in the reference tree.",
+              "line": 111,
+              "deprecated": false
+            },
+            {
+              "name": "show_reference_error",
+              "qualname": "HierarchyTreeRenderer.show_reference_error",
+              "kind": "method",
+              "signature": "(self, tree_widget, reference_name='Reference Scene', message='File Not Found') -> None",
+              "summary": "A status *message* in the reference tree.",
+              "line": 119,
+              "deprecated": false
+            },
+            {
+              "name": "populate_tree_with_hierarchy",
+              "qualname": "HierarchyTreeRenderer.populate_tree_with_hierarchy",
+              "kind": "method",
+              "signature": "(self, tree_widget, nodes, tree_type='current')",
+              "summary": "Add *nodes* to *tree_widget*, nested as the scene nests them.",
+              "line": 136,
+              "deprecated": false
+            },
+            {
+              "name": "apply_difference_formatting",
+              "qualname": "HierarchyTreeRenderer.apply_difference_formatting",
+              "kind": "method",
+              "signature": "(self, tree001, tree000) -> None",
+              "summary": "Colour the diff into both trees (tint selection while it shows).",
+              "line": 195,
+              "deprecated": false
+            },
+            {
+              "name": "clear_tree_colors",
+              "qualname": "HierarchyTreeRenderer.clear_tree_colors",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> None",
+              "summary": "Drop the diff's colours and tooltips from every item;",
+              "line": 213,
+              "deprecated": false
+            },
+            {
+              "name": "format_tree_differences",
+              "qualname": "HierarchyTreeRenderer.format_tree_differences",
+              "kind": "method",
+              "signature": "(self, tree_widget, tree_type, matcher, by_full, by_clean, by_last) -> None",
+              "summary": "Colour one tree: extras and the current side of a reparent in the",
+              "line": 241,
+              "deprecated": false
+            },
+            {
+              "name": "apply_ignore_styling",
+              "qualname": "HierarchyTreeRenderer.apply_ignore_styling",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> None",
+              "summary": "Style the ignored items: a directly ignored one struck through and",
+              "line": 334,
+              "deprecated": false
+            },
+            {
+              "name": "build_item_path",
+              "qualname": "HierarchyTreeRenderer.build_item_path",
+              "kind": "staticmethod",
+              "signature": "(item) -> str",
+              "summary": "*item*'s display path (what the ignored paths store).",
+              "line": 364,
+              "deprecated": false
+            },
+            {
+              "name": "selected_item_keys",
+              "qualname": "HierarchyTreeRenderer.selected_item_keys",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> List[str]",
+              "summary": "The names the host takes the selected items' nodes by (a pull's",
+              "line": 376,
+              "deprecated": false
+            },
+            {
+              "name": "get_selected_tree_items",
+              "qualname": "HierarchyTreeRenderer.get_selected_tree_items",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> list",
+              "summary": "*tree_widget*'s selected items, in selection order.",
+              "line": 390,
+              "deprecated": false
+            },
+            {
+              "name": "count_tree_items",
+              "qualname": "HierarchyTreeRenderer.count_tree_items",
+              "kind": "staticmethod",
+              "signature": "(tree_widget) -> int",
+              "summary": "How many items *tree_widget* holds.",
+              "line": 399,
+              "deprecated": false
+            },
+            {
+              "name": "store_tree_selection",
+              "qualname": "HierarchyTreeRenderer.store_tree_selection",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> List[str]",
+              "summary": "The selected items' paths.",
+              "line": 404,
+              "deprecated": false
+            },
+            {
+              "name": "restore_tree_selection",
+              "qualname": "HierarchyTreeRenderer.restore_tree_selection",
+              "kind": "method",
+              "signature": "(self, tree_widget, selected_paths) -> int",
+              "summary": "Select the items at *selected_paths*;",
+              "line": 412,
+              "deprecated": false
+            },
+            {
+              "name": "get_tree_structure",
+              "qualname": "HierarchyTreeRenderer.get_tree_structure",
+              "kind": "method",
+              "signature": "(self, tree_widget) -> List[str]",
+              "summary": "Every item's path, sorted: equal before and after a refresh when the",
+              "line": 423,
+              "deprecated": false
+            },
+            {
+              "name": "condense_to_roots",
+              "qualname": "HierarchyTreeRenderer.condense_to_roots",
+              "kind": "staticmethod",
+              "signature": "(paths) -> List[str]",
+              "summary": "Drop paths whose ancestor is also in *paths* (keep shallow roots).",
+              "line": 433,
+              "deprecated": false
+            },
+            {
+              "name": "filter_to_leaves",
+              "qualname": "HierarchyTreeRenderer.filter_to_leaves",
+              "kind": "staticmethod",
+              "signature": "(paths) -> List[str]",
+              "summary": "Keep only paths that are not a parent of another path in *paths*.",
+              "line": 442,
+              "deprecated": false
+            },
+            {
+              "name": "apply_diff_options",
+              "qualname": "HierarchyTreeRenderer.apply_diff_options",
+              "kind": "method",
+              "signature": "(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None",
+              "summary": "Select and expand the diff in the trees.",
+              "line": 463,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "ORIG_TOOLTIP_ROLE",
+          "qualname": "ORIG_TOOLTIP_ROLE",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 26,
+          "deprecated": false
+        },
+        {
+          "name": "BROWSE_PLACEHOLDER",
+          "qualname": "BROWSE_PLACEHOLDER",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 29,
+          "deprecated": false
+        },
+        {
+          "name": "OPEN_SCENE_PLACEHOLDER",
+          "qualname": "OPEN_SCENE_PLACEHOLDER",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 30,
+          "deprecated": false
+        }
+      ]
+    },
+    {
       "relpath": "slots/tools/_shot_manifest/controller.py",
       "summary": "The Shot Manifest panel's controller: its state, the steps the table shows,",
       "functions": [],
@@ -13058,6 +13574,250 @@
               "signature": "(self) -> None",
               "summary": "Reveal the environment's HDR file in the file manager;",
               "line": 1052,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/hierarchy_sync.py",
+      "summary": "Hierarchy Sync: diff the scene's hierarchy against a reference file, then",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HierarchySyncSlots",
+          "summary": "Switchboard slots for the ``hierarchy_sync.ui`` panel.",
+          "line": 31,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "session",
+              "qualname": "HierarchySyncSlots.session",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host's ``HierarchySyncSession`` (the controller's).",
+              "line": 102,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "HierarchySyncSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The header menu (Dry Run, Log Level, Hide Ignored) and the help.",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "tree000_init",
+              "qualname": "HierarchySyncSlots.tree000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The reference tree: read-only, its menu, and its header's browse,",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "tree001_init",
+              "qualname": "HierarchySyncSlots.tree001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The current-scene tree: its menu, Delete key, header buttons,",
+              "line": 282,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_diff_options_init",
+              "qualname": "HierarchySyncSlots.cmb_diff_options_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Diff options, rows of the combo under the Diff button (each",
+              "line": 495,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_pull_options_init",
+              "qualname": "HierarchySyncSlots.cmb_pull_options_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Pull options, rows of the combo under the Pull button.",
+              "line": 570,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "HierarchySyncSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Pull button's tooltip.",
+              "line": 594,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "HierarchySyncSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Fix button's option box: what a repair does.",
+              "line": 601,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "HierarchySyncSlots.tb001",
+              "kind": "method",
+              "signature": "(self, state=None)",
+              "summary": "Diff: analyze, colour the trees, log the differences, and select and",
+              "line": 666,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "HierarchySyncSlots.tb002",
+              "kind": "method",
+              "signature": "(self, state=None)",
+              "summary": "Pull: bring the reference tree's selected objects into the scene.",
+              "line": 750,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "HierarchySyncSlots.tb003",
+              "kind": "method",
+              "signature": "(self, state=None)",
+              "summary": "Fix: repair the scene toward the reference, as the Fix options say.",
+              "line": 795,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "HierarchySyncSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Browse for the reference scene.",
+              "line": 840,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "HierarchySyncSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Refresh the reference tree.",
+              "line": 858,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "HierarchySyncSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Show the differences in the trees.",
+              "line": 866,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "HierarchySyncSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Analyze (no auto-select or expand: that is Diff's) and refresh the trees.",
+              "line": 878,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "HierarchySyncSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Refresh the current-scene tree.",
+              "line": 892,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "HierarchySyncSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Select the selected items' objects in the scene.",
+              "line": 896,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "HierarchySyncSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Expand every item of the current-scene tree.",
+              "line": 907,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "HierarchySyncSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Collapse every item of the current-scene tree.",
+              "line": 911,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "HierarchySyncSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Ignore the reference tree's selected items.",
+              "line": 915,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "HierarchySyncSlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unignore the reference tree's selected items.",
+              "line": 919,
+              "deprecated": false
+            },
+            {
+              "name": "b015",
+              "qualname": "HierarchySyncSlots.b015",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Ignore the current-scene tree's selected items.",
+              "line": 923,
+              "deprecated": false
+            },
+            {
+              "name": "b016",
+              "qualname": "HierarchySyncSlots.b016",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unignore the current-scene tree's selected items.",
+              "line": 927,
+              "deprecated": false
+            },
+            {
+              "name": "b017",
+              "qualname": "HierarchySyncSlots.b017",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rename current-scene items to reference names.",
+              "line": 931,
+              "deprecated": false
+            },
+            {
+              "name": "b018",
+              "qualname": "HierarchySyncSlots.b018",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete the selected objects from the scene (their subtrees with them).",
+              "line": 1018,
               "deprecated": false
             }
           ]

@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (607)
+## Added (687)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -32,6 +32,60 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_channels/inline_rename.py::FooterRename(class)`
 - `slots/tools/_channels/inline_rename.py::FooterRename.edit(self)`
 - `slots/tools/_channels/inline_rename.py::InlineRename(class)`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController(class)`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_analysis(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_ignored_paths(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.coerce_str_list(value) -> List[str]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.diff_result(self) -> Optional[dict]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.effective_diff(self) -> Dict[str, list]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.get_recent_reference_scenes(self) -> List[str]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.ignored_set(self, tree_widget) -> set`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.is_path_ignored(self, tree_widget, path: str) -> bool`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.log_diff_results(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.on_window_hidden(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.populate_reference_tree(self, tree_widget, reference_path: str = None) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.reference_path(self) -> str`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_styling(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_trees(self, restore_selection: bool = True) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.update_header_tooltips(self) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.write_diff_report(missing, extra, reparented, fuzzy_matches) -> Optional[str]`
+- `slots/tools/_hierarchy_sync/controller.py::LOG_LIMIT(constant)`
+- `slots/tools/_hierarchy_sync/controller.py::RECENT_LIMIT(constant)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::PLACEHOLDERS(constant)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher(class)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.build_tree_index(self, widget) -> Tuple[dict, dict, Dict[str, list]]`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.find_path_matches(self, target_path: str, by_full: dict, by_clean_full: dict, by_last: dict, prefer_cleaned: bool = False, strict: bool = False) -> Tuple[List[Any], str]`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.item_key(self, item) -> str`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.iter_items(widget)`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.log_matching_debug(self, path, candidates, strategy, prefix='') -> None`
+- `slots/tools/_hierarchy_sync/tree_matcher.py::TreePathMatcher.raw_item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::BROWSE_PLACEHOLDER(constant)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer(class)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_diff_options(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_difference_formatting(self, tree001, tree000) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.apply_ignore_styling(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.build_item_path(item) -> str`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.clear_tree_colors(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.condense_to_roots(paths) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.count_tree_items(tree_widget) -> int`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.filter_to_leaves(paths) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.format_tree_differences(self, tree_widget, tree_type, matcher, by_full, by_clean, by_last) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.get_selected_tree_items(self, tree_widget) -> list`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.get_tree_structure(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.matcher(self) -> TreePathMatcher`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_current_scene_tree(self, tree_widget) -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_reference_tree(self, tree_widget, nodes, reference_name='Reference Scene') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.populate_tree_with_hierarchy(self, tree_widget, nodes, tree_type='current')`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.restore_tree_selection(self, tree_widget, selected_paths) -> int`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.selected_item_keys(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.session(self)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.show_reference_error(self, tree_widget, reference_name='Reference Scene', message='File Not Found') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.show_reference_placeholder(self, tree_widget, reference_name='Reference Scene') -> None`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.store_tree_selection(self, tree_widget) -> List[str]`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::OPEN_SCENE_PLACEHOLDER(constant)`
+- `slots/tools/_hierarchy_sync/tree_renderer.py::ORIG_TOOLTIP_ROLE(constant)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
@@ -323,6 +377,32 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/hdr_manager.py::HdrManagerSlots.spn_resolution(self, value) -> None`
 - `slots/tools/hdr_manager.py::HdrManagerSlots.spn_samples(self, value) -> None`
 - `slots/tools/hdr_manager.py::HdrManagerSlots.spn_specular(self, value) -> None`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots(class)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b003(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b005(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b006(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b007(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b008(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b009(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b011(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b012(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b013(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b014(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b015(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b016(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b017(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.b018(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.cmb_diff_options_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.cmb_pull_options_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.header_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.session(self)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb001(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb002(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb002_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb003(self, state=None)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tb003_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tree000_init(self, widget)`
+- `slots/tools/hierarchy_sync.py::HierarchySyncSlots.tree001_init(self, widget)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots(class)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b000(self)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b001(self)`

@@ -19,11 +19,10 @@ class SceneSlots(SceneMixin, SlotsBlender):
     ``_export_one_shot``): the stock importer skips hidden prims and folds single-child
     groups away, and the stock exporter drops hidden objects in every mode.
     Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
-    Scene Exporter and Hierarchy Sync are native blendertk panels, both 1:1 with mayatk's:
+    Scene Exporter and Hierarchy Sync are tentacle's shared tools, the same panels as Maya's:
     the former (task/check pipeline, FBX or GLB) reached from the Export list — see
-    ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. disabled
-    placeholders (hierarchy_sync / smart_bake / data_export subsystems aren't ported yet);
-    the latter for Diff/Fix (Pull isn't ported yet). The workspace model is shared with Maya
+    ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. declared
+    gaps; the latter for Diff / Pull / Fix. The workspace model is shared with Maya
     (``workspace.mel`` projects via ``btk.current_workspace``; the footer mirrors Maya's
     workspace status). Maya's command ports have no Blender analogue and are deferred.
     """
@@ -753,9 +752,8 @@ class SceneSlots(SceneMixin, SlotsBlender):
     }
 
     def b004(self):
-        """Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
-        (native blendertk panel, 1:1 with mayatk's ``hierarchy_sync`` for Diff/Fix; Pull
-        isn't ported yet — see ``blendertk.env_utils.hierarchy_sync`` for why)."""
+        """Hierarchy Sync — diff / pull / fix the scene hierarchy against a reference .blend:
+        the shared tool over ``btk.HierarchySyncSession``."""
         self.sb.handlers.marking_menu.show("hierarchy_sync")
 
     def b003(self):
