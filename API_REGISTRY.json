@@ -3999,7 +3999,7 @@
               "qualname": "SceneSlots.b015",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,",
+              "summary": "Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,",
               "line": 772,
               "deprecated": false
             },
@@ -4009,7 +4009,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 783,
+              "line": 781,
               "deprecated": false
             }
           ]
@@ -10065,6 +10065,23 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/_blendshape_animator/sort_item.py",
+      "summary": "A tween-tree row that sorts its numeric columns by number.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "NumericSortItem",
+          "summary": "A tree row that sorts the Weight and Frame columns by number.",
+          "line": 8,
+          "bases": [
+            "QtWidgets.QTreeWidgetItem"
+          ],
+          "members": []
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/_shot_manifest/controller.py",
       "summary": "The Shot Manifest panel's controller: its state, the steps the table shows,",
       "functions": [],
@@ -10947,6 +10964,250 @@
         }
       ],
       "constants": []
+    },
+    {
+      "relpath": "slots/tools/blendshape_animator.py",
+      "summary": "Blendshape Animator: build a morph between two meshes, add in-between",
+      "functions": [],
+      "classes": [
+        {
+          "name": "BlendshapeAnimatorSlots",
+          "summary": "",
+          "line": 39,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "BlendshapeAnimatorSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Configure header buttons and help.",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "b000_init",
+              "qualname": "BlendshapeAnimatorSlots.b000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Create Setup — the option box offers the other ways in.",
+              "line": 187,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "BlendshapeAnimatorSlots.b000",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Create Setup from the two selected meshes.",
+              "line": 218,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "BlendshapeAnimatorSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the edit-mode combo, and say which input each mode uses.",
+              "line": 263,
+              "deprecated": false
+            },
+            {
+              "name": "le000_init",
+              "qualname": "BlendshapeAnimatorSlots.le000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Name field — optional, so an empty name is a real choice.",
+              "line": 274,
+              "deprecated": false
+            },
+            {
+              "name": "le001_init",
+              "qualname": "BlendshapeAnimatorSlots.le001_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "CSV weights field — the option box offers preset lists.",
+              "line": 278,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "BlendshapeAnimatorSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Add Tweens — the option box holds the count and the group / prefix.",
+              "line": 295,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "BlendshapeAnimatorSlots.b001",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Add Tweens — by weight or by frame, as the edit-mode combo says (one",
+              "line": 332,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "BlendshapeAnimatorSlots.b003",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Diagnose Topology.",
+              "line": 394,
+              "deprecated": false
+            },
+            {
+              "name": "b004_init",
+              "qualname": "BlendshapeAnimatorSlots.b004_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Cleanup Topology Mismatches — the option box holds its two flags.",
+              "line": 405,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "BlendshapeAnimatorSlots.b004",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Clean up tweens whose topology doesn't match the base mesh.",
+              "line": 424,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "BlendshapeAnimatorSlots.b005",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Recover Animation.",
+              "line": 436,
+              "deprecated": false
+            },
+            {
+              "name": "b006_init",
+              "qualname": "BlendshapeAnimatorSlots.b006_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Apply All Edits — the option box holds its two flags.",
+              "line": 450,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "BlendshapeAnimatorSlots.b006",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Apply All Edits — every tween of the setup, with the option box's flags.",
+              "line": 483,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "BlendshapeAnimatorSlots.b007",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Remove Target Mesh.",
+              "line": 507,
+              "deprecated": false
+            },
+            {
+              "name": "b008_init",
+              "qualname": "BlendshapeAnimatorSlots.b008_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Finalize for Export — the option box holds its four flags.",
+              "line": 517,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "BlendshapeAnimatorSlots.b008",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Finalize the setup for export: apply, clean up, hide the source.",
+              "line": 547,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": [
+        {
+          "name": "COL_NAME",
+          "qualname": "COL_NAME",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 21,
+          "deprecated": false
+        },
+        {
+          "name": "COL_WEIGHT",
+          "qualname": "COL_WEIGHT",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 22,
+          "deprecated": false
+        },
+        {
+          "name": "COL_FRAME",
+          "qualname": "COL_FRAME",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 23,
+          "deprecated": false
+        },
+        {
+          "name": "COL_TOPOLOGY",
+          "qualname": "COL_TOPOLOGY",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 24,
+          "deprecated": false
+        },
+        {
+          "name": "COL_STATUS",
+          "qualname": "COL_STATUS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 25,
+          "deprecated": false
+        },
+        {
+          "name": "MODE_WEIGHT",
+          "qualname": "MODE_WEIGHT",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 28,
+          "deprecated": false
+        },
+        {
+          "name": "MODE_FRAME",
+          "qualname": "MODE_FRAME",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 29,
+          "deprecated": false
+        },
+        {
+          "name": "STATUS_KEYS",
+          "qualname": "STATUS_KEYS",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 32,
+          "deprecated": false
+        }
+      ]
     },
     {
       "relpath": "slots/tools/bridge.py",
@@ -13640,6 +13901,141 @@
               "signature": "(self)",
               "summary": "Remove Telescope Rig: tear down the rigs on the selection, or the",
               "line": 235,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/tube_rig.py",
+      "summary": "Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TubeRigSlots",
+          "summary": "",
+          "line": 16,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "txt000_init",
+              "qualname": "TubeRigSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Rig-name field — optional, so clearing back to auto-naming is a state.",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "TubeRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "apply_mode",
+              "qualname": "TubeRigSlots.apply_mode",
+              "kind": "method",
+              "signature": "(self, index: int)",
+              "summary": "Apply a mode's values and constraints to the option widgets.",
+              "line": 463,
+              "deprecated": false
+            },
+            {
+              "name": "get_mode",
+              "qualname": "TubeRigSlots.get_mode",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The current rig mode (a ``TubeRig.MODES`` entry).",
+              "line": 484,
+              "deprecated": false
+            },
+            {
+              "name": "get_strategy",
+              "qualname": "TubeRigSlots.get_strategy",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "The current mode's strategy name (``spline`` / ``anchor`` / ``fk``).",
+              "line": 488,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "TubeRigSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "One-Click Rig — runs Steps 1 → 2 → 3 with the step parameters,",
+              "line": 613,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "TubeRigSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Step 1: Create Joints from Tube — once per selected tube.",
+              "line": 646,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "TubeRigSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Step 2: Create IK / Controls (mode dependent) on the selected chain.",
+              "line": 686,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "TubeRigSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Step 3: Bind the joint chain to the tube.",
+              "line": 705,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "TubeRigSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Utility: Constrain Ends to Anchors — one anchor or both, each to its",
+              "line": 718,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "TubeRigSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Utility: Remove Rig — tear down every rig the selection touches.",
+              "line": 737,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "TubeRigSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Utility: Rename Rig — to the Rig Name field, every node included.",
+              "line": 759,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "TubeRigSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Utility: Rebind Skin — re-solve the bind for every rig the selection",
+              "line": 790,
               "deprecated": false
             }
           ]

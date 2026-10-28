@@ -113,6 +113,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/tools/_blendshape_animator/sort_item.py`](#slots--tools--_blendshape_animator--sort_item) — A tween-tree row that sorts its numeric columns by number.
 - [`slots/tools/_shot_manifest/controller.py`](#slots--tools--_shot_manifest--controller) — The Shot Manifest panel's controller: its state, the steps the table shows,
 - [`slots/tools/_shot_manifest/export_preview.py`](#slots--tools--_shot_manifest--export_preview) — The Shot Manifest's Export button (beside Assess): a live preview of the
 - [`slots/tools/_shot_manifest/header_menu.py`](#slots--tools--_shot_manifest--header_menu) — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
@@ -127,6 +128,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
+- [`slots/tools/blendshape_animator.py`](#slots--tools--blendshape_animator) — Blendshape Animator: build a morph between two meshes, add in-between
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - [`slots/tools/color_id.py`](#slots--tools--color_id) — Color ID: color-code objects across channels from a swatch palette.
@@ -154,6 +156,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
+- [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
@@ -768,7 +771,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
   - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
   - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
-  - `SceneSlots.b015(self)` — Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
+  - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
 
 <a id="slots--blender--selection"></a>
@@ -1650,6 +1653,13 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
 
+<a id="slots--tools--_blendshape_animator--sort_item"></a>
+### `slots/tools/_blendshape_animator/sort_item.py`
+
+A tween-tree row that sorts its numeric columns by number.
+
+- **[`class NumericSortItem(QtWidgets.QTreeWidgetItem)`](tentacle/tentacle/slots/tools/_blendshape_animator/sort_item.py#L8)** — A tree row that sorts the Weight and Frame columns by number.
+
 <a id="slots--tools--_shot_manifest--controller"></a>
 ### `slots/tools/_shot_manifest/controller.py`
 
@@ -1819,6 +1829,38 @@ Bevel: chamfer the selected polygon edges, with a live preview.
 - **[`class BevelSlots(Slots)`](tentacle/tentacle/slots/tools/bevel.py#L12)**
   - `BevelSlots.header_init(self, widget)` — Configure header help text.
   - `BevelSlots.perform_operation(self, objects, contract=None)` — Bevel *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--blendshape_animator"></a>
+### `slots/tools/blendshape_animator.py`
+
+Blendshape Animator: build a morph between two meshes, add in-between
+
+- [`COL_NAME`](tentacle/tentacle/slots/tools/blendshape_animator.py#L21) — constant
+- [`COL_WEIGHT`](tentacle/tentacle/slots/tools/blendshape_animator.py#L22) — constant
+- [`COL_FRAME`](tentacle/tentacle/slots/tools/blendshape_animator.py#L23) — constant
+- [`COL_TOPOLOGY`](tentacle/tentacle/slots/tools/blendshape_animator.py#L24) — constant
+- [`COL_STATUS`](tentacle/tentacle/slots/tools/blendshape_animator.py#L25) — constant
+- [`MODE_WEIGHT`](tentacle/tentacle/slots/tools/blendshape_animator.py#L28) — constant
+- [`MODE_FRAME`](tentacle/tentacle/slots/tools/blendshape_animator.py#L29) — constant
+- [`STATUS_KEYS`](tentacle/tentacle/slots/tools/blendshape_animator.py#L32) — constant
+- **[`class BlendshapeAnimatorSlots(Slots)`](tentacle/tentacle/slots/tools/blendshape_animator.py#L39)**
+  - `BlendshapeAnimatorSlots.header_init(self, widget) -> None` — Configure header buttons and help.
+  - `BlendshapeAnimatorSlots.b000_init(self, widget) -> None` — Create Setup — the option box offers the other ways in.
+  - `BlendshapeAnimatorSlots.b000(self, widget) -> None` — Create Setup from the two selected meshes.
+  - `BlendshapeAnimatorSlots.cmb000_init(self, widget) -> None` — Populate the edit-mode combo, and say which input each mode uses.
+  - `BlendshapeAnimatorSlots.le000_init(self, widget) -> None` — Name field — optional, so an empty name is a real choice.
+  - `BlendshapeAnimatorSlots.le001_init(self, widget) -> None` — CSV weights field — the option box offers preset lists.
+  - `BlendshapeAnimatorSlots.b001_init(self, widget) -> None` — Add Tweens — the option box holds the count and the group / prefix.
+  - `BlendshapeAnimatorSlots.b001(self, widget) -> None` — Add Tweens — by weight or by frame, as the edit-mode combo says (one
+  - `BlendshapeAnimatorSlots.b003(self, widget) -> None` — Diagnose Topology.
+  - `BlendshapeAnimatorSlots.b004_init(self, widget) -> None` — Cleanup Topology Mismatches — the option box holds its two flags.
+  - `BlendshapeAnimatorSlots.b004(self, widget) -> None` — Clean up tweens whose topology doesn't match the base mesh.
+  - `BlendshapeAnimatorSlots.b005(self, widget) -> None` — Recover Animation.
+  - `BlendshapeAnimatorSlots.b006_init(self, widget) -> None` — Apply All Edits — the option box holds its two flags.
+  - `BlendshapeAnimatorSlots.b006(self, widget) -> None` — Apply All Edits — every tween of the setup, with the option box's flags.
+  - `BlendshapeAnimatorSlots.b007(self, widget) -> None` — Remove Target Mesh.
+  - `BlendshapeAnimatorSlots.b008_init(self, widget) -> None` — Finalize for Export — the option box holds its four flags.
+  - `BlendshapeAnimatorSlots.b008(self, widget) -> None` — Finalize the setup for export: apply, clean up, hide the source.
 
 <a id="slots--tools--bridge"></a>
 ### `slots/tools/bridge.py`
@@ -2253,6 +2295,26 @@ Telescope Rig: nested segments that extend and retract between a base and an
   - `TelescopeRigSlots.header_init(self, widget)` — Configure header help text.
   - `TelescopeRigSlots.build_rig(self)` — Build Telescope Rig: rig the selected segments between their handles.
   - `TelescopeRigSlots.remove_rig(self)` — Remove Telescope Rig: tear down the rigs on the selection, or the
+
+<a id="slots--tools--tube_rig"></a>
+### `slots/tools/tube_rig.py`
+
+Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
+
+- **[`class TubeRigSlots(Slots)`](tentacle/tentacle/slots/tools/tube_rig.py#L16)**
+  - `TubeRigSlots.txt000_init(self, widget)` — Rig-name field — optional, so clearing back to auto-naming is a state.
+  - `TubeRigSlots.header_init(self, widget)` — Configure header help text.
+  - `TubeRigSlots.apply_mode(self, index: int)` — Apply a mode's values and constraints to the option widgets.
+  - `TubeRigSlots.get_mode(self)` — The current rig mode (a ``TubeRig.MODES`` entry).
+  - `TubeRigSlots.get_strategy(self) -> str` — The current mode's strategy name (``spline`` / ``anchor`` / ``fk``).
+  - `TubeRigSlots.b000(self)` — One-Click Rig — runs Steps 1 → 2 → 3 with the step parameters,
+  - `TubeRigSlots.b001(self)` — Step 1: Create Joints from Tube — once per selected tube.
+  - `TubeRigSlots.b002(self)` — Step 2: Create IK / Controls (mode dependent) on the selected chain.
+  - `TubeRigSlots.b003(self)` — Step 3: Bind the joint chain to the tube.
+  - `TubeRigSlots.b004(self)` — Utility: Constrain Ends to Anchors — one anchor or both, each to its
+  - `TubeRigSlots.b005(self)` — Utility: Remove Rig — tear down every rig the selection touches.
+  - `TubeRigSlots.b006(self)` — Utility: Rename Rig — to the Rig Name field, every node included.
+  - `TubeRigSlots.b007(self)` — Utility: Rebind Skin — re-solve the bind for every rig the selection
 
 <a id="slots--tools--wheel_rig"></a>
 ### `slots/tools/wheel_rig.py`

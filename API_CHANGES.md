@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (383)
+## Added (424)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -23,6 +23,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/tools/_blendshape_animator/sort_item.py::NumericSortItem(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
@@ -109,6 +110,32 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots(class)`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b001(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b001_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b003(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b004(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b004_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b005(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b006(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b006_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b007(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b008(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b008_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.header_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.le000_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.le001_init(self, widget) -> None`
+- `slots/tools/blendshape_animator.py::COL_FRAME(constant)`
+- `slots/tools/blendshape_animator.py::COL_NAME(constant)`
+- `slots/tools/blendshape_animator.py::COL_STATUS(constant)`
+- `slots/tools/blendshape_animator.py::COL_TOPOLOGY(constant)`
+- `slots/tools/blendshape_animator.py::COL_WEIGHT(constant)`
+- `slots/tools/blendshape_animator.py::MODE_FRAME(constant)`
+- `slots/tools/blendshape_animator.py::MODE_WEIGHT(constant)`
+- `slots/tools/blendshape_animator.py::STATUS_KEYS(constant)`
 - `slots/tools/bridge.py::BridgeSlots(class)`
 - `slots/tools/bridge.py::BridgeSlots.header_init(self, widget)`
 - `slots/tools/bridge.py::BridgeSlots.perform_operation(self, objects, contract=None)`
@@ -381,6 +408,20 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.remove_rig(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots(class)`
+- `slots/tools/tube_rig.py::TubeRigSlots.apply_mode(self, index: int)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b000(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b001(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b002(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b003(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b004(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b005(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b006(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.b007(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.get_mode(self)`
+- `slots/tools/tube_rig.py::TubeRigSlots.get_strategy(self) -> str`
+- `slots/tools/tube_rig.py::TubeRigSlots.header_init(self, widget)`
+- `slots/tools/tube_rig.py::TubeRigSlots.txt000_init(self, widget)`
 - `slots/tools/wheel_rig.py::WheelRigSlots(class)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.b000(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.header_init(self, widget)`

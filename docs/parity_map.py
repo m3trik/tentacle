@@ -159,16 +159,6 @@ CONTROLS = {
         },
         "hdr_connection_editor": {"status": "na", "reason": "Maya Connection Editor; no Blender analogue"},
     },
-    "blendshape_animator_slots": {
-        "btn_recover_setup": {
-            "status": "na",
-            "reason": "mayatk's 'Recover Setup' rebuilds a corrupted blendShape NODE (Maya's "
-            "deformer can end up in a broken position in the DAG). A Blender shape key is data "
-            "on the mesh, not a separate node that can end up corrupted that way -- there is "
-            "nothing analogous to rebuild. 'Recover Animation' (b005, a lost KEYFRAME range) IS "
-            "ported -- see _blendshape_animator.py's module docstring.",
-        },
-    },
     "lightmap_baker_slots": {  # the panel file stem (lightmap_baker_slots.py)
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
         # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk
@@ -215,61 +205,6 @@ CONTROLS = {
         # page (b000 Key, btn_remove, btn_webxr). Ported 1:1 by objectName
         # (the tb000/tb001 option boxes are gone on both sides); compare_panel_surface 0
         # deltas; nothing pending.
-    },
-    "tube_rig_slots": {  # mayatk rig_utils/tube_rig/tube_rig_slots.py
-        # HYBRID panel: static s000/s001/s002/chk_stretch became AttributeSpec options
-        # (num_joints/num_controls/radius/enable_stretch) built into wgt_options per mode.
-        "s000": {"status": "replaced", "to": "spec:num_joints", "reason": "AttributeSpec option"},
-        "s001": {"status": "replaced", "to": "spec:num_controls", "reason": "AttributeSpec option"},
-        "s002": {"status": "replaced", "to": "spec:radius", "reason": "AttributeSpec option"},
-        "chk_stretch": {"status": "replaced", "to": "spec:enable_stretch", "reason": "AttributeSpec option"},
-        # DEFORM TOGGLES — DONE 2026-07-11 (chk_stretch/squash/volume/auto_bend above): the prior
-        # "no Blender engine counterpart yet" rulings were over-scoped. Blender's Spline IK collapses
-        # Maya's per-node deform graphs to native constraint options — stretch=Y FIT_CURVE,
-        # squash/volume=XZ INVERSE_PRESERVE/VOLUME_PRESERVE — and auto_bend is one distance-driver on
-        # the mid control. chk_twist DONE too (its entry): Spline IK ignores curve tilt, so twist is a
-        # roll-control bone + per-bone Copy Rotation chain (the one non-native toggle) — TubeRig fully ported.
-        #
-        # The deferral's core premise — "rig correctness requires a LIVE interactive Blender; headless
-        # tests can't confirm the mesh deforms right" — is REFUTED. test_tube_rig.py already verifies
-        # deform numerically via the EVALUATED depsgraph (move a control -> read obj.evaluated_get(dg)
-        # .to_mesh() -> assert the deformed bbox/cross-section changed). Every deform toggle above is
-        # locked by such a headless test. So TubeRig is buildable + verifiable headlessly, NOT a
-        # live-only item.
-        #
-        # GRANULAR STEP-WORKFLOW — b001/b002/b003 + chk000 DONE 2026-07-11. The engine methods already
-        # existed and deform (create_joint_chain=Step1, attach_spline_rig=Step2, RigUtils.bind_armature
-        # =Step3; reverse=chk000). Added the buttons to a "Manual Steps (Spline)" group in tube_rig.ui
-        # + the TubeRigSlots b001/b002/b003 methods dispatching to those engine methods on the user's
-        # selection (b002 resolves the chain via a mesh-less TubeRig reusing the armature's root).
-        # Verified by tube_rig_slot_check.py 9/9 (incl. the moved-control deform check + chk000 reverse).
-        # The b001/b002/b003 (PushButton) + chk000 (QCheckBox) class deltas vs Maya's QPushButton are
-        # review-only — the same accepted cross-DCC pattern as b000. Tracked in PARITY_PORTING_PLAN.md.
-        # (cmb_preset/txt000 uitk .ui promotion closed 2026-07-03.)
-        #
-        # b004 Add End Constraints — DONE 2026-07-11. The "needs a NEW per-vertex weight-blend algorithm
-        # that doesn't exist here" ruling was the last over-scoped one. Ported as two reusable RigUtils
-        # primitives — RigUtils.add_bone (single-bone graft) + RigUtils.apply_falloff_weights (the
-        # per-vertex distance blend: target group = 1 - d/r, existing influences scaled by (1-w) so the
-        # row REDISTRIBUTES not adds — Maya's skinPercent semantics, crease-free at the boundary) — plus
-        # TubeRig.constrain_end_with_falloff (an anchor bone COPY_LOCATION-tracking the external object +
-        # the falloff paint) and the TubeRigSlots.b004 slot (armature + 2 anchors selection, bound-mesh
-        # lookup, proximity-based nearest-end assignment since Blender selection order is unreliable).
-        # Verified headlessly: test_tube_rig.py (falloff deform + exact redistribution invariant, 33/33)
-        # + tube_rig_slot_check.py (slot resolution + anchor-driven deform, 11/11). Divergence: Maya's
-        # parentConstraint copies position AND orientation; the port copies translation (COPY_LOCATION)
-        # to stay bind-time-stable (anchor rotation-follow would need a maintain-offset CHILD_OF inverse).
-        # b004 (PushButton) class delta is review-only. With b004 + chk_twist done, the TubeRig panel is
-        # FULLY PORTED — no pending items remain (only same-named PushButton/QCheckBox class deltas).
-        "chk_squash": {"status": "replaced", "to": "spec:enable_squash", "reason": "AttributeSpec option (SplineIKStrategy) — native Spline IK XZ scale INVERSE_PRESERVE (squash without volume)"},
-        "chk_volume": {"status": "replaced", "to": "spec:enable_volume", "reason": "AttributeSpec option (SplineIKStrategy) — native Spline IK XZ scale VOLUME_PRESERVE (squash + volume); Maya's 2 bools collapse onto the one XZ enum via _xz_scale_mode"},
-        "chk_auto_bend": {"status": "replaced", "to": "spec:enable_auto_bend", "reason": "AttributeSpec option (SplineIKStrategy) — distance-driven mid-control bulge (add_distance_driver on delta_location, mirrors Maya setup_auto_bend's multiplyDivide)"},
-        "chk_twist": {"status": "replaced", "to": "spec:enable_twist", "reason": "AttributeSpec option (SplineIKStrategy) — DONE 2026-07-11. Blender Spline IK ignores the driver curve's point tilt (probed), so twist is the one toggle with NO native scale-mode equivalent: TubeRig.add_twist builds a tip roll-control bone + a per-deform-bone Copy Rotation (local Y, mix ADD, CONSTANT influence 1/N) that composes AFTER the Spline IK solve — equal local increments accumulate LINEARLY down the parented chain, so rolling the control twists the tip a full turn while the start stays ~put. Verified headlessly (test_tube_rig.py: a 90deg roll -> tip cross-section 81deg vs start 19deg = progressive; + the OFF gate). The prior 'needs a custom bendy-bone, not a native toggle' ruling was right that it's not native but wrong that it wasn't portable."},
-        "b005": {"status": "pending", "reason": "Remove Rig (2026-08-25) -- TubeRigSlots.b005 tears down every rig the selection touches, via TubeRig.teardown (skinCluster, curveInfo, joints, controls set and the rig group, then unlocking the mesh display). Blender's TubeRig has no teardown surface at all yet -- the port needs the armature/modifier/constraint/collection cleanup and the same owned-node scoping that keeps a sibling rig whose name EXTENDS this one out of the sweep -- so this is real open work rather than na."},
-        "b006": {"status": "pending", "reason": "Rename Rig (2026-08-25) -- TubeRigSlots.b006 renames an existing rig and every node under it to the Rig Name field. Rides the b005 teardown port: both need the same owned-node enumeration on the Blender side (armature, deform bones, hook/spline-IK constraints, the driver curve and the collection), which does not exist yet."},
-        "b007": {"status": "pending", "reason": "Rebind Skin (2026-08-26) -- TubeRigSlots.b007 re-solves the bind for every rig the selection touches, including the legacy rescue that re-pairs a single orphaned mesh with a single rig whose bind was destroyed. Rides the same open work as b005/b006: blendertk's TubeRig has no teardown/rebind surface at all yet, and a Blender twin needs the armature modifier + vertex-group rebuild and the same owned-node scoping. Real open work, not na."},
-        # Note: Maya's spline default is Auto (-1 = one joint per edge loop); TubePath
-        # supports -1 but the Blender spec's minimum=2 makes Auto unreachable from the UI.
     },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
@@ -794,9 +729,6 @@ DEFAULT_DELTAS = {
         "check_hierarchy_vs_existing_fbx.setEnabled": "blendertk ships the row as a DISABLED placeholder (setEnabled False, unchecked) until the exporter-side hierarchy diff check is ported; see TaskManager.PARITY_GAPS",
         "check_hierarchy_vs_existing_fbx.setChecked": "same as .setEnabled: the placeholder cannot default on",
     },
-    "blendshape_animator_slots": {
-        "group_name.setText": "Maya's default '_morphInbetweens_GRP' names a real transform node; the Blender counterpart is a plain Empty used purely as a parent, so the '_GRP' Maya-suffix convention is dropped -- default is '_morphInbetweens' (Targets.GROUP_NAME).",
-    },
     "channels_slots": {
         "cmb_attr_type.items": "Create-Attribute type combo: Maya offers bool/int/float/string/enum/double3; Blender offers bool/int/float/string/vector. 'enum' is dropped (na -- Blender ID custom props have no Maya-style enum type on arbitrary objects). 'double3' is BUILT 2026-07-08 as 'vector' (Blender's native term): create_attribute makes a 3-float XYZ array custom prop (obj[name]=(d,d,d) + id_properties_ui subtype='XYZ'), parse_value round-trips the '(x, y, z)' cell on edit, and the table already displayed/keyed vectors (_value_type='vector'). The 'double3'->'vector' label difference is the combo item rename.",
     },
@@ -900,22 +832,6 @@ PANELS = {
     # anything dropped into Assets/ on focus, so (like Maya's) this needs no live-RPC / fresh-
     # instance-launch dance, unlike the Marmoset/Substance external-app-relay bridges. Track any
     # remaining gaps via the CONTROLS/panel-table entries instead of this "unbuilt" ledger.
-    # BlendshapeAnimatorSlots: removed 2026-07-03 -- now a real blendertk twin (engine + Slots +
-    # .ui under anim_utils/blendshape_animator, engine registered in blendertk/__init__.py).
-    # scene.py's b015 -> marking_menu.show("blendshape_animator") is a NEW, Blender-only
-    # marking-menu entry point, not a mirror of an existing mayatk tentacle button: mayatk's own
-    # BlendshapeAnimatorSlots has no tentacle-Maya wiring at all (grep
-    # tentacle/tentacle/slots/maya/*.py for "blendshape" -> zero hits; the panel is only reachable
-    # via MayaUiHandler.instance().show("blendshape_animator")). The panel/engine correspondence
-    # itself IS 1:1 (Maya's blendShape multi-target in-betweens are rebuilt as driver-driven
-    # additive corrective shape keys -- see applicator.py's module docstring for the
-    # interpolation-equivalence proof); only the tentacle-launcher wiring is Blender-only, added
-    # here because a marking-menu entry point is broadly useful even without a Maya-side
-    # precedent to mirror. Verified clean via `compare_panel_surface.py --panel
-    # blendshape_animator` (0 untriaged / 0 pending / 1 triaged-OK / 0 stale-maya / 0 prop deltas
-    # / 0 item deltas) -- the one triaged control (btn_recover_setup, "Recover Setup") is `na`:
-    # no Blender analogue to a corrupted blendShape NODE. Track remaining gaps via the CONTROLS
-    # table instead of this "unbuilt" ledger.
     # SHOTS TRIO — SHIPPED 2026-07-11 (user directive: full 1:1 workflow parity so a Maya user moves to
     # Blender with the SAME tentacle tools). All three panels ported 1:1 (sweep: 0 element deltas each)
     # and co-located in blendertk/anim_utils/shots/ (engine + <tool>.ui + <Tool>Slots, discovered by

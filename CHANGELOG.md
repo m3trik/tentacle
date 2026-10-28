@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Tube Rig and Blendshape Animator are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/tools/_blendshape_animator/` holds the tween tree's numeric-sort row).** Tube Rig reads its modes from the host's `TubeRig.MODES`, runs each batch in one `undo_step`, and disables Remove / Rename / Rebind where the host lacks them (Blender); Blendshape Animator composes the host's `BlendshapeAnimator` and offers Recover Setup where the host has it (Maya).
+  - Test(s): new `test_tube_rig_panel.py` and `test_blendshape_animator_panel.py`.
 - **2026-10-28 -- Curtain and Naming are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Curtain's auto rail follows the fields live in both hosts (reshaped in place after each rollback) and goes on cancel; Select Result is the host Preview's option. Naming greys the rows the host lists as unsupported and runs its scene edits in one undo chunk. `test_slot_method_coverage` allows `self.ui.state` (a window attribute).
   - Test(s): new `test_curtain_panel.py` and `test_naming_panel.py`; `test_tool_panels_blender.py` gains the Curtain preset and Naming convention-row checks blendertk's handler test had.
 - **2026-10-28 -- Articulated Rig and Shadow Rig are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Shadow Rig's preview cleans its PNGs through the host's `finalize_func` / `restore_func` hooks, builds rig types from `RIG_BUILDERS` names looked up on the host's `ShadowRig`, and is one undo step per action in both hosts.

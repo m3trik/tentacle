@@ -411,6 +411,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
 
+### `slots/tools/_blendshape_animator/sort_item.py` — A tween-tree row that sorts its numeric columns by number.
+- `class NumericSortItem(QtWidgets.QTreeWidgetItem)`
+
 ### `slots/tools/_shot_manifest/controller.py` — The Shot Manifest panel's controller: its state, the steps the table shows,
 - `class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`
   - methods: build, assess
@@ -462,6 +465,11 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/bevel.py` — Bevel: chamfer the selected polygon edges, with a live preview.
 - `class BevelSlots(Slots)`
   - methods: header_init, perform_operation
+
+### `slots/tools/blendshape_animator.py` — Blendshape Animator: build a morph between two meshes, add in-between
+- constants: COL_NAME, COL_WEIGHT, COL_FRAME, COL_TOPOLOGY, COL_STATUS, MODE_WEIGHT, MODE_FRAME, STATUS_KEYS
+- `class BlendshapeAnimatorSlots(Slots)`
+  - methods: header_init, b000_init, b000, cmb000_init, le000_init, le001_init, b001_init, b001, b003, b004_init, b004, b005, b006_init, b006, b007, b008_init, b008
 
 ### `slots/tools/bridge.py` — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - `class BridgeSlots(Slots)`
@@ -571,6 +579,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/telescope_rig.py` — Telescope Rig: nested segments that extend and retract between a base and an
 - `class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, build_rig, remove_rig
+
+### `slots/tools/tube_rig.py` — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
+- `class TubeRigSlots(Slots)`
+  - methods: txt000_init, header_init, apply_mode, get_mode, get_strategy, b000, b001, b002, b003, b004, b005, b006, b007
 
 ### `slots/tools/wheel_rig.py` — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - `class WheelRigSlots(Slots)`

@@ -770,14 +770,12 @@ class SceneSlots(SceneMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("audio_clips")
 
     def b015(self):
-        """Blendshape Animator — native blendertk panel (base+target mesh -> keyed shape key,
-        driver-driven corrective "tween" shapes for a custom curve); the panel/engine is 1:1 with
-        mayatk's ``BlendshapeAnimatorSlots`` (Maya's blendShape multi-target in-betweens have no
-        direct Blender equivalent; see ``blendertk.anim_utils.blendshape_animator.applicator``
-        for how they're rebuilt). This button itself is a new, Blender-only marking-menu entry
-        point, not a mirror of an existing tentacle launcher: mayatk's ``BlendshapeAnimatorSlots``
-        has no tentacle-Maya wiring of its own (it's only reachable via
-        ``MayaUiHandler.instance().show("blendshape_animator")``)."""
+        """Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
+        driver-driven corrective "tween" shapes for a custom curve) over ``btk.BlendshapeAnimator``
+        (Maya's blendShape multi-target in-betweens have no direct Blender equivalent; see
+        ``blendertk.anim_utils.blendshape_animator.applicator`` for how they're rebuilt). This
+        button is a Blender-only marking-menu entry point: Maya's tentacle menus don't launch
+        the tool (``marking_menu.show("blendshape_animator")`` there)."""
         self.sb.handlers.marking_menu.show("blendshape_animator")
 
     def b017(self):
