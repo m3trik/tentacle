@@ -672,17 +672,6 @@ PANELS = {
     "BlenderBridgeSlots": {"status": "counterpart", "to": "MayaBridgeSlots",
                            "reason": "cross-DCC send pair — each package ships the bridge named "
                                      "after its TARGET app"},
-    # HierarchyManagerSlots / SceneExporterSlots / UnityBridgeSlots / AudioClipsSlots /
-    # SmartBakeSlots: removed 2026-07-03/04 -- all five now have real blendertk twins
-    # (mechanically diffed above under their own panel rows, measured OK/GAP, not "no twin").
-    # (AudioClips and SmartBake are tentacle's shared tools now.) UnityBridgeSlots verified clean via
-    # `compare_panel_surface.py --panel unity_bridge` (0 untriaged / 0 pending / 0 triaged-OK /
-    # 0 stale-maya / 0 prop deltas / 0 item deltas): a native co-located blendertk panel (engine +
-    # Slots + .ui under env_utils/unity_bridge, engine registered in blendertk/__init__.py,
-    # materials.py b026 -> marking_menu.show("unity_bridge")) -- Unity's own asset pipeline ingests
-    # anything dropped into Assets/ on focus, so (like Maya's) this needs no live-RPC / fresh-
-    # instance-launch dance, unlike the Marmoset/Substance external-app-relay bridges. Track any
-    # remaining gaps via the CONTROLS/panel-table entries instead of this "unbuilt" ledger.
     # SHOTS TRIO — SHIPPED 2026-07-11 (user directive: full 1:1 workflow parity so a Maya user moves to
     # Blender with the SAME tentacle tools). All three panels ported 1:1 (sweep: 0 element deltas each)
     # and co-located in blendertk/anim_utils/shots/ (engine + <tool>.ui + <Tool>Slots, discovered by

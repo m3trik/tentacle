@@ -691,7 +691,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
 
     def b016(self):
         """Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
-        Native blendertk panel (env_utils/unity_bridge), 1:1 with mayatk's; exposed here in the
+        The shared tool, the same panel as Maya's; exposed here in the
         Scene menu mirroring Maya's scene.py b016 (Marmoset / Substance stay in the Materials
         menu's External group)."""
         self.sb.handlers.marking_menu.show("unity_bridge")

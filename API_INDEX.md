@@ -411,6 +411,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
 
+### `slots/tools/_app_bridge/host_bridge.py` — The app-bridge panels' one base, shared by both hosts.
+- `class HostBridge(Slots.BridgeSlotsBase)`
+  - methods: bridge_class, make_bridge, params_module, template_dir, list_template_modes, PRESETS_ROOT, resolve_scope_objects, scoped_objects, live_param_tooltip_blocks, set_bake_source_from_selection, select_bake_source, clear_bake_source
+
 ### `slots/tools/_blendshape_animator/sort_item.py` — A tween-tree row that sorts its numeric columns by number.
 - `class NumericSortItem(QtWidgets.QTreeWidgetItem)`
 
@@ -489,6 +493,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_texture_combine/transfer_mode.py` — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - `class TransferMode`
   - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, passes, resolve_auto, source_note, auto_note, pair, gate, lightmap_probe, sync, run, derived_name, texture_pass, read_files, overwrite_note, lightmap_pass
+
+### `slots/tools/_unity_bridge/_unity_panel.py` — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
+- `class UnityPanelMixin`
+  - methods: template_dir, list_template_modes, default_output_dir
 
 ### `slots/tools/articulated_rig.py` — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - `class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`
@@ -643,6 +651,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/tube_rig.py` — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - `class TubeRigSlots(Slots)`
   - methods: txt000_init, header_init, apply_mode, get_mode, get_strategy, b000, b001, b002, b003, b004, b005, b006, b007
+
+### `slots/tools/unity_bridge.py` — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
+- `class UnityBridgeSlots(UnityPanelMixin, HostBridge)`
+  - methods: bridge_class, make_bridge, b000
 
 ### `slots/tools/wheel_rig.py` — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - `class WheelRigSlots(Slots)`

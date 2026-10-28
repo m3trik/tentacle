@@ -113,6 +113,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/tools/_app_bridge/host_bridge.py`](#slots--tools--_app_bridge--host_bridge) — The app-bridge panels' one base, shared by both hosts.
 - [`slots/tools/_blendshape_animator/sort_item.py`](#slots--tools--_blendshape_animator--sort_item) — A tween-tree row that sorts its numeric columns by number.
 - [`slots/tools/_channels/attribute_form.py`](#slots--tools--_channels--attribute_form) — The Create Attribute popup: a one-shot form over the host's attribute types.
 - [`slots/tools/_channels/enum_cell.py`](#slots--tools--_channels--enum_cell) — The value cell of an enum attribute: its labels in a combobox, plus Rename /
@@ -133,6 +134,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
+- [`slots/tools/_unity_bridge/_unity_panel.py`](#slots--tools--_unity_bridge--_unity_panel) — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
@@ -171,6 +173,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
 - [`slots/tools/texture_combine.py`](#slots--tools--texture_combine) — Texture Combine: several materials into one atlas and one material, in
 - [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
+- [`slots/tools/unity_bridge.py`](#slots--tools--unity_bridge) — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
@@ -1667,6 +1670,25 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
 
+<a id="slots--tools--_app_bridge--host_bridge"></a>
+### `slots/tools/_app_bridge/host_bridge.py`
+
+The app-bridge panels' one base, shared by both hosts.
+
+- **[`class HostBridge(Slots.BridgeSlotsBase)`](tentacle/tentacle/slots/tools/_app_bridge/host_bridge.py#L43)** — uitk's ``BridgeSlotsBase`` over the host toolkit (``self.tk``).
+  - `HostBridge.bridge_class(self)` *(property)* — The host's engine class for this panel: ``self.tk.<X>Bridge``.
+  - `HostBridge.make_bridge(self)` — A fresh engine;
+  - `HostBridge.params_module(self)` *(property)* — The engine's parameter registry (a ``uitk.bridge.ParamRegistry``).
+  - `HostBridge.template_dir(self)` *(property)* — The engine's template folder.
+  - `HostBridge.list_template_modes(self)` — The engine's ``[(template, mode), ...]`` for the template combo.
+  - `HostBridge.PRESETS_ROOT(self)` *(property)* — ``<host library>/<UI_NAME>``: each host's presets stay where they were.
+  - `HostBridge.resolve_scope_objects(self, scope: str)` — The host's objects for a ``SCOPE`` word;
+  - `HostBridge.scoped_objects(self, params, warn: bool = True)` — The Scope's objects closed over what a send of them ships.
+  - `HostBridge.live_param_tooltip_blocks(self)` — Append the Bake Source set's CURRENT members to its row's tooltips.
+  - `HostBridge.set_bake_source_from_selection(self) -> None` — Store the selection as the scene's bake source.
+  - `HostBridge.select_bake_source(self) -> None` — Select the bake-source set's members.
+  - `HostBridge.clear_bake_source(self) -> None` — Remove the bake-source set;
+
 <a id="slots--tools--_blendshape_animator--sort_item"></a>
 ### `slots/tools/_blendshape_animator/sort_item.py`
 
@@ -1943,6 +1965,16 @@ The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
   - `TransferMode.read_files(self, targets) -> set` — Path keys of the maps the materials *targets* wear read now.
   - `TransferMode.overwrite_note(cls, before, results, warnings) -> str` *(class)* — Overwrite target's report: the files rewritten where they are (the
   - `TransferMode.lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]`
+
+<a id="slots--tools--_unity_bridge--_unity_panel"></a>
+### `slots/tools/_unity_bridge/_unity_panel.py`
+
+What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
+
+- **[`class UnityPanelMixin`](tentacle/tentacle/slots/tools/_unity_bridge/_unity_panel.py#L33)** — Unity-panel behavior shared by the three Unity Slots classes.
+  - `UnityPanelMixin.template_dir(self) -> Path` *(property)*
+  - `UnityPanelMixin.list_template_modes(self)`
+  - `UnityPanelMixin.default_output_dir(self) -> str`
 
 <a id="slots--tools--articulated_rig"></a>
 ### `slots/tools/articulated_rig.py`
@@ -2676,6 +2708,16 @@ Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
   - `TubeRigSlots.b005(self)` — Utility: Remove Rig — tear down every rig the selection touches.
   - `TubeRigSlots.b006(self)` — Utility: Rename Rig — to the Rig Name field, every node included.
   - `TubeRigSlots.b007(self)` — Utility: Rebind Skin — re-solve the bind for every rig the selection
+
+<a id="slots--tools--unity_bridge"></a>
+### `slots/tools/unity_bridge.py`
+
+Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
+
+- **[`class UnityBridgeSlots(UnityPanelMixin, HostBridge)`](tentacle/tentacle/slots/tools/unity_bridge.py#L31)**
+  - `UnityBridgeSlots.bridge_class(self)` *(property)*
+  - `UnityBridgeSlots.make_bridge(self)` — The engine, or ``None`` while the optional unitytk is absent.
+  - `UnityBridgeSlots.b000(self)` — Run the selected template: export-and-copy, or script management.
 
 <a id="slots--tools--wheel_rig"></a>
 ### `slots/tools/wheel_rig.py`

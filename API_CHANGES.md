@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (687)
+## Added (708)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -23,6 +23,19 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge(class)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.PRESETS_ROOT(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.bridge_class(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.clear_bake_source(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.list_template_modes(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.live_param_tooltip_blocks(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.make_bridge(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.params_module(self)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.resolve_scope_objects(self, scope: str)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.scoped_objects(self, params, warn: bool = True)`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.select_bake_source(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.set_bake_source_from_selection(self) -> None`
+- `slots/tools/_app_bridge/host_bridge.py::HostBridge.template_dir(self)`
 - `slots/tools/_blendshape_animator/sort_item.py::NumericSortItem(class)`
 - `slots/tools/_channels/attribute_form.py::AttributeForm(class)`
 - `slots/tools/_channels/attribute_form.py::AttributeForm.show(cls, sb, parent, types, on_create, keyable=True)`
@@ -180,6 +193,10 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.texture_pass(self, targets, source) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.tk(self)`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.ui(self)`
+- `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin(class)`
+- `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.default_output_dir(self) -> str`
+- `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.list_template_modes(self)`
+- `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.template_dir(self) -> Path`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots(class)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_analyze(self)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_build(self)`
@@ -685,6 +702,10 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/tube_rig.py::TubeRigSlots.get_strategy(self) -> str`
 - `slots/tools/tube_rig.py::TubeRigSlots.header_init(self, widget)`
 - `slots/tools/tube_rig.py::TubeRigSlots.txt000_init(self, widget)`
+- `slots/tools/unity_bridge.py::UnityBridgeSlots(class)`
+- `slots/tools/unity_bridge.py::UnityBridgeSlots.b000(self)`
+- `slots/tools/unity_bridge.py::UnityBridgeSlots.bridge_class(self)`
+- `slots/tools/unity_bridge.py::UnityBridgeSlots.make_bridge(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots(class)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.b000(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.header_init(self, widget)`

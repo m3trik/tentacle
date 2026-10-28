@@ -3,7 +3,7 @@
 import inspect
 
 from qtpy import QtCore
-from uitk import Signals, Cancelable
+from uitk import BridgeSlotsBase, Cancelable, Signals
 
 
 class Slots(QtCore.QObject):
@@ -18,7 +18,9 @@ class Slots(QtCore.QObject):
 
     #: uitk slot decorators, re-exposed on the base so concrete slot modules never
     #: import uitk themselves: ``@SlotsMaya.Signals("on_item_interacted")``,
-    #: ``@SlotsMaya.Cancelable(120)``.
+    #: ``@SlotsMaya.Cancelable(120)``. ``BridgeSlotsBase`` rides along for the same
+    #: reason: the app-bridge panels' shared base (``slots/tools/_bridge``)
+    #: subclasses it, ``class HostBridge(Slots.BridgeSlotsBase)``.
     #:
     #: ``self.sb`` is the single uitk gateway for the slots layer, and it reaches
     #: the whole of uitk: any public symbol resolves off it directly
@@ -27,13 +29,16 @@ class Slots(QtCore.QObject):
     #: (``self.sb.registered_widgets.X``, ``self.sb.style``), and its children carry
     #: their own APIs (``self.ui.footer.status_controller(...)``).
     #:
-    #: These two are the sole outlier: they are class-body decorators, evaluated
-    #: while the slot class is still being built, so no instance — and therefore no
-    #: ``self.sb`` — exists yet. Hanging them off the base the module already imports
-    #: is the only way to keep the gateway rule without a bare ``from uitk import``
-    #: in every slot file.
+    #: These three are the sole outliers: two class-body decorators and one base
+    #: class, all evaluated while a slot class is still being built, so no instance
+    #: — and therefore no ``self.sb`` — exists yet. Hanging them off the base the
+    #: module already imports is the only way to keep the gateway rule without a
+    #: bare ``from uitk import`` in every slot file. The import is eager for that
+    #: reason (a base class is needed at definition time): it loads
+    #: ``uitk.bridge.slots`` with the first Slots module.
     Signals = Signals
     Cancelable = Cancelable
+    BridgeSlotsBase = BridgeSlotsBase
 
     #: One-shot guard so the legacy repeat-last migration runs once per process,
     #: not on every slot instantiation (the base ``__init__`` runs for every

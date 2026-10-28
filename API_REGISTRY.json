@@ -913,7 +913,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host toolkit (``mtk`` / ``btk``) the entry point set on the",
-              "line": 44,
+              "line": 49,
               "deprecated": false
             },
             {
@@ -922,7 +922,7 @@
               "kind": "staticmethod",
               "signature": "(widget, seed=None) -> None",
               "summary": "Declare that *widget*'s value mirrors live DCC state, optionally seeding it.",
-              "line": 70,
+              "line": 75,
               "deprecated": false
             },
             {
@@ -931,7 +931,7 @@
               "kind": "method",
               "signature": "(self, sublist, widget_class=None, **kwargs)",
               "summary": "Add a slot-wired widget as an ExpandableList sublist entry.",
-              "line": 110,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -940,7 +940,7 @@
               "kind": "method",
               "signature": "(self, widget, resolve_spec) -> bool",
               "summary": "Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.",
-              "line": 195,
+              "line": 200,
               "deprecated": false
             },
             {
@@ -949,7 +949,7 @@
               "kind": "method",
               "signature": "(self) -> int",
               "summary": "Re-probe every gated app and re-present its widgets.",
-              "line": 241,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -958,7 +958,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two viewport-camera views in slot history.",
-              "line": 263,
+              "line": 268,
               "deprecated": false
             },
             {
@@ -967,7 +967,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
-              "line": 294,
+              "line": 299,
               "deprecated": false
             }
           ]
@@ -10065,6 +10065,132 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/_app_bridge/host_bridge.py",
+      "summary": "The app-bridge panels' one base, shared by both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HostBridge",
+          "summary": "uitk's ``BridgeSlotsBase`` over the host toolkit (``self.tk``).",
+          "line": 43,
+          "bases": [
+            "Slots.BridgeSlotsBase"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "HostBridge.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host's engine class for this panel: ``self.tk.<X>Bridge``.",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "make_bridge",
+              "qualname": "HostBridge.make_bridge",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "A fresh engine;",
+              "line": 58,
+              "deprecated": false
+            },
+            {
+              "name": "params_module",
+              "qualname": "HostBridge.params_module",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The engine's parameter registry (a ``uitk.bridge.ParamRegistry``).",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "template_dir",
+              "qualname": "HostBridge.template_dir",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The engine's template folder.",
+              "line": 69,
+              "deprecated": false
+            },
+            {
+              "name": "list_template_modes",
+              "qualname": "HostBridge.list_template_modes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The engine's ``[(template, mode), ...]`` for the template combo.",
+              "line": 73,
+              "deprecated": false
+            },
+            {
+              "name": "PRESETS_ROOT",
+              "qualname": "HostBridge.PRESETS_ROOT",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "``<host library>/<UI_NAME>``: each host's presets stay where they were.",
+              "line": 78,
+              "deprecated": false
+            },
+            {
+              "name": "resolve_scope_objects",
+              "qualname": "HostBridge.resolve_scope_objects",
+              "kind": "method",
+              "signature": "(self, scope: str)",
+              "summary": "The host's objects for a ``SCOPE`` word;",
+              "line": 83,
+              "deprecated": false
+            },
+            {
+              "name": "scoped_objects",
+              "qualname": "HostBridge.scoped_objects",
+              "kind": "method",
+              "signature": "(self, params, warn: bool = True)",
+              "summary": "The Scope's objects closed over what a send of them ships.",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "live_param_tooltip_blocks",
+              "qualname": "HostBridge.live_param_tooltip_blocks",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Append the Bake Source set's CURRENT members to its row's tooltips.",
+              "line": 115,
+              "deprecated": false
+            },
+            {
+              "name": "set_bake_source_from_selection",
+              "qualname": "HostBridge.set_bake_source_from_selection",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Store the selection as the scene's bake source.",
+              "line": 140,
+              "deprecated": false
+            },
+            {
+              "name": "select_bake_source",
+              "qualname": "HostBridge.select_bake_source",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select the bake-source set's members.",
+              "line": 160,
+              "deprecated": false
+            },
+            {
+              "name": "clear_bake_source",
+              "qualname": "HostBridge.clear_bake_source",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove the bake-source set;",
+              "line": 186,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/_blendshape_animator/sort_item.py",
       "summary": "A tween-tree row that sorts its numeric columns by number.",
       "functions": [],
@@ -11625,6 +11751,49 @@
               "signature": "(self, targets, source, out_name) -> Tuple[str, bool]",
               "summary": "",
               "line": 728,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_unity_bridge/_unity_panel.py",
+      "summary": "What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "UnityPanelMixin",
+          "summary": "Unity-panel behavior shared by the three Unity Slots classes.",
+          "line": 33,
+          "bases": [],
+          "members": [
+            {
+              "name": "template_dir",
+              "qualname": "UnityPanelMixin.template_dir",
+              "kind": "property",
+              "signature": "(self) -> Path",
+              "summary": "",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "list_template_modes",
+              "qualname": "UnityPanelMixin.list_template_modes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 94,
+              "deprecated": false
+            },
+            {
+              "name": "default_output_dir",
+              "qualname": "UnityPanelMixin.default_output_dir",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "",
+              "line": 101,
               "deprecated": false
             }
           ]
@@ -16526,6 +16695,52 @@
               "signature": "(self)",
               "summary": "Utility: Rebind Skin — re-solve the bind for every rig the selection",
               "line": 790,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/unity_bridge.py",
+      "summary": "Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "UnityBridgeSlots",
+          "summary": "",
+          "line": 31,
+          "bases": [
+            "UnityPanelMixin",
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "UnityBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "make_bridge",
+              "qualname": "UnityBridgeSlots.make_bridge",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The engine, or ``None`` while the optional unitytk is absent.",
+              "line": 92,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "UnityBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Run the selected template: export-and-copy, or script management.",
+              "line": 106,
               "deprecated": false
             }
           ]
