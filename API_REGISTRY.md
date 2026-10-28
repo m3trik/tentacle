@@ -6,11 +6,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
-- [`slots/_display.py`](#slots--_display) — Behavior shared by the Maya and Blender ``display`` panels.
-- [`slots/_duplicate.py`](#slots--_duplicate) — Behavior shared by the Maya and Blender ``duplicate`` panels.
 - [`slots/_edit.py`](#slots--_edit) — Shared, DCC-agnostic behavior for the ``edit`` panel.
-- [`slots/_hud_warnings.py`](#slots--_hud_warnings) — Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
-- [`slots/_lighting.py`](#slots--_lighting) — Shared surface for the ``lighting`` panel's Maya and Blender forks.
 - [`slots/_main.py`](#slots--_main) — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
 - [`slots/_nurbs.py`](#slots--_nurbs) — Behavior shared by the Maya and Blender ``nurbs`` panels.
@@ -27,12 +23,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/display.py`](#slots--blender--display)
-- [`slots/blender/duplicate.py`](#slots--blender--duplicate)
 - [`slots/blender/edit.py`](#slots--blender--edit)
 - [`slots/blender/editors.py`](#slots--blender--editors)
-- [`slots/blender/hud.py`](#slots--blender--hud)
-- [`slots/blender/lighting.py`](#slots--blender--lighting)
 - [`slots/blender/main.py`](#slots--blender--main)
 - [`slots/blender/materials.py`](#slots--blender--materials)
 - [`slots/blender/nurbs.py`](#slots--blender--nurbs)
@@ -50,6 +42,10 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
 - [`slots/deformation.py`](#slots--deformation) — Deformation: one Slots class for both hosts.
+- [`slots/display.py`](#slots--display) — Display: one Slots class for both hosts.
+- [`slots/duplicate.py`](#slots--duplicate) — Duplicate: one Slots class for both hosts.
+- [`slots/hud.py`](#slots--hud) — HUD: one Slots class for both hosts.
+- [`slots/lighting.py`](#slots--lighting) — Lighting: one Slots class for both hosts.
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
@@ -58,8 +54,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/control.py`](#slots--maya--control)
 - [`slots/maya/curves.py`](#slots--maya--curves)
 - [`slots/maya/deform.py`](#slots--maya--deform)
-- [`slots/maya/display.py`](#slots--maya--display)
-- [`slots/maya/duplicate.py`](#slots--maya--duplicate)
 - [`slots/maya/edit.py`](#slots--maya--edit)
 - [`slots/maya/edit_mesh.py`](#slots--maya--edit_mesh)
 - [`slots/maya/editors.py`](#slots--maya--editors)
@@ -68,9 +62,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/fluids.py`](#slots--maya--fluids)
 - [`slots/maya/generate.py`](#slots--maya--generate)
 - [`slots/maya/help.py`](#slots--maya--help)
-- [`slots/maya/hud.py`](#slots--maya--hud)
 - [`slots/maya/key.py`](#slots--maya--key)
-- [`slots/maya/lighting.py`](#slots--maya--lighting)
 - [`slots/maya/lighting_shading.py`](#slots--maya--lighting_shading)
 - [`slots/maya/main.py`](#slots--maya--main)
 - [`slots/maya/mash.py`](#slots--maya--mash)
@@ -218,7 +210,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L56) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L52) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -227,23 +219,6 @@ Text the animation panel's Maya and Blender forks say identically.
 
 - **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
   - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
-
-<a id="slots--_display"></a>
-### `slots/_display.py`
-
-Behavior shared by the Maya and Blender ``display`` panels.
-
-- **[`class DisplayMixin`](tentacle/tentacle/slots/_display.py#L9)** — Shared ``display`` panel behavior.
-  - `DisplayMixin.header_init(self, widget)` — Header menu: the submenu's Display expandable list — hover a row to
-  - `DisplayMixin.list000_init(self, widget)` — Initialize Display expandable list (categories → actions).
-
-<a id="slots--_duplicate"></a>
-### `slots/_duplicate.py`
-
-Behavior shared by the Maya and Blender ``duplicate`` panels.
-
-- **[`class DuplicateMixin`](tentacle/tentacle/slots/_duplicate.py#L9)** — Shared ``duplicate`` panel behavior.
-  - `DuplicateMixin.header_init(self, widget)` — Header menu: the Mirror / Duplicate Linear / Radial / Grid launchers
 
 <a id="slots--_edit"></a>
 ### `slots/_edit.py`
@@ -256,26 +231,6 @@ Shared, DCC-agnostic behavior for the ``edit`` panel.
   - `EditMixin.cleanup_console_report(title, lines)` *(static)* — Detailed Mesh Cleanup report to stdout (Maya Script Editor / Blender system console).
   - `EditMixin.report_cleanup_failure(self, scope, mode_label, exc)` — Report a Mesh Cleanup failure through both channels — a detailed console line and a
   - `EditMixin.cmb000_init(self, widget)` — Initialize the Transfer operations menu.
-
-<a id="slots--_hud_warnings"></a>
-### `slots/_hud_warnings.py`
-
-Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
-
-- **[`class HudWarningsMixin`](tentacle/tentacle/slots/_hud_warnings.py#L28)**
-  - `HudWarningsMixin.hudTextEdit_init(self, widget) -> None` — The HUD is a display composed afresh on every show — never persisted.
-  - `HudWarningsMixin.evaluate_warnings(self) -> list` — Return the subset of WARNING_DEFS whose check fires and is enabled.
-  - `HudWarningsMixin.insert_warning_icons(self, hud, warnings) -> None` — Insert a single-line row of colored badges;
-  - `HudWarningsMixin.insert_warning_details(self, hud, warnings) -> None` — Insert a formatted detail line per active warning.
-  - `HudWarningsMixin.insert_prev_command(self, hud, method) -> None` — Insert the last-used command as a single, length-capped line.
-
-<a id="slots--_lighting"></a>
-### `slots/_lighting.py`
-
-Shared surface for the ``lighting`` panel's Maya and Blender forks.
-
-- **[`class LightingMixin`](tentacle/tentacle/slots/_lighting.py#L12)** — Behaviour and reference data shared by both ``lighting`` forks.
-  - `LightingMixin.kelvin_tooltip(cls, lead: str, tail: str) -> str` *(class)* — *lead*, then the reference table, then *tail*.
 
 <a id="slots--_main"></a>
 ### `slots/_main.py`
@@ -507,30 +462,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
 
-<a id="slots--blender--display"></a>
-### `slots/blender/display.py`
-
-- **[`class DisplaySlots(DisplayMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/display.py#L8)** — Blender port of the shared ``display`` menu.
-  - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
-  - `DisplaySlots.b013(self)` — Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /
-  - `DisplaySlots.b014(self)` — Color ID — swatch palette to color-code objects (material / object color / vertex).
-
-<a id="slots--blender--duplicate"></a>
-### `slots/blender/duplicate.py`
-
-- **[`class DuplicateSlots(DuplicateMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/duplicate.py#L8)** — Blender port of the shared ``duplicate`` menu.
-  - `DuplicateSlots.tb000_init(self, widget)`
-  - `DuplicateSlots.tb000(self, widget)` — Convert to Instances (selected objects share the active object's data).
-  - `DuplicateSlots.tb001_init(self, widget)`
-  - `DuplicateSlots.tb001(self, widget)` — Select Instanced Objects
-  - `DuplicateSlots.tb002_init(self, widget)` — Initialize Auto Instance — configure option-box menu.
-  - `DuplicateSlots.tb002(self, widget)` — Auto Instance: find and convert geometrically identical meshes
-  - `DuplicateSlots.b005(self)` — Uninstance Selected Objects (make their data single-user).
-  - `DuplicateSlots.b000(self)` — Mirror
-  - `DuplicateSlots.b006(self)` — Duplicate Linear
-  - `DuplicateSlots.b007(self)` — Duplicate Radial
-  - `DuplicateSlots.b008(self)` — Duplicate Grid
-
 <a id="slots--blender--edit"></a>
 ### `slots/blender/edit.py`
 
@@ -576,30 +507,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `EditorsSlots.b012(self)` — Graph Editor (substitute for Maya's Help Line toggle)
   - `EditorsSlots.b013_init(self, widget)` — Relabel: Tool Box → Text Editor.
   - `EditorsSlots.b013(self)` — Text Editor (substitute for Maya's Tool Box toggle)
-
-<a id="slots--blender--hud"></a>
-### `slots/blender/hud.py`
-
-- **[`class StatusMixin`](tentacle/tentacle/slots/blender/hud.py#L11)**
-  - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class HudSelectionMixin`](tentacle/tentacle/slots/blender/hud.py#L41)** — HUD readout of what is selected — unrelated to the package-level
-  - `HudSelectionMixin.insert_selection_info(self, hud, selection) -> None`
-  - `HudSelectionMixin.insert_component_info(self, hud, active) -> None` — Selected/total component counts for the mesh being edited (cheap:
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L113)** — Blender HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/blender/hud.py#L172)** — HUD Slots for Blender, providing scene and selection information.
-  - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
-  - `HudSlots.construct_hud(self) -> None`
-
-<a id="slots--blender--lighting"></a>
-### `slots/blender/lighting.py`
-
-- **[`class LightingSlots(LightingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/lighting.py#L8)** — Blender port of the shared ``lighting`` menu.
-  - `LightingSlots.b000(self)` — Launch the HDR Manager (world-environment HDRI panel).
-  - `LightingSlots.b001(self)` — Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).
-  - `LightingSlots.b002_init(self, widget)` — Light Rigs -- hidden until ported: the tool is Maya-only (tentacle's slots/tools
-  - `LightingSlots.b002(self)` — Light Rigs -- unreachable (b002_init hides the button);
-  - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
-  - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture meshes.
 
 <a id="slots--blender--main"></a>
 ### `slots/blender/main.py`
@@ -953,6 +860,66 @@ Deformation: one Slots class for both hosts.
   - `DeformationSlots.tb001_init(self, widget)` — Initialize the Curtain Generator launcher.
   - `DeformationSlots.tb001(self, widget)` — Curtain Generator: open the shared Curtain tool.
 
+<a id="slots--display"></a>
+### `slots/display.py`
+
+Display: one Slots class for both hosts.
+
+- **[`class DisplaySlots(Slots)`](tentacle/tentacle/slots/display.py#L15)**
+  - `DisplaySlots.header_init(self, widget)` — Header menu: the submenu's Display expandable list -- hover a row to
+  - `DisplaySlots.list000_init(self, widget)` — Initialize the Display expandable list (categories -> actions).
+  - `DisplaySlots.list000(self, item)` — Run a Display row and report the state it left.
+  - `DisplaySlots.b013(self)` — Exploded View: open the Exploded View panel.
+  - `DisplaySlots.b014(self)` — Color ID: open the Color ID panel (color-code objects by ID).
+
+<a id="slots--duplicate"></a>
+### `slots/duplicate.py`
+
+Duplicate: one Slots class for both hosts.
+
+- **[`class DuplicateSlots(Slots)`](tentacle/tentacle/slots/duplicate.py#L14)**
+  - `DuplicateSlots.header_init(self, widget)` — Header menu: the Mirror / Duplicate Linear / Radial / Grid launchers.
+  - `DuplicateSlots.tb002_init(self, widget)` — Initialize Auto Instance: configure the option-box menu.
+  - `DuplicateSlots.tb002(self, widget)` — Auto Instance: convert geometrically identical meshes into instances
+  - `DuplicateSlots.tb000_init(self, widget)`
+  - `DuplicateSlots.tb000(self, widget)` — Convert to Instances: the other selected objects become instances of
+  - `DuplicateSlots.tb001_init(self, widget)`
+  - `DuplicateSlots.tb001(self, widget)` — Select Instanced Objects: the selection and its instances, or every
+  - `DuplicateSlots.b005(self)` — Uninstance Selected Objects: each gets its own copy of the shared
+  - `DuplicateSlots.b000(self)` — Mirror: open the Mirror tool window.
+  - `DuplicateSlots.b006(self)` — Duplicate Linear
+  - `DuplicateSlots.b007(self)` — Duplicate Radial
+  - `DuplicateSlots.b008(self)` — Duplicate Grid
+
+<a id="slots--hud"></a>
+### `slots/hud.py`
+
+HUD: one Slots class for both hosts.
+
+- **[`class HudSlots(Slots)`](tentacle/tentacle/slots/hud.py#L18)** — Scene and selection information, shown while the marking-menu key is held.
+  - `HudSlots.hudTextEdit_init(self, widget) -> None` — The HUD is a display composed afresh on every show -- never persisted.
+  - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build;
+  - `HudSlots.construct_hud(self) -> None`
+  - `HudSlots.insert_scene_status(self, hud, status) -> None` — The scene's state: a newer release, symmetry, the transform
+  - `HudSlots.insert_selection_info(self, hud, summary) -> None` — The selected objects: how many, each name and type (up to
+  - `HudSlots.insert_component_info(self, hud, summary) -> None` — Selected / total components of the type being edited.
+  - `HudSlots.evaluate_warnings(self) -> list` — The :attr:`WARNING_DEFS` that are opted into and fire now, each with
+  - `HudSlots.insert_warning_icons(self, hud, warnings) -> None` — One row of coloured badges, one per active warning.
+  - `HudSlots.insert_warning_details(self, hud, warnings) -> None` — One detail line per active warning.
+  - `HudSlots.insert_prev_command(self, hud, method) -> None` — The last-used command as one length-capped line.
+
+<a id="slots--lighting"></a>
+### `slots/lighting.py`
+
+Lighting: one Slots class for both hosts.
+
+- **[`class LightingSlots(Slots)`](tentacle/tentacle/slots/lighting.py#L14)**
+  - `LightingSlots.b000(self)` — Launch the HDR Manager (the scene's world / sky-dome HDRI).
+  - `LightingSlots.b001(self)` — Launch the Lightmap Baker (bake scene lighting for game engines).
+  - `LightingSlots.b002(self)` — Launch Light Rigs: save, swap and restore named light rigs (Maya).
+  - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
+  - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture geometry.
+
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
 
@@ -1043,45 +1010,6 @@ Deformation: one Slots class for both hosts.
 
 - **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L8)**
 
-<a id="slots--maya--display"></a>
-### `slots/maya/display.py`
-
-- **[`class DisplaySlots(DisplayMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/display.py#L9)**
-  - `DisplaySlots.list000(self, item)` — Dispatch a Display action and report state via message_box.
-  - `DisplaySlots.b000(self)` — Set Wireframe color
-  - `DisplaySlots.b001(self)` — Wireframe Selected
-  - `DisplaySlots.b002(self)` — Hide Selected
-  - `DisplaySlots.b003(self)` — Show Selected
-  - `DisplaySlots.b004(self)` — Show Geometry
-  - `DisplaySlots.b005(self)` — Xray Selected.
-  - `DisplaySlots.b006(self)` — Un-Xray All
-  - `DisplaySlots.b007(self)` — Xray Other (uniform toggle across all non-selected shapes)
-  - `DisplaySlots.b009(self)` — Toggle Material Override
-  - `DisplaySlots.b011(self)` — Toggle Component ID Display
-  - `DisplaySlots.b012(self)` — Wireframe Non Active (Wireframe All But The Selected Item)
-  - `DisplaySlots.b013(self)` — Explode View GUI
-  - `DisplaySlots.b014(self)` — Color ID GUI
-  - `DisplaySlots.b021(self)` — Template Selected
-  - `DisplaySlots.b022(self)` — Display UV Borders
-  - `DisplaySlots.b023(self)` — Soft Edge Display
-  - `DisplaySlots.b024(self)` — Display Face Normals
-
-<a id="slots--maya--duplicate"></a>
-### `slots/maya/duplicate.py`
-
-- **[`class DuplicateSlots(DuplicateMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/duplicate.py#L9)**
-  - `DuplicateSlots.tb002_init(self, widget)` — Initialize Auto Instance — configure option-box menu.
-  - `DuplicateSlots.tb002(self, widget)` — Auto Instance: find and convert geometrically identical meshes
-  - `DuplicateSlots.tb000_init(self, widget)`
-  - `DuplicateSlots.tb000(self, widget)` — Convert to Instances
-  - `DuplicateSlots.tb001_init(self, widget)`
-  - `DuplicateSlots.tb001(self, widget)` — Select Instanced Objects
-  - `DuplicateSlots.b000(self)` — Mirror: open the Mirror tool window.
-  - `DuplicateSlots.b005(self)` — Uninstance Selected Objects
-  - `DuplicateSlots.b006(self)` — Duplicate Linear
-  - `DuplicateSlots.b007(self)` — Duplicate Radial
-  - `DuplicateSlots.b008(self)` — Duplicate Grid
-
 <a id="slots--maya--edit"></a>
 ### `slots/maya/edit.py`
 
@@ -1154,33 +1082,10 @@ Deformation: one Slots class for both hosts.
 
 - **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L8)**
 
-<a id="slots--maya--hud"></a>
-### `slots/maya/hud.py`
-
-- **[`class StatusMixin`](tentacle/tentacle/slots/maya/hud.py#L11)**
-  - `StatusMixin.insert_scene_status(self, hud) -> None`
-- **[`class HudSelectionMixin`](tentacle/tentacle/slots/maya/hud.py#L54)** — HUD readout of what is selected — unrelated to the package-level
-  - `HudSelectionMixin.insert_selection_info(self, hud, selection) -> None`
-  - `HudSelectionMixin.insert_component_info(self, hud, selection) -> None`
-- **[`class WarningsMixin(HudWarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L132)** — Maya HUD warnings — the framework lives in the shared
-- **[`class HudSlots(SlotsMaya, pythontk.PackageManager, StatusMixin, HudSelectionMixin, WarningsMixin)`](tentacle/tentacle/slots/maya/hud.py#L207)** — HUD Slots for Maya, providing scene and selection information.
-  - `HudSlots.request_hud_build(self) -> None` — Start a new HUD build request, only the latest token will be used.
-  - `HudSlots.construct_hud(self) -> None`
-
 <a id="slots--maya--key"></a>
 ### `slots/maya/key.py`
 
 - **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L8)**
-
-<a id="slots--maya--lighting"></a>
-### `slots/maya/lighting.py`
-
-- **[`class LightingSlots(LightingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/lighting.py#L9)**
-  - `LightingSlots.b000(self)` — Launch the HDR Manager.
-  - `LightingSlots.b001(self)` — Launch the Lightmap Baker.
-  - `LightingSlots.b002(self)` — Launch Light Rigs: save, swap and restore named light rigs.
-  - `LightingSlots.tb000_init(self, widget)` — Lights From Geometry Init
-  - `LightingSlots.tb000(self, widget)` — Create real area lights from the selected fixture geometry.
 
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`

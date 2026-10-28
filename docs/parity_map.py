@@ -190,58 +190,6 @@ HANDLERS = {
     # per-object) too. Remaining entries below are permanent divergences (a different control
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
-    "display": {
-        # list000[Normals] "Display Normals": the visible item-delta is only a label rename (Maya
-        # "Display Normal" -> Blender "Display Normals", cosmetic/report-only, no entry needed).
-        # Behind the item, Maya's mtk DisplayMacros.m_normals_display cycles Off/Face/Vertex/Tangent.
-        # BUILT 2026-07-08: the Blender item now cycles Off -> Face -> Vertex -> Off
-        # (View3DOverlay.show_face_normals / show_vertex_normals), matching Maya minus the na Tangent
-        # state (no show_tangent RNA in Blender 5.1 -- verified live). Kept as a comment (not
-        # fabricated leaf keys) since Maya cycles ONE item, not separate leaves.
-        "list000[View].Show Selected": {
-            "status": "replaced", "to": "Show All",
-            "reason": "Maya's 'reveal only the current selection' has no faithful Blender translation: "
-                      "confirmed live (Blender 5.1.2) that obj.hide_set(True)/hide_viewport=True both "
-                      "clear obj.select_get(), and a subsequent obj.select_set(True) on a hidden object "
-                      "silently no-ops (select_get() stays False) — there is no selection to scope an "
-                      "unhide to. Only an unhide-everything model (Show All) is possible.",
-        },
-        "list000[View].Show Geometry": {
-            "status": "replaced", "to": "Show All",
-            "reason": "Maya's unconditional 'make all geometry visible' (mtk.set_visibility('mesh', True)) "
-                      "folds into the same Show All control — Blender has no separate per-type "
-                      "(geometry-only vs everything) visibility action to mirror it as a distinct item.",
-        },
-        # list000[Wireframe].Template Selected: BUILT 2026-07-08 (was a false 'replaced->Shaded
-        # Selected' na). The Blender display slot now ships a real "Template Selected" item under the
-        # identical label -- obj.display_type='WIRE' + hide_render=True + hide_select=True (the Maya
-        # cmds.toggle(template=1) analogue, matching btk.EnvUtils.set_reference_display_mode's 'template'
-        # mode). Re-click with nothing selected releases every templated object (hide_select DESELECTS
-        # in Blender -- verified live -- so a plain toggle-on-selection would be one-way). No
-        # divergence to ledger. 'Shaded Selected' is KEPT as a Blender-only extra item -> a
-        # report-only "extra" combo delta, documented in DEFAULT_DELTAS['display'].
-        "list000[UV].Display UV Border": {
-            "status": "na",
-            "reason": "Same underlying capability as list000[UV].Borders (Maya routes both through "
-                      "cmds.polyOptions displayMapBorder — see mayatk macros.py m_toggle_uv_border_edges "
-                      "vs display.py's own _list_uv_borders call — one object-scoped, one global-with-"
-                      "width). Verified live (Blender 5.1) that no View3DOverlay/SpaceUVEditor property "
-                      "highlights open/UV-map-border edges: show_edge_seams is user-marked UV seams (not "
-                      "an auto-detected boundary) and SpaceUVEditor.edge_display_type only restyles ALL UV "
-                      "edges (Outline/Dash/Black/White), not border edges specifically. No reasonable "
-                      "mapping exists.",
-        },
-        # list000[UV].Checkered BUILT 2026-07-28 (_uv_checkered): rolled as the very builder
-        # action the old na entry described — a generated UV_GRID image datablock swapped into
-        # every open IMAGE_EDITOR (prev image stashed on the scene, restored on toggle-off).
-        # The "out of scope" ruling was overridden by the roll-our-own standard. No delta.
-        "list000[UV].Borders": {
-            "status": "na",
-            "reason": "See list000[UV].Display UV Border — same Maya cmds.polyOptions displayMapBorder "
-                      "capability (this item additionally sets sizeBorder width) and the same verified-live "
-                      "absence of any Blender border-edge-highlight overlay.",
-        },
-    },
     "animation": {},
     "edit": {
         # tb001_init: removed 2026-07-17 — BUILT. Blender's tb001 is repurposed from the old
@@ -302,9 +250,6 @@ CONTROLS_SLOTS = {
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
     },
-    "duplicate": {
-        "chk001": {"status": "na", "reason": "tb000 Convert-to-Instances option 'Delete History': construction history does not exist in Blender, so the toggle could never change anything — not built per the hide-when-no-equivalent rule (2026-07-18; a visible no-op control is not parity). btk.replace_with_instances keeps its delete_history param for mtk signature parity only."},
-    },
     "edit": {
         "chk012": {"status": "na", "reason": "Maya polyCleanup 'holed polys' checks faces containing holes; Blender BMesh faces cannot hold holes (no holed-face data model) and blender/edit.py documents Holed as not mirrored (no bmesh primitive)."},
         "chk016": {"status": "na", "reason": "Maya-only data model: Maya stores per-vertex-shareable UVs that cleanup can 'unshare'; Blender UVs are always per-loop so shared-across-vertices UVs cannot exist; blender/edit.py documents Shared-UV as not mirrored."},
@@ -319,10 +264,6 @@ CONTROLS_SLOTS = {
         "cmb_lock": {"status": "accepted-delta", "reason": "tb004 Object Locking Lock/Unlock selector — same objectName + capability; combo items read 'Unlock/Lock Objects' (Blender toggles hide_select on objects) vs Maya's 'Unlock/Lock Nodes' (cmds.lockNode on DG nodes)."},
         "chk030": {"status": "replaced", "to": "tb001 Optimize (bpy.data.orphans_purge)", "reason": "Maya tb001 Delete History option running MEL 'OptimizeScene' (the scene optimizer). Blender's repurposed tb001 Optimize IS the analogue — bpy.data.orphans_purge drops every unused datablock, Blender's counterpart to Optimize Scene's unused-node removal (the construction-history part of the same button stays na — see chk020)."},
         "cmb_del_scope": {"status": "na", "reason": "Scope selector (Selected / Visible / All Geometry) for Maya's Delete History — replaces the old dead chk031 'For All Objects' checkbox (tb001 never read it). Blender's tb001 Optimize purges orphaned datablocks, which by definition have zero users, so there is no selected-vs-all scope for unused data; the purge is inherently file-wide and needs no scope control."},
-    },
-    "lighting": {
-        "b002": {"status": "pending", "reason": "Light Rigs (2026-10-17): Maya's b002 opens the Light Rigs tool (save / swap / restore named light rigs), Maya-only in tentacle's slots/tools HOSTS until blendertk has a LightRig; b002_init hides the button in Blender until then. Ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')."},
-        "cmb000": {"status": "pending", "reason": "tb000 Cluster combo (Shell / Object / Face) — how a face selection becomes emitters. mtk.LightUtils.lights_from_geometry solves per connected-face island through ptk.PlateEmitter.from_points; btk's twin is still the bounds-based whole-mesh solver with no component clustering, so the combo has nothing to drive yet. Rides the blendertk lights_from_geometry component-path upgrade (see BACKLOG)."},
     },
     "materials": {
         "b007": {"status": "renamed", "to": "b_shader_editor", "reason": "Hypershade Editor -> 'Shader Editor' header button (btk.open_editor, Blender's Hypershade analogue)"},
@@ -514,9 +455,6 @@ DEFAULT_DELTAS = {
     },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
-    },
-    "display": {
-        "list000[Wireframe].items": "Blender's Wireframe category carries a 'Shaded Selected' item (display_type='TEXTURED', the inverse of Wireframe Selected) that Maya lacks -- a Blender-only ENHANCEMENT kept when 'Template Selected' was built 2026-07-08, so the sweep shows it as a report-only extra. Every Maya item now has its twin.",
     },
     "edit": {
         "cmb000.items": "Deliberately different item list (Transfer menu): Blender's Data-Transfer operator works one data-layer at a time, so Maya's single 'Attribute Values' dialog (UVs/vertex colors/weights/normals together) is broken out into its natural granular items (UVs / Vertex Colors / Vertex Group Weights / Custom Normals); 'Shading Sets' is renamed to Blender's own term 'Material Slots'. Maya's 'Maps' (Cycles-scale bake setup) and 'Vertex Order' (interactive click-to-match reindex, no bpy primitive) are intentionally dropped rather than added as inert entries — see the _TRANSFER_OPS comment in blender/edit.py.",

@@ -2,12 +2,58 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Moved out (2)
+## Removed (28)
 
+_A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
+
+- `slots/blender/hud.py::HudSelectionMixin` — was `(class)`
+- `slots/blender/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, active) -> None`
+- `slots/blender/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
+- `slots/blender/hud.py::StatusMixin` — was `(class)`
+- `slots/blender/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
+- `slots/blender/hud.py::WarningsMixin` — was `(class)`
+- `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
+- `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b001` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b002` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b003` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b004` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b005` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b006` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b007` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b009` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b011` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b012` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b021` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b022` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b023` — was `(self)`
+- `slots/maya/display.py::DisplaySlots.b024` — was `(self)`
+- `slots/maya/hud.py::HudSelectionMixin` — was `(class)`
+- `slots/maya/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, selection) -> None`
+- `slots/maya/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
+- `slots/maya/hud.py::StatusMixin` — was `(class)`
+- `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
+- `slots/maya/hud.py::WarningsMixin` — was `(class)`
+
+## Moved out (15)
+
+- `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_display.py::DisplayMixin.list000_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/_duplicate.py::DuplicateMixin` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
+- `slots/_duplicate.py::DuplicateMixin.header_init` → `tentacle.slots.duplicate.DuplicateSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.evaluate_warnings` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.hudTextEdit_init` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_prev_command` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_warning_details` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_hud_warnings.py::HudWarningsMixin.insert_warning_icons` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/_lighting.py::LightingMixin` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/_lighting.py::LightingMixin.kelvin_tooltip` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (1155)
+## Added (1191)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -35,6 +81,42 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/deformation.py::DeformationSlots(class)`
 - `slots/deformation.py::DeformationSlots.tb001(self, widget)`
 - `slots/deformation.py::DeformationSlots.tb001_init(self, widget)`
+- `slots/display.py::DisplaySlots(class)`
+- `slots/display.py::DisplaySlots.b013(self)`
+- `slots/display.py::DisplaySlots.b014(self)`
+- `slots/display.py::DisplaySlots.header_init(self, widget)`
+- `slots/display.py::DisplaySlots.list000(self, item)`
+- `slots/display.py::DisplaySlots.list000_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots(class)`
+- `slots/duplicate.py::DuplicateSlots.b000(self)`
+- `slots/duplicate.py::DuplicateSlots.b005(self)`
+- `slots/duplicate.py::DuplicateSlots.b006(self)`
+- `slots/duplicate.py::DuplicateSlots.b007(self)`
+- `slots/duplicate.py::DuplicateSlots.b008(self)`
+- `slots/duplicate.py::DuplicateSlots.header_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb000(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb000_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb001(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb001_init(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb002(self, widget)`
+- `slots/duplicate.py::DuplicateSlots.tb002_init(self, widget)`
+- `slots/hud.py::HudSlots(class)`
+- `slots/hud.py::HudSlots.construct_hud(self) -> None`
+- `slots/hud.py::HudSlots.evaluate_warnings(self) -> list`
+- `slots/hud.py::HudSlots.hudTextEdit_init(self, widget) -> None`
+- `slots/hud.py::HudSlots.insert_component_info(self, hud, summary) -> None`
+- `slots/hud.py::HudSlots.insert_prev_command(self, hud, method) -> None`
+- `slots/hud.py::HudSlots.insert_scene_status(self, hud, status) -> None`
+- `slots/hud.py::HudSlots.insert_selection_info(self, hud, summary) -> None`
+- `slots/hud.py::HudSlots.insert_warning_details(self, hud, warnings) -> None`
+- `slots/hud.py::HudSlots.insert_warning_icons(self, hud, warnings) -> None`
+- `slots/hud.py::HudSlots.request_hud_build(self) -> None`
+- `slots/lighting.py::LightingSlots(class)`
+- `slots/lighting.py::LightingSlots.b000(self)`
+- `slots/lighting.py::LightingSlots.b001(self)`
+- `slots/lighting.py::LightingSlots.b002(self)`
+- `slots/lighting.py::LightingSlots.tb000(self, widget)`
+- `slots/lighting.py::LightingSlots.tb000_init(self, widget)`
 - `slots/normals.py::NormalsSlots(class)`
 - `slots/normals.py::NormalsSlots.b000(self)`
 - `slots/normals.py::NormalsSlots.b001(self)`
@@ -1165,7 +1247,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `tcl.py::Tcl.register_shared(switchboard)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (95)
+## Moved (145)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1191,6 +1273,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/deformation.py::DeformationSlots`
 - `slots/blender/deformation.py::DeformationSlots.tb001`
 - `slots/blender/deformation.py::DeformationSlots.tb001_init`
+- `slots/blender/display.py::DisplaySlots`
+- `slots/blender/display.py::DisplaySlots.b013`
+- `slots/blender/display.py::DisplaySlots.b014`
+- `slots/blender/display.py::DisplaySlots.list000`
+- `slots/blender/duplicate.py::DuplicateSlots`
+- `slots/blender/duplicate.py::DuplicateSlots.b000`
+- `slots/blender/duplicate.py::DuplicateSlots.b005`
+- `slots/blender/duplicate.py::DuplicateSlots.b006`
+- `slots/blender/duplicate.py::DuplicateSlots.b007`
+- `slots/blender/duplicate.py::DuplicateSlots.b008`
+- `slots/blender/duplicate.py::DuplicateSlots.tb000`
+- `slots/blender/duplicate.py::DuplicateSlots.tb000_init`
+- `slots/blender/duplicate.py::DuplicateSlots.tb001`
+- `slots/blender/duplicate.py::DuplicateSlots.tb001_init`
+- `slots/blender/duplicate.py::DuplicateSlots.tb002`
+- `slots/blender/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/blender/hud.py::HudSlots`
+- `slots/blender/hud.py::HudSlots.construct_hud`
+- `slots/blender/hud.py::HudSlots.request_hud_build`
+- `slots/blender/lighting.py::LightingSlots`
+- `slots/blender/lighting.py::LightingSlots.b000`
+- `slots/blender/lighting.py::LightingSlots.b001`
+- `slots/blender/lighting.py::LightingSlots.b002`
+- `slots/blender/lighting.py::LightingSlots.tb000`
+- `slots/blender/lighting.py::LightingSlots.tb000_init`
 - `slots/blender/normals.py::NormalsSlots`
 - `slots/blender/normals.py::NormalsSlots.b000`
 - `slots/blender/normals.py::NormalsSlots.b001`
@@ -1240,6 +1347,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/deformation.py::DeformationSlots`
 - `slots/maya/deformation.py::DeformationSlots.tb001`
 - `slots/maya/deformation.py::DeformationSlots.tb001_init`
+- `slots/maya/display.py::DisplaySlots`
+- `slots/maya/display.py::DisplaySlots.b013`
+- `slots/maya/display.py::DisplaySlots.b014`
+- `slots/maya/display.py::DisplaySlots.list000`
+- `slots/maya/duplicate.py::DuplicateSlots`
+- `slots/maya/duplicate.py::DuplicateSlots.b000`
+- `slots/maya/duplicate.py::DuplicateSlots.b005`
+- `slots/maya/duplicate.py::DuplicateSlots.b006`
+- `slots/maya/duplicate.py::DuplicateSlots.b007`
+- `slots/maya/duplicate.py::DuplicateSlots.b008`
+- `slots/maya/duplicate.py::DuplicateSlots.tb000`
+- `slots/maya/duplicate.py::DuplicateSlots.tb000_init`
+- `slots/maya/duplicate.py::DuplicateSlots.tb001`
+- `slots/maya/duplicate.py::DuplicateSlots.tb001_init`
+- `slots/maya/duplicate.py::DuplicateSlots.tb002`
+- `slots/maya/duplicate.py::DuplicateSlots.tb002_init`
+- `slots/maya/hud.py::HudSlots`
+- `slots/maya/hud.py::HudSlots.construct_hud`
+- `slots/maya/hud.py::HudSlots.request_hud_build`
+- `slots/maya/lighting.py::LightingSlots`
+- `slots/maya/lighting.py::LightingSlots.b000`
+- `slots/maya/lighting.py::LightingSlots.b001`
+- `slots/maya/lighting.py::LightingSlots.b002`
+- `slots/maya/lighting.py::LightingSlots.tb000`
+- `slots/maya/lighting.py::LightingSlots.tb000_init`
 - `slots/maya/normals.py::NormalsSlots`
 - `slots/maya/normals.py::NormalsSlots.b000`
 - `slots/maya/normals.py::NormalsSlots.b001`

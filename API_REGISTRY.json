@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 56,
+          "line": 52,
           "deprecated": false
         }
       ]
@@ -56,65 +56,6 @@
               "signature": "(self, widget)",
               "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
               "line": 469,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_display.py",
-      "summary": "Behavior shared by the Maya and Blender ``display`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DisplayMixin",
-          "summary": "Shared ``display`` panel behavior.",
-          "line": 9,
-          "bases": [],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "DisplayMixin.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Header menu: the submenu's Display expandable list — hover a row to",
-              "line": 30,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "DisplayMixin.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Display expandable list (categories → actions).",
-              "line": 41,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_duplicate.py",
-      "summary": "Behavior shared by the Maya and Blender ``duplicate`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DuplicateMixin",
-          "summary": "Shared ``duplicate`` panel behavior.",
-          "line": 9,
-          "bases": [],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "DuplicateMixin.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Header menu: the Mirror / Duplicate Linear / Radial / Grid launchers",
-              "line": 12,
               "deprecated": false
             }
           ]
@@ -176,92 +117,6 @@
               "signature": "(self, widget)",
               "summary": "Initialize the Transfer operations menu.",
               "line": 84,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_hud_warnings.py",
-      "summary": "Shared HUD framework (DCC-agnostic): warnings + the prev-command line.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "HudWarningsMixin",
-          "summary": "",
-          "line": 28,
-          "bases": [],
-          "members": [
-            {
-              "name": "hudTextEdit_init",
-              "qualname": "HudWarningsMixin.hudTextEdit_init",
-              "kind": "method",
-              "signature": "(self, widget) -> None",
-              "summary": "The HUD is a display composed afresh on every show — never persisted.",
-              "line": 34,
-              "deprecated": false
-            },
-            {
-              "name": "evaluate_warnings",
-              "qualname": "HudWarningsMixin.evaluate_warnings",
-              "kind": "method",
-              "signature": "(self) -> list",
-              "summary": "Return the subset of WARNING_DEFS whose check fires and is enabled.",
-              "line": 66,
-              "deprecated": false
-            },
-            {
-              "name": "insert_warning_icons",
-              "qualname": "HudWarningsMixin.insert_warning_icons",
-              "kind": "method",
-              "signature": "(self, hud, warnings) -> None",
-              "summary": "Insert a single-line row of colored badges;",
-              "line": 83,
-              "deprecated": false
-            },
-            {
-              "name": "insert_warning_details",
-              "qualname": "HudWarningsMixin.insert_warning_details",
-              "kind": "method",
-              "signature": "(self, hud, warnings) -> None",
-              "summary": "Insert a formatted detail line per active warning.",
-              "line": 93,
-              "deprecated": false
-            },
-            {
-              "name": "insert_prev_command",
-              "qualname": "HudWarningsMixin.insert_prev_command",
-              "kind": "method",
-              "signature": "(self, hud, method) -> None",
-              "summary": "Insert the last-used command as a single, length-capped line.",
-              "line": 104,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_lighting.py",
-      "summary": "Shared surface for the ``lighting`` panel's Maya and Blender forks.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "LightingMixin",
-          "summary": "Behaviour and reference data shared by both ``lighting`` forks.",
-          "line": 12,
-          "bases": [],
-          "members": [
-            {
-              "name": "kelvin_tooltip",
-              "qualname": "LightingMixin.kelvin_tooltip",
-              "kind": "classmethod",
-              "signature": "(cls, lead: str, tail: str) -> str",
-              "summary": "*lead*, then the reference table, then *tail*.",
-              "line": 47,
               "deprecated": false
             }
           ]
@@ -1665,170 +1520,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/display.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DisplaySlots",
-          "summary": "Blender port of the shared ``display`` menu.",
-          "line": 8,
-          "bases": [
-            "DisplayMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list000",
-              "qualname": "DisplaySlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Display action and report state via message_box.",
-              "line": 67,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "DisplaySlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Explode View — open the Exploded View panel (Explode / Un-Explode / Un-Explode All /",
-              "line": 308,
-              "deprecated": false
-            },
-            {
-              "name": "b014",
-              "qualname": "DisplaySlots.b014",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Color ID — swatch palette to color-code objects (material / object color / vertex).",
-              "line": 314,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/duplicate.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DuplicateSlots",
-          "summary": "Blender port of the shared ``duplicate`` menu.",
-          "line": 8,
-          "bases": [
-            "DuplicateMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "DuplicateSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 32,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "DuplicateSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Convert to Instances (selected objects share the active object's data).",
-              "line": 93,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "DuplicateSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 114,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "DuplicateSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Instanced Objects",
-              "line": 120,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "DuplicateSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Auto Instance — configure option-box menu.",
-              "line": 154,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "DuplicateSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Auto Instance: find and convert geometrically identical meshes",
-              "line": 264,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "DuplicateSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Uninstance Selected Objects (make their data single-user).",
-              "line": 330,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "DuplicateSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Mirror",
-              "line": 337,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "DuplicateSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Linear",
-              "line": 341,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "DuplicateSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Radial",
-              "line": 345,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "DuplicateSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Grid",
-              "line": 349,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/edit.py",
       "summary": "",
       "functions": [],
@@ -2182,170 +1873,6 @@
               "signature": "(self)",
               "summary": "Text Editor (substitute for Maya's Tool Box toggle)",
               "line": 214,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/hud.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "StatusMixin",
-          "summary": "",
-          "line": 11,
-          "bases": [],
-          "members": [
-            {
-              "name": "insert_scene_status",
-              "qualname": "StatusMixin.insert_scene_status",
-              "kind": "method",
-              "signature": "(self, hud) -> None",
-              "summary": "",
-              "line": 12,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "HudSelectionMixin",
-          "summary": "HUD readout of what is selected — unrelated to the package-level",
-          "line": 41,
-          "bases": [],
-          "members": [
-            {
-              "name": "insert_selection_info",
-              "qualname": "HudSelectionMixin.insert_selection_info",
-              "kind": "method",
-              "signature": "(self, hud, selection) -> None",
-              "summary": "",
-              "line": 68,
-              "deprecated": false
-            },
-            {
-              "name": "insert_component_info",
-              "qualname": "HudSelectionMixin.insert_component_info",
-              "kind": "method",
-              "signature": "(self, hud, active) -> None",
-              "summary": "Selected/total component counts for the mesh being edited (cheap:",
-              "line": 95,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "WarningsMixin",
-          "summary": "Blender HUD warnings — the framework lives in the shared",
-          "line": 113,
-          "bases": [
-            "HudWarningsMixin"
-          ],
-          "members": []
-        },
-        {
-          "name": "HudSlots",
-          "summary": "HUD Slots for Blender, providing scene and selection information.",
-          "line": 172,
-          "bases": [
-            "SlotsBlender",
-            "StatusMixin",
-            "HudSelectionMixin",
-            "WarningsMixin"
-          ],
-          "members": [
-            {
-              "name": "request_hud_build",
-              "qualname": "HudSlots.request_hud_build",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 183,
-              "deprecated": false
-            },
-            {
-              "name": "construct_hud",
-              "qualname": "HudSlots.construct_hud",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 203,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/lighting.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "LightingSlots",
-          "summary": "Blender port of the shared ``lighting`` menu.",
-          "line": 8,
-          "bases": [
-            "LightingMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "b000",
-              "qualname": "LightingSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Launch the HDR Manager (world-environment HDRI panel).",
-              "line": 19,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "LightingSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Launch the Lightmap Baker (Cycles-bake → game-engine lightmaps).",
-              "line": 23,
-              "deprecated": false
-            },
-            {
-              "name": "b002_init",
-              "qualname": "LightingSlots.b002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Light Rigs -- hidden until ported: the tool is Maya-only (tentacle's slots/tools",
-              "line": 27,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "LightingSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Light Rigs -- unreachable (b002_init hides the button);",
-              "line": 33,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "LightingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Lights From Geometry Init",
-              "line": 37,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "LightingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create real area lights from the selected fixture meshes.",
-              "line": 74,
               "deprecated": false
             }
           ]
@@ -5021,6 +4548,366 @@
       "constants": []
     },
     {
+      "relpath": "slots/display.py",
+      "summary": "Display: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DisplaySlots",
+          "summary": "",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "DisplaySlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu: the submenu's Display expandable list -- hover a row to",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "list000_init",
+              "qualname": "DisplaySlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the Display expandable list (categories -> actions).",
+              "line": 74,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "DisplaySlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Run a Display row and report the state it left.",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "DisplaySlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Exploded View: open the Exploded View panel.",
+              "line": 257,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "DisplaySlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Color ID: open the Color ID panel (color-code objects by ID).",
+              "line": 261,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/duplicate.py",
+      "summary": "Duplicate: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DuplicateSlots",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "DuplicateSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header menu: the Mirror / Duplicate Linear / Radial / Grid launchers.",
+              "line": 15,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "DuplicateSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Auto Instance: configure the option-box menu.",
+              "line": 45,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "DuplicateSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Auto Instance: convert geometrically identical meshes into instances",
+              "line": 156,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "DuplicateSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 198,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "DuplicateSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Convert to Instances: the other selected objects become instances of",
+              "line": 272,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "DuplicateSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 293,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "DuplicateSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Instanced Objects: the selection and its instances, or every",
+              "line": 302,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "DuplicateSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Uninstance Selected Objects: each gets its own copy of the shared",
+              "line": 319,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "DuplicateSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mirror: open the Mirror tool window.",
+              "line": 328,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "DuplicateSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Linear",
+              "line": 332,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "DuplicateSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Radial",
+              "line": 336,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "DuplicateSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Duplicate Grid",
+              "line": 340,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/hud.py",
+      "summary": "HUD: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "HudSlots",
+          "summary": "Scene and selection information, shown while the marking-menu key is held.",
+          "line": 18,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "hudTextEdit_init",
+              "qualname": "HudSlots.hudTextEdit_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The HUD is a display composed afresh on every show -- never persisted.",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "request_hud_build",
+              "qualname": "HudSlots.request_hud_build",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Start a new HUD build;",
+              "line": 101,
+              "deprecated": false
+            },
+            {
+              "name": "construct_hud",
+              "qualname": "HudSlots.construct_hud",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "",
+              "line": 121,
+              "deprecated": false
+            },
+            {
+              "name": "insert_scene_status",
+              "qualname": "HudSlots.insert_scene_status",
+              "kind": "method",
+              "signature": "(self, hud, status) -> None",
+              "summary": "The scene's state: a newer release, symmetry, the transform",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "insert_selection_info",
+              "qualname": "HudSlots.insert_selection_info",
+              "kind": "method",
+              "signature": "(self, hud, summary) -> None",
+              "summary": "The selected objects: how many, each name and type (up to",
+              "line": 171,
+              "deprecated": false
+            },
+            {
+              "name": "insert_component_info",
+              "qualname": "HudSlots.insert_component_info",
+              "kind": "method",
+              "signature": "(self, hud, summary) -> None",
+              "summary": "Selected / total components of the type being edited.",
+              "line": 194,
+              "deprecated": false
+            },
+            {
+              "name": "evaluate_warnings",
+              "qualname": "HudSlots.evaluate_warnings",
+              "kind": "method",
+              "signature": "(self) -> list",
+              "summary": "The :attr:`WARNING_DEFS` that are opted into and fire now, each with",
+              "line": 223,
+              "deprecated": false
+            },
+            {
+              "name": "insert_warning_icons",
+              "qualname": "HudSlots.insert_warning_icons",
+              "kind": "method",
+              "signature": "(self, hud, warnings) -> None",
+              "summary": "One row of coloured badges, one per active warning.",
+              "line": 246,
+              "deprecated": false
+            },
+            {
+              "name": "insert_warning_details",
+              "qualname": "HudSlots.insert_warning_details",
+              "kind": "method",
+              "signature": "(self, hud, warnings) -> None",
+              "summary": "One detail line per active warning.",
+              "line": 256,
+              "deprecated": false
+            },
+            {
+              "name": "insert_prev_command",
+              "qualname": "HudSlots.insert_prev_command",
+              "kind": "method",
+              "signature": "(self, hud, method) -> None",
+              "summary": "The last-used command as one length-capped line.",
+              "line": 262,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/lighting.py",
+      "summary": "Lighting: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LightingSlots",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "b000",
+              "qualname": "LightingSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Launch the HDR Manager (the scene's world / sky-dome HDRI).",
+              "line": 43,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "LightingSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Launch the Lightmap Baker (bake scene lighting for game engines).",
+              "line": 47,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "LightingSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Launch Light Rigs: save, swap and restore named light rigs (Maya).",
+              "line": 51,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "LightingSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lights From Geometry Init",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "LightingSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create real area lights from the selected fixture geometry.",
+              "line": 124,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/maya/_slots_maya.py",
       "summary": "",
       "functions": [],
@@ -5610,305 +5497,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/display.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DisplaySlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "DisplayMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000",
-              "qualname": "DisplaySlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Display action and report state via message_box.",
-              "line": 53,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "DisplaySlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Set Wireframe color",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "DisplaySlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Wireframe Selected",
-              "line": 172,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "DisplaySlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hide Selected",
-              "line": 176,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "DisplaySlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Show Selected",
-              "line": 182,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "DisplaySlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Show Geometry",
-              "line": 188,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "DisplaySlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Xray Selected.",
-              "line": 204,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "DisplaySlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Un-Xray All",
-              "line": 213,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "DisplaySlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Xray Other (uniform toggle across all non-selected shapes)",
-              "line": 218,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "DisplaySlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle Material Override",
-              "line": 226,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "DisplaySlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle Component ID Display",
-              "line": 230,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "DisplaySlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Wireframe Non Active (Wireframe All But The Selected Item)",
-              "line": 234,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "DisplaySlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Explode View GUI",
-              "line": 240,
-              "deprecated": false
-            },
-            {
-              "name": "b014",
-              "qualname": "DisplaySlots.b014",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Color ID GUI",
-              "line": 244,
-              "deprecated": false
-            },
-            {
-              "name": "b021",
-              "qualname": "DisplaySlots.b021",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Template Selected",
-              "line": 248,
-              "deprecated": false
-            },
-            {
-              "name": "b022",
-              "qualname": "DisplaySlots.b022",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Display UV Borders",
-              "line": 252,
-              "deprecated": false
-            },
-            {
-              "name": "b023",
-              "qualname": "DisplaySlots.b023",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Soft Edge Display",
-              "line": 256,
-              "deprecated": false
-            },
-            {
-              "name": "b024",
-              "qualname": "DisplaySlots.b024",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Display Face Normals",
-              "line": 260,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/duplicate.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DuplicateSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "DuplicateMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb002_init",
-              "qualname": "DuplicateSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Auto Instance — configure option-box menu.",
-              "line": 13,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "DuplicateSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Auto Instance: find and convert geometrically identical meshes",
-              "line": 122,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "DuplicateSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "DuplicateSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Convert to Instances",
-              "line": 237,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "DuplicateSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 268,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "DuplicateSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Instanced Objects",
-              "line": 277,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "DuplicateSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Mirror: open the Mirror tool window.",
-              "line": 300,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "DuplicateSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Uninstance Selected Objects",
-              "line": 304,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "DuplicateSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Linear",
-              "line": 309,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "DuplicateSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Radial",
-              "line": 313,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "DuplicateSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Duplicate Grid",
-              "line": 317,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/edit.py",
       "summary": "",
       "functions": [],
@@ -6336,98 +5924,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/hud.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "StatusMixin",
-          "summary": "",
-          "line": 11,
-          "bases": [],
-          "members": [
-            {
-              "name": "insert_scene_status",
-              "qualname": "StatusMixin.insert_scene_status",
-              "kind": "method",
-              "signature": "(self, hud) -> None",
-              "summary": "",
-              "line": 12,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "HudSelectionMixin",
-          "summary": "HUD readout of what is selected — unrelated to the package-level",
-          "line": 54,
-          "bases": [],
-          "members": [
-            {
-              "name": "insert_selection_info",
-              "qualname": "HudSelectionMixin.insert_selection_info",
-              "kind": "method",
-              "signature": "(self, hud, selection) -> None",
-              "summary": "",
-              "line": 60,
-              "deprecated": false
-            },
-            {
-              "name": "insert_component_info",
-              "qualname": "HudSelectionMixin.insert_component_info",
-              "kind": "method",
-              "signature": "(self, hud, selection) -> None",
-              "summary": "",
-              "line": 107,
-              "deprecated": false
-            }
-          ]
-        },
-        {
-          "name": "WarningsMixin",
-          "summary": "Maya HUD warnings — the framework lives in the shared",
-          "line": 132,
-          "bases": [
-            "HudWarningsMixin"
-          ],
-          "members": []
-        },
-        {
-          "name": "HudSlots",
-          "summary": "HUD Slots for Maya, providing scene and selection information.",
-          "line": 207,
-          "bases": [
-            "SlotsMaya",
-            "pythontk.PackageManager",
-            "StatusMixin",
-            "HudSelectionMixin",
-            "WarningsMixin"
-          ],
-          "members": [
-            {
-              "name": "request_hud_build",
-              "qualname": "HudSlots.request_hud_build",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "Start a new HUD build request, only the latest token will be used.",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "construct_hud",
-              "qualname": "HudSlots.construct_hud",
-              "kind": "method",
-              "signature": "(self) -> None",
-              "summary": "",
-              "line": 244,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/key.py",
       "summary": "",
       "functions": [],
@@ -6440,70 +5936,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/lighting.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "LightingSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "LightingMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "b000",
-              "qualname": "LightingSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Launch the HDR Manager.",
-              "line": 17,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "LightingSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Launch the Lightmap Baker.",
-              "line": 21,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "LightingSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Launch Light Rigs: save, swap and restore named light rigs.",
-              "line": 25,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "LightingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Lights From Geometry Init",
-              "line": 29,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "LightingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create real area lights from the selected fixture geometry.",
-              "line": 88,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []

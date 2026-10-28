@@ -31,11 +31,7 @@ DEFAULT_INCLUDE = {
     # Tools list both forks build identically), so it is mixed in per panel for
     # the same reason as the rest.
     "slots._animation": "AnimationMixin",
-    "slots._display": "DisplayMixin",
-    "slots._duplicate": "DuplicateMixin",
     "slots._edit": "EditMixin",
-    "slots._hud_warnings": "HudWarningsMixin",
-    "slots._lighting": "LightingMixin",
     "slots._main": "MainMixin",
     "slots._materials": "MaterialsMixin",
     "slots._nurbs": "NurbsMixin",
@@ -55,6 +51,10 @@ DEFAULT_INCLUDE = {
 #: composed into one Slots class lists the mixin its forks shared.
 MOVED_NAMES = {
     "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),
+    "DisplayMixin": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DuplicateMixin": ("tentacle.slots.duplicate.DuplicateSlots", "0.17.0"),
+    "LightingMixin": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),
+    "HudWarningsMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
 }
 
 

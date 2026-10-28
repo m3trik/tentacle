@@ -135,6 +135,9 @@
     </property>
    </widget>
    <widget class="PushButton" name="b002">
+    <property name="requires" stdset="0">
+     <string>maya</string>
+    </property>
     <property name="geometry">
      <rect>
       <x>120</x>

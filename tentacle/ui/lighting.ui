@@ -148,6 +148,9 @@
          </item>
          <item>
           <widget class="PushButton" name="b002">
+           <property name="requires" stdset="0">
+            <string>maya</string>
+           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
@@ -183,8 +186,8 @@
             </size>
            </property>
            <property name="toolTip">
-            <string>Create real area lights from the selected light-fixture geometry — whole meshes, or just their lens faces.
-Each light is an ordinary, artist-owned scene light stamped with the geometry it came from, so it can be re-fitted later if that geometry moves.</string>
+            <string>Create real area lights from the selected light-fixture geometry: whole meshes, or (in Maya) just their lens faces.
+Each light is an ordinary, artist-owned scene light (in Maya, stamped with the geometry it came from, so it can be re-fitted later if that geometry moves).</string>
            </property>
            <property name="text">
             <string>Lights From Geometry</string>

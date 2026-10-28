@@ -751,7 +751,7 @@ try:
     # ---- display b013/b014: route to the co-located blendertk panels -------------------------
     # (b013 stopped being an inline toggle when the Exploded View panel shipped; the explode/
     # un-explode engine round-trip is covered by blendertk/test/test_wedge_snap_explode.py)
-    from tentacle.slots.blender.display import DisplaySlots
+    from tentacle.slots.display import DisplaySlots
 
     reset()
     shown = []
@@ -845,7 +845,7 @@ try:
     b = add_cube("TB", (3, 0, 0))
     a.select_set(True)
     b.select_set(True)
-    slot = make_slot(DisplaySlots)
+    slot = make_slot(DisplaySlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot._template_selected()  # template both
     templated_ok = all(o.display_type == "WIRE" and o.hide_render and o.hide_select for o in (a, b))
     deselected = not any(o.select_get() for o in (a, b))  # hide_select deselects (verified live)
@@ -861,10 +861,13 @@ try:
     # headless has no VIEW_3D area, so drive the state machine through a fake overlay
     ov = NS(show_face_normals=False, show_vertex_normals=False)
     fake_area = NS(spaces=NS(active=NS(overlay=ov)))
-    _orig_get_areas = btk.get_areas
-    btk.get_areas = lambda *a, **k: [fake_area]
+    # The library reads the viewports through CoreUtils (patched as the descriptors they are).
+    _ga = vars(btk.CoreUtils)["get_areas"]
+    _tr = vars(btk.CoreUtils)["tag_redraw"]
+    btk.CoreUtils.get_areas = staticmethod(lambda *a, **k: [fake_area])
+    btk.CoreUtils.tag_redraw = classmethod(lambda cls, *a, **k: 0)
     try:
-        slot = make_slot(DisplaySlots)
+        slot = make_slot(DisplaySlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
         m1 = slot._display_normals()
         s1 = (ov.show_face_normals, ov.show_vertex_normals)
         m2 = slot._display_normals()
@@ -876,7 +879,8 @@ try:
               and "Face" in m1 and "Vertex" in m2 and "Off" in m3,
               f"{s1}|{s2}|{s3}")
     finally:
-        btk.get_areas = _orig_get_areas
+        btk.CoreUtils.get_areas = _ga
+        btk.CoreUtils.tag_redraw = _tr
 
     # ---- uv tb005/tb006/b030 (shell ops through the slot readers)
     from tentacle.slots.blender.uv import UvSlots
@@ -1112,7 +1116,7 @@ try:
           all("not available" not in m for m in msgs), f"{msgs}")
 
     # ---- scene b001 / lighting b000: route to the new manager panels ------------------------
-    from tentacle.slots.blender.lighting import LightingSlots
+    from tentacle.slots.lighting import LightingSlots
 
     shown = []
     mm = NS(marking_menu=NS(show=shown.append))

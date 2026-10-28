@@ -10,25 +10,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class AnimationMixin`
   - methods: list000_init
 
-### `slots/_display.py` — Behavior shared by the Maya and Blender ``display`` panels.
-- `class DisplayMixin`
-  - methods: header_init, list000_init
-
-### `slots/_duplicate.py` — Behavior shared by the Maya and Blender ``duplicate`` panels.
-- `class DuplicateMixin`
-  - methods: header_init
-
 ### `slots/_edit.py` — Shared, DCC-agnostic behavior for the ``edit`` panel.
 - `class EditMixin`
   - methods: mesh_cleanup_tooltip, cleanup_popup_html, cleanup_console_report, report_cleanup_failure, cmb000_init
-
-### `slots/_hud_warnings.py` — Shared HUD framework (DCC-agnostic): warnings + the prev-command line.
-- `class HudWarningsMixin`
-  - methods: hudTextEdit_init, evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
-
-### `slots/_lighting.py` — Shared surface for the ``lighting`` panel's Maya and Blender forks.
-- `class LightingMixin`
-  - methods: kelvin_tooltip
 
 ### `slots/_main.py` — Behavior shared by the Maya and Blender ``main`` start menus' Workspace tab.
 - `class MainMixin`
@@ -90,14 +74,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
 
-### `slots/blender/display.py`
-- `class DisplaySlots(DisplayMixin, SlotsBlender)`
-  - methods: list000, b013, b014
-
-### `slots/blender/duplicate.py`
-- `class DuplicateSlots(DuplicateMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b005, b000, b006, b007, b008
-
 ### `slots/blender/edit.py`
 - `class EditSlots(EditMixin, SlotsBlender)`
   - methods: header_init, b_channels, tb000_init, tb000, tb002, list000_init, list000, list001_init, list001, b000, cmb000, tb001_init, tb001, tb004_init, tb004
@@ -105,19 +81,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/editors.py`
 - `class EditorsSlots(SlotsBlender)`
   - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006_init, b006, b007_init, b007, b008_init, b008, b009, b010, b011, b012_init, b012, b013_init, b013
-
-### `slots/blender/hud.py`
-- `class StatusMixin`
-  - methods: insert_scene_status
-- `class HudSelectionMixin`
-  - methods: insert_selection_info, insert_component_info
-- `class WarningsMixin(HudWarningsMixin)`
-- `class HudSlots(SlotsBlender, StatusMixin, HudSelectionMixin, WarningsMixin)`
-  - methods: request_hud_build, construct_hud
-
-### `slots/blender/lighting.py`
-- `class LightingSlots(LightingMixin, SlotsBlender)`
-  - methods: b000, b001, b002_init, b002, tb000_init, tb000
 
 ### `slots/blender/main.py`
 - `class MainSlots(MainMixin, SlotsBlender)`
@@ -187,6 +150,22 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class DeformationSlots(Slots)`
   - methods: tb001_init, tb001
 
+### `slots/display.py` — Display: one Slots class for both hosts.
+- `class DisplaySlots(Slots)`
+  - methods: header_init, list000_init, list000, b013, b014
+
+### `slots/duplicate.py` — Duplicate: one Slots class for both hosts.
+- `class DuplicateSlots(Slots)`
+  - methods: header_init, tb002_init, tb002, tb000_init, tb000, tb001_init, tb001, b005, b000, b006, b007, b008
+
+### `slots/hud.py` — HUD: one Slots class for both hosts.
+- `class HudSlots(Slots)`
+  - methods: hudTextEdit_init, request_hud_build, construct_hud, insert_scene_status, insert_selection_info, insert_component_info, evaluate_warnings, insert_warning_icons, insert_warning_details, insert_prev_command
+
+### `slots/lighting.py` — Lighting: one Slots class for both hosts.
+- `class LightingSlots(Slots)`
+  - methods: b000, b001, b002, tb000_init, tb000
+
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
   - methods: require_selection
@@ -212,14 +191,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/deform.py`
 - `class DeformSlots(SlotsMaya)`
-
-### `slots/maya/display.py`
-- `class DisplaySlots(DisplayMixin, SlotsMaya)`
-  - methods: list000, b000, b001, b002, b003, b004, b005, b006, b007, b009, b011, b012, b013, b014, b021, b022, b023, b024
-
-### `slots/maya/duplicate.py`
-- `class DuplicateSlots(DuplicateMixin, SlotsMaya)`
-  - methods: tb002_init, tb002, tb000_init, tb000, tb001_init, tb001, b000, b005, b006, b007, b008
 
 ### `slots/maya/edit.py`
 - `class EditSlots(EditMixin, SlotsMaya)`
@@ -247,21 +218,8 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/help.py`
 - `class HelpSlots(SlotsMaya)`
 
-### `slots/maya/hud.py`
-- `class StatusMixin`
-  - methods: insert_scene_status
-- `class HudSelectionMixin`
-  - methods: insert_selection_info, insert_component_info
-- `class WarningsMixin(HudWarningsMixin)`
-- `class HudSlots(SlotsMaya, pythontk.PackageManager, StatusMixin, HudSelectionMixin, WarningsMixin)`
-  - methods: request_hud_build, construct_hud
-
 ### `slots/maya/key.py`
 - `class KeySlots(SlotsMaya)`
-
-### `slots/maya/lighting.py`
-- `class LightingSlots(LightingMixin, SlotsMaya)`
-  - methods: b000, b001, b002, tb000_init, tb000
 
 ### `slots/maya/lighting_shading.py`
 - `class LightingShadingSlots(SlotsMaya)`
