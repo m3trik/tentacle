@@ -1015,10 +1015,10 @@ try:
     bpy.ops.object.mode_set(mode="OBJECT")
 
     # ---- rigging cmb002: Rigify quick rig ---------------------------------------------------
-    from tentacle.slots.blender.rigging import RiggingSlots
+    from tentacle.slots.rigging import RiggingSlots  # composed: both hosts, over sb.tk
 
     reset()
-    slot = make_slot(RiggingSlots)
+    slot = make_slot(RiggingSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     rig_items = ["Human Meta-Rig", "Basic Human Meta-Rig", "Generate Rig"]
     slot.cmb002(0, NS(items=rig_items))
     meta = bpy.context.view_layer.objects.active
@@ -1032,14 +1032,16 @@ try:
           f"active={rig and rig.name}")
     msgs = []
     reset()
-    slot.sb = NS(message_box=msgs.append)
+    slot.sb = NS(message_box=msgs.append, tk=btk)
     slot.cmb002(2, NS(items=rig_items))  # nothing active -> message
     check("rigging cmb002 generate without a meta-rig messages", len(msgs) == 1, f"{msgs}")
 
     # The procedural rigs open their co-located blendertk panels -- the same names
     # tentacle/test/test_rigging.py pins for Maya's (mayatk parity).
     added, shown = [], []
-    slot = make_slot(RiggingSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append))))
+    slot = make_slot(
+        RiggingSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append)), tk=btk)
+    )
     slot.cmb002_init(NS(add=lambda items, **k: added.extend(items)))
     procedural = {"Telescope Rig": "telescope_rig", "Wheel Rig": "wheel_rig",
                   "Shadow Rig": "shadow_rig", "Tube Rig": "tube_rig",
@@ -1062,7 +1064,7 @@ try:
     )
     reset()
     crate = add_cube("Crate", (2, 0, 1))
-    slot = make_slot(RiggingSlots)
+    slot = make_slot(RiggingSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.tb003(tb003_box)
     loc = crate.parent
     check("rigging tb003 rigs the selection under a zeroed zyx locator, left selected",

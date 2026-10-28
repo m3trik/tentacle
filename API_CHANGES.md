@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (42)
+## Removed (46)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
@@ -43,13 +43,17 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/maya/hud.py::WarningsMixin` — was `(class)`
 - `slots/maya/nurbs.py::NurbsSlots.b016` — was `(self)`
+- `slots/maya/rigging.py::RiggingSlots.chk000` — was `(self, state, widget)`
+- `slots/maya/rigging.py::RiggingSlots.chk001` — was `(self, state, widget)`
+- `slots/maya/rigging.py::RiggingSlots.chk002` — was `(self, state, widget)`
+- `slots/maya/rigging.py::RiggingSlots.s000` — was `(self, value, widget)`
 - `slots/maya/selection.py::SelectionSlots.chkxxx` — was `(self, **kwargs)`
 - `slots/maya/selection.py::SelectionSlots.get_selection_tool` — was `()`
 - `slots/maya/selection.py::SelectionSlots.set_selection_tool` — was `(tool)`
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (59)
+## Moved out (61)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -89,6 +93,8 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_preferences.py::PreferencesMixin.cmb006_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
 - `slots/_preferences.py::PreferencesMixin.header_init` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
 - `slots/_preferences.py::PreferencesMixin.tb000` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
+- `slots/_rendering.py::RenderingMixin` → `tentacle.slots.rendering.RenderingSlots` (from 0.17.0)
+- `slots/_rigging.py::RiggingMixin` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin.list001_init` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin.tb004` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
@@ -111,7 +117,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 
-## Added (1439)
+## Added (1466)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -323,6 +329,33 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/preferences.py::PreferencesSlots.s000_init(self, widget)`
 - `slots/preferences.py::PreferencesSlots.s001_init(self, widget)`
 - `slots/preferences.py::PreferencesSlots.tb000(self)`
+- `slots/rendering.py::RenderingSlots(class)`
+- `slots/rendering.py::RenderingSlots.b000(self, widget)`
+- `slots/rendering.py::RenderingSlots.b001(self)`
+- `slots/rendering.py::RenderingSlots.b003(self)`
+- `slots/rendering.py::RenderingSlots.b004(self)`
+- `slots/rendering.py::RenderingSlots.tb000(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb000_init(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb001(self, widget)`
+- `slots/rendering.py::RenderingSlots.tb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots(class)`
+- `slots/rigging.py::RiggingSlots.b004(self)`
+- `slots/rigging.py::RiggingSlots.b020(self)`
+- `slots/rigging.py::RiggingSlots.cmb001(self, index, widget)`
+- `slots/rigging.py::RiggingSlots.cmb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.cmb002(self, index, widget)`
+- `slots/rigging.py::RiggingSlots.cmb002_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.header_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb000(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb000_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb001(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb001_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb003(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb003_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb004(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb004_init(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb005(self, widget)`
+- `slots/rigging.py::RiggingSlots.tb005_init(self, widget)`
 - `slots/selection.py::SelectionSlots(class)`
 - `slots/selection.py::SelectionSlots.b001(self)`
 - `slots/selection.py::SelectionSlots.b002(self, widget)`
@@ -1553,7 +1586,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (520)
+## Moved (574)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1722,6 +1755,33 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/preferences.py::PreferencesSlots.cmb003_init`
 - `slots/blender/preferences.py::PreferencesSlots.s000_init`
 - `slots/blender/preferences.py::PreferencesSlots.s001_init`
+- `slots/blender/rendering.py::RenderingSlots`
+- `slots/blender/rendering.py::RenderingSlots.b000`
+- `slots/blender/rendering.py::RenderingSlots.b001`
+- `slots/blender/rendering.py::RenderingSlots.b003`
+- `slots/blender/rendering.py::RenderingSlots.b004`
+- `slots/blender/rendering.py::RenderingSlots.tb000`
+- `slots/blender/rendering.py::RenderingSlots.tb000_init`
+- `slots/blender/rendering.py::RenderingSlots.tb001`
+- `slots/blender/rendering.py::RenderingSlots.tb001_init`
+- `slots/blender/rigging.py::RiggingSlots`
+- `slots/blender/rigging.py::RiggingSlots.b004`
+- `slots/blender/rigging.py::RiggingSlots.b020`
+- `slots/blender/rigging.py::RiggingSlots.cmb001`
+- `slots/blender/rigging.py::RiggingSlots.cmb001_init`
+- `slots/blender/rigging.py::RiggingSlots.cmb002`
+- `slots/blender/rigging.py::RiggingSlots.cmb002_init`
+- `slots/blender/rigging.py::RiggingSlots.header_init`
+- `slots/blender/rigging.py::RiggingSlots.tb000`
+- `slots/blender/rigging.py::RiggingSlots.tb000_init`
+- `slots/blender/rigging.py::RiggingSlots.tb001`
+- `slots/blender/rigging.py::RiggingSlots.tb001_init`
+- `slots/blender/rigging.py::RiggingSlots.tb003`
+- `slots/blender/rigging.py::RiggingSlots.tb003_init`
+- `slots/blender/rigging.py::RiggingSlots.tb004`
+- `slots/blender/rigging.py::RiggingSlots.tb004_init`
+- `slots/blender/rigging.py::RiggingSlots.tb005`
+- `slots/blender/rigging.py::RiggingSlots.tb005_init`
 - `slots/blender/selection.py::SelectionSlots`
 - `slots/blender/selection.py::SelectionSlots.b001`
 - `slots/blender/selection.py::SelectionSlots.b002`
@@ -1984,6 +2044,33 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/preferences.py::PreferencesSlots.cmb003_init`
 - `slots/maya/preferences.py::PreferencesSlots.s000_init`
 - `slots/maya/preferences.py::PreferencesSlots.s001_init`
+- `slots/maya/rendering.py::RenderingSlots`
+- `slots/maya/rendering.py::RenderingSlots.b000`
+- `slots/maya/rendering.py::RenderingSlots.b001`
+- `slots/maya/rendering.py::RenderingSlots.b003`
+- `slots/maya/rendering.py::RenderingSlots.b004`
+- `slots/maya/rendering.py::RenderingSlots.tb000`
+- `slots/maya/rendering.py::RenderingSlots.tb000_init`
+- `slots/maya/rendering.py::RenderingSlots.tb001`
+- `slots/maya/rendering.py::RenderingSlots.tb001_init`
+- `slots/maya/rigging.py::RiggingSlots`
+- `slots/maya/rigging.py::RiggingSlots.b004`
+- `slots/maya/rigging.py::RiggingSlots.b020`
+- `slots/maya/rigging.py::RiggingSlots.cmb001`
+- `slots/maya/rigging.py::RiggingSlots.cmb001_init`
+- `slots/maya/rigging.py::RiggingSlots.cmb002`
+- `slots/maya/rigging.py::RiggingSlots.cmb002_init`
+- `slots/maya/rigging.py::RiggingSlots.header_init`
+- `slots/maya/rigging.py::RiggingSlots.tb000`
+- `slots/maya/rigging.py::RiggingSlots.tb000_init`
+- `slots/maya/rigging.py::RiggingSlots.tb001`
+- `slots/maya/rigging.py::RiggingSlots.tb001_init`
+- `slots/maya/rigging.py::RiggingSlots.tb003`
+- `slots/maya/rigging.py::RiggingSlots.tb003_init`
+- `slots/maya/rigging.py::RiggingSlots.tb004`
+- `slots/maya/rigging.py::RiggingSlots.tb004_init`
+- `slots/maya/rigging.py::RiggingSlots.tb005`
+- `slots/maya/rigging.py::RiggingSlots.tb005_init`
 - `slots/maya/selection.py::SelectionSlots`
 - `slots/maya/selection.py::SelectionSlots.b001`
 - `slots/maya/selection.py::SelectionSlots.b002`

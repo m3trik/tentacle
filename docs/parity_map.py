@@ -98,7 +98,6 @@ HANDLERS = {
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
     "animation": {},
-    "rigging": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
     # took the Transfer tool UvMixin's option box was).
     "uv": {},
@@ -141,38 +140,6 @@ CONTROLS_SLOTS = {
         "chk_exclude_defaults": {"status": "na", "reason": "Blender has no auto-created default materials to filter from the report; drop documented in tb001_init"},
         "chk_hide_defaults": {"status": "na", "reason": "Material-list filter (the filter field's option box, Maya's _list_filters hook): Blender has no auto-created default materials (lambert1 etc.) to hide, so its hook returns none and the field shows no option box"},
         "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the material list (the filter field's option box), for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
-    },
-    "rendering": {
-        "chk001": {"status": "na", "reason": "IPR launches a Maya Render View interactive session via renderer-registered MEL procs (RenderUtils.start_ipr); Blender's interactive render is the rendered-viewport shading state, not a render-op option — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
-        "chk002": {"status": "na", "reason": "Smart Redo wraps Maya Render View MEL redoPreviousRender (RenderUtils.redo_previous_render); Blender's render op has no redo-previous concept (Render Result slots are native) — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
-        "s020": {"status": "pending", "reason": "Render resolution width (scene-backed field + render presets via mtk.RenderUtils); Blender twin = scene.render.resolution_x, needs a btk render-settings surface"},
-        "s021": {"status": "pending", "reason": "Render resolution height; see s020 (scene.render.resolution_y)"},
-        "add_presets": {"status": "pending", "reason": "tb001's native preset selector over mtk.RenderUtils.render_preset_store (semantic {setting: value} presets); the Blender twin arrives with s020's render-settings surface"},
-        "preset_dir": {"status": "pending", "reason": "see add_presets (the selector's user tier)"},
-        "s022": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s023": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s024": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s025": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s026": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s027": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "s028": {"status": "na", "reason": "Arnold sampling (mtk.RenderUtils.RENDER_SETTINGS, defaultArnoldRenderOptions); Blender has no Arnold -- Cycles/EEVEE sampling is a different model (samples + adaptive threshold, not camera x per-ray-type samples)"},
-        "chk056": {"status": "na", "reason": "Maya playblast offScreen capture-mode flag (avoid viewport-redraw issues); bpy.ops.render.opengl always renders to an offscreen buffer and exposes no such parameter, so the toggle has no Blender surface. Maya control predates the port (2025-11-15 f7547ffe; Blender port 2026-06-12 c6b601c9 carried a documented subset)."},
-        # chk059 (Clear Cache) + t001 (scene-name regex): removed from the Maya panel in the
-        # 2026-07-18 PlayblastExporter overhaul (clearCache became an internal always-on detail;
-        # the regex stage was dropped — type the name in t000 instead), so their na/replaced
-        # entries no longer match any Maya-only control.
-        # chk060 (Include Audio) BUILT 2026-07-28: tb000 sets scene.render.ffmpeg.audio_codec
-        # (AAC when checked / NONE when not) for movie formats before render.opengl, snapshotted
-        # + restored with the other borrowed render settings (audio_codec enum verified live:
-        # NONE/AAC/AC3/FLAC/MP2/MP3). Live-GUI playblast-with-audio pass owed. No delta.
-    },
-    "rigging": {
-        "chk001": {"status": "na", "reason": "IK radio drives Maya's global ikHandleDisplayScale; Blender has no global IK-handle display-scale — excused in the Blender slot"},
-        "chk002": {"status": "na", "reason": "IK\\FK radio drives Maya's jointDisplayScale(ikfk=1); no Blender global IKFK display-scale — excused in the Blender slot"},
-        "s000": {"status": "na", "reason": "Global joint/IK/IKFK display-scale spinbox (jointDisplayScale/ikHandleDisplayScale); no Blender scene-global display-scale — excused in the Blender slot"},
-        "tb005": {"status": "pending", "reason": "Add to Skin (2026-10-14): mtk.SkinUtils.add_to_skin merges/binds new meshes into an existing skinCluster, un-posed through its bind so they land where modeled at any pose. blendertk has no SkinUtils; the port needs the Armature-modifier equivalent (vertex-group weights sampled from the closest surface point + rest-pose un-posing). tb005_init hides the button in Blender until then."},
-        "cmb_skin_mode": {"status": "pending", "reason": "Add to Skin option box (merge vs separate bind) -- rides the tb005 port."},
-        "chk_skin_rigid": {"status": "pending", "reason": "Add to Skin option box (rigid insert) -- rides the tb005 port."},
     },
     "uv": {
         "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
@@ -250,17 +217,6 @@ DEFAULT_DELTAS = {
     },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
-    },
-    "rendering": {
-        "cmb016.setCurrentIndex": "Not a real delta: items are populated after add() via cmb016.addItem(label, data) (per-item quality data), then cmb016.setCurrentIndex(5) is called immediately — matching Maya's index 5. A setCurrentIndex kwarg inside add() would run on an empty combo (no-op); the static tool can't see the post-population call.",
-        "cmb040.setCurrentIndex": "Not a real delta: resolution items populated post-add via addItem(label, data), then cmb040.setCurrentIndex(2) (1920x1080) — matching Maya's index 2. Static tool can't see the post-population call.",
-        "cmb041.setCurrentIndex": "Not a real delta: camera items populated post-add via addItem(name, cam), then cmb041.setCurrentIndex(0) (Active Viewport) at rendering.py:124 — matching Maya's index 0. Static tool can't see the post-population call.",
-        "cmb050.setCurrentIndex": "Deliberately different item list: Blender _FORMATS = 9 ffmpeg/native presets (MP4/MOV/AVI, PNG/JPEG/TIFF/TARGA/EXR via configure_render_output) vs Maya's 15 Maya-codec presets (qt/avi/iff/Arnold); indices are not interchangeable and Qt defaults the populated combo to index 0.",
-    },
-    "rigging": {
-        "chk000.setChecked": "Not a same-meaning toggle: Maya chk000 is a QRadioButton 'Joints' (checked as the default of a 3-way Joints/IK/IK-FK group driving display scales); Blender chk000 is a standalone QCheckBox opting into armature bone-axes (show_axes) — a mode Maya lacks. Defaulting True would make tb000 error ('No armatures selected') on non-armature selections. Documented in the Blender file's name-reuse comment.",
-        "cmb010.items": "Deliberately different item list: Maya's Attrs scope ['Attrs: Auto','Attrs: Channel Box'] names Channel-Box-driven attribute scoping; Blender has no Channel Box, so the scope is re-expressed as the concrete transform channels ['Attrs: Translate','Attrs: Rotate','Attrs: Scale']. Documented only in the Blender slot comment previously; recorded here 2026-07-08.",
-        "cmb002.items": "Blender adds Rigify presets ['Human Meta-Rig','Basic Human Meta-Rig','Generate Rig'] on top of Maya's procedural items -- Blender-only ENHANCEMENT (Rigify is Blender's native meta-rig system, no Maya counterpart), not a drop; Maya's 'Quick Rig' / 'HumanIK' are its own built-in character auto-riggers, the role Rigify fills here. The procedural items match, 'Articulated Rig' included (blendertk ArticulatedRig, 2026-10-17).",
     },
     "animation": {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",

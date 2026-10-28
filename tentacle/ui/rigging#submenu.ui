@@ -103,9 +103,9 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Create locators with the same transforms as any selected object(s).
+     <string>Rig each selected object under a zeroed locator and its group, named by the naming convention (Blender: Empties).
 
-If there are vertices selected, it creates a locator at the center of their combined bounding box.</string>
+With nothing selected, add a lone locator. The option box removes a rig.</string>
     </property>
     <property name="text">
      <string>Create Locator</string>

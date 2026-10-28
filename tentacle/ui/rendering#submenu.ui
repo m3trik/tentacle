@@ -103,7 +103,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Render the chosen camera with the selected renderer. Use the option box for camera, renderer, IPR, and smart redo.</string>
+     <string>Render the current frame through the chosen camera with the selected renderer. The option box sets the camera, the renderer, the scene's resolution and presets (Maya: IPR, Smart Redo and Arnold sampling).</string>
     </property>
     <property name="text">
      <string>Render</string>
@@ -131,7 +131,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Export the current frame range sequence from the perspective camera viewport to the desktop.</string>
+     <string>Export a playblast of the frame range: a viewport capture to movie and image-sequence outputs, by default in the scene project's movie folder. The option box sets the range, camera, resolution and outputs.</string>
     </property>
     <property name="text">
      <string>Export Playblast</string>

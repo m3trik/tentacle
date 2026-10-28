@@ -7,8 +7,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
-- [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
-- [`slots/_rigging.py`](#slots--_rigging) — Behavior shared by the Maya and Blender ``rigging`` panels.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
@@ -16,8 +14,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/blender/materials.py`](#slots--blender--materials)
-- [`slots/blender/rendering.py`](#slots--blender--rendering)
-- [`slots/blender/rigging.py`](#slots--blender--rigging)
 - [`slots/blender/scene.py`](#slots--blender--scene)
 - [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
@@ -57,8 +53,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
 - [`slots/maya/playback.py`](#slots--maya--playback)
 - [`slots/maya/render.py`](#slots--maya--render)
-- [`slots/maya/rendering.py`](#slots--maya--rendering)
-- [`slots/maya/rigging.py`](#slots--maya--rigging)
 - [`slots/maya/scene.py`](#slots--maya--scene)
 - [`slots/maya/select.py`](#slots--maya--select)
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
@@ -75,6 +69,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/pivot.py`](#slots--pivot) — Pivot: one Slots class for both hosts.
 - [`slots/polygons.py`](#slots--polygons) — Polygons: one Slots class for both hosts.
 - [`slots/preferences.py`](#slots--preferences) — Preferences: one Slots class for both hosts.
+- [`slots/rendering.py`](#slots--rendering) — Rendering: one Slots class for both hosts.
+- [`slots/rigging.py`](#slots--rigging) — Rigging: one Slots class for both hosts.
 - [`slots/selection.py`](#slots--selection) — Selection: one Slots class for both hosts.
 - [`slots/settings.py`](#slots--settings) — Settings: one Slots class for both hosts.
 - [`slots/subdivision.py`](#slots--subdivision) — Subdivision: one Slots class for both hosts.
@@ -191,7 +187,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L44) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L42) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -222,20 +218,6 @@ Shared, DCC-agnostic behavior for the ``materials`` panel.
   - `MaterialsMixin.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
   - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
-
-<a id="slots--_rendering"></a>
-### `slots/_rendering.py`
-
-Shared, DCC-agnostic behavior for the ``rendering`` panel.
-
-- **[`class RenderingMixin`](tentacle/tentacle/slots/_rendering.py#L23)** — DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard and
-
-<a id="slots--_rigging"></a>
-### `slots/_rigging.py`
-
-Behavior shared by the Maya and Blender ``rigging`` panels.
-
-- **[`class RiggingMixin`](tentacle/tentacle/slots/_rigging.py#L6)** — Shared ``rigging`` panel behavior.
 
 <a id="slots--_scene"></a>
 ### `slots/_scene.py`
@@ -382,41 +364,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.b025(self)` — Brush Splat Workflow
   - `MaterialsSlots.b019(self)` — Marmoset Bridge
   - `MaterialsSlots.b020(self)` — Substance Bridge
-
-<a id="slots--blender--rendering"></a>
-### `slots/blender/rendering.py`
-
-- **[`class RenderingSlots(RenderingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/rendering.py#L10)** — Blender port of the shared ``rendering`` menu.
-  - `RenderingSlots.tb000_init(self, widget)` — Playblast: built once, then re-run on every panel show.
-  - `RenderingSlots.tb000(self, widget)` — Export Playblast (OpenGL viewport render of the chosen frame range / format).
-  - `RenderingSlots.tb001_init(self, widget)` — Render: pick the camera and renderer, then render the current frame.
-  - `RenderingSlots.tb001(self, widget)` — Render Current Frame
-  - `RenderingSlots.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
-  - `RenderingSlots.b001(self)` — Render Settings (Properties editor, Render tab)
-  - `RenderingSlots.b003(self)` — Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**
-  - `RenderingSlots.b004(self)` — Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray
-
-<a id="slots--blender--rigging"></a>
-### `slots/blender/rigging.py`
-
-- **[`class RiggingSlots(RiggingMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/rigging.py#L9)** — Blender port of the shared ``rigging`` menu.
-  - `RiggingSlots.header_init(self, widget)`
-  - `RiggingSlots.b020(self)` — Rebind Skin Clusters — refresh each selected mesh's Armature modifier (re-point it at its
-  - `RiggingSlots.cmb001_init(self, widget)`
-  - `RiggingSlots.cmb001(self, index, widget)` — Create rigging primitives.
-  - `RiggingSlots.tb000_init(self, widget)`
-  - `RiggingSlots.tb000(self, widget)` — Toggle Display Local Rotation Axes — object axes (show_axis), or armature bone axes
-  - `RiggingSlots.tb001_init(self, widget)`
-  - `RiggingSlots.tb001(self, widget)` — Constraint Switch — drive the active object's constraints' influence from a single custom
-  - `RiggingSlots.tb003_init(self, widget)`
-  - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection — a zeroed locator Empty at each selected object's
-  - `RiggingSlots.tb004_init(self, widget)`
-  - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).
-  - `RiggingSlots.tb005_init(self, widget)` — Add to Skin — hidden until ported: the Maya tool (``mtk.SkinUtils.add_to_skin``)
-  - `RiggingSlots.tb005(self, widget)` — Add to Skin — unreachable (tb005_init hides the button);
-  - `RiggingSlots.cmb002_init(self, widget)`
-  - `RiggingSlots.cmb002(self, index, widget)` — Quick Rig — a procedural rig opens its panel (mayatk parity);
-  - `RiggingSlots.b004(self)` — Render Effects — the shared tool over ``btk.RenderEffects`` (per-object ``opacity``
 
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
@@ -854,45 +801,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 
 - **[`class RenderSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L8)**
 
-<a id="slots--maya--rendering"></a>
-### `slots/maya/rendering.py`
-
-- **[`class RenderingSlots(RenderingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/rendering.py#L14)**
-  - `RenderingSlots.tb000_init(self, widget)` — Export Playblast: built once, then re-run on every panel show.
-  - `RenderingSlots.tb000(self, widget)` — Export Playblast
-  - `RenderingSlots.tb001_init(self, widget)` — Render: camera, renderer, IPR, smart redo, key settings and presets.
-  - `RenderingSlots.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
-  - `RenderingSlots.b000(self, widget)` — WebXR Preview — open the live preview panel, wired to this scene.
-  - `RenderingSlots.b001(self)` — Open Render Settings Window
-  - `RenderingSlots.b003(self)` — Editor: Render Setup
-  - `RenderingSlots.b004(self)` — Editor: Rendering Flags
-
-<a id="slots--maya--rigging"></a>
-### `slots/maya/rigging.py`
-
-- **[`class RiggingSlots(RiggingMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/rigging.py#L12)**
-  - `RiggingSlots.header_init(self, widget)` — Init Rigging Header
-  - `RiggingSlots.b020(self)` — Rebind Skin Clusters
-  - `RiggingSlots.cmb001_init(self, widget)` — Init Create
-  - `RiggingSlots.cmb001(self, index, widget)` — Create: create a rigging utility node — joints, IK handle, lattice, or cluster.
-  - `RiggingSlots.cmb002_init(self, widget)` — Init Quick Rig — our procedural rig tools plus Maya's built-in character auto-riggers.
-  - `RiggingSlots.cmb002(self, index, widget)` — Quick Rig: open a procedural rig tool, or Maya's built-in Quick Rig / HumanIK.
-  - `RiggingSlots.chk000(self, state, widget)` — Scale Joint
-  - `RiggingSlots.chk001(self, state, widget)` — Scale IK
-  - `RiggingSlots.chk002(self, state, widget)` — Scale IK/FK
-  - `RiggingSlots.s000(self, value, widget)` — Scale Joint/IK/FK
-  - `RiggingSlots.tb000_init(self, widget)` — Init Display Local Rotation Axes
-  - `RiggingSlots.tb000(self, widget)` — Toggle Display Local Rotation Axes
-  - `RiggingSlots.tb001_init(self, widget)` — Init Constraint Switch
-  - `RiggingSlots.tb001(self, widget)` — Constraint Switch
-  - `RiggingSlots.tb003_init(self, widget)` — Init Create Locator at Selection
-  - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection
-  - `RiggingSlots.tb004_init(self, widget)` — Init Lock/Unlock Attributes
-  - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes
-  - `RiggingSlots.tb005_init(self, widget)` — Init Add to Skin
-  - `RiggingSlots.tb005(self, widget)` — Add to Skin
-  - `RiggingSlots.b004(self)` — Render Effects
-
 <a id="slots--maya--scene"></a>
 ### `slots/maya/scene.py`
 
@@ -1123,6 +1031,45 @@ Preferences: one Slots class for both hosts.
   - `PreferencesSlots.b009(self)` — Plug-ins: the host's plug-in manager (Blender: Preferences > Add-ons).
   - `PreferencesSlots.b010(self)` — Preferences: the host's preferences window (Blender: Interface).
   - `PreferencesSlots.b011(self)` — Macro Manager: the uitk shortcut editor over the host's macros.
+
+<a id="slots--rendering"></a>
+### `slots/rendering.py`
+
+Rendering: one Slots class for both hosts.
+
+- **[`class RenderingSlots(Slots)`](tentacle/tentacle/slots/rendering.py#L25)**
+  - `RenderingSlots.tb000_init(self, widget)` — Export Playblast: built once, then re-run on every panel show.
+  - `RenderingSlots.tb000(self, widget)` — Export Playblast
+  - `RenderingSlots.tb001_init(self, widget)` — Render: camera, renderer, IPR, smart redo, key settings and presets.
+  - `RenderingSlots.tb001(self, widget)` — Render: render the current frame through the selected camera and renderer.
+  - `RenderingSlots.b000(self, widget)` — WebXR Preview: open the live preview panel, wired to this scene.
+  - `RenderingSlots.b001(self)` — Global Settings: the render settings (Blender: Properties > Render).
+  - `RenderingSlots.b003(self)` — Render Setup: the render-layer manager (Blender: Properties > View Layer).
+  - `RenderingSlots.b004(self)` — Rendering Flags: per-object render flags (Blender: Properties > Object,
+
+<a id="slots--rigging"></a>
+### `slots/rigging.py`
+
+Rigging: one Slots class for both hosts.
+
+- **[`class RiggingSlots(Slots)`](tentacle/tentacle/slots/rigging.py#L21)**
+  - `RiggingSlots.header_init(self, widget)` — Init Rigging Header
+  - `RiggingSlots.b020(self)` — Rebind Skin Clusters
+  - `RiggingSlots.cmb001_init(self, widget)` — Init Create: the host's rigging utility nodes.
+  - `RiggingSlots.cmb001(self, index, widget)` — Create: a rigging utility node the host's way (Maya: joint / IK
+  - `RiggingSlots.cmb002_init(self, widget)` — Init Quick Rig: the procedural rig tools, then the host's own
+  - `RiggingSlots.cmb002(self, index, widget)` — Quick Rig: open a procedural rig tool, or run the host's auto-rigger.
+  - `RiggingSlots.tb000_init(self, widget)` — Init Display Local Rotation Axes
+  - `RiggingSlots.tb000(self, widget)` — Toggle Display Local Rotation Axes
+  - `RiggingSlots.tb001_init(self, widget)` — Init Constraint Switch
+  - `RiggingSlots.tb001(self, widget)` — Constraint Switch: one attribute driving a constraint's targets.
+  - `RiggingSlots.tb003_init(self, widget)` — Init Create Locator at Selection
+  - `RiggingSlots.tb003(self, widget)` — Create Locator at Selection: each selected object rigged under a
+  - `RiggingSlots.tb004_init(self, widget)` — Init Lock/Unlock Attributes
+  - `RiggingSlots.tb004(self, widget)` — Lock/Unlock Attributes
+  - `RiggingSlots.tb005_init(self, widget)` — Init Add to Skin (Maya: the .ui hides it in Blender).
+  - `RiggingSlots.tb005(self, widget)` — Add to Skin: the selected mesh(es) skinned to the LAST selected one.
+  - `RiggingSlots.b004(self)` — Render Effects: the shared tool panel.
 
 <a id="slots--selection"></a>
 ### `slots/selection.py`

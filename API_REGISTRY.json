@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 44,
+          "line": 42,
           "deprecated": false
         }
       ]
@@ -210,36 +210,6 @@
               "deprecated": false
             }
           ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_rendering.py",
-      "summary": "Shared, DCC-agnostic behavior for the ``rendering`` panel.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RenderingMixin",
-          "summary": "DCC-agnostic ``rendering`` slot behavior (the playblast encoder guard and",
-          "line": 23,
-          "bases": [],
-          "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_rigging.py",
-      "summary": "Behavior shared by the Maya and Blender ``rigging`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RiggingMixin",
-          "summary": "Shared ``rigging`` panel behavior.",
-          "line": 6,
-          "bases": [],
-          "members": []
         }
       ],
       "constants": []
@@ -1323,269 +1293,6 @@
               "signature": "(self)",
               "summary": "Substance Bridge",
               "line": 769,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/rendering.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RenderingSlots",
-          "summary": "Blender port of the shared ``rendering`` menu.",
-          "line": 10,
-          "bases": [
-            "RenderingMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "RenderingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Playblast: built once, then re-run on every panel show.",
-              "line": 135,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "RenderingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Export Playblast (OpenGL viewport render of the chosen frame range / format).",
-              "line": 283,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "RenderingSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Render: pick the camera and renderer, then render the current frame.",
-              "line": 429,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "RenderingSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Render Current Frame",
-              "line": 468,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "RenderingSlots.b000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
-              "line": 507,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "RenderingSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Render Settings (Properties editor, Render tab)",
-              "line": 517,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "RenderingSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Render Setup — Maya's render-layer manager maps onto Blender's **View Layers**",
-              "line": 522,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "RenderingSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rendering Flags — Maya's per-object render flags map onto Blender's per-object ray",
-              "line": 530,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/rigging.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RiggingSlots",
-          "summary": "Blender port of the shared ``rigging`` menu.",
-          "line": 9,
-          "bases": [
-            "RiggingMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "RiggingSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 27,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "RiggingSlots.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rebind Skin Clusters — refresh each selected mesh's Armature modifier (re-point it at its",
-              "line": 40,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001_init",
-              "qualname": "RiggingSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 73,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "RiggingSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Create rigging primitives.",
-              "line": 77,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "RiggingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 86,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "RiggingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Toggle Display Local Rotation Axes — object axes (show_axis), or armature bone axes",
-              "line": 99,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "RiggingSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 122,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "RiggingSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Constraint Switch — drive the active object's constraints' influence from a single custom",
-              "line": 151,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "RiggingSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 212,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "RiggingSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create Locator at Selection — a zeroed locator Empty at each selected object's",
-              "line": 389,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "RiggingSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 436,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "RiggingSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Lock/Unlock Attributes (transform channel lock flags, per the chosen scope).",
-              "line": 468,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "RiggingSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add to Skin — hidden until ported: the Maya tool (``mtk.SkinUtils.add_to_skin``)",
-              "line": 503,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "RiggingSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add to Skin — unreachable (tb005_init hides the button);",
-              "line": 509,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "RiggingSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 513,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "RiggingSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Quick Rig — a procedural rig opens its panel (mayatk parity);",
-              "line": 533,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "RiggingSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Render Effects — the shared tool over ``btk.RenderEffects`` (per-object ``opacity``",
-              "line": 576,
               "deprecated": false
             }
           ]
@@ -4265,305 +3972,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/rendering.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RenderingSlots",
-          "summary": "",
-          "line": 14,
-          "bases": [
-            "RenderingMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "RenderingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Export Playblast: built once, then re-run on every panel show.",
-              "line": 30,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "RenderingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Export Playblast",
-              "line": 259,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "RenderingSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Render: camera, renderer, IPR, smart redo, key settings and presets.",
-              "line": 391,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "RenderingSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Render: render the current frame through the selected camera and renderer.",
-              "line": 602,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "RenderingSlots.b000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "WebXR Preview — open the live preview panel, wired to this scene.",
-              "line": 665,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "RenderingSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Render Settings Window",
-              "line": 674,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "RenderingSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Editor: Render Setup",
-              "line": 678,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "RenderingSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Editor: Rendering Flags",
-              "line": 682,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/rigging.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "RiggingSlots",
-          "summary": "",
-          "line": 12,
-          "bases": [
-            "RiggingMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "RiggingSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Rigging Header",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "b020",
-              "qualname": "RiggingSlots.b020",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Rebind Skin Clusters",
-              "line": 28,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001_init",
-              "qualname": "RiggingSlots.cmb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Create",
-              "line": 77,
-              "deprecated": false
-            },
-            {
-              "name": "cmb001",
-              "qualname": "RiggingSlots.cmb001",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Create: create a rigging utility node — joints, IK handle, lattice, or cluster.",
-              "line": 82,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "RiggingSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Quick Rig — our procedural rig tools plus Maya's built-in character auto-riggers.",
-              "line": 97,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "RiggingSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Quick Rig: open a procedural rig tool, or Maya's built-in Quick Rig / HumanIK.",
-              "line": 112,
-              "deprecated": false
-            },
-            {
-              "name": "chk000",
-              "qualname": "RiggingSlots.chk000",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Scale Joint",
-              "line": 145,
-              "deprecated": false
-            },
-            {
-              "name": "chk001",
-              "qualname": "RiggingSlots.chk001",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Scale IK",
-              "line": 150,
-              "deprecated": false
-            },
-            {
-              "name": "chk002",
-              "qualname": "RiggingSlots.chk002",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Scale IK/FK",
-              "line": 155,
-              "deprecated": false
-            },
-            {
-              "name": "s000",
-              "qualname": "RiggingSlots.s000",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Scale Joint/IK/FK",
-              "line": 162,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "RiggingSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Display Local Rotation Axes",
-              "line": 171,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "RiggingSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Toggle Display Local Rotation Axes",
-              "line": 205,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "RiggingSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Constraint Switch",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "RiggingSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Constraint Switch",
-              "line": 249,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "RiggingSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Create Locator at Selection",
-              "line": 304,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "RiggingSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Create Locator at Selection",
-              "line": 454,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "RiggingSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Lock/Unlock Attributes",
-              "line": 520,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "RiggingSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Lock/Unlock Attributes",
-              "line": 553,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "RiggingSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Add to Skin",
-              "line": 588,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "RiggingSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add to Skin",
-              "line": 610,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "RiggingSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Render Effects",
-              "line": 634,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/scene.py",
       "summary": "",
       "functions": [],
@@ -6106,6 +5514,267 @@
               "signature": "(self)",
               "summary": "Macro Manager: the uitk shortcut editor over the host's macros.",
               "line": 264,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/rendering.py",
+      "summary": "Rendering: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RenderingSlots",
+          "summary": "",
+          "line": 25,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "RenderingSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Export Playblast: built once, then re-run on every panel show.",
+              "line": 187,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "RenderingSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Export Playblast",
+              "line": 384,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "RenderingSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Render: camera, renderer, IPR, smart redo, key settings and presets.",
+              "line": 479,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "RenderingSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Render: render the current frame through the selected camera and renderer.",
+              "line": 695,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "RenderingSlots.b000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "WebXR Preview: open the live preview panel, wired to this scene.",
+              "line": 745,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "RenderingSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Global Settings: the render settings (Blender: Properties > Render).",
+              "line": 755,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "RenderingSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Setup: the render-layer manager (Blender: Properties > View Layer).",
+              "line": 759,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "RenderingSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rendering Flags: per-object render flags (Blender: Properties > Object,",
+              "line": 763,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/rigging.py",
+      "summary": "Rigging: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RiggingSlots",
+          "summary": "",
+          "line": 21,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "RiggingSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Rigging Header",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "b020",
+              "qualname": "RiggingSlots.b020",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rebind Skin Clusters",
+              "line": 102,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001_init",
+              "qualname": "RiggingSlots.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Create: the host's rigging utility nodes.",
+              "line": 149,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001",
+              "qualname": "RiggingSlots.cmb001",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Create: a rigging utility node the host's way (Maya: joint / IK",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "RiggingSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Quick Rig: the procedural rig tools, then the host's own",
+              "line": 162,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "RiggingSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Quick Rig: open a procedural rig tool, or run the host's auto-rigger.",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "RiggingSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Display Local Rotation Axes",
+              "line": 181,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "RiggingSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Toggle Display Local Rotation Axes",
+              "line": 236,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "RiggingSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Constraint Switch",
+              "line": 252,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "RiggingSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Constraint Switch: one attribute driving a constraint's targets.",
+              "line": 282,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "RiggingSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Create Locator at Selection",
+              "line": 396,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "RiggingSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Create Locator at Selection: each selected object rigged under a",
+              "line": 548,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "RiggingSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Lock/Unlock Attributes",
+              "line": 599,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "RiggingSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Lock/Unlock Attributes",
+              "line": 626,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "RiggingSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Init Add to Skin (Maya: the .ui hides it in Blender).",
+              "line": 647,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "RiggingSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add to Skin: the selected mesh(es) skinned to the LAST selected one.",
+              "line": 670,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "RiggingSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Render Effects: the shared tool panel.",
+              "line": 695,
               "deprecated": false
             }
           ]

@@ -1,183 +1,37 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for the pure helpers in tentacle.slots.maya.rendering.
+"""Regression tests for tentacle.slots.rendering, the one Rendering Slots class.
 
-The pure-Python helpers (_default_playblast_path, _scene_base_name,
-_camera_transforms) had no coverage — they underpin the entire Export
-Playblast workflow.
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it
+here (a recording ``RenderUtils`` and ``PlayblastExporter``), and in Maya the
+same class drives the real ``mtk``. Pinned at this layer:
+
+- Export Playblast: the option box built from the exporter's own registry (a
+  bundle naming a target the host lacks is left out), the custom range, and
+  its state reaching ``PlayblastExporter(...).export(...)``; ffmpeg offered
+  only for an encoded target; the results reported;
+- Render: the host's cameras (its default first) and renderers, the IPR gate,
+  the scene-backed setting fields and presets, Smart Redo, Arnold's preview;
+- the controls only Maya serves tagged ``requires``;
+- the settings buttons opening the host's editors by mayatk's names.
+The operations themselves are tested in mayatk and blendertk.
 """
 
 import os
 import tempfile
 import unittest
+from types import SimpleNamespace as NS
 from unittest import mock
 
 import pythontk as ptk
 from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.rendering import RenderingSlots
 
 cmds = maya_module("maya.cmds")
-rendering_module = maya_module("tentacle.slots.maya.rendering")
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSceneBaseName(unittest.TestCase):
-    """_scene_base_name returns basename(scene).rsplit('.', 1)[0] or 'playblast'."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_unsaved_scene_returns_fallback(self):
-        """Fresh scene has no on-disk name. _scene_base_name reads
-        cmds.file(query=sceneName); if Maya returns empty string, the
-        helper falls back to 'playblast'. If Maya returns 'untitled'
-        (some configurations), that's used as the basename instead.
-
-        Test the fallback by mocking sceneName=''.
-        """
-        original = cmds.file
-        try:
-
-            def fake_file(*args, **kwargs):
-                if kwargs.get("query") and kwargs.get("sceneName"):
-                    return ""  # Simulate genuinely empty sceneName
-                return original(*args, **kwargs)
-
-            cmds.file = fake_file
-
-            result = rendering_module.RenderingSlots._scene_base_name()
-            self.assertEqual(result, "playblast")
-        finally:
-            cmds.file = original
-
-    def test_saved_scene_returns_basename_without_extension(self):
-        # Save the scene under a known name, then query.
-        tmpdir = tempfile.mkdtemp(prefix="rh_test_")
-        try:
-            scene_path = os.path.join(tmpdir, "MyShot.ma").replace("\\", "/")
-            cmds.file(rename=scene_path)
-            cmds.file(save=True, type="mayaAscii")
-
-            result = rendering_module.RenderingSlots._scene_base_name()
-            self.assertEqual(result, "MyShot")
-        finally:
-            import shutil
-
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-    def test_saved_scene_with_multi_dot_strips_only_last(self):
-        """A filename like 'v1.test.ma' should yield 'v1.test', not 'v1'."""
-        tmpdir = tempfile.mkdtemp(prefix="rh_dot_")
-        try:
-            scene_path = os.path.join(tmpdir, "v1.test.ma").replace("\\", "/")
-            cmds.file(rename=scene_path)
-            cmds.file(save=True, type="mayaAscii")
-
-            result = rendering_module.RenderingSlots._scene_base_name()
-            self.assertEqual(result, "v1.test")
-        finally:
-            import shutil
-
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestDefaultPlayblastPath(unittest.TestCase):
-    """_default_playblast_path joins the scene project's movie folder with
-    _scene_base_name (RenderingMixin; the Desktop only without a project)."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = rendering_module.RenderingSlots.__new__(
-            rendering_module.RenderingSlots
-        )
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_returns_the_scene_project_movie_folder(self):
-        """An unsaved scene's project is the active one; its movie rule wins."""
-        import mayatk as mtk
-
-        path = self.instance._default_playblast_path()
-        movies = ptk.Workspace.load(mtk.EnvUtils.workspace_root()).movie_dir()
-        self.assertEqual(os.path.dirname(path), os.path.normpath(movies))
-
-    def test_uses_scene_name_when_saved(self):
-        tmpdir = tempfile.mkdtemp(prefix="rh_path_")
-        try:
-            scene_path = os.path.join(tmpdir, "ShotA.ma").replace("\\", "/")
-            cmds.file(rename=scene_path)
-            cmds.file(save=True, type="mayaAscii")
-
-            path = self.instance._default_playblast_path()
-            # Should end with the scene basename.
-            self.assertTrue(
-                path.endswith("ShotA"),
-                f"Expected path to end with 'ShotA', got {path}",
-            )
-        finally:
-            import shutil
-
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-    def test_uses_playblast_fallback_when_scene_name_empty(self):
-        """Force sceneName='' to exercise the 'playblast' fallback branch."""
-        original = cmds.file
-        try:
-
-            def fake_file(*args, **kwargs):
-                if kwargs.get("query") and kwargs.get("sceneName"):
-                    return ""
-                return original(*args, **kwargs)
-
-            cmds.file = fake_file
-
-            path = self.instance._default_playblast_path()
-            self.assertTrue(
-                path.endswith("playblast"),
-                f"Expected path to end with 'playblast', got {path}",
-            )
-        finally:
-            cmds.file = original
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestCameraTransforms(unittest.TestCase):
-    """_camera_transforms returns sorted unique transform names from camera shapes."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_default_scene_includes_persp_top_front_side(self):
-        """Maya's default scene has the standard 4 cameras."""
-        result = rendering_module.RenderingSlots._camera_transforms()
-        # Maya creates persp, top, front, side by default.
-        self.assertIn("persp", result)
-        self.assertIn("top", result)
-        self.assertIn("front", result)
-        self.assertIn("side", result)
-
-    def test_result_is_sorted(self):
-        result = rendering_module.RenderingSlots._camera_transforms()
-        self.assertEqual(result, sorted(result))
-
-    def test_includes_user_camera(self):
-        cmds.camera(name="renderCam")
-        result = rendering_module.RenderingSlots._camera_transforms()
-        # renderCam transform should be present
-        self.assertTrue(
-            any("renderCam" in name for name in result),
-            f"Expected renderCam in {result}",
-        )
-
-
-# --- Stubs for the tb001 option-box render button ---------------------------
+# --- Stubs for the option-box widgets -----------------------------------------
 class _Signal:
     def __init__(self):
         self.fns = []
@@ -193,7 +47,17 @@ class _Signal:
             fn(*args)
 
 
-class _Combo:
+class _Tagged:
+    """``setProperty`` / ``property``, as ``_host_only`` tags a widget."""
+
+    def setProperty(self, name, value):
+        self.__dict__.setdefault("_props", {})[name] = value
+
+    def property(self, name):
+        return self.__dict__.get("_props", {}).get(name)
+
+
+class _Combo(_Tagged):
     def __init__(self):
         self._items = []  # (label, data)
         self._idx = 0
@@ -237,24 +101,22 @@ class _Combo:
         self._visible = bool(v)
 
     def select(self, data):
-        """Test helper: select the item whose itemData == data (programmatic,
-        as a restore does: no ``activated``)."""
+        """Select the item whose data is *data* (programmatic: no ``activated``)."""
         for i, (_, d) in enumerate(self._items):
             if d == data:
                 self.setCurrentIndex(i)
                 return
 
     def pick(self, data):
-        """Test helper: the USER picks the item whose itemData == data."""
+        """The USER picks the item whose data is *data*."""
         self.select(data)
         self.activated.emit(self._idx)
 
 
-class _Check:
+class _Check(_Tagged):
     def __init__(self, checked=False):
         self._checked = checked
         self._enabled = True
-        self._visible = True
 
     def isChecked(self):
         return self._checked
@@ -268,11 +130,8 @@ class _Check:
     def isEnabled(self):
         return self._enabled
 
-    def setVisible(self, v):
-        self._visible = bool(v)
 
-
-class _Spin:
+class _Spin(_Tagged):
     def __init__(self, value=0):
         self._value = value
         self._visible = True
@@ -301,7 +160,7 @@ class _Spin:
         self._visible = bool(v)
 
 
-class _Line:
+class _Line(_Tagged):
     def __init__(self, text=""):
         self._text = text
         self._placeholder = ""
@@ -360,22 +219,23 @@ class _Menu:
         return w
 
 
-class _OptionBox:
-    def __init__(self):
-        self.menu = _Menu()
-
-
 class _Widget:
     def __init__(self):
-        self.option_box = _OptionBox()
+        self.option_box = NS(menu=_Menu())
 
 
 class _SB:
-    def __init__(self):
+    def __init__(self, tk):
+        self.tk = tk
         self.messages = []
+        self.handlers = mock.MagicMock()
+        self.loaded_ui = mock.MagicMock()  # the windows RenderingSlots.__init__ reads
 
-    def message_box(self, msg):
+    def message_box(self, msg, *buttons):
         self.messages.append(msg)
+
+    def apply_visibility_policy(self, widget):
+        return False  # every control served (Maya)
 
     def progress(self, text=""):
         from contextlib import contextmanager
@@ -390,22 +250,26 @@ class _SB:
         return None
 
 
+# --- The fake toolkit -------------------------------------------------------------
 class _FakeRenderUtils:
-    """Stand-in for mtk.RenderUtils that records calls (no live render)."""
+    """Stand-in for ``RenderUtils`` that records calls (no live render)."""
 
-    def __init__(
-        self, current="mayaSoftware", renderers=None, ipr_ok=True, arnold_error=None
-    ):
+    def __init__(self, current="mayaSoftware", ipr_ok=True, arnold_error=None):
         self.calls = []
         self._arnold_error = arnold_error  # raised by ensure_arnold_options
         self._current = current
-        self._renderers = renderers or [
+        self._renderers = [
             {"name": "mayaSoftware", "label": "Maya Software", "loaded": True},
             {"name": "mayaHardware2", "label": "Maya Hardware 2.0", "loaded": True},
             {"name": "arnold", "label": "Arnold", "loaded": False},
         ]
         self._ipr_ok = ipr_ok
+        self.cameras = ["persp", "front", "side", "top"]
         self.settings = {"width": 1920, "height": 1080}
+        self.builtin_dir = "builtin/render"
+
+    def render_cameras(self):
+        return list(self.cameras)
 
     def get_available_renderers(self):
         return list(self._renderers)
@@ -414,10 +278,8 @@ class _FakeRenderUtils:
         return self._current
 
     def supports_ipr(self, renderer=None):
-        renderer = renderer or self._current
-        # Mirror the real gate: built-in Software + the optional renderers do
-        # IPR; Hardware 2.0 (Viewport 2.0) does not.
-        return renderer in ("arnold", "vray", "redshift", "mayaSoftware")
+        # The real gate: Software + the optional renderers; not Viewport 2.0.
+        return (renderer or self._current) in ("arnold", "vray", "redshift", "mayaSoftware")
 
     def set_renderer(self, name):
         self.calls.append(("set_renderer", name))
@@ -434,14 +296,12 @@ class _FakeRenderUtils:
 
     def prepare_arnold_preview(self):
         self.calls.append(("prepare_arnold",))
-        return {"bridged": [], "culled": []}
 
     def ensure_arnold_options(self):
         self.calls.append(("ensure_arnold",))
         if self._arnold_error is not None:
             raise self._arnold_error
         self.settings.setdefault("camera_samples", 3)
-        return "defaultArnoldRenderOptions"
 
     def render_settings(self):
         return dict(self.settings)
@@ -452,200 +312,331 @@ class _FakeRenderUtils:
         return len(values)
 
     def render_preset_store(self):
-        class _Store:
-            user_dir = "user/render"
-            builtin_dir = "builtin/render"
-
-        return _Store()
+        return NS(user_dir="user/render", builtin_dir=self.builtin_dir)
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestRenderButtonInit(unittest.TestCase):
-    """tb001_init populates camera + renderer combos and gates the IPR option."""
+class _FakeExporter:
+    """Stand-in for ``PlayblastExporter``: records constructor + export() kwargs."""
 
+    TARGETS = {
+        "mp4": NS(label="MP4 (H.264)", kind="encode"),
+        "png_sequence": NS(label="PNG Sequence", kind="sequence"),
+        "arnold": NS(label="Arnold Sequence", kind="arnold"),
+    }
+    instances = []
+    results = []
+
+    @classmethod
+    def available_targets(cls):
+        return [(name, t.label) for name, t in cls.TARGETS.items()]
+
+    @classmethod
+    def resolve_frame_range(cls, mode="custom", start=None, end=None):
+        return 1, 120
+
+    @staticmethod
+    def scene_name():
+        return "ShotA"
+
+    def __init__(self, **kwargs):
+        type(self).instances.append(self)
+        self.ctor_kwargs = kwargs
+        self.export_kwargs = None
+
+    def export(self, **kwargs):
+        self.export_kwargs = kwargs
+        return list(type(self).results)
+
+
+def _exporter(targets=None, results=()):
+    """A fresh exporter class (its own records)."""
+    return type(
+        "Exporter",
+        (_FakeExporter,),
+        {
+            "TARGETS": dict(targets or _FakeExporter.TARGETS),
+            "instances": [],
+            "results": list(results),
+        },
+    )
+
+
+def _tk(render_utils=None, exporter=None, animated=True):
+    tk = mock.MagicMock()
+    tk.RenderUtils = render_utils or _FakeRenderUtils()
+    tk.PlayblastExporter = exporter or _exporter()
+    tk.AnimUtils.scene_has_animation.return_value = animated
+    tk.DataNodes.scene_workspace.return_value = None
+    return tk
+
+
+def _slots(tk):
+    migrated = Slots._legacy_repeat_last_migrated
+    Slots._legacy_repeat_last_migrated = True  # no migration under test
+    try:
+        return RenderingSlots(_SB(tk))
+    finally:
+        Slots._legacy_repeat_last_migrated = migrated
+
+
+# ===================================================================== Playblast
+class TestExportPlayblastInit(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self._orig_ru = rendering_module.mtk.RenderUtils
-        rendering_module.mtk.RenderUtils = _FakeRenderUtils()
-
-    def tearDown(self):
-        rendering_module.mtk.RenderUtils = self._orig_ru
-        cmds.file(new=True, force=True)
-
-    def _init(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "renderCam")
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        widget = _Widget()
-        inst.tb001_init(widget)
-        return inst, widget.option_box.menu, cam_tf
-
-    def test_camera_combo_lists_transforms(self):
-        _, menu, cam_tf = self._init()
-        labels = [menu.cmb002.currentText()] + [
-            menu.cmb002._items[i][0] for i in range(len(menu.cmb002._items))
-        ]
-        self.assertIn("persp", labels)
-        self.assertIn(cam_tf, labels)
-        self.assertNotIn("perspShape", labels)
-
-    def test_camera_combo_defaults_to_persp(self):
-        # persp is the conventional render view; default to it, not the first
-        # camera alphabetically (front).
-        _, menu, _ = self._init()
-        self.assertEqual(menu.cmb002.currentText(), "persp")
-
-    def test_renderer_combo_carries_internal_names(self):
-        _, menu, _ = self._init()
-        names = [d for _, d in menu.cmb003._items]
-        self.assertIn("arnold", names)
-        self.assertIn("mayaSoftware", names)
-
-    def test_no_arnold_network_option(self):
-        """An Arnold render bridges the game shaders on its own (tb001), so the
-        option box asks nothing about it."""
-        _, menu, _ = self._init()
-        self.assertFalse(hasattr(menu, "chk000"))
-
-    def test_ipr_option_gated_on_renderer_support(self):
-        _, menu, _ = self._init()
-        # Default renderer (mayaSoftware) provides IPR -> enabled.
-        self.assertTrue(menu.chk001.isEnabled())
-        menu.chk001.setChecked(True)
-        # A renderer without IPR (Viewport 2.0) disables AND unchecks it, so
-        # the user can't ask for something that would fail after the click.
-        menu.cmb003.select("mayaHardware2")
-        self.assertFalse(menu.chk001.isEnabled())
-        self.assertFalse(menu.chk001.isChecked())
-        # Back to an IPR-capable renderer -> re-enabled.
-        menu.cmb003.select("arnold")
-        self.assertTrue(menu.chk001.isEnabled())
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestRenderSettingsAndPresets(unittest.TestCase):
-    """The Render option box shows and writes the scene's key render settings,
-    and its native preset selector drives the same settings."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self._orig_ru = rendering_module.mtk.RenderUtils
-        self.ru = _FakeRenderUtils()
-        rendering_module.mtk.RenderUtils = self.ru
-        self.inst = rendering_module.RenderingSlots.__new__(
-            rendering_module.RenderingSlots
-        )
+        self.tk = _tk()
+        self.slots = _slots(self.tk)
         self.widget = _Widget()
-        self.inst.tb001_init(self.widget)
+        self.slots.tb000_init(self.widget)
         self.menu = self.widget.option_box.menu
 
-    def tearDown(self):
-        rendering_module.mtk.RenderUtils = self._orig_ru
-        cmds.file(new=True, force=True)
+    def test_the_output_picker_is_the_registry_then_its_bundles(self):
+        labels = [label for label, _ in self.menu.cmb050._items]
+        data = [d for _, d in self.menu.cmb050._items]
+        self.assertEqual(
+            labels,
+            ["MP4 (H.264)", "PNG Sequence", "Arnold Sequence", "MP4 + PNG Sequence",
+             "MP4 + Arnold Sequence"],
+        )
+        self.assertEqual(data[-2:], [["mp4", "png_sequence"], ["mp4", "arnold"]])
+        self.assertEqual(self.menu.cmb050.restore_by, "text")
 
-    def test_fields_show_the_scene_values_without_writing_them(self):
-        self.assertEqual(self.menu.s020.value(), 1920)
-        self.assertEqual(self.menu.s021.value(), 1080)
+    def test_a_bundle_the_host_cannot_make_is_left_out(self):
+        targets = {k: v for k, v in _FakeExporter.TARGETS.items() if k != "arnold"}
+        slots = _slots(_tk(exporter=_exporter(targets)))
+        widget = _Widget()
+        slots.tb000_init(widget)
+        labels = [label for label, _ in widget.option_box.menu.cmb050._items]
+        self.assertNotIn("MP4 + Arnold Sequence", labels)
+        self.assertIn("MP4 + PNG Sequence", labels)
+
+    def test_the_camera_picker_lists_the_hosts_cameras(self):
+        items = self.menu.cmb041._items
+        self.assertEqual(items[0], ("Active Viewport", None))
+        self.assertEqual([d for _, d in items[1:]], ["persp", "front", "side", "top"])
+        self.assertEqual(self.menu.cmb041.restore_by, "text")
+
+    def test_a_reshow_lists_a_new_camera_and_keeps_the_pick(self):
+        self.menu.cmb041.setCurrentIndex(2)  # front
+        self.tk.RenderUtils.cameras.append("laterCam")
+        self.slots.tb000_init(self.widget)
+        self.assertIn("laterCam", [d for _, d in self.menu.cmb041._items])
+        self.assertEqual(self.menu.cmb041.currentData(), "front")
+
+    def test_offscreen_capture_is_mayas(self):
+        self.assertEqual(self.menu.chk056.property("requires"), "maya")
+        for name in ("chk057", "chk058", "chk060"):
+            self.assertIsNone(getattr(self.menu, name).property("requires"), name)
+
+    def test_the_output_field_is_empty_and_shows_the_default(self):
+        self.assertEqual(self.menu.t000.text(), "")
+        self.assertEqual(
+            self.menu.t000.placeholderText(), self.slots._default_playblast_path()
+        )
+
+    def test_a_reshow_rebuilds_nothing(self):
+        built = list(self.menu.added)
+        self.slots.tb000_init(self.widget)
+        self.assertEqual(self.menu.added, built)
+
+    def test_custom_range_spinboxes_toggle_and_take_the_playback_range(self):
+        self.assertFalse(self.menu.s010._visible)
+        self.assertEqual((self.menu.s010.value(), self.menu.s011.value()), (1, 120))
+        self.menu.cmb010.setCurrentIndex(3)  # Custom Range
+        self.assertTrue(self.menu.s010._visible)
+        self.menu.cmb010.setCurrentIndex(0)
+        self.assertFalse(self.menu.s011._visible)
+
+    def test_split_output_base(self):
+        tmpdir = tempfile.mkdtemp(prefix="rh_split_")
+        self.addCleanup(__import__("shutil").rmtree, tmpdir, True)
+        directory, name = self.slots._split_output_base(tmpdir)
+        self.assertEqual(
+            (os.path.normpath(directory), name), (os.path.normpath(tmpdir), "ShotA")
+        )
+        directory, name = self.slots._split_output_base(os.path.join(tmpdir, "myShot.mp4"))
+        self.assertEqual((os.path.normpath(directory), name), (os.path.normpath(tmpdir), "myShot"))
+        directory, name = self.slots._split_output_base("")
+        self.assertEqual(os.path.join(directory, name), self.slots._default_playblast_path())
+        # A .blend-relative path is the exporter's to resolve, never normalized.
+        self.assertEqual(self.slots._split_output_base("//renders/shot"), ("//renders", "shot"))
+
+
+class TestExportPlayblastAction(unittest.TestCase):
+    def setUp(self):
+        self.tmpdir = tempfile.mkdtemp(prefix="rh_action_")
+        self.addCleanup(__import__("shutil").rmtree, self.tmpdir, True)
+        ffmpeg = mock.patch.object(ptk.VidUtils, "ensure_ffmpeg", return_value=None)
+        self.ensure_ffmpeg = ffmpeg.start()
+        self.addCleanup(ffmpeg.stop)
+
+    def _run(self, exporter=None, animated=True, targets=("mp4",), start=2, end=8):
+        self.exporter = exporter or _exporter()
+        slots = _slots(_tk(exporter=self.exporter, animated=animated))
+        widget = _Widget()
+        slots.tb000_init(widget)
+        menu = widget.option_box.menu
+        menu.t000.setText(os.path.join(self.tmpdir, "shotName"))
+        menu.cmb010.setCurrentIndex(3)  # custom
+        menu.s010.setValue(start)
+        menu.s011.setValue(end)
+        menu.cmb040.setCurrentIndex(3)  # 1280 x 720
+        menu.cmb050.addItems(["picked"])
+        menu.cmb050.setItemData(len(menu.cmb050._items) - 1, list(targets))
+        menu.cmb050.setCurrentIndex(len(menu.cmb050._items) - 1)
+        menu.chk060.setChecked(True)
+        slots.tb000(widget)
+        return slots, menu
+
+    def test_a_static_scene_is_refused_before_any_capture(self):
+        slots, _ = self._run(animated=False)
+        self.assertFalse(self.exporter.instances, "the exporter must not run")
+        self.assertIn("No animation", slots.sb.messages[-1])
+
+    def test_the_option_box_reaches_the_exporter(self):
+        self._run()
+        exporter = self.exporter.instances[0]
+        self.assertEqual((exporter.ctor_kwargs["width"], exporter.ctor_kwargs["height"]), (1280, 720))
+        self.assertIsNone(exporter.ctor_kwargs["camera"])  # Active Viewport
+        self.assertTrue(exporter.ctor_kwargs["include_audio"])
+        self.assertTrue(exporter.ctor_kwargs["off_screen"])
+        kwargs = exporter.export_kwargs
+        self.assertEqual(kwargs["targets"], ["mp4"])
+        self.assertEqual(kwargs["range_mode"], "custom")
+        self.assertEqual((kwargs["start"], kwargs["end"]), (2, 8))
+        self.assertEqual(kwargs["name"], "shotName")
+        self.assertEqual(os.path.normpath(kwargs["output_dir"]), os.path.normpath(self.tmpdir))
+
+    def test_an_encoded_output_offers_ffmpeg_first(self):
+        self.ensure_ffmpeg.side_effect = FileNotFoundError("FFmpeg ... declined")
+        slots, _ = self._run(targets=("mp4",))
+        self.assertFalse(self.exporter.instances, "export must not run")
+        self.assertIn("FFmpeg", slots.sb.messages[-1])
+
+    def test_sequence_and_native_outputs_never_ask_for_ffmpeg(self):
+        targets = dict(_FakeExporter.TARGETS, mp4=NS(label="MP4 (H.264)", kind="native"))
+        self._run(exporter=_exporter(targets), targets=("mp4", "png_sequence"))
+        self.ensure_ffmpeg.assert_not_called()
+        self.assertEqual(len(self.exporter.instances), 1)
+
+    def test_an_inverted_custom_range_is_refused(self):
+        slots, _ = self._run(start=9, end=2)
+        self.assertFalse(self.exporter.instances)
+        self.assertIn("Start frame", slots.sb.messages[-1])
+
+    def test_results_are_reported_and_the_movie_opened(self):
+        results = [
+            ptk.ExportResult("mp4", "encode", output="C:/out/shotName.mp4"),
+            ptk.ExportResult("png_sequence", "sequence", output=["a", "b"]),
+        ]
+        with mock.patch.object(ptk.FileUtils, "open_explorer") as opened:
+            exporter = _exporter(results=results)
+            slots = _slots(_tk(exporter=exporter))
+            widget = _Widget()
+            slots.tb000_init(widget)
+            menu = widget.option_box.menu
+            menu.chk058.setChecked(True)
+            menu.cmb050.setCurrentIndex(3)  # MP4 + PNG Sequence
+            slots.tb000(widget)
+        opened.assert_called_once_with(os.path.normpath("C:/out/shotName.mp4"))
+        self.assertIn("PNG Sequence: 2 frame(s)", slots.sb.messages[-1])
+
+    def test_a_failed_target_is_reported(self):
+        results = [ptk.ExportResult("mp4", "encode", error="no frames")]
+        slots, _ = self._run(exporter=_exporter(results=results))
+        self.assertIn("MP4 (H.264): no frames", slots.sb.messages[-1])
+
+
+# ===================================================================== Render
+class TestRenderInit(unittest.TestCase):
+    def setUp(self):
+        self.ru = _FakeRenderUtils()
+        self.slots = _slots(_tk(render_utils=self.ru))
+        self.widget = _Widget()
+        self.slots.tb001_init(self.widget)
+        self.menu = self.widget.option_box.menu
+
+    def test_the_cameras_are_the_hosts_its_default_first(self):
+        self.assertEqual([label for label, _ in self.menu.cmb002._items], self.ru.cameras)
+        self.assertEqual(self.menu.cmb002.currentText(), "persp")
+
+    def test_the_renderers_carry_their_names(self):
+        self.assertEqual([d for _, d in self.menu.cmb003._items], ["mayaSoftware", "mayaHardware2", "arnold"])
+
+    def test_ipr_is_gated_on_the_renderer(self):
+        self.assertTrue(self.menu.chk001.isEnabled())
+        self.menu.chk001.setChecked(True)
+        self.menu.cmb003.select("mayaHardware2")
+        self.assertFalse(self.menu.chk001.isEnabled())
+        self.assertFalse(self.menu.chk001.isChecked())
+        self.menu.cmb003.select("arnold")
+        self.assertTrue(self.menu.chk001.isEnabled())
+
+    def test_ipr_smart_redo_and_arnold_are_mayas(self):
+        for name in ("chk001", "chk002", "s022", "s023", "s028"):
+            self.assertEqual(getattr(self.menu, name).property("requires"), "maya", name)
+        for name in ("cmb002", "cmb003", "s020", "s021"):
+            self.assertIsNone(getattr(self.menu, name).property("requires"), name)
+
+    def test_fields_show_the_scene_without_writing_and_never_restore(self):
+        self.assertEqual((self.menu.s020.value(), self.menu.s021.value()), (1920, 1080))
         self.assertFalse(any(c[0] == "set_settings" for c in self.ru.calls))
+        for name in ("s020", "s021", "s022", "s028"):
+            self.assertFalse(getattr(self.menu, name).restore_state, name)
 
     def test_editing_a_field_writes_the_scene(self):
         self.menu.s020.setValue(640)
         self.assertIn(("set_settings", {"width": 640}), self.ru.calls)
-        self.assertEqual(self.ru.settings["width"], 640)
 
-    def test_fields_are_never_session_restored(self):
-        for name in ("s020", "s021", "s022", "s028"):
-            self.assertFalse(getattr(self.menu, name).restore_state, name)
-
-    def test_arnold_fields_follow_the_renderer(self):
-        # mayaSoftware is current: Arnold's fields are off, its options untouched.
+    def test_only_the_users_arnold_pick_creates_its_options(self):
         self.assertFalse(self.menu.s022.isEnabled())
+        self.menu.cmb003.select("arnold")  # a restore: programmatic
         self.assertNotIn(("ensure_arnold",), self.ru.calls)
-        self.assertTrue(self.menu.s020.isEnabled())  # resolution always applies
-
-        # The USER picking Arnold creates its options, as Maya's Render Settings does.
-        self.menu.cmb003.pick("arnold")
+        self.assertTrue(self.menu.s022.isEnabled())
+        self.menu.cmb003.pick("arnold")  # the user
         self.assertIn(("ensure_arnold",), self.ru.calls)
-        self.assertTrue(self.menu.s022.isEnabled())
-        self.assertEqual(self.menu.s022.value(), 3)  # read from the new options
+        self.assertEqual(self.menu.s022.value(), 3)
 
-    def test_a_restored_arnold_pick_creates_nothing(self):
-        """A restore sets the combo programmatically (no ``activated``): the
-        fields enable, but mtoa is not loaded and no options node is made --
-        either would modify the scene and make it save with ``requires mtoa``."""
-        self.menu.cmb003.select("arnold")
-        self.assertNotIn(("ensure_arnold",), self.ru.calls)
-        self.assertTrue(self.menu.s022.isEnabled())
-        self.inst.tb001_init(self.widget)  # the next panel show
-        self.assertNotIn(("ensure_arnold",), self.ru.calls)
-        # The first edit is what creates them (set_render_settings).
-        self.menu.s022.setValue(5)
-        self.assertIn(("set_settings", {"camera_samples": 5}), self.ru.calls)
-
-    def test_an_unavailable_mtoa_on_a_pick_disables_the_fields(self):
+    def test_an_unavailable_mtoa_disables_the_fields(self):
         self.ru._arnold_error = RuntimeError("mtoa failed to initialize")
-        self.inst.sb = _SB()
         self.menu.cmb003.pick("arnold")  # must not raise out of the signal
         self.assertFalse(self.menu.s022.isEnabled())
-        self.assertIn("mtoa failed", self.inst.sb.messages[-1])
+        self.assertIn("mtoa failed", self.slots.sb.messages[-1])
 
     def test_native_presets_drive_the_render_settings(self):
         presets = self.menu.presets
         self.assertTrue(self.menu.add_presets)
-        self.assertEqual(presets.builtin_dir, "builtin/render")
-        self.assertEqual(presets.preset_dir, "user/render")
+        self.assertEqual((presets.preset_dir, presets.builtin_dir), ("user/render", "builtin/render"))
         self.assertEqual(presets.value_provider(), self.ru.settings)
-
-        applied = presets.value_applier({"camera_samples": 8, "width": 960})
-        self.assertEqual(applied, 2)
-        self.assertEqual(self.menu.s022.value(), 8)  # the fields show the preset
+        self.assertEqual(presets.value_applier({"width": 960, "camera_samples": 8}), 2)
         self.assertEqual(self.menu.s020.value(), 960)
 
-    def test_showing_the_panel_over_an_arnold_scene_creates_nothing(self):
-        """Showing the panel (build and every re-show) with Arnold current
-        reads the scene only: no mtoa load, no ``defaultArnoldRenderOptions``."""
-        ru = _FakeRenderUtils(current="arnold")
-        rendering_module.mtk.RenderUtils = ru
+    def test_a_host_without_shipped_presets(self):
+        ru = _FakeRenderUtils()
+        ru.builtin_dir = None
+        slots = _slots(_tk(render_utils=ru))
         widget = _Widget()
-        self.inst.tb001_init(widget)
-        self.inst.tb001_init(widget)  # refresh_on_show re-runs the init
-        self.assertEqual(widget.option_box.menu.cmb003.currentData(), "arnold")
-        self.assertNotIn(("ensure_arnold",), ru.calls)
-        self.assertFalse(any(c[0] == "set_settings" for c in ru.calls))
-        self.assertTrue(widget.option_box.menu.s022.isEnabled())
+        slots.tb001_init(widget)
+        self.assertIsNone(widget.option_box.menu.presets.builtin_dir)
 
     def test_a_show_rereads_the_scene_without_rebuilding(self):
         built = list(self.menu.added)
-        self.menu.cmb002.setCurrentIndex(
-            [label for label, _ in self.menu.cmb002._items].index("top")
-        )
-        cmds.rename(cmds.camera()[0], "laterCam")
+        self.menu.cmb002.setCurrentIndex(3)  # top
+        self.ru.cameras.append("laterCam")
         self.ru.settings["width"] = 800
-
-        self.inst.tb001_init(self.widget)  # refresh_on_show re-runs the init
-
-        self.assertEqual(self.menu.added, built)  # nothing added twice
-        labels = [label for label, _ in self.menu.cmb002._items]
-        self.assertIn("laterCam", labels)  # a camera made since the first show
+        self.slots.tb001_init(self.widget)
+        self.assertEqual(self.menu.added, built)
+        self.assertIn("laterCam", [label for label, _ in self.menu.cmb002._items])
         self.assertEqual(self.menu.cmb002.currentText(), "top")  # the pick kept
         self.assertEqual(self.menu.s020.value(), 800)
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestRenderButtonAction(unittest.TestCase):
-    """tb001 routes camera/renderer/Arnold prep/IPR/smart-redo through RenderUtils."""
-
+class TestRenderAction(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self._orig_ru = rendering_module.mtk.RenderUtils
         self.ru = _FakeRenderUtils()
-        rendering_module.mtk.RenderUtils = self.ru
+        self.slots = _slots(_tk(render_utils=self.ru))
 
-    def tearDown(self):
-        rendering_module.mtk.RenderUtils = self._orig_ru
-        cmds.file(new=True, force=True)
-
-    def _menu(self, camera="", renderer="mayaSoftware", ipr=False, smart=True):
-        menu = _Menu()
+    def _widget(self, camera="shotCam", renderer="mayaSoftware", ipr=False, smart=True):
+        widget = _Widget()
+        menu = widget.option_box.menu
         menu.cmb002 = _Combo()
         menu.cmb002.addItems([camera] if camera else [])
         menu.cmb003 = _Combo()
@@ -653,434 +644,142 @@ class TestRenderButtonAction(unittest.TestCase):
         menu.cmb003.setItemData(0, renderer)
         menu.chk001 = _Check(ipr)
         menu.chk002 = _Check(smart)
-        w = _Widget()
-        w.option_box.menu = menu
-        return w
-
-    def _inst(self):
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        inst.sb = _SB()
-        inst._last_render_key = None
-        return inst
-
-    def test_renders_selected_camera(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "shotCam")
-        inst = self._inst()
-        inst.tb001(self._menu(camera=cam_tf))
-        self.assertIn(("set_renderer", "mayaSoftware"), self.ru.calls)
-        self.assertIn(("render_camera", cam_tf), self.ru.calls)
-        self.assertEqual(inst._last_render_key, (cam_tf, "mayaSoftware"))
-
-    def test_resolves_camera_shape_to_transform(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "shapeCam")
-        shape = cmds.listRelatives(cam_tf, shapes=True)[0]
-        inst = self._inst()
-        inst.tb001(self._menu(camera=shape))
-        self.assertIn(("render_camera", cam_tf), self.ru.calls)
-
-    def test_no_camera_warns_and_skips(self):
-        inst = self._inst()
-        inst.tb001(self._menu(camera=""))
-        self.assertTrue(inst.sb.messages)
-        self.assertFalse(any(c[0] == "render_camera" for c in self.ru.calls))
-
-    def test_smart_redo_when_key_unchanged(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "redoCam")
-        inst = self._inst()
-        inst._last_render_key = (cam_tf, "mayaSoftware")
-        inst.tb001(self._menu(camera=cam_tf, smart=True))
-        self.assertIn(("redo",), self.ru.calls)
-        self.assertFalse(any(c[0] == "render_camera" for c in self.ru.calls))
-
-    def test_no_redo_when_camera_changed(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "freshCam")
-        inst = self._inst()
-        inst._last_render_key = ("otherCam", "mayaSoftware")
-        inst.tb001(self._menu(camera=cam_tf, smart=True))
-        self.assertIn(("render_camera", cam_tf), self.ru.calls)
-        self.assertFalse(any(c[0] == "redo" for c in self.ru.calls))
-
-    def test_an_arnold_render_prepares_the_scene_first(self):
-        """Arnold reads neither the game shaders (error magenta) nor viewport
-        backface culling (a cutaway room renders black), so an Arnold render
-        readies the scene -- before the frame, or the IPR session, starts."""
-        cam_tf = cmds.rename(cmds.camera()[0], "aiCam")
-        calls = self.ru.calls
-        prepared = ("prepare_arnold",)
-        inst = self._inst()
-        inst.tb001(self._menu(camera=cam_tf, renderer="arnold"))
-        self.assertLess(calls.index(prepared), calls.index(("render_camera", cam_tf)))
-
-        calls.clear()  # an IPR session renders the live scene: prepared first too
-        inst.tb001(self._menu(camera=cam_tf, renderer="arnold", ipr=True))
-        ipr = next(i for i, c in enumerate(calls) if c[0] == "ipr")
-        self.assertLess(calls.index(prepared), ipr)
-
-        # Another renderer is never touched.
-        calls.clear()
-        inst.tb001(self._menu(camera=cam_tf, renderer="mayaSoftware"))
-        self.assertNotIn(prepared, calls)
-
-    def test_ipr_supersedes_single_render(self):
-        cam_tf = cmds.rename(cmds.camera()[0], "iprCam")
-        inst = self._inst()
-        inst.tb001(self._menu(camera=cam_tf, renderer="arnold", ipr=True))
-        self.assertTrue(any(c[0] == "ipr" for c in self.ru.calls))
-        self.assertFalse(any(c[0] == "render_camera" for c in self.ru.calls))
-
-    def test_ipr_falls_back_to_render_silently_on_launch_race(self):
-        # IPR is gated in the option box (disabled for renderers without it), so
-        # a False start_ipr here is the rare launch race: fall through to a
-        # single render WITHOUT an after-the-fact message box.
-        cam_tf = cmds.rename(cmds.camera()[0], "noIprCam")
-        self.ru._ipr_ok = False
-        inst = self._inst()
-        inst.tb001(self._menu(camera=cam_tf, renderer="mayaSoftware", ipr=True))
-        self.assertFalse(inst.sb.messages, "no message box — the option is gated")
-        self.assertIn(("render_camera", cam_tf), self.ru.calls)
-
-
-class _ExporterPatchMixin:
-    """Swap ``mtk.PlayblastExporter`` for the duration of a test.
-
-    Patched on the ``mtk`` package namespace rather than on ``rendering``: the
-    slot calls ``mtk.PlayblastExporter(...)``, so there is no module-level
-    import to swap. ``patch.object`` reads the real symbol first (settling
-    mayatk's lazy attribute), then drops the stub on exit — mayatk's resolver
-    never caches into the package ``__dict__``, so lookup falls back to the
-    real class and no stub can leak into a later test.
-    """
-
-    def _patch_exporter(self, replacement):
-        """Install *replacement*, undone by :meth:`_unpatch` at the latest."""
-        self._patch = mock.patch.object(
-            rendering_module.mtk, "PlayblastExporter", replacement
-        )
-        self._patch.start()
-        self._patched = True
-
-    def _unpatch(self):
-        """Restore the real exporter. Idempotent: one test drops its stub
-        mid-body to exercise the real path, and tearDown calls this too —
-        ``mock``'s ``stop()`` raises on an already-stopped patcher."""
-        if getattr(self, "_patched", False):
-            self._patch.stop()
-            self._patched = False
-
-    def tearDown(self):
-        self._unpatch()
-        cmds.file(new=True, force=True)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestExportPlayblastGuard(_ExporterPatchMixin, unittest.TestCase):
-    """tb000 bails early (message + no capture) on a scene with no animation."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-
-        def _spy(*a, **k):  # constructing the exporter on a static scene is the bug
-            raise AssertionError("PlayblastExporter must not run on a static scene")
-
-        self._patch_exporter(_spy)
-
-    def _inst(self):
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        inst.sb = _SB()
-        return inst
-
-    def test_static_scene_blocks_with_message(self):
-        # Fresh scene: geometry but no keys. The guard short-circuits before the
-        # menu is even read, so an empty _Widget is enough.
-        cmds.polyCube(name="static_cube")
-        inst = self._inst()
-        inst.tb000(_Widget())
-        self.assertTrue(inst.sb.messages, "a message box should explain why")
-        self.assertIn("no animation", inst.sb.messages[-1].lower())
-
-    def test_animated_scene_passes_guard(self):
-        # A keyed transform must NOT be short-circuited. We let the real exporter
-        # path run into the empty stub menu (which raises downstream) and only
-        # assert the no-animation guard message was never produced — i.e. the
-        # guard let us through (catches an inverted / always-on guard).
-        cube = cmds.polyCube(name="anim_cube")[0]
-        cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
-        cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
-        self._unpatch()
-        inst = self._inst()
-        try:
-            inst.tb000(_Widget())
-        except Exception:
-            pass  # downstream menu access fails — irrelevant to the guard
-        self.assertFalse(
-            any("no animation" in m.lower() for m in inst.sb.messages),
-            "guard must not block an animated scene",
-        )
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestExportPlayblastInit(unittest.TestCase):
-    """tb000_init builds the registry-driven output picker and range wiring."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def _init(self):
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        widget = _Widget()
-        inst.tb000_init(widget)
-        return widget.option_box.menu
-
-    def test_output_combo_built_from_target_registry(self):
-        from mayatk.anim_utils.playblast_exporter import PlayblastExporter
-
-        menu = self._init()
-        labels = [label for label, _ in menu.cmb050._items]
-        data = [d for _, d in menu.cmb050._items]
-        for name, label in PlayblastExporter.available_targets():
-            self.assertIn(label, labels)
-            self.assertIn([name], data)
-        # Bundles are appended and expand to registered target names only.
-        for _, bundle in rendering_module.RenderingSlots._TARGET_BUNDLES:
-            self.assertIn(bundle, data)
-            for target in bundle:
-                self.assertIn(target, PlayblastExporter.TARGETS)
-
-    def test_the_output_field_is_empty_and_shows_the_default(self):
-        """The default path is the placeholder, never the field's value: a value
-        would persist and pin the panel to the scene it was built in."""
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        widget = _Widget()
-        inst.tb000_init(widget)
-        menu = widget.option_box.menu
-        self.assertEqual(menu.t000.text(), "")
-        self.assertEqual(menu.t000.placeholderText(), inst._default_playblast_path())
-
-    def test_the_default_follows_a_newly_opened_scene(self):
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        widget = _Widget()
-        inst.tb000_init(widget)
-        menu = widget.option_box.menu
-        built = list(menu.added)
-        tmpdir = tempfile.mkdtemp(prefix="rh_follow_")
-        try:
-            cmds.file(rename=os.path.join(tmpdir, "ShotB.ma").replace("\\", "/"))
-            cmds.file(save=True, type="mayaAscii")
-            inst.tb000_init(widget)  # refresh_on_show re-runs the init
-            self.assertEqual(menu.added, built)  # nothing built twice
-            self.assertEqual(os.path.basename(menu.t000.placeholderText()), "ShotB")
-            self.assertEqual(
-                menu.t000.placeholderText(), inst._default_playblast_path()
-            )
-            # A blank field playblasts to exactly that default.
-            directory, name = inst._split_output_base(menu.t000.text())
-            self.assertEqual(
-                os.path.join(directory, name), inst._default_playblast_path()
-            )
-        finally:
-            cmds.file(new=True, force=True)
-            import shutil
-
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-    def test_custom_range_spinboxes_toggle(self):
-        menu = self._init()
-        self.assertFalse(menu.s010._visible)
-        self.assertFalse(menu.s011._visible)
-        menu.cmb010.setCurrentIndex(3)  # Custom Range
-        self.assertTrue(menu.s010._visible)
-        self.assertTrue(menu.s011._visible)
-        menu.cmb010.setCurrentIndex(0)
-        self.assertFalse(menu.s010._visible)
-
-    def test_split_output_base(self):
-        import tempfile
-
-        inst = rendering_module.RenderingSlots.__new__(rendering_module.RenderingSlots)
-        tmpdir = tempfile.mkdtemp(prefix="rh_split_")
-        try:
-            # Existing directory -> scene-name fallback.
-            directory, name = inst._split_output_base(tmpdir)
-            self.assertEqual(os.path.normpath(directory), os.path.normpath(tmpdir))
-            self.assertEqual(name, "playblast")  # unsaved scene
-            # Directory + base name; typed extension dropped.
-            directory, name = inst._split_output_base(
-                os.path.join(tmpdir, "myShot.mp4")
-            )
-            self.assertEqual(os.path.normpath(directory), os.path.normpath(tmpdir))
-            self.assertEqual(name, "myShot")
-            # Empty falls back to the default path.
-            directory, name = inst._split_output_base("")
-            self.assertTrue(directory)
-            self.assertTrue(name)
-        finally:
-            import shutil
-
-            shutil.rmtree(tmpdir, ignore_errors=True)
-
-
-class _FakeExporter:
-    """Records constructor + export() kwargs; returns no results."""
-
-    instances = []
-
-    def __init__(self, **kwargs):
-        _FakeExporter.instances.append(self)
-        self.ctor_kwargs = kwargs
-        self.export_kwargs = None
-
-    def export(self, **kwargs):
-        self.export_kwargs = kwargs
-        return []
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestExportPlayblastAction(_ExporterPatchMixin, unittest.TestCase):
-    """tb000 plumbs the option-box state into PlayblastExporter.export."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        cube = cmds.polyCube(name="anim_cube")[0]
-        cmds.setKeyframe(cube, attribute="translateX", time=1, value=0)
-        cmds.setKeyframe(cube, attribute="translateX", time=10, value=10)
-        _FakeExporter.instances = []
-        # Real TARGETS read before the swap — the fake mirrors the registry.
-        _FakeExporter.TARGETS = rendering_module.mtk.PlayblastExporter.TARGETS
-        self._patch_exporter(_FakeExporter)
-        # ffmpeg present, no dialog: the consent seam has its own tests below.
-        ffmpeg = mock.patch.object(ptk.VidUtils, "ensure_ffmpeg", return_value=None)
-        ffmpeg.start()
-        self.addCleanup(ffmpeg.stop)
-
-    def _widget(self, tmpdir):
-        menu = _Menu()
-        menu.t000 = _Line(os.path.join(tmpdir, "shotName"))
-        menu.cmb010 = _Combo()
-        menu.cmb010.addItems(["Playback", "Animation", "Current", "Custom"])
-        for i, mode in enumerate(("playback", "animation", "current", "custom")):
-            menu.cmb010.setItemData(i, {"mode": mode})
-        menu.cmb010._idx = 3  # custom
-        menu.s010 = _Spin(2)
-        menu.s011 = _Spin(8)
-        menu.s012 = _Spin(4)
-        menu.cmb040 = _Combo()
-        menu.cmb040.addItems(["1280 x 720"])
-        menu.cmb040.setItemData(0, (1280, 720))
-        menu.s015 = _Spin(100)
-        menu.cmb016 = _Combo()
-        menu.cmb016.addItems(["Maximum (100)"])
-        menu.cmb016.setItemData(0, 100)
-        menu.cmb041 = _Combo()
-        menu.cmb041.addItems(["Active Viewport"])
-        menu.cmb041.setItemData(0, None)
-        menu.cmb050 = _Combo()
-        menu.cmb050.addItems(["MP4 (H.264)"])
-        menu.cmb050.setItemData(0, ["mp4"])
-        menu.chk056 = _Check(True)
-        menu.chk057 = _Check(True)
-        menu.chk058 = _Check(False)
-        menu.chk060 = _Check(True)
-        widget = _Widget()
-        widget.option_box.menu = menu
         return widget
 
-    def test_option_box_state_reaches_exporter(self):
-        import tempfile
+    def test_renders_the_picked_camera(self):
+        self.slots.tb001(self._widget())
+        self.assertEqual(
+            self.ru.calls, [("set_renderer", "mayaSoftware"), ("render_camera", "shotCam")]
+        )
 
-        tmpdir = tempfile.mkdtemp(prefix="rh_action_")
-        try:
-            inst = rendering_module.RenderingSlots.__new__(
-                rendering_module.RenderingSlots
-            )
-            inst.sb = _SB()
-            inst.tb000(self._widget(tmpdir))
+    def test_no_camera_warns_and_skips(self):
+        self.slots.tb001(self._widget(camera=""))
+        self.assertFalse(self.ru.calls)
+        self.assertIn("No render camera", self.slots.sb.messages[-1])
 
-            self.assertEqual(len(_FakeExporter.instances), 1)
-            exporter = _FakeExporter.instances[0]
-            self.assertEqual(exporter.ctor_kwargs["width"], 1280)
-            self.assertEqual(exporter.ctor_kwargs["height"], 720)
-            self.assertIsNone(exporter.ctor_kwargs["camera"])
-            self.assertTrue(exporter.ctor_kwargs["include_audio"])
+    def test_smart_redo_only_when_nothing_changed(self):
+        self.slots.tb001(self._widget())
+        self.slots.tb001(self._widget())
+        self.assertEqual(self.ru.calls[-1], ("redo",))
+        self.slots.tb001(self._widget(camera="otherCam"))
+        self.assertEqual(self.ru.calls[-1], ("render_camera", "otherCam"))
 
-            kwargs = exporter.export_kwargs
-            self.assertEqual(kwargs["targets"], ["mp4"])
-            self.assertEqual(kwargs["range_mode"], "custom")
-            self.assertEqual((kwargs["start"], kwargs["end"]), (2, 8))
-            self.assertEqual(kwargs["name"], "shotName")
-            self.assertEqual(
-                os.path.normpath(kwargs["output_dir"]), os.path.normpath(tmpdir)
-            )
-        finally:
-            import shutil
+    def test_an_arnold_render_prepares_the_scene_first(self):
+        calls = self.ru.calls
+        self.slots.tb001(self._widget(renderer="arnold"))
+        self.assertLess(calls.index(("prepare_arnold",)), calls.index(("render_camera", "shotCam")))
+        calls.clear()
+        self.slots.tb001(self._widget(renderer="mayaSoftware"))
+        self.assertNotIn(("prepare_arnold",), calls)
 
-            shutil.rmtree(tmpdir, ignore_errors=True)
+    def test_ipr_supersedes_a_render_and_a_launch_race_falls_back(self):
+        self.slots.tb001(self._widget(renderer="arnold", ipr=True))
+        self.assertFalse(any(c[0] == "render_camera" for c in self.ru.calls))
+        self.ru._ipr_ok = False
+        self.ru.calls.clear()
+        self.slots.tb001(self._widget(ipr=True))
+        self.assertIn(("render_camera", "shotCam"), self.ru.calls)
+        self.assertFalse(self.slots.sb.messages, "no message: the option is gated")
 
-    def test_missing_ffmpeg_is_offered_before_any_capture(self):
-        """An encoded output with no ffmpeg goes through the consent seam
-        before the exporter is even built; a decline stops the run with the
-        reason shown (never a folder of frames beside an error afterwards)."""
-        import shutil
+    def test_a_render_refusal_is_shown(self):
+        self.ru.render_camera = mock.Mock(side_effect=RuntimeError("no window"))
+        self.slots.tb001(self._widget())
+        self.assertIn("no window", self.slots.sb.messages[-1])
 
-        tmpdir = tempfile.mkdtemp(prefix="rh_ffmpeg_")
-        try:
-            inst = rendering_module.RenderingSlots.__new__(
-                rendering_module.RenderingSlots
-            )
-            inst.sb = _SB()
-            with mock.patch.object(
-                ptk.VidUtils,
-                "ensure_ffmpeg",
-                side_effect=FileNotFoundError("FFmpeg ... the download was declined"),
-            ) as ensure:
-                inst.tb000(self._widget(tmpdir))
-            ensure.assert_called_once()
-            self.assertFalse(_FakeExporter.instances, "export must not run")
-            self.assertIn("FFmpeg", inst.sb.messages[-1])
-        finally:
-            shutil.rmtree(tmpdir, ignore_errors=True)
 
-    def test_sequence_only_outputs_never_ask_for_ffmpeg(self):
-        import shutil
+# ===================================================================== editors
+class TestSettingsEditors(unittest.TestCase):
+    def test_each_button_opens_the_hosts_editor_by_mayatks_name(self):
+        tk = _tk()
+        slots = _slots(tk)
+        for slot, editor in (
+            (slots.b001, "Render Settings"),
+            (slots.b003, "Render Setup"),
+            (slots.b004, "Rendering Flags"),
+        ):
+            with self.subTest(editor=editor):
+                slot()
+                tk.UiUtils.open_editor.assert_called_with(editor)
 
-        tmpdir = tempfile.mkdtemp(prefix="rh_seq_")
-        try:
-            widget = self._widget(tmpdir)
-            widget.option_box.menu.cmb050.addItems(["PNG Sequence"])
-            widget.option_box.menu.cmb050.setItemData(1, ["png_sequence"])
-            widget.option_box.menu.cmb050._idx = 1
-            inst = rendering_module.RenderingSlots.__new__(
-                rendering_module.RenderingSlots
-            )
-            inst.sb = _SB()
-            with mock.patch.object(ptk.VidUtils, "ensure_ffmpeg") as ensure:
-                inst.tb000(widget)
-            ensure.assert_not_called()
-            self.assertEqual(len(_FakeExporter.instances), 1)
-        finally:
-            shutil.rmtree(tmpdir, ignore_errors=True)
+    def test_a_failed_open_is_shown(self):
+        tk = _tk()
+        tk.UiUtils.open_editor.return_value = None
+        slots = _slots(tk)
+        slots.b001()
+        self.assertIn("Could not open", slots.sb.messages[-1])
 
-    def test_inverted_custom_range_blocks(self):
-        import tempfile
 
-        tmpdir = tempfile.mkdtemp(prefix="rh_range_")
-        try:
-            widget = self._widget(tmpdir)
-            widget.option_box.menu.s010.setValue(9)
-            widget.option_box.menu.s011.setValue(2)
-            inst = rendering_module.RenderingSlots.__new__(
-                rendering_module.RenderingSlots
-            )
-            inst.sb = _SB()
-            inst.tb000(widget)
-            self.assertFalse(_FakeExporter.instances, "export must not run")
-            self.assertTrue(inst.sb.messages)
-        finally:
-            import shutil
+# ===================================================================== in Maya
+@unittest.skipUnless(_MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class TestRenderingInMaya(unittest.TestCase):
+    """The same class over the real ``mtk``."""
 
-            shutil.rmtree(tmpdir, ignore_errors=True)
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        self.slots = _slots(maya_module("mayatk"))
+
+    def tearDown(self):
+        cmds.file(new=True, force=True)
+
+    def test_an_unsaved_scene_playblasts_as_playblast(self):
+        self.assertEqual(self.slots._scene_base_name(), "playblast")
+
+    def test_a_saved_scene_playblasts_under_its_name(self):
+        tmpdir = tempfile.mkdtemp(prefix="rh_test_")
+        self.addCleanup(__import__("shutil").rmtree, tmpdir, True)
+        for file_name, base in (("MyShot.ma", "MyShot"), ("v1.test.ma", "v1.test")):
+            with self.subTest(file_name=file_name):
+                cmds.file(rename=os.path.join(tmpdir, file_name).replace("\\", "/"))
+                cmds.file(save=True, type="mayaAscii")
+                self.assertEqual(self.slots._scene_base_name(), base)
+                self.assertTrue(self.slots._default_playblast_path().endswith(base))
+
+    def test_the_default_is_the_active_projects_movie_folder(self):
+        import mayatk as mtk
+
+        path = self.slots._default_playblast_path()
+        movies = ptk.Workspace.load(mtk.EnvUtils.workspace_root()).movie_dir()
+        self.assertEqual(os.path.dirname(path), os.path.normpath(movies))
+
+    def test_the_playblast_picker_is_the_real_registry(self):
+        import mayatk as mtk
+
+        widget = _Widget()
+        self.slots.tb000_init(widget)
+        menu = widget.option_box.menu
+        data = [d for _, d in menu.cmb050._items]
+        for name, _label in mtk.PlayblastExporter.available_targets():
+            self.assertIn([name], data)
+        self.assertIn(["mp4", "arnold"], data)  # Maya renders Arnold
+
+    def test_the_default_follows_a_newly_saved_scene(self):
+        widget = _Widget()
+        self.slots.tb000_init(widget)
+        menu = widget.option_box.menu
+        tmpdir = tempfile.mkdtemp(prefix="rh_follow_")
+        self.addCleanup(__import__("shutil").rmtree, tmpdir, True)
+        cmds.file(rename=os.path.join(tmpdir, "ShotB.ma").replace("\\", "/"))
+        cmds.file(save=True, type="mayaAscii")
+        self.slots.tb000_init(widget)  # refresh_on_show re-runs the init
+        self.assertEqual(os.path.basename(menu.t000.placeholderText()), "ShotB")
+        directory, name = self.slots._split_output_base(menu.t000.text())
+        self.assertEqual(os.path.join(directory, name), self.slots._default_playblast_path())
+
+    def test_the_render_cameras_put_persp_first(self):
+        cmds.rename(cmds.camera()[0], "renderCam")
+        widget = _Widget()
+        self.slots.tb001_init(widget)
+        labels = [label for label, _ in widget.option_box.menu.cmb002._items]
+        self.assertEqual(labels[0], "persp")
+        self.assertIn("renderCam", labels)
+        self.assertNotIn("perspShape", labels)
+
+    def test_a_static_scene_blocks_the_playblast(self):
+        cmds.polyCube(name="static_cube")
+        with mock.patch("mayatk.PlayblastExporter") as exporter:
+            self.slots.tb000(_Widget())
+        exporter.assert_not_called()
+        self.assertIn("no animation", self.slots.sb.messages[-1].lower())
 
 
 if __name__ == "__main__":
