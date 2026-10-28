@@ -27,7 +27,7 @@ class GapManagerMixin:
     * ``active_shot_id`` — property returning the current shot id
     * ``_sync_to_widget()`` / ``_sync_combobox()`` (edits bracket through
       ``sequencer.store.scene_edit()``, which records the restore point)
-    * ``_get_sequencer_widget()``
+    * ``_get_sequencer_widget()`` / ``_shot_layer()`` (the gap overlays)
     * ``_syncing`` — bool flag
     * ``_segment_cache`` / ``_sub_row_cache`` — dicts flushed by
       ``_gap_edit_epilogue`` after boundary edits
@@ -474,15 +474,15 @@ class GapManagerMixin:
         if self.sequencer is None:
             return
         self.sequencer.store.lock_all_gaps()
-        widget = self._get_sequencer_widget()
-        if widget is not None:
-            widget.set_all_gap_overlays_locked(True)
+        layer = self._shot_layer()
+        if layer is not None:
+            layer.set_all_gap_overlays_locked(True)
 
     def on_gap_unlock_all(self) -> None:
         """Unlock all gaps so they follow the global gap value."""
         if self.sequencer is None:
             return
         self.sequencer.store.unlock_all_gaps()
-        widget = self._get_sequencer_widget()
-        if widget is not None:
-            widget.set_all_gap_overlays_locked(False)
+        layer = self._shot_layer()
+        if layer is not None:
+            layer.set_all_gap_overlays_locked(False)

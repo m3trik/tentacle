@@ -5039,11 +5039,28 @@ class TestBoundCapDrags(_ControllerCase):
     def test_both_caps_are_placed(self):
         caps = [
             (o._head, o._tail, o._start)
-            for o in self.widget._gap_overlays
+            for o in self.widget.layer("shot_lane")._gap_overlays
             if o._head or o._tail
         ]
         self.assertIn((True, False, 0.0), caps)
         self.assertIn((False, True, 120.0), caps)
+
+    def test_the_lane_shows_every_shot_on_the_panels_layer(self):
+        """The decoration lands on the shot layer (uitk's widget names no
+        shot): one band per shot, the active one selected."""
+        layer = self.widget.layer("shot_lane")
+        self.assertEqual([b["name"] for b in layer._shot_blocks], ["S0", "S1"])
+        self.assertEqual(
+            layer.selected_shot()["id"], self.ctrl.active_shot_id, "the active one"
+        )
+
+    def test_lock_all_locks_the_layers_gaps_and_spares_the_caps(self):
+        self.ctrl.on_gap_lock_all()
+        gaps = self.widget.layer("shot_lane")._gap_overlays
+        self.assertTrue(all(g._locked for g in gaps if not (g._head or g._tail)))
+        self.assertFalse(any(g._locked for g in gaps if g._head or g._tail))
+        self.ctrl.on_gap_unlock_all()
+        self.assertFalse(any(g._locked for g in gaps))
 
 
 class TestShotComboboxCells(_ControllerCase):

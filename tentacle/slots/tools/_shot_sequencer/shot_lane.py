@@ -26,11 +26,12 @@ class ShotLaneMixin:
         """Build a context menu specific to the clicked zone.
 
         ``"shot_lane"`` is every click on the shot lane itself, plus every
-        click over the TRACKS at a time some shot covers -- the widget
-        resolves both.  Everywhere else (the ruler, and tracks clear of every
-        shot) is the timeline, which has its own menu: the two were merged
-        before, which buried a display toggle inside a menu about one shot
-        and left the ruler with no menu of its own at all.
+        click over the TRACKS at a time some shot covers -- the shot layer
+        resolves both (:meth:`~.shot_layer.ShotLayer.menu_zone`).  Everywhere
+        else (the ruler, and tracks clear of every shot) is the timeline,
+        which has its own menu: the two were merged before, which buried a
+        display toggle inside a menu about one shot and left the ruler with
+        no menu of its own at all.
         """
         if zone == "shot_lane":
             self._show_shot_lane_context_menu(time, global_pos)

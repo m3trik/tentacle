@@ -640,6 +640,6 @@ class ClipMenuMixin:
         # Nothing at all is selected inside the tracks, so Delete is about the
         # SHOT -- the only other thing the panel has selected.  It confirms
         # first, so the key cannot quietly take a shot and its animation.
-        selected = widget.selected_shot()
+        selected = self._shot_layer(widget).selected_shot()
         if selected is not None and selected.get("id") is not None:
             self.delete_shot(selected["id"])

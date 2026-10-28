@@ -312,6 +312,7 @@ class WidgetSyncMixin:
 
         # Populate the shot lane with all shots so the user always sees
         # the full shot structure (including gaps) regardless of display mode.
+        layer = self._shot_layer(widget)
         all_sorted = self.sequencer.sorted_shots()
         store = self.sequencer.store
         shot_blocks = [
@@ -324,7 +325,7 @@ class WidgetSyncMixin:
             }
             for s in all_sorted
         ]
-        widget.set_shot_blocks(shot_blocks)
+        layer.set_shot_blocks(shot_blocks)
 
         for m in self.sequencer.markers:
             widget.add_marker(
@@ -349,7 +350,7 @@ class WidgetSyncMixin:
             gap_size = gap_end - gap_start
             if gap_size > -0.5:
                 locked = store.is_gap_locked(left.shot_id, right.shot_id)
-                widget.add_gap_overlay(gap_start, gap_end, locked=locked)
+                layer.add_gap_overlay(gap_start, gap_end, locked=locked)
                 gap_count += 1
         # The last shot has no following shot, so the loop above leaves it
         # with no drag handle at its end — the one shot in the timeline that
@@ -357,9 +358,9 @@ class WidgetSyncMixin:
         # supplies that handle; its left edge IS the shot's end, which
         # on_gap_left_resized already knows how to act on.
         if all_sorted:
-            widget.add_gap_overlay(all_sorted[-1].end, all_sorted[-1].end, tail=True)
+            layer.add_gap_overlay(all_sorted[-1].end, all_sorted[-1].end, tail=True)
             # ...and the FIRST shot's start, which no gap precedes either.
-            widget.add_gap_overlay(all_sorted[0].start, all_sorted[0].start, head=True)
+            layer.add_gap_overlay(all_sorted[0].start, all_sorted[0].start, head=True)
         self.logger.debug(
             "Gap overlays: %d created across %d shots", gap_count, len(all_sorted)
         )

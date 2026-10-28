@@ -146,7 +146,12 @@ class TestShotSequencerPanelLoads(unittest.TestCase):
 
         ctrl = self.ui.slots.controller
         missing = [
-            slot for _, slot in ShotSequencerSlots._WIRING if not hasattr(ctrl, slot)
+            slot
+            for _, slot in (
+                *ShotSequencerSlots._WIRING,
+                *ShotSequencerSlots._LAYER_WIRING,
+            )
+            if not hasattr(ctrl, slot)
         ]
         self.assertEqual(
             missing, [], f"wiring references missing controller slots: {missing}"
@@ -157,6 +162,20 @@ class TestShotSequencerPanelLoads(unittest.TestCase):
         w = self.assertPromoted("sequencer_widget", "clip_resized")
         conns = getattr(w, "_slots_connections", [])
         self.assertGreater(len(conns), 0, "no widget signals were connected")
+
+    def test_the_shot_layer_is_on_the_widget_and_wired(self):
+        """The shot lane and the gaps are the panel's layer on uitk's widget
+        (``ShotLayer``): added once, its lane under the ruler, its signals
+        connected (recorded on the layer)."""
+        from tentacle.slots.tools.shot_sequencer import ShotSequencerSlots
+
+        w = self.assertPromoted("sequencer_widget", "add_layer")
+        layer = w.layer("shot_lane")
+        self.assertEqual(
+            len(getattr(layer, "_slots_connections", [])),
+            len(ShotSequencerSlots._LAYER_WIRING),
+        )
+        self.assertEqual(w.timeline.hit_zone(w._content_top - 1), "shot_lane")
 
     def test_zone_menu_reaches_the_controller(self):
         """Right-clicks emit ``zone_context_menu_requested`` (mayatk parity).

@@ -6,8 +6,11 @@ clips, rows or curves -- with ripple edits.
 One Slots class for both hosts: the ``.ui``'s widgets and the header menu routed
 to the controller (:class:`~tentacle.slots.tools._shot_sequencer.controller.ShotSequencerController`),
 which reaches the scene through the host library's ``SequencerHost``
-(``self.tk``). The shots engine is pythontk's; each host's ``ShotSequencer``,
-store and graph-editor half (``GraphSync``) are its library's.
+(``self.tk``). The shots on uitk's generic timeline -- the shot lane, the gaps
+-- are the panel's own layer on it
+(:class:`~tentacle.slots.tools._shot_sequencer.shot_layer.ShotLayer`). The
+shots engine is pythontk's; each host's ``ShotSequencer``, store and
+graph-editor half (``GraphSync``) are its library's.
 """
 
 import pythontk as ptk
@@ -16,6 +19,7 @@ from qtpy import QtCore
 from tentacle import Slots
 from ._shot_sequencer.controller import ShotSequencerController
 from ._shot_sequencer.shot_edit_dialog import ShotEditDialog
+from ._shot_sequencer.shot_layer import ShotLayer
 
 # Arrow-key labels for the help's key list, kept out of the f-strings that use
 # them (a backslash inside an f-string expression is a SyntaxError before 3.12).
@@ -72,17 +76,9 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
         ("marker_moved", "on_marker_moved"),
         ("marker_changed", "on_marker_changed"),
         ("marker_removed", "on_marker_removed"),
-        ("gap_resized", "on_gap_resized"),
-        ("gap_left_resized", "on_gap_left_resized"),
-        ("gap_moved", "on_gap_moved"),
-        ("gap_lock_changed", "on_gap_lock_changed"),
-        ("gap_lock_all_requested", "on_gap_lock_all"),
-        ("gap_unlock_all_requested", "on_gap_unlock_all"),
         ("clip_menu_requested", "on_clip_menu"),
-        ("gap_menu_requested", "on_gap_menu"),
         ("range_highlight_changed", "on_range_highlight_changed"),
         ("zone_context_menu_requested", "on_zone_context_menu"),
-        ("shot_switch_requested", "_on_shot_switch_requested"),
         ("header_menu_requested", "on_header_menu"),
         ("keys_moved", "on_keys_moved"),
         ("keys_batch_moved", "on_keys_batch_moved"),
@@ -91,6 +87,20 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
         ("key_menu_requested", "on_key_menu"),
         ("keys_tangent_dragged", "on_keys_tangent_dragged"),
         ("editor_changed", "_on_editor_changed"),
+    )
+
+    #: (layer signal, controller slot) -- the shot layer's
+    #: (:class:`~tentacle.slots.tools._shot_sequencer.shot_layer.ShotLayer`):
+    #: the gaps' drags, locks and menu, and Ctrl+Shift+Click's shot switch.
+    _LAYER_WIRING = (
+        ("gap_resized", "on_gap_resized"),
+        ("gap_left_resized", "on_gap_left_resized"),
+        ("gap_moved", "on_gap_moved"),
+        ("gap_lock_changed", "on_gap_lock_changed"),
+        ("gap_lock_all_requested", "on_gap_lock_all"),
+        ("gap_unlock_all_requested", "on_gap_unlock_all"),
+        ("gap_menu_requested", "on_gap_menu"),
+        ("shot_switch_requested", "_on_shot_switch_requested"),
     )
 
     #: The scope button's states (``cmb_shot``'s option box) -> display mode.
@@ -133,6 +143,10 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
         if sequencer is not None:
             sequencer.window_shortcuts = True
             self._wire(sequencer)
+            # The shots on the timeline: the lane and the gaps, a layer of the
+            # panel's own on uitk's generic widget.  Added before the graph
+            # half is built, so the graph's page opens below the lane.
+            self._wire(ShotLayer.of(sequencer, self.sb), self._LAYER_WIRING)
             # Right-clicks reach on_zone_context_menu (the shot-lane menu)
             # instead of the widget's built-in default menu.
             sequencer.zone_menu_enabled = True
@@ -155,24 +169,26 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
         self.controller._sync_combobox()
         self.controller._sync_to_widget()
 
-    def _wire(self, sequencer) -> None:
-        """Connect the widget's signals to the controller (:attr:`_WIRING`).
+    def _wire(self, source, wiring=None) -> None:
+        """Connect *source*'s signals to the controller (*wiring*: the
+        widget's :attr:`_WIRING` by default, the shot layer's
+        :attr:`_LAYER_WIRING`).
 
-        The live connections are recorded on the widget, so a slots re-init
+        The live connections are recorded on the source, so a slots re-init
         over the same loaded UI disconnects the PREVIOUS controller first --
         without this both controllers stay connected and every signal
         double-fires (two undos per Ctrl+Z, duplicate markers, ...).
         """
-        for sig_name, slot in getattr(sequencer, "_slots_connections", []):
+        for sig_name, slot in getattr(source, "_slots_connections", []):
             try:
-                getattr(sequencer, sig_name).disconnect(slot)
+                getattr(source, sig_name).disconnect(slot)
             except (RuntimeError, TypeError):
                 pass  # the connection died with the old controller
         connections = []
-        for sig_name, slot_name in self._WIRING:
+        for sig_name, slot_name in self._WIRING if wiring is None else wiring:
             # Guarded on both sides: a uitk that predates a signal degrades
             # that one connection, not the whole panel -- but never silently.
-            signal = getattr(sequencer, sig_name, None)
+            signal = getattr(source, sig_name, None)
             slot = getattr(self.controller, slot_name, None)
             if signal is None or slot is None:
                 self.logger.warning(
@@ -184,7 +200,7 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
                 continue
             signal.connect(slot)
             connections.append((sig_name, slot))
-        sequencer._slots_connections = connections
+        source._slots_connections = connections
 
     def _bind_shortcuts(self, sequencer) -> None:
         """The panel's own key bindings.

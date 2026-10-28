@@ -13,6 +13,7 @@ concept mixins beside it:
 - ``scene_callbacks`` -- the host's undo/redo, key-edit and time-change events.
 - ``undo_ledger`` -- the shot-boundary snapshots undo/redo step through.
 - ``shot_lane`` -- the shot lane's context menu and shot structure edits.
+- ``shot_layer`` -- the shots ON the widget: the lane, the gaps (a layer).
 - ``clip_menu`` -- clip context menus, Move / Copy to Shot, clip-key delete / stash.
 - ``key_menu`` -- key context menus, tangent edits and drags, key edits.
 - ``widget_sync`` -- rebuilding the widget: tracks, clips, sub-rows, colours.
@@ -38,6 +39,7 @@ from .marker_manager import MarkerManagerMixin
 from .scene_callbacks import SceneCallbacksMixin
 from .scene_selection import SceneSelectionMixin
 from .shot_lane import ShotLaneMixin
+from .shot_layer import ShotLayer
 from .shot_nav import ShotNavMixin
 from .transport import TransportMixin
 from .undo_ledger import UndoLedgerMixin
@@ -336,12 +338,10 @@ class ShotSequencerController(
         # Refresh combobox and widget when shots change externally
         self._sync_combobox()
         self._sync_to_widget()
-        # Emit widget-level signals for any external consumers
+        # The store's event, through the widget's generic bridge
         widget = self._get_sequencer_widget()
-        if widget is not None and hasattr(widget, "shots_changed"):
-            widget.shots_changed.emit()
-            if hasattr(widget, "app_event"):
-                widget.app_event.emit(event.name, event)
+        if widget is not None and hasattr(widget, "app_event"):
+            widget.app_event.emit(event.name, event)
 
     # ---- widget ↔ engine sync -------------------------------------------
 
@@ -400,3 +400,13 @@ class ShotSequencerController(
         if w is not None and hasattr(w, "add_track"):
             return w
         return None
+
+    def _shot_layer(self, widget=None):
+        """The shots on the sequencer widget -- the lane, the gaps
+        (:class:`~.shot_layer.ShotLayer`) -- added on first use; ``None``
+        without a widget."""
+        if widget is None:
+            widget = self._get_sequencer_widget()
+        if widget is None:
+            return None
+        return ShotLayer.of(widget, getattr(self, "sb", None))

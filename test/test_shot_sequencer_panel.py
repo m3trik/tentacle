@@ -35,6 +35,7 @@ from tentacle.slots._slots import Slots
 from tentacle.slots.tools import shot_sequencer as slots_module
 from tentacle.slots.tools._shot_sequencer.controller import ShotSequencerController
 from tentacle.slots.tools._shot_sequencer.shot_edit_dialog import ShotEditDialog
+from tentacle.slots.tools._shot_sequencer.shot_layer import ShotLayer
 from tentacle.slots.tools.shot_sequencer import ShotSequencerSlots
 
 PKG = Path(tentacle.__file__).resolve().parent
@@ -200,11 +201,53 @@ class TestTheSlotsBuildThePanel(_PanelCase):
         self.assertTrue(widget.zone_menu_enabled)
 
     def test_every_wired_slot_is_a_controller_method(self):
-        for _sig, slot_name in ShotSequencerSlots._WIRING:
+        for _sig, slot_name in (
+            *ShotSequencerSlots._WIRING,
+            *ShotSequencerSlots._LAYER_WIRING,
+        ):
             with self.subTest(slot=slot_name):
                 self.assertTrue(
                     callable(getattr(ShotSequencerController, slot_name, None))
                 )
+
+    def test_every_shot_layer_signal_reaches_its_controller_slot(self):
+        """The shots on the timeline -- the gaps, Ctrl+Shift+Click -- are the
+        panel's own layer on uitk's widget, wired like the widget."""
+        slots, _sb_, _cls = self._slots()
+        widget = slots.controller._get_sequencer_widget.return_value
+        widget.layer.assert_called_with(ShotLayer.name)
+        layer = widget.layer.return_value
+        for sig_name, slot_name in ShotSequencerSlots._LAYER_WIRING:
+            with self.subTest(signal=sig_name):
+                getattr(layer, sig_name).connect.assert_called_with(
+                    getattr(slots.controller, slot_name)
+                )
+        self.assertEqual(
+            len(layer._slots_connections), len(ShotSequencerSlots._LAYER_WIRING)
+        )
+
+    def test_the_widget_is_wired_for_no_shot_signal(self):
+        """uitk's widget names no shot: what moved to the layer is wired from
+        the layer alone."""
+        widget_signals = {sig for sig, _slot in ShotSequencerSlots._WIRING}
+        layer_signals = {sig for sig, _slot in ShotSequencerSlots._LAYER_WIRING}
+        self.assertEqual(widget_signals & layer_signals, set())
+        for sig in layer_signals:
+            self.assertTrue(hasattr(ShotLayer, sig), sig)
+
+    def test_a_reinit_disconnects_the_previous_layer_wiring(self):
+        sb = _sb()
+        slots, _sb_, _cls = self._slots(sb)
+        layer = slots.controller._get_sequencer_widget.return_value.layer.return_value
+        first = list(layer._slots_connections)
+        sb.loaded_ui.shot_sequencer._shot_seq_controller = None
+        with mock.patch.object(slots_module, "ShotSequencerController") as ctl_cls:
+            ctl_cls.return_value._get_sequencer_widget.return_value = (
+                slots.controller._get_sequencer_widget.return_value
+            )
+            ShotSequencerSlots(sb)
+        for sig_name, slot in first:
+            getattr(layer, sig_name).disconnect.assert_any_call(slot)
 
     def test_a_reinit_disconnects_the_previous_wiring(self):
         sb = _sb()
