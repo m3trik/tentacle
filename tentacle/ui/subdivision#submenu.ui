@@ -177,7 +177,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Reduce the polygon count of the selected object(s), while preserving border, hard, crease, and UV edges.</string>
+     <string>Halve the polygon count of the selected mesh(es) or components (Maya also preserves border, hard, crease and UV edges).</string>
     </property>
     <property name="text">
      <string>Reduce</string>
@@ -214,7 +214,7 @@
      </size>
     </property>
     <property name="toolTip">
-     <string>Convert smooth mesh preview to polygons</string>
+     <string>Convert the smooth mesh preview to polygons (Blender: apply the Subdivision Surface modifier).</string>
     </property>
     <property name="text">
      <string>Convert Preview</string>

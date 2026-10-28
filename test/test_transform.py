@@ -1,498 +1,503 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.transform.
+"""Regression tests for tentacle.slots.transform, the one Transform Slots class.
 
-transform.py is 538 lines of UI plumbing over mtk.drop_to_grid /
-mtk.freeze_transforms / mtk.move_to / mtk.match_scale. The units worth
-pinning at this layer:
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it
+here and records the calls (plain pytest), and in Maya the same class drives
+the real ``mtk``. What's worth pinning at this layer:
 
-- tb002 (Freeze Transforms): the cmb_connection_strategy index → string
-  mapping (0="preserve", 1="disconnect", 2="delete"). Index drift
-  silently switches strategies.
-- tb005 (Move To): ≥2 ordered-selection gate + routing between
-  move-all-to-last vs first-to-rest.
-- b001 (Match Scale): ≥2 selection gate, forwards (frm, to[]).
-- setTransformSnap: state 0/1/2 → snap on/off + snapRelative true/false
-  routing across move/scale/rotate contexts.
+- tb002 (Freeze Transforms): the combo index -> strategy mapping
+  (connection 0="preserve", 1="disconnect", 2="delete"; instance 0="skip",
+  1="preserve", 2="uninstance"). Index drift silently switches strategies.
+  Store is never disabled: the bake history it stamps is what Un-Freeze reads.
+- tb005 (Move To) / b001 (Match Scale): one library call on the selection,
+  and the "needs two" message when it answers ``[]``.
+- Snap / Constrain toggles apply live, and their boxes mirror the host's state
+  without persisting it. Tb003 / tb004 label themselves through ``sb.text_from``
+  on the OPTION BOX menu.
+The operations themselves are tested in mayatk and blendertk.
 """
+import ast
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.transform import TransformSlots
 
 ROOT = Path(__file__).resolve().parent.parent
-
-cmds = maya_module("maya.cmds")
-transform_module = maya_module("tentacle.slots.maya.transform")
+SOURCE = ROOT / "tentacle" / "slots" / "transform.py"
 
 
-class _FakeChk:
-    def __init__(self, state):
-        self._state = state
+class _FakeCheckBox:
+    """Minimal QCheckBox stand-in: records whether the seed ran signal-blocked."""
+
+    def __init__(self, name):
+        self._name = name
+        self._checked = None
+        self._blocked = False
+        self.blocked_during_seed = False
+        self.restore_state = True
+
+    def objectName(self):
+        return self._name
+
+    def blockSignals(self, block):
+        was, self._blocked = self._blocked, block
+        return was
+
+    def setChecked(self, state):
+        self._checked = state
+        self.blocked_during_seed = self._blocked
+
+    def setValue(self, value):
+        self.setChecked(value)
 
     def isChecked(self):
-        return self._state
+        return self._checked
 
 
-class _FakeCombo:
-    def __init__(self, current_index=0, data=None):
-        self._i = current_index
-        self._data = data
-
-    def currentIndex(self):
-        return self._i
-
-    def currentData(self):
-        return self._data
-
-
-class _FakeMenu:
-    def __init__(self, **attrs):
-        for k, v in attrs.items():
-            setattr(self, k, v)
+def _widget(**values):
+    """A widget whose option-box menu holds fakes reading *values*."""
+    widget = mock.MagicMock()
+    for name, value in values.items():
+        child = getattr(widget.option_box.menu, name)
+        child.value.return_value = value
+        child.isChecked.return_value = value
+        child.currentIndex.return_value = value
+        child.currentData.return_value = value
+        child.currentText.return_value = value
+    return widget
 
 
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
+FREEZE = dict(
+    chk032=True,
+    chk033=False,
+    chk034=True,
+    chk038=False,
+    chk039=False,
+    chk040=False,
+    chk_restore_rig_anchors=True,
+    cmb_center_pivot=0,
+    cmb_connection_strategy=0,
+    cmb_instance_strategy=1,
+)
 
 
-class _FakeWidget:
-    def __init__(self, menu):
-        self.option_box = _FakeOptionBox(menu)
+class TestSourcePins(unittest.TestCase):
+    """DCC-free source pins, because the failures they guard raise nothing.
 
-
-class _RecordedSb:
-    def __init__(self):
-        self.messages = []
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-
-
-class TestSelfLabellingButtonsWireToTheOptionBoxMenu(unittest.TestCase):
-    """tb003 (Constrain) / tb004 (Snap) rename themselves from their own checkboxes.
-
-    DCC-free source pins, because the failure they guard has no exception to catch.
-    Both forks used to hand-wire this and both got it wrong: the connection named
-    ``widget.menu`` while the checkboxes were added to ``widget.option_box.menu``,
-    and those are two different Menus by design (uitk's option box deliberately does
-    not reuse the ``MenuMixin`` context menu). ``connect_multi`` resolves its pattern
-    against whatever menu it is handed and iterates the result, so an empty
-    resolution connected nothing and warned about nothing — the button simply kept
-    whatever text it was last given. Probed live offscreen to be sure:
-    ``PushButton().menu is not PushButton().option_box.menu``, and a checkbox added
-    to the option box is absent from the context menu.
-
-    Both are now ``sb.text_from`` rules, which take the menu as an explicit argument
-    and apply at wire time by construction — so what is pinned here is that neither
-    fork drifts back to hand-wiring. The rule's own behaviour is uitk's
-    (``test_switchboard_toggle.TestTextFrom``), including the warning a rule now
-    raises when it resolves nothing against a container that can never deliver more
-    — the diagnostic whose absence let this survive.
-
-    The third defect, Snap's ``get_items("CheckBox")`` (a type NAME resolved against
-    QtWidgets, so it matched nothing and filtered every item out), has no pin here:
-    the migration removed the state read entirely, so a pin would assert the absence
-    of a string this code can no longer produce. It is guarded where it can actually
-    recur — ``Menu.get_items`` now reports an unresolvable type name
-    (``test_menu.TestMenuGetItems``).
+    tb003 (Constrain) / tb004 (Snap) rename themselves from their own checkboxes.
+    Both forks used to hand-wire this off ``widget.menu`` while the checkboxes
+    live on ``widget.option_box.menu`` -- two different Menus by design -- so the
+    wiring bound nothing. Both are ``sb.text_from`` rules on the option-box menu
+    now; the rule's own behaviour is uitk's (``test_switchboard_toggle``).
     """
 
-    FORKS = (
-        ROOT / "tentacle" / "slots" / "maya" / "transform.py",
-        ROOT / "tentacle" / "slots" / "blender" / "transform.py",
-    )
-
-    #: Wrapping is a formatter's business, so the source is matched with every run
-    #: of whitespace flattened AND the padding inside parens removed — the same call
-    #: reads identically whether ruff kept it on one line or split it. The MENU is
-    #: matched only in the negative: pinning the positive spelling would fail the
-    #: moment a fork adopts the panel-wide ``m = widget.option_box.menu`` idiom.
-    CONTEXT_MENU = "widget.menu"
-    RULE = "text_from("
-    #: Self-labelling buttons per fork: Maya has Constrain + Snap, Blender Constrain.
-    EXPECTED = {"maya": 2, "blender": 1}
-    #: Same forks, addressable by name for the per-fork assertions below.
-    FORKS_BY_NAME = {p.parent.name: p for p in FORKS}
-
     @staticmethod
-    def _flat(path):
-        flat = " ".join(path.read_text(encoding="utf-8").split())
+    def _flat():
+        flat = " ".join(SOURCE.read_text(encoding="utf-8").split())
         return flat.replace("( ", "(").replace(" )", ")")
 
-    def test_each_fork_declares_every_self_labeller_as_a_rule(self):
-        for path in self.FORKS:
-            with self.subTest(fork=path.name):
-                expected = self.EXPECTED[path.parent.name]
-                self.assertEqual(self._flat(path).count(self.RULE), expected)
+    def test_both_self_labellers_are_rules(self):
+        self.assertEqual(self._flat().count("text_from("), 2)
 
-    def test_no_fork_hand_wires_a_label_off_the_context_menu(self):
-        for path in self.FORKS:
-            with self.subTest(fork=path.name):
-                flat = self._flat(path)
-                for call in ("connect_multi(", "text_from("):
-                    self.assertFalse(
-                        call + self.CONTEXT_MENU in flat,
-                        f"{path.name}: {call}{self.CONTEXT_MENU} — that is the "
-                        "MenuMixin context menu, an empty Menu here, so the wiring "
-                        "binds nothing",
-                    )
+    def test_no_label_is_hand_wired_off_the_context_menu(self):
+        flat = self._flat()
+        for call in ("connect_multi(widget.menu", "text_from(widget.menu"):
+            self.assertNotIn(call, flat)
+
+    def test_no_constraint_or_snap_box_is_seeded_from_a_literal(self):
+        """The labels derive from these boxes, so a literal seed makes them lie
+        about the scene ("Constrain: ON" on a fresh scene, the 2026-08-22 bug)."""
+        tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
+        inits = {
+            node.name: node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.FunctionDef) and node.name in ("tb003_init", "tb004_init")
+        }
+        self.assertEqual(set(inits), {"tb003_init", "tb004_init"})
+        for name, node in inits.items():
+            for call in ast.walk(node):
+                for kw in getattr(call, "keywords", ()):
+                    if kw.arg == "setChecked":
+                        with self.subTest(init=name):
+                            self.assertNotIsInstance(kw.value, ast.Constant)
 
 
-    def test_no_constraint_checkbox_is_seeded_from_a_literal(self):
-        """Every Constrain box must be seeded from the HOST, not a constant.
-
-        A self-labelling button derives its text from these three, so a hardcoded
-        seed makes the label lie about the scene: "Make Live" was literal True, so
-        a fresh Maya with no constraint and nothing live still read "Constrain: ON",
-        and could not read OFF until the box was toggled by hand. The Blender fork
-        reads real state for all three; this pins that Maya does too.
-        """
-        flat = self._flat(self.FORKS_BY_NAME["maya"])
-        for name in ("chk024", "chk025", "chk026"):
-            seed = flat.split(f'("{name}", "', 1)[1].split(")", 1)[0]
-            self.assertFalse(
-                seed.rstrip().endswith("True") or seed.rstrip().endswith("False"),
-                f"{name} is seeded from a literal ({seed!r}) rather than the host",
-            )
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb002FreezeConnectionStrategy(unittest.TestCase):
-    """tb002 maps cmb_connection_strategy.currentIndex() to a string. The
-    list order MUST be preserved; an off-by-one would silently switch the
-    behavior on any object with connections."""
-
+class _SlotsCase(unittest.TestCase):
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = transform_module.TransformSlots.__new__(
-            transform_module.TransformSlots
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = TransformSlots(self.sb)
+        self.xf = self.sb.tk.XformUtils
+        self.sb.tk.CoreUtils.selected_objects.return_value = ["pCube1"]
+
+    def message(self):
+        return self.sb.message_box.call_args.args[0]
+
+
+class TestTb002Freeze(_SlotsCase):
+    def _freeze(self, **overrides):
+        self.slots.tb002(_widget(**dict(FREEZE, **overrides)))
+        return self.sb.tk.RigUtils.freeze_and_reanchor.call_args
+
+    def test_widget_values_reach_the_library(self):
+        call = self._freeze()
+        self.assertEqual(call.args, (["pCube1"],))
+        self.assertEqual(
+            call.kwargs,
+            dict(
+                center_pivot=0,
+                translate=True,
+                rotate=False,
+                scale=True,
+                force=True,  # one object: its locked channels unlock
+                delete_history=False,
+                freeze_children=False,
+                connection_strategy="preserve",
+                instance_strategy="preserve",
+                from_channel_box=False,
+                reanchor=True,
+            ),
         )
-        self.instance.sb = _RecordedSb()
 
-        import mayatk as mtk
-        self._orig_freeze = mtk.freeze_transforms
-        self._orig_store = mtk.store_transforms
-        self._orig_restore = mtk.restore_rig_anchors
-        self.freeze_calls = []
-        mtk.freeze_transforms = lambda *a, **kw: self.freeze_calls.append((a, kw))
-        mtk.store_transforms = lambda *a, **kw: None
-        mtk.restore_rig_anchors = lambda *a, **kw: None
+    def test_connection_strategy_by_index(self):
+        for index, expected in enumerate(("preserve", "disconnect", "delete")):
+            with self.subTest(index=index):
+                call = self._freeze(cmb_connection_strategy=index)
+                self.assertEqual(call.kwargs["connection_strategy"], expected)
 
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.freeze_transforms = self._orig_freeze
-        mtk.store_transforms = self._orig_store
-        mtk.restore_rig_anchors = self._orig_restore
-        cmds.file(new=True, force=True)
-
-    def _widget(self, strategy_index, instance_index=1):
-        return _FakeWidget(
-            _FakeMenu(
-                chk032=_FakeChk(True),
-                chk033=_FakeChk(False),
-                chk034=_FakeChk(True),
-                chk038=_FakeChk(False),  # delete_history
-                chk039=_FakeChk(False),  # freeze_children
-                chk040=_FakeChk(False),  # from_channel_box
-                chk_restore_rig_anchors=_FakeChk(False),
-                cmb_center_pivot=_FakeCombo(0),
-                cmb_connection_strategy=_FakeCombo(strategy_index),
-                cmb_instance_strategy=_FakeCombo(instance_index),
-            )
-        )
-
-    def _run_with_one_cube(self, widget):
-        cube = cmds.polyCube(name="freeze_strat")[0]
-        cmds.select(cube)
-        self.instance.tb002(widget)
-
-    def test_no_selection_warns(self):
-        """tb002 with empty selection warns and doesn't call freeze."""
-        cmds.select(clear=True)
-        self.instance.tb002(self._widget(0))
-        self.assertEqual(self.freeze_calls, [])
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_index_0_preserves(self):
-        self._run_with_one_cube(self._widget(0))
-        self.assertEqual(len(self.freeze_calls), 1)
-        self.assertEqual(self.freeze_calls[0][1]["connection_strategy"], "preserve")
-
-    def test_index_1_disconnects(self):
-        self._run_with_one_cube(self._widget(1))
-        self.assertEqual(self.freeze_calls[0][1]["connection_strategy"], "disconnect")
-
-    def test_index_2_deletes(self):
-        self._run_with_one_cube(self._widget(2))
-        self.assertEqual(self.freeze_calls[0][1]["connection_strategy"], "delete")
-
-    def test_instance_strategy_routes_by_index(self):
+    def test_instance_strategy_by_index(self):
         for index, expected in enumerate(("skip", "preserve", "uninstance")):
-            self.freeze_calls.clear()
-            self._run_with_one_cube(self._widget(0, instance_index=index))
-            self.assertEqual(
-                self.freeze_calls[0][1]["instance_strategy"], expected
-            )
+            with self.subTest(index=index):
+                call = self._freeze(cmb_instance_strategy=index)
+                self.assertEqual(call.kwargs["instance_strategy"], expected)
 
     def test_store_is_never_disabled(self):
-        """Store is no longer optional — the bake history it stamps is what
-        Un-Freeze reads back, so an un-checkable option only ever broke it."""
-        self._run_with_one_cube(self._widget(0))
-        self.assertNotEqual(self.freeze_calls[0][1].get("store", True), False)
+        self.assertNotIn("store", self._freeze().kwargs)
 
-    def test_freeze_stamps_bake_history_once(self):
-        """End-to-end with the real engine: tb002 leaves restorable bake attrs.
-
-        The panel must NOT call store_transforms alongside the freeze —
-        mtk.freeze_transforms stamps the history itself (store=True), and
-        doing both double-composes it so Un-Freeze overshoots.
-        """
-        import mayatk as mtk
-
-        mtk.freeze_transforms = self._orig_freeze  # tearDown restores either way
-        cube = cmds.polyCube(name="freeze_store")[0]
-        cmds.move(3, 0, 0, cube)
-        cmds.select(cube)
-
-        self.instance.tb002(self._widget(0))
-
-        # The widget freezes translate + scale (not rotate), so only those
-        # two channels are stamped.
-        self.assertTrue(cmds.attributeQuery("original_T_bake", node=cube, exists=True))
-        self.assertTrue(cmds.attributeQuery("original_S_bake", node=cube, exists=True))
-        self.assertAlmostEqual(
-            cmds.getAttr(f"{cube}.original_T_bake")[0][0], 3.0, delta=1e-4
-        )
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb005MoveTo(unittest.TestCase):
-    """tb005 Move To: ≥2 ordered selection gate, then routes between
-    move-all-to-last and first-to-rest."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = transform_module.TransformSlots.__new__(
-            transform_module.TransformSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        import mayatk as mtk
-        self._orig = mtk.move_to
-        self._orig_scale = mtk.match_scale
-        self.calls = []
-        self.scale_calls = []
-        mtk.move_to = lambda source, target, pivot="center": self.calls.append(
-            (source, target, pivot)
-        )
-        mtk.match_scale = lambda a, b, *args, **kw: self.scale_calls.append((a, b, kw))
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.move_to = self._orig
-        mtk.match_scale = self._orig_scale
-        cmds.file(new=True, force=True)
-
-    def _menu(self, move_all_to_last, pivot="center", match_scale=False):
-        return _FakeMenu(
-            chk036=_FakeChk(move_all_to_last),
-            cmb005=_FakeCombo(data=pivot),
-            chk_match_scale=_FakeChk(match_scale),
-        )
-
-    def test_one_object_warns(self):
-        """Single selection → message, no move_to call."""
-        cube = cmds.polyCube(name="mv_one")[0]
-        cmds.select(cube)
-        widget = _FakeWidget(self._menu(True))
-        self.instance.tb005(widget)
-        self.assertEqual(self.calls, [])
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_move_all_to_last(self):
-        """chk036=True → first N-1 objects move to last."""
-        a = cmds.polyCube(name="mv_a")[0]
-        b = cmds.polyCube(name="mv_b")[0]
-        c = cmds.polyCube(name="mv_c")[0]
-        cmds.select([a, b, c])
-        widget = _FakeWidget(self._menu(True))
-        self.instance.tb005(widget)
-
-        self.assertEqual(len(self.calls), 1)
-        source, target, pivot = self.calls[0]
-        # source should be [a, b], target = c
-        self.assertEqual(list(source), [a, b])
-        self.assertEqual(target, c)
-        self.assertEqual(pivot, "center")
-
-    def test_first_to_rest(self):
-        """chk036=False → first moves to rest (as bounding-box target list)."""
-        a = cmds.polyCube(name="mv_a2")[0]
-        b = cmds.polyCube(name="mv_b2")[0]
-        c = cmds.polyCube(name="mv_c2")[0]
-        cmds.select([a, b, c])
-        widget = _FakeWidget(self._menu(False))
-        self.instance.tb005(widget)
-
-        self.assertEqual(len(self.calls), 1)
-        source, target, pivot = self.calls[0]
-        # source = a, target = [b, c]
-        self.assertEqual(source, a)
-        self.assertEqual(list(target), [b, c])
-
-    def test_pivot_forwarded(self):
-        """cmb005.currentData() is forwarded to move_to as the pivot option."""
-        a = cmds.polyCube(name="mv_pa")[0]
-        b = cmds.polyCube(name="mv_pb")[0]
-        cmds.select([a, b])
-        widget = _FakeWidget(self._menu(True, pivot="xmax"))
-        self.instance.tb005(widget)
-
-        self.assertEqual(len(self.calls), 1)
-        _source, _target, pivot = self.calls[0]
-        self.assertEqual(pivot, "xmax")
-
-    def test_match_scale_off_by_default(self):
-        """Unchecked Match Scale → move only, no match_scale call."""
-        a = cmds.polyCube(name="mv_da")[0]
-        b = cmds.polyCube(name="mv_db")[0]
-        cmds.select([a, b])
-        widget = _FakeWidget(self._menu(True))
-        self.instance.tb005(widget)
-        self.assertEqual(self.scale_calls, [])
-        self.assertEqual(len(self.calls), 1)
-
-    def test_match_scale_enabled(self):
-        """Checked Match Scale → match_scale(source, target) runs alongside the move."""
-        a = cmds.polyCube(name="mv_sa")[0]
-        b = cmds.polyCube(name="mv_sb")[0]
-        cmds.select([a, b])
-        widget = _FakeWidget(self._menu(True, match_scale=True))
-        self.instance.tb005(widget)
-
-        self.assertEqual(len(self.scale_calls), 1)
-        src, tgt, kw = self.scale_calls[0]
-        self.assertEqual(list(src), [a])  # source = sel[:-1]
-        self.assertEqual(tgt, b)  # target = sel[-1]
-        self.assertTrue(kw.get("average"))  # uniform scale, no per-axis distortion
-        self.assertEqual(len(self.calls), 1)  # the move still happens
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB001MatchScale(unittest.TestCase):
-    """b001 Match Scale requires ≥1 selected object."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = transform_module.TransformSlots.__new__(
-            transform_module.TransformSlots
-        )
-        self.instance.sb = _RecordedSb()
-
-        import mayatk as mtk
-        self._orig = mtk.match_scale
-        self.calls = []
-        mtk.match_scale = lambda frm, to: self.calls.append((frm, list(to)))
-
-    def tearDown(self):
-        import mayatk as mtk
-        mtk.match_scale = self._orig
-        cmds.file(new=True, force=True)
+    def test_force_only_for_a_single_object(self):
+        self.sb.tk.CoreUtils.selected_objects.return_value = ["a", "b"]
+        self.assertFalse(self._freeze().kwargs["force"])
 
     def test_no_selection_warns(self):
-        cmds.select(clear=True)
-        self.instance.b001()
-        self.assertEqual(self.calls, [])
-        self.assertTrue(self.instance.sb.messages)
-
-    def test_two_objects_dispatches(self):
-        a = cmds.polyCube(name="ms_a")[0]
-        b = cmds.polyCube(name="ms_b")[0]
-        cmds.select([a, b])
-        self.instance.b001()
-        self.assertEqual(len(self.calls), 1)
-        frm, to = self.calls[0]
-        self.assertEqual(frm, a)
-        self.assertEqual(to, [b])
+        self.sb.tk.CoreUtils.selected_objects.return_value = []
+        self.slots.tb002(_widget(**FREEZE))
+        self.sb.tk.RigUtils.freeze_and_reanchor.assert_not_called()
+        self.assertIn("requires a selection", self.message())
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSetTransformSnap(unittest.TestCase):
-    """setTransformSnap maps state to (snap, snapRelative) booleans across
-    move/scale/rotate. Pin the 0/1/2 contract."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = transform_module.TransformSlots.__new__(
-            transform_module.TransformSlots
+class TestB002UnFreeze(_SlotsCase):
+    def test_channels_and_children(self):
+        self.slots.b002(
+            _widget(
+                chk_unfreeze_t=True,
+                chk_unfreeze_r=False,
+                chk_unfreeze_s=True,
+                chk_unfreeze_children=True,
+            )
+        )
+        self.xf.restore_transforms.assert_called_once_with(
+            ["pCube1"], channels=["translate", "scale"], traverse=True
         )
 
-        self._orig_move = cmds.manipMoveContext
-        self._orig_scale = cmds.manipScaleContext
-        self._orig_rotate = cmds.manipRotateContext
-        self._orig_tex_move = cmds.texMoveContext
-        self._orig_tex_scale = cmds.texScaleContext
-        self._orig_tex_rotate = cmds.texRotateContext
+    def test_no_channel_and_nothing_restored_are_said(self):
+        self.slots.b002(
+            _widget(chk_unfreeze_t=False, chk_unfreeze_r=False, chk_unfreeze_s=False)
+        )
+        self.assertIn("at least one channel", self.message())
+        self.xf.restore_transforms.return_value = []
+        self.slots.b002(_widget(chk_unfreeze_t=True, chk_unfreeze_children=False))
+        self.assertIn("Nothing to restore", self.message())
 
-        self.captured = []
+    def test_restore_axes_names_the_object(self):
+        self.xf.restore_original_axes.return_value = "|grp|cube"
+        self.sb.tk.CoreUtils.leaf_name.return_value = "cube"
+        self.slots.b_restore_axes()
+        self.assertIn("<hl>cube</hl>", self.message())
+        self.xf.restore_original_axes.return_value = None
+        self.slots.b_restore_axes()
+        self.assertIn("Nothing to restore", self.message())
 
-        def fake_move(*a, **kw):
-            self.captured.append(("move", a, kw))
 
-        def fake_scale(*a, **kw):
-            self.captured.append(("scale", a, kw))
+class TestMoveAndScale(_SlotsCase):
+    def test_move_to_reads_its_options(self):
+        self.slots.tb005(_widget(cmb005="xmax", chk036=False, chk_match_scale=True))
+        self.xf.move_to_target.assert_called_once_with(
+            None, pivot="xmax", all_to_last=False, match_scale=True
+        )
 
-        def fake_rotate(*a, **kw):
-            self.captured.append(("rotate", a, kw))
+    def test_move_to_with_too_few_says_so(self):
+        self.xf.move_to_target.return_value = []
+        self.slots.tb005(_widget(cmb005="center", chk036=True, chk_match_scale=False))
+        self.assertIn("two or more", self.message())
 
-        cmds.manipMoveContext = fake_move
-        cmds.manipScaleContext = fake_scale
-        cmds.manipRotateContext = fake_rotate
-        cmds.texMoveContext = lambda *a, **kw: None
-        cmds.texScaleContext = lambda *a, **kw: None
-        cmds.texRotateContext = lambda *a, **kw: None
+    def test_match_scale_is_the_selections(self):
+        self.xf.match_scale.return_value = [1.0, 1.0, 1.0]
+        self.slots.b001()
+        self.xf.match_scale.assert_called_once_with(None, None)
+        self.sb.message_box.assert_not_called()
+        self.xf.match_scale.return_value = []
+        self.slots.b001()
+        self.assertIn("two or more", self.message())
 
-    def tearDown(self):
-        cmds.manipMoveContext = self._orig_move
-        cmds.manipScaleContext = self._orig_scale
-        cmds.manipRotateContext = self._orig_rotate
-        cmds.texMoveContext = self._orig_tex_move
-        cmds.texScaleContext = self._orig_tex_scale
-        cmds.texRotateContext = self._orig_tex_rotate
-        cmds.file(new=True, force=True)
+    def test_drop_to_grid_reads_its_options(self):
+        self.xf.drop_to_grid.return_value = []
+        self.slots.tb000(_widget(cmb004="Min", chk014=True, chk016=False, chk017=True))
+        self.xf.drop_to_grid.assert_called_once_with(
+            None, align="Min", origin=True, center_pivot=False, freeze_transforms=True
+        )
+        self.assertIn("requires a selection", self.message())
 
-    def test_state_0_disables_snap(self):
-        """state=0 → snap=False, snapRelative=False."""
-        self.instance.setTransformSnap("move", 0)
-        kw = self.captured[0][2]
-        self.assertFalse(kw["snap"])
-        self.assertFalse(kw["snapRelative"])
+    def test_scale_connected_edges(self):
+        self.xf.scale_connected_edges.return_value = 0
+        self.slots.tb001(_widget(s001=1.5))
+        self.xf.scale_connected_edges.assert_called_once_with(None, scale_factor=1.5)
+        self.assertIn("No connected edges", self.message())
 
-    def test_state_1_enables_relative(self):
-        """state=1 → snap=True, snapRelative=True."""
-        self.instance.setTransformSnap("scale", 1)
-        kw = self.captured[0][2]
-        self.assertTrue(kw["snap"])
-        self.assertTrue(kw["snapRelative"])
 
-    def test_state_2_enables_absolute(self):
-        """state=2 → snap=True, snapRelative=False."""
-        self.instance.setTransformSnap("rotate", 2)
-        kw = self.captured[0][2]
-        self.assertTrue(kw["snap"])
-        self.assertFalse(kw["snapRelative"])
+class TestAlignTo(_SlotsCase):
+    def test_modes_are_the_hosts(self):
+        self.xf.ALIGN_MODES = {"Align X to Active": ("X",), "Align Y to Active": ("Y",)}
+        widget = mock.MagicMock()
+        self.slots.cmb002_init(widget)
+        widget.add.assert_called_once_with(
+            ["Align X to Active", "Align Y to Active"], header="Align To"
+        )
 
-    def test_routes_to_correct_context(self):
-        """Each ctx string routes to the matching maya context cmd."""
-        self.instance.setTransformSnap("move", 1)
-        self.instance.setTransformSnap("scale", 1)
-        self.instance.setTransformSnap("rotate", 1)
-        # captured[0] = move, [1] = scale, [2] = rotate (one entry each — UV ones
-        # are silent stubs).
-        self.assertEqual(self.captured[0][0], "move")
-        self.assertEqual(self.captured[1][0], "scale")
-        self.assertEqual(self.captured[2][0], "rotate")
+    def test_the_chosen_mode_runs_and_a_refusal_is_said(self):
+        widget = mock.Mock(items=["Point to Point", "Align Objects"])
+        self.slots.cmb002(1, widget)
+        self.xf.align_to.assert_called_once_with("Align Objects")
+        self.xf.align_to.side_effect = ValueError("Align needs two or more")
+        self.slots.cmb002(0, widget)
+        self.assertIn("two or more", self.message())
+
+
+class TestSnapAndConstraints(_SlotsCase):
+    def test_each_snap_box_sets_its_kind_and_gates_its_increment(self):
+        menu = self.slots.ui.tb004.option_box.menu
+        for name, kind, spin in (
+            ("chk021", "move", "s021"),
+            ("chk022", "scale", "s022"),
+            ("chk023", "rotate", "s023"),
+        ):
+            with self.subTest(box=name):
+                getattr(self.slots, name)(True, None)
+                self.xf.set_transform_snap.assert_called_with(kind, True)
+                getattr(menu, spin).setEnabled.assert_called_with(True)
+
+    def test_increments(self):
+        self.slots.s021(5.0, None)
+        self.xf.set_transform_snap.assert_called_with("move", increment=5.0)
+        self.slots.s023(15.0, None)
+        self.xf.set_transform_snap.assert_called_with("rotate", increment=15.0)
+
+    def test_each_constraint_box_sets_its_kind(self):
+        for name, kind in (("chk024", "edge"), ("chk025", "surface"), ("chk026", "live")):
+            with self.subTest(box=name):
+                getattr(self.slots, name)(False, None)
+                self.xf.set_transform_constraint.assert_called_with(kind, False)
+
+    def test_boxes_mirror_the_host_and_never_persist(self):
+        self.xf.get_transform_snap.return_value = {
+            "move": {"enabled": False, "increment": None},
+            "scale": {"enabled": False, "increment": None},
+            "rotate": {"enabled": True, "increment": 15.0},
+        }
+        self.xf.get_transform_constraint.return_value = {
+            "edge": False,
+            "surface": True,
+            "live": False,
+        }
+        for name, expect in (
+            ("chk023", True),
+            ("chk021", False),
+            ("s023", 15.0),
+            ("chk025", True),
+            ("chk024", False),
+        ):
+            with self.subTest(widget=name):
+                box = _FakeCheckBox(name)
+                getattr(self.slots, f"{name}_init")(box)
+                self.assertEqual(box.isChecked(), expect)
+                self.assertTrue(box.blocked_during_seed)
+                self.assertFalse(box.restore_state)
+        box = _FakeCheckBox("s021")  # no move increment in this host: no seed
+        self.slots.s021_init(box)
+        self.assertIsNone(box.isChecked())
+        self.assertFalse(box.restore_state)
+
+    def test_snap_option_box_hides_the_increments_a_host_lacks(self):
+        self.xf.get_transform_snap.return_value = {
+            kind: {"enabled": False, "increment": None if kind != "rotate" else 5.0}
+            for kind in ("move", "scale", "rotate")
+        }
+        widget = mock.MagicMock()
+        added = {}
+
+        def add(cls, **kwargs):
+            item = mock.MagicMock(name=kwargs.get("setObjectName"))
+            added[kwargs.get("setObjectName")] = (item, kwargs)
+            return item
+
+        widget.option_box.menu.add.side_effect = add
+        self.slots.tb004_init(widget)
+        self.assertEqual(
+            sorted(added), ["chk021", "chk022", "chk023", "s021", "s022", "s023"]
+        )
+        for name in ("s021", "s022"):
+            added[name][0].setProperty.assert_called_once_with("requires", "maya")
+            self.assertNotIn("setValue", added[name][1])
+        added["s023"][0].setProperty.assert_not_called()
+        self.assertEqual(added["s023"][1]["setValue"], 5.0)
+
+
+class TestHeader(_SlotsCase):
+    def test_fix_non_orthogonal_axes_reports(self):
+        self.sb.tk.Diagnostics.fix_non_orthogonal_axes.return_value = ["a", "b"]
+        self.slots.fix_non_ortho_axes()
+        self.sb.tk.Diagnostics.fix_non_orthogonal_axes.assert_called_once_with(["pCube1"])
+        self.assertIn("<hl>2</hl>", self.message())
+        self.sb.tk.Diagnostics.fix_non_orthogonal_axes.return_value = []
+        self.slots.fix_non_ortho_axes()
+        self.assertIn("No non-orthogonal", self.message())
+
+    def test_snap_opens_the_shared_panel(self):
+        self.slots.b_snap_ts()
+        self.sb.handlers.marking_menu.show.assert_called_once_with("snap")
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class _MayaCase(_SlotsCase):
+    """The same class over the real ``mtk``."""
+
+    def setUp(self):
+        super().setUp()
+        self.cmds = maya_module("maya.cmds")
+        self.cmds.file(new=True, force=True)
+        self.sb.tk = maya_module("mayatk")
+        self.addCleanup(self.cmds.file, new=True, force=True)
+
+    def _cube(self, name, x=0.0):
+        cube = self.cmds.polyCube(name=name)[0]
+        self.cmds.move(x, 0, 0, cube)
+        return cube
+
+    def _center_x(self, node):
+        bb = self.cmds.exactWorldBoundingBox(node)
+        return (bb[0] + bb[3]) / 2.0
+
+
+class TestFreezeInMaya(_MayaCase):
+    def test_freeze_stamps_bake_history_once(self):
+        """The real engine: tb002 leaves restorable bake attrs, stamped once
+        (a second store would double-compose and Un-Freeze would overshoot)."""
+        cube = self._cube("freeze_store", 3)
+        self.cmds.select(cube)
+        self.slots.tb002(_widget(**dict(FREEZE, chk_restore_rig_anchors=False)))
+        self.assertTrue(self.cmds.attributeQuery("original_T_bake", node=cube, exists=True))
+        self.assertTrue(self.cmds.attributeQuery("original_S_bake", node=cube, exists=True))
+        self.assertAlmostEqual(
+            self.cmds.getAttr(f"{cube}.original_T_bake")[0][0], 3.0, delta=1e-4
+        )
+
+    def test_unfreeze_round_trip(self):
+        cube = self._cube("unfreeze_rt", 3)
+        self.cmds.select(cube)
+        self.slots.tb002(_widget(**FREEZE))
+        self.slots.b002(
+            _widget(
+                chk_unfreeze_t=True,
+                chk_unfreeze_r=True,
+                chk_unfreeze_s=True,
+                chk_unfreeze_children=False,
+            )
+        )
+        self.assertAlmostEqual(self.cmds.getAttr(f"{cube}.translateX"), 3.0, places=4)
+
+
+class TestMoveToInMaya(_MayaCase):
+    def setUp(self):
+        super().setUp()
+        # Move To reads the pick order (``ls -orderedSelection``): tracking on, so
+        # the clicks below are recorded in order (tracking off: unmeasured, BACKLOG).
+        self.cmds.selectPref(trackSelectionOrder=True)
+
+    def _pick(self, *nodes):
+        """Select *nodes* one at a time, as clicks do: a single ``select`` of a
+        list records no click order."""
+        self.cmds.select(clear=True)
+        for node in nodes:
+            self.cmds.select(node, add=True)
+
+    def test_move_all_to_last(self):
+        a, b, c = self._cube("mv_a", 0), self._cube("mv_b", 3), self._cube("mv_c", 9)
+        self._pick(a, b, c)
+        self.slots.tb005(_widget(cmb005="center", chk036=True, chk_match_scale=False))
+        self.sb.message_box.assert_not_called()
+        for node in (a, b):
+            self.assertAlmostEqual(self._center_x(node), 9.0, places=3)
+
+    def test_first_to_rest(self):
+        a, b, c = self._cube("mv_d", 0), self._cube("mv_e", 4), self._cube("mv_f", 8)
+        self._pick(a, b, c)
+        self.slots.tb005(_widget(cmb005="center", chk036=False, chk_match_scale=False))
+        self.assertAlmostEqual(self._center_x(a), 6.0, places=3)
+
+    def test_one_object_warns(self):
+        self.cmds.select(self._cube("mv_one"))
+        self.slots.tb005(_widget(cmb005="center", chk036=True, chk_match_scale=False))
+        self.assertIn("two or more", self.message())
+
+
+class TestMatchScaleInMaya(_MayaCase):
+    def test_first_selected_takes_the_others_size(self):
+        self.cmds.selectPref(trackSelectionOrder=True)
+        a, b = self._cube("ms_a"), self._cube("ms_b", 4)
+        self.cmds.scale(2, 2, 2, b)
+        self.cmds.select(a)
+        self.cmds.select(b, add=True)
+        self.slots.b001()
+        self.sb.message_box.assert_not_called()
+        bb = self.cmds.exactWorldBoundingBox(a)
+        self.assertAlmostEqual(bb[3] - bb[0], 2.0, places=3)
+
+    def test_nothing_selected_warns(self):
+        self.cmds.select(clear=True)
+        self.slots.b001()
+        self.assertIn("two or more", self.message())
+
+
+class TestSnapInMaya(_MayaCase):
+    """chk021-023 map a checked box to relative snapping in the manipulator and
+    UV contexts alike (``XformUtils.set_transform_snap``)."""
+
+    def test_checked_box_turns_relative_snap_on(self):
+        calls = []
+
+        def fake(*args, **kwargs):
+            calls.append((args, kwargs))
+            return 0
+
+        names = ("manipMoveContext", "manipScaleContext", "manipRotateContext",
+                 "texMoveContext", "texScaleContext", "texRotateContext")
+        patches = [mock.patch.object(self.cmds, name, fake) for name in names]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+        self.slots.chk021(True, None)
+        self.assertEqual(calls[0][0], ("Move",))
+        self.assertTrue(calls[0][1]["snap"])
+        self.assertTrue(calls[0][1]["snapRelative"])
+        calls.clear()
+        self.slots.chk023(False, None)
+        self.assertEqual(calls[0][0], ("Rotate",))
+        self.assertFalse(calls[0][1]["snap"])
 
 
 if __name__ == "__main__":

@@ -40,50 +40,6 @@ HANDLERS = {
     # (PointCloud.match_clouds / AssemblySorter) and mayatk refactored onto the same
     # shared implementation. Verified: blendertk test_auto_instancer.py headless +
     # mayatk auto_instancer/instancer_ground_truth suites green.
-    "nurbs": {
-        "b016": {"status": "na", "reason": "[Create Curve from Edges] widget removed from nurbs.ui 2026-05-20 (9f534ba3) but the handler is pinned by test_nurbs.py (create_curve_from_edges fallback) - retarget the test at mtk directly, then delete the handler"},
-        # list000 "Nurbs actions" leaves -- code-built control keys sourced from
-        # NurbsSlots._LIST000_COMMANDS (tentacle/tentacle/slots/blender/nurbs.py), the Blender-idiom
-        # mirror of Maya's _LIST000_COMMANDS (tentacle/tentacle/slots/maya/nurbs.py). Ported
-        # 2026-07-04: root->category->leaf tree structure now matches Maya 1:1
-        # (Create/Modify/Surfaces/Edit), and 12 of Maya's 24 leaves are real bpy ops/props
-        # (Project, Extract, Duplicate, Smooth, Planar, Edit Curve Tool, Attach, Detach, Cut,
-        # Open/Close, Add Points Tool, Reverse). Audit previously found the WHOLE widget
-        # hidden (widget.setVisible(False), "no Blender analogue") despite most leaves having a
-        # genuine 1:1 bpy op; these entries are only the leaves that are true parametric-NURBS
-        # concepts with no Blender/mesh-curve equivalent, intentionally not built rather than
-        # silently dropped -- see the module's own _LIST000_COMMANDS comment for the full
-        # per-leaf reasoning.
-        "list000:Lock": {"status": "na", "reason": "Lock Curve Length constrains a NURBS curve to a fixed arc length under deformation; a Blender curve/mesh control point has no such constraint to toggle."},
-        "list000:Unlock": {"status": "na", "reason": "see Lock"},
-        # list000 Bend / Curl / Curvature / Straighten / Rebuild / Extend BUILT 2026-07-28 —
-        # the rolled btk.NurbsUtils CV-deformation family (pure control-point math on
-        # POLY/NURBS splines; arc-length-exact bend maps the chord onto a true circle,
-        # refuting-for-good the SIMPLE_DEFORM route's fixed-axis no-op trap probed
-        # 2026-07-11). Verified headless: test_nurbs_utils.py 16/16. Bezier splines are
-        # skipped by design (handle model needs its own authoring pass; slot reports it).
-        # No delta.
-        "list000:Insert Isoparm": {"status": "na", "reason": "Isoparms are a parametric NURBS-surface-only concept; Blender's Screw/loft-bridge surfaces are meshes with no isoparm to insert."},
-        "list000:Insert Knot": {"status": "na", "reason": "Knot insertion is parametric NURBS-curve re-parameterization; a Blender POLY/NURBS spline's control points have no knot vector exposed to Python to insert into."},
-        "list000:Extend (Options)": {"status": "na", "reason": "Tolerance-based parametric curve extension (extend by a distance/tolerance along the curve's own parameterization) with its dedicated option box; the rolled btk.NurbsUtils.extend_curve covers the plain linear Extend leaf, but the parametric options surface has no CV-level equivalent."},
-        "list000:Extend on Surface": {"status": "na", "reason": "Extending a curve constrained to a NURBS surface has no Blender analogue (no parametric surface-constrained curve concept) -- see Extend (Options); the plain Extend leaf is covered by the rolled btk.NurbsUtils.extend_curve."},
-    },
-    "transform": {
-        "chk021": {"status": "replaced", "to": "apply-model tb004",
-                   "reason": "widget exists on both; Maya applies live on toggle, Blender reads at apply"},
-        "chk022": {"status": "replaced", "to": "apply-model tb004", "reason": "see chk021"},
-        # chk026 (Make Live) removed 2026-07-08: BUILT — the Blender chk026 handler maps
-        # makeLive onto face-projection snapping (_set_project_snap -> snap_elements_individual
-        # ={FACE_NEAREST}). Handler present on both sides; no delta.
-        # The blanket "snap increments are grid-driven" reason was wrong for ROTATE — corrected
-        # 2026-07-28 after enumerating ToolSettings' RNA live (Blender 5.1). Triage per widget:
-        # s021=Move, s022=Scale, s023=Rotate (Maya's manipMove/Scale/RotateContext snapValue).
-        "s021": {"status": "na", "reason": "Move snap increment (manipMoveContext snapValue). Blender has no scene-level numeric move increment to drive: absolute grid snapping (use_snap_grid_absolute) steps by the viewport grid, i.e. per-3D-view View3DOverlay.grid_scale/grid_subdivisions, not a value a single spinbox can own -- grid-driven, as the Blender slot docstring says."},
-        "s022": {"status": "na", "reason": "Scale snap increment (manipScaleContext snapValue). Verified live (Blender 5.1, full ToolSettings RNA enumeration): the only scale-snap property is the BOOLEAN use_snap_scale -- there is no numeric scale increment anywhere in ToolSettings, so there is no value to bind."},
-        # s023 (Rotate increment) BUILT 2026-07-28: bound degrees->radians onto
-        # ToolSettings.snap_angle_increment_3d in the tb004 option box, enable-gated by chk023
-        # (Maya's chk023 -> s023.setEnabled pattern). No delta.
-    },
     "scene": {
         "b006": {"status": "renamed", "to": "b_cleanup",
                  "reason": "Cleanup Unknown -> Scene Cleanup (different cleanup semantics)"},
@@ -143,7 +99,6 @@ HANDLERS = {
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
     "animation": {},
     "rigging": {},
-    "subdivision": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
     # took the Transfer tool UvMixin's option box was).
     "uv": {},
@@ -186,20 +141,6 @@ CONTROLS_SLOTS = {
         "chk_exclude_defaults": {"status": "na", "reason": "Blender has no auto-created default materials to filter from the report; drop documented in tb001_init"},
         "chk_hide_defaults": {"status": "na", "reason": "Material-list filter (the filter field's option box, Maya's _list_filters hook): Blender has no auto-created default materials (lambert1 etc.) to hide, so its hook returns none and the field shows no option box"},
         "chk_hide_arnold": {"status": "na", "reason": "Hides Arnold shaders (classification rendernode/arnold*) from the material list (the filter field's option box), for scenes where every game material carries a parallel aiStandardSurface preview shader. Blender has no Arnold integration and no parallel-preview-shader convention — Cycles/EEVEE share one node-tree material — so there is nothing to filter."},
-    },
-    "nurbs": {
-        "chk000": {"status": "na", "reason": "Loft 'Uniform' = NURBS uniform-vs-chord-length parameterization; Blender loft (btk.loft bmesh bridge) outputs a mesh with no parametric direction — explicitly excused in the blender slot's tb001 comment."},
-        "chk002": {"status": "na", "reason": "Loft 'Auto Reverse' = cmds.loft autoReverse NURBS curve-direction flag; explicitly excused (blender loft is a mesh bridge, winding handled by chk005 Reverse Surface Normals)."},
-        "chk003": {"status": "na", "reason": "Loft 'Range' = force NURBS curve range on complete input curve; parametric-curve concept with no mesh analogue — explicitly excused in the blender slot's tb001 comment."},
-        "chk004": {"status": "na", "reason": "Loft 'Polygon' = NURBS-vs-polygon output toggle; Blender loft output is always a mesh so the toggle is meaningless — explicitly excused in the blender slot's tb001 comment."},
-        "chk006": {"status": "na", "reason": "Revolve 'Range' = force NURBS curve range; parametric concept absent from the Screw-modifier model — explicitly excused in the blender slot's tb000 comment."},
-        "chk007": {"status": "na", "reason": "Revolve 'Polygon' = NURBS-vs-polygon output toggle; Screw modifier output is always a mesh — explicitly excused in the blender slot's tb000 comment."},
-        "chk009": {"status": "na", "reason": "Revolve 'Use Tolerance' = cmds.revolve NURBS build-tolerance switch; no tolerance concept on a Screw mesh — explicitly excused in the blender slot's tb000 comment."},
-        "chk010": {"status": "na", "reason": "Loft 'Angle Loft Between Two Curves' = mtk.loft angle-loft mode; excused as no-mesh-analogue in the blender module docstring and tb001 comment (btk.loft has no angle-loft path)."},
-        "s000": {"status": "na", "reason": "Loft 'Degree' = NURBS surface degree; a bmesh-bridge mesh has no degree — explicitly excused in the blender slot's tb001 comment."},
-        "s002": {"status": "na", "reason": "Revolve 'Degree' = NURBS surface degree; the Screw-modifier mesh has no degree — explicitly excused in the blender slot's tb000 comment."},
-        "s006": {"status": "na", "reason": "Revolve 'Tolerance' value pairs with chk009's use-tolerance NURBS build flag; excused together in the blender slot's tb000 comment."},
-        "s007": {"status": "na", "reason": "Loft 'Angle Loft: Spans' pairs with chk010's angle-loft mode; excused together with angle-loft in the blender slot's documented drops."},
     },
     "rendering": {
         "chk001": {"status": "na", "reason": "IPR launches a Maya Render View interactive session via renderer-registered MEL procs (RenderUtils.start_ipr); Blender's interactive render is the rendered-viewport shading state, not a render-op option — drop documented in Blender tb001 docstring. Added to Maya 2026-06-21 (9cc22169)."},
@@ -294,22 +235,6 @@ CONTROLS_SLOTS = {
         # list000 ships exactly an Auto Set Workspace action (btk.find_workspaces-backed
         # up-the-tree detection) plus a Current-Workspace row that opens the workspace root.
     },
-    "transform": {
-        "chk023": {"status": "done-elsewhere", "to": "chk023 (static)",
-                   "reason": "[Snap Rotate] handled by the standalone chk023 slot (static widget in "
-                             "transform#submenu.ui, live toggle -> use_snap_rotate); re-building it in "
-                             "tb004_init like Maya would duplicate the objectName."},
-        # chk026 (Make Live) removed 2026-07-08: BUILT as a tb003 option-box checkbox mapping
-        # onto face-projection snapping (FACE_NEAREST); single-live-surface vs all-surfaces is
-        # an accepted delta documented in the slot's tb003 comment. No delta.
-        "s021": {"status": "na", "reason": "Move increment -- grid-driven (see HANDLERS['transform']['s021'])"},
-        "s022": {"status": "na", "reason": "Scale increment -- no numeric scale-snap value exists in Blender (see HANDLERS['transform']['s022'])"},
-        # s023 BUILT 2026-07-28 (see HANDLERS['transform'] note). No delta.
-        "chk038": {"status": "na", "reason": "Freeze rig extras are Maya-rig-specific (slot comment)"},
-        "chk040": {"status": "na", "reason": "Freeze rig extras are Maya-rig-specific (slot comment)"},
-        "chk_restore_rig_anchors": {"status": "na", "reason": "Maya-rig-specific (slot comment)"},
-        "cmb_connection_strategy": {"status": "na", "reason": "Maya-rig-specific (slot comment)"},
-    },
 }
 
 # Accepted same-named default/property divergences: {"pair": {"control.prop": reason}}.
@@ -325,14 +250,6 @@ DEFAULT_DELTAS = {
     },
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
-    },
-    "subdivision": {
-        "cmb000.items": "Decimate 'Reduce' item names its output metric by each host's native algorithm: Maya = Quadric Error % ('Reduce (Quadric Error %)', data 'qem', cmds.polyReduce QEM), Blender = Collapse % ('Reduce (Collapse %)', data 'collapse', Decimate modifier collapse mode). Same Reduce slot/operation; only the metric name in the item text (and its data token) differs to match each DCC's native reduction.",
-    },
-    "nurbs": {
-        "s003.setValue": "Blender's Screw modifier takes ONE sweep angle computed as end-start (tb000: math.radians(s004-s003)); start=0 is the neutral origin. Matching Maya's 3 alongside its 3 end sweep would give a 0-degree (degenerate) revolve. Maya's 3/3 is itself drift from cmds.revolve defaults (ssw=0, esw=360).",
-        "s004.setValue": "Screw has no independent end angle, only total sweep (end-start). 360 with start=0 = full revolution, matching cmds.revolve's documented esw default and Screw's native 360; matching Maya's 3 would make sweep 3-3=0 degrees (no geometry).",
-        "s005.set_limits": "Value assigned directly to ScrewModifier.steps, whose RNA range is [2, 10000]; Maya's [0] minimum would allow 0/1 steps that Blender's property rejects/clamps. [1, 256] reflects Blender's supported revolution-step range.",
     },
     "rendering": {
         "cmb016.setCurrentIndex": "Not a real delta: items are populated after add() via cmb016.addItem(label, data) (per-item quality data), then cmb016.setCurrentIndex(5) is called immediately — matching Maya's index 5. A setCurrentIndex kwarg inside add() would run on an empty combo (no-op); the static tool can't see the post-population call.",

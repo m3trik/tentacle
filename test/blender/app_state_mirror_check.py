@@ -290,7 +290,7 @@ try:
             )
 
     # ================================================================ subdivision
-    from tentacle.slots.blender.subdivision import SubdivisionSlots
+    from tentacle.slots.subdivision import SubdivisionSlots  # composed: over sb.tk
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()
@@ -317,7 +317,7 @@ try:
     assert_quiet_init("subdivision (no SUBSURF modifier)", slot, ui, ("s000", "s001"))
 
     # ================================================================ transform
-    from tentacle.slots.blender.transform import TransformSlots as Transform
+    from tentacle.slots.transform import TransformSlots as Transform  # composed: over sb.tk
 
     for snap in (True, False):
         # chk023 mirrors the EFFECTIVE state: snapping on AND the rotate kind.

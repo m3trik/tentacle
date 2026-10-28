@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 46,
+          "line": 44,
           "deprecated": false
         }
       ]
@@ -207,31 +207,6 @@
               "signature": "(self, widget)",
               "summary": "Tools list: Setup / Materials / Texture Maps / External / Utilities.",
               "line": 832,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_nurbs.py",
-      "summary": "Behavior shared by the Maya and Blender ``nurbs`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NurbsMixin",
-          "summary": "Shared ``nurbs`` panel behavior.",
-          "line": 9,
-          "bases": [],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "NurbsMixin.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the Nurbs expandable list (root -> category -> curve action),",
-              "line": 12,
               "deprecated": false
             }
           ]
@@ -449,31 +424,6 @@
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
               "line": 374,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_transform.py",
-      "summary": "Behavior shared by the Maya and Blender ``transform`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "TransformMixin",
-          "summary": "Shared ``transform`` panel behavior.",
-          "line": 9,
-          "bases": [],
-          "members": [
-            {
-              "name": "tb001_init",
-              "qualname": "TransformMixin.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Scale Connected Edges (the scale factor option).",
-              "line": 12,
               "deprecated": false
             }
           ]
@@ -1381,97 +1331,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/nurbs.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NurbsSlots",
-          "summary": "Blender port of the shared ``nurbs`` menu.",
-          "line": 10,
-          "bases": [
-            "NurbsMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "b058",
-              "qualname": "NurbsSlots.b058",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Curve to Tube (curve bevel).",
-              "line": 29,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "NurbsSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 43,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "NurbsSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Revolve (Screw modifier;",
-              "line": 71,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "NurbsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 94,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "NurbsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Loft — bridge the selected profile curves / mesh loops into a surface (btk.loft).",
-              "line": 112,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "NurbsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Nurbs leaf action (mirrors Maya's list000: no-op on a node that still",
-              "line": 182,
-              "deprecated": false
-            },
-            {
-              "name": "b030",
-              "qualname": "NurbsSlots.b030",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Extrude Curve Profile — build a surface from the selected curve(s), the Blender",
-              "line": 518,
-              "deprecated": false
-            },
-            {
-              "name": "b056",
-              "qualname": "NurbsSlots.b056",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Image Tracer (native wrap: trace the active image-empty to Grease Pencil,",
-              "line": 548,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/rendering.py",
       "summary": "",
       "functions": [],
@@ -1944,376 +1803,6 @@
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
               "line": 777,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/subdivision.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SubdivisionSlots",
-          "summary": "Blender port of the shared ``subdivision`` menu.",
-          "line": 7,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "SubdivisionSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 22,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "SubdivisionSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Decimate: reduce face count by collapse percentage or coplanar-face dissolve.",
-              "line": 68,
-              "deprecated": false
-            },
-            {
-              "name": "s000_init",
-              "qualname": "SubdivisionSlots.s000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Division Level — reflect the active object's live viewport subdivision level.",
-              "line": 120,
-              "deprecated": false
-            },
-            {
-              "name": "s001_init",
-              "qualname": "SubdivisionSlots.s001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tesselation Level — reflect the active object's live render subdivision level.",
-              "line": 124,
-              "deprecated": false
-            },
-            {
-              "name": "s000",
-              "qualname": "SubdivisionSlots.s000",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Division Level (live Subdivision-Surface viewport level).",
-              "line": 129,
-              "deprecated": false
-            },
-            {
-              "name": "s001",
-              "qualname": "SubdivisionSlots.s001",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Tesselation Level (Subdivision-Surface render level).",
-              "line": 138,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "SubdivisionSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Quadrangulate (tris -> quads).",
-              "line": 148,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SubdivisionSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Triangulate",
-              "line": 153,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SubdivisionSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reduce (decimate to 50%) — whole meshes, or the selected components in Edit Mode.",
-              "line": 158,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "SubdivisionSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Add Divisions - Subdivide Mesh",
-              "line": 166,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "SubdivisionSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons",
-              "line": 171,
-              "deprecated": false
-            },
-            {
-              "name": "b028",
-              "qualname": "SubdivisionSlots.b028",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so",
-              "line": 185,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/transform.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "TransformSlots",
-          "summary": "Blender port of the shared ``transform`` menu.",
-          "line": 10,
-          "bases": [
-            "TransformMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "TransformSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Header — Fix Non-Orthogonal Axes + the Snap Toolset button.",
-              "line": 31,
-              "deprecated": false
-            },
-            {
-              "name": "b_snap_ts",
-              "qualname": "TransformSlots.b_snap_ts",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Snap Toolset — open the Snap panel (mirror of Maya's b_snap_ts).",
-              "line": 54,
-              "deprecated": false
-            },
-            {
-              "name": "fix_non_ortho_axes",
-              "qualname": "TransformSlots.fix_non_ortho_axes",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fix Non-Orthogonal Axes (bake out shear on the selected objects).",
-              "line": 58,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "TransformSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 80,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "TransformSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Drop To Grid",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "TransformSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 137,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "TransformSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Freeze Transformations",
-              "line": 197,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "TransformSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 239,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "TransformSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move To (align source object(s) to the active/target object).",
-              "line": 272,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "TransformSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Match Scale (rescale the active object to the other selected objects' combined",
-              "line": 292,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "TransformSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 314,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "TransformSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Align To (object centers onto the active object's, native ``object.align``).",
-              "line": 318,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "TransformSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 355,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "TransformSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transform Snap (per-transform increment snapping via the scene tool settings).",
-              "line": 389,
-              "deprecated": false
-            },
-            {
-              "name": "s023",
-              "qualname": "TransformSlots.s023",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Transform Tool Snap Settings: rotate increment (degrees → the scene's",
-              "line": 397,
-              "deprecated": false
-            },
-            {
-              "name": "chk023_init",
-              "qualname": "TransformSlots.chk023_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Rotate toggle — reflect the live tool-settings state.",
-              "line": 405,
-              "deprecated": false
-            },
-            {
-              "name": "chk023",
-              "qualname": "TransformSlots.chk023",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Snap: Rotate (increment rotation snapping).",
-              "line": 416,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "TransformSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Scale Connected Edges (each connected set of selected edges scales about its",
-              "line": 426,
-              "deprecated": false
-            },
-            {
-              "name": "b002_init",
-              "qualname": "TransformSlots.b002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box).",
-              "line": 438,
-              "deprecated": false
-            },
-            {
-              "name": "b_restore_axes",
-              "qualname": "TransformSlots.b_restore_axes",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Restore Authored Axes - point the gizmo at the pre-freeze frame.",
-              "line": 492,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "TransformSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Un-Freeze Transforms (restore the channels stamped by Freeze;",
-              "line": 506,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "TransformSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Constraints Init (mirrors the Maya option box;",
-              "line": 599,
-              "deprecated": false
-            },
-            {
-              "name": "chk024",
-              "qualname": "TransformSlots.chk024",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Constraints: Edge (snap-to-edge during move).",
-              "line": 628,
-              "deprecated": false
-            },
-            {
-              "name": "chk025",
-              "qualname": "TransformSlots.chk025",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Constraints: Surface (snap-to-face during move).",
-              "line": 633,
-              "deprecated": false
-            },
-            {
-              "name": "chk026",
-              "qualname": "TransformSlots.chk026",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Constraints: Make Live (project transformed geometry onto surfaces —",
-              "line": 638,
               "deprecated": false
             }
           ]
@@ -4742,106 +4231,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/nurbs.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "NurbsSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "NurbsMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000",
-              "qualname": "NurbsSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings).",
-              "line": 58,
-              "deprecated": false
-            },
-            {
-              "name": "b056",
-              "qualname": "NurbsSlots.b056",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Image Tracer",
-              "line": 74,
-              "deprecated": false
-            },
-            {
-              "name": "b058",
-              "qualname": "NurbsSlots.b058",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Curve to Tube",
-              "line": 78,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "NurbsSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 82,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "NurbsSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Revolve: sweep the selected profile curve around an axis into a surface.",
-              "line": 154,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "NurbsSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 181,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "NurbsSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Loft: build a surface lofted across the selected profile curves.",
-              "line": 257,
-              "deprecated": false
-            },
-            {
-              "name": "b016",
-              "qualname": "NurbsSlots.b016",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Extract Curve",
-              "line": 283,
-              "deprecated": false
-            },
-            {
-              "name": "b030",
-              "qualname": "NurbsSlots.b030",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Extrude: extrude the selected NURBS curve(s) into a surface.",
-              "line": 290,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/playback.py",
       "summary": "",
       "functions": [],
@@ -5478,141 +4867,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/subdivision.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SubdivisionSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "s000_init",
-              "qualname": "SubdivisionSlots.s000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Division Level — reflect the selection's live preview division level.",
-              "line": 31,
-              "deprecated": false
-            },
-            {
-              "name": "s001_init",
-              "qualname": "SubdivisionSlots.s001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Adaptive Level — reflect the selection's live adaptive tessellation level.",
-              "line": 35,
-              "deprecated": false
-            },
-            {
-              "name": "s000",
-              "qualname": "SubdivisionSlots.s000",
-              "kind": "method",
-              "signature": "(self, value: int, widget: object) -> None",
-              "summary": "Division Level (smooth mesh preview divisions).",
-              "line": 68,
-              "deprecated": false
-            },
-            {
-              "name": "s001",
-              "qualname": "SubdivisionSlots.s001",
-              "kind": "method",
-              "signature": "(self, value: int, widget: object) -> None",
-              "summary": "Adaptive Level (OpenSubdiv adaptive tessellation).",
-              "line": 84,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "SubdivisionSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Quadrangulate",
-              "line": 96,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SubdivisionSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Triangulate: split the selected faces into triangles.",
-              "line": 100,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SubdivisionSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.",
-              "line": 104,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "SubdivisionSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Decimate",
-              "line": 116,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "SubdivisionSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.",
-              "line": 176,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "SubdivisionSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Add Divisions - Subdivide Mesh",
-              "line": 213,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "SubdivisionSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Apply Smooth Preview",
-              "line": 217,
-              "deprecated": false
-            },
-            {
-              "name": "b028",
-              "qualname": "SubdivisionSlots.b028",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Quad Draw: enter Maya's Quad Draw retopology tool.",
-              "line": 221,
-              "deprecated": false
-            },
-            {
-              "name": "smoothProxy",
-              "qualname": "SubdivisionSlots.smoothProxy",
-              "kind": "staticmethod",
-              "signature": "()",
-              "summary": "Subdiv Proxy",
-              "line": 226,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/surfaces.py",
       "summary": "",
       "functions": [],
@@ -5659,268 +4913,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/transform.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "TransformSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "TransformMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "header_init",
-              "qualname": "TransformSlots.header_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Header Init",
-              "line": 19,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "TransformSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Align To Init",
-              "line": 37,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "TransformSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Align To: snap/align objects point-to-point, multi-point, or along a curve.",
-              "line": 50,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "TransformSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Drop To Grid Init",
-              "line": 68,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "TransformSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Drop To Grid",
-              "line": 98,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "TransformSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Scale Connected Edges",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "TransformSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Freeze Transformations Init",
-              "line": 115,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "TransformSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Freeze Transformations",
-              "line": 222,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "TransformSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Constraints Init",
-              "line": 267,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "TransformSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Init",
-              "line": 305,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "TransformSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move To Init",
-              "line": 371,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "TransformSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move To: move the selected objects onto the last-selected object (by a chosen pivot).",
-              "line": 410,
-              "deprecated": false
-            },
-            {
-              "name": "chk021",
-              "qualname": "TransformSlots.chk021",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Tool Snap Settings: Move",
-              "line": 433,
-              "deprecated": false
-            },
-            {
-              "name": "chk022",
-              "qualname": "TransformSlots.chk022",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Tool Snap Settings: Scale",
-              "line": 442,
-              "deprecated": false
-            },
-            {
-              "name": "chk023",
-              "qualname": "TransformSlots.chk023",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Tool Snap Settings: Rotate",
-              "line": 451,
-              "deprecated": false
-            },
-            {
-              "name": "chk024",
-              "qualname": "TransformSlots.chk024",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Constraints: Edge",
-              "line": 460,
-              "deprecated": false
-            },
-            {
-              "name": "chk025",
-              "qualname": "TransformSlots.chk025",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Contraints: Surface",
-              "line": 469,
-              "deprecated": false
-            },
-            {
-              "name": "chk026",
-              "qualname": "TransformSlots.chk026",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Transform Constraints: Make Live",
-              "line": 478,
-              "deprecated": false
-            },
-            {
-              "name": "s021",
-              "qualname": "TransformSlots.s021",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 489,
-              "deprecated": false
-            },
-            {
-              "name": "s022",
-              "qualname": "TransformSlots.s022",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 495,
-              "deprecated": false
-            },
-            {
-              "name": "s023",
-              "qualname": "TransformSlots.s023",
-              "kind": "method",
-              "signature": "(self, value, widget)",
-              "summary": "Transform Tool Snap Settings: Spinboxes",
-              "line": 501,
-              "deprecated": false
-            },
-            {
-              "name": "b_snap_ts",
-              "qualname": "TransformSlots.b_snap_ts",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Snap Toolset",
-              "line": 507,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "TransformSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Match Scale: scale the selected object(s) to match the first-selected object's size.",
-              "line": 511,
-              "deprecated": false
-            },
-            {
-              "name": "b002_init",
-              "qualname": "TransformSlots.b002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Un-Freeze Transforms Init",
-              "line": 525,
-              "deprecated": false
-            },
-            {
-              "name": "b_restore_axes",
-              "qualname": "TransformSlots.b_restore_axes",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Restore Authored Axes - point the manipulator at the pre-freeze frame.",
-              "line": 577,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "TransformSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Un-Freeze Transforms",
-              "line": 591,
-              "deprecated": false
-            },
-            {
-              "name": "setTransformSnap",
-              "qualname": "TransformSlots.setTransformSnap",
-              "kind": "method",
-              "signature": "(self, ctx, state)",
-              "summary": "Set the transform tool's move, rotate, and scale snap states.",
-              "line": 625,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -6295,6 +5287,105 @@
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
               "line": 158,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/nurbs.py",
+      "summary": "NURBS: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "NurbsSlots",
+          "summary": "",
+          "line": 23,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "NurbsSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the Nurbs expandable list (root -> category -> curve action).",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "NurbsSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Run a Nurbs leaf: its curve action, or its viewport tool.",
+              "line": 104,
+              "deprecated": false
+            },
+            {
+              "name": "b030",
+              "qualname": "NurbsSlots.b030",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Extrude: sweep the selected profile curve along a path curve, or",
+              "line": 120,
+              "deprecated": false
+            },
+            {
+              "name": "b056",
+              "qualname": "NurbsSlots.b056",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Image Tracer",
+              "line": 125,
+              "deprecated": false
+            },
+            {
+              "name": "b058",
+              "qualname": "NurbsSlots.b058",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Curve to Tube",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "NurbsSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Revolve.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "NurbsSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Revolve: sweep the selected profile curve around an axis into a surface.",
+              "line": 225,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "NurbsSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Loft.",
+              "line": 252,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "NurbsSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Loft: build a surface lofted across the selected profile curves.",
+              "line": 347,
               "deprecated": false
             }
           ]
@@ -7573,6 +6664,132 @@
               "signature": "(self)",
               "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
               "line": 276,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/subdivision.py",
+      "summary": "Subdivision: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SubdivisionSlots",
+          "summary": "",
+          "line": 21,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "s000_init",
+              "qualname": "SubdivisionSlots.s000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Division Level: reflect the selection's live preview division level.",
+              "line": 60,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "SubdivisionSlots.s001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tessellation Level: reflect the selection's live tessellation level.",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "s000",
+              "qualname": "SubdivisionSlots.s000",
+              "kind": "method",
+              "signature": "(self, value: int, widget: object) -> None",
+              "summary": "Division Level (Maya: the smooth preview's divisions;",
+              "line": 81,
+              "deprecated": false
+            },
+            {
+              "name": "s001",
+              "qualname": "SubdivisionSlots.s001",
+              "kind": "method",
+              "signature": "(self, value: int, widget: object) -> None",
+              "summary": "Tessellation Level (Maya: OpenSubdiv adaptive tessellation;",
+              "line": 86,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "SubdivisionSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Quadrangulate: merge triangles into quads.",
+              "line": 92,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "SubdivisionSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Triangulate: split the selected faces into triangles.",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "SubdivisionSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reduce: halve the polygon count -- the one-click form of tb000's Reduce",
+              "line": 100,
+              "deprecated": false
+            },
+            {
+              "name": "b008",
+              "qualname": "SubdivisionSlots.b008",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Add Divisions: subdivide the selected mesh.",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "SubdivisionSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Convert Preview: bake the smooth preview into polygons.",
+              "line": 113,
+              "deprecated": false
+            },
+            {
+              "name": "b028",
+              "qualname": "SubdivisionSlots.b028",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Quad Draw: Maya's retopology tool (Blender: Poly Build).",
+              "line": 123,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "SubdivisionSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Decimate.",
+              "line": 133,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "SubdivisionSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Decimate: reduce the face count by percentage, or dissolve coplanar faces.",
+              "line": 215,
               "deprecated": false
             }
           ]
@@ -18419,6 +17636,357 @@
               "signature": "(self) -> None",
               "summary": "Publish the ACTIVE project's file rules as a named workspace template.",
               "line": 352,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/transform.py",
+      "summary": "Transform: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TransformSlots",
+          "summary": "",
+          "line": 23,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "TransformSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header: Fix Non-Orthogonal Axes and the Snap panel.",
+              "line": 46,
+              "deprecated": false
+            },
+            {
+              "name": "fix_non_ortho_axes",
+              "qualname": "TransformSlots.fix_non_ortho_axes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fix Non-Orthogonal Axes: bake out shear on the selected objects.",
+              "line": 65,
+              "deprecated": false
+            },
+            {
+              "name": "b_snap_ts",
+              "qualname": "TransformSlots.b_snap_ts",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Snap: open the shared Snap panel.",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "TransformSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Align To: the modes the host offers.",
+              "line": 85,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "TransformSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Align To: run the chosen mode on the selection.",
+              "line": 89,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "TransformSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Drop To Grid.",
+              "line": 97,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "TransformSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Drop To Grid",
+              "line": 128,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "TransformSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Scale Connected Edges (the scale factor option).",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "TransformSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Scale Connected Edges: each connected set of selected edges scales about",
+              "line": 154,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "TransformSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Freeze Transforms.",
+              "line": 167,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "TransformSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Freeze Transformations",
+              "line": 284,
+              "deprecated": false
+            },
+            {
+              "name": "b002_init",
+              "qualname": "TransformSlots.b002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Un-Freeze Transforms.",
+              "line": 311,
+              "deprecated": false
+            },
+            {
+              "name": "b_restore_axes",
+              "qualname": "TransformSlots.b_restore_axes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Restore Authored Axes: point the gizmo at the pre-freeze frame.",
+              "line": 366,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "TransformSlots.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Un-Freeze Transforms: restore the channels Freeze stamped (the object's",
+              "line": 380,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "TransformSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Move To.",
+              "line": 413,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "TransformSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move To: move the selected objects onto the target, by a chosen pivot.",
+              "line": 445,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "TransformSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Match Scale: scale the first selected (Blender: the active) object to the",
+              "line": 460,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "TransformSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Constraints: Edge / Surface / Make Live, seeded from the host.",
+              "line": 470,
+              "deprecated": false
+            },
+            {
+              "name": "chk024_init",
+              "qualname": "TransformSlots.chk024_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 503,
+              "deprecated": false
+            },
+            {
+              "name": "chk025_init",
+              "qualname": "TransformSlots.chk025_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 506,
+              "deprecated": false
+            },
+            {
+              "name": "chk026_init",
+              "qualname": "TransformSlots.chk026_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 509,
+              "deprecated": false
+            },
+            {
+              "name": "chk024",
+              "qualname": "TransformSlots.chk024",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Constraints: Edge",
+              "line": 516,
+              "deprecated": false
+            },
+            {
+              "name": "chk025",
+              "qualname": "TransformSlots.chk025",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Constraints: Surface",
+              "line": 520,
+              "deprecated": false
+            },
+            {
+              "name": "chk026",
+              "qualname": "TransformSlots.chk026",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Constraints: Make Live (Blender: project onto surfaces)",
+              "line": 524,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "TransformSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap: Move / Scale / Rotate increment snapping, seeded from the host.",
+              "line": 529,
+              "deprecated": false
+            },
+            {
+              "name": "chk021_init",
+              "qualname": "TransformSlots.chk021_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 582,
+              "deprecated": false
+            },
+            {
+              "name": "chk022_init",
+              "qualname": "TransformSlots.chk022_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 585,
+              "deprecated": false
+            },
+            {
+              "name": "chk023_init",
+              "qualname": "TransformSlots.chk023_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 588,
+              "deprecated": false
+            },
+            {
+              "name": "s021_init",
+              "qualname": "TransformSlots.s021_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 591,
+              "deprecated": false
+            },
+            {
+              "name": "s022_init",
+              "qualname": "TransformSlots.s022_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 594,
+              "deprecated": false
+            },
+            {
+              "name": "s023_init",
+              "qualname": "TransformSlots.s023_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 597,
+              "deprecated": false
+            },
+            {
+              "name": "chk021",
+              "qualname": "TransformSlots.chk021",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Snap: Move",
+              "line": 607,
+              "deprecated": false
+            },
+            {
+              "name": "chk022",
+              "qualname": "TransformSlots.chk022",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Snap: Scale",
+              "line": 611,
+              "deprecated": false
+            },
+            {
+              "name": "chk023",
+              "qualname": "TransformSlots.chk023",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Transform Snap: Rotate",
+              "line": 615,
+              "deprecated": false
+            },
+            {
+              "name": "s021",
+              "qualname": "TransformSlots.s021",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Transform Snap: the move increment.",
+              "line": 619,
+              "deprecated": false
+            },
+            {
+              "name": "s022",
+              "qualname": "TransformSlots.s022",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Transform Snap: the scale increment.",
+              "line": 623,
+              "deprecated": false
+            },
+            {
+              "name": "s023",
+              "qualname": "TransformSlots.s023",
+              "kind": "method",
+              "signature": "(self, value, widget)",
+              "summary": "Transform Snap: the rotate increment (degrees).",
+              "line": 627,
               "deprecated": false
             }
           ]

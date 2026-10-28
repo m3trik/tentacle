@@ -1,6 +1,6 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Headless verification for the Nurbs list000 parity fix (Maya<->Blender ExpandableList).
+"""Headless verification of the composed Nurbs list000 in Blender (``tentacle.slots.nurbs``).
 
 Requires a real Blender binary (``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run against a
@@ -9,14 +9,15 @@ Requires a real Blender binary (``import bpy``), so it is **not** a CI/unittest 
     blender --background --factory-startup --python tentacle/test/blender/nurbs_list000_check.py
 
 Verifies:
-  - list000_init builds the same root -> category -> leaf tree shape as Maya's (Nurbs ->
-    Create/Modify/Surfaces/Edit -> leaves), and that only genuinely-portable leaves are present
-    (the parametric-NURBS-only ones are omitted, not the whole widget).
+  - list000_init builds Maya's root -> category -> leaf tree (Nurbs ->
+    Create/Modify/Surfaces/Edit -> leaves), the parametric-NURBS-only leaves tagged
+    ``requires="maya"`` and so hidden by the visibility policy (the fake switchboard below
+    applies it as uitk does in Blender).
   - list000(item) no-ops on a category node (still has a populated sublist).
-  - Each ported leaf actually performs the mapped bpy action against real curve/mesh data:
+  - Each leaf performs its ``btk.NurbsUtils.curve_action`` against real curve/mesh data:
     Reverse, Open/Close, Smooth, Duplicate, Extract, Attach, Detach, Cut, Planar, Project.
   - Precondition guards (Detach/Cut outside Edit Mode, Attach/Duplicate/etc. with nothing
-    selected) show a message_box instead of raising.
+    selected) show one message_box instead of raising.
 """
 import os
 import sys
@@ -48,14 +49,26 @@ def check(name, cond, detail=""):
 
 
 class FakeSwitchboard:
-    """Minimal stand-in for uitk's Switchboard — just enough surface (``message_box``) for
-    Nurbs' handlers to report guard failures without pulling in the full UI stack."""
+    """Minimal stand-in for uitk's Switchboard: ``message_box`` records, ``tk`` is the host
+    toolkit (what the composed class calls), and the visibility policy hides what Blender
+    cannot serve, as ``Switchboard.apply_visibility_policy`` does with ``context_tags``
+    {"blender"}."""
 
-    def __init__(self):
+    def __init__(self, tk):
         self.messages = []
+        self.tk = tk
 
     def message_box(self, msg, *args, **kwargs):
         self.messages.append(msg)
+
+    @staticmethod
+    def apply_visibility_policy(widget):
+        requires = widget.property("requires")
+        if requires and "blender" not in str(requires):
+            widget.setVisible(False)
+            widget.hidden_by_policy = "requires"
+            return True
+        return False
 
 
 def _new_curve(name, points, cyclic=False, dims="3D"):
@@ -89,14 +102,16 @@ def _run():
     from tentacle import tcl_blender  # import-time side effect provisions Qt (qtpy/PySide6)
     from qtpy import QtWidgets
     from uitk.widgets.expandableList import ExpandableList
-    from tentacle.slots.blender.nurbs import NurbsSlots
+    import blendertk as btk
+    from tentacle.slots.nurbs import NurbsSlots
 
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(sys.argv)
     check("QApplication available (needed for ExpandableList)", app is not None)
     check("Qt provisioned via tcl_blender bootstrap", hasattr(tcl_blender, "bl_info"))
 
-    sb = FakeSwitchboard()
-    nurbs = NurbsSlots(sb)
+    sb = FakeSwitchboard(btk)
+    nurbs = NurbsSlots.__new__(NurbsSlots)  # headless: no loaded_ui for __init__ to read
+    nurbs.sb = sb
 
     # ---- tree structure ---------------------------------------------------------------
     widget = ExpandableList()
@@ -123,32 +138,46 @@ def _run():
         f"got {cat_texts}",
     )
 
-    leaf_widgets = {}  # label -> widget, for later direct-dispatch tests
+    all_leaves = {}  # label -> widget, hidden ones included
     for cat in cats:
         for leaf in cat.sublist.get_items():
-            leaf_widgets[leaf.item_text()] = leaf
+            all_leaves[leaf.item_text()] = leaf
+    leaf_widgets = {
+        t: w
+        for t, w in all_leaves.items()
+        if not (w.isHidden() or getattr(w, "hidden_by_policy", None))
+    }
 
     expected_leaves = {
         label
-        for items in NurbsSlots._LIST000_COMMANDS.values()
-        for label, _ in items
+        for rows in NurbsSlots._LIST000_ITEMS.values()
+        for label, _action, requires in rows
+        if requires is None
     }
     check(
-        "leaf set matches _LIST000_COMMANDS",
+        "visible leaves are the rows both hosts serve",
         set(leaf_widgets) == expected_leaves,
         f"got {sorted(leaf_widgets)}",
     )
 
-    # Bend / Curl / Curvature / Straighten / Rebuild / Extend have since been
-    # ported (btk.NurbsUtils); these are the ones nurbs.py still excuses.
+    # The parametric-NURBS-only rows exist (one tree for both hosts) but are hidden here.
     excused = {
         "Lock", "Unlock", "Insert Isoparm", "Insert Knot",
         "Extend (Options)", "Extend on Surface",
     }
     check(
-        "excused parametric-only leaves are absent",
-        excused.isdisjoint(leaf_widgets),
-        f"unexpected overlap: {excused & set(leaf_widgets)}",
+        "parametric-only leaves are present and hidden by the policy",
+        excused <= set(all_leaves) and excused.isdisjoint(leaf_widgets),
+        f"hidden={sorted(set(all_leaves) - set(leaf_widgets))}",
+    )
+    check(
+        "every Blender-visible action is one btk serves",
+        all(
+            action in btk.NurbsUtils.CURVE_ACTIONS or action in NurbsSlots._TOOLS
+            for rows in NurbsSlots._LIST000_ITEMS.values()
+            for _label, action, requires in rows
+            if requires is None
+        ),
     )
 
     # ---- category node no-ops (still has a populated sublist) --------------------------
@@ -289,7 +318,7 @@ def _run():
     check("Cut splits off a new spline", after_splines > before_splines,
           f"before={before_splines} after={after_splines}")
 
-    # ---- Edit Curve Tool / Add Points Tool (no VIEW_3D in --background -> graceful message)
+    # ---- Edit Curve Tool / Add Points Tool: Slots.activate_tool says what happened, once
     sb.messages.clear()
     nurbs.list000(leaf_widgets["Edit Curve Tool"])
     check("Edit Curve Tool degrades gracefully with no viewport",

@@ -163,8 +163,8 @@ def main():
             else "mode gate + active-tool id (GUI: full activation)"
         )
     )
-    from tentacle.slots.blender.subdivision import SubdivisionSlots
-    from tentacle.slots.blender.nurbs import NurbsSlots
+    from tentacle.slots.subdivision import SubdivisionSlots
+    from tentacle.slots.nurbs import NurbsSlots
     from tentacle.slots.utilities import UtilitiesSlots
 
     # -- 1. the bug reproduces: knife is absent from OBJECT mode's tool list -----------------
@@ -184,7 +184,6 @@ def main():
     for cls, method, tool_id, label in (
         (PolygonsSlots, "b012", "builtin.knife", "Multi-Cut"),
         (PolygonsSlots, "b047", "builtin.loop_cut", "Insert Edgeloop"),
-        (SubdivisionSlots, "b028", "builtin.poly_build", "Quad Draw"),
     ):
         reset()
         obj = add_cube()
@@ -199,20 +198,41 @@ def main():
         )
 
     # -- 3. curve tools: Object Mode -> Edit Mode, tool resolvable ---------------------------
-    for method, tool_id, label in (
-        ("_edit_curve_tool", "builtin.pen", "Edit Curve Tool"),
-        ("_add_points_tool", "builtin.draw", "Add Points Tool"),
+    # The composed NurbsSlots runs a tool row through Slots.activate_tool (btk.UiUtils).
+    import blendertk as btk
+
+    for tool_id, label in (
+        ("builtin.pen", "Edit Curve Tool"),
+        ("builtin.draw", "Add Points Tool"),
     ):
         reset()
         obj = add_curve()
         slot = make_slot(NurbsSlots)
-        getattr(slot, method)()
+        slot.sb.tk = btk
+        slot.list000(
+            NS(sublist=None, item_text=lambda t=label: t, parent_item_text=lambda: "Edit")
+        )
         landed, why = tool_landed("EDIT_CURVE", tool_id)
         check(
-            f"{label} ({method}) from Object Mode",
+            f"{label} (list000 'Edit' row) from Object Mode",
             obj.mode == "EDIT" and landed,
             f"mode={obj.mode} {why}".strip(),
         )
+
+    # -- 2b. Quad Draw: the composed SubdivisionSlots, through Slots.activate_tool -----------
+    import blendertk as btk
+
+    reset()
+    obj = add_cube()
+    slot = make_slot(SubdivisionSlots)
+    slot.sb.tk = btk
+    slot.b028()
+    landed, why = tool_landed("EDIT_MESH", "builtin.poly_build")
+    check(
+        "Quad Draw (b028) from Object Mode",
+        obj.mode == "EDIT" and landed,
+        f"mode={obj.mode} {why}".strip(),
+    )
 
     # -- 4. selection fall-back: right-type object selected but NOT active -------------------
     reset()

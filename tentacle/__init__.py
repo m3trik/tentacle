@@ -32,11 +32,9 @@ DEFAULT_INCLUDE = {
     # the same reason as the rest.
     "slots._animation": "AnimationMixin",
     "slots._materials": "MaterialsMixin",
-    "slots._nurbs": "NurbsMixin",
     "slots._rendering": "RenderingMixin",
     "slots._rigging": "RiggingMixin",
     "slots._scene": "SceneMixin",
-    "slots._transform": "TransformMixin",
     "slots._uv": "UvMixin",
 }
 
@@ -55,6 +53,8 @@ MOVED_NAMES = {
     "PreferencesMixin": ("tentacle.slots.preferences.PreferencesSlots", "0.17.0"),
     "SettingsMixin": ("tentacle.slots.settings.SettingsSlots", "0.17.0"),
     "SelectionMixin": ("tentacle.slots.selection.SelectionSlots", "0.17.0"),
+    "NurbsMixin": ("tentacle.slots.nurbs.NurbsSlots", "0.17.0"),
+    "TransformMixin": ("tentacle.slots.transform.TransformSlots", "0.17.0"),
 }
 
 

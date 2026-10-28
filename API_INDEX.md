@@ -14,10 +14,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class MaterialsMixin`
   - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, txt000_init, b006_init, b006, b033, b014, header_init, b003, list001_init
 
-### `slots/_nurbs.py` — Behavior shared by the Maya and Blender ``nurbs`` panels.
-- `class NurbsMixin`
-  - methods: list000_init
-
 ### `slots/_rendering.py` — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - `class RenderingMixin`
 
@@ -31,10 +27,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
   - methods: tk, mirror_app_state, require_selection, activate_tool, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
-
-### `slots/_transform.py` — Behavior shared by the Maya and Blender ``transform`` panels.
-- `class TransformMixin`
-  - methods: tb001_init
 
 ### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
 - `class UvMixin`
@@ -55,10 +47,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class MaterialsSlots(MaterialsMixin, SlotsBlender)`
   - methods: b_shader_editor, select_by_mat, tb001_init, tb001, list000_init, list000, list001, b004, b013, b015, lbl004, lbl006, b021, b010, b009, b027, b011, b018, b008, b016, b022, b023, b024, b025, b019, b020
 
-### `slots/blender/nurbs.py`
-- `class NurbsSlots(NurbsMixin, SlotsBlender)`
-  - methods: b058, tb000_init, tb000, tb001_init, tb001, list000, b030, b056
-
 ### `slots/blender/rendering.py`
 - `class RenderingSlots(RenderingMixin, SlotsBlender)`
   - methods: tb000_init, tb000, tb001_init, tb001, b000, b001, b003, b004
@@ -70,14 +58,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/scene.py`
 - `class SceneSlots(SceneMixin, SlotsBlender)`
   - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, b004, b003, b015, b017
-
-### `slots/blender/subdivision.py`
-- `class SubdivisionSlots(SlotsBlender)`
-  - methods: tb000_init, tb000, s000_init, s001_init, s000, s001, b000, b001, b005, b008, b011, b028
-
-### `slots/blender/transform.py`
-- `class TransformSlots(TransformMixin, SlotsBlender)`
-  - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, s023, chk023_init, chk023, tb001, b002_init, b_restore_axes, b002, tb003_init, chk024, chk025, chk026
 
 ### `slots/blender/uv.py`
 - `class UvSlots(UvMixin, SlotsBlender)`
@@ -201,10 +181,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/nparticles.py`
 - `class NParticlesSlots(SlotsMaya)`
 
-### `slots/maya/nurbs.py`
-- `class NurbsSlots(NurbsMixin, SlotsMaya)`
-  - methods: list000, b056, b058, tb000_init, tb000, tb001_init, tb001, b016, b030
-
 ### `slots/maya/playback.py`
 - `class PlaybackSlots(SlotsMaya)`
 
@@ -235,10 +211,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/stereo.py`
 - `class StereoSlots(SlotsMaya)`
 
-### `slots/maya/subdivision.py`
-- `class SubdivisionSlots(SlotsMaya)`
-  - methods: s000_init, s001_init, s000, s001, b000, b001, b005, tb000_init, tb000, b008, b011, b028, smoothProxy
-
 ### `slots/maya/surfaces.py`
 - `class SurfacesSlots(SlotsMaya)`
 
@@ -247,10 +219,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/toon.py`
 - `class ToonSlots(SlotsMaya)`
-
-### `slots/maya/transform.py`
-- `class TransformSlots(TransformMixin, SlotsMaya)`
-  - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001, tb002_init, tb002, tb003_init, tb004_init, tb005_init, tb005, chk021, chk022, chk023, chk024, chk025, chk026, s021, s022, s023, b_snap_ts, b001, b002_init, b_restore_axes, b002, setTransformSnap
 
 ### `slots/maya/uv.py`
 - `class UvSlots(UvMixin, SlotsMaya)`
@@ -265,6 +233,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/normals.py` — Normals: one Slots class for both hosts.
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
+
+### `slots/nurbs.py` — NURBS: one Slots class for both hosts.
+- `class NurbsSlots(Slots)`
+  - methods: list000_init, list000, b030, b056, b058, tb000_init, tb000, tb001_init, tb001
 
 ### `slots/pivot.py` — Pivot: one Slots class for both hosts.
 - `class PivotSlots(Slots)`
@@ -285,6 +257,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/settings.py` — Settings: one Slots class for both hosts.
 - `class SettingsSlots(Slots)`
   - methods: ecosystem_dists, header_init, tb000, tb001, check_for_update, b020, b021, b022, b023, b024, cmb_bind_default_init, cmb_bind_left_init, cmb_bind_middle_init, cmb_bind_right_init, cmb_bind_left_right_init, b_reset_bindings
+
+### `slots/subdivision.py` — Subdivision: one Slots class for both hosts.
+- `class SubdivisionSlots(Slots)`
+  - methods: s000_init, s001_init, s000, s001, b000, b001, b005, b008, b011, b028, tb000_init, tb000
 
 ### `slots/symmetry.py` — Symmetry: one Slots class for both hosts.
 - `class SymmetrySlots(Slots)`
@@ -681,6 +657,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/workspace_map.py` — Workspace Map: browse a folder tree of project workspaces and switch the
 - `class WorkspaceMapSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, txt000_init, txt001_init, tree000_init, update_current_dir, update_tree, populate_tree, refresh_tree, selected_workspace, filter_workspaces, b000, b001, b002, set_to_workspace, chk000, btn_open_workspace, btn_explore_folder, new_project, mark_root, save_template
+
+### `slots/transform.py` — Transform: one Slots class for both hosts.
+- `class TransformSlots(Slots)`
+  - methods: header_init, fix_non_ortho_axes, b_snap_ts, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, b002_init, b_restore_axes, b002, tb005_init, tb005, b001, tb003_init, chk024_init, chk025_init, chk026_init, chk024, chk025, chk026, tb004_init, chk021_init, chk022_init, chk023_init, s021_init, s022_init, s023_init, chk021, chk022, chk023, s021, s022, s023
 
 ### `slots/utilities.py` — Utilities: one Slots class for both hosts.
 - `class UtilitiesSlots(Slots)`

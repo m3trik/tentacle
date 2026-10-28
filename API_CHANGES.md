@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (38)
+## Removed (42)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
@@ -19,6 +19,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/hud.py::WarningsMixin` — was `(class)`
 - `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
 - `slots/blender/polygons.py::PolygonsSlots.b038_init` — was `(self, widget)`
+- `slots/blender/transform.py::TransformSlots.tb004` — was `(self, widget)`
 - `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b001` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b002` — was `(self)`
@@ -41,11 +42,14 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/hud.py::StatusMixin` — was `(class)`
 - `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
 - `slots/maya/hud.py::WarningsMixin` — was `(class)`
+- `slots/maya/nurbs.py::NurbsSlots.b016` — was `(self)`
 - `slots/maya/selection.py::SelectionSlots.chkxxx` — was `(self, **kwargs)`
 - `slots/maya/selection.py::SelectionSlots.get_selection_tool` — was `()`
 - `slots/maya/selection.py::SelectionSlots.set_selection_tool` — was `(tool)`
+- `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
+- `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (55)
+## Moved out (59)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -69,6 +73,8 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_main.py::MainMixin` → `tentacle.slots.main.MainSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
+- `slots/_nurbs.py::NurbsMixin` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
+- `slots/_nurbs.py::NurbsMixin.list000_init` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
 - `slots/_pivot.py::PivotMixin` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
 - `slots/_pivot.py::PivotMixin.b000` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
 - `slots/_pivot.py::PivotMixin.b001` → `tentacle.slots.pivot.PivotSlots` (from 0.17.0)
@@ -102,8 +108,10 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_settings.py::SettingsMixin.ecosystem_dists` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin.header_init` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_settings.py::SettingsMixin.tb000` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
+- `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 
-## Added (1378)
+## Added (1439)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -228,6 +236,16 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots(class)`
+- `slots/nurbs.py::NurbsSlots.b030(self)`
+- `slots/nurbs.py::NurbsSlots.b056(self)`
+- `slots/nurbs.py::NurbsSlots.b058(self)`
+- `slots/nurbs.py::NurbsSlots.list000(self, item)`
+- `slots/nurbs.py::NurbsSlots.list000_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb000(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb000_init(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb001(self, widget)`
+- `slots/nurbs.py::NurbsSlots.tb001_init(self, widget)`
 - `slots/pivot.py::PivotSlots(class)`
 - `slots/pivot.py::PivotSlots.b000(self)`
 - `slots/pivot.py::PivotSlots.b001(self)`
@@ -365,6 +383,19 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/settings.py::SettingsSlots.header_init(self, widget)`
 - `slots/settings.py::SettingsSlots.tb000(self)`
 - `slots/settings.py::SettingsSlots.tb001(self)`
+- `slots/subdivision.py::SubdivisionSlots(class)`
+- `slots/subdivision.py::SubdivisionSlots.b000(self)`
+- `slots/subdivision.py::SubdivisionSlots.b001(self)`
+- `slots/subdivision.py::SubdivisionSlots.b005(self)`
+- `slots/subdivision.py::SubdivisionSlots.b008(self)`
+- `slots/subdivision.py::SubdivisionSlots.b011(self)`
+- `slots/subdivision.py::SubdivisionSlots.b028(self)`
+- `slots/subdivision.py::SubdivisionSlots.s000(self, value: int, widget: object) -> None`
+- `slots/subdivision.py::SubdivisionSlots.s000_init(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.s001(self, value: int, widget: object) -> None`
+- `slots/subdivision.py::SubdivisionSlots.s001_init(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.tb000(self, widget)`
+- `slots/subdivision.py::SubdivisionSlots.tb000_init(self, widget)`
 - `slots/symmetry.py::SymmetrySlots(class)`
 - `slots/symmetry.py::SymmetrySlots.chk000(self, state, widget)`
 - `slots/symmetry.py::SymmetrySlots.chk000_init(self, widget)`
@@ -1475,6 +1506,44 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.txt001_init(self, widget)`
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None`
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None`
+- `slots/transform.py::TransformSlots(class)`
+- `slots/transform.py::TransformSlots.b001(self)`
+- `slots/transform.py::TransformSlots.b002(self, widget)`
+- `slots/transform.py::TransformSlots.b002_init(self, widget)`
+- `slots/transform.py::TransformSlots.b_restore_axes(self)`
+- `slots/transform.py::TransformSlots.b_snap_ts(self)`
+- `slots/transform.py::TransformSlots.chk021(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk021_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk022(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk022_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk023(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk023_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk024(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk024_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk025(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk025_init(self, widget)`
+- `slots/transform.py::TransformSlots.chk026(self, state, widget)`
+- `slots/transform.py::TransformSlots.chk026_init(self, widget)`
+- `slots/transform.py::TransformSlots.cmb002(self, index, widget)`
+- `slots/transform.py::TransformSlots.cmb002_init(self, widget)`
+- `slots/transform.py::TransformSlots.fix_non_ortho_axes(self)`
+- `slots/transform.py::TransformSlots.header_init(self, widget)`
+- `slots/transform.py::TransformSlots.s021(self, value, widget)`
+- `slots/transform.py::TransformSlots.s021_init(self, widget)`
+- `slots/transform.py::TransformSlots.s022(self, value, widget)`
+- `slots/transform.py::TransformSlots.s022_init(self, widget)`
+- `slots/transform.py::TransformSlots.s023(self, value, widget)`
+- `slots/transform.py::TransformSlots.s023_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb000(self, widget)`
+- `slots/transform.py::TransformSlots.tb000_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb001(self, widget)`
+- `slots/transform.py::TransformSlots.tb001_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb002(self, widget)`
+- `slots/transform.py::TransformSlots.tb002_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb003_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb004_init(self, widget)`
+- `slots/transform.py::TransformSlots.tb005(self, widget)`
+- `slots/transform.py::TransformSlots.tb005_init(self, widget)`
 - `slots/utilities.py::UtilitiesSlots(class)`
 - `slots/utilities.py::UtilitiesSlots.b000(self)`
 - `slots/utilities.py::UtilitiesSlots.b001(self)`
@@ -1484,7 +1553,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (424)
+## Moved (520)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1582,6 +1651,15 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/normals.py::NormalsSlots.tb004`
 - `slots/blender/normals.py::NormalsSlots.tb004_init`
 - `slots/blender/normals.py::NormalsSlots.tb010`
+- `slots/blender/nurbs.py::NurbsSlots`
+- `slots/blender/nurbs.py::NurbsSlots.b030`
+- `slots/blender/nurbs.py::NurbsSlots.b056`
+- `slots/blender/nurbs.py::NurbsSlots.b058`
+- `slots/blender/nurbs.py::NurbsSlots.list000`
+- `slots/blender/nurbs.py::NurbsSlots.tb000`
+- `slots/blender/nurbs.py::NurbsSlots.tb000_init`
+- `slots/blender/nurbs.py::NurbsSlots.tb001`
+- `slots/blender/nurbs.py::NurbsSlots.tb001_init`
 - `slots/blender/pivot.py::PivotSlots`
 - `slots/blender/pivot.py::PivotSlots.b004`
 - `slots/blender/pivot.py::PivotSlots.tb000`
@@ -1684,6 +1762,19 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/selection.py::SelectionSlots.tb004_init`
 - `slots/blender/settings.py::SettingsSlots`
 - `slots/blender/settings.py::SettingsSlots.tb001`
+- `slots/blender/subdivision.py::SubdivisionSlots`
+- `slots/blender/subdivision.py::SubdivisionSlots.b000`
+- `slots/blender/subdivision.py::SubdivisionSlots.b001`
+- `slots/blender/subdivision.py::SubdivisionSlots.b005`
+- `slots/blender/subdivision.py::SubdivisionSlots.b008`
+- `slots/blender/subdivision.py::SubdivisionSlots.b011`
+- `slots/blender/subdivision.py::SubdivisionSlots.b028`
+- `slots/blender/subdivision.py::SubdivisionSlots.s000`
+- `slots/blender/subdivision.py::SubdivisionSlots.s000_init`
+- `slots/blender/subdivision.py::SubdivisionSlots.s001`
+- `slots/blender/subdivision.py::SubdivisionSlots.s001_init`
+- `slots/blender/subdivision.py::SubdivisionSlots.tb000`
+- `slots/blender/subdivision.py::SubdivisionSlots.tb000_init`
 - `slots/blender/symmetry.py::SymmetrySlots`
 - `slots/blender/symmetry.py::SymmetrySlots.chk000`
 - `slots/blender/symmetry.py::SymmetrySlots.chk000_init`
@@ -1695,6 +1786,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/symmetry.py::SymmetrySlots.chk004_init`
 - `slots/blender/symmetry.py::SymmetrySlots.chk005`
 - `slots/blender/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/blender/transform.py::TransformSlots`
+- `slots/blender/transform.py::TransformSlots.b001`
+- `slots/blender/transform.py::TransformSlots.b002`
+- `slots/blender/transform.py::TransformSlots.b002_init`
+- `slots/blender/transform.py::TransformSlots.b_restore_axes`
+- `slots/blender/transform.py::TransformSlots.b_snap_ts`
+- `slots/blender/transform.py::TransformSlots.chk023`
+- `slots/blender/transform.py::TransformSlots.chk023_init`
+- `slots/blender/transform.py::TransformSlots.chk024`
+- `slots/blender/transform.py::TransformSlots.chk025`
+- `slots/blender/transform.py::TransformSlots.chk026`
+- `slots/blender/transform.py::TransformSlots.cmb002`
+- `slots/blender/transform.py::TransformSlots.cmb002_init`
+- `slots/blender/transform.py::TransformSlots.fix_non_ortho_axes`
+- `slots/blender/transform.py::TransformSlots.header_init`
+- `slots/blender/transform.py::TransformSlots.s023`
+- `slots/blender/transform.py::TransformSlots.tb000`
+- `slots/blender/transform.py::TransformSlots.tb000_init`
+- `slots/blender/transform.py::TransformSlots.tb001`
+- `slots/blender/transform.py::TransformSlots.tb002`
+- `slots/blender/transform.py::TransformSlots.tb002_init`
+- `slots/blender/transform.py::TransformSlots.tb003_init`
+- `slots/blender/transform.py::TransformSlots.tb004_init`
+- `slots/blender/transform.py::TransformSlots.tb005`
+- `slots/blender/transform.py::TransformSlots.tb005_init`
 - `slots/blender/utilities.py::UtilitiesSlots`
 - `slots/blender/utilities.py::UtilitiesSlots.b000`
 - `slots/blender/utilities.py::UtilitiesSlots.b001`
@@ -1794,6 +1910,15 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/normals.py::NormalsSlots.tb004`
 - `slots/maya/normals.py::NormalsSlots.tb004_init`
 - `slots/maya/normals.py::NormalsSlots.tb010`
+- `slots/maya/nurbs.py::NurbsSlots`
+- `slots/maya/nurbs.py::NurbsSlots.b030`
+- `slots/maya/nurbs.py::NurbsSlots.b056`
+- `slots/maya/nurbs.py::NurbsSlots.b058`
+- `slots/maya/nurbs.py::NurbsSlots.list000`
+- `slots/maya/nurbs.py::NurbsSlots.tb000`
+- `slots/maya/nurbs.py::NurbsSlots.tb000_init`
+- `slots/maya/nurbs.py::NurbsSlots.tb001`
+- `slots/maya/nurbs.py::NurbsSlots.tb001_init`
 - `slots/maya/pivot.py::PivotSlots`
 - `slots/maya/pivot.py::PivotSlots.b004`
 - `slots/maya/pivot.py::PivotSlots.tb000`
@@ -1899,6 +2024,19 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/selection.py::SelectionSlots.tb004_init`
 - `slots/maya/settings.py::SettingsSlots`
 - `slots/maya/settings.py::SettingsSlots.tb001`
+- `slots/maya/subdivision.py::SubdivisionSlots`
+- `slots/maya/subdivision.py::SubdivisionSlots.b000`
+- `slots/maya/subdivision.py::SubdivisionSlots.b001`
+- `slots/maya/subdivision.py::SubdivisionSlots.b005`
+- `slots/maya/subdivision.py::SubdivisionSlots.b008`
+- `slots/maya/subdivision.py::SubdivisionSlots.b011`
+- `slots/maya/subdivision.py::SubdivisionSlots.b028`
+- `slots/maya/subdivision.py::SubdivisionSlots.s000`
+- `slots/maya/subdivision.py::SubdivisionSlots.s000_init`
+- `slots/maya/subdivision.py::SubdivisionSlots.s001`
+- `slots/maya/subdivision.py::SubdivisionSlots.s001_init`
+- `slots/maya/subdivision.py::SubdivisionSlots.tb000`
+- `slots/maya/subdivision.py::SubdivisionSlots.tb000_init`
 - `slots/maya/symmetry.py::SymmetrySlots`
 - `slots/maya/symmetry.py::SymmetrySlots.chk000`
 - `slots/maya/symmetry.py::SymmetrySlots.chk000_init`
@@ -1907,6 +2045,33 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/symmetry.py::SymmetrySlots.chk004`
 - `slots/maya/symmetry.py::SymmetrySlots.chk005`
 - `slots/maya/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/maya/transform.py::TransformSlots`
+- `slots/maya/transform.py::TransformSlots.b001`
+- `slots/maya/transform.py::TransformSlots.b002`
+- `slots/maya/transform.py::TransformSlots.b002_init`
+- `slots/maya/transform.py::TransformSlots.b_restore_axes`
+- `slots/maya/transform.py::TransformSlots.b_snap_ts`
+- `slots/maya/transform.py::TransformSlots.chk021`
+- `slots/maya/transform.py::TransformSlots.chk022`
+- `slots/maya/transform.py::TransformSlots.chk023`
+- `slots/maya/transform.py::TransformSlots.chk024`
+- `slots/maya/transform.py::TransformSlots.chk025`
+- `slots/maya/transform.py::TransformSlots.chk026`
+- `slots/maya/transform.py::TransformSlots.cmb002`
+- `slots/maya/transform.py::TransformSlots.cmb002_init`
+- `slots/maya/transform.py::TransformSlots.header_init`
+- `slots/maya/transform.py::TransformSlots.s021`
+- `slots/maya/transform.py::TransformSlots.s022`
+- `slots/maya/transform.py::TransformSlots.s023`
+- `slots/maya/transform.py::TransformSlots.tb000`
+- `slots/maya/transform.py::TransformSlots.tb000_init`
+- `slots/maya/transform.py::TransformSlots.tb001`
+- `slots/maya/transform.py::TransformSlots.tb002`
+- `slots/maya/transform.py::TransformSlots.tb002_init`
+- `slots/maya/transform.py::TransformSlots.tb003_init`
+- `slots/maya/transform.py::TransformSlots.tb004_init`
+- `slots/maya/transform.py::TransformSlots.tb005`
+- `slots/maya/transform.py::TransformSlots.tb005_init`
 - `slots/maya/utilities.py::UtilitiesSlots`
 - `slots/maya/utilities.py::UtilitiesSlots.b000`
 - `slots/maya/utilities.py::UtilitiesSlots.b001`

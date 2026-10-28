@@ -7,23 +7,18 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_materials.py`](#slots--_materials) — Shared, DCC-agnostic behavior for the ``materials`` panel.
-- [`slots/_nurbs.py`](#slots--_nurbs) — Behavior shared by the Maya and Blender ``nurbs`` panels.
 - [`slots/_rendering.py`](#slots--_rendering) — Shared, DCC-agnostic behavior for the ``rendering`` panel.
 - [`slots/_rigging.py`](#slots--_rigging) — Behavior shared by the Maya and Blender ``rigging`` panels.
 - [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_slots.py`](#slots--_slots)
-- [`slots/_transform.py`](#slots--_transform) — Behavior shared by the Maya and Blender ``transform`` panels.
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/blender/materials.py`](#slots--blender--materials)
-- [`slots/blender/nurbs.py`](#slots--blender--nurbs)
 - [`slots/blender/rendering.py`](#slots--blender--rendering)
 - [`slots/blender/rigging.py`](#slots--blender--rigging)
 - [`slots/blender/scene.py`](#slots--blender--scene)
-- [`slots/blender/subdivision.py`](#slots--blender--subdivision)
-- [`slots/blender/transform.py`](#slots--blender--transform)
 - [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
@@ -60,7 +55,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/nconstraint.py`](#slots--maya--nconstraint)
 - [`slots/maya/nhair.py`](#slots--maya--nhair)
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
-- [`slots/maya/nurbs.py`](#slots--maya--nurbs)
 - [`slots/maya/playback.py`](#slots--maya--playback)
 - [`slots/maya/render.py`](#slots--maya--render)
 - [`slots/maya/rendering.py`](#slots--maya--rendering)
@@ -70,20 +64,20 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
 - [`slots/maya/skin.py`](#slots--maya--skin)
 - [`slots/maya/stereo.py`](#slots--maya--stereo)
-- [`slots/maya/subdivision.py`](#slots--maya--subdivision)
 - [`slots/maya/surfaces.py`](#slots--maya--surfaces)
 - [`slots/maya/texturing.py`](#slots--maya--texturing)
 - [`slots/maya/toon.py`](#slots--maya--toon)
-- [`slots/maya/transform.py`](#slots--maya--transform)
 - [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/nurbs.py`](#slots--nurbs) — NURBS: one Slots class for both hosts.
 - [`slots/pivot.py`](#slots--pivot) — Pivot: one Slots class for both hosts.
 - [`slots/polygons.py`](#slots--polygons) — Polygons: one Slots class for both hosts.
 - [`slots/preferences.py`](#slots--preferences) — Preferences: one Slots class for both hosts.
 - [`slots/selection.py`](#slots--selection) — Selection: one Slots class for both hosts.
 - [`slots/settings.py`](#slots--settings) — Settings: one Slots class for both hosts.
+- [`slots/subdivision.py`](#slots--subdivision) — Subdivision: one Slots class for both hosts.
 - [`slots/symmetry.py`](#slots--symmetry) — Symmetry: one Slots class for both hosts.
 - [`slots/tools/__init__.py`](#slots--tools--__init__) — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 - [`slots/tools/_app_bridge/host_bridge.py`](#slots--tools--_app_bridge--host_bridge) — The app-bridge panels' one base, shared by both hosts.
@@ -182,6 +176,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`slots/tools/workspace_editor.py`](#slots--tools--workspace_editor) — Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
 - [`slots/tools/workspace_map.py`](#slots--tools--workspace_map) — Workspace Map: browse a folder tree of project workspaces and switch the
+- [`slots/transform.py`](#slots--transform) — Transform: one Slots class for both hosts.
 - [`slots/utilities.py`](#slots--utilities) — Utilities: one Slots class for both hosts.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
@@ -196,7 +191,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L68) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L46) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L44) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -227,14 +222,6 @@ Shared, DCC-agnostic behavior for the ``materials`` panel.
   - `MaterialsMixin.header_init(self, widget)` — The header: a refresh button, and a menu of the Tools list then
   - `MaterialsMixin.b003(self, widget=None)` — Get + Select (submenu): adopt the selection's material, then select its users.
   - `MaterialsMixin.list001_init(self, widget)` — Tools list: Setup / Materials / Texture Maps / External / Utilities.
-
-<a id="slots--_nurbs"></a>
-### `slots/_nurbs.py`
-
-Behavior shared by the Maya and Blender ``nurbs`` panels.
-
-- **[`class NurbsMixin`](tentacle/tentacle/slots/_nurbs.py#L9)** — Shared ``nurbs`` panel behavior.
-  - `NurbsMixin.list000_init(self, widget)` — Initialize the Nurbs expandable list (root -> category -> curve action),
 
 <a id="slots--_rendering"></a>
 ### `slots/_rendering.py`
@@ -278,14 +265,6 @@ Behavior shared by the Maya and Blender ``scene`` panels.
   - `Slots.recheck_app_gates(self) -> int` — Re-probe every gated app and re-present its widgets.
   - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
   - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
-
-<a id="slots--_transform"></a>
-### `slots/_transform.py`
-
-Behavior shared by the Maya and Blender ``transform`` panels.
-
-- **[`class TransformMixin`](tentacle/tentacle/slots/_transform.py#L9)** — Shared ``transform`` panel behavior.
-  - `TransformMixin.tb001_init(self, widget)` — Initialize Scale Connected Edges (the scale factor option).
 
 <a id="slots--_uv"></a>
 ### `slots/_uv.py`
@@ -404,19 +383,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.b019(self)` — Marmoset Bridge
   - `MaterialsSlots.b020(self)` — Substance Bridge
 
-<a id="slots--blender--nurbs"></a>
-### `slots/blender/nurbs.py`
-
-- **[`class NurbsSlots(NurbsMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/nurbs.py#L10)** — Blender port of the shared ``nurbs`` menu.
-  - `NurbsSlots.b058(self)` — Curve to Tube (curve bevel).
-  - `NurbsSlots.tb000_init(self, widget)`
-  - `NurbsSlots.tb000(self, widget)` — Revolve (Screw modifier;
-  - `NurbsSlots.tb001_init(self, widget)`
-  - `NurbsSlots.tb001(self, widget)` — Loft — bridge the selected profile curves / mesh loops into a surface (btk.loft).
-  - `NurbsSlots.list000(self, item)` — Dispatch a Nurbs leaf action (mirrors Maya's list000: no-op on a node that still
-  - `NurbsSlots.b030(self)` — Extrude Curve Profile — build a surface from the selected curve(s), the Blender
-  - `NurbsSlots.b056(self)` — Image Tracer (native wrap: trace the active image-empty to Grease Pencil,
-
 <a id="slots--blender--rendering"></a>
 ### `slots/blender/rendering.py`
 
@@ -478,53 +444,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b003(self)` — Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
   - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
-
-<a id="slots--blender--subdivision"></a>
-### `slots/blender/subdivision.py`
-
-- **[`class SubdivisionSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/subdivision.py#L7)** — Blender port of the shared ``subdivision`` menu.
-  - `SubdivisionSlots.tb000_init(self, widget)`
-  - `SubdivisionSlots.tb000(self, widget)` — Decimate: reduce face count by collapse percentage or coplanar-face dissolve.
-  - `SubdivisionSlots.s000_init(self, widget)` — Division Level — reflect the active object's live viewport subdivision level.
-  - `SubdivisionSlots.s001_init(self, widget)` — Tesselation Level — reflect the active object's live render subdivision level.
-  - `SubdivisionSlots.s000(self, value, widget)` — Division Level (live Subdivision-Surface viewport level).
-  - `SubdivisionSlots.s001(self, value, widget)` — Tesselation Level (Subdivision-Surface render level).
-  - `SubdivisionSlots.b000(self)` — Quadrangulate (tris -> quads).
-  - `SubdivisionSlots.b001(self)` — Triangulate
-  - `SubdivisionSlots.b005(self)` — Reduce (decimate to 50%) — whole meshes, or the selected components in Edit Mode.
-  - `SubdivisionSlots.b008(self)` — Add Divisions - Subdivide Mesh
-  - `SubdivisionSlots.b011(self)` — Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons
-  - `SubdivisionSlots.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
-
-<a id="slots--blender--transform"></a>
-### `slots/blender/transform.py`
-
-- **[`class TransformSlots(TransformMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/transform.py#L10)** — Blender port of the shared ``transform`` menu.
-  - `TransformSlots.header_init(self, widget)` — Header — Fix Non-Orthogonal Axes + the Snap Toolset button.
-  - `TransformSlots.b_snap_ts(self)` — Snap Toolset — open the Snap panel (mirror of Maya's b_snap_ts).
-  - `TransformSlots.fix_non_ortho_axes(self)` — Fix Non-Orthogonal Axes (bake out shear on the selected objects).
-  - `TransformSlots.tb000_init(self, widget)`
-  - `TransformSlots.tb000(self, widget)` — Drop To Grid
-  - `TransformSlots.tb002_init(self, widget)`
-  - `TransformSlots.tb002(self, widget)` — Freeze Transformations
-  - `TransformSlots.tb005_init(self, widget)`
-  - `TransformSlots.tb005(self, widget)` — Move To (align source object(s) to the active/target object).
-  - `TransformSlots.b001(self)` — Match Scale (rescale the active object to the other selected objects' combined
-  - `TransformSlots.cmb002_init(self, widget)`
-  - `TransformSlots.cmb002(self, index, widget)` — Align To (object centers onto the active object's, native ``object.align``).
-  - `TransformSlots.tb004_init(self, widget)`
-  - `TransformSlots.tb004(self, widget)` — Transform Snap (per-transform increment snapping via the scene tool settings).
-  - `TransformSlots.s023(self, value, widget)` — Transform Tool Snap Settings: rotate increment (degrees → the scene's
-  - `TransformSlots.chk023_init(self, widget)` — Snap Rotate toggle — reflect the live tool-settings state.
-  - `TransformSlots.chk023(self, state, widget)` — Snap: Rotate (increment rotation snapping).
-  - `TransformSlots.tb001(self, widget)` — Scale Connected Edges (each connected set of selected edges scales about its
-  - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init (mirror of the Maya panel's b002 option box).
-  - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes - point the gizmo at the pre-freeze frame.
-  - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms (restore the channels stamped by Freeze;
-  - `TransformSlots.tb003_init(self, widget)` — Constraints Init (mirrors the Maya option box;
-  - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge (snap-to-edge during move).
-  - `TransformSlots.chk025(self, state, widget)` — Transform Constraints: Surface (snap-to-face during move).
-  - `TransformSlots.chk026(self, state, widget)` — Transform Constraints: Make Live (project transformed geometry onto surfaces —
 
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
@@ -925,20 +844,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 
 - **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L8)**
 
-<a id="slots--maya--nurbs"></a>
-### `slots/maya/nurbs.py`
-
-- **[`class NurbsSlots(NurbsMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/nurbs.py#L9)**
-  - `NurbsSlots.list000(self, item)` — Dispatch a Nurbs leaf action via mel.eval (uses Maya's stored settings).
-  - `NurbsSlots.b056(self)` — Image Tracer
-  - `NurbsSlots.b058(self)` — Curve to Tube
-  - `NurbsSlots.tb000_init(self, widget)`
-  - `NurbsSlots.tb000(self, widget)` — Revolve: sweep the selected profile curve around an axis into a surface.
-  - `NurbsSlots.tb001_init(self, widget)`
-  - `NurbsSlots.tb001(self, widget)` — Loft: build a surface lofted across the selected profile curves.
-  - `NurbsSlots.b016(self)` — Extract Curve
-  - `NurbsSlots.b030(self)` — Extrude: extrude the selected NURBS curve(s) into a surface.
-
 <a id="slots--maya--playback"></a>
 ### `slots/maya/playback.py`
 
@@ -1037,24 +942,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 
 - **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L8)**
 
-<a id="slots--maya--subdivision"></a>
-### `slots/maya/subdivision.py`
-
-- **[`class SubdivisionSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/subdivision.py#L9)**
-  - `SubdivisionSlots.s000_init(self, widget)` — Division Level — reflect the selection's live preview division level.
-  - `SubdivisionSlots.s001_init(self, widget)` — Adaptive Level — reflect the selection's live adaptive tessellation level.
-  - `SubdivisionSlots.s000(self, value: int, widget: object) -> None` — Division Level (smooth mesh preview divisions).
-  - `SubdivisionSlots.s001(self, value: int, widget: object) -> None` — Adaptive Level (OpenSubdiv adaptive tessellation).
-  - `SubdivisionSlots.b000(self)` — Quadrangulate
-  - `SubdivisionSlots.b001(self)` — Triangulate: split the selected faces into triangles.
-  - `SubdivisionSlots.b005(self)` — Reduce: halve the polygon count while preserving border, hard, crease, and UV edges.
-  - `SubdivisionSlots.tb000_init(self, widget)` — Initialize Decimate
-  - `SubdivisionSlots.tb000(self, widget)` — Decimate: reduce face count by quadric-error percentage or coplanar-face dissolve.
-  - `SubdivisionSlots.b008(self)` — Add Divisions - Subdivide Mesh
-  - `SubdivisionSlots.b011(self)` — Apply Smooth Preview
-  - `SubdivisionSlots.b028(self)` — Quad Draw: enter Maya's Quad Draw retopology tool.
-  - `SubdivisionSlots.smoothProxy()` *(static)* — Subdiv Proxy
-
 <a id="slots--maya--surfaces"></a>
 ### `slots/maya/surfaces.py`
 
@@ -1069,38 +956,6 @@ Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 ### `slots/maya/toon.py`
 
 - **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L8)**
-
-<a id="slots--maya--transform"></a>
-### `slots/maya/transform.py`
-
-- **[`class TransformSlots(TransformMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/transform.py#L9)**
-  - `TransformSlots.header_init(self, widget)` — Header Init
-  - `TransformSlots.cmb002_init(self, widget)` — Align To Init
-  - `TransformSlots.cmb002(self, index, widget)` — Align To: snap/align objects point-to-point, multi-point, or along a curve.
-  - `TransformSlots.tb000_init(self, widget)` — Drop To Grid Init
-  - `TransformSlots.tb000(self, widget)` — Drop To Grid
-  - `TransformSlots.tb001(self, widget)` — Scale Connected Edges
-  - `TransformSlots.tb002_init(self, widget)` — Freeze Transformations Init
-  - `TransformSlots.tb002(self, widget)` — Freeze Transformations
-  - `TransformSlots.tb003_init(self, widget)` — Constraints Init
-  - `TransformSlots.tb004_init(self, widget)` — Snap Init
-  - `TransformSlots.tb005_init(self, widget)` — Move To Init
-  - `TransformSlots.tb005(self, widget)` — Move To: move the selected objects onto the last-selected object (by a chosen pivot).
-  - `TransformSlots.chk021(self, state, widget)` — Transform Tool Snap Settings: Move
-  - `TransformSlots.chk022(self, state, widget)` — Transform Tool Snap Settings: Scale
-  - `TransformSlots.chk023(self, state, widget)` — Transform Tool Snap Settings: Rotate
-  - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge
-  - `TransformSlots.chk025(self, state, widget)` — Transform Contraints: Surface
-  - `TransformSlots.chk026(self, state, widget)` — Transform Constraints: Make Live
-  - `TransformSlots.s021(self, value, widget)` — Transform Tool Snap Settings: Spinboxes
-  - `TransformSlots.s022(self, value, widget)` — Transform Tool Snap Settings: Spinboxes
-  - `TransformSlots.s023(self, value, widget)` — Transform Tool Snap Settings: Spinboxes
-  - `TransformSlots.b_snap_ts(self)` — Snap Toolset
-  - `TransformSlots.b001(self)` — Match Scale: scale the selected object(s) to match the first-selected object's size.
-  - `TransformSlots.b002_init(self, widget)` — Un-Freeze Transforms Init
-  - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes - point the manipulator at the pre-freeze frame.
-  - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms
-  - `TransformSlots.setTransformSnap(self, ctx, state)` — Set the transform tool's move, rotate, and scale snap states.
 
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
@@ -1157,6 +1012,22 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.b006(self)` — Set To Face: vertex normals follow their faces (faceted shading).
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
+
+<a id="slots--nurbs"></a>
+### `slots/nurbs.py`
+
+NURBS: one Slots class for both hosts.
+
+- **[`class NurbsSlots(Slots)`](tentacle/tentacle/slots/nurbs.py#L23)**
+  - `NurbsSlots.list000_init(self, widget)` — Initialize the Nurbs expandable list (root -> category -> curve action).
+  - `NurbsSlots.list000(self, item)` — Run a Nurbs leaf: its curve action, or its viewport tool.
+  - `NurbsSlots.b030(self)` — Extrude: sweep the selected profile curve along a path curve, or
+  - `NurbsSlots.b056(self)` — Image Tracer
+  - `NurbsSlots.b058(self)` — Curve to Tube
+  - `NurbsSlots.tb000_init(self, widget)` — Initialize Revolve.
+  - `NurbsSlots.tb000(self, widget)` — Revolve: sweep the selected profile curve around an axis into a surface.
+  - `NurbsSlots.tb001_init(self, widget)` — Initialize Loft.
+  - `NurbsSlots.tb001(self, widget)` — Loft: build a surface lofted across the selected profile curves.
 
 <a id="slots--pivot"></a>
 ### `slots/pivot.py`
@@ -1324,6 +1195,25 @@ Settings: one Slots class for both hosts.
   - `SettingsSlots.cmb_bind_right_init(self, widget)` — Right mouse button.
   - `SettingsSlots.cmb_bind_left_right_init(self, widget)` — Left + Right mouse buttons.
   - `SettingsSlots.b_reset_bindings(self)` — Reset marking-menu bindings (routes + activation key) to defaults.
+
+<a id="slots--subdivision"></a>
+### `slots/subdivision.py`
+
+Subdivision: one Slots class for both hosts.
+
+- **[`class SubdivisionSlots(Slots)`](tentacle/tentacle/slots/subdivision.py#L21)**
+  - `SubdivisionSlots.s000_init(self, widget)` — Division Level: reflect the selection's live preview division level.
+  - `SubdivisionSlots.s001_init(self, widget)` — Tessellation Level: reflect the selection's live tessellation level.
+  - `SubdivisionSlots.s000(self, value: int, widget: object) -> None` — Division Level (Maya: the smooth preview's divisions;
+  - `SubdivisionSlots.s001(self, value: int, widget: object) -> None` — Tessellation Level (Maya: OpenSubdiv adaptive tessellation;
+  - `SubdivisionSlots.b000(self)` — Quadrangulate: merge triangles into quads.
+  - `SubdivisionSlots.b001(self)` — Triangulate: split the selected faces into triangles.
+  - `SubdivisionSlots.b005(self)` — Reduce: halve the polygon count -- the one-click form of tb000's Reduce
+  - `SubdivisionSlots.b008(self)` — Add Divisions: subdivide the selected mesh.
+  - `SubdivisionSlots.b011(self)` — Convert Preview: bake the smooth preview into polygons.
+  - `SubdivisionSlots.b028(self)` — Quad Draw: Maya's retopology tool (Blender: Poly Build).
+  - `SubdivisionSlots.tb000_init(self, widget)` — Initialize Decimate.
+  - `SubdivisionSlots.tb000(self, widget)` — Decimate: reduce the face count by percentage, or dissolve coplanar faces.
 
 <a id="slots--symmetry"></a>
 ### `slots/symmetry.py`
@@ -3022,6 +2912,50 @@ Workspace Map: browse a folder tree of project workspaces and switch the
   - `WorkspaceMapSlots.new_project(self) -> None` — Create a project under the root from the ACTIVE template.
   - `WorkspaceMapSlots.mark_root(self) -> None` — Mark the ROOT directory as a shared Maya/Blender project.
   - `WorkspaceMapSlots.save_template(self) -> None` — Publish the ACTIVE project's file rules as a named workspace template.
+
+<a id="slots--transform"></a>
+### `slots/transform.py`
+
+Transform: one Slots class for both hosts.
+
+- **[`class TransformSlots(Slots)`](tentacle/tentacle/slots/transform.py#L23)**
+  - `TransformSlots.header_init(self, widget)` — Header: Fix Non-Orthogonal Axes and the Snap panel.
+  - `TransformSlots.fix_non_ortho_axes(self)` — Fix Non-Orthogonal Axes: bake out shear on the selected objects.
+  - `TransformSlots.b_snap_ts(self)` — Snap: open the shared Snap panel.
+  - `TransformSlots.cmb002_init(self, widget)` — Align To: the modes the host offers.
+  - `TransformSlots.cmb002(self, index, widget)` — Align To: run the chosen mode on the selection.
+  - `TransformSlots.tb000_init(self, widget)` — Initialize Drop To Grid.
+  - `TransformSlots.tb000(self, widget)` — Drop To Grid
+  - `TransformSlots.tb001_init(self, widget)` — Initialize Scale Connected Edges (the scale factor option).
+  - `TransformSlots.tb001(self, widget)` — Scale Connected Edges: each connected set of selected edges scales about
+  - `TransformSlots.tb002_init(self, widget)` — Initialize Freeze Transforms.
+  - `TransformSlots.tb002(self, widget)` — Freeze Transformations
+  - `TransformSlots.b002_init(self, widget)` — Initialize Un-Freeze Transforms.
+  - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes: point the gizmo at the pre-freeze frame.
+  - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms: restore the channels Freeze stamped (the object's
+  - `TransformSlots.tb005_init(self, widget)` — Initialize Move To.
+  - `TransformSlots.tb005(self, widget)` — Move To: move the selected objects onto the target, by a chosen pivot.
+  - `TransformSlots.b001(self)` — Match Scale: scale the first selected (Blender: the active) object to the
+  - `TransformSlots.tb003_init(self, widget)` — Constraints: Edge / Surface / Make Live, seeded from the host.
+  - `TransformSlots.chk024_init(self, widget)`
+  - `TransformSlots.chk025_init(self, widget)`
+  - `TransformSlots.chk026_init(self, widget)`
+  - `TransformSlots.chk024(self, state, widget)` — Transform Constraints: Edge
+  - `TransformSlots.chk025(self, state, widget)` — Transform Constraints: Surface
+  - `TransformSlots.chk026(self, state, widget)` — Transform Constraints: Make Live (Blender: project onto surfaces)
+  - `TransformSlots.tb004_init(self, widget)` — Snap: Move / Scale / Rotate increment snapping, seeded from the host.
+  - `TransformSlots.chk021_init(self, widget)`
+  - `TransformSlots.chk022_init(self, widget)`
+  - `TransformSlots.chk023_init(self, widget)`
+  - `TransformSlots.s021_init(self, widget)`
+  - `TransformSlots.s022_init(self, widget)`
+  - `TransformSlots.s023_init(self, widget)`
+  - `TransformSlots.chk021(self, state, widget)` — Transform Snap: Move
+  - `TransformSlots.chk022(self, state, widget)` — Transform Snap: Scale
+  - `TransformSlots.chk023(self, state, widget)` — Transform Snap: Rotate
+  - `TransformSlots.s021(self, value, widget)` — Transform Snap: the move increment.
+  - `TransformSlots.s022(self, value, widget)` — Transform Snap: the scale increment.
+  - `TransformSlots.s023(self, value, widget)` — Transform Snap: the rotate increment (degrees).
 
 <a id="slots--utilities"></a>
 ### `slots/utilities.py`

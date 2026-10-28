@@ -96,7 +96,7 @@ try:
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
     from tentacle.slots.selection import SelectionSlots  # composed: both hosts, over sb.tk
-    from tentacle.slots.blender.transform import TransformSlots
+    from tentacle.slots.transform import TransformSlots  # composed: over sb.tk
     from tentacle.slots.normals import NormalsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.polygons import PolygonsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.blender.uv import UvSlots
@@ -125,8 +125,8 @@ try:
     a = add_cube("A", (5, 1, 2))
     b = add_cube("B", (0, 0, 0))  # active
     a.select_set(True)
-    slot = make_slot(TransformSlots)
-    items = list(TransformSlots._ALIGN_AXES)
+    slot = make_slot(TransformSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
+    items = list(btk.XformUtils.ALIGN_MODES)
     slot.cmb002(items.index("Align X to Active"), NS(items=items))
     bpy.context.view_layer.update()
     check("transform cmb002 aligns X to active",
@@ -203,16 +203,18 @@ try:
     check("polygons b043 registers the modal operator",
           hasattr(bpy.types, "BTK_OT_target_weld"))
 
-    # ---- transform tb004/chk023: increment snap -----------------------------------------------
-    # chk023 re-inits the panel's tb004 option box (gates the rotate-increment spinbox).
-    slot = make_slot(TransformSlots, ui=NS(tb004=NS(
-        init_slot=lambda: None,
-        option_box=NS(menu=NS(s023=NS(setEnabled=lambda state: None))))))
-    slot.tb004(option_box(chk021=chk(True), chk022=chk(False)))
+    # ---- transform chk021-023: increment snap, live per toggle ---------------------------------
+    # Each toggle re-inits the panel's tb004 option box (gates its increment spinbox).
+    _spin = NS(setEnabled=lambda state: None)
+    slot = make_slot(TransformSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk),
+                     ui=NS(tb004=NS(init_slot=lambda: None,
+                                    option_box=NS(menu=NS(s021=_spin, s022=_spin, s023=_spin)))))
+    slot.chk022(False, None)
+    slot.chk021(True, None)
     move_on = ts.use_snap and ts.use_snap_translate and not ts.use_snap_scale
     slot.chk023(True, None)
     rot_on = ts.use_snap_rotate
-    slot.tb004(option_box(chk021=chk(False), chk022=chk(False)))
+    slot.chk021(False, None)
     slot.chk023(False, None)
     check("transform tb004/chk023 drive tool-settings snap",
           move_on and rot_on and not ts.use_snap,
@@ -237,9 +239,9 @@ try:
     check("crease b002 transfers edge creases", creased == 12, f"creased={creased}")
 
     # ---- subdivision b028: quad draw = poly build tool ----------------------------------------
-    from tentacle.slots.blender.subdivision import SubdivisionSlots
+    from tentacle.slots.subdivision import SubdivisionSlots
 
-    sslot = make_slot(SubdivisionSlots)
+    sslot = make_slot(SubdivisionSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     sslot.b028()  # headless has no tool context — must not raise (slot catches + messages)
     check("subdivision b028 poly-build activation is safe headless", True)
 
@@ -591,14 +593,12 @@ try:
           and a.hide_render, f"vis={vis}")
 
     # ---- transform b002 Un-Freeze (restore_transforms round trip through the slot)
-    from tentacle.slots.blender.transform import TransformSlots
-
     reset()
     o = add_cube("Frozen", location=(4, 0, 0))
     o.select_set(True)
     bpy.context.view_layer.objects.active = o
     btk.freeze_transforms(o, location=True, rotation=False, scale=False)
-    slot = make_slot(TransformSlots)
+    slot = make_slot(TransformSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     # b002 reads which channels to restore (and whether to walk children) from its option box.
     unfreeze = option_box(
         chk_unfreeze_t=chk(True),
@@ -610,7 +610,7 @@ try:
     check("transform b002 un-freezes (location restored)",
           abs(o.location.x - 4.0) < 1e-4, f"x={o.location.x:.3f}")
     msgs = []
-    slot.sb = NS(message_box=msgs.append)
+    slot.sb = NS(message_box=msgs.append, tk=btk)
     slot.b002(unfreeze)  # bakes consumed -> nothing-to-restore message
     check("transform b002 reports when nothing stored",
           msgs and "Nothing to restore" in msgs[-1])
@@ -627,7 +627,7 @@ try:
     for e in bm.edges:
         e.select = all(abs(v.co.z - 1.0) < 1e-4 for v in e.verts)  # top ring only
     _bmesh.update_edit_mesh(o.data)
-    slot = make_slot(TransformSlots)
+    slot = make_slot(TransformSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.tb001(option_box(s001=spin(2.0)))
     bm = _bmesh.from_edit_mesh(o.data)
     top_x = sorted(round(v.co.x, 2) for v in bm.verts if abs(v.co.z - 1.0) < 1e-4)
@@ -635,7 +635,7 @@ try:
           f"{top_x}")
     bpy.ops.object.mode_set(mode="OBJECT")
     msgs = []
-    slot.sb = NS(message_box=msgs.append)
+    slot.sb = NS(message_box=msgs.append, tk=btk)
     slot.tb001(option_box(s001=spin(2.0)))  # object mode -> nothing scaled message
     check("transform tb001 reports when nothing scaled",
           msgs and "No connected edges" in msgs[-1])
@@ -967,15 +967,17 @@ try:
     reset()
     ts = bpy.context.scene.tool_settings
     ts.use_snap = False
-    slot = make_slot(TransformSlots, ui=NS(tb003=NS(init_slot=lambda: None)))
+    slot = make_slot(TransformSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk),
+                     ui=NS(tb003=NS(init_slot=lambda: None)))
+    elements, individual = btk.XformUtils._snap_elements, btk.XformUtils._snap_individual
     slot.chk024(True, None)
     check("transform chk024 enables EDGE snap",
-          ts.use_snap and ts.use_snap_translate and slot._snap_elements() == {"EDGE"},
-          f"snap={ts.use_snap} elems={slot._snap_elements()}")
+          ts.use_snap and ts.use_snap_translate and elements() == {"EDGE"},
+          f"snap={ts.use_snap} elems={elements()}")
     slot.chk025(True, None)  # single-element like Maya: surface replaces edge
     check("transform chk025 replaces with FACE snap",
-          ts.use_snap and slot._snap_elements() == {"FACE"},
-          f"elems={slot._snap_elements()}")
+          ts.use_snap and elements() == {"FACE"},
+          f"elems={elements()}")
     slot.chk025(False, None)
     check("transform constraint off disables snap", not ts.use_snap)
 
@@ -984,12 +986,12 @@ try:
     slot.chk026(True, None)
     check("transform chk026 (Make Live) enables FACE_NEAREST projection snap",
           ts.use_snap and ts.use_snap_translate
-          and slot._snap_individual() == {"FACE_NEAREST"},
-          f"snap={ts.use_snap} indiv={slot._snap_individual()}")
+          and individual() == {"FACE_NEAREST"},
+          f"snap={ts.use_snap} indiv={individual()}")
     slot.chk024(True, None)  # base Edge constraint cross-clears the projection axis (radio)
     check("transform chk026<->chk024 mutually exclusive (radio cluster)",
-          slot._snap_elements() == {"EDGE"} and slot._snap_individual() == set(),
-          f"base={slot._snap_elements()} indiv={slot._snap_individual()}")
+          elements() == {"EDGE"} and individual() == set(),
+          f"base={elements()} indiv={individual()}")
     slot.chk026(False, None)
     check("transform chk026 off disables snap", not ts.use_snap)
 
@@ -1100,21 +1102,15 @@ try:
           and abs(null.empty_display_size - 1.0) < 1e-6,
           f"{null and null.get('maya_node_type')!r} {null and null.empty_display_size}")
 
-    # ---- nurbs b056: image tracer resolves real ops -----------------------------------------
-    from tentacle.slots.blender.nurbs import NurbsSlots
+    # ---- nurbs b056 / b058: the shared Image Tracer and Curve to Tube panels -------------
+    from tentacle.slots.nurbs import NurbsSlots
 
-    reset()
-    msgs = []
-    slot = make_slot(NurbsSlots)
-    slot.sb = NS(message_box=msgs.append)
-    slot.b056()  # no image empty -> SVG import path (headless: dialog may fail soft)
-    check("nurbs b056 svg path resolves (no 'not available')",
-          all("not available" not in m for m in msgs), f"{msgs}")
-    bpy.ops.object.empty_add(type="IMAGE")
-    msgs.clear()
-    slot.b056()  # image empty -> trace path
-    check("nurbs b056 trace path resolves (no 'not available')",
-          all("not available" not in m for m in msgs), f"{msgs}")
+    shown = []
+    slot = make_slot(NurbsSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append)), tk=btk))
+    slot.b056()
+    slot.b058()
+    check("nurbs b056: opens the shared Image Tracer panel (b058: Curve to Tube)",
+          shown == ["image_tracer", "curve_to_tube"], f"{shown}")
 
     # ---- scene b001 / lighting b000: route to the new manager panels ------------------------
     from tentacle.slots.lighting import LightingSlots
