@@ -68,7 +68,7 @@ class ShotManifestController(
         self._store = None  # the store the last build used
         self._last_results: list = []  # Last assessment results
 
-        from uitk.managers.settings_manager import SettingsManager
+        SettingsManager = self.sb.SettingsManager
 
         self._settings = SettingsManager(namespace=SETTINGS_NS)
         # The loaded source's steps as the source has them; ``_steps`` is

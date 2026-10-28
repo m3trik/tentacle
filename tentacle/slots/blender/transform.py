@@ -238,9 +238,18 @@ class TransformSlots(TransformMixin, SlotsBlender):
     # ------------------------------------------------------------------ tb005  Move To
     def tb005_init(self, widget):
         widget.option_box.menu.setTitle("Move To")
+        # Move To aligns the source's pivot with the target's, so a pivot that
+        # names one point for both ('world', 'manip': the 3D cursor) moves
+        # nothing. 'center' and 'object' stay first: the combo saves an index.
+        skip = {"world", "manip"}
+        pivots = ["center", "object"] + [
+            p
+            for p in btk.XformUtils.get_pivot_options()
+            if p not in skip and p not in ("center", "object")
+        ]
         widget.option_box.menu.add(
             "QComboBox",
-            addItems=btk.XformUtils.get_pivot_options(),
+            addItems=pivots,
             setObjectName="cmb005",
             setToolTip="Target pivot to align the source object(s) to.",
         )

@@ -9,7 +9,7 @@ which reaches the host through the host library's ``ManifestHost``
 """
 
 from tentacle import Slots
-from tentacle.slots.tools._shot_manifest.controller import ShotManifestController
+from ._shot_manifest.controller import ShotManifestController
 
 
 class ShotManifestSlots(Slots):

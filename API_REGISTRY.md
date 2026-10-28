@@ -113,8 +113,29 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/tools/_shot_manifest/controller.py`](#slots--tools--_shot_manifest--controller) — The Shot Manifest panel's controller: its state, the steps the table shows,
+- [`slots/tools/_shot_manifest/export_preview.py`](#slots--tools--_shot_manifest--export_preview) — The Shot Manifest's Export button (beside Assess): a live preview of the
+- [`slots/tools/_shot_manifest/header_menu.py`](#slots--tools--_shot_manifest--header_menu) — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
+- [`slots/tools/_shot_manifest/manifest_data.py`](#slots--tools--_shot_manifest--manifest_data) — Constants, column layout, and pure helper functions for the Shot Manifest UI.
+- [`slots/tools/_shot_manifest/manifest_editor.py`](#slots--tools--_shot_manifest--manifest_editor) — Local Edits for the Shot Manifest panel: change the table, never the sheet.
+- [`slots/tools/_shot_manifest/manifest_source.py`](#slots--tools--_shot_manifest--manifest_source) — Where the Shot Manifest's steps come from: a build sheet (a CSV path or link,
+- [`slots/tools/_shot_manifest/mapping_picker.py`](#slots--tools--_shot_manifest--mapping_picker) — The Shot Manifest's mapping template: its own popup on the build sheet
+- [`slots/tools/_shot_manifest/range_column.py`](#slots--tools--_shot_manifest--range_column) — The Shot Manifest table's Start / End column: what a step's range is
+- [`slots/tools/_shot_manifest/row_menus.py`](#slots--tools--_shot_manifest--row_menus) — The Shot Manifest rows' context menus and what they do: a step row's (colour
+- [`slots/tools/_shot_manifest/store_follow.py`](#slots--tools--_shot_manifest--store_follow) — The Shot Manifest panel following the scene's store: its events (a shot
+- [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
+- [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
+- [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
+- [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
+- [`slots/tools/duplicate_grid.py`](#slots--tools--duplicate_grid) — Duplicate Grid: copies of the selection in a 3D grid.
+- [`slots/tools/duplicate_linear.py`](#slots--tools--duplicate_linear) — Duplicate Linear: copies of the selection along a line, each interpolating
 - [`slots/tools/duplicate_radial.py`](#slots--tools--duplicate_radial) — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
+- [`slots/tools/dynamic_pipe.py`](#slots--tools--dynamic_pipe) — Dynamic Pipe: a pipe mesh that follows a chain of handles live.
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
+- [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
+- [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+- [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -1610,6 +1631,202 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
 
+<a id="slots--tools--_shot_manifest--controller"></a>
+### `slots/tools/_shot_manifest/controller.py`
+
+The Shot Manifest panel's controller: its state, the steps the table shows,
+
+- **[`class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_shot_manifest/controller.py#L40)** — Business logic for the Shot Manifest UI (see the module docstring).
+  - `ShotManifestController.build(self) -> None` — Build or update shots in the store from loaded steps.
+  - `ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None` — Compare the steps against the scene's shots and colour the tree.
+
+<a id="slots--tools--_shot_manifest--export_preview"></a>
+### `slots/tools/_shot_manifest/export_preview.py`
+
+The Shot Manifest's Export button (beside Assess): a live preview of the
+
+- **[`class ExportPreviewMixin`](tentacle/tentacle/slots/tools/_shot_manifest/export_preview.py#L23)** — The Export button's preview, mixed into ``ShotManifestController``.
+  - `ExportPreviewMixin.export(self) -> None` — Open the preview of the export (or bring the open one up): its
+
+<a id="slots--tools--_shot_manifest--header_menu"></a>
+### `slots/tools/_shot_manifest/header_menu.py`
+
+The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
+
+- **[`class HeaderMenuMixin`](tentacle/tentacle/slots/tools/_shot_manifest/header_menu.py#L16)** — The header menu, mixed into ``ShotManifestController``.
+
+<a id="slots--tools--_shot_manifest--manifest_data"></a>
+### `slots/tools/_shot_manifest/manifest_data.py`
+
+Constants, column layout, and pure helper functions for the Shot Manifest UI.
+
+- [`SETTINGS_NS`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L18) — constant
+- [`HEADERS`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L21) — constant
+- [`COL_STEP`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L24) — constant
+- [`COL_SECTION`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L25) — constant
+- [`COL_DESC`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L26) — constant
+- [`COL_BEHAVIORS`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L27) — constant
+- [`COL_START`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L28) — constant
+- [`COL_END`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L29) — constant
+- [`STEP_ICON_COLOR`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L31) — constant
+- [`PASTEL_STATUS`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L35) — constant
+- [`ERROR_COLOR`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L38) — constant
+- **[`class ManifestData`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_data.py#L41)** — ManifestData — module namespace.
+  - `ManifestData.level(status: str) -> str` *(static)* — *status*'s severity (``SHOT_STATUS_LEVELS``);
+  - `ManifestData.status_color(status: str) -> Optional[str]` *(static)* — *status*'s colour in this panel's palette, or ``None`` for none.
+  - `ManifestData.worst(statuses: Iterable[str]) -> Optional[str]` *(static)* — The status of *statuses* at the worst severity (the first of
+  - `ManifestData.glyph_html(status: str) -> str` *(static)* — *status*'s glyph in its colour, as rich text (``""``: no severity).
+  - `ManifestData.issues_html(issues: Iterable[Tuple[str, str]]) -> str` *(static)* — ``(status, text)`` *issues* as rich text, a line each: its glyph,
+  - `ManifestData.fmt_behavior(name: str) -> str` *(static)* — ``'fade_in'`` → ``'Fade In'`` (``Behaviors.label``: the marker
+  - `ManifestData.format_behavior_html(behaviors, broken=(), status_color=None, stale=(), disabled=(), marked=()) -> str` *(static)* — Return rich-text HTML for a list of behavior names.
+
+<a id="slots--tools--_shot_manifest--manifest_editor"></a>
+### `slots/tools/_shot_manifest/manifest_editor.py`
+
+Local Edits for the Shot Manifest panel: change the table, never the sheet.
+
+- **[`class ManifestEditor`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_editor.py#L45)** — One panel's Local Edits: its edit layer, its cell editors, and the
+  - `ManifestEditor.enabled(self) -> bool` *(property)* — Whether the edits are in force -- applied and editable: always,
+  - `ManifestEditor.add_header_options(self, menu) -> None` — Add the Local Edits row to *menu*: the Edits combo
+  - `ManifestEditor.edits_mode(self) -> str` *(property)* — The Edits mode in force: ``"keep"``, ``"rebuild"`` or ``"compare"``.
+  - `ManifestEditor.view_original(self, on: bool = True) -> None` — Show the sheet as delivered (*on*), or the manifest with its edits.
+  - `ManifestEditor.refuse_viewing(self, to: str = 'edit') -> bool` — Say so and return ``True`` while the original sheet is viewed:
+  - `ManifestEditor.reset(self, confirm: bool = True) -> None` — Drop every edit of the current source, after asking.
+  - `ManifestEditor.source_key(self) -> str` *(property)* — The source the edits belong to: the sheet's path, or ``""`` for
+  - `ManifestEditor.load(self) -> None` — Read the current source's edits from the scene -- a sheet moved
+  - `ManifestEditor.save(self) -> None` — Write the current source's edits to the scene, under the sheet's
+  - `ManifestEditor.apply(self, steps: List[ptk.BuilderStep]) -> List[ptk.BuilderStep]` — *steps* with the edits applied -- as delivered while the original
+  - `ManifestEditor.stale(self) -> List[str]` — The edits the loaded sheet gives no place to (``ManifestEdits.stale``).
+  - `ManifestEditor.refresh(self) -> None` — Re-apply the edits to the loaded steps and redraw the table.
+  - `ManifestEditor.refuse_locked(self, step) -> bool` — Say so and return ``True`` when *step* is locked (:meth:`_locked`).
+  - `ManifestEditor.begin_edit(self, item, column: int) -> bool` — Open an editor on a step's name or description, or an object's
+  - `ManifestEditor.commit_edit(self, item, column: int) -> bool` — Record the edit a cell editor committed;
+  - `ManifestEditor.set_behaviors(self, step_id: str, obj, behaviors: List[str]) -> bool` — Record *obj*'s ticked *behaviors* in step *step_id*;
+  - `ManifestEditor.add_menu_actions(self, menu, item, selected: List[str] = ()) -> None` — Add Local Edits' actions for the row at *item* (``None``: empty
+  - `ManifestEditor.add_step(self, after: str) -> str` — Add a step after step *after* (``""``: at the top) and open its
+  - `ManifestEditor.add_shot(self, shot, after: str) -> Optional[str]` — Take a shot no step pairs with into the manifest: a step of its own
+  - `ManifestEditor.remove_step(self, step) -> None` — Remove an added step;
+  - `ManifestEditor.hide_steps(self, step_ids: List[str], hidden: bool = True) -> None` — Hide (or show) steps.
+  - `ManifestEditor.unlocked_hidden_objects(self) -> List[Tuple[str, str]]` — The hidden objects :meth:`show_hidden_objects` shows, as
+  - `ManifestEditor.show_hidden_objects(self) -> None` — Show every object the edits hide, wherever it sits -- but in a
+  - `ManifestEditor.hide_object(self, home: str, sheet_name: str, hidden: bool = True) -> None` — Hide (or show) an object: a hidden one leaves its step, and Build
+  - `ManifestEditor.move_object(self, step, obj, target) -> None` — Move *obj* from *step* to *target* (to the end of its objects).
+  - `ManifestEditor.rename_all(self, name: str, new: Optional[str] = None) -> int` — Point every step listing *name* at *new* (asked for when
+  - `ManifestEditor.revert_step(self, step) -> None` — Drop *step*'s own edits (name, description);
+  - `ManifestEditor.revert_object(self, home: str, sheet_name: str, name: str = '') -> None` — Drop an object's edits: the sheet's name, step and behaviors.
+  - `ManifestEditor.decorate(self) -> None` — Mark the edited cells -- italic, the sheet's value in the tooltip --
+
+<a id="slots--tools--_shot_manifest--manifest_source"></a>
+### `slots/tools/_shot_manifest/manifest_source.py`
+
+Where the Shot Manifest's steps come from: a build sheet (a CSV path or link,
+
+- **[`class ManifestSourceMixin`](tentacle/tentacle/slots/tools/_shot_manifest/manifest_source.py#L21)** — The panel's sources, mixed into ``ShotManifestController``.
+  - `ManifestSourceMixin.detect(self, gap: Optional[float] = None) -> None` — Detect animation regions in the scene and populate the table.
+
+<a id="slots--tools--_shot_manifest--mapping_picker"></a>
+### `slots/tools/_shot_manifest/mapping_picker.py`
+
+The Shot Manifest's mapping template: its own popup on the build sheet
+
+- **[`class MappingPickerMixin`](tentacle/tentacle/slots/tools/_shot_manifest/mapping_picker.py#L19)** — The mapping template, mixed into ``ShotManifestController``.
+
+<a id="slots--tools--_shot_manifest--range_column"></a>
+### `slots/tools/_shot_manifest/range_column.py`
+
+The Shot Manifest table's Start / End column: what a step's range is
+
+- **[`class RangeColumnMixin`](tentacle/tentacle/slots/tools/_shot_manifest/range_column.py#L22)** — The Start / End column, mixed into ``ShotManifestController``.
+
+<a id="slots--tools--_shot_manifest--row_menus"></a>
+### `slots/tools/_shot_manifest/row_menus.py`
+
+The Shot Manifest rows' context menus and what they do: a step row's (colour
+
+- **[`class RowMenusMixin`](tentacle/tentacle/slots/tools/_shot_manifest/row_menus.py#L21)** — The rows' context menus, mixed into ``ShotManifestController``.
+
+<a id="slots--tools--_shot_manifest--store_follow"></a>
+### `slots/tools/_shot_manifest/store_follow.py`
+
+The Shot Manifest panel following the scene's store: its events (a shot
+
+- **[`class StoreFollowMixin`](tentacle/tentacle/slots/tools/_shot_manifest/store_follow.py#L27)** — Store events and scene swaps, mixed into ``ShotManifestController``.
+  - `StoreFollowMixin.remove_callbacks(self) -> None` — Remove the ShotStore listener and the invalidation subscription,
+
+<a id="slots--tools--_shot_manifest--table_presenter"></a>
+### `slots/tools/_shot_manifest/table_presenter.py`
+
+The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
+
+- **[`class ManifestTableMixin`](tentacle/tentacle/slots/tools/_shot_manifest/table_presenter.py#L49)** — Presentation methods for the manifest tree widget.
+  - `ManifestTableMixin.expand_missing(self) -> None` — Expand the step rows the shown assessment found something in
+  - `ManifestTableMixin.expand_extra(self) -> None` — Expand the step rows holding an object the step does not list
+
+<a id="slots--tools--_shot_manifest--view_combos"></a>
+### `slots/tools/_shot_manifest/view_combos.py`
+
+The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+
+- **[`class ViewCombosMixin`](tentacle/tentacle/slots/tools/_shot_manifest/view_combos.py#L25)** — The view row, mixed into ``ShotManifestController``.
+
+<a id="slots--tools--bevel"></a>
+### `slots/tools/bevel.py`
+
+Bevel: chamfer the selected polygon edges, with a live preview.
+
+- **[`class BevelSlots(Slots)`](tentacle/tentacle/slots/tools/bevel.py#L12)**
+  - `BevelSlots.header_init(self, widget)` — Configure header help text.
+  - `BevelSlots.perform_operation(self, objects, contract=None)` — Bevel *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--calculator"></a>
+### `slots/tools/calculator.py`
+
+Calculator: expressions, length units, and the scene's frame-rate helpers.
+
+- **[`class CalculatorSlots(Slots)`](tentacle/tentacle/slots/tools/calculator.py#L13)**
+  - `CalculatorSlots.header_init(self, widget)` — Configure header help text.
+  - `CalculatorSlots.on_input(self, text)`
+  - `CalculatorSlots.on_clear(self)`
+  - `CalculatorSlots.on_backspace(self)`
+  - `CalculatorSlots.on_equal(self)`
+  - `CalculatorSlots.on_convert_units(self)`
+  - `CalculatorSlots.get_fps(self)`
+  - `CalculatorSlots.get_current_time(self)`
+  - `CalculatorSlots.frames_to_sec(self)`
+  - `CalculatorSlots.sec_to_frames(self)`
+
+<a id="slots--tools--cut_on_axis"></a>
+### `slots/tools/cut_on_axis.py`
+
+Cut On Axis: slice the selected meshes along an axis, then optionally delete
+
+- **[`class CutOnAxisSlots(Slots)`](tentacle/tentacle/slots/tools/cut_on_axis.py#L14)**
+  - `CutOnAxisSlots.header_init(self, widget)` — Configure header help text.
+  - `CutOnAxisSlots.toggle_weight_ui(self)` — Enable the weight fields only for the modes that consume them:
+  - `CutOnAxisSlots.perform_operation(self, objects, contract=None)` — Cut *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--duplicate_grid"></a>
+### `slots/tools/duplicate_grid.py`
+
+Duplicate Grid: copies of the selection in a 3D grid.
+
+- **[`class DuplicateGridSlots(Slots)`](tentacle/tentacle/slots/tools/duplicate_grid.py#L13)**
+  - `DuplicateGridSlots.header_init(self, widget)` — Configure header help text.
+  - `DuplicateGridSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `DuplicateGridSlots.perform_operation(self, objects, contract=None)` — Lay *objects* out in the grid (Maya's Preview passes its cleanup
+
+<a id="slots--tools--duplicate_linear"></a>
+### `slots/tools/duplicate_linear.py`
+
+Duplicate Linear: copies of the selection along a line, each interpolating
+
+- [`INTERPOLATION_MODES`](tentacle/tentacle/slots/tools/duplicate_linear.py#L16) — constant
+- **[`class DuplicateLinearSlots(Slots)`](tentacle/tentacle/slots/tools/duplicate_linear.py#L27)**
+  - `DuplicateLinearSlots.header_init(self, widget)` — Configure header help text.
+  - `DuplicateLinearSlots.toggle_weight_ui(self)` — Disable the weight spinners the current interpolation mode ignores:
+  - `DuplicateLinearSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `DuplicateLinearSlots.perform_operation(self, objects, contract=None)` — Duplicate *objects* along the line (Maya's Preview passes its cleanup
+
 <a id="slots--tools--duplicate_radial"></a>
 ### `slots/tools/duplicate_radial.py`
 
@@ -1622,6 +1839,15 @@ Duplicate Radial: copies of the selection in a radial pattern about a pivot.
   - `DuplicateRadialSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
   - `DuplicateRadialSlots.perform_operation(self, objects, contract=None)` — Duplicate *objects* radially from the panel's values.
   - `DuplicateRadialSlots.regroup_copies(self)` — The commit's finalize step: the host groups the committed copies.
+
+<a id="slots--tools--dynamic_pipe"></a>
+### `slots/tools/dynamic_pipe.py`
+
+Dynamic Pipe: a pipe mesh that follows a chain of handles live.
+
+- **[`class DynamicPipeSlots(Slots)`](tentacle/tentacle/slots/tools/dynamic_pipe.py#L13)**
+  - `DynamicPipeSlots.header_init(self, widget)` — Configure header help text.
+  - `DynamicPipeSlots.b000(self)` — Initialize Pipe: build the pipe through the selected handles.
 
 <a id="slots--tools--emissive_groups"></a>
 ### `slots/tools/emissive_groups.py`
@@ -1647,6 +1873,44 @@ Emissive Groups: named face groups whose emissive regions a game engine gates.
   - `EmissiveGroupsSlots.remove_keyable_weights(self) -> None`
   - `EmissiveGroupsSlots.compact_slots(self) -> None`
   - `EmissiveGroupsSlots.republish_export(self) -> None`
+
+<a id="slots--tools--exploded_view"></a>
+### `slots/tools/exploded_view.py`
+
+Exploded View: spread the selected objects apart to inspect interior parts.
+
+- **[`class ExplodedViewSlots(Slots)`](tentacle/tentacle/slots/tools/exploded_view.py#L12)**
+  - `ExplodedViewSlots.header_init(self, widget)` — Configure header help text.
+  - `ExplodedViewSlots.b000(self)` — Explode.
+  - `ExplodedViewSlots.b001(self)` — Un-Explode (selected).
+  - `ExplodedViewSlots.b002(self)` — Un-Explode All.
+  - `ExplodedViewSlots.b003(self)` — Toggle Explode.
+
+<a id="slots--tools--shot_manifest"></a>
+### `slots/tools/shot_manifest.py`
+
+Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+
+- **[`class ShotManifestSlots(Slots)`](tentacle/tentacle/slots/tools/shot_manifest.py#L15)** — Switchboard slots for the ``shot_manifest.ui`` panel.
+  - `ShotManifestSlots.header_init(self, widget)` — Header menu is configured once in the controller's ``__init__``.
+  - `ShotManifestSlots.btn_settings(self)` — Open the shared shots settings panel.
+  - `ShotManifestSlots.b002(self)` — Assess the steps against the scene.
+  - `ShotManifestSlots.b003(self)` — Build shots from loaded steps (or auto-detect from scene).
+  - `ShotManifestSlots.b004(self)` — Export the manifest's rows (the option menu says how).
+
+<a id="slots--tools--snap"></a>
+### `slots/tools/snap.py`
+
+Snap: vertices to a target surface, to the closest target vertex, or to the grid.
+
+- **[`class SnapSlots(Slots)`](tentacle/tentacle/slots/tools/snap.py#L13)**
+  - `SnapSlots.header_init(self, widget)` — Configure header help text.
+  - `SnapSlots.b000_init(self, widget)` — Initialize Snap to Surface button option box.
+  - `SnapSlots.b000(self)` — Snap to Surface button.
+  - `SnapSlots.b001_init(self, widget)` — Initialize Snap to Closest Vertex button option box.
+  - `SnapSlots.b001(self)` — Snap to Closest Vertex button.
+  - `SnapSlots.b002_init(self, widget)` — Initialize Snap to Grid button option box.
+  - `SnapSlots.b002(self)` — Snap to Grid button.
 
 <a id="tcl"></a>
 ### `tcl.py`

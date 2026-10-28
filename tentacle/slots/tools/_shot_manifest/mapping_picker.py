@@ -35,7 +35,7 @@ class MappingPickerMixin:
         from the UI; the workflow is to open the folder, manage the files
         externally, then refresh.
         """
-        from uitk.widgets.comboBox import ComboBox
+        ComboBox = self.sb.ComboBox
 
         menu = self._mapping_menu = self._mapping_popup()
         cmb = menu.add(
@@ -62,7 +62,7 @@ class MappingPickerMixin:
         is the field's business, not the panel's.  A mocked field (logic
         tests) has no option box: the header menu stands in."""
         from qtpy import QtWidgets
-        from uitk.widgets.optionBox.options.option_menu import OptionMenuOption
+        OptionMenuOption = self.sb.OptionMenuOption
 
         txt = self.ui.txt_csv_path
         if not isinstance(txt, QtWidgets.QWidget):
@@ -465,9 +465,9 @@ class MappingPickerMixin:
         """
         from qtpy import QtWidgets
         from pythontk.core_utils.engines.shots.manifest.mapping import Mapping
-        from uitk.bridge.spec import AttributeSpec, KindFactory
-        from uitk.bridge.tooltip import Tooltip
-        from uitk.widgets.form_rows import FormRows
+        AttributeSpec, KindFactory = self.sb.AttributeSpec, self.sb.KindFactory
+        Tooltip = self.sb.Tooltip
+        FormRows = self.sb.FormRows
 
         menu = self._mapping_menu
         for row in self._option_rows:

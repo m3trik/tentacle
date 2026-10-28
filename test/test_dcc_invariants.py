@@ -357,7 +357,13 @@ class TestSlotImportDiscipline(unittest.TestCase):
     _UITK_IMPORT_EXEMPT = {"_slots.py"}
 
     #: ``bootstrap_package`` installs the resolver, so it cannot come through it.
-    _DEEP_IMPORT_EXEMPT = {("pythontk.core_utils.module_resolver", "bootstrap_package")}
+    #: pythontk publishes ``Mapping`` and ``Behaviors`` by module path on purpose
+    #: (generic names kept off its top level): that path is their contract.
+    _DEEP_IMPORT_EXEMPT = {
+        ("pythontk.core_utils.module_resolver", "bootstrap_package"),
+        ("pythontk.core_utils.engines.shots.manifest.mapping", "Mapping"),
+        ("pythontk.core_utils.engines.shots.manifest.behaviors", "Behaviors"),
+    }
 
     _NAMESPACED = ("pythontk", "uitk", "mayatk", "blendertk", "tentacle")
 

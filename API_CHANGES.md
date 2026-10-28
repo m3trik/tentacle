@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (41)
+## Added (158)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -23,6 +23,100 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
+- `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
+- `slots/tools/_shot_manifest/export_preview.py::ExportPreviewMixin(class)`
+- `slots/tools/_shot_manifest/export_preview.py::ExportPreviewMixin.export(self) -> None`
+- `slots/tools/_shot_manifest/header_menu.py::HeaderMenuMixin(class)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_BEHAVIORS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_DESC(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_END(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_SECTION(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_START(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::COL_STEP(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::ERROR_COLOR(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::HEADERS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData(class)`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.fmt_behavior(name: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.format_behavior_html(behaviors, broken=(), status_color=None, stale=(), disabled=(), marked=()) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.glyph_html(status: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.issues_html(issues: Iterable[Tuple[str, str]]) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.level(status: str) -> str`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.status_color(status: str) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_data.py::ManifestData.worst(statuses: Iterable[str]) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_data.py::PASTEL_STATUS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::SETTINGS_NS(constant)`
+- `slots/tools/_shot_manifest/manifest_data.py::STEP_ICON_COLOR(constant)`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor(class)`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_header_options(self, menu) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_menu_actions(self, menu, item, selected: List[str] = ()) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_shot(self, shot, after: str) -> Optional[str]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.add_step(self, after: str) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.apply(self, steps: List[ptk.BuilderStep]) -> List[ptk.BuilderStep]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.begin_edit(self, item, column: int) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.commit_edit(self, item, column: int) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.decorate(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.edits_mode(self) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.enabled(self) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.hide_object(self, home: str, sheet_name: str, hidden: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.hide_steps(self, step_ids: List[str], hidden: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.load(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.move_object(self, step, obj, target) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refresh(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refuse_locked(self, step) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.refuse_viewing(self, to: str = 'edit') -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.remove_step(self, step) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.rename_all(self, name: str, new: Optional[str] = None) -> int`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.reset(self, confirm: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.revert_object(self, home: str, sheet_name: str, name: str = '') -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.revert_step(self, step) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.save(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.set_behaviors(self, step_id: str, obj, behaviors: List[str]) -> bool`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.show_hidden_objects(self) -> None`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.source_key(self) -> str`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.stale(self) -> List[str]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.unlocked_hidden_objects(self) -> List[Tuple[str, str]]`
+- `slots/tools/_shot_manifest/manifest_editor.py::ManifestEditor.view_original(self, on: bool = True) -> None`
+- `slots/tools/_shot_manifest/manifest_source.py::ManifestSourceMixin(class)`
+- `slots/tools/_shot_manifest/manifest_source.py::ManifestSourceMixin.detect(self, gap: Optional[float] = None) -> None`
+- `slots/tools/_shot_manifest/mapping_picker.py::MappingPickerMixin(class)`
+- `slots/tools/_shot_manifest/range_column.py::RangeColumnMixin(class)`
+- `slots/tools/_shot_manifest/row_menus.py::RowMenusMixin(class)`
+- `slots/tools/_shot_manifest/store_follow.py::StoreFollowMixin(class)`
+- `slots/tools/_shot_manifest/store_follow.py::StoreFollowMixin.remove_callbacks(self) -> None`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin(class)`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
+- `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
+- `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/bevel.py::BevelSlots(class)`
+- `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
+- `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/calculator.py::CalculatorSlots(class)`
+- `slots/tools/calculator.py::CalculatorSlots.frames_to_sec(self)`
+- `slots/tools/calculator.py::CalculatorSlots.get_current_time(self)`
+- `slots/tools/calculator.py::CalculatorSlots.get_fps(self)`
+- `slots/tools/calculator.py::CalculatorSlots.header_init(self, widget)`
+- `slots/tools/calculator.py::CalculatorSlots.on_backspace(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_clear(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_convert_units(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_equal(self)`
+- `slots/tools/calculator.py::CalculatorSlots.on_input(self, text)`
+- `slots/tools/calculator.py::CalculatorSlots.sec_to_frames(self)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots(class)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.header_init(self, widget)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/cut_on_axis.py::CutOnAxisSlots.toggle_weight_ui(self)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots(class)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.header_init(self, widget)`
+- `slots/tools/duplicate_grid.py::DuplicateGridSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots(class)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.b001_init(self, widget)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.header_init(self, widget)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/duplicate_linear.py::DuplicateLinearSlots.toggle_weight_ui(self)`
+- `slots/tools/duplicate_linear.py::INTERPOLATION_MODES(constant)`
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots(class)`
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots.b001_init(self, widget)`
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots.header_init(self, widget)`
@@ -30,6 +124,9 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots.regroup_copies(self)`
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s015_init(self, widget)`
 - `slots/tools/duplicate_radial.py::DuplicateRadialSlots.s016_init(self, widget)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots(class)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots.b000(self)`
+- `slots/tools/dynamic_pipe.py::DynamicPipeSlots.header_init(self, widget)`
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots(class)`
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b000(self) -> None`
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots.b001(self) -> None`
@@ -49,6 +146,26 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots.txt000_init(self, widget) -> None`
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_off(self) -> None`
 - `slots/tools/emissive_groups.py::EmissiveGroupsSlots.weights_all_on(self) -> None`
+- `slots/tools/exploded_view.py::ExplodedViewSlots(class)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b000(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b001(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b002(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.b003(self)`
+- `slots/tools/exploded_view.py::ExplodedViewSlots.header_init(self, widget)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots(class)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b002(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b003(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.b004(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.btn_settings(self)`
+- `slots/tools/shot_manifest.py::ShotManifestSlots.header_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots(class)`
+- `slots/tools/snap.py::SnapSlots.b000(self)`
+- `slots/tools/snap.py::SnapSlots.b000_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.b001(self)`
+- `slots/tools/snap.py::SnapSlots.b001_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.b002(self)`
+- `slots/tools/snap.py::SnapSlots.b002_init(self, widget)`
+- `slots/tools/snap.py::SnapSlots.header_init(self, widget)`
 - `tcl.py::Tcl.register_shared(switchboard)`
 
 ## Moved (22)

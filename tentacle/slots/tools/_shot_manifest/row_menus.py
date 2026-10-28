@@ -62,7 +62,7 @@ class RowMenusMixin:
         its own callback."""
         from qtpy.QtCore import Qt
         from qtpy.QtWidgets import QMenu
-        from uitk import StyleSheet
+        StyleSheet = self.sb.StyleSheet
 
         tree = self.ui.tbl_steps
         item = tree.itemAt(pos)
@@ -242,7 +242,7 @@ class RowMenusMixin:
         none -- or remove it."""
         from qtpy.QtCore import Qt
         from qtpy.QtWidgets import QMenu
-        from uitk import StyleSheet
+        StyleSheet = self.sb.StyleSheet
 
         tree = self.ui.tbl_steps
         after = self._row_above(item)  # now: a redraw may delete the row

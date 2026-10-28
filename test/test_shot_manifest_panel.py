@@ -119,6 +119,19 @@ from tentacle.slots.tools._shot_manifest.manifest_data import (
 )
 
 
+class _UitkSwitchboard(MagicMock):
+    """A mock switchboard that resolves uitk's public names as a real one does
+    (``self.sb.ComboBox`` is uitk's ``ComboBox``): the panel reaches uitk only
+    through its switchboard."""
+
+    def __getattr__(self, name):
+        import uitk
+
+        if name[:1].isupper() and name in getattr(uitk, "__all__", ()):
+            return getattr(uitk, name)
+        return super().__getattr__(name)
+
+
 class _ControllerHarness:
     """Creates a ShotManifestController with a minimal fake UI."""
 
@@ -132,6 +145,7 @@ class _ControllerHarness:
         # Minimal slots_instance mock (controller reads .sb and .ui)
         slots_instance = MagicMock()
         slots_instance.tk = mayatk  # what Slots.tk hands the controller
+        slots_instance.sb = _UitkSwitchboard()
         slots_instance.ui.tbl_steps = self.tree
         slots_instance.ui.footer = MagicMock()
         slots_instance.ui.footer._status_label = MagicMock()

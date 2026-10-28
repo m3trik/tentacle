@@ -656,37 +656,46 @@ class BrowserPolicyGuiTest(unittest.TestCase):
             ui.hide()
             self._process()
 
-    def test_a_shared_tool_panel_opens_sticky_over_the_host_toolkit(self):
-        """A shared tool (``ui/tools/`` + ``slots/tools/``) opens the way the Duplicate
-        menu opens it: from tentacle's folder, bound to its one Slots class over
-        ``mtk``, sticky by the panel tag (the rule mayatk's own panels had by their
-        package tag)."""
+    def test_every_shared_tool_opens_sticky_over_the_host_toolkit(self):
+        """Each shared tool (``ui/tools/<tool>.ui`` + ``slots/tools/<tool>.py``)
+        opens the way its menu opens it: from tentacle's folder, bound to its one
+        Slots class over ``mtk``, sticky by the panel tag (the rule mayatk's own
+        panels had by their package tag). A Preview panel's preview is ``mtk``'s."""
         from pathlib import Path
 
         import mayatk as mtk
         import tentacle
 
-        self.mm.sb.handlers.marking_menu.show("duplicate_radial")
-        self._process()
-        ui = self.mm.sb.loaded_ui.duplicate_radial
-        try:
-            self.assertTrue(ui.isVisible(), "the panel did not show")
-            filepath = self.mm.sb.registry.ui_registry.get(
-                filename="duplicate_radial", return_field="filepath"
-            )
-            tools = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
-            self.assertTrue(Path(filepath).resolve().is_relative_to(tools), filepath)
-            slots = self.mm.sb.get_slots_instance(ui)
-            self.assertEqual(type(slots).__name__, "DuplicateRadialSlots")
-            self.assertIs(slots.tk, mtk)
-            self.assertIsInstance(slots.preview, mtk.Preview)
-            self.assertEqual(
-                self.mm.sb.handlers.ui.default_persistence(ui),
-                self.mm.sb.handlers.ui.PERSISTENCE_STICKY,
-            )
-        finally:
-            ui.hide()
-            self._process()
+        tools = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
+        names = sorted(path.stem for path in tools.glob("*.ui"))
+        self.assertIn("duplicate_radial", names)
+        for name in names:
+            with self.subTest(tool=name):
+                self.mm.sb.handlers.marking_menu.show(name)
+                self._process()
+                ui = getattr(self.mm.sb.loaded_ui, name)
+                try:
+                    self.assertTrue(ui.isVisible(), "the panel did not show")
+                    filepath = self.mm.sb.registry.ui_registry.get(
+                        filename=name, return_field="filepath"
+                    )
+                    self.assertTrue(
+                        Path(filepath).resolve().is_relative_to(tools), filepath
+                    )
+                    slots = self.mm.sb.get_slots_instance(ui)
+                    self.assertEqual(
+                        type(slots).__module__, f"tentacle.slots.tools.{name}"
+                    )
+                    self.assertIs(slots.tk, mtk)
+                    if hasattr(slots, "preview"):
+                        self.assertIsInstance(slots.preview, mtk.Preview)
+                    self.assertEqual(
+                        self.mm.sb.handlers.ui.default_persistence(ui),
+                        self.mm.sb.handlers.ui.PERSISTENCE_STICKY,
+                    )
+                finally:
+                    ui.hide()
+                    self._process()
 
 
     def test_a_composed_slots_class_binds_over_the_host_toolkit(self):

@@ -201,7 +201,7 @@ class ManifestTableMixin:
         plus any behaviours already assigned (so they remain toggle-able
         even when no YAML declares that kind).
         """
-        from uitk.widgets.label import Label
+        Label = self.sb.Label
         from qtpy.QtCore import Qt
 
         label = Label()
@@ -216,7 +216,7 @@ class ManifestTableMixin:
             return
 
         def _show_menu():
-            from uitk.widgets.menu import Menu
+            Menu = self.sb.Menu
 
             if self._editor.refuse_viewing():
                 return

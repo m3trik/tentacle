@@ -411,13 +411,94 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
 
+### `slots/tools/_shot_manifest/controller.py` — The Shot Manifest panel's controller: its state, the steps the table shows,
+- `class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`
+  - methods: build, assess
+
+### `slots/tools/_shot_manifest/export_preview.py` — The Shot Manifest's Export button (beside Assess): a live preview of the
+- `class ExportPreviewMixin`
+  - methods: export
+
+### `slots/tools/_shot_manifest/header_menu.py` — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
+- `class HeaderMenuMixin`
+
+### `slots/tools/_shot_manifest/manifest_data.py` — Constants, column layout, and pure helper functions for the Shot Manifest UI.
+- constants: SETTINGS_NS, HEADERS, COL_STEP, COL_SECTION, COL_DESC, COL_BEHAVIORS, COL_START, COL_END, STEP_ICON_COLOR, PASTEL_STATUS, ERROR_COLOR
+- `class ManifestData`
+  - methods: level, status_color, worst, glyph_html, issues_html, fmt_behavior, format_behavior_html
+
+### `slots/tools/_shot_manifest/manifest_editor.py` — Local Edits for the Shot Manifest panel: change the table, never the sheet.
+- `class ManifestEditor`
+  - methods: enabled, add_header_options, edits_mode, view_original, refuse_viewing, reset, source_key, load, save, apply, stale, refresh, refuse_locked, begin_edit, commit_edit, set_behaviors, add_menu_actions, add_step, add_shot, remove_step, hide_steps, unlocked_hidden_objects, show_hidden_objects, hide_object, move_object, rename_all, revert_step, revert_object, decorate
+
+### `slots/tools/_shot_manifest/manifest_source.py` — Where the Shot Manifest's steps come from: a build sheet (a CSV path or link,
+- `class ManifestSourceMixin`
+  - methods: detect
+
+### `slots/tools/_shot_manifest/mapping_picker.py` — The Shot Manifest's mapping template: its own popup on the build sheet
+- `class MappingPickerMixin`
+
+### `slots/tools/_shot_manifest/range_column.py` — The Shot Manifest table's Start / End column: what a step's range is
+- `class RangeColumnMixin`
+
+### `slots/tools/_shot_manifest/row_menus.py` — The Shot Manifest rows' context menus and what they do: a step row's (colour
+- `class RowMenusMixin`
+
+### `slots/tools/_shot_manifest/store_follow.py` — The Shot Manifest panel following the scene's store: its events (a shot
+- `class StoreFollowMixin`
+  - methods: remove_callbacks
+
+### `slots/tools/_shot_manifest/table_presenter.py` — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
+- `class ManifestTableMixin`
+  - methods: expand_missing, expand_extra
+
+### `slots/tools/_shot_manifest/view_combos.py` — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- `class ViewCombosMixin`
+
+### `slots/tools/bevel.py` — Bevel: chamfer the selected polygon edges, with a live preview.
+- `class BevelSlots(Slots)`
+  - methods: header_init, perform_operation
+
+### `slots/tools/calculator.py` — Calculator: expressions, length units, and the scene's frame-rate helpers.
+- `class CalculatorSlots(Slots)`
+  - methods: header_init, on_input, on_clear, on_backspace, on_equal, on_convert_units, get_fps, get_current_time, frames_to_sec, sec_to_frames
+
+### `slots/tools/cut_on_axis.py` — Cut On Axis: slice the selected meshes along an axis, then optionally delete
+- `class CutOnAxisSlots(Slots)`
+  - methods: header_init, toggle_weight_ui, perform_operation
+
+### `slots/tools/duplicate_grid.py` — Duplicate Grid: copies of the selection in a 3D grid.
+- `class DuplicateGridSlots(Slots)`
+  - methods: header_init, b001_init, perform_operation
+
+### `slots/tools/duplicate_linear.py` — Duplicate Linear: copies of the selection along a line, each interpolating
+- constants: INTERPOLATION_MODES
+- `class DuplicateLinearSlots(Slots)`
+  - methods: header_init, toggle_weight_ui, b001_init, perform_operation
+
 ### `slots/tools/duplicate_radial.py` — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
 - `class DuplicateRadialSlots(Slots)`
   - methods: header_init, s015_init, s016_init, b001_init, perform_operation, regroup_copies
 
+### `slots/tools/dynamic_pipe.py` — Dynamic Pipe: a pipe mesh that follows a chain of handles live.
+- `class DynamicPipeSlots(Slots)`
+  - methods: header_init, b000
+
 ### `slots/tools/emissive_groups.py` — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - `class EmissiveGroupsSlots(Slots)`
   - methods: header_init, txt000_init, tbl000_init, b000, b001, b002, b003, tb000_init, tb000, select_members, remove_group, weights_all_on, weights_all_off, make_weights_keyable, key_weights, remove_keyable_weights, compact_slots, republish_export
+
+### `slots/tools/exploded_view.py` — Exploded View: spread the selected objects apart to inspect interior parts.
+- `class ExplodedViewSlots(Slots)`
+  - methods: header_init, b000, b001, b002, b003
+
+### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+- `class ShotManifestSlots(Slots)`
+  - methods: header_init, btn_settings, b002, b003, b004
+
+### `slots/tools/snap.py` — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
+- `class SnapSlots(Slots)`
+  - methods: header_init, b000_init, b000, b001_init, b001, b002_init, b002
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`

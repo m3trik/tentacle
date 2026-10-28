@@ -422,8 +422,8 @@ class HeaderMenuMixin:
 
     def _open_color_editor(self) -> None:
         """Launch the status-color editor dialog."""
-        from uitk.widgets.editors.color_mapping_editor import ColorMappingDialog
-        from uitk.managers.settings_manager import SettingsManager
+        ColorMappingDialog = self.sb.ColorMappingDialog
+        SettingsManager = self.sb.SettingsManager
 
         # Keys with actual (fg, bg) colours — skip 'valid'/'csv_object' (None, None)
         editable_keys = [
@@ -461,7 +461,7 @@ class HeaderMenuMixin:
 
     def _restore_color_overrides(self) -> None:
         """Apply any persisted color overrides to the live palette."""
-        from uitk.managers.settings_manager import SettingsManager
+        SettingsManager = self.sb.SettingsManager
 
         settings = SettingsManager(namespace=self._COLOR_SETTINGS_NS)
         for key in list(PASTEL_STATUS):

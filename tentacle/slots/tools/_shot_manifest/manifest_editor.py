@@ -102,7 +102,7 @@ class ManifestEditor:
         """Add the Local Edits row to *menu*: the Edits combo
         (:attr:`EDITS_MODES`) and Reset beside it."""
         from qtpy import QtCore, QtWidgets
-        from uitk.widgets.comboBox import ComboBox
+        ComboBox = self.host.sb.ComboBox
 
         menu.add("Separator", setTitle="Local Edits")
         row = QtWidgets.QWidget()

@@ -169,8 +169,8 @@ class ManifestSourceMixin:
 
     def _setup_recent_csv(self) -> None:
         """Attach a RecentValuesOption and BrowseOption to the CSV path widget."""
-        from uitk.widgets.optionBox.options.recent_values import RecentValuesOption
-        from uitk.widgets.optionBox.options.browse import BrowseOption
+        RecentValuesOption = self.sb.RecentValuesOption
+        BrowseOption = self.sb.BrowseOption
 
         txt = self.ui.txt_csv_path
         self._recent_csv_option = RecentValuesOption(
