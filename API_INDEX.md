@@ -10,10 +10,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class AnimationMixin`
   - methods: list000_init
 
-### `slots/_scene.py` — Behavior shared by the Maya and Blender ``scene`` panels.
-- `class SceneMixin`
-  - methods: tb003, list003_init, b019, tb001_init, tb001, tb002_init, tb002
-
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
   - methods: tk, mirror_app_state, require_selection, activate_tool, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
@@ -32,10 +28,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
-
-### `slots/blender/scene.py`
-- `class SceneSlots(SceneMixin, SlotsBlender)`
-  - methods: list003, list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, b011, b001, b010, b016, b005, b008, b013, b_cleanup, b004, b003, b015, b017
 
 ### `slots/blender/uv.py`
 - `class UvSlots(UvMixin, SlotsBlender)`
@@ -165,10 +157,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/render.py`
 - `class RenderSlots(SlotsMaya)`
 
-### `slots/maya/scene.py`
-- `class SceneSlots(SceneMixin, SlotsMaya)`
-  - methods: list003, cmb002_init, cmb002, list001_init, list001, list002_init, list002, list000_init, list000, b001, b010, b016, tb003_init, b004, b005, b006, b009, b011, b018, b012, b017, b013, b014_init, b014
-
 ### `slots/maya/select.py`
 - `class SelectSlots(SlotsMaya)`
 
@@ -227,6 +215,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/rigging.py` — Rigging: one Slots class for both hosts.
 - `class RiggingSlots(Slots)`
   - methods: header_init, b020, cmb001_init, cmb001, cmb002_init, cmb002, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, b004
+
+### `slots/scene.py` — Scene: one Slots class for both hosts.
+- `class SceneSlots(Slots)`
+  - methods: list000_init, list000, cmb002_init, cmb002, list001_init, list001, list002_init, list002, tb003_init, tb003, list003_init, list003, b013, b010, b016, b001, b004, b005, b003, b015, b014_init, b014, b006, b_cleanup, b009, b011, b018, b012, b017, b019, tb001_init, tb001, tb002_init, tb002
 
 ### `slots/selection.py` — Selection: one Slots class for both hosts.
 - `class SelectionSlots(Slots)`

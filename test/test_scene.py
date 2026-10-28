@@ -1,40 +1,510 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.scene.
+"""Regression tests for tentacle.slots.scene, the one Scene Slots class.
 
-Most of SceneSlots is a thin shell around MEL/cmds calls (Export, Import,
-SetProject menus). Those are too thin to unit-test meaningfully. This
-covers the units with branching logic:
+It reaches its host only through ``self.tk``: a fake toolkit stands in for it here and
+records what each slot asks of it (plain unittest), and in Maya the same class drives
+the real ``mtk`` (``run_tests.py --in-maya``). Pinned at this layer:
 
-- _ensure_fbx_plugin      — graceful fail when plugin missing
-- _resolve_workspace_text — env fallback
-- _confirm_dense_export   — dense-mesh tangent-export confirmation gate
-- tb001 Get Scene Info    — the body both forks share (``SceneMixin``), driven
-  Maya-free with a stand-in engine, and the Maya fork against mayatk's
+- the Import / Export lists: this panel's rows and the host's own commands
+  (``EnvUtils.get_file_commands``) in one order, a row only one host serves tagged, the
+  other DCC named off its bridge -- both directions of the scene hand-off and the
+  shared formats (USD, glTF) under the same labels in either host;
+- Recent Files / Autosave through ``EnvUtils.open_scene``;
+- the Tools leaves: the launchers, the host-only rows and their reports;
+- Get Scene Info over the host's analyzer (the flows Export Scene, Fix Non-Orthogonal
+  Axes and the pull rows share are ``test_scene_mixin.py``'s).
+The operations themselves are tested in mayatk and blendertk.
 """
 
-import ast
 import contextlib
 import functools
 import os
 import unittest
-from pathlib import Path
 from types import SimpleNamespace as NS
 from unittest import mock
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")  # before any widget is built
 
 from _host import (  # noqa: E402
-    MAYA_AVAILABLE as _MAYA_AVAILABLE,
+    MAYA_AVAILABLE,
     maya_module,
     qt_widgets_available,
 )
-from tentacle.slots._scene import SceneMixin  # noqa: E402
+from tentacle.slots._slots import Slots  # noqa: E402
+from tentacle.slots.scene import SceneSlots  # noqa: E402
 
-cmds = maya_module("maya.cmds")
-scene_module = maya_module("tentacle.slots.maya.scene")
+#: The host commands each toolkit answers ``get_file_commands`` with, as mayatk /
+#: blendertk list them (pinned there).
+MAYA_COMMANDS = {
+    "import": ["Import File", "Import Options", "FBX Import Presets", "OBJ Import Presets"],
+    "export": [
+        "Export Selection",
+        "Export All",
+        "Send to Unreal",
+        "Send to Unity",
+        "Export to Offline File",
+        "Export Options",
+        "FBX Export Presets",
+        "OBJ Export Presets",
+    ],
+}
+BLENDER_COMMANDS = {
+    "import": ["Import OBJ", "Append from .blend", "Link from .blend"],
+    "export": ["Export Selection", "Export FBX", "Export OBJ", "Export glTF"],
+}
 
-SLOTS_ROOT = Path(__file__).resolve().parent.parent / "tentacle" / "slots"
+
+def _bridge(app, extensions):
+    return NS(spec=NS(app=NS(name=app)), save_extensions=tuple(extensions))
+
+
+def _toolkit(host="maya"):
+    """A MagicMock toolkit answering like *host*'s: the other DCC's bridge, the host's
+    own file commands, an unsaved scene in a workspace."""
+    tk = mock.MagicMock()
+    if host == "maya":
+        bridge, commands, scene_exts = (
+            _bridge("Blender", (".blend", ".json")),
+            MAYA_COMMANDS,
+            (".blend",),
+        )
+    else:
+        bridge, commands, scene_exts = (
+            _bridge("Maya", (".ma", ".mb")),
+            BLENDER_COMMANDS,
+            (".ma", ".mb"),
+        )
+    tk.EnvUtils.foreign_scene_bridge.return_value = bridge
+    tk.EnvUtils.foreign_scene_import.return_value.SCENE_EXTENSIONS = scene_exts
+    tk.EnvUtils.get_file_commands.side_effect = lambda direction: list(
+        commands[direction]
+    )
+    tk.EnvUtils.saved_scene_path.return_value = ""
+    tk.EnvUtils.workspace_root.return_value = "W:/proj"
+    tk.CoreUtils.selected_objects.return_value = []
+    return tk
+
+
+def _make(sb):
+    """A ``SceneSlots`` through its real ``__init__`` (no legacy-shortcut migration);
+    *sb* needs ``loaded_ui.scene`` -- a window with no footer subscribes nothing."""
+    migrated = Slots._legacy_repeat_last_migrated
+    Slots._legacy_repeat_last_migrated = True
+    try:
+        return SceneSlots(sb)
+    finally:
+        Slots._legacy_repeat_last_migrated = migrated
+
+
+class _SlotsCase(unittest.TestCase):
+    HOST = "maya"
+
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.sb.tk = _toolkit(self.HOST)
+        self.sb.loaded_ui.scene.footer = None
+        self.slots = SceneSlots(self.sb)
+        self.tk = self.sb.tk
+
+    def _message(self):
+        (text, *_), _kwargs = self.sb.message_box.call_args
+        return text
+
+
+class _FakeList:
+    """Stand-in for uitk's ExpandableList (the surface the list inits touch)."""
+
+    def __init__(self, submenu=False):
+        self.ui = NS(has_tags=lambda *tags: submenu)
+        self.items = []
+        self.preset = None
+        self.fixed_item_height = None
+        self.visible = None
+
+    def apply_preset(self, name):
+        self.preset = name
+
+    def setVisible(self, state):
+        self.visible = state
+
+    def get_items(self):
+        return list(self.items)
+
+    def add(self, item, data=None, **kwargs):
+        if isinstance(item, zip):
+            return [self.add(text, data=value) for text, value in item]
+        row = NS(text=item, data=data, sublist=_FakeList(), properties={}, kwargs=kwargs)
+        row.setProperty = row.properties.__setitem__
+        row.item_data = lambda r=row: r.data
+        self.items.append(row)
+        return row
+
+
+def _labels(rows):
+    return [label for label, _action, _requires in rows]
+
+
+class TestListRows(_SlotsCase):
+    """``_list_rows``: one table, each host's own commands, the other DCC named."""
+
+    def test_maya_s_import_list(self):
+        rows = self.slots._list_rows(SceneSlots._IMPORT_ROWS, "import")
+        self.assertEqual(
+            _labels(rows),
+            [
+                "Import File",
+                "Import Options",
+                "Import FBX",
+                "Import Blender Scene",
+                "Import glTF",
+                "Import USD",
+                "FBX Import Presets",
+                "OBJ Import Presets",
+            ],
+        )
+        # Blender's FBX row is hidden in Maya (its Import File imports FBX).
+        self.assertEqual(
+            [label for label, _, req in rows if req], ["Import FBX"]
+        )
+
+    def test_maya_s_export_list(self):
+        rows = self.slots._list_rows(SceneSlots._EXPORT_ROWS, "export")
+        self.assertEqual(
+            _labels(rows),
+            [
+                "Export Selection",
+                "Export .blend",
+                "Export USD",
+                "Export glTF",
+                "Export All",
+                "Send to Unreal",
+                "Send to Unity",
+                "Export to Offline File",
+                "Export Options",
+                "FBX Export Presets",
+                "OBJ Export Presets",
+            ],
+        )
+
+    def test_a_command_row_runs_the_host_command_and_a_method_row_its_method(self):
+        rows = dict(
+            (label, action)
+            for label, action, _ in self.slots._list_rows(
+                SceneSlots._IMPORT_ROWS, "import"
+            )
+        )
+        rows["Import File"]()
+        self.tk.EnvUtils.run_file_command.assert_called_once_with("Import File")
+        self.assertEqual(rows["Import USD"], self.slots._import_usd)
+
+    def test_a_host_command_the_table_does_not_name_follows_the_rows(self):
+        self.tk.EnvUtils.get_file_commands.side_effect = lambda d: [
+            "Import File",
+            "Import From Cloud",
+        ]
+        rows = self.slots._list_rows(SceneSlots._IMPORT_ROWS, "import")
+        self.assertEqual(_labels(rows)[-1], "Import From Cloud")
+        self.assertNotIn("Import Options", _labels(rows))  # not offered: not listed
+
+    def test_a_refused_command_reaches_the_user_as_text(self):
+        self.tk.EnvUtils.run_file_command.side_effect = RuntimeError(
+            "Could not load the <fbxmaya> plug-in"
+        )
+        self.slots._run_file_command("FBX Import Presets")
+        self.assertIn("&lt;fbxmaya&gt;", self._message())
+        self.tk.EnvUtils.run_file_command.side_effect = ValueError("needs a selection")
+        self.slots._run_file_command("Export Selection")
+        self.assertIn("needs a selection", self._message())
+
+
+class TestSceneHandoffSymmetry(unittest.TestCase):
+    """Each host's Scene panel BOTH reads and writes the other DCC's native format --
+    and USD and glTF under the same labels on each side.
+
+    The push direction (``save_as``) exists because the pull alone left the Import list
+    able to reach a foreign scene while the Export list could not produce one. These
+    rows are built at runtime, so the panel parity sweep (which diffs widgets) cannot
+    see a missing one.
+    """
+
+    PAIRS = {
+        "maya": ("Import Blender Scene", "Export .blend"),
+        "blender": ("Import Maya Scene", "Export .ma"),
+    }
+    SHARED = (("Import USD", "Export USD"), ("Import glTF", "Export glTF"))
+
+    def test_both_directions_and_the_shared_formats_in_each_host(self):
+        for host, pair in self.PAIRS.items():
+            with self.subTest(host=host):
+                slots = _make(
+                    NS(tk=_toolkit(host), loaded_ui=NS(scene=NS(), scene_submenu=NS()))
+                )
+                imports = slots._list_rows(SceneSlots._IMPORT_ROWS, "import")
+                exports = slots._list_rows(SceneSlots._EXPORT_ROWS, "export")
+                for import_label, export_label in (pair, *self.SHARED):
+                    self.assertIn(import_label, _labels(imports))
+                    self.assertIn(export_label, _labels(exports))
+                # Every row runs something callable (a missing method raises here).
+                self.assertTrue(all(callable(a) for _, a, _ in imports + exports))
+
+
+class TestListInits(_SlotsCase):
+    """list001 / list002 build their rows with the action as each item's data."""
+
+    def test_import_rows_carry_their_action_and_one_host_rows_their_tag(self):
+        widget = _FakeList(submenu=True)
+        self.slots.list001_init(widget)
+        self.assertEqual(widget.preset, "expand_overlay")
+        rows = widget.items[0].sublist.items
+        fbx = next(r for r in rows if r.text == "Import FBX")
+        self.assertEqual(fbx.properties, {"requires": "blender"})
+        self.sb.apply_visibility_policy.assert_any_call(fbx)
+        usd = next(r for r in rows if r.text == "Import USD")
+        self.assertEqual(usd.data, self.slots._import_usd)
+
+    def test_the_export_tools_sit_nearest_the_trigger_in_both_layouts(self):
+        added = []
+        self.slots.add_slot_widget = lambda sublist, **kw: added.append(
+            (len(sublist.items), kw["setObjectName"])
+        )
+        panel = _FakeList(submenu=False)
+        self.slots.list002_init(panel)
+        rows = panel.items[0].sublist.items
+        # Panel: Export Scene first, the Scene Exporter, then the one-shots.
+        self.assertEqual(added, [(0, "tb003")])
+        self.assertEqual(rows[0].text, "Scene Exporter")
+        self.assertEqual(rows[1].text, "Export Selection")
+
+        added.clear()
+        submenu = _FakeList(submenu=True)
+        self.slots.list002_init(submenu)
+        rows = submenu.items[0].sublist.items
+        # Submenu (expands up): the one-shots reversed, the Scene Exporter, then
+        # Export Scene LAST -- nearest the trigger.
+        self.assertEqual(rows[0].text, "OBJ Export Presets")
+        self.assertEqual(rows[-1].text, "Scene Exporter")
+        self.assertEqual(added, [(len(rows), "tb003")])
+
+    def test_dispatch_runs_the_item_s_action_and_skips_a_category(self):
+        calls = []
+        self.slots.list001(NS(item_data=lambda: lambda: calls.append("row")))
+        self.slots.list002(NS(item_data=lambda: None))  # the category row
+        self.assertEqual(calls, ["row"])
+
+    def test_the_scene_exporter_row_opens_the_panel(self):
+        self.slots._open_scene_exporter()
+        self.sb.handlers.marking_menu.show.assert_called_once_with("scene_exporter")
+        # The Export list is its only route: the header's b002 button left (a
+        # re-added method would mean it crept back onto the header menu).
+        self.assertFalse(hasattr(SceneSlots, "b002"))
+
+
+class TestRecentFilesAndAutosave(_SlotsCase):
+    """Recent Files / Autosave open through ``EnvUtils.open_scene``."""
+
+    def test_recent_files_list_and_hide_when_empty(self):
+        self.tk.EnvUtils.get_recent_files.return_value = ["P:/a.ma", "P:/b.ma"]
+        widget = _FakeList()
+        self.slots.list000_init(widget)
+        self.tk.EnvUtils.get_recent_files.assert_called_once_with(slice(0, 11))
+        self.assertEqual(
+            [r.data for r in widget.items[0].sublist.items], ["P:/a.ma", "P:/b.ma"]
+        )
+        self.assertTrue(widget.visible)
+        self.tk.EnvUtils.get_recent_files.return_value = []
+        widget = _FakeList()
+        self.slots.list000_init(widget)
+        self.assertFalse(widget.visible)
+
+    def test_a_file_row_opens_and_the_category_row_does_not(self):
+        self.tk.EnvUtils.open_scene.return_value = True
+        self.slots.list000(NS(item_data=lambda: None))
+        self.tk.EnvUtils.open_scene.assert_not_called()
+        self.slots.list000(NS(item_data=lambda: "P:/scenes/foo.ma"))
+        self.tk.EnvUtils.open_scene.assert_called_once_with("P:/scenes/foo.ma")
+        self.sb.message_box.assert_not_called()
+
+    def test_a_scene_that_will_not_open_says_so(self):
+        self.tk.EnvUtils.open_scene.return_value = False
+        self.slots.list000(NS(item_data=lambda: "P:/scenes/foo.ma"))
+        self.assertIn("Could not open", self._message())
+
+    def test_autosaves_list_newest_first_and_open(self):
+        self.tk.EnvUtils.get_recent_autosave.return_value = [
+            ("P:/autosave/a.0001.ma", "10:00:00")
+        ]
+        widget = mock.MagicMock()
+        self.slots.cmb002_init(widget)
+        self.tk.EnvUtils.get_recent_autosave.assert_called_once_with(
+            filter_time=24, timestamp_format="%H:%M:%S"
+        )
+        (items,), kwargs = widget.add.call_args
+        self.assertEqual(list(items.values()), ["P:/autosave/a.0001.ma"])
+        self.assertEqual(kwargs["header"], "Autosave:")
+        self.tk.EnvUtils.open_scene.return_value = True
+        self.slots.cmb002(0, NS(items=["P:/autosave/a.0001.ma"]))
+        self.tk.EnvUtils.open_scene.assert_called_once_with("P:/autosave/a.0001.ma")
+
+
+class TestToolsLaunchers(_SlotsCase):
+    """The Tools leaves that open a tool panel or another app."""
+
+    def _shown(self, *slots):
+        for name in slots:
+            getattr(self.slots, name)()
+        return [c.args[0] for c in self.sb.handlers.marking_menu.show.call_args_list]
+
+    def test_the_shared_tool_panels(self):
+        self.assertEqual(
+            self._shown("b001", "b004", "b005", "b003", "b015", "b016"),
+            [
+                "reference_manager",
+                "hierarchy_sync",
+                "naming",
+                "audio_clips",
+                "blendshape_animator",
+                "unity_bridge",
+            ],
+        )
+
+    def test_the_other_dcc_s_bridge_is_named_after_its_target(self):
+        self.assertEqual(self._shown("b010"), ["blender_bridge"])
+        self.sb.tk = _toolkit("blender")
+        self.sb.handlers.marking_menu.show.reset_mock()
+        self.assertEqual(self._shown("b010"), ["maya_bridge"])
+
+    def test_the_mesh_converter_starts_beside_the_scene_and_reads_fbx_references(self):
+        self.tk.EnvUtils.saved_scene_path.return_value = "P:/proj/scenes/a.ma"
+        ui = self.sb.handlers.external_app.launch.return_value
+        self.slots.b013()
+        self.sb.handlers.external_app.launch.assert_called_once_with(
+            "mesh_convert", show=False
+        )
+        self.assertEqual(ui.slots.source_dir, "P:/proj/scenes")
+        provider = ui.slots.fbx_provider
+        self.assertIsInstance(provider, functools.partial)
+        provider()
+        self.tk.ReferenceManager.selected_reference_paths.assert_called_once_with(
+            (".fbx",)
+        )
+        self.sb.handlers.marking_menu.show.assert_called_once_with(ui)
+
+    def test_scene_metadata_shows_the_data_nodes(self):
+        self.slots.b017()
+        args, kwargs = self.sb.data_view_dialog.call_args
+        self.assertIs(args[0], self.tk.DataNodes.dump.return_value)
+        self.tk.EnvUtils.scene_artifact_path.assert_called_once_with(
+            "_scene_metadata.json"
+        )
+
+
+class TestToolsFixes(_SlotsCase):
+    """The Fix leaves: one library call each, the result worded here."""
+
+    def test_fix_color_spaces_lists_the_changes(self):
+        self.tk.Diagnostics.fix_missing_color_spaces.return_value = {
+            "changes": [{"node": "rock_N", "from": "sRGB", "to": "Raw <lin>"}]
+        }
+        self.slots.b011()
+        self.tk.Diagnostics.fix_missing_color_spaces.assert_called_once_with(
+            force_update=True
+        )
+        message = self._message()
+        self.assertIn("updated <hl>1</hl> texture(s)", message)
+        self.assertIn("rock_N: sRGB → Raw &lt;lin&gt;", message)
+        self.tk.Diagnostics.fix_missing_color_spaces.return_value = {"changes": []}
+        self.slots.b011()
+        self.assertIn("nothing to change", self._message())
+
+    def test_fix_color_spaces_caps_a_long_list(self):
+        self.tk.Diagnostics.fix_missing_color_spaces.return_value = {
+            "changes": [{"node": f"n{i}", "from": "a", "to": "b"} for i in range(25)]
+        }
+        self.slots.b011()
+        self.assertIn("… and 5 more", self._message())
+
+    def test_cleanup_unknown_says_what_it_removed(self):
+        self.tk.Diagnostics.cleanup_scene.return_value = {
+            "unknown": {"nodes": ["a", "b"], "plugins": ["p"]},
+            "xgen_removed": 0,
+        }
+        self.slots.b006()
+        self.assertIn("<hl>2</hl> unknown node(s), <hl>1</hl> plugin(s)", self._message())
+        self.tk.Diagnostics.cleanup_scene.return_value = {
+            "unknown": {"nodes": [], "plugins": []},
+            "xgen_removed": 0,
+        }
+        self.slots.b006()
+        self.assertIn("nothing to remove", self._message())
+
+    def test_scene_cleanup_counts_the_orphans(self):
+        self.tk.CoreUtils.cleanup_scene.return_value = {"meshes": 2, "images": 1}
+        self.slots.b_cleanup()
+        self.assertIn("purged <hl>3</hl> orphan(s)", self._message())
+        self.tk.CoreUtils.cleanup_scene.return_value = {}
+        self.slots.b_cleanup()
+        self.assertIn("nothing to purge", self._message())
+
+    def test_mangled_names_repair_the_selection_or_the_scene(self):
+        self.tk.Diagnostics.repair_mangled_names.return_value = {
+            "renamed": ["a"],
+            "shapes_conformed": 2,
+        }
+        self.slots.b018()
+        self.tk.Diagnostics.repair_mangled_names.assert_called_once_with(objects=None)
+        self.assertIn("<hl>1</hl> mangled name(s)", self._message())
+
+    def test_command_ports_report_their_state(self):
+        self.tk.MayaConnection.toggle_command_ports.return_value = (
+            True,
+            {":7001": "mel"},
+        )
+        self.slots.b012()
+        self.assertIn("OPENED", self._message())
+
+
+class TestRecoverToOriginal(_SlotsCase):
+    """Save to Original Scene (Maya's): never initialized where the policy hid it."""
+
+    def test_a_leaf_hidden_for_this_host_is_left_alone(self):
+        widget = mock.MagicMock(hidden_by_policy="requires")
+        self.slots.b014_init(widget)
+        self.tk.EnvUtils.find_original_for_autosave.assert_not_called()
+        widget.setEnabled.assert_not_called()
+
+    def test_an_open_autosave_names_its_original(self):
+        self.tk.EnvUtils.saved_scene_path.return_value = "P:/autosave/shot.0003.ma"
+        self.tk.EnvUtils.matches_autosave_pattern.return_value = True
+        self.tk.EnvUtils.find_original_for_autosave.return_value = "P:/scenes/shot.ma"
+        widget = mock.MagicMock(hidden_by_policy=None, is_initialized=False)
+        self.slots.b014_init(widget)
+        widget.setEnabled.assert_called_once_with(True)
+        self.assertTrue(widget.setText.call_args.args[0].startswith("Save to: "))
+        self.tk.ScriptJobManager.instance.return_value.subscribe.assert_any_call(
+            "SceneOpened", self.slots._on_scene_changed, owner=self.slots
+        )
+
+    def test_not_an_autosave_disables_it(self):
+        self.tk.EnvUtils.saved_scene_path.return_value = "P:/scenes/shot.ma"
+        self.tk.EnvUtils.matches_autosave_pattern.return_value = False
+        widget = mock.MagicMock(hidden_by_policy=None, is_initialized=True)
+        self.slots.b014_init(widget)
+        widget.setEnabled.assert_called_once_with(False)
+        widget.setText.assert_called_once_with("Save to Original Scene")
+
+    def test_the_save_asks_then_saves(self):
+        self.tk.EnvUtils.find_original_for_autosave.return_value = "P:/scenes/shot.ma"
+        self.tk.EnvUtils.save_autosave_to_original.return_value = "P:/scenes/shot.ma"
+        self.sb.message_box.return_value = "Save"
+        self.slots.b014()
+        self.tk.EnvUtils.save_autosave_to_original.assert_called_once_with(
+            "P:/scenes/shot.ma"
+        )
+        self.assertIn("shot.ma", self._message())
 
 
 class _Combo:
@@ -61,483 +531,86 @@ def _scene_info_widget(keys, scope="all", unchecked=()):
     return NS(option_box=NS(menu=menu))
 
 
-class _RecordedSb:
-    """Stand-in for the switchboard — records message_box calls and returns
-    a preset choice (the clicked-button text, in real use)."""
-
-    def __init__(self, choice=None):
-        self.choice = choice
-        self.messages = []
-
-    def message_box(self, *args, **kwargs):
-        self.messages.append((args, kwargs))
-        return self.choice
-
-
-# NOTE: the workspace-setting controls (and their workspace.mel gate) moved to
-# the main lower submenu's Workspace list — see test_main_workspace.py.
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestEnsureFbxPlugin(unittest.TestCase):
-    """_ensure_fbx_plugin loads fbxmaya idempotently and returns True/False."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.instance.sb = _RecordedSb()
-
-    def test_returns_true_when_plugin_already_loaded(self):
-        if not cmds.pluginInfo("fbxmaya", query=True, loaded=True):
-            try:
-                cmds.loadPlugin("fbxmaya", quiet=True)
-            except Exception:
-                self.skipTest("fbxmaya plugin not available on this Maya build")
-        self.assertTrue(self.instance._ensure_fbx_plugin())
-
-    def test_returns_true_after_load(self):
-        if cmds.pluginInfo("fbxmaya", query=True, loaded=True):
-            cmds.unloadPlugin("fbxmaya")
-        try:
-            self.assertTrue(self.instance._ensure_fbx_plugin())
-            self.assertTrue(cmds.pluginInfo("fbxmaya", query=True, loaded=True))
-        except Exception:
-            self.skipTest("fbxmaya plugin not available on this Maya build")
-
-    def test_returns_false_and_messages_when_load_fails(self):
-        """Simulate a load failure by monkey-patching cmds.loadPlugin.
-
-        The non-loaded branch must surface the error to the user, not raise.
-        """
-        if cmds.pluginInfo("fbxmaya", query=True, loaded=True):
-            cmds.unloadPlugin("fbxmaya")
-
-        original_load = cmds.loadPlugin
-        original_info = cmds.pluginInfo
-
-        def failing_load(*args, **kwargs):
-            raise RuntimeError("simulated load failure")
-
-        def reports_unloaded(*args, **kwargs):
-            if kwargs.get("query") and kwargs.get("loaded"):
-                return False
-            return original_info(*args, **kwargs)
-
-        cmds.loadPlugin = failing_load
-        cmds.pluginInfo = reports_unloaded
-        try:
-            result = self.instance._ensure_fbx_plugin()
-            self.assertFalse(result)
-            self.assertTrue(self.instance.sb.messages, "User must be notified")
-        finally:
-            cmds.loadPlugin = original_load
-            cmds.pluginInfo = original_info
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestResolveWorkspaceText(unittest.TestCase):
-    """_resolve_workspace_text returns the workspace_dir env info or ''."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-
-    def test_returns_string(self):
-        # We don't assert a specific value — workspace state depends on Maya
-        # session. Just verify the contract: always a string, never None.
-        result = self.instance._resolve_workspace_text()
-        self.assertIsInstance(result, str)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestConfirmDenseExport(unittest.TestCase):
-    """_confirm_dense_export warns only when dense AND tangents are on.
-
-    Heads-up dialog before a slow FBX export, gated on triangle count plus
-    the tangents option so the common (small / already-optimized) export is
-    never interrupted.
-    """
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def test_no_warning_when_tangents_off(self):
-        """Tangents off ⇒ proceed silently (no density query, no dialog)."""
-        cmds.select(cmds.polyCube()[0])
-        self.inst.sb = _RecordedSb("No")
-        self.assertTrue(self.inst._confirm_dense_export(True, False))
-        self.assertEqual(self.inst.sb.messages, [])
-
-    def test_no_warning_below_threshold(self):
-        """Tangents on but a tiny mesh ⇒ proceed silently."""
-        cmds.select(cmds.polyCube()[0])
-        self.inst.sb = _RecordedSb("No")
-        self.assertTrue(self.inst._confirm_dense_export(True, True))
-        self.assertEqual(self.inst.sb.messages, [])
-
-    def test_warns_when_dense_and_respects_choice(self):
-        """Dense + tangents ⇒ dialog; 'No' cancels, 'Yes' proceeds."""
-        orig = scene_module.SceneSlots._DENSE_TRI_THRESHOLD
-        scene_module.SceneSlots._DENSE_TRI_THRESHOLD = 100  # trip on a small mesh
-        try:
-            cmds.select(cmds.polySphere(sx=20, sy=20)[0])
-
-            self.inst.sb = _RecordedSb("No")
-            self.assertFalse(self.inst._confirm_dense_export(True, True))
-            self.assertEqual(len(self.inst.sb.messages), 1)
-
-            self.inst.sb = _RecordedSb("Yes")
-            self.assertTrue(self.inst._confirm_dense_export(True, True))
-        finally:
-            scene_module.SceneSlots._DENSE_TRI_THRESHOLD = orig
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestList000CategoryRowGuard(unittest.TestCase):
-    """list000 must ignore items with no bound file path.
-
-    Clicking the "Recent Files" category row emits on_item_interacted with a
-    data-less label; the handler used to pass that None straight into
-    ``cmds.file(None, open=True, force=True)`` (the Blender twin already
-    guarded). Pin: no data ⇒ no file call; data ⇒ opened.
-    """
-
-    class _Item:
-        def __init__(self, data):
-            self._data = data
-
-        def item_data(self):
-            return self._data
-
-    def setUp(self):
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.calls = []
-        self._orig_file = cmds.file
-        cmds.file = lambda *a, **kw: self.calls.append((a, kw))
-
-    def tearDown(self):
-        cmds.file = self._orig_file
-
-    def test_category_row_is_a_noop(self):
-        self.inst.list000(self._Item(None))
-        self.assertEqual(self.calls, [])
-
-    def test_file_item_opens(self):
-        self.inst.list000(self._Item("scenes/foo.ma"))
-        self.assertEqual(len(self.calls), 1)
-        self.assertEqual(self.calls[0][0], ("scenes/foo.ma",))
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestSceneExporterOnExportList(unittest.TestCase):
-    """Scene Exporter is reachable from the Export list.
-
-    It used to be a header-menu button (b002) with its own slot method; both
-    are gone, so ``_EXPORTERS`` is now the only route to the panel. Pin the
-    entry and its dispatch — a typo'd key would strand the tool with no
-    compile-time error, since list002 looks the label up by text.
-    """
-
-    class _Item:
-        def __init__(self, text):
-            self._text = text
-
-        def item_text(self):
-            return self._text
-
-    def setUp(self):
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.shown = []
-        self.inst.sb = NS(handlers=NS(marking_menu=NS(show=self.shown.append)))
-
-    def test_entry_is_registered(self):
-        cls = scene_module.SceneSlots
-        self.assertIn(cls._SCENE_EXPORTER, cls._EXPORTERS)
-
-    def test_entry_launches_the_panel(self):
-        self.inst.list002(self._Item(scene_module.SceneSlots._SCENE_EXPORTER))
-        self.assertEqual(self.shown, ["scene_exporter"])
-
-    def test_header_no_longer_carries_the_button(self):
-        # b002's removal is what makes the list the only route; a re-added
-        # method would mean the button crept back onto the header menu.
-        self.assertFalse(hasattr(scene_module.SceneSlots, "b002"))
-
-    def test_unknown_label_is_a_noop(self):
-        self.inst.list002(self._Item("Export"))  # the category row
-        self.assertEqual(self.shown, [])
-
-    def test_usd_entry_dispatches_to_the_shared_usd_export(self):
-        calls = []
-        self.inst._export_one_shot = calls.append
-        self.inst.list002(self._Item("Export USD"))
-        self.assertEqual(calls, ["usd"])
-
-    def test_gltf_entry_dispatches_to_the_shared_glb_export(self):
-        """Maya has no glTF writer, so the entry rides Export Scene's GLB route."""
-        calls = []
-        self.inst._export_one_shot = calls.append
-        self.inst.list002(self._Item("Export glTF"))
-        self.assertEqual(calls, ["glb"])
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestGltfImportEntry(unittest.TestCase):
-    """ "Import glTF" on the Import list, and the pull path it shares with .blend.
-
-    Maya ships no glTF importer, so this entry is the ONLY route a .glb has into a
-    Maya scene -- and it reaches it through the same ``mtk.BlenderSceneImport`` bridge
-    the .blend entry uses. Both therefore run one body (``_pull_scene``): the carrier
-    choice, the wait cursor and the failure report cannot be allowed to drift between
-    two hand-copied methods. list001 looks the label up by text, so a typo'd key would
-    strand the entry with no compile-time error.
-    """
-
-    class _Item:
-        def __init__(self, text):
-            self._text = text
-
-        def item_text(self):
-            return self._text
-
-    def setUp(self):
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.calls = []
-        self.inst._pull_scene = lambda *a, **kw: self.calls.append((a, kw))
-
-    def test_entry_is_registered(self):
-        self.assertIn("Import glTF", scene_module.SceneSlots._IMPORTERS)
-
-    def test_entry_dispatches_to_the_gltf_pull(self):
-        self.inst.list001(self._Item("Import glTF"))
-        self.assertEqual(len(self.calls), 1)
-        globs = self.calls[0][0][0]
-        self.assertEqual(sorted(globs), ["*.glb", "*.gltf"])
-
-    def test_blend_entry_shares_the_same_pull(self):
-        self.inst.list001(self._Item("Import Blender Scene"))
-        self.assertEqual(len(self.calls), 1)
-        self.assertEqual(self.calls[0][0][0], ["*.blend"])
-
-    def test_usd_entry_shares_the_same_pull(self):
-        self.inst.list001(self._Item("Import USD"))
-        self.assertEqual(len(self.calls), 1)
-        self.assertEqual(
-            self.calls[0][0][0],
-            [f"*{ext}" for ext in scene_module.ptk.USD_EXTENSIONS],
-        )
-
-    def test_unknown_label_is_a_noop(self):
-        self.inst.list001(self._Item("Import"))  # the category row
-        self.assertEqual(self.calls, [])
-
-    def test_carrier_choice_is_read_once_in_the_shared_body(self):
-        # The Transfer-via combo must reach BOTH entries. If a future edit
-        # re-inlines one of them, this catches the copy that forgot the carrier.
-        import inspect
-
-        src = inspect.getsource(scene_module.SceneSlots._pull_scene)
-        self.assertIn("_transfer_carrier()", src)
-        for name in ("_import_gltf", "_import_blender_scene", "_import_usd"):
-            body = inspect.getsource(getattr(scene_module.SceneSlots, name))
-            self.assertIn("_pull_scene", body)
-            self.assertNotIn("import_scene(", body)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestGetSceneInfo(unittest.TestCase):
-    """tb001 hands the analyzer its scope and the viewer its link handler.
-
-    Regression: Entire Scene passed ``cmds.ls(type="mesh")`` -- one name per
-    SHAPE -- so every instance past the first went uncounted, and the report's
-    object names were inert text.
-    """
-
-    class _Sb(_RecordedSb):
-        def __init__(self):
-            super().__init__()
-            self.views = []
-            self.logger = mock.Mock()
-
-        def progress(self, **kwargs):
-            return contextlib.nullcontext(lambda *a, **k: None)
-
-        def progress_adapter(self, update):
-            return None
-
-        def text_view_dialog(self, text, *buttons, **kwargs):
-            self.views.append((text, buttons, kwargs))
-
-    @staticmethod
-    def _widget(scope="all", unchecked=()):
-        return _scene_info_widget(
-            scene_module.mtk.SceneInfoSection.ALL, scope, unchecked
-        )
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.inst.sb = self._Sb()
-        cube = cmds.polyCube(name="info_cube")[0]
-        cmds.instance(cube)
-        cmds.select(clear=True)
-
-    def test_entire_scene_counts_instances_and_links_names(self):
-        self.inst.tb001(self._widget("all"))
-        ((html, _buttons, kwargs),) = self.inst.sb.views
-        self.assertIn("2 instances of 1 unique shape", html)
-        self.assertIn("action://select", html)
-        # A name deleted since the report ran: the click says so, not nothing.
-        url = NS(
-            scheme=lambda: "action", host=lambda: "select", query=lambda: "node=gone"
-        )
-        self.assertFalse(kwargs["link_handler"](url))
-        self.inst.sb.logger.warning.assert_called_once_with("Object not found: gone")
-
-    def test_selection_scope_needs_a_selection(self):
-        self.inst.tb001(self._widget("selection"))
-        self.assertEqual(self.inst.sb.views, [])
-        self.assertIn("Nothing selected", self.inst.sb.messages[0][0][0])
-
-    def test_unticked_sections_are_not_rendered(self):
-        self.inst.tb001(self._widget("all", unchecked=("overview", "assumptions")))
-        html = self.inst.sb.views[0][0]
-        self.assertNotIn("Scene Overview", html)
-        self.assertNotIn("Notes &amp; Assumptions", html)
-        self.assertIn("Executive Summary", html)
-
-    def test_no_sections_is_a_message_not_a_report(self):
-        keys = tuple(scene_module.mtk.SceneInfoSection.ALL)
-        self.inst.tb001(self._widget("all", unchecked=keys))
-        self.assertEqual(self.inst.sb.views, [])
-        self.assertIn("No sections selected", self.inst.sb.messages[0][0][0])
-
-    def test_every_section_has_a_tooltip(self):
-        self.assertEqual(
-            set(scene_module.SceneSlots._TB001_SECTION_TIPS),
-            set(scene_module.mtk.SceneInfoSection.ALL),
-        )
-
-    def test_a_selected_object_set_is_a_selection(self):
-        # The audit resolves a set to its members; a set has no transform, so
-        # the shared guard must not read the Maya fork's _selected_objects.
-        cmds.select(cmds.sets("info_cube", name="info_set"), noExpand=True)
-        self.inst.tb001(self._widget("selection"))
-        self.assertEqual(self.inst.sb.messages, [])
-        self.assertEqual(len(self.inst.sb.views), 1)
-
-
 class _Sections:
-    """Stand-in for an engine's ``SceneInfoSection``: one label carries an "&"."""
+    """Stand-in for a host's ``SceneInfoSection``: one label carries an "&"."""
 
     ALL = ("summary", "assumptions")
     LABELS = {"summary": "Executive Summary", "assumptions": "Notes & Assumptions"}
 
 
-class _UiUtils:
-    @staticmethod
-    def dispatch_log_link(url, logger=None):
-        return True
+class TestGetSceneInfo(unittest.TestCase):
+    """tb001 over the host's analyzer, section vocabulary and link dispatcher."""
 
-
-class _SceneInfoHost(SceneMixin):
-    """The shared Get Scene Info body over a stand-in engine (no DCC needed)."""
-
-    def __init__(self, selected=True):
-        self.calls, self.views, self.messages, self.selected = [], [], [], selected
-        self.adapter = object()  # what the switchboard hands the analyzer
-        self.sb = NS(
-            message_box=lambda text, *a, **k: self.messages.append(text),
-            text_view_dialog=lambda text, *a, **k: self.views.append((text, k)),
-            progress=lambda **k: contextlib.nullcontext(None),
-            progress_adapter=lambda update: self.adapter,
-            logger=mock.Mock(),
+    def _host(self, selected=True):
+        self.calls, self.views, self.messages = [], [], []
+        self.adapter = object()
+        tk = NS(
+            SceneAnalyzer=NS(
+                format_audit_html=lambda **kw: self.calls.append(kw)
+                or {"_header": "<h1>Scene Info</h1>", "summary": "<p>ok</p>"}
+            ),
+            SceneInfoSection=_Sections,
+            UiUtils=NS(dispatch_log_link=lambda url, logger=None: True),
+            CoreUtils=NS(selected_objects=lambda: ["obj"] if selected else []),
         )
-
-    def _scene_analyzer(self):
-        host = self
-
-        class _Analyzer:
-            @staticmethod
-            def format_audit_html(**kwargs):
-                host.calls.append(kwargs)
-                return {"_header": "<h1>Scene Info</h1>", "summary": "<p>ok</p>"}
-
-        return _Analyzer
-
-    def _scene_info_sections(self):
-        return _Sections
-
-    def _ui_utils(self):
-        return _UiUtils
-
-    def _selected_objects(self):
-        return ["obj"] if self.selected else []
-
-
-class TestGetSceneInfoShared(unittest.TestCase):
-    """tb001 / tb001_init live once, on ``SceneMixin``; both forks supply hooks.
-
-    Regression: the Maya and Blender forks carried near-identical copies that
-    differed only by engine namespace -- and had drifted (the Blender copy's
-    Generic tooltip claimed a 100k budget; the engine's is 20k).
-    """
-
-    FORKS = (SLOTS_ROOT / "maya" / "scene.py", SLOTS_ROOT / "blender" / "scene.py")
-    HOOKS = ("_scene_analyzer", "_scene_info_sections", "_ui_utils")
-    SHARED = ("tb001", "tb001_init", "_TB001_SCOPES", "_TB001_PROFILES")
-    #: The sections whose content is each DCC's own -- the rows a fork words.
-    FORK_TIPS = {"overview", "fix_first", "pipeline"}
-
-    @staticmethod
-    def _class(path):
-        tree = ast.parse(path.read_text(encoding="utf-8"))
-        return next(
-            n
-            for n in ast.walk(tree)
-            if isinstance(n, ast.ClassDef) and n.name == "SceneSlots"
-        )
-
-    def test_forks_supply_the_hooks_and_carry_no_copy(self):
-        for path in self.FORKS:
-            cls = self._class(path)
-            defs = {n.name for n in cls.body if isinstance(n, ast.FunctionDef)}
-            assigned = {
-                t.id
-                for n in cls.body
-                if isinstance(n, ast.Assign)
-                for t in n.targets
-                if isinstance(t, ast.Name)
-            }
-            with self.subTest(fork=path.parent.name):
-                self.assertTrue(set(self.HOOKS) <= defs, defs)
-                self.assertFalse((defs | assigned) & set(self.SHARED))
-
-    def test_forks_extend_the_shared_tips_with_their_own_rows(self):
-        shared = set(SceneMixin._TB001_SECTION_TIPS)
-        for path in self.FORKS:
-            node = next(
-                n.value
-                for n in self._class(path).body
-                if isinstance(n, ast.Assign)
-                and any(
-                    isinstance(t, ast.Name) and t.id == "_TB001_SECTION_TIPS"
-                    for t in n.targets
-                )
+        return _make(
+            NS(
+                tk=tk,
+                loaded_ui=NS(scene=NS(), scene_submenu=NS()),
+                message_box=lambda text, *a, **k: self.messages.append(text),
+                text_view_dialog=lambda text, *a, **k: self.views.append((text, k)),
+                progress=lambda **k: contextlib.nullcontext(None),
+                progress_adapter=lambda update: self.adapter,
+                logger=mock.Mock(),
             )
-            spread = [v for k, v in zip(node.keys, node.values) if k is None]
-            own = {k.value for k in node.keys if k is not None}
-            with self.subTest(fork=path.parent.name):
-                self.assertEqual(
-                    [ast.unparse(v) for v in spread],
-                    ["SceneMixin._TB001_SECTION_TIPS"],
-                )
-                self.assertEqual(own, self.FORK_TIPS)
-                self.assertFalse(own & shared)
+        )
+
+    def test_the_run_hands_the_engine_scope_sections_and_progress(self):
+        slots = self._host()
+        slots.tb001(_scene_info_widget(_Sections.ALL, "all", unchecked=("summary",)))
+        (kwargs,) = self.calls
+        self.assertEqual(kwargs["scope"], "all")
+        self.assertEqual(kwargs["sections"], ["assumptions"])
+        self.assertIs(kwargs["adaptive"], True)
+        self.assertIs(kwargs["progress_callback"], self.adapter)
+        ((html, view),) = self.views
+        self.assertTrue(html.startswith("<h1>Scene Info</h1>"))
+        handler = view["link_handler"]
+        self.assertIsInstance(handler, functools.partial)
+        self.assertIs(handler.func, slots.tk.UiUtils.dispatch_log_link)
+        self.assertIs(handler.keywords["logger"], slots.sb.logger)
+
+    def test_selection_scope_needs_a_selection(self):
+        slots = self._host(selected=False)
+        slots.tb001(_scene_info_widget(_Sections.ALL, "selection"))
+        self.assertEqual(self.calls, [])
+        self.assertIn("Nothing selected", self.messages[0])
+        slots.tb001(_scene_info_widget(_Sections.ALL, "all"))  # Entire Scene needs none
+        self.assertEqual(len(self.calls), 1)
+
+    def test_no_sections_is_a_message_not_a_report(self):
+        slots = self._host()
+        slots.tb001(_scene_info_widget(_Sections.ALL, unchecked=_Sections.ALL))
+        self.assertEqual(self.calls, [])
+        self.assertIn("No sections selected", self.messages[0])
+
+    def test_every_section_of_both_hosts_has_a_tooltip(self):
+        """The hosts share one section vocabulary (mayatk's ``audit_records``,
+        blendertk's ``scene_audit``, drift-tested there)."""
+        self.assertEqual(
+            set(SceneSlots._TB001_SECTION_TIPS),
+            {
+                "overview",
+                "summary",
+                "fix_first",
+                "pareto",
+                "offenders",
+                "materials",
+                "textures",
+                "pipeline",
+                "assumptions",
+            },
+        )
 
     @unittest.skipUnless(qt_widgets_available(), "QWidget construction aborts here")
     def test_an_ampersand_label_stays_literal_and_binds_no_mnemonic(self):
@@ -546,10 +619,10 @@ class TestGetSceneInfoShared(unittest.TestCase):
         from uitk.widgets.menu import Menu
 
         QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-        host = _SceneInfoHost()
-        host.sb.registered_widgets = NS(Label=Label)
+        slots = self._host()
+        slots.sb.registered_widgets = NS(Label=Label)
         menu = Menu()
-        host.tb001_init(NS(option_box=NS(menu=menu)))
+        slots.tb001_init(NS(option_box=NS(menu=menu)))
         box = menu.chk_section_assumptions
         # "&&" draws one "&"; a lone "&" drew none and bound Alt+Space.
         self.assertEqual(box.text(), "Notes && Assumptions")
@@ -562,150 +635,151 @@ class TestGetSceneInfoShared(unittest.TestCase):
             [True, False],
         )
 
-    def test_the_run_hands_the_engine_scope_sections_and_progress(self):
-        host = _SceneInfoHost()
-        host.tb001(_scene_info_widget(_Sections.ALL, "all", unchecked=("summary",)))
-        (kwargs,) = host.calls
-        self.assertEqual(kwargs["scope"], "all")
-        self.assertEqual(kwargs["sections"], ["assumptions"])
-        self.assertIs(kwargs["adaptive"], True)
-        self.assertIs(kwargs["progress_callback"], host.adapter)
-        ((html, view),) = host.views
-        self.assertTrue(html.startswith("<h1>Scene Info</h1>"))
-        handler = view["link_handler"]
-        self.assertIsInstance(handler, functools.partial)
-        self.assertIs(handler.func, _UiUtils.dispatch_log_link)
-        self.assertIs(handler.keywords["logger"], host.sb.logger)
 
-    def test_selection_scope_needs_a_selection(self):
-        host = _SceneInfoHost(selected=False)
-        host.tb001(_scene_info_widget(_Sections.ALL, "selection"))
-        self.assertEqual(host.calls, [])
-        self.assertIn("Nothing selected", host.messages[0])
-        host.tb001(_scene_info_widget(_Sections.ALL, "all"))  # Entire Scene needs none
-        self.assertEqual(len(host.calls), 1)
-
-    def test_no_sections_is_a_message_not_a_report(self):
-        host = _SceneInfoHost()
-        host.tb001(_scene_info_widget(_Sections.ALL, unchecked=_Sections.ALL))
-        self.assertEqual(host.calls, [])
-        self.assertIn("No sections selected", host.messages[0])
+# --------------------------------------------------------------------- in Maya
+cmds = maya_module("maya.cmds")
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestGlbIntermediateIsReleased(unittest.TestCase):
-    """Export Scene's GLB route writes an FBX into temp, converts it, and must
-    not leave that FBX behind.
-
-    Regression: the intermediate came from a detached store that nothing
-    released, so every GLB export left a full-scene FBX in temp until the age
-    sweep, a week later.  Added: 2026-10-13
-    """
-
-    OPTIONS = {
-        "selection_only": False,
-        "include_cameras": True,
-        "include_lights": True,
-        "include_skins": True,
-        "include_tangents": True,
-        "embed_textures": False,
-    }
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class _InMaya(unittest.TestCase):
+    """The same class over the real ``mtk``."""
 
     def setUp(self):
-        import pythontk as ptk
-
-        self.ptk = ptk
-        self.mtk = scene_module.mtk
-        self.tmp = ptk.TempArtifacts.scoped("tentacle_test_glb_out")
-        self.addCleanup(self.tmp.cleanup)
-        self.out = os.path.join(self.tmp.dir_path(), "asset.glb")
-        self.inst = scene_module.SceneSlots.__new__(scene_module.SceneSlots)
-        self.inst.sb = NS(logger=mock.Mock())
-        self.fbx = []
-
-    def _write_fbx(self, file_path, **_):
-        self.fbx.append(file_path)
-        with open(file_path, "w") as fh:
-            fh.write("fbx")
-
-    @staticmethod
-    def _convert(src, **_):
-        glb = os.path.splitext(src)[0] + ".glb"
-        with open(glb, "w") as fh:
-            fh.write("glb")
-        return glb
-
-    def test_the_intermediate_fbx_folder_is_gone_after_a_good_export(self):
-        convert = self.ptk.MeshConvert
-        with contextlib.ExitStack() as stack:
-            stack.enter_context(
-                mock.patch.object(self.mtk, "export_scene_as_fbx", new=self._write_fbx)
-            )
-            stack.enter_context(
-                mock.patch.object(convert, "fbx_to_glb", new=self._convert)
-            )
-            prepared = stack.enter_context(
-                mock.patch.object(
-                    self.mtk.FbxUtils,
-                    "export_prepared",
-                    return_value=contextlib.nullcontext(),
-                )
-            )
-            self.inst._export_scene_native(
-                "glb", self.out, dict(self.OPTIONS), tick=lambda **_: None
-            )
-        # The intermediate states its materials, as every deliverable FBX does.
-        prepared.assert_called_once_with(only=[self.ptk.SceneRecords.MATERIALS])
-        self.assertTrue(os.path.isfile(self.out))
-        self.assertEqual(len(self.fbx), 1)
-        self.assertNotEqual(os.path.dirname(self.fbx[0]), os.path.dirname(self.out))
-        self.assertFalse(
-            os.path.exists(os.path.dirname(self.fbx[0])),
-            f"intermediate left in temp: {self.fbx[0]}",
-        )
-
-    def test_a_selection_export_gives_the_selection_back(self):
-        """The carrier rides the write, then the user's selection is theirs again.
-        Added: 2026-10-24 (``data_export`` stayed selected after the export)."""
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
         cmds.file(new=True, force=True)
         self.addCleanup(cmds.file, new=True, force=True)
-        cube = cmds.polyCube(name="glb_sel_geo")[0]
-        carrier = cmds.createNode("transform", name="glb_sel_carrier")
-        cmds.select(cube, replace=True)
-        selected_at_write = []
+        self.mtk = maya_module("mayatk")
+        self.sb = mock.MagicMock()
+        self.sb.tk = self.mtk
+        self.sb.loaded_ui.scene.footer = None  # no workspace subscription under test
+        self.slots = SceneSlots(self.sb)
 
-        def write(file_path, **_):
-            selected_at_write.extend(cmds.ls(selection=True))
-            self._write_fbx(file_path)
 
-        convert = self.ptk.MeshConvert
-        with contextlib.ExitStack() as stack:
-            stack.enter_context(
-                mock.patch.object(self.mtk, "export_scene_as_fbx", new=write)
-            )
-            stack.enter_context(
-                mock.patch.object(convert, "fbx_to_glb", new=self._convert)
-            )
-            stack.enter_context(
-                mock.patch.object(
-                    self.mtk.FbxUtils,
-                    "export_prepared",
-                    return_value=contextlib.nullcontext(),
-                )
-            )
-            stack.enter_context(
-                mock.patch.object(
-                    self.mtk.DataNodes, "get_export_nodes", return_value=[carrier]
-                )
-            )
-            self.inst._export_scene_native(
-                "glb",
-                self.out,
-                dict(self.OPTIONS, selection_only=True),
-                tick=lambda **_: None,
-            )
-        self.assertEqual(sorted(selected_at_write), sorted([cube, carrier]))
-        self.assertEqual(cmds.ls(selection=True), [cube])
+class TestListsInMaya(_InMaya):
+    def test_maya_lists_its_own_commands_and_the_blender_hand_off(self):
+        imports = _labels(self.slots._list_rows(SceneSlots._IMPORT_ROWS, "import"))
+        exports = self.slots._list_rows(SceneSlots._EXPORT_ROWS, "export")
+        tagged = [(label, requires) for label, _, requires in exports]
+        self.assertEqual(imports[:2], ["Import File", "Import Options"])
+        self.assertIn("Import Blender Scene", imports)
+        self.assertIn(("Export .blend", None), tagged)
+        self.assertIn(("Export glTF", "maya"), tagged)
+        self.assertNotIn("Export FBX", _labels(exports))
+
+    def test_the_footer_reads_the_workspace_name(self):
+        self.assertIsInstance(self.slots._workspace_status(), str)
+
+
+class TestRecentFilesInMaya(_InMaya):
+    def test_a_saved_scene_reopens_from_its_row(self):
+        import pythontk as ptk
+
+        store = ptk.TempArtifacts.scoped("tentacle_scene_recent")
+        self.addCleanup(store.cleanup)
+        path = os.path.join(store.dir_path(), "recent.ma")
+        cmds.polyCube(name="recent_cube")
+        cmds.file(rename=path)
+        cmds.file(save=True, type="mayaAscii", force=True)
+        cmds.file(new=True, force=True)
+        self.slots.list000(NS(item_data=lambda: path))
+        self.assertTrue(cmds.objExists("recent_cube"))
+        self.sb.message_box.assert_not_called()
+
+
+class TestConfirmDenseExportInMaya(_InMaya):
+    """The dense-export gate over ``mtk.EnvUtils.scene_triangle_count``."""
+
+    def test_no_warning_when_tangents_off_or_below_threshold(self):
+        cmds.select(cmds.polyCube()[0])
+        self.sb.message_box.return_value = "No"
+        self.assertTrue(self.slots._confirm_dense_export(True, False))
+        self.assertTrue(self.slots._confirm_dense_export(True, True))
+        self.sb.message_box.assert_not_called()
+
+    def test_warns_when_dense_and_respects_choice(self):
+        cmds.select(cmds.polySphere(sx=20, sy=20)[0])
+        with mock.patch.object(SceneSlots, "_DENSE_TRI_THRESHOLD", 100):
+            self.sb.message_box.return_value = "No"
+            self.assertFalse(self.slots._confirm_dense_export(True, True))
+            self.sb.message_box.return_value = "Yes"
+            self.assertTrue(self.slots._confirm_dense_export(True, True))
+
+
+class TestGetSceneInfoInMaya(_InMaya):
+    """tb001 hands mtk's analyzer its scope and the viewer its link handler.
+
+    Regression: Entire Scene passed ``cmds.ls(type="mesh")`` -- one name per SHAPE --
+    so every instance past the first went uncounted, and the report's object names
+    were inert text.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.views = []
+        self.sb.progress = lambda **kwargs: contextlib.nullcontext(lambda *a, **k: None)
+        self.sb.progress_adapter = lambda update: None
+        self.sb.text_view_dialog = lambda text, *b, **k: self.views.append((text, k))
+        cube = cmds.polyCube(name="info_cube")[0]
+        cmds.instance(cube)
+        cmds.select(clear=True)
+
+    def _widget(self, scope="all", unchecked=()):
+        return _scene_info_widget(self.mtk.SceneInfoSection.ALL, scope, unchecked)
+
+    def test_entire_scene_counts_instances_and_links_names(self):
+        self.slots.tb001(self._widget("all"))
+        ((html, kwargs),) = self.views
+        self.assertIn("2 instances of 1 unique shape", html)
+        self.assertIn("action://select", html)
+        # A name deleted since the report ran: the click says so, not nothing.
+        url = NS(
+            scheme=lambda: "action", host=lambda: "select", query=lambda: "node=gone"
+        )
+        self.assertFalse(kwargs["link_handler"](url))
+        self.sb.logger.warning.assert_called_once_with("Object not found: gone")
+
+    def test_unticked_sections_are_not_rendered(self):
+        self.slots.tb001(self._widget("all", unchecked=("overview", "assumptions")))
+        html = self.views[0][0]
+        self.assertNotIn("Scene Overview", html)
+        self.assertNotIn("Notes &amp; Assumptions", html)
+        self.assertIn("Executive Summary", html)
+
+    def test_a_selected_object_set_is_a_selection(self):
+        # The audit resolves a set to its members; the guard reads the whole
+        # selection, a set included.
+        cmds.select(cmds.sets("info_cube", name="info_set"), noExpand=True)
+        self.slots.tb001(self._widget("selection"))
+        self.sb.message_box.assert_not_called()
+        self.assertEqual(len(self.views), 1)
+
+
+class TestFixNonOrthogonalInMaya(_InMaya):
+    """tb002 over mtk: an inherited shear, Entire Scene, fixed in one click."""
+
+    def test_an_inherited_shear_is_fixed(self):
+        parent = cmds.group(empty=True, name="skew_parent")
+        cmds.setAttr(f"{parent}.scaleY", 3.0)
+        child = cmds.polyCube(name="skew_child")[0]
+        cmds.parent(child, parent)
+        cmds.setAttr(f"{child}.rotateZ", 40.0)
+        self.sb.progress = lambda **kwargs: contextlib.nullcontext(lambda *a, **k: None)
+        self.sb.message_box.return_value = "Yes"
+        menu = NS(
+            cmb_scope2=_Combo("all"),
+            chk_dry_run=_Check(False),
+            chk_break_connections=_Check(False),
+        )
+        self.slots.tb002(NS(option_box=NS(menu=menu)))
+        self.assertEqual(
+            self.mtk.Diagnostics.get_non_orthogonal(
+                cmds.ls(transforms=True, long=True)
+            ),
+            [],
+        )
+        self.assertIn("Fixed <hl>1</hl>", self.sb.message_box.call_args.args[0])
 
 
 if __name__ == "__main__":

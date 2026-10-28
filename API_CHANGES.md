@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (47)
+## Removed (48)
 
 _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
 
@@ -20,6 +20,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
 - `slots/blender/materials.py::MaterialsSlots.b_shader_editor` — was `(self)`
 - `slots/blender/polygons.py::PolygonsSlots.b038_init` — was `(self, widget)`
+- `slots/blender/scene.py::SceneSlots.b008` — was `(self)`
 - `slots/blender/transform.py::TransformSlots.tb004` — was `(self, widget)`
 - `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
 - `slots/maya/display.py::DisplaySlots.b001` — was `(self)`
@@ -54,7 +55,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (77)
+## Moved out (85)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -112,6 +113,14 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_preferences.py::PreferencesMixin.tb000` → `tentacle.slots.preferences.PreferencesSlots` (from 0.17.0)
 - `slots/_rendering.py::RenderingMixin` → `tentacle.slots.rendering.RenderingSlots` (from 0.17.0)
 - `slots/_rigging.py::RiggingMixin` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.b019` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.list003_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb001` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb001_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb002` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb002_init` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/_scene.py::SceneMixin.tb003` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin.list001_init` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/_selection.py::SelectionMixin.tb004` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
@@ -134,7 +143,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 
-## Added (1511)
+## Added (1546)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -418,6 +427,41 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/rigging.py::RiggingSlots.tb004_init(self, widget)`
 - `slots/rigging.py::RiggingSlots.tb005(self, widget)`
 - `slots/rigging.py::RiggingSlots.tb005_init(self, widget)`
+- `slots/scene.py::SceneSlots(class)`
+- `slots/scene.py::SceneSlots.b001(self)`
+- `slots/scene.py::SceneSlots.b003(self)`
+- `slots/scene.py::SceneSlots.b004(self)`
+- `slots/scene.py::SceneSlots.b005(self)`
+- `slots/scene.py::SceneSlots.b006(self)`
+- `slots/scene.py::SceneSlots.b009(self)`
+- `slots/scene.py::SceneSlots.b010(self)`
+- `slots/scene.py::SceneSlots.b011(self)`
+- `slots/scene.py::SceneSlots.b012(self)`
+- `slots/scene.py::SceneSlots.b013(self)`
+- `slots/scene.py::SceneSlots.b014(self)`
+- `slots/scene.py::SceneSlots.b014_init(self, widget)`
+- `slots/scene.py::SceneSlots.b015(self)`
+- `slots/scene.py::SceneSlots.b016(self)`
+- `slots/scene.py::SceneSlots.b017(self)`
+- `slots/scene.py::SceneSlots.b018(self)`
+- `slots/scene.py::SceneSlots.b019(self)`
+- `slots/scene.py::SceneSlots.b_cleanup(self)`
+- `slots/scene.py::SceneSlots.cmb002(self, index, widget)`
+- `slots/scene.py::SceneSlots.cmb002_init(self, widget)`
+- `slots/scene.py::SceneSlots.list000(self, item)`
+- `slots/scene.py::SceneSlots.list000_init(self, widget)`
+- `slots/scene.py::SceneSlots.list001(self, item)`
+- `slots/scene.py::SceneSlots.list001_init(self, widget)`
+- `slots/scene.py::SceneSlots.list002(self, item)`
+- `slots/scene.py::SceneSlots.list002_init(self, widget)`
+- `slots/scene.py::SceneSlots.list003(self, item)`
+- `slots/scene.py::SceneSlots.list003_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb001(self, widget)`
+- `slots/scene.py::SceneSlots.tb001_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb002(self, widget)`
+- `slots/scene.py::SceneSlots.tb002_init(self, widget)`
+- `slots/scene.py::SceneSlots.tb003(self, widget)`
+- `slots/scene.py::SceneSlots.tb003_init(self, widget)`
 - `slots/selection.py::SelectionSlots(class)`
 - `slots/selection.py::SelectionSlots.b001(self)`
 - `slots/selection.py::SelectionSlots.b002(self, widget)`
@@ -1648,7 +1692,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (630)
+## Moved (677)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -1870,6 +1914,28 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/rigging.py::RiggingSlots.tb004_init`
 - `slots/blender/rigging.py::RiggingSlots.tb005`
 - `slots/blender/rigging.py::RiggingSlots.tb005_init`
+- `slots/blender/scene.py::SceneSlots`
+- `slots/blender/scene.py::SceneSlots.b001`
+- `slots/blender/scene.py::SceneSlots.b003`
+- `slots/blender/scene.py::SceneSlots.b004`
+- `slots/blender/scene.py::SceneSlots.b005`
+- `slots/blender/scene.py::SceneSlots.b010`
+- `slots/blender/scene.py::SceneSlots.b011`
+- `slots/blender/scene.py::SceneSlots.b013`
+- `slots/blender/scene.py::SceneSlots.b015`
+- `slots/blender/scene.py::SceneSlots.b016`
+- `slots/blender/scene.py::SceneSlots.b017`
+- `slots/blender/scene.py::SceneSlots.b_cleanup`
+- `slots/blender/scene.py::SceneSlots.cmb002`
+- `slots/blender/scene.py::SceneSlots.cmb002_init`
+- `slots/blender/scene.py::SceneSlots.list000`
+- `slots/blender/scene.py::SceneSlots.list000_init`
+- `slots/blender/scene.py::SceneSlots.list001`
+- `slots/blender/scene.py::SceneSlots.list001_init`
+- `slots/blender/scene.py::SceneSlots.list002`
+- `slots/blender/scene.py::SceneSlots.list002_init`
+- `slots/blender/scene.py::SceneSlots.list003`
+- `slots/blender/scene.py::SceneSlots.tb003_init`
 - `slots/blender/selection.py::SelectionSlots`
 - `slots/blender/selection.py::SelectionSlots.b001`
 - `slots/blender/selection.py::SelectionSlots.b002`
@@ -2189,6 +2255,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/rigging.py::RiggingSlots.tb004_init`
 - `slots/maya/rigging.py::RiggingSlots.tb005`
 - `slots/maya/rigging.py::RiggingSlots.tb005_init`
+- `slots/maya/scene.py::SceneSlots`
+- `slots/maya/scene.py::SceneSlots.b001`
+- `slots/maya/scene.py::SceneSlots.b004`
+- `slots/maya/scene.py::SceneSlots.b005`
+- `slots/maya/scene.py::SceneSlots.b006`
+- `slots/maya/scene.py::SceneSlots.b009`
+- `slots/maya/scene.py::SceneSlots.b010`
+- `slots/maya/scene.py::SceneSlots.b011`
+- `slots/maya/scene.py::SceneSlots.b012`
+- `slots/maya/scene.py::SceneSlots.b013`
+- `slots/maya/scene.py::SceneSlots.b014`
+- `slots/maya/scene.py::SceneSlots.b014_init`
+- `slots/maya/scene.py::SceneSlots.b016`
+- `slots/maya/scene.py::SceneSlots.b017`
+- `slots/maya/scene.py::SceneSlots.b018`
+- `slots/maya/scene.py::SceneSlots.cmb002`
+- `slots/maya/scene.py::SceneSlots.cmb002_init`
+- `slots/maya/scene.py::SceneSlots.list000`
+- `slots/maya/scene.py::SceneSlots.list000_init`
+- `slots/maya/scene.py::SceneSlots.list001`
+- `slots/maya/scene.py::SceneSlots.list001_init`
+- `slots/maya/scene.py::SceneSlots.list002`
+- `slots/maya/scene.py::SceneSlots.list002_init`
+- `slots/maya/scene.py::SceneSlots.list003`
+- `slots/maya/scene.py::SceneSlots.tb003_init`
 - `slots/maya/selection.py::SelectionSlots`
 - `slots/maya/selection.py::SelectionSlots.b001`
 - `slots/maya/selection.py::SelectionSlots.b002`

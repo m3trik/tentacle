@@ -40,51 +40,6 @@ HANDLERS = {
     # (PointCloud.match_clouds / AssemblySorter) and mayatk refactored onto the same
     # shared implementation. Verified: blendertk test_auto_instancer.py headless +
     # mayatk auto_instancer/instancer_ground_truth suites green.
-    "scene": {
-        "b006": {"status": "renamed", "to": "b_cleanup",
-                 "reason": "Cleanup Unknown -> Scene Cleanup (different cleanup semantics)"},
-        # Reason labels corrected 2026-07-11 (b013/b014) + 2026-07-12 (b009/b012) — all four had
-        # drifted onto the wrong widgets. The live Maya scene slot: b009 = "Fix OCIO" (def b009),
-        # b012 = "Toggle Command Ports" (def b012), b013 = "Mesh Converter" (scene.py:43),
-        # b014 = "Save to Original Scene" (scene.py:81). Statuses were already right (all
-        # genuinely Maya-only / pending); only the human-readable labels were swapped.
-        "b009": {"status": "na", "reason": "Fix OCIO — repairs Maya Color Management / OCIO config preferences; Maya-only header entry"},
-        "b012": {"status": "na", "reason": "Toggle Command Ports — Maya commandPort concept (MEL :7001 / Python :7002) with no Blender analogue; Maya-only header entry"},
-        # b013 Mesh Converter (FBX->GLB): BUILT 2026-07-13 — the Blender scene header now ships it
-        # (slots/blender/scene.py header_init + def b013) launching the DCC-agnostic extapps/
-        # mesh_convert tool via self.sb.handlers.external_app.launch("mesh_convert"), the SAME
-        # handler the Blender materials bridges use, defaulting source_dir to the .blend's folder.
-        # Divergence (internal, not a widget the sweep sees): Maya's 'From FBX references' provider
-        # is not wired -- Blender links .blend libraries, not FBX, and an imported FBX leaves no live
-        # reference to trace, so there is no selected-FBX set to feed; the converter's own file
-        # picker chooses inputs instead. Matched by objectName on both sides -> no ledger row needed.
-        "b014": {"status": "na", "reason": "Save to Original Scene -- writes an open Maya autosave back over its original scene file (enabled only when an autosave is open and the original is locatable). Blender's recovery model differs (File > Recover Auto Save reopens the .blend; there is no 'save the autosave back to the original' action), so no 1:1 header entry."},
-        "b014_init": {"status": "na", "reason": "see b014 (Save to Original Scene enable-state init)"},
-        "b018": {"status": "pending", "reason": "Fix Mangled Names (2026-08-04) — mtk.Diagnostics.repair_mangled_names: strips __uninst_tmp/__RZTMP/FBXASC###/underscore-run name damage, then conforms shapes. FBXASC escapes and __uninst tokens are Maya-side artifacts, but Blender's Rizom bridge round-trips the SAME __RZTMP suffixes, so a Blender twin (scoped to __RZTMP + underscore runs) is real open work rather than na."},
-        # b016 Unity Bridge: BUILT on both sides 2026-07-14 — the Blender scene header now ships it
-        # (slots/blender/scene.py header_init + def b016) via marking_menu.show("unity_bridge"),
-        # 1:1 with Maya's scene.py b016. It previously lived in the Blender materials menu (b026);
-        # moved here so Marmoset/Substance (materials External) and Unity (Scene) group exactly as
-        # Maya does. Matched by objectName + label on both sides -> no ledger row needed.
-        # list001 "Import Maya Scene": Blender-side ADDITION 2026-07-16 (no Maya twin to triage —
-        # Maya opens its own .ma/.mb natively via its list001 "Import File"). The item calls
-        # btk.import_maya_scene (env_utils/maya_bridge/_scene_import.py): a headless
-        # mayapy converts the scene to FBX (pythontk.run_script_to_artifact) and the FBX is
-        # imported + cleaned up. Item-delta is report-only (Blender addition, no Maya-side key).
-        # list001 "Import Blender Scene": Maya-side ADDITION 2026-07-16 (later) — the SYMMETRIC
-        # pull import: mtk.import_blender_scene (env_utils/blender_bridge/_scene_import.py), a
-        # headless `blender --background --factory-startup` FBX round-trip whose manifest sidecar
-        # is rebuilt through the GameShader engine (packed Metallic_Smoothness/MSAO/ORM maps
-        # included; verified live in scene_import_live_e2e.py). The two items intentionally differ
-        # by label — each names the OTHER DCC — so neither side's item-delta pairs; both stay
-        # report-only additions.
-        # 2026-07-16: the Import/Export combos (cmb003/cmb004, scene.ui) became the submenu's
-        # Import/Export ExpandableLists (list001/list002, scene#submenu.ui) on BOTH sides — same
-        # items, same dispatch tables; the submenu's b007 Import button and tb003 Export PushButton
-        # folded into them (tb003 is now list002's first entry, created dynamically with its
-        # option box). 2026-08-01: the header's plain "Export Scene" launcher (b018) was dropped
-        # on BOTH sides — redundant with that list entry, which carries the option box.
-    },
     # display.py list000 (ExpandableList) — PARITY_SURFACE.md "combo item deltas (review)" for
     # this file. Audited 2026-07-04: Component ID / Mat Override / Soft Edge Display / UV
     # Distortion were genuine gaps (real Blender per-viewport analogues exist — verified live in
@@ -180,19 +135,6 @@ CONTROLS_SLOTS = {
         # no packBox analogue), after tb000's existing tile-delta move. Same items/default as
         # Maya. No delta.
     },
-    "scene": {
-        "b006": {"status": "renamed", "to": "b_cleanup", "reason": "see HANDLERS['scene']['b006']"},
-        "b009": {"status": "na", "reason": "see HANDLERS['scene']"},
-        "b012": {"status": "na", "reason": "see HANDLERS['scene']"},
-        # b013 Mesh Converter: BUILT 2026-07-13 — see HANDLERS['scene'] b013 note (present on both sides).
-        "b014": {"status": "na", "reason": "see HANDLERS['scene'] (Save to Original Scene)"},
-        # b016 Unity Bridge: present on both sides now (Scene menu) — see HANDLERS['scene'] b016 note.
-        # lbl004/lbl005 ("Open Workspace Root"/"Auto Set Workspace") removed 2026-07-04: stale
-        # entries matching no current Maya-only control (already flagged for removal in the
-        # archived BLENDER_FEATURE_GAPS.md audit) — and doubly wrong now that main.py's
-        # list000 ships exactly an Auto Set Workspace action (btk.find_workspaces-backed
-        # up-the-tree detection) plus a Current-Workspace row that opens the workspace root.
-    },
 }
 
 # Accepted same-named default/property divergences: {"pair": {"control.prop": reason}}.
@@ -214,9 +156,6 @@ DEFAULT_DELTAS = {
     # in the uv slot, so no "uv" entry is needed here.
     # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
     # Transfer mode (2026-10-17); its vocabulary deltas moved with it.
-    "scene": {
-        "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
-    },
 }
 
 # --------------------------------------------------------------------------- Maya-only panels

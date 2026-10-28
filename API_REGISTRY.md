@@ -6,13 +6,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
-- [`slots/_scene.py`](#slots--_scene) — Behavior shared by the Maya and Blender ``scene`` panels.
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/scene.py`](#slots--blender--scene)
 - [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
@@ -51,7 +49,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/nparticles.py`](#slots--maya--nparticles)
 - [`slots/maya/playback.py`](#slots--maya--playback)
 - [`slots/maya/render.py`](#slots--maya--render)
-- [`slots/maya/scene.py`](#slots--maya--scene)
 - [`slots/maya/select.py`](#slots--maya--select)
 - [`slots/maya/skeleton.py`](#slots--maya--skeleton)
 - [`slots/maya/skin.py`](#slots--maya--skin)
@@ -69,6 +66,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/preferences.py`](#slots--preferences) — Preferences: one Slots class for both hosts.
 - [`slots/rendering.py`](#slots--rendering) — Rendering: one Slots class for both hosts.
 - [`slots/rigging.py`](#slots--rigging) — Rigging: one Slots class for both hosts.
+- [`slots/scene.py`](#slots--scene) — Scene: one Slots class for both hosts.
 - [`slots/selection.py`](#slots--selection) — Selection: one Slots class for both hosts.
 - [`slots/settings.py`](#slots--settings) — Settings: one Slots class for both hosts.
 - [`slots/subdivision.py`](#slots--subdivision) — Subdivision: one Slots class for both hosts.
@@ -185,7 +183,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L58) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L31) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L30) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -194,20 +192,6 @@ Text the animation panel's Maya and Blender forks say identically.
 
 - **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
   - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
-
-<a id="slots--_scene"></a>
-### `slots/_scene.py`
-
-Behavior shared by the Maya and Blender ``scene`` panels.
-
-- **[`class SceneMixin`](tentacle/tentacle/slots/_scene.py#L44)** — Shared ``scene`` panel behavior.
-  - `SceneMixin.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
-  - `SceneMixin.list003_init(self, widget)` — Tools list: the scene actions that used to sit loose in the header
-  - `SceneMixin.b019(self)` — Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.
-  - `SceneMixin.tb001_init(self, widget)` — Get Scene Info — option box: scope, profile, and one toggle per section.
-  - `SceneMixin.tb001(self, widget)` — Get Scene Info — render the sectioned audit report to the viewer dialog.
-  - `SceneMixin.tb002_init(self, widget)` — Fix Non-Orthogonal Axes — option box.
-  - `SceneMixin.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -309,33 +293,6 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/blender.py`
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
-
-<a id="slots--blender--scene"></a>
-### `slots/blender/scene.py`
-
-- **[`class SceneSlots(SceneMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/scene.py#L11)** — Blender port of the shared ``scene`` menu.
-  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
-  - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
-  - `SceneSlots.list000(self, item)` — Recent Files
-  - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave (recent temp-dir .blend autosaves, newest first).
-  - `SceneSlots.cmb002(self, index, widget)` — Autosave
-  - `SceneSlots.list001_init(self, widget)` — Initialize Import
-  - `SceneSlots.list001(self, item)` — Import
-  - `SceneSlots.list002_init(self, widget)` — Initialize Export.
-  - `SceneSlots.list002(self, item)` — Export.
-  - `SceneSlots.tb003_init(self, widget)` — Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.
-  - `SceneSlots.b011(self)` — Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type
-  - `SceneSlots.b001(self)` — Reference Manager (library links — File ▸ Link manager panel).
-  - `SceneSlots.b010(self)` — Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).
-  - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
-  - `SceneSlots.b005(self)` — Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /
-  - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
-  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
-  - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
-  - `SceneSlots.b004(self)` — Hierarchy Sync — diff / pull / fix the scene hierarchy against a reference .blend:
-  - `SceneSlots.b003(self)` — Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
-  - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
-  - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
 
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
@@ -763,35 +720,6 @@ Materials: one Slots class for both hosts.
 
 - **[`class RenderSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L8)**
 
-<a id="slots--maya--scene"></a>
-### `slots/maya/scene.py`
-
-- **[`class SceneSlots(SceneMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/scene.py#L14)**
-  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).
-  - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave
-  - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene file.
-  - `SceneSlots.list001_init(self, widget)` — Initialize Import
-  - `SceneSlots.list001(self, item)` — Import: import a file, or open import / FBX / OBJ preset options.
-  - `SceneSlots.list002_init(self, widget)` — Initialize Export.
-  - `SceneSlots.list002(self, item)` — Export: the one-shot export actions and the Scene Exporter launcher.
-  - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files
-  - `SceneSlots.list000(self, item)` — Recent Files
-  - `SceneSlots.b001(self)` — Open Reference Manager
-  - `SceneSlots.b010(self)` — Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).
-  - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).
-  - `SceneSlots.tb003_init(self, widget)` — Initialize Export.
-  - `SceneSlots.b004(self)` — Open Hierarchy Sync
-  - `SceneSlots.b005(self)` — Open Naming Tool
-  - `SceneSlots.b006(self)` — Scene Cleanup
-  - `SceneSlots.b009(self)` — Fix OCIO
-  - `SceneSlots.b011(self)` — Fix Color Spaces
-  - `SceneSlots.b018(self)` — Fix Mangled Names
-  - `SceneSlots.b012(self)` — Toggle Command Ports
-  - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
-  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB)
-  - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene.
-  - `SceneSlots.b014(self)` — Save to Original Scene.
-
 <a id="slots--maya--select"></a>
 ### `slots/maya/select.py`
 
@@ -1032,6 +960,47 @@ Rigging: one Slots class for both hosts.
   - `RiggingSlots.tb005_init(self, widget)` — Init Add to Skin (Maya: the .ui hides it in Blender).
   - `RiggingSlots.tb005(self, widget)` — Add to Skin: the selected mesh(es) skinned to the LAST selected one.
   - `RiggingSlots.b004(self)` — Render Effects: the shared tool panel.
+
+<a id="slots--scene"></a>
+### `slots/scene.py`
+
+Scene: one Slots class for both hosts.
+
+- **[`class SceneSlots(Slots)`](tentacle/tentacle/slots/scene.py#L38)**
+  - `SceneSlots.list000_init(self, widget)` — Initialize Recent Files.
+  - `SceneSlots.list000(self, item)` — Recent Files: open the picked scene.
+  - `SceneSlots.cmb002_init(self, widget)` — Initialize Autosave: the last day's autosaves, newest first.
+  - `SceneSlots.cmb002(self, index, widget)` — Autosave: reopen a recent autosaved scene.
+  - `SceneSlots.list001_init(self, widget)` — Initialize Import.
+  - `SceneSlots.list001(self, item)` — Import: run the picked row.
+  - `SceneSlots.list002_init(self, widget)` — Initialize Export.
+  - `SceneSlots.list002(self, item)` — Export: run the picked one-shot or open the Scene Exporter.
+  - `SceneSlots.tb003_init(self, widget)` — Initialize Export Scene's option box.
+  - `SceneSlots.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
+  - `SceneSlots.list003_init(self, widget)` — Tools list: the scene actions grouped into one expandable row.
+  - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot.
+  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB): the DCC-agnostic extapps tool, its file
+  - `SceneSlots.b010(self)` — The other DCC's bridge: the shared tool named after its TARGET app
+  - `SceneSlots.b016(self)` — Unity Bridge: send the selection to a Unity project's Assets/.
+  - `SceneSlots.b001(self)` — Reference Manager (Maya references, Blender linked libraries).
+  - `SceneSlots.b004(self)` — Hierarchy Sync: diff / pull / fix the hierarchy against a reference scene.
+  - `SceneSlots.b005(self)` — Naming: the shared Naming tool.
+  - `SceneSlots.b003(self)` — Audio Clips: the shared tool over the host's ``AudioClips``.
+  - `SceneSlots.b015(self)` — Blendshape Animator: the shared tool over the host's ``BlendshapeAnimator``.
+  - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene: enabled, labelled and tooltipped from the
+  - `SceneSlots.b014(self)` — Save to Original Scene: save the open autosave back to its original, the
+  - `SceneSlots.b006(self)` — Cleanup Unknown (Maya): unknown nodes and plugins, legacy XGen expressions.
+  - `SceneSlots.b_cleanup(self)` — Scene Cleanup (Blender): purge orphan datablocks (no users, no fake user).
+  - `SceneSlots.b009(self)` — Fix OCIO (Maya): repair the Color Management / OCIO config preferences.
+  - `SceneSlots.b011(self)` — Fix Color Spaces: each texture's color space by its map type
+  - `SceneSlots.b018(self)` — Fix Mangled Names (Maya): the selection, or the whole scene when nothing is
+  - `SceneSlots.b012(self)` — Toggle Command Ports (Maya): MEL :7001, Python :7002.
+  - `SceneSlots.b017(self)` — Scene Metadata: the tool-authored data-node channels (``DataNodes.dump``)
+  - `SceneSlots.b019(self)` — Check GLB / FBX: the Scene Exporter's post-write gates over files on disk.
+  - `SceneSlots.tb001_init(self, widget)` — Get Scene Info -- option box: scope, profile, and one toggle per section.
+  - `SceneSlots.tb001(self, widget)` — Get Scene Info -- render the sectioned audit report to the viewer dialog.
+  - `SceneSlots.tb002_init(self, widget)` — Fix Non-Orthogonal Axes -- option box.
+  - `SceneSlots.tb002(self, widget)` — Fix Non-Orthogonal Axes.
 
 <a id="slots--selection"></a>
 ### `slots/selection.py`

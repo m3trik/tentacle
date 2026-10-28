@@ -955,7 +955,7 @@ try:
 
     # ---- scene b005: routes to the blendertk Naming panel; cameras b007 fails soft headless --
     # (b005 stopped driving the native Batch Rename op when the Naming panel shipped.)
-    from tentacle.slots.blender.scene import SceneSlots
+    from tentacle.slots.scene import SceneSlots
     from tentacle.slots.cameras import CamerasSlots
 
     reset()
@@ -1143,9 +1143,9 @@ try:
     check("scene b004 opens the hierarchy-sync panel",
           shown == ["hierarchy_sync"], f"{shown}")
 
-    # ---- scene tb001: Get Scene Info (SceneMixin's body over btk) -----------------------------
+    # ---- scene tb001: Get Scene Info over btk -----------------------------------------------
     import blendertk as btk
-    from tentacle.slots.blender.scene import SceneSlots
+    from tentacle.slots.scene import SceneSlots
 
     reset()
     base = add_cube("info_cube")
@@ -1159,6 +1159,7 @@ try:
             logger=NS(warning=warnings_logged.append, debug=lambda *a, **k: None),
             progress=lambda **k: contextlib.nullcontext(None),
             progress_adapter=lambda update: lambda *a: ticks.append(a),
+            tk=btk,
         ),
     )
     sections = {f"chk_section_{key}": chk(True) for key in btk.SceneInfoSection.ALL}
@@ -1199,6 +1200,51 @@ try:
           f"{notes.text() if notes else None!r}")
     check("scene tb001's Generic tooltip claims no budget the engine does not use",
           "100k" not in info_menu.cmb_profile.toolTip(), info_menu.cmb_profile.toolTip())
+
+    # ---- scene tb002: Fix Non-Orthogonal Axes over btk (Entire Scene) -----------------------
+    reset()
+    skew_parent = add_cube("shear_parent")
+    skew_parent.scale = (1.0, 3.0, 1.0)
+    skew_child = add_cube("shear_child", location=(2, 0, 0))
+    skew_child.parent = skew_parent
+    skew_child.rotation_euler = (0.0, 0.0, 0.7)
+    bpy.context.view_layer.update()
+    msgs = []
+    slot = make_slot(
+        SceneSlots,
+        sb=NS(
+            message_box=lambda text, *buttons, **k: msgs.append(text)
+            or ("Yes" if buttons else None),
+            progress=lambda **k: contextlib.nullcontext(lambda *a, **kw: None),
+            text_view_dialog=lambda *a, **k: None,
+            tk=btk,
+        ),
+    )
+    slot.tb002(option_box(
+        cmb_scope2=combo("all"), chk_dry_run=chk(False), chk_break_connections=chk(False)
+    ))
+    check("scene tb002 fixes an inherited shear over btk (one confirm, one report)",
+          not btk.Diagnostics.get_non_orthogonal(list(bpy.context.scene.objects))
+          and any("Fixed <hl>1</hl> of <hl>1</hl>" in m for m in msgs), f"{msgs}")
+
+    # ---- scene lists + Tools launchers: Blender's rows, the Maya bridge ---------------------
+    imports = {label for label, _, _ in slot._list_rows(slot._IMPORT_ROWS, "import")}
+    check("scene Import list: Blender's importers plus the Maya-scene pull",
+          {"Import FBX", "Import OBJ", "Import Maya Scene", "Import glTF", "Import USD",
+           "Append from .blend", "Link from .blend"} <= imports
+          and "Import File" not in imports, f"{sorted(imports)}")
+    exports = [(label, req) for label, _, req in slot._list_rows(slot._EXPORT_ROWS, "export")]
+    check("scene Export list: Export .ma, Blender's exporters, Maya's glTF row tagged",
+          {("Export Selection", None), ("Export .ma", None), ("Export USD", None),
+           ("Export FBX", None), ("Export glTF", None), ("Export glTF", "maya")}
+          <= set(exports) and ("Export All", None) not in exports, f"{exports}")
+    shown = []
+    slot = make_slot(SceneSlots, sb=NS(handlers=NS(marking_menu=NS(show=shown.append)), tk=btk))
+    slot.b010()
+    slot.b003()
+    slot.b015()
+    check("scene b010 / b003 / b015 open the Maya Bridge, Audio Clips, Blendshape Animator",
+          shown == ["maya_bridge", "audio_clips", "blendshape_animator"], f"{shown}")
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
     from tentacle.slots.deformation import DeformationSlots

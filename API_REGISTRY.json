@@ -33,7 +33,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 31,
+          "line": 30,
           "deprecated": false
         }
       ]
@@ -56,85 +56,6 @@
               "signature": "(self, widget)",
               "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
               "line": 469,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/_scene.py",
-      "summary": "Behavior shared by the Maya and Blender ``scene`` panels.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SceneMixin",
-          "summary": "Shared ``scene`` panel behavior.",
-          "line": 44,
-          "bases": [],
-          "members": [
-            {
-              "name": "tb003",
-              "qualname": "SceneMixin.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Export Scene in the chosen format, using the configured options.",
-              "line": 352,
-              "deprecated": false
-            },
-            {
-              "name": "list003_init",
-              "qualname": "SceneMixin.list003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tools list: the scene actions that used to sit loose in the header",
-              "line": 691,
-              "deprecated": false
-            },
-            {
-              "name": "b019",
-              "qualname": "SceneMixin.b019",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Check GLB / FBX -- the Scene Exporter's post-write gates, over files on disk.",
-              "line": 747,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "SceneMixin.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Scene Info — option box: scope, profile, and one toggle per section.",
-              "line": 888,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "SceneMixin.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Scene Info — render the sectioned audit report to the viewer dialog.",
-              "line": 935,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "SceneMixin.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Fix Non-Orthogonal Axes — option box.",
-              "line": 1000,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "SceneMixin.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Fix Non-Orthogonal Axes.",
-              "line": 1044,
               "deprecated": false
             }
           ]
@@ -892,223 +813,6 @@
             "SlotsBlender"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/scene.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SceneSlots",
-          "summary": "Blender port of the shared ``scene`` menu.",
-          "line": 11,
-          "bases": [
-            "SceneMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list003",
-              "qualname": "SceneSlots.list003",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 210,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "SceneSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Recent Files",
-              "line": 250,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "SceneSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Recent Files",
-              "line": 263,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "SceneSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Autosave (recent temp-dir .blend autosaves, newest first).",
-              "line": 270,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "SceneSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Autosave",
-              "line": 279,
-              "deprecated": false
-            },
-            {
-              "name": "list001_init",
-              "qualname": "SceneSlots.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Import",
-              "line": 284,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "SceneSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Import",
-              "line": 302,
-              "deprecated": false
-            },
-            {
-              "name": "list002_init",
-              "qualname": "SceneSlots.list002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Export.",
-              "line": 358,
-              "deprecated": false
-            },
-            {
-              "name": "list002",
-              "qualname": "SceneSlots.list002",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Export.",
-              "line": 410,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "SceneSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize the Scene Exporter option box — the Blender counterpart of Maya's tb003.",
-              "line": 424,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "SceneSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fix Color Spaces — set data textures to 'Non-Color' / color maps to 'sRGB' by map type",
-              "line": 669,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SceneSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Reference Manager (library links — File ▸ Link manager panel).",
-              "line": 684,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "SceneSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).",
-              "line": 688,
-              "deprecated": false
-            },
-            {
-              "name": "b016",
-              "qualname": "SceneSlots.b016",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).",
-              "line": 692,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SceneSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /",
-              "line": 699,
-              "deprecated": false
-            },
-            {
-              "name": "b008",
-              "qualname": "SceneSlots.b008",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Export Selection (FBX, selected objects only).",
-              "line": 705,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "SceneSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Mesh Converter (FBX -> GLB).",
-              "line": 712,
-              "deprecated": false
-            },
-            {
-              "name": "b_cleanup",
-              "qualname": "SceneSlots.b_cleanup",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Scene Cleanup — purge orphan datablocks (no users / no fake user).",
-              "line": 729,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "SceneSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Hierarchy Sync — diff / pull / fix the scene hierarchy against a reference .blend:",
-              "line": 754,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "SceneSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:",
-              "line": 759,
-              "deprecated": false
-            },
-            {
-              "name": "b015",
-              "qualname": "SceneSlots.b015",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,",
-              "line": 768,
-              "deprecated": false
-            },
-            {
-              "name": "b017",
-              "qualname": "SceneSlots.b017",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 777,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -3702,241 +3406,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/scene.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SceneSlots",
-          "summary": "",
-          "line": 14,
-          "bases": [
-            "SceneMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list003",
-              "qualname": "SceneSlots.list003",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its own slot (shared: ``SceneMixin``).",
-              "line": 142,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002_init",
-              "qualname": "SceneSlots.cmb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Autosave",
-              "line": 205,
-              "deprecated": false
-            },
-            {
-              "name": "cmb002",
-              "qualname": "SceneSlots.cmb002",
-              "kind": "method",
-              "signature": "(self, index, widget)",
-              "summary": "Autosave: reopen a recent autosaved scene file.",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "list001_init",
-              "qualname": "SceneSlots.list001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Import",
-              "line": 309,
-              "deprecated": false
-            },
-            {
-              "name": "list001",
-              "qualname": "SceneSlots.list001",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Import: import a file, or open import / FBX / OBJ preset options.",
-              "line": 325,
-              "deprecated": false
-            },
-            {
-              "name": "list002_init",
-              "qualname": "SceneSlots.list002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Export.",
-              "line": 373,
-              "deprecated": false
-            },
-            {
-              "name": "list002",
-              "qualname": "SceneSlots.list002",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Export: the one-shot export actions and the Scene Exporter launcher.",
-              "line": 425,
-              "deprecated": false
-            },
-            {
-              "name": "list000_init",
-              "qualname": "SceneSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Recent Files",
-              "line": 436,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "SceneSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Recent Files",
-              "line": 449,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "SceneSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Reference Manager",
-              "line": 462,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "SceneSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Blender Bridge — send the selection to a fresh Blender (mtk.BlenderBridge).",
-              "line": 466,
-              "deprecated": false
-            },
-            {
-              "name": "b016",
-              "qualname": "SceneSlots.b016",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Unity Bridge — send the selection to a Unity project's Assets/ (mtk.UnityBridge).",
-              "line": 470,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "SceneSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Export.",
-              "line": 474,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "SceneSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Hierarchy Sync",
-              "line": 736,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "SceneSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Naming Tool",
-              "line": 740,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "SceneSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Scene Cleanup",
-              "line": 744,
-              "deprecated": false
-            },
-            {
-              "name": "b009",
-              "qualname": "SceneSlots.b009",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fix OCIO",
-              "line": 748,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "SceneSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fix Color Spaces",
-              "line": 765,
-              "deprecated": false
-            },
-            {
-              "name": "b018",
-              "qualname": "SceneSlots.b018",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fix Mangled Names",
-              "line": 769,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "SceneSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Toggle Command Ports",
-              "line": 785,
-              "deprecated": false
-            },
-            {
-              "name": "b017",
-              "qualname": "SceneSlots.b017",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 800,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "SceneSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Mesh Converter (FBX -> GLB)",
-              "line": 817,
-              "deprecated": false
-            },
-            {
-              "name": "b014_init",
-              "qualname": "SceneSlots.b014_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Save to Original Scene.",
-              "line": 852,
-              "deprecated": false
-            },
-            {
-              "name": "b014",
-              "qualname": "SceneSlots.b014",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Save to Original Scene.",
-              "line": 896,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/select.py",
       "summary": "",
       "functions": [],
@@ -5505,6 +4974,330 @@
               "signature": "(self)",
               "summary": "Render Effects: the shared tool panel.",
               "line": 695,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/scene.py",
+      "summary": "Scene: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneSlots",
+          "summary": "",
+          "line": 38,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "SceneSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Recent Files.",
+              "line": 216,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "SceneSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Recent Files: open the picked scene.",
+              "line": 229,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "SceneSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Autosave: the last day's autosaves, newest first.",
+              "line": 244,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002",
+              "qualname": "SceneSlots.cmb002",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Autosave: reopen a recent autosaved scene.",
+              "line": 258,
+              "deprecated": false
+            },
+            {
+              "name": "list001_init",
+              "qualname": "SceneSlots.list001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Import.",
+              "line": 310,
+              "deprecated": false
+            },
+            {
+              "name": "list001",
+              "qualname": "SceneSlots.list001",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Import: run the picked row.",
+              "line": 326,
+              "deprecated": false
+            },
+            {
+              "name": "list002_init",
+              "qualname": "SceneSlots.list002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Export.",
+              "line": 415,
+              "deprecated": false
+            },
+            {
+              "name": "list002",
+              "qualname": "SceneSlots.list002",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Export: run the picked one-shot or open the Scene Exporter.",
+              "line": 464,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "SceneSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Export Scene's option box.",
+              "line": 525,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "SceneSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Export Scene in the chosen format, using the configured options.",
+              "line": 679,
+              "deprecated": false
+            },
+            {
+              "name": "list003_init",
+              "qualname": "SceneSlots.list003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tools list: the scene actions grouped into one expandable row.",
+              "line": 1122,
+              "deprecated": false
+            },
+            {
+              "name": "list003",
+              "qualname": "SceneSlots.list003",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Dispatch a Tools leaf to its own slot.",
+              "line": 1154,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "SceneSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mesh Converter (FBX -> GLB): the DCC-agnostic extapps tool, its file",
+              "line": 1169,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "SceneSlots.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The other DCC's bridge: the shared tool named after its TARGET app",
+              "line": 1183,
+              "deprecated": false
+            },
+            {
+              "name": "b016",
+              "qualname": "SceneSlots.b016",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unity Bridge: send the selection to a Unity project's Assets/.",
+              "line": 1188,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "SceneSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reference Manager (Maya references, Blender linked libraries).",
+              "line": 1193,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "SceneSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Hierarchy Sync: diff / pull / fix the hierarchy against a reference scene.",
+              "line": 1197,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "SceneSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Naming: the shared Naming tool.",
+              "line": 1201,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "SceneSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Audio Clips: the shared tool over the host's ``AudioClips``.",
+              "line": 1205,
+              "deprecated": false
+            },
+            {
+              "name": "b015",
+              "qualname": "SceneSlots.b015",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Blendshape Animator: the shared tool over the host's ``BlendshapeAnimator``.",
+              "line": 1209,
+              "deprecated": false
+            },
+            {
+              "name": "b014_init",
+              "qualname": "SceneSlots.b014_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Save to Original Scene: enabled, labelled and tooltipped from the",
+              "line": 1214,
+              "deprecated": false
+            },
+            {
+              "name": "b014",
+              "qualname": "SceneSlots.b014",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Save to Original Scene: save the open autosave back to its original, the",
+              "line": 1253,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "SceneSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cleanup Unknown (Maya): unknown nodes and plugins, legacy XGen expressions.",
+              "line": 1275,
+              "deprecated": false
+            },
+            {
+              "name": "b_cleanup",
+              "qualname": "SceneSlots.b_cleanup",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Scene Cleanup (Blender): purge orphan datablocks (no users, no fake user).",
+              "line": 1290,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "SceneSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fix OCIO (Maya): repair the Color Management / OCIO config preferences.",
+              "line": 1302,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "SceneSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fix Color Spaces: each texture's color space by its map type",
+              "line": 1309,
+              "deprecated": false
+            },
+            {
+              "name": "b018",
+              "qualname": "SceneSlots.b018",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fix Mangled Names (Maya): the selection, or the whole scene when nothing is",
+              "line": 1330,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "SceneSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Toggle Command Ports (Maya): MEL :7001, Python :7002.",
+              "line": 1348,
+              "deprecated": false
+            },
+            {
+              "name": "b017",
+              "qualname": "SceneSlots.b017",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Scene Metadata: the tool-authored data-node channels (``DataNodes.dump``)",
+              "line": 1360,
+              "deprecated": false
+            },
+            {
+              "name": "b019",
+              "qualname": "SceneSlots.b019",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Check GLB / FBX: the Scene Exporter's post-write gates over files on disk.",
+              "line": 1374,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "SceneSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Scene Info -- option box: scope, profile, and one toggle per section.",
+              "line": 1509,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "SceneSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Scene Info -- render the sectioned audit report to the viewer dialog.",
+              "line": 1556,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "SceneSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Fix Non-Orthogonal Axes -- option box.",
+              "line": 1614,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "SceneSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Fix Non-Orthogonal Axes.",
+              "line": 1657,
               "deprecated": false
             }
           ]

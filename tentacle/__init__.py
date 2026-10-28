@@ -21,7 +21,6 @@ DEFAULT_INCLUDE = {
     # below). Mixed in per panel, never folded into the DCC bases: a mixin's
     # widget-named slots (``tb002``) would bind every panel's same-named widget.
     "slots._animation": "AnimationMixin",
-    "slots._scene": "SceneMixin",
     "slots._uv": "UvMixin",
 }
 
@@ -45,6 +44,7 @@ MOVED_NAMES = {
     "RiggingMixin": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
     "RenderingMixin": ("tentacle.slots.rendering.RenderingSlots", "0.17.0"),
     "MaterialsMixin": ("tentacle.slots.materials.MaterialsSlots", "0.17.0"),
+    "SceneMixin": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
 }
 
 

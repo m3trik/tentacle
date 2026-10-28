@@ -1,194 +1,166 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.blender.scene — AST-based, no ``bpy`` required.
+"""tentacle.slots.scene as Blender sees it -- over a toolkit answering like blendertk's.
 
-``SceneSlots`` imports ``bpy`` at module scope, so it can't be imported outside a real
-Blender process (there is no offline ``bpy`` stub in this repo — see
-``test_main_workspace_blender.py``), and inside Blender ``uitk``'s Qt layer isn't
-importable either. So this pins the structure instead, the way
-``test_materials_blender.py`` does.
+The Scene panel is one class for both hosts (``slots/scene.py``); what differs is what
+the host toolkit answers. A Blender-like fake toolkit stands in for ``btk`` here (no
+``bpy``), pinning what a Blender user gets from the shared class:
 
-What's guarded: the Scene Exporter panel launcher moved off the header menu (the old
-``b002`` button, now deleted along with its slot method) onto the submenu's Export
-expandable list, so ``_EXPORTERS`` is the only route to it. That mattered here in a way it
-didn't on the Maya side: Blender's ``_EXPORTERS`` values were *all* ``bpy.ops`` path
-strings, and ``list002`` passed them straight to ``invoke_op``. The launcher is a callable,
-so ``list002`` had to grow the same callable/op-path split ``list001`` already used for
-"Import Maya Scene". Revert that split and the lambda gets handed to ``invoke_op`` as if it
-were an operator path — the entry dies with no compile-time error, since the list dispatches
-by item text.
+- the Import list: Blender's own operators (``EnvUtils.get_file_commands``), its FBX
+  row through ``btk.FbxUtils.import_fbx`` (ALL the file's takes -- the stock operator
+  played the first take keying each object), the Maya-scene pull;
+- the Export list: ``Export .ma``, Blender's own glTF exporter beside Maya's GLB
+  one-shot (tagged ``maya``, hidden here);
+- the other DCC named Maya everywhere (the format combo's "MA", the Maya Bridge);
+- the Tools leaves only Maya serves hidden, Blender's Scene Cleanup shown.
+The real btk run is ``test/blender/deepened_slots_check.py``'s scene sections.
 """
 
-import ast
 import unittest
-from pathlib import Path
+from types import SimpleNamespace as NS
+from unittest import mock
 
-ROOT = Path(__file__).resolve().parent.parent
-SCENE_FILE = ROOT / "tentacle" / "slots" / "blender" / "scene.py"
+from tentacle.slots._slots import Slots
+from tentacle.slots.scene import SceneSlots
 
-
-def _class_node(source, class_name):
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.ClassDef) and node.name == class_name:
-            return node
-    return None
-
-
-def _class_assign(class_node, name):
-    """The value node assigned to ``name`` directly in the class body, or None."""
-    for item in class_node.body:
-        if isinstance(item, ast.Assign) and any(
-            isinstance(t, ast.Name) and t.id == name for t in item.targets
-        ):
-            return item.value
-    return None
+#: What blendertk's ``EnvUtils.get_file_commands`` answers in a Blender with every
+#: operator registered (pinned in blendertk's ``test_env_utils.py``).
+BLENDER_COMMANDS = {
+    "import": ["Import OBJ", "Import Collada", "Append from .blend", "Link from .blend"],
+    "export": [
+        "Export Selection",
+        "Export FBX",
+        "Export OBJ",
+        "Export glTF",
+        "Export Collada",
+    ],
+}
 
 
-def _method(class_node, name):
-    for item in class_node.body:
-        if (
-            isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
-            and item.name == name
-        ):
-            return item
-    return None
+def _blender_toolkit(commands=BLENDER_COMMANDS):
+    tk = mock.MagicMock()
+    tk.EnvUtils.foreign_scene_bridge.return_value = NS(
+        spec=NS(app=NS(name="Maya")), save_extensions=(".ma", ".mb")
+    )
+    tk.EnvUtils.foreign_scene_import.return_value.SCENE_EXTENSIONS = (".ma", ".mb")
+    tk.EnvUtils.get_file_commands.side_effect = lambda direction: list(
+        commands[direction]
+    )
+    tk.EnvUtils.saved_scene_path.return_value = ""
+    tk.EnvUtils.workspace_root.return_value = "W:/proj"
+    return tk
 
 
-class TestGltfImportEntry(unittest.TestCase):
-    """SceneSlots (Blender): "Import glTF" is on the Import list, through the engine.
-
-    Parity with the Maya fork's entry of the same name: the LABEL -- a tentacle slot
-    must not have to branch on the host to offer the same import -- and the route.
-    The entry was the stock ``import_scene.gltf`` operator until a KTX2 deliverable
-    met it: Blender's importer refuses a file that requires ``KHR_texture_basisu``
-    ("Extension KHR_texture_basisu is not available on this addon version"), and
-    the operator's own file browser leaves nowhere to decode it first. It now calls
-    the shared ``SceneMixin._import_gltf`` -> ``_pull_scene`` ->
-    ``btk.MayaSceneImport.import_scene``, which imports a decoded copy.
-    """
-
+class _BlenderCase(unittest.TestCase):
     def setUp(self):
-        self.cls = _class_node(SCENE_FILE.read_text(encoding="utf-8"), "SceneSlots")
-        self.assertIsNotNone(self.cls, "SceneSlots class not found")
-        importers = _class_assign(self.cls, "_IMPORTERS")
-        self.assertIsInstance(importers, ast.Dict, "_IMPORTERS is not a dict literal")
-        self.entries = {
-            k.value: v
-            for k, v in zip(importers.keys, importers.values)
-            if isinstance(k, ast.Constant)
-        }
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.sb.tk = _blender_toolkit()
+        self.sb.loaded_ui.scene.footer = None
+        self.slots = SceneSlots(self.sb)
+        self.tk = self.sb.tk
 
-    def test_entry_routes_through_the_shared_import(self):
-        self.assertIn("Import glTF", self.entries)
-        value = self.entries["Import glTF"]
-        self.assertIsInstance(
-            value,
-            ast.Lambda,
-            "the stock operator refuses a KTX2 glTF; the entry must call the engine",
-        )
-        self.assertIn("_import_gltf", ast.unparse(value))
-
-    def test_shared_import_pulls_through_the_engine(self):
-        mixin = _class_node(
-            (ROOT / "tentacle" / "slots" / "_scene.py").read_text(encoding="utf-8"),
-            "SceneMixin",
-        )
-        method = _method(mixin, "_import_gltf")
-        self.assertIsNotNone(method, "SceneMixin._import_gltf is missing")
-        self.assertIn("_pull_scene", ast.unparse(method))
-
-    def test_label_matches_the_maya_fork(self):
-        # Reused labels are the cross-DCC contract (and QSettings key); a Blender-only
-        # spelling like "Import GLB" would break the mirror.
-        maya_file = ROOT / "tentacle" / "slots" / "maya" / "scene.py"
-        maya_cls = _class_node(maya_file.read_text(encoding="utf-8"), "SceneSlots")
-        maya_importers = _class_assign(maya_cls, "_IMPORTERS")
-        maya_labels = {
-            k.value for k in maya_importers.keys if isinstance(k, ast.Constant)
-        }
-        self.assertIn("Import glTF", maya_labels)
+    def _rows(self, table, direction):
+        return [(label, req) for label, _, req in self.slots._list_rows(table, direction)]
 
 
-class TestFbxImportEntry(unittest.TestCase):
-    """SceneSlots (Blender): "Import FBX" imports ALL the file's animation.
-
-    The entry was the stock ``import_scene.fbx`` operator, which hands each object
-    the FIRST take keying it -- a Shots Only file played its first shot, a
-    whole-timeline take listed after its slices played a slice. It now browses
-    through the shared ``_pull_scene`` body with ``btk.FbxUtils.import_fbx`` as the
-    importer: every take's animation, alternatives parked in Key Stash.
-    """
-
-    def setUp(self):
-        self.cls = _class_node(SCENE_FILE.read_text(encoding="utf-8"), "SceneSlots")
-        importers = _class_assign(self.cls, "_IMPORTERS")
-        self.entries = {
-            k.value: v
-            for k, v in zip(importers.keys, importers.values)
-            if isinstance(k, ast.Constant)
-        }
-
-    def test_entry_is_a_callable_not_the_stock_operator(self):
-        value = self.entries.get("Import FBX")
-        self.assertIsInstance(value, ast.Lambda, "the stock operator plays one take")
-        self.assertIn("_import_fbx", ast.unparse(value))
-
-    def test_import_pulls_through_fbx_utils(self):
-        method = _method(self.cls, "_import_fbx")
-        self.assertIsNotNone(method, "SceneSlots._import_fbx is missing")
-        source = ast.unparse(method)
-        self.assertIn("_pull_scene", source)
-        self.assertIn("importer=btk.FbxUtils.import_fbx", source)
-
-
-class TestSceneExporterOnExportList(unittest.TestCase):
-    """SceneSlots (Blender): the Export list is the only route to the Scene Exporter."""
-
-    def setUp(self):
-        self.cls = _class_node(SCENE_FILE.read_text(encoding="utf-8"), "SceneSlots")
-        self.assertIsNotNone(self.cls, "SceneSlots class not found")
-
-    def test_exporters_registers_the_launcher_as_a_callable(self):
-        exporters = _class_assign(self.cls, "_EXPORTERS")
-        self.assertIsInstance(exporters, ast.Dict, "_EXPORTERS is not a dict literal")
-
-        # Keyed by the _SCENE_EXPORTER constant, not a repeated string literal — the
-        # dict key and list002_init's one-shot filter must not drift apart.
-        keyed_by_const = [
-            v
-            for k, v in zip(exporters.keys, exporters.values)
-            if isinstance(k, ast.Name) and k.id == "_SCENE_EXPORTER"
-        ]
+class TestImportList(_BlenderCase):
+    def test_blender_s_import_list(self):
         self.assertEqual(
-            len(keyed_by_const), 1, "_EXPORTERS has no _SCENE_EXPORTER-keyed entry"
-        )
-        self.assertIsInstance(
-            keyed_by_const[0],
-            ast.Lambda,
-            "the Scene Exporter entry must be a callable, not a bpy.ops path string",
+            self._rows(SceneSlots._IMPORT_ROWS, "import"),
+            [
+                ("Import FBX", "blender"),
+                ("Import OBJ", None),
+                ("Import Maya Scene", None),
+                ("Import glTF", None),
+                ("Import USD", None),
+                ("Import Collada", None),
+                ("Append from .blend", None),
+                ("Link from .blend", None),
+            ],
         )
 
-    def test_list002_dispatches_callables_not_just_op_paths(self):
-        list002 = _method(self.cls, "list002")
-        self.assertIsNotNone(list002, "list002 not found")
-        calls = {
-            node.func.id
-            for node in ast.walk(list002)
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+    def test_an_operator_this_blender_lacks_is_not_offered(self):
+        """Collada left in Blender 5.0: blendertk stops listing it, the row goes."""
+        self.tk.EnvUtils.get_file_commands.side_effect = lambda d: [
+            c for c in BLENDER_COMMANDS[d] if "Collada" not in c
+        ]
+        labels = [label for label, _ in self._rows(SceneSlots._IMPORT_ROWS, "import")]
+        self.assertNotIn("Import Collada", labels)
+
+    def test_a_command_row_invokes_the_host_operator_by_name(self):
+        rows = dict(
+            (label, action)
+            for label, action, _ in self.slots._list_rows(
+                SceneSlots._IMPORT_ROWS, "import"
+            )
+        )
+        rows["Link from .blend"]()
+        self.tk.EnvUtils.run_file_command.assert_called_once_with("Link from .blend")
+
+    def test_import_fbx_pulls_every_take_through_fbx_utils(self):
+        self.sb.file_dialog.return_value = "X:/in/shots.fbx"
+        self.tk.FbxUtils.import_fbx.return_value = ["a", "b", "c"]
+        self.slots._import_fbx()
+        self.tk.FbxUtils.import_fbx.assert_called_once_with("X:/in/shots.fbx")
+        self.tk.EnvUtils.foreign_scene_import.return_value.assert_not_called()
+        self.assertIn("Imported <hl>3</hl>", self.sb.message_box.call_args.args[0])
+
+    def test_import_maya_scene_browses_maya_s_files(self):
+        self.sb.file_dialog.return_value = None
+        self.slots._import_foreign_scene()
+        kwargs = self.sb.file_dialog.call_args.kwargs
+        self.assertEqual(kwargs["file_types"], ["*.ma", "*.mb"])
+        self.assertEqual(kwargs["title"], "Import Maya Scene")
+
+
+class TestExportList(_BlenderCase):
+    def test_blender_s_export_list(self):
+        self.assertEqual(
+            self._rows(SceneSlots._EXPORT_ROWS, "export"),
+            [
+                ("Export Selection", None),
+                ("Export .ma", None),
+                ("Export USD", None),
+                ("Export FBX", None),
+                ("Export OBJ", None),
+                ("Export glTF", "maya"),  # Maya's GLB one-shot, hidden here
+                ("Export glTF", None),  # Blender's own exporter, its options dialog
+                ("Export Collada", None),
+            ],
+        )
+
+    def test_the_format_combo_names_maya_s_format(self):
+        self.assertEqual(self.slots._export_format_items()[-1], ("MA", "foreign"))
+        self.assertEqual(self.slots._export_spellings("foreign"), (".ma", ".mb"))
+
+
+class TestToolsInBlender(_BlenderCase):
+    def setUp(self):
+        super().setUp()
+        self.sb.tooltip.fmt.return_value = "formatted"
+        self.rows = {
+            name: (label, requires)
+            for entries in self.slots._tools_items().values()
+            for label, name, _tip, requires in entries
         }
-        self.assertIn(
-            "callable",
-            calls,
-            "list002 must branch on callable(entry) — otherwise the Scene Exporter "
-            "lambda is passed to invoke_op as an operator path",
-        )
 
-    def test_header_no_longer_carries_the_button(self):
-        # b002's removal is what makes the list the only route; a re-added method
-        # would mean the button crept back onto the header menu.
-        self.assertIsNone(
-            _method(self.cls, "b002"), "b002 is back on Blender SceneSlots"
-        )
+    def test_maya_only_leaves_are_tagged_and_scene_cleanup_is_blender_s(self):
+        for name in ("b014", "b006", "b009", "b018", "b012"):
+            with self.subTest(leaf=name):
+                self.assertEqual(self.rows[name][1], "maya")
+        self.assertEqual(self.rows["b_cleanup"], ("Scene Cleanup", "blender"))
+
+    def test_the_bridge_leaf_is_the_maya_bridge(self):
+        self.assertEqual(self.rows["b010"][0].format(app="Maya"), "Maya Bridge")
+        self.slots.b010()
+        self.sb.handlers.marking_menu.show.assert_called_once_with("maya_bridge")
+
+    def test_audio_clips_and_blendshape_animator_stay_in_manage(self):
+        self.assertEqual(self.rows["b003"], ("Audio Clips", None))
+        self.assertEqual(self.rows["b015"], ("Blendshape Animator", None))
 
 
 if __name__ == "__main__":
