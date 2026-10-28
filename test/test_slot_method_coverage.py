@@ -373,7 +373,7 @@ def _ui_names(ui_path: Path) -> set[str]:
 
 #: What every loaded window carries beside its widgets (uitk's ``MainWindow``):
 #: read as ``self.ui.<name>``, declared by no ``.ui``.
-_WINDOW_ATTRIBUTES = frozenset({"settings", "sb"})
+_WINDOW_ATTRIBUTES = frozenset({"settings", "state", "sb"})
 
 
 def _ui_reads(py_path: Path) -> set[str]:

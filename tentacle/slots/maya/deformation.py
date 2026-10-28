@@ -22,7 +22,7 @@ class DeformationSlots(SlotsMaya):
         )
 
     def tb001(self, widget):
-        """Curtain Generator — open the mayatk Curtain tool."""
+        """Curtain Generator — open the shared Curtain tool."""
         self.sb.handlers.marking_menu.show("curtain")
 
 

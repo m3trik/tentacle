@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Curtain and Naming are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Curtain's auto rail follows the fields live in both hosts (reshaped in place after each rollback) and goes on cancel; Select Result is the host Preview's option. Naming greys the rows the host lists as unsupported and runs its scene edits in one undo chunk. `test_slot_method_coverage` allows `self.ui.state` (a window attribute).
+  - Test(s): new `test_curtain_panel.py` and `test_naming_panel.py`; `test_tool_panels_blender.py` gains the Curtain preset and Naming convention-row checks blendertk's handler test had.
 - **2026-10-28 -- Articulated Rig and Shadow Rig are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Shadow Rig's preview cleans its PNGs through the host's `finalize_func` / `restore_func` hooks, builds rig types from `RIG_BUILDERS` names looked up on the host's `ShadowRig`, and is one undo step per action in both hosts.
   - Test(s): new `test_articulated_rig_panel.py` and `test_shadow_rig_panel.py` (fake toolkit; GUI-Maya cases).
 - **2026-10-28 -- HDR Manager and Shader Templates are shared tools (new `ui/tools/` + `slots/tools/` pairs; `docs/parity_map.py` drops the twin entries of every panel now shared).** HDR Manager composes `self.tk.HdrManager()`, disables what the host's `KNOBS` lacks (Blender: Samples, the viewport-only preview, the Select items) and swaps the map in place when an environment exists; Shader Templates saves under a prompted name and reports what the host built.

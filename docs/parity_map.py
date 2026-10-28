@@ -169,25 +169,6 @@ CONTROLS = {
             "ported -- see _blendshape_animator.py's module docstring.",
         },
     },
-    # naming_slots: fully 1:1 as of 2026-08-23 — both panels build the same header (cmb_scope
-    # Selection/Scene/Directory/Files + chk_base_names + chk_dry_run), the same footer Apply button
-    # (armed by a dry run, hidden otherwise) from a byte-identical _run/_arm_apply block,
-    # output pane (txt002) and the 22 suffix-by-type convention rows (tb003_txt000..021, same
-    # objectNames), which since 2026-09-26 uitk's NamingConventionEditor builds for BOTH panels from
-    # identical host data (_convention_groups) -- so the sweep sees neither side's rows; the mirror
-    # is held by mayatk test_naming_convention_binding.TestHostParity instead.
-    # Ten of those fields name Maya node kinds with no Blender *object* type (IK handle, constraint,
-    # cluster, skin cluster, blend shape, material, shading group, texture, display layer, set);
-    # blendertk ships them under the same objectName with setEnabled=False + an explanatory tooltip
-    # (NamingSlots.CONVENTION_DISABLED, handed to the editor as data), so no row is needed. The
-    # prior tb003_txt007 `na` row described the old display-layer-only version of this.
-    # wheel_rig chk_world_space: stale `na` "always world-space" entry removed 2026-07-08 -- the
-    # control EXISTS in Blender under the identical objectName (rig_utils/wheel_rig.py:299) as a
-    # fully-wired toggle that DEFAULTS OFF (use_world_space=False -> transform_space='TRANSFORM_SPACE',
-    # i.e. LOCAL, wheel_rig.py:199) exactly like Maya; the prior reason was factually wrong on every
-    # clause. Only the label differs ('World Space (decomposeMatrix)' -> 'World Space (driver Transform
-    # Space)', naming Blender's TRANSFORMS-driver-var mechanism for Maya's decomposeMatrix node) -- a
-    # report-only setText review delta, same capability, no ledger entry needed.
     "lightmap_baker_slots": {  # the panel file stem (lightmap_baker_slots.py)
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
         # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk

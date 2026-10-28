@@ -1,5 +1,5 @@
-"""Manual harness for the Blender tool-panel slots (mirror / duplicate_linear / duplicate_radial
-/ duplicate_grid / cut_on_axis / hdr_manager / curtain). The Reference Manager panel became a
+"""Manual harness for the shared tool panels in a real Blender (mirror / duplicate_linear /
+duplicate_radial / duplicate_grid / cut_on_axis / hdr_manager / curtain). The Reference Manager panel became a
 table mirror of mayatk's; its library round trip is ``blendertk/test/test_reference_manager.py``.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
@@ -355,7 +355,7 @@ try:
     os.rmdir(tmp_dir)
 
     # ---- curtain: generated rail + rail-from-curve through the real slot reader ---------
-    from blendertk.edit_utils.curtain import CurtainSlots
+    from tentacle.slots.tools.curtain import CurtainSlots
 
     def curtain_ui(**over):
         base = dict(
@@ -390,9 +390,9 @@ try:
           abs(min(xs) + 3.0) < 0.5 and abs(max(xs) - 3.0) < 0.5,
           f"x {min(xs):.2f}..{max(xs):.2f}")
 
-    bpy.ops.object.select_all(action="DESELECT")
-    slot._finalize()  # Select Result
-    check("curtain slot Select Result selects the curtain",
+    btk.CoreUtils.select([])
+    btk.Preview.apply_result_selection(chk(True), slot.last_curtain)  # Select Result
+    check("curtain Select Result selects the curtain",
           bpy.context.view_layer.objects.active == curtain
           and curtain.select_get())
 

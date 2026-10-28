@@ -133,7 +133,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
                     "b004",
                     "Diff/repair the scene hierarchy against a reference .blend.",
                 ),
-                ("Naming", "b005", "Blender's native Batch Rename."),
+                ("Naming", "b005", "Find, rename and suffix objects (the Naming tool)."),
                 (
                     "Audio Clips",
                     "b003",
@@ -698,9 +698,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("unity_bridge")
 
     def b005(self):
-        """Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
-        Location / Suffix by Type, each with an option box), served from blendertk by the
-        BlenderUiHandler, mirroring Maya's Naming window (replaces the native Batch Rename op)."""
+        """Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /
+        Suffix by Location / Suffix by Type, each with an option box), the same panel as Maya's
+        (it replaces the native Batch Rename op)."""
         self.sb.handlers.marking_menu.show("naming")
 
     def b008(self):

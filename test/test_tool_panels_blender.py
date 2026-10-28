@@ -91,6 +91,52 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
                     self.handler.PERSISTENCE_STICKY,
                 )
 
+    def _loaded(self, name):
+        ui = self.handler.get(name)
+        for _ in range(3):
+            self.app.processEvents()
+        return ui, self.sb.get_slots_instance(ui)
+
+    def test_curtain_lists_the_hosts_built_in_presets(self):
+        """The preset combo is uitk's PresetManager over blendertk's shipped
+        presets (the combo and its builtin_dir work, not just "didn't error")."""
+        ui, _slots = self._loaded("curtain")
+        items = [ui.cmb000.itemText(i) for i in range(ui.cmb000.count())]
+        self.assertIn("Stage Swag", items)
+        self.assertIn("Shower Curtain", items)
+
+    def test_naming_labels_every_convention_row_and_offers_presets(self):
+        """Suffix By Type names each row's type in a label to the RIGHT of its
+        field (the fields ship filled, so placeholders never show) and carries
+        the convention preset combo. The picker wraps each field, so find the
+        grid cell holding it."""
+        import pythontk as ptk
+
+        ui, slots = self._loaded("naming")
+        menu = ui.tb003.option_box.menu
+        if not (menu.gridLayout and menu.gridLayout.count()):
+            slots.tb003_init(ui.tb003)
+        grid = menu.gridLayout
+        rows = list(slots._convention_editor.fields())
+        unlabeled = []
+        for key, field in rows:
+            cell = None
+            for i in range(grid.count()):
+                held = grid.itemAt(i).widget()
+                if held is not None and (held is field or held.isAncestorOf(field)):
+                    cell = grid.getItemPosition(i)[:2]
+                    break
+            beside = grid.itemAtPosition(cell[0], 1) if cell and cell[1] == 0 else None
+            text = beside.widget().text() if beside and beside.widget() else None
+            if text != ptk.NamingConvention.label(key):
+                unlabeled.append((key, cell, text))
+        self.assertEqual(len(rows), 22)
+        self.assertEqual(unlabeled, [])
+        self.assertTrue(menu.add_presets)
+        self.assertEqual(
+            menu.presets.value_applier, slots._convention_editor.apply_preset
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

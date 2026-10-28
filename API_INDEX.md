@@ -475,6 +475,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class ColorIdSlots(Slots)`
   - methods: header_init, selected_button, target_color, b000, b001, b002, b003
 
+### `slots/tools/curtain.py` — Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
+- `class CurtainSlots(Slots)`
+  - methods: header_init, cmb000_init, b001_init, b002, perform_operation
+
 ### `slots/tools/curve_to_tube.py` — Curve to Tube: sweep a circular profile along the selected curves into a
 - `class CurveToTubeSlots(Slots)`
   - methods: header_init, b001_init, perform_operation
@@ -535,6 +539,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
   - methods: header_init, prepare_operation, perform_operation
+
+### `slots/tools/naming.py` — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
+- `class NamingSlots(Slots)`
+  - methods: logger, header_init, scope, dry_run, file_scope, base_names, valid_suffixes, txt000_init, txt000, txt001_init, txt001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003
 
 ### `slots/tools/shader_templates.py` — Shader Templates: save a material's shader network as a reusable template
 - `class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`

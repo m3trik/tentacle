@@ -3945,7 +3945,7 @@
               "qualname": "SceneSlots.b005",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by",
+              "summary": "Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /",
               "line": 700,
               "deprecated": false
             },
@@ -5969,7 +5969,7 @@
               "qualname": "DeformationSlots.tb001",
               "kind": "method",
               "signature": "(self, widget)",
-              "summary": "Curtain Generator — open the mayatk Curtain tool.",
+              "summary": "Curtain Generator — open the shared Curtain tool.",
               "line": 24,
               "deprecated": false
             }
@@ -11174,6 +11174,69 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/curtain.py",
+      "summary": "Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a",
+      "functions": [],
+      "classes": [
+        {
+          "name": "CurtainSlots",
+          "summary": "",
+          "line": 19,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "CurtainSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text (the preset combo lives in the panel).",
+              "line": 86,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "CurtainSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Wire the in-panel preset selector: the host's shipped presets under",
+              "line": 140,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "CurtainSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
+              "line": 302,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "CurtainSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Get: set Position to the bounding-box center of the selection.",
+              "line": 307,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "CurtainSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Build the curtain from the resolved rail (the Preview's entry point;",
+              "line": 329,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/curve_to_tube.py",
       "summary": "Curve to Tube: sweep a circular profile along the selected curves into a",
       "functions": [],
@@ -12448,6 +12511,195 @@
               "signature": "(self, objects, contract=None)",
               "summary": "Mirror *objects* (Maya's Preview passes its cleanup *contract*).",
               "line": 179,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/naming.py",
+      "summary": "Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /",
+      "functions": [],
+      "classes": [
+        {
+          "name": "NamingSlots",
+          "summary": "",
+          "line": 32,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "logger",
+              "qualname": "NamingSlots.logger",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host engine's logger (``Naming.logger``): what the operations",
+              "line": 138,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "NamingSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header menu with tool description and workflow instructions.",
+              "line": 151,
+              "deprecated": false
+            },
+            {
+              "name": "scope",
+              "qualname": "NamingSlots.scope",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "",
+              "line": 277,
+              "deprecated": false
+            },
+            {
+              "name": "dry_run",
+              "qualname": "NamingSlots.dry_run",
+              "kind": "property",
+              "signature": "(self) -> bool",
+              "summary": "",
+              "line": 281,
+              "deprecated": false
+            },
+            {
+              "name": "file_scope",
+              "qualname": "NamingSlots.file_scope",
+              "kind": "property",
+              "signature": "(self) -> bool",
+              "summary": "",
+              "line": 285,
+              "deprecated": false
+            },
+            {
+              "name": "base_names",
+              "qualname": "NamingSlots.base_names",
+              "kind": "property",
+              "signature": "(self) -> bool",
+              "summary": "Operate on map-suffix-free base names — file scopes only.",
+              "line": 289,
+              "deprecated": false
+            },
+            {
+              "name": "valid_suffixes",
+              "qualname": "NamingSlots.valid_suffixes",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The current Suffix By Type strings (non-empty), from the tb003 option box.",
+              "line": 488,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "NamingSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Find",
+              "line": 502,
+              "deprecated": false
+            },
+            {
+              "name": "txt000",
+              "qualname": "NamingSlots.txt000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Find: select scene objects (or browse for files) whose name matches the pattern.",
+              "line": 558,
+              "deprecated": false
+            },
+            {
+              "name": "txt001_init",
+              "qualname": "NamingSlots.txt001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Rename",
+              "line": 622,
+              "deprecated": false
+            },
+            {
+              "name": "txt001",
+              "qualname": "NamingSlots.txt001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Rename: rename matched objects or files (find → replace, with regex / suffix options).",
+              "line": 681,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "NamingSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Convert Case",
+              "line": 727,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "NamingSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Convert Case",
+              "line": 737,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "NamingSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Suffix By Location",
+              "line": 754,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "NamingSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Suffix By Location: number the objects in scope by their distance from",
+              "line": 798,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "NamingSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Strip Chars",
+              "line": 833,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "NamingSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Strip Chars: remove a number of leading/trailing characters from the names in scope.",
+              "line": 851,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "NamingSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Suffix By Type — the editor for the shared naming convention.",
+              "line": 910,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "NamingSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Suffix By Type",
+              "line": 947,
               "deprecated": false
             }
           ]

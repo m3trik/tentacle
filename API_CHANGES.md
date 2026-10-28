@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (357)
+## Added (383)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -131,6 +131,12 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/color_id.py::ColorIdSlots.header_init(self, widget)`
 - `slots/tools/color_id.py::ColorIdSlots.selected_button(self)`
 - `slots/tools/color_id.py::ColorIdSlots.target_color(self)`
+- `slots/tools/curtain.py::CurtainSlots(class)`
+- `slots/tools/curtain.py::CurtainSlots.b001_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.b002(self)`
+- `slots/tools/curtain.py::CurtainSlots.cmb000_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.header_init(self, widget)`
+- `slots/tools/curtain.py::CurtainSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots(class)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots.b001_init(self, widget)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots.header_init(self, widget)`
@@ -258,6 +264,26 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/mirror.py::MirrorSlots.prepare_operation(self, objects)`
+- `slots/tools/naming.py::NamingSlots(class)`
+- `slots/tools/naming.py::NamingSlots.base_names(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.dry_run(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.file_scope(self) -> bool`
+- `slots/tools/naming.py::NamingSlots.header_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.logger(self)`
+- `slots/tools/naming.py::NamingSlots.scope(self) -> str`
+- `slots/tools/naming.py::NamingSlots.tb000(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb000_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb001(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb001_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb002(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb002_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb003(self, widget)`
+- `slots/tools/naming.py::NamingSlots.tb003_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt000(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt000_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt001(self, widget)`
+- `slots/tools/naming.py::NamingSlots.txt001_init(self, widget)`
+- `slots/tools/naming.py::NamingSlots.valid_suffixes(self)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots(class)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b000(self)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b001(self)`

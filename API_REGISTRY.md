@@ -130,6 +130,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - [`slots/tools/color_id.py`](#slots--tools--color_id) — Color ID: color-code objects across channels from a swatch palette.
+- [`slots/tools/curtain.py`](#slots--tools--curtain) — Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
 - [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
 - [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
 - [`slots/tools/duplicate_grid.py`](#slots--tools--duplicate_grid) — Duplicate Grid: copies of the selection in a 3D grid.
@@ -145,6 +146,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
+- [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
@@ -760,7 +762,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b001(self)` — Reference Manager (library links — File ▸ Link manager panel).
   - `SceneSlots.b010(self)` — Maya Bridge — send the selection to a fresh Maya (btk.MayaBridge).
   - `SceneSlots.b016(self)` — Unity Bridge — send the selection to a Unity project's Assets/ (btk.UnityBridge).
-  - `SceneSlots.b005(self)` — Naming — open the panel (Find / Rename / Convert Case / Strip Chars / Suffix by
+  - `SceneSlots.b005(self)` — Naming — open the shared Naming tool (Find / Rename / Convert Case / Strip Chars /
   - `SceneSlots.b008(self)` — Export Selection (FBX, selected objects only).
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
@@ -1039,7 +1041,7 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class DeformationSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deformation.py#L6)** — Slots for the Deformation panel (``deformation.ui``).
   - `DeformationSlots.tb001_init(self, widget)` — Init Curtain Generator launcher.
-  - `DeformationSlots.tb001(self, widget)` — Curtain Generator — open the mayatk Curtain tool.
+  - `DeformationSlots.tb001(self, widget)` — Curtain Generator — open the shared Curtain tool.
 
 <a id="slots--maya--display"></a>
 ### `slots/maya/display.py`
@@ -1858,6 +1860,18 @@ Color ID: color-code objects across channels from a swatch palette.
   - `ColorIdSlots.b002(self) -> None` — Select By Color: select the objects carrying the active color on the
   - `ColorIdSlots.b003(self) -> None` — Get Color: read the selected object's color on the enabled channels into
 
+<a id="slots--tools--curtain"></a>
+### `slots/tools/curtain.py`
+
+Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
+
+- **[`class CurtainSlots(Slots)`](tentacle/tentacle/slots/tools/curtain.py#L19)**
+  - `CurtainSlots.header_init(self, widget)` — Configure header help text (the preset combo lives in the panel).
+  - `CurtainSlots.cmb000_init(self, widget)` — Wire the in-panel preset selector: the host's shipped presets under
+  - `CurtainSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `CurtainSlots.b002(self)` — Get: set Position to the bounding-box center of the selection.
+  - `CurtainSlots.perform_operation(self, objects, contract=None)` — Build the curtain from the resolved rail (the Preview's entry point;
+
 <a id="slots--tools--curve_to_tube"></a>
 ### `slots/tools/curve_to_tube.py`
 
@@ -2074,6 +2088,32 @@ Mirror: mirror the selected meshes across an axis, with a live preview.
   - `MirrorSlots.header_init(self, widget)` — Configure header help text.
   - `MirrorSlots.prepare_operation(self, objects)` — Break instance links once, before the preview contract exists.
   - `MirrorSlots.perform_operation(self, objects, contract=None)` — Mirror *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--naming"></a>
+### `slots/tools/naming.py`
+
+Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
+
+- **[`class NamingSlots(Slots)`](tentacle/tentacle/slots/tools/naming.py#L32)**
+  - `NamingSlots.logger(self)` *(property)* — The host engine's logger (``Naming.logger``): what the operations
+  - `NamingSlots.header_init(self, widget)` — Configure header menu with tool description and workflow instructions.
+  - `NamingSlots.scope(self) -> str` *(property)*
+  - `NamingSlots.dry_run(self) -> bool` *(property)*
+  - `NamingSlots.file_scope(self) -> bool` *(property)*
+  - `NamingSlots.base_names(self) -> bool` *(property)* — Operate on map-suffix-free base names — file scopes only.
+  - `NamingSlots.valid_suffixes(self)` *(property)* — The current Suffix By Type strings (non-empty), from the tb003 option box.
+  - `NamingSlots.txt000_init(self, widget)` — Initialize Find
+  - `NamingSlots.txt000(self, widget)` — Find: select scene objects (or browse for files) whose name matches the pattern.
+  - `NamingSlots.txt001_init(self, widget)` — Initialize Rename
+  - `NamingSlots.txt001(self, widget)` — Rename: rename matched objects or files (find → replace, with regex / suffix options).
+  - `NamingSlots.tb000_init(self, widget)` — Initialize Convert Case
+  - `NamingSlots.tb000(self, widget)` — Convert Case
+  - `NamingSlots.tb001_init(self, widget)` — Initialize Suffix By Location
+  - `NamingSlots.tb001(self, widget)` — Suffix By Location: number the objects in scope by their distance from
+  - `NamingSlots.tb002_init(self, widget)` — Initialize Strip Chars
+  - `NamingSlots.tb002(self, widget)` — Strip Chars: remove a number of leading/trailing characters from the names in scope.
+  - `NamingSlots.tb003_init(self, widget)` — Initialize Suffix By Type — the editor for the shared naming convention.
+  - `NamingSlots.tb003(self, widget)` — Suffix By Type
 
 <a id="slots--tools--shader_templates"></a>
 ### `slots/tools/shader_templates.py`

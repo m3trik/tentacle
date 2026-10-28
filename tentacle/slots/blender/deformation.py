@@ -6,9 +6,9 @@ from tentacle import SlotsBlender
 class DeformationSlots(SlotsBlender):
     """Blender port of the shared ``deformation`` menu.
 
-    The single shared widget launches the Curtain Generator panel
-    (``blender_menus/curtain`` — the ``CurtainDrape`` engine vendored in
-    blendertk over a bmesh build, same parameters as the Maya tool).
+    The single shared widget launches the shared Curtain tool
+    (``slots/tools/curtain.py`` over ``btk.Curtain``; a bmesh build, same
+    parameters as the Maya tool).
     """
 
     def __init__(self, *args, **kwargs):
