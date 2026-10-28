@@ -53,11 +53,12 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (1191)
+## Added (1192)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
 - `slots/_slots.py::Slots.require_selection(self, message=None)`
+- `slots/_slots.py::Slots.run_operation(self, call, *args, empty=None, **kwargs)`
 - `slots/_slots.py::Slots.tk(self)`
 - `slots/cameras.py::CamerasSlots(class)`
 - `slots/cameras.py::CamerasSlots.b000(self)`

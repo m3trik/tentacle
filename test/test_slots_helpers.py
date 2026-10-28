@@ -2,7 +2,7 @@
 # coding=utf-8
 """Tests for the host-free helpers on tentacle's shared ``Slots`` base.
 
-``require_selection`` and ``activate_tool`` reach the host only through
+``require_selection``, ``activate_tool`` and ``run_operation`` reach the host only through
 ``self.tk``: a fake toolkit stands in for it here and records the calls (plain
 unittest, no DCC). What the toolkit answers -- ``CoreUtils.selected_objects``,
 ``UiUtils.set_tool`` -- is tested in mayatk and blendertk.
@@ -67,6 +67,36 @@ class TestActivateTool(_SlotsCase):
         with self.assertRaises(TypeError):
             self.slots.activate_tool("Multi-Cut")
         self.sb.message_box.assert_not_called()
+
+
+
+class TestRunOperation(_SlotsCase):
+    """A host operation called and reported: its refusal, its empty answer, its result."""
+
+    def test_the_result_is_returned_and_nothing_said(self):
+        op = mock.Mock(return_value=["pCube1"])
+        self.assertEqual(self.slots.run_operation(op, None, cuts=2, empty="Nothing."), ["pCube1"])
+        op.assert_called_once_with(None, cuts=2)
+        self.sb.message_box.assert_not_called()
+
+    def test_an_empty_answer_says_the_callers_message(self):
+        self.assertEqual(self.slots.run_operation(mock.Mock(return_value=[]), empty="Select faces."), [])
+        self.sb.message_box.assert_called_once_with("Select faces.")
+
+    def test_an_empty_answer_with_no_message_is_silent(self):
+        self.slots.run_operation(mock.Mock(return_value=[]))
+        self.sb.message_box.assert_not_called()
+
+    def test_a_refusal_shows_the_hosts_reason_and_returns_none(self):
+        for error in (ValueError("Select two vertices."), RuntimeError("Maya refused.")):
+            with self.subTest(error=type(error).__name__):
+                self.sb.message_box.reset_mock()
+                self.assertIsNone(self.slots.run_operation(mock.Mock(side_effect=error)))
+                self.sb.message_box.assert_called_once_with(str(error))
+
+    def test_any_other_error_is_not_swallowed(self):
+        with self.assertRaises(TypeError):
+            self.slots.run_operation(mock.Mock(side_effect=TypeError("a bug")))
 
 
 if __name__ == "__main__":

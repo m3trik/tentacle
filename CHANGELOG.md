@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- `Slots.run_operation(call, *args, empty=None, **kwargs)` (`slots/_slots.py`).** Calls a host operation and reports it: a `ValueError` / `RuntimeError` as the host words it, *empty* when the operation found nothing to act on; the composed categories share it.
+  - Test(s): `test_slots_helpers.py` (`TestRunOperation`).
 - **2026-10-28 -- Display, Duplicate, Lighting and HUD are one Slots class each for both hosts (`slots/display.py`, `duplicate.py`, `lighting.py`, `hud.py`; their forks and `_display` / `_duplicate` / `_lighting` / `_hud_warnings` mixins removed, `MOVED_NAMES`).** A row or option one host lacks carries a `requires` tag. Blender: Show All is now Show Geometry (meshes, their parents and collections); the Lighting Offset is in centimetres (a saved metre value reads as centimetres) and lights aim at the scene's centre with specular off, as in Maya; the HUD can show "New release available". Maya: a Shaded Selected row; Auto Instance is one undo step.
   - Test(s): `test_display.py`, `test_duplicate.py`, `test_lighting.py`, `test_hud_warnings.py`; `test/blender/duplicate_check.py`, `hud_slot_check.py`, `deepened_slots_check.py`.
 - **2026-10-28 -- Crease, Deformation, Symmetry, Utilities and Cameras are one Slots class each for both hosts (`slots/crease.py`, `deformation.py`, `symmetry.py`, `utilities.py`, `cameras.py`; the `slots/maya` and `slots/blender` forks removed).** Every host call goes through `self.tk`. Maya: Crease honors its Set Smoothing Angle box and reports an empty selection; the symmetry boxes follow Maya's live state (axes disabled under Topo); Roll arms Maya's Roll Tool; Measure confirms. Blender: Create Camera and Pencil leave Edit Mode first; Look Through redraws.

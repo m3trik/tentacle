@@ -53,7 +53,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: tk, mirror_app_state, require_selection, activate_tool, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
+  - methods: tk, mirror_app_state, require_selection, activate_tool, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/_transform.py` — Behavior shared by the Maya and Blender ``transform`` panels.
 - `class TransformMixin`

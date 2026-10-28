@@ -163,6 +163,30 @@ class Slots(QtCore.QObject):
         self.sb.message_box(f"<hl>{tool}</hl> tool active.")
         return True
 
+    def run_operation(self, call, *args, empty=None, **kwargs):
+        """Call a host operation and report it: a refusal (``ValueError`` for a
+        state the user can fix, ``RuntimeError`` for the host's own) as the host
+        words it, and *empty* when the operation found nothing to act on -- the
+        ``[]`` an operation given ``None`` for the selection returns (see
+        :meth:`require_selection`).
+
+        Parameters:
+            call (callable): The operation (``self.tk.Components.poke_faces``).
+            *args, **kwargs: Its arguments.
+            empty (str, optional): HTML shown when it returns ``[]``.
+
+        Returns:
+            The operation's result, or None after a refusal.
+        """
+        try:
+            result = call(*args, **kwargs)
+        except (ValueError, RuntimeError) as error:
+            self.sb.message_box(str(error))
+            return None
+        if empty and isinstance(result, list) and not result:
+            self.sb.message_box(empty)
+        return result
+
     def add_slot_widget(self, sublist, widget_class=None, **kwargs):
         """Add a slot-wired widget as an ExpandableList sublist entry.
 

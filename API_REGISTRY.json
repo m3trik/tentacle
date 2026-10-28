@@ -799,12 +799,21 @@
               "deprecated": false
             },
             {
+              "name": "run_operation",
+              "qualname": "Slots.run_operation",
+              "kind": "method",
+              "signature": "(self, call, *args, empty=None, **kwargs)",
+              "summary": "Call a host operation and report it: a refusal (``ValueError`` for a",
+              "line": 166,
+              "deprecated": false
+            },
+            {
               "name": "add_slot_widget",
               "qualname": "Slots.add_slot_widget",
               "kind": "method",
               "signature": "(self, sublist, widget_class=None, **kwargs)",
               "summary": "Add a slot-wired widget as an ExpandableList sublist entry.",
-              "line": 166,
+              "line": 190,
               "deprecated": false
             },
             {
@@ -813,7 +822,7 @@
               "kind": "method",
               "signature": "(self, widget, resolve_spec) -> bool",
               "summary": "Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.",
-              "line": 251,
+              "line": 275,
               "deprecated": false
             },
             {
@@ -822,7 +831,7 @@
               "kind": "method",
               "signature": "(self) -> int",
               "summary": "Re-probe every gated app and re-present its widgets.",
-              "line": 297,
+              "line": 321,
               "deprecated": false
             },
             {
@@ -831,7 +840,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle between the last two viewport-camera views in slot history.",
-              "line": 319,
+              "line": 343,
               "deprecated": false
             },
             {
@@ -840,7 +849,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Wire :meth:`toggle_camera_view` to its triggers.",
-              "line": 350,
+              "line": 374,
               "deprecated": false
             }
           ]

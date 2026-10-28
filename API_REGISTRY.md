@@ -362,6 +362,7 @@ Shared, DCC-agnostic behavior for the ``settings`` panel.
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
   - `Slots.require_selection(self, message=None)` — The selection, or ``None`` -- after a message box -- when it is empty.
   - `Slots.activate_tool(self, tool) -> bool` — Activate a viewport tool through the host toolkit and confirm it, or say
+  - `Slots.run_operation(self, call, *args, empty=None, **kwargs)` — Call a host operation and report it: a refusal (``ValueError`` for a
   - `Slots.add_slot_widget(self, sublist, widget_class=None, **kwargs)` — Add a slot-wired widget as an ExpandableList sublist entry.
   - `Slots.gate_on_app(self, widget, resolve_spec) -> bool` — Gate *widget* on the :class:`pythontk.AppSpec` *resolve_spec* returns.
   - `Slots.recheck_app_gates(self) -> int` — Re-probe every gated app and re-present its widgets.
