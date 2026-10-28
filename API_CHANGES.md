@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (158)
+## Added (175)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -103,6 +103,10 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/calculator.py::CalculatorSlots.on_equal(self)`
 - `slots/tools/calculator.py::CalculatorSlots.on_input(self, text)`
 - `slots/tools/calculator.py::CalculatorSlots.sec_to_frames(self)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots(class)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.b001_init(self, widget)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.header_init(self, widget)`
+- `slots/tools/curve_to_tube.py::CurveToTubeSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots(class)`
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots.header_init(self, widget)`
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots.perform_operation(self, objects, contract=None)`
@@ -152,6 +156,19 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b002(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b003(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.header_init(self, widget)`
+- `slots/tools/image_tracer.py::ImageTracerSlots(class)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b002(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b003(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b004(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.b005(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.blue_pencil_button(self)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.chk000(self, state)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.header_init(self, widget)`
+- `slots/tools/image_tracer.py::ImageTracerSlots.txt000_init(self, widget)`
+- `slots/tools/mirror.py::MirrorSlots(class)`
+- `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
+- `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/mirror.py::MirrorSlots.prepare_operation(self, objects)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots(class)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b002(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b003(self)`

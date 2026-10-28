@@ -114,7 +114,7 @@ try:
     # Most tool-panel Slots still live co-located in blendertk (next to their engine + .ui),
     # discovered by BlenderUiHandler; a moved tool's one Slots class is tentacle's
     # (slots/tools/), shared with Maya, and reaches Blender through sb.tk (make_slot sets it).
-    from blendertk.edit_utils.mirror import MirrorSlots
+    from tentacle.slots.tools.mirror import MirrorSlots
     from tentacle.slots.tools.cut_on_axis import CutOnAxisSlots
     from tentacle.slots.tools.duplicate_linear import DuplicateLinearSlots
     from tentacle.slots.tools.duplicate_radial import DuplicateRadialSlots

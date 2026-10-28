@@ -22,6 +22,7 @@ from tentacle.slots.tools.duplicate_grid import DuplicateGridSlots
 from tentacle.slots.tools.duplicate_linear import DuplicateLinearSlots
 from tentacle.slots.tools.dynamic_pipe import DynamicPipeSlots
 from tentacle.slots.tools.exploded_view import ExplodedViewSlots
+from tentacle.slots.tools.mirror import MirrorSlots
 from tentacle.slots.tools.snap import SnapSlots
 
 
@@ -203,6 +204,66 @@ class TestCutOnAxisPanel(_PanelCase):
         """polyCut on a historyless mesh holds the only pristine copy in an
         intermediate shape: without the snapshot, cuts stack on every refresh."""
         self.assertTrue(getattr(CutOnAxisSlots, "PRESERVE_GEOMETRY", False))
+
+
+class TestMirrorPanel(_PanelCase):
+    def test_resolve_pivot(self):
+        """The combo's index names the pivot; the bounding-box border (4) takes
+        the axis sign: +axis the max face, -axis the min."""
+        resolve = MirrorSlots._resolve_pivot
+        for index, pivot in ((0, "manip"), (1, "object"), (2, "world"), (3, "center")):
+            self.assertEqual(resolve(index, "x"), pivot)
+        for axis, face in (("x", "xmax"), ("-x", "xmin"), ("y", "ymax"), ("-y", "ymin")):
+            self.assertEqual(resolve(4, axis), face)
+        self.assertEqual(resolve(4, "-z"), "zmin")
+        self.assertEqual(resolve(4, "bogus"), "xmax")
+        self.assertEqual(resolve(99, "x"), "manip")
+
+    def test_the_axis_sign_matters_only_for_the_bounding_box_pivots(self):
+        relevant = MirrorSlots._axis_sign_relevant
+        self.assertEqual([relevant(i) for i in range(5)], [False] * 3 + [True] * 2)
+
+    def test_disables_the_merge_modes_the_host_lacks(self):
+        sb = mock.MagicMock()
+        sb.tk.EditUtils.MIRROR_MERGE_MODES = (-1, 0, 1)  # Blender's: no Extrude
+        ui = sb.loaded_ui.mirror
+        ui.cmb001.count.return_value = 4
+        MirrorSlots(sb)
+        ui.cmb001.model().item.assert_called_once_with(3)
+
+    def test_the_operation_reads_the_panel_into_the_host_engine(self):
+        values = {"cmb000": 2, "cmb001": 2, "chk006": True, "chk007": False}
+        slots, sb = _panel(MirrorSlots, "mirror", values)
+        sb.get_axis_from_checkboxes.return_value = "x"
+        slots.perform_operation(["cube"], None)
+        slots.perform_operation(["cube"])
+        sb.tk.EditUtils.mirror.assert_called_with(
+            ["cube"], axis="x", pivot="world", mergeMode=1, delete_original=True
+        )
+
+    def test_the_center_pivot_symmetrizes_and_instance_refuses_it(self):
+        slots, sb = _panel(MirrorSlots, "mirror", {"cmb000": 3, "chk007": False})
+        sb.get_axis_from_checkboxes.return_value = "-y"
+        slots.perform_operation(["cube"])
+        sb.tk.NodeUtils.uninstance.assert_called_once_with(["cube"])
+        kwargs = sb.tk.EditUtils.cut_along_axis.call_args.kwargs
+        self.assertEqual(
+            (kwargs["axis"], kwargs["invert"], kwargs["delete"], kwargs["mirror"]),
+            ("-y", True, True, True),
+        )
+        sb.loaded_ui.mirror.chk007.isChecked.return_value = True
+        with self.assertRaisesRegex(ValueError, "can't symmetrize"):
+            slots.perform_operation(["cube"])
+
+    def test_no_axis_is_a_fixable_error(self):
+        slots, sb = _panel(MirrorSlots, "mirror")
+        sb.get_axis_from_checkboxes.return_value = "-"
+        with self.assertRaisesRegex(ValueError, "Select an axis"):
+            slots.perform_operation(["cube"])
+        sb.tk.EditUtils.mirror.assert_not_called()
+
+    def test_mutates_selection_for_the_preview(self):
+        self.assertTrue(getattr(MirrorSlots, "MUTATES_SELECTION", False))
 
 
 class TestExplodedViewPanel(_PanelCase):

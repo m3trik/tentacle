@@ -463,6 +463,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class CalculatorSlots(Slots)`
   - methods: header_init, on_input, on_clear, on_backspace, on_equal, on_convert_units, get_fps, get_current_time, frames_to_sec, sec_to_frames
 
+### `slots/tools/curve_to_tube.py` — Curve to Tube: sweep a circular profile along the selected curves into a
+- `class CurveToTubeSlots(Slots)`
+  - methods: header_init, b001_init, perform_operation
+
 ### `slots/tools/cut_on_axis.py` — Cut On Axis: slice the selected meshes along an axis, then optionally delete
 - `class CutOnAxisSlots(Slots)`
   - methods: header_init, toggle_weight_ui, perform_operation
@@ -491,6 +495,14 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/exploded_view.py` — Exploded View: spread the selected objects apart to inspect interior parts.
 - `class ExplodedViewSlots(Slots)`
   - methods: header_init, b000, b001, b002, b003
+
+### `slots/tools/image_tracer.py` — Image Tracer: trace a raster image's contours into curves, then fill them
+- `class ImageTracerSlots(Slots)`
+  - methods: header_init, txt000_init, chk000, blue_pencil_button, b002, b003, b004, b005
+
+### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
+- `class MirrorSlots(Slots)`
+  - methods: header_init, prepare_operation, perform_operation
 
 ### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - `class ShotManifestSlots(Slots)`

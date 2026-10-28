@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>200</width>
+    <height>196</height>
+   </rect>
+  </property>
+  <property name="accessibleDescription">
+   <string>Trace an image's contours into curves, then fill them into meshes.</string>
+  </property>
+  <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
+    <item>
+     <widget class="Header" name="header">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>IMAGE TRACER</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="LineEdit" name="txt000">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="placeholderText">
+       <string>Image Path...</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDoubleSpinBox" name="s000">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="prefix">
+       <string>Scale:	</string>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="value">
+       <double>0.100000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDoubleSpinBox" name="s001">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="prefix">
+       <string>Simplify:	</string>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="value">
+       <double>1.000000000000000</double>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="b002">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Trace Curves</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="b003">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Create Mesh</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="b004">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Create Negative Space</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="b005">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Project on Plane</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>10</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="Footer" name="footer" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.lineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

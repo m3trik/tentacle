@@ -10894,6 +10894,51 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/curve_to_tube.py",
+      "summary": "Curve to Tube: sweep a circular profile along the selected curves into a",
+      "functions": [],
+      "classes": [
+        {
+          "name": "CurveToTubeSlots",
+          "summary": "",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "CurveToTubeSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 69,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "CurveToTubeSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
+              "line": 111,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "CurveToTubeSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Build the tube(s) along *objects* (Maya's Preview passes its cleanup",
+              "line": 116,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/cut_on_axis.py",
       "summary": "Cut On Axis: slice the selected meshes along an axis, then optionally delete",
       "functions": [],
@@ -11391,6 +11436,141 @@
               "signature": "(self)",
               "summary": "Toggle Explode.",
               "line": 59,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/image_tracer.py",
+      "summary": "Image Tracer: trace a raster image's contours into curves, then fill them",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ImageTracerSlots",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ImageTracerSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the header widget.",
+              "line": 40,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "ImageTracerSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure the path field's option box (▸) as an image file browser.",
+              "line": 80,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "ImageTracerSlots.chk000",
+              "kind": "method",
+              "signature": "(self, state)",
+              "summary": "Use Blue Pencil: no image path while it is on.",
+              "line": 88,
+              "deprecated": false
+            },
+            {
+              "name": "blue_pencil_button",
+              "qualname": "ImageTracerSlots.blue_pencil_button",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open Blue Pencil: the host's Blue Pencil tool (disabled where none).",
+              "line": 92,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "ImageTracerSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trace the source image into curves.",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "ImageTracerSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Build a mesh from the traced curves.",
+              "line": 141,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "ImageTracerSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Build a mesh from the traced negative space.",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "ImageTracerSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Project the traced result onto a plane.",
+              "line": 151,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/mirror.py",
+      "summary": "Mirror: mirror the selected meshes across an axis, with a live preview.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MirrorSlots",
+          "summary": "",
+          "line": 13,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "MirrorSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "prepare_operation",
+              "qualname": "MirrorSlots.prepare_operation",
+              "kind": "method",
+              "signature": "(self, objects)",
+              "summary": "Break instance links once, before the preview contract exists.",
+              "line": 163,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "MirrorSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Mirror *objects* (Maya's Preview passes its cleanup *contract*).",
+              "line": 179,
               "deprecated": false
             }
           ]

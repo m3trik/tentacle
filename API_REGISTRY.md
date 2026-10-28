@@ -127,6 +127,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
+- [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
 - [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
 - [`slots/tools/duplicate_grid.py`](#slots--tools--duplicate_grid) — Duplicate Grid: copies of the selection in a 3D grid.
 - [`slots/tools/duplicate_linear.py`](#slots--tools--duplicate_linear) — Duplicate Linear: copies of the selection along a line, each interpolating
@@ -134,6 +135,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/dynamic_pipe.py`](#slots--tools--dynamic_pipe) — Dynamic Pipe: a pipe mesh that follows a chain of handles live.
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
+- [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
+- [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
@@ -1795,6 +1798,16 @@ Calculator: expressions, length units, and the scene's frame-rate helpers.
   - `CalculatorSlots.frames_to_sec(self)`
   - `CalculatorSlots.sec_to_frames(self)`
 
+<a id="slots--tools--curve_to_tube"></a>
+### `slots/tools/curve_to_tube.py`
+
+Curve to Tube: sweep a circular profile along the selected curves into a
+
+- **[`class CurveToTubeSlots(Slots)`](tentacle/tentacle/slots/tools/curve_to_tube.py#L15)**
+  - `CurveToTubeSlots.header_init(self, widget)` — Configure header help text.
+  - `CurveToTubeSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `CurveToTubeSlots.perform_operation(self, objects, contract=None)` — Build the tube(s) along *objects* (Maya's Preview passes its cleanup
+
 <a id="slots--tools--cut_on_axis"></a>
 ### `slots/tools/cut_on_axis.py`
 
@@ -1885,6 +1898,31 @@ Exploded View: spread the selected objects apart to inspect interior parts.
   - `ExplodedViewSlots.b001(self)` — Un-Explode (selected).
   - `ExplodedViewSlots.b002(self)` — Un-Explode All.
   - `ExplodedViewSlots.b003(self)` — Toggle Explode.
+
+<a id="slots--tools--image_tracer"></a>
+### `slots/tools/image_tracer.py`
+
+Image Tracer: trace a raster image's contours into curves, then fill them
+
+- **[`class ImageTracerSlots(Slots)`](tentacle/tentacle/slots/tools/image_tracer.py#L14)**
+  - `ImageTracerSlots.header_init(self, widget)` — Initialize the header widget.
+  - `ImageTracerSlots.txt000_init(self, widget)` — Configure the path field's option box (▸) as an image file browser.
+  - `ImageTracerSlots.chk000(self, state)` — Use Blue Pencil: no image path while it is on.
+  - `ImageTracerSlots.blue_pencil_button(self)` — Open Blue Pencil: the host's Blue Pencil tool (disabled where none).
+  - `ImageTracerSlots.b002(self)` — Trace the source image into curves.
+  - `ImageTracerSlots.b003(self)` — Build a mesh from the traced curves.
+  - `ImageTracerSlots.b004(self)` — Build a mesh from the traced negative space.
+  - `ImageTracerSlots.b005(self)` — Project the traced result onto a plane.
+
+<a id="slots--tools--mirror"></a>
+### `slots/tools/mirror.py`
+
+Mirror: mirror the selected meshes across an axis, with a live preview.
+
+- **[`class MirrorSlots(Slots)`](tentacle/tentacle/slots/tools/mirror.py#L13)**
+  - `MirrorSlots.header_init(self, widget)` — Configure header help text.
+  - `MirrorSlots.prepare_operation(self, objects)` — Break instance links once, before the preview contract exists.
+  - `MirrorSlots.perform_operation(self, objects, contract=None)` — Mirror *objects* (Maya's Preview passes its cleanup *contract*).
 
 <a id="slots--tools--shot_manifest"></a>
 ### `slots/tools/shot_manifest.py`
