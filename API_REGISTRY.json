@@ -12654,6 +12654,322 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/lightmap_baker.py",
+      "summary": "Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LightmapBakerSlots",
+          "summary": "The Lightmap Baker panel.",
+          "line": 23,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "LightmapBakerSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Configure the header and its help text.",
+              "line": 381,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "LightmapBakerSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Wire the Preset combo: uitk's preset template over the shared store.",
+              "line": 455,
+              "deprecated": false
+            },
+            {
+              "name": "btn_reset_defaults_init",
+              "qualname": "LightmapBakerSlots.btn_reset_defaults_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Wire Reset to Defaults to uitk's shared reset grammar.",
+              "line": 503,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "LightmapBakerSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the Packing combobox (Atlas by Material is the default) and",
+              "line": 707,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_scope_init",
+              "qualname": "LightmapBakerSlots.cmb_scope_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the Scope combobox (Selected is the default) and hang the",
+              "line": 751,
+              "deprecated": false
+            },
+            {
+              "name": "set_exclusions_init",
+              "qualname": "LightmapBakerSlots.set_exclusions_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Hang Select / Clear off the Exclude row (:meth:`_init_set_row`).",
+              "line": 940,
+              "deprecated": false
+            },
+            {
+              "name": "set_exclusions",
+              "qualname": "LightmapBakerSlots.set_exclusions",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Make the selection the Exclude set;",
+              "line": 944,
+              "deprecated": false
+            },
+            {
+              "name": "select_exclusions",
+              "qualname": "LightmapBakerSlots.select_exclusions",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select the Exclude set's members (:meth:`_select_set_row`).",
+              "line": 948,
+              "deprecated": false
+            },
+            {
+              "name": "clear_exclusions",
+              "qualname": "LightmapBakerSlots.clear_exclusions",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove the Exclude set;",
+              "line": 952,
+              "deprecated": false
+            },
+            {
+              "name": "set_isolation_init",
+              "qualname": "LightmapBakerSlots.set_isolation_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Hang Select / Clear off the Isolate row (:meth:`_init_set_row`).",
+              "line": 957,
+              "deprecated": false
+            },
+            {
+              "name": "set_isolation",
+              "qualname": "LightmapBakerSlots.set_isolation",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Make the selection the Isolate set;",
+              "line": 961,
+              "deprecated": false
+            },
+            {
+              "name": "select_isolation",
+              "qualname": "LightmapBakerSlots.select_isolation",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select the Isolate set's members (:meth:`_select_set_row`).",
+              "line": 965,
+              "deprecated": false
+            },
+            {
+              "name": "clear_isolation",
+              "qualname": "LightmapBakerSlots.clear_isolation",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove the Isolate set;",
+              "line": 969,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_resolution_init",
+              "qualname": "LightmapBakerSlots.cmb_resolution_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the Resolution combobox (value carried as item data,",
+              "line": 977,
+              "deprecated": false
+            },
+            {
+              "name": "spn_samples_init",
+              "qualname": "LightmapBakerSlots.spn_samples_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Range and seed the Samples field in the host's units, and hang the",
+              "line": 1012,
+              "deprecated": false
+            },
+            {
+              "name": "spn_gi_samples_init",
+              "qualname": "LightmapBakerSlots.spn_gi_samples_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Seed GI Samples from the default tier, or hide it where the host's",
+              "line": 1043,
+              "deprecated": false
+            },
+            {
+              "name": "spn_bounces_init",
+              "qualname": "LightmapBakerSlots.spn_bounces_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Seed Bounces from the default tier, under the host engine's key for",
+              "line": 1052,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_device_init",
+              "qualname": "LightmapBakerSlots.cmb_device_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the Processor combobox (value carried as item data);",
+              "line": 1059,
+              "deprecated": false
+            },
+            {
+              "name": "txt_output_dir_init",
+              "qualname": "LightmapBakerSlots.txt_output_dir_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Add the folder browser and the Beside Material Textures toggle.",
+              "line": 1094,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "LightmapBakerSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Add the Prefix / Suffix / Auto picker to the name-affix field.",
+              "line": 1208,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "LightmapBakerSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "The Bake page's run button: bake the Scope minus the Exclude set",
+              "line": 1235,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_page_init",
+              "qualname": "LightmapBakerSlots.cmb_page_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Populate the page picker (Bake first);",
+              "line": 1454,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_page",
+              "qualname": "LightmapBakerSlots.cmb_page",
+              "kind": "method",
+              "signature": "(self, index) -> None",
+              "summary": "Show the picked page (:meth:`_refresh_page`).",
+              "line": 1470,
+              "deprecated": false
+            },
+            {
+              "name": "tbl_maps_init",
+              "qualname": "LightmapBakerSlots.tbl_maps_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The Manage table: one row per map the scene reads",
+              "line": 1494,
+              "deprecated": false
+            },
+            {
+              "name": "select_by_state",
+              "qualname": "LightmapBakerSlots.select_by_state",
+              "kind": "method",
+              "signature": "(self, kind: str) -> None",
+              "summary": "The footer's **Select**: highlight the maps in *kind*'s state on",
+              "line": 1693,
+              "deprecated": false
+            },
+            {
+              "name": "open_map_folder",
+              "qualname": "LightmapBakerSlots.open_map_folder",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Open the highlighted map's folder in the file manager: its home,",
+              "line": 1751,
+              "deprecated": false
+            },
+            {
+              "name": "combine_selected",
+              "qualname": "LightmapBakerSlots.combine_selected",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Pack the highlighted split maps' groups into one atlas each, no",
+              "line": 1766,
+              "deprecated": false
+            },
+            {
+              "name": "fix_all",
+              "qualname": "LightmapBakerSlots.fix_all",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "The footer's **Fix All**: every map that needs it, once confirmed",
+              "line": 1844,
+              "deprecated": false
+            },
+            {
+              "name": "track_selected",
+              "qualname": "LightmapBakerSlots.track_selected",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Start tracking the selected untracked objects as they stand",
+              "line": 1966,
+              "deprecated": false
+            },
+            {
+              "name": "revert_selected",
+              "qualname": "LightmapBakerSlots.revert_selected",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Take the lightmaps off the selected objects, once confirmed.",
+              "line": 1990,
+              "deprecated": false
+            },
+            {
+              "name": "rebake_selected",
+              "qualname": "LightmapBakerSlots.rebake_selected",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Re-bake the selected baked objects the way each was baked, changed",
+              "line": 2040,
+              "deprecated": false
+            },
+            {
+              "name": "show_bake_state",
+              "qualname": "LightmapBakerSlots.show_bake_state",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Show the scene's bake state, map by map, in a viewer",
+              "line": 2076,
+              "deprecated": false
+            },
+            {
+              "name": "open_output",
+              "qualname": "LightmapBakerSlots.open_output",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Open the bake's output folder in the file manager.",
+              "line": 2148,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/mat_updater.py",
       "summary": "Material Updater: rework scene materials for a target workflow preset,",
       "functions": [],

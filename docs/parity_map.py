@@ -159,44 +159,6 @@ CONTROLS = {
         },
         "hdr_connection_editor": {"status": "na", "reason": "Maya Connection Editor; no Blender analogue"},
     },
-    "lightmap_baker_slots": {  # the panel file stem (lightmap_baker_slots.py)
-        # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
-        # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk
-        # LightmapBaker.pack_atlas now ports mayatk's atlas consolidation — per-primary-material
-        # grouping (obj.material_slots / dominant material_index), area-weighted rects REUSING the
-        # DCC-agnostic pythontk layout math (ptk.ImgUtils.compute_atlas_layout / inset_atlas_rects /
-        # atlas_pixel_rects — all pure-Python, no cv2, the same helpers mayatk uses), one shared EXR
-        # per group assembled via bpy image I/O + a numpy paste/gutter-dilate (Blender's runtime has
-        # no cv2), and a per-object lightmap-UV repack into each rect (so the mesh samples the atlas
-        # via UV2 — engine scaleOffset stays identity, the applied rect rides the marker's uvRect and
-        # is undone by revert_lightmap). The "Atlas by Material" item is enabled (the old
-        # _disable_unsupported_packing_mode removed). Since 2026-08-29 the slot b000 atlas
-        # branch on BOTH sides calls bake_atlas (plan the layout, bake each object at its
-        # footprint) + commit_lightmap(scale_offsets=…); the rect is the engine binding and
-        # the UVs are no longer repacked (a legacy marker's uvRect is still reverted).
-        # Verified end-to-end headlessly (blendertk/test/test_lightmap_baker.py: 2 objects
-        # sharing a material -> 1 shared area-weighted EXR, source maps consolidated, each
-        # object baked at its atlas footprint, revert EXACTLY restores the 0-1 layout).
-        # cmb002 is a QComboBox present+functional on both sides -> no ledger row needed.
-        # Was mis-triaged `na` ("no sourceimages workspace in Blender") until 2026-08-12 --
-        # factually wrong: btk.EnvUtils.source_images_dir() exists and LightmapBakerSlots.
-        # _base_output_dir already resolves the bake default through it. Both panels ship an
-        # Output Directory field and BOTH handlers open the RESOLVED output dir (Maya falls
-        # back to the sourceimages it resolves against), so only the label differs.
-        # open_sourceimages / open_output: the rename entry retired 2026-10-22 -- both twins
-        # name it open_output now, an action on the Output Directory field (the header
-        # menu is gone: its bake operations are the Manage page's).
-        # 2026-09-22 Maya panel additions -- preset template (wire_combo), Exclude row
-        # (set_exclusions / lbl_exclude / add_action), the four option-box switches
-        # (set_toggle), Bounces and Reset to Defaults -- PORTED 2026-09-23 (blendertk
-        # CHANGELOG): same objectNames, same section layout, same _TOGGLES keys. The Exclude
-        # set is a stamped, render-neutral Collection (blendertk mat_utils/bake_sets.py). The
-        # open question the adaptive switch hung on is answered: Cycles bakes DO honor
-        # scene.cycles.use_adaptive_sampling (measured, 2.2x faster at 1024 samples after the
-        # denoise), so Blender has the switch too -- ungated by the processor, since Cycles
-        # samples adaptively on the CPU and the GPU alike.
-        "spn_gi_samples": {"status": "na", "reason": "Arnold's GIDiffuseSamples (and the GPU's adaptive AA x GI ceiling). Cycles is a unified path tracer: since Cycles X (Blender 3.0) removed branched path tracing there is no per-ray-type sample count -- one Samples value covers direct and indirect light, and Blender's spn_samples already is that."},
-    },
     "render_effects_slots": {
         # Render Effects panel (renamed from render_opacity 2026-09-05; redesigned 2026-10-03):
         # an effect picker (cmb_effect) over a stack of code-built pages (stk_effects, uitk
@@ -787,16 +749,6 @@ DEFAULT_DELTAS = {
     },
     "scene": {
         "b010.setText": "Counterpart control: the cross-DCC bridge button is named after its TARGET app — Maya's says 'Blender Bridge' (sends to Blender), Blender's says 'Maya Bridge' (sends to Maya). Same cross-DCC send-pair rule as BlenderBridgeSlots <-> MayaBridgeSlots.",
-    },
-    "lightmap_baker_slots": {
-        "spn_samples.maximum": "Different renderer sample ceilings: Maya spn_samples = Arnold AA samples (max 256, sensible for Arnold); Blender spn_samples = Cycles bake samples (max 4096 — Cycles routinely uses far higher sample counts than Arnold AA). Same 'render sample count' concept, renderer-appropriate range.",
-        "spn_samples.value": "Each panel's .ui dials ARE its own default tier (mobile), since the preset template restores only its selection and never re-applies a preset at open: Arnold mobile = 4 AA samples (GI 2, adaptive up to AA x GI on the GPU, tiles at 2x their cell), Cycles mobile = 1024 paths. Different units, matched on the RESULT: ~1% shadow mottle each on a production floor (2026-10-01) -- Cycles bakes no adaptive sampling, so it needs the paths (blendertk test: the .ui's dial defaults are the default preset's dials).",
-        # spn_bounces.value: no entry -- both .ui files say 4 (mobile), so there is no delta to
-        # accept, and an accepted one would hide a future drift. Both engines count bounces alike:
-        # a grey calibration room agreed with the analytic value to 2% on each side at 0 and 2
-        # bounces (2026-10-01). The old 0.76x Cycles-vs-Arnold gap was the scene crossing (no white
-        # card on the Cycles target; area lights double-scaled and turned 90 degrees), not the
-        # depth. Each tier carries one depth for both: preview 2, mobile 4, desktop 6, hero 8.
     },
 }
 

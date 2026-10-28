@@ -146,6 +146,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
+- [`slots/tools/lightmap_baker.py`](#slots--tools--lightmap_baker) — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
@@ -2106,6 +2107,46 @@ Key Stash: park keys out of the working animation as clips, then preview or
   - `KeyStashSlots.b001(self) -> None` — Retrieve
   - `KeyStashSlots.chk001(self, checked: bool) -> None` — Preview (toggle)
   - `KeyStashSlots.b003(self) -> None` — Drop
+
+<a id="slots--tools--lightmap_baker"></a>
+### `slots/tools/lightmap_baker.py`
+
+Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
+
+- **[`class LightmapBakerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/lightmap_baker.py#L23)** — The Lightmap Baker panel.
+  - `LightmapBakerSlots.header_init(self, widget) -> None` — Configure the header and its help text.
+  - `LightmapBakerSlots.cmb000_init(self, widget) -> None` — Wire the Preset combo: uitk's preset template over the shared store.
+  - `LightmapBakerSlots.btn_reset_defaults_init(self, widget) -> None` — Wire Reset to Defaults to uitk's shared reset grammar.
+  - `LightmapBakerSlots.cmb002_init(self, widget) -> None` — Populate the Packing combobox (Atlas by Material is the default) and
+  - `LightmapBakerSlots.cmb_scope_init(self, widget) -> None` — Populate the Scope combobox (Selected is the default) and hang the
+  - `LightmapBakerSlots.set_exclusions_init(self, widget) -> None` — Hang Select / Clear off the Exclude row (:meth:`_init_set_row`).
+  - `LightmapBakerSlots.set_exclusions(self) -> None` — Make the selection the Exclude set;
+  - `LightmapBakerSlots.select_exclusions(self) -> None` — Select the Exclude set's members (:meth:`_select_set_row`).
+  - `LightmapBakerSlots.clear_exclusions(self) -> None` — Remove the Exclude set;
+  - `LightmapBakerSlots.set_isolation_init(self, widget) -> None` — Hang Select / Clear off the Isolate row (:meth:`_init_set_row`).
+  - `LightmapBakerSlots.set_isolation(self) -> None` — Make the selection the Isolate set;
+  - `LightmapBakerSlots.select_isolation(self) -> None` — Select the Isolate set's members (:meth:`_select_set_row`).
+  - `LightmapBakerSlots.clear_isolation(self) -> None` — Remove the Isolate set;
+  - `LightmapBakerSlots.cmb_resolution_init(self, widget) -> None` — Populate the Resolution combobox (value carried as item data,
+  - `LightmapBakerSlots.spn_samples_init(self, widget) -> None` — Range and seed the Samples field in the host's units, and hang the
+  - `LightmapBakerSlots.spn_gi_samples_init(self, widget) -> None` — Seed GI Samples from the default tier, or hide it where the host's
+  - `LightmapBakerSlots.spn_bounces_init(self, widget) -> None` — Seed Bounces from the default tier, under the host engine's key for
+  - `LightmapBakerSlots.cmb_device_init(self, widget) -> None` — Populate the Processor combobox (value carried as item data);
+  - `LightmapBakerSlots.txt_output_dir_init(self, widget) -> None` — Add the folder browser and the Beside Material Textures toggle.
+  - `LightmapBakerSlots.txt000_init(self, widget) -> None` — Add the Prefix / Suffix / Auto picker to the name-affix field.
+  - `LightmapBakerSlots.b000(self) -> None` — The Bake page's run button: bake the Scope minus the Exclude set
+  - `LightmapBakerSlots.cmb_page_init(self, widget) -> None` — Populate the page picker (Bake first);
+  - `LightmapBakerSlots.cmb_page(self, index) -> None` — Show the picked page (:meth:`_refresh_page`).
+  - `LightmapBakerSlots.tbl_maps_init(self, widget) -> None` — The Manage table: one row per map the scene reads
+  - `LightmapBakerSlots.select_by_state(self, kind: str) -> None` — The footer's **Select**: highlight the maps in *kind*'s state on
+  - `LightmapBakerSlots.open_map_folder(self) -> None` — Open the highlighted map's folder in the file manager: its home,
+  - `LightmapBakerSlots.combine_selected(self) -> None` — Pack the highlighted split maps' groups into one atlas each, no
+  - `LightmapBakerSlots.fix_all(self) -> None` — The footer's **Fix All**: every map that needs it, once confirmed
+  - `LightmapBakerSlots.track_selected(self) -> None` — Start tracking the selected untracked objects as they stand
+  - `LightmapBakerSlots.revert_selected(self) -> None` — Take the lightmaps off the selected objects, once confirmed.
+  - `LightmapBakerSlots.rebake_selected(self) -> None` — Re-bake the selected baked objects the way each was baked, changed
+  - `LightmapBakerSlots.show_bake_state(self) -> None` — Show the scene's bake state, map by map, in a viewer
+  - `LightmapBakerSlots.open_output(self) -> None` — Open the bake's output folder in the file manager.
 
 <a id="slots--tools--mat_updater"></a>
 ### `slots/tools/mat_updater.py`

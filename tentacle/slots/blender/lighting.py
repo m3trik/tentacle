@@ -9,8 +9,8 @@ class LightingSlots(LightingMixin, SlotsBlender):
     """Blender port of the shared ``lighting`` menu.
 
     HDR Manager opens the world-environment panel; the Lightmap Baker opens the
-    Cycles-bake panel (``btk.LightmapBaker`` engine + co-located ``LightmapBakerSlots``,
-    discovered by ``BlenderUiHandler``). Both panels live in blendertk.
+    Cycles-bake panel. Both are tentacle's shared tools (``slots/tools/``), over
+    ``btk.HdrManager`` and ``btk.LightmapBaker``.
     """
 
     def __init__(self, switchboard):

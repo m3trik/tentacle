@@ -540,6 +540,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class KeyStashSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, store, refresh, refresh_from_scene, b000, b001, chk001, b003
 
+### `slots/tools/lightmap_baker.py` — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
+- `class LightmapBakerSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb000_init, btn_reset_defaults_init, cmb002_init, cmb_scope_init, set_exclusions_init, set_exclusions, select_exclusions, clear_exclusions, set_isolation_init, set_isolation, select_isolation, clear_isolation, cmb_resolution_init, spn_samples_init, spn_gi_samples_init, spn_bounces_init, cmb_device_init, txt_output_dir_init, txt000_init, b000, cmb_page_init, cmb_page, tbl_maps_init, select_by_state, open_map_folder, combine_selected, fix_all, track_selected, revert_selected, rebake_selected, show_bake_state, open_output
+
 ### `slots/tools/mat_updater.py` — Material Updater: rework scene materials for a target workflow preset,
 - `class MatUpdaterSlots(Slots)`
   - methods: logger, header_init, selection_mode, move_to_folder, shader_type, cmb001_init, b001

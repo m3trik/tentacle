@@ -371,15 +371,46 @@ def _ui_names(ui_path: Path) -> set[str]:
     }
 
 
-#: What every loaded window carries beside its widgets (uitk's ``MainWindow``):
-#: read as ``self.ui.<name>``, declared by no ``.ui``.
-_WINDOW_ATTRIBUTES = frozenset({"settings", "state", "sb"})
+#: What every loaded window carries beside its widgets that its class doesn't
+#: declare (instance attributes uitk's ``MainWindow.__init__`` sets).
+_WINDOW_INSTANCE_ATTRIBUTES = frozenset({"settings", "state", "sb"})
+
+
+def _window_attributes() -> frozenset:
+    """Everything ``self.ui.<name>`` reaches on the window itself, not a widget:
+    uitk ``MainWindow``'s public class attributes (its signals -- ``on_show``,
+    ``on_hide`` -- and properties such as ``presets``) plus
+    :data:`_WINDOW_INSTANCE_ATTRIBUTES`. Read off the class, so a window feature
+    uitk adds needs no entry here."""
+    try:
+        from uitk.widgets.mainWindow import MainWindow
+    except ImportError:  # no Qt binding: the instance attributes still hold
+        return _WINDOW_INSTANCE_ATTRIBUTES
+    public = {n for n in dir(MainWindow) if not n.startswith("_")}
+    return frozenset(public) | _WINDOW_INSTANCE_ATTRIBUTES
+
+
+def _runtime_widgets(py_path: Path) -> set[str]:
+    """The widget names a tool's Slots class builds at runtime and declares in a
+    class-level ``RUNTIME_WIDGETS`` literal (rows a registry builds, which no
+    ``.ui`` can list)."""
+    tree = ast.parse(py_path.read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef):
+            for stmt in node.body:
+                target = getattr(stmt, "target", None) or (
+                    stmt.targets[0] if getattr(stmt, "targets", None) else None
+                )
+                if getattr(target, "id", None) == "RUNTIME_WIDGETS":
+                    return set(ast.literal_eval(stmt.value))
+    return set()
 
 
 def _ui_reads(py_path: Path) -> set[str]:
     """Names the module reads as ``self.ui.<name>``; a call (``self.ui.show()``) is a
     window method, not a widget, and the window's own attributes
-    (:data:`_WINDOW_ATTRIBUTES`) are none either."""
+    (:func:`_window_attributes`) are none either."""
+    window = _window_attributes()
     tree = ast.parse(py_path.read_text(encoding="utf-8"))
     called = {
         id(node.func) for node in ast.walk(tree) if isinstance(node, ast.Call)
@@ -390,7 +421,7 @@ def _ui_reads(py_path: Path) -> set[str]:
         if isinstance(node, ast.Attribute)
         and id(node) not in called
         and ast.unparse(node.value) == "self.ui"
-        and node.attr not in _WINDOW_ATTRIBUTES
+        and node.attr not in window
     }
 
 
@@ -421,7 +452,7 @@ class TestEveryToolIsOneUiAndOneSlotsClass(unittest.TestCase):
         for tool in _tools():
             with self.subTest(tool=tool):
                 py = TOOL_SLOTS_DIR / f"{tool}.py"
-                widgets = _ui_names(TOOL_UI_DIR / f"{tool}.ui")
+                widgets = _ui_names(TOOL_UI_DIR / f"{tool}.ui") | _runtime_widgets(py)
                 unknown = sorted(_ui_reads(py) - widgets)
                 self.assertEqual(unknown, [], f"{py.name} reads widgets its .ui lacks")
                 inits = {

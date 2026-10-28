@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (424)
+## Added (458)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -279,6 +279,40 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/key_stash.py::KeyStashSlots.refresh(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.refresh_from_scene(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.store(self)`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots(class)`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.b000(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.btn_reset_defaults_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.clear_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.clear_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb002_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_device_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_page(self, index) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_page_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_resolution_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.cmb_scope_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.combine_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.fix_all(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.header_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.open_map_folder(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.open_output(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.rebake_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.revert_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_by_state(self, kind: str) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.select_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_exclusions(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_exclusions_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_isolation(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.set_isolation_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.show_bake_state(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_bounces_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_gi_samples_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.spn_samples_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.tbl_maps_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.track_selected(self) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt000_init(self, widget) -> None`
+- `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt_output_dir_init(self, widget) -> None`
 - `slots/tools/mat_updater.py::MatUpdaterSlots(class)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.b001(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.cmb001_init(self, widget)`

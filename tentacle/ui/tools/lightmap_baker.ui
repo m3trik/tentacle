@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>240</width>
+    <height>340</height>
+   </rect>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks|QMainWindow::ForceTabbedDocks</set>
+  </property>
+  <property name="accessibleDescription">
+   <string>Bake scene lighting into per-object or atlas lightmaps ready for the game engine.</string>
+  </property>
+  <widget class="QWidget" name="central_widget">
+   <property name="minimumSize">
+    <size>
+     <width>240</width>
+     <height>0</height>
+    </size>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
+    <item>
+     <layout class="QVBoxLayout" name="main_layout">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="Header" name="header">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>LIGHTMAP BAKER</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ComboBox" name="cmb_page">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Bake — what a new bake covers and how it renders.
+
+Manage — the maps the scene already reads: which are out of date and why, re-baked or reverted from one list.</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QStackedWidget" name="stk_pages">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="page_bake">
+         <layout class="QVBoxLayout" name="bake_layout">
+          <property name="spacing">
+           <number>1</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+      <item>
+       <widget class="ComboBox" name="cmb_scope">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Scope — which objects Bake Lightmaps acts on.
+
+Selected (default) — the selected meshes.
+Visible — every visible mesh in the scene.
+Scene — every mesh in the scene, every copy of an instance included (Maya skips and names a hidden or templated one: Arnold renders neither; Blender shows a hidden mesh for its own bake and hides it again).
+
+Objects in the Exclude set get no map of their own whatever the scope, but they stay in the render: they still cast shadows and bounce light onto everything that bakes.
+
+Its buttons say what lights the bake. The light: Include Scene Lighting — every scene light (on), or only the lights in the Scope. The sphere: Include Environment — the HDRI environment (Maya: the skydome; Blender: the world), by its own switch. The eye: Include Hidden Lights — hidden lights switched on for the bake and off again after.</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="exclude_layout">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_exclude">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Exclude — objects that get no lightmap of their own but still light the bake: they cast shadows and bounce light onto everything that does bake.
+
+Stored in the scene (the lightmapBaker_exclude set; in Blender a collection that changes nothing about what renders), so every bake of this scene leaves them unbaked — from this panel or a script — and a re-bake leaves a map they already have alone.</string>
+          </property>
+          <property name="text">
+           <string>Exclude:</string>
+          </property>
+          <property name="caption" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="set_exclusions">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Make the current selection the Exclude set (replacing it): objects that get no lightmap of their own but still light the bake — they cast shadows and bounce light onto everything that does bake.
+
+A selected group or parent excludes every mesh under it; with nothing selected, the set is cleared.</string>
+          </property>
+          <property name="text">
+           <string>Set From Selection</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="isolate_layout">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_isolate">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Isolate — moving parts (a locker door, a lid, a drawer) that bake in a pass of their own: lit by the static scene at their current pose, but out of every other object's render, so they leave no shadow or bounce in another object's map — and no other isolated part leaves one in theirs. A mesh brings everything parented under it; isolated objects still pack into their material's atlas.
+
+Stored in the scene (the lightmapBaker_isolate set; in Blender a collection that changes nothing about what renders), so every bake of this scene isolates them — from this panel or a script.</string>
+          </property>
+          <property name="text">
+           <string>Isolate:</string>
+          </property>
+          <property name="caption" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="set_isolation">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>19</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Make the current selection the Isolate set (replacing it): moving parts that bake alone, out of every other object's render, so the door's shadow never lands on its cabinet's map.
+
+A selected object brings every mesh under it; with nothing selected, the set is cleared.</string>
+          </property>
+          <property name="text">
+           <string>Set From Selection</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="ComboBox" name="cmb002">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Packing — how the baked maps are laid out.
+
+Atlas by Material (default) — objects sharing a primary material are consolidated into one shared EXR (Resolution becomes the shared atlas size), and each object gets an area-weighted atlas rect bound at engine time (Unity's lightmapScaleOffset / glTF KHR_texture_transform) — UVs are never edited, and instances are fully supported: every copy keeps its own rect and its own lighting. Fewer textures, no naming collisions, more efficient texel use for many small objects. The layout is planned up front, so each object bakes at the size it will occupy instead of a full map per object (Maya: at 2x it, never above a full map: the downscale into the atlas is what averages Arnold's sampling noise).
+
+Per-Object — one lightmap texture per object at the full Resolution. Best per-object detail; right for hero assets or small selections.
+
+The camera button beside the field is Reflection Probe: the bake also captures the room it lit as an HDR from one point, for the reflections a lightmap cannot hold (on by default).</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ComboBox" name="cmb_device">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>999</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Which processor the bake renders on (Maya: Arnold's; Blender: Cycles'). A machine setting, not a quality one — it is never stored in a preset.
+
+Auto — the fast choice. Maya: the GPU wherever Arnold has one, else the CPU (measured on a production floor, 3.4s on the GPU against 24.2s on the CPU for the same ray budget). Blender: per object, the GPU where it pays and the CPU for small tiles (every Cycles bake sets up and tears down a GPU session, ~0.35s an object).
+GPU — force it for every object, with no fallback.
+CPU — force it: the A/B for a map the GPU bake disagrees on (Arnold's GPU renderer does not support every shader feature), and the fallback when a GPU session fails.</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="quality_group">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Quality</string>
+        </property>
+        <layout class="QVBoxLayout" name="quality_layout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="ComboBox" name="cmb_resolution">
+           <property name="minimumSize">
+            <size>
+             <width>180</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>999</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Lightmap resolution (square, px): each object's map, or the shared atlas. Drives the gutter / seam-margin width too.
+
+The filter button beside the field denoises every map (Maya: at the size it ships at; Blender: with OpenImageDenoise).</string>
+           </property>
+           <property name="frame">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spn_samples">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Samples per texel. Higher = cleaner, slower.
+Maya: Arnold camera (AA) samples, squared. On the CPU each one traces GI Samples diffuse rays. Arnold's GPU ignores GI samples, so a GPU bake gives every texel these samples and, with Adaptive Sampling on, adds more — up to Samples × GI Samples — only where the noise needs them (the shadows).
+Blender: Cycles samples (paths). One count covers direct and bounced light alike — Cycles has no separate GI samples.
+
+The button beside the field is Adaptive Sampling: the budget goes where the noise is. It greys out where the processor spends samples the other way (an Arnold CPU bake).</string>
+           </property>
+           <property name="prefix">
+            <string>Samples:	</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>256</number>
+           </property>
+           <property name="value">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spn_gi_samples">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Arnold's GI (indirect diffuse) samples, squared (Maya only: Cycles traces every path from Samples). On the CPU: the bounce-light rays each camera sample traces. On the GPU, which ignores them, they set the budget instead: Samples × GI Samples is Adaptive Sampling's ceiling, or what every texel gets with it off. Higher = smoother bounce light and shadows, slower.</string>
+           </property>
+           <property name="prefix">
+            <string>GI Samples:	</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>32</number>
+           </property>
+           <property name="value">
+            <number>2</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spn_bounces">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Diffuse bounces (Maya: Arnold's GI Diffuse Depth; Blender: Cycles' Light Paths › Max Bounces › Diffuse): how many times light bounces between surfaces before the bake stops following it. 0 = direct light only; 2–4 lights a room's corners and ceiling. The biggest quality lever for interiors — each bounce adds render time.</string>
+           </property>
+           <property name="prefix">
+            <string>Bounces:	</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>16</number>
+           </property>
+           <property name="value">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="output_group">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Output</string>
+        </property>
+        <layout class="QVBoxLayout" name="output_layout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="LineEdit" name="txt_output_dir">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Where the baked lightmaps are written (optional).
+
+Empty — a lightmaps folder in the project's texture folder (sourceimages).
+Relative (e.g. 'lightmaps' or 'bake/lm') — resolved under that folder, so the path stays portable across projects.
+Absolute (e.g. 'D:/bakes') — used as-is.
+
+The folder is created if it doesn't exist. Browsing to a folder inside the texture folder stores it as a relative path. The image button saves each map beside its material's texture maps instead; this folder then takes only the objects whose material has none.</string>
+           </property>
+           <property name="placeholderText">
+            <string>(blank: sourceimages/lightmaps)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="LineEdit" name="txt000">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Name affix for the baked lightmap. A leading '_' (e.g. '_Lightmap') is treated as a suffix → &amp;lt;object&amp;gt;_Lightmap; a trailing '_' (e.g. 'LM_') as a prefix. Empty uses the placeholder default.&lt;br/&gt;&lt;br/&gt;The button beside the field cycles Auto / Suffix / Prefix.</string>
+           </property>
+           <property name="placeholderText">
+            <string>_Lightmap</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+         <item>
+          <widget class="QGroupBox" name="grp_process">
+           <property name="title">
+            <string/>
+           </property>
+           <layout class="QVBoxLayout" name="process_layout">
+            <property name="spacing">
+             <number>1</number>
+            </property>
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="ComboBox" name="cmb000">
+              <property name="minimumSize">
+               <size>
+                <width>180</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>999</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Preset — this panel's bake settings under a name: Packing, Reflection Probe, Resolution, Samples, GI Samples (Maya), Bounces, Adaptive Sampling, Include Scene Lighting, Include Environment, Include Hidden Lights, Denoise and Beside Material Textures.
+
+      The built-ins (italic, read-only) — preview, mobile, desktop, hero — set the quality dials only. Save (the disk icon) stores the current settings under a name you type (Enter to commit); the ⋯ menu renames, deletes or opens the preset folder. A * after the name means a setting has changed since the preset loaded.
+
+      Not saved: Scope, the Exclude and Isolate sets, Processor, Output Directory and Name — they belong to a scene or a machine. A headless bake reads the same presets: LightmapBaker.from_preset(name).</string>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_reset_defaults">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>19</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Restore every setting on this panel to its default.</string>
+              </property>
+              <property name="text">
+               <string>Reset to Defaults</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="b000">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Bake a lightmap for every object in Scope (minus the Exclude set) and wire it for the engine: pack lightmap UVs, bake white-card lighting into them (Maya: Arnold; Blender: Cycles), dilate the seams, denoise, then record it on the object. The material and its texture UVs are untouched — the engine composites albedo × lightmap.
+
+      Re-baking replaces the previous maps. On the Manage page, right-click a map to Re-Bake or Revert it.</string>
+              </property>
+              <property name="text">
+               <string>Bake Lightmaps</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page_manage">
+         <layout class="QVBoxLayout" name="manage_layout">
+          <property name="spacing">
+           <number>1</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="TableWidget" name="tbl_maps">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>1</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Every lightmap the scene reads: how many objects read it and whether it is up to date. Hover a row for its folder, who wrote it and why it re-bakes; select rows to select their objects. Right-click a row to open its map's folder. The full Bake Report is in the header menu.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>10</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="Footer" name="footer" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QLabel</extends>
+   <header>uitk.widgets.header.Header.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uitk.widgets.lineEdit.LineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uitk.widgets.tableWidget.TableWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <designerdata>
+  <property name="gridDeltaX">
+   <number>5</number>
+  </property>
+  <property name="gridDeltaY">
+   <number>5</number>
+  </property>
+  <property name="gridSnapX">
+   <bool>true</bool>
+  </property>
+  <property name="gridSnapY">
+   <bool>true</bool>
+  </property>
+  <property name="gridVisible">
+   <bool>true</bool>
+  </property>
+ </designerdata>
+</ui>

@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Lightmap Baker is a shared tool (new `ui/tools/` + `slots/tools/` pair).** Each dial maps to the key the host's engine declares (Maya `gi_depth`, Blender `bounces`); Samples takes the host's range and each dial starts at the default tier in the host's units; Adaptive Sampling follows the host's `ADAPTIVE_DEVICES`. Scene, undo and Bake Report re-reads coalesce on one timer (Blender sent two load events per file).
+  - Test(s): new `test_lightmap_baker_panel.py` (fake toolkit in both hosts' shapes, the real panel through Blender's handler without bpy, a fresh-Maya class).
 - **2026-10-28 -- Tube Rig and Blendshape Animator are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/tools/_blendshape_animator/` holds the tween tree's numeric-sort row).** Tube Rig reads its modes from the host's `TubeRig.MODES`, runs each batch in one `undo_step`, and disables Remove / Rename / Rebind where the host lacks them (Blender); Blendshape Animator composes the host's `BlendshapeAnimator` and offers Recover Setup where the host has it (Maya).
   - Test(s): new `test_tube_rig_panel.py` and `test_blendshape_animator_panel.py`.
 - **2026-10-28 -- Curtain and Naming are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Curtain's auto rail follows the fields live in both hosts (reshaped in place after each rollback) and goes on cancel; Select Result is the host Preview's option. Naming greys the rows the host lists as unsupported and runs its scene edits in one undo chunk. `test_slot_method_coverage` allows `self.ui.state` (a window attribute).

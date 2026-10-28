@@ -10,8 +10,8 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **16 present** pairs (of Maya's 19), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 1 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **59%** (1421/2408 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **15 present** pairs (of Maya's 18), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 1 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **59%** (1398/2385 names); 1 modules absent: render_utils |
 
 **Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 59% with 1 module(s) absent (render_utils); 1 panel ports open.
 
@@ -31,7 +31,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | display_utils | 42 | 44 | 21 | 50% |
 | edit_utils | 146 | 164 | 108 | 74% |
 | env_utils | 497 | 325 | 240 | 48% |
-| light_utils | 155 | 127 | 104 | 67% |
+| light_utils | 130 | 100 | 77 | 59% |
 | mat_utils | 353 | 276 | 240 | 68% |
 | node_utils | 159 | 73 | 63 | 40% |
 | nurbs_utils | 18 | 17 | 6 | 33% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 70 | 85 | 28 | 40% |
 | uv_utils | 147 | 130 | 116 | 79% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2408** | **1845** | **1421** | **59%** |
+| **TOTAL (unique)** | **2385** | **1822** | **1398** | **59%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -52,7 +52,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (16) — worst first by logic
+### Present pairs (15) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
@@ -69,7 +69,6 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | SceneExporter | 5→5 | 11→11 | 5→5 | 1043→953 | 91% | 100% | 2 open |
 | ShotSequencer | 1→1 | 18→18 | 2→2 | 917→875 | 95% | 100% | clean |
 | UnityBridge | 0→0 | 0→0 | 2→2 | 174→165 | 95% | 100% | clean |
-| LightmapBaker | 6→6 | 6→6 | 16→15 | 2158→2100 | 97% | 94% | clean |
 | RenderEffects | 0→0 | 14→14 | 4→4 | 1637→1621 | 99% | 100% | clean |
 | Shots | 9→9 | 15→15 | 19→19 | 1819→1836 | 101% | 100% | clean |
 | TextureCombine | 4→4 | 4→4 | 26→26 | 1122→1177 | 105% | 100% | clean |
