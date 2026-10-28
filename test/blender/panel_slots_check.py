@@ -300,11 +300,11 @@ try:
           f"n={len(copies)}")
 
     # ---- hdr_manager: folder scan + apply + live levels ------------------------------------
-    # Through the primitives the dropdown composes (_folder_hdrs / _set_environment /
+    # Through the primitives the dropdown composes (_folder_hdrs / _apply_path /
     # _apply_levels): cmb000's full path now re-syncs the whole panel from the scene
     # (_sync_ui_to_scene), which a stub ui cannot stand in for.
     import tempfile
-    from blendertk.light_utils.hdr_manager import HdrManagerSlots
+    from tentacle.slots.tools.hdr_manager import HdrManagerSlots
 
     tmp_dir = tempfile.mkdtemp(prefix="tcl_hdr_")
     img = bpy.data.images.new("hdr_fixture", 8, 4, float_buffer=True)  # 2:1 lat-long
@@ -318,11 +318,14 @@ try:
     # toggle to visible -- the defaults the panel itself uses before they exist.
     ui = NS(
         cmb000=combo(data=None),
-        spn_intensity=spin(2.0), spn_exposure=spin(1.0), slider000=spin(90),
+        spn_intensity=spin(2.0), spn_exposure=spin(1.0),
+        slider000=NS(value=lambda: 90, sliderPosition=lambda: 90),
         spn_diffuse=spin(1.0), spn_specular=spin(1.0),
+        spn_resolution=spin(1024), spn_samples=spin(1),
     )
     slot = make_slot(HdrManagerSlots, ui)
-    slot._render_toggle = None
+    slot.manager = btk.HdrManager()
+    slot._render_toggle = slot._viewport_toggle = slot._rotation_value = None
 
     def _norm(path):
         return os.path.normcase(os.path.abspath(path))
@@ -336,13 +339,13 @@ try:
     check("hdr slot select with no map is a no-op", len(messages) == 0
           and btk.get_world_hdri() is None)
 
-    slot._set_environment(hdr_path)  # the apply a dropdown pick runs
+    slot._apply_path(hdr_path)  # the apply a dropdown pick runs
     state = btk.get_world_hdri()
     check("hdr slot applies intensity*2^exposure", state is not None
           and abs(state["strength"] - 4.0) < 1e-6 and abs(state["rotation"] - 90) < 1e-4,
           f"state={state}")
 
-    ui.slider000 = spin(180)  # live level update path
+    ui.slider000 = NS(value=lambda: 180, sliderPosition=lambda: 180)  # live level update
     slot.slider000(180, None)
     check("hdr slot live rotation update",
           abs(btk.get_world_hdri()["rotation"] - 180) < 1e-4)

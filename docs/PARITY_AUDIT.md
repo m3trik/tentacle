@@ -10,10 +10,10 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **46 present** pairs (of Maya's 49), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 7 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **60%** (1496/2511 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **22 present** pairs (of Maya's 25), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 2 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **59%** (1439/2432 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 60% with 1 module(s) absent (render_utils); 1 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 59% with 1 module(s) absent (render_utils); 1 panel ports open.
 
 ---
 
@@ -24,23 +24,23 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 430 | 391 | 340 | 79% |
+| anim_utils | 393 | 356 | 302 | 77% |
 | audio_utils | 74 | 37 | 21 | 28% |
 | cam_utils | 10 | 16 | 4 | 40% |
-| core_utils | 182 | 87 | 61 | 34% |
-| display_utils | 44 | 44 | 18 | 41% |
-| edit_utils | 166 | 182 | 126 | 76% |
+| core_utils | 183 | 90 | 63 | 34% |
+| display_utils | 42 | 44 | 21 | 50% |
+| edit_utils | 161 | 179 | 123 | 76% |
 | env_utils | 497 | 325 | 240 | 48% |
-| light_utils | 170 | 130 | 106 | 62% |
-| mat_utils | 366 | 282 | 247 | 67% |
+| light_utils | 155 | 127 | 104 | 67% |
+| mat_utils | 353 | 276 | 240 | 68% |
 | node_utils | 159 | 73 | 63 | 40% |
-| nurbs_utils | 26 | 26 | 15 | 58% |
+| nurbs_utils | 18 | 17 | 6 | 33% |
 | render_utils **(ABSENT)** | 13 | 0 | 0 | 0% |
-| rig_utils | 282 | 246 | 189 | 67% |
-| ui_utils | 76 | 91 | 34 | 45% |
-| uv_utils | 166 | 154 | 134 | 81% |
+| rig_utils | 276 | 240 | 183 | 66% |
+| ui_utils | 70 | 85 | 28 | 40% |
+| uv_utils | 147 | 130 | 116 | 79% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2511** | **1918** | **1496** | **60%** |
+| **TOTAL (unique)** | **2432** | **1856** | **1439** | **59%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -52,57 +52,33 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (46) — worst first by logic
+### Present pairs (22) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
 | panel | option boxes M→B | code controls M→B | `.ui` widgets M→B | lines M→B | logic% | UI% | surface |
 |:--|:--:|:--:|:--:|:--:|--:|--:|:--|
 | ArnoldBridge | 0→0 | 7→0 | 4→4 | 1016→158 | 16% | 100% | clean |
-| GameShader | 5→5 | 5→3 | 8→7 | 2801→796 | 28% | 88% | clean |
 | TubeRig | 1→1 | 0→0 | 19→8 | 1237→386 | 31% | 42% | 3 open |
-| MatUpdater | 0→0 | 13→9 | 2→2 | 1585→521 | 33% | 100% | clean |
-| ExplodedView | 0→0 | 0→1 | 4→4 | 306→135 | 44% | 100% | clean |
-| CurveToTube | 0→0 | 4→3 | 11→11 | 873→391 | 45% | 100% | clean |
-| Snap | 3→3 | 6→6 | 3→3 | 425→201 | 47% | 100% | clean |
 | Channels | 2→3 | 34→22 | 4→4 | 3347→1832 | 55% | 100% | clean |
 | AudioClips | 5→3 ⚠ | 18→8 | 2→6 | 831→475 | 57% | 300% | clean |
-| DuplicateGrid | 0→0 | 1→1 | 7→7 | 443→271 | 61% | 100% | clean |
-| HdrManager | 3→3 | 14→13 | 4→4 | 1799→1186 | 66% | 100% | clean |
-| ImageTracer | 1→1 | 2→2 | 7→7 | 552→374 | 68% | 100% | clean |
-| CutOnAxis | 0→0 | 1→1 | 11→11 | 242→168 | 69% | 100% | clean |
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 317→233 | 74% | 100% | clean |
 | TexturePathEditor | 9→7 ⚠ | 38→31 | 1→1 | 4178→3136 | 75% | 100% | clean |
-| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3019→2320 | 77% | 100% | clean |
+| HierarchySync | 4→3 ⚠ | 35→33 | 5→5 | 3019→2313 | 77% | 100% | clean |
 | SubstanceBridge | 1→1 | 0→0 | 2→2 | 342→273 | 80% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 368→318 | 86% | 100% | clean |
-| TelescopeRig | 0→0 | 0→0 | 4→4 | 1114→964 | 87% | 100% | clean |
-| WheelRig | 2→2 | 2→2 | 7→7 | 715→619 | 87% | 100% | clean |
-| ShellXform | 7→7 | 12→12 | 25→25 | 641→580 | 90% | 100% | clean |
 | SceneExporter | 5→5 | 11→11 | 5→5 | 1043→953 | 91% | 100% | 2 open |
-| ShaderTemplates | 0→0 | 5→5 | 5→5 | 362→329 | 91% | 100% | clean |
-| Bevel | 0→0 | 0→0 | 3→3 | 177→163 | 92% | 100% | clean |
-| Bridge | 0→0 | 0→0 | 5→5 | 274→255 | 93% | 100% | clean |
-| Calculator | 0→0 | 0→0 | 4→4 | 286→271 | 95% | 100% | clean |
 | ShotSequencer | 1→1 | 18→18 | 2→2 | 917→875 | 95% | 100% | clean |
 | UnityBridge | 0→0 | 0→0 | 2→2 | 174→165 | 95% | 100% | clean |
+| BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 941→913 | 97% | 100% | clean |
 | LightmapBaker | 6→6 | 6→6 | 16→15 | 2158→2100 | 97% | 94% | clean |
-| BlendshapeAnimator | 11→11 | 13→12 | 15→15 | 941→927 | 99% | 100% | clean |
 | RenderEffects | 0→0 | 14→14 | 4→4 | 1637→1621 | 99% | 100% | clean |
-| KeyStash | 0→0 | 2→2 | 8→8 | 320→320 | 100% | 100% | clean |
-| ShotManifest | 0→0 | 0→0 | 10→10 | 53→53 | 100% | 100% | clean |
 | Naming | 13→13 | 20→20 | 6→6 | 987→1001 | 101% | 100% | clean |
 | ShadowRig | 1→1 | 1→1 | 15→15 | 1258→1276 | 101% | 100% | clean |
 | Shots | 9→9 | 15→15 | 19→19 | 1819→1836 | 101% | 100% | clean |
-| SmartBake | 0→0 | 4→3 | 11→10 | 308→312 | 101% | 91% | clean |
-| DuplicateLinear | 0→0 | 3→3 | 7→7 | 341→348 | 102% | 100% | clean |
-| DynamicPipe | 0→0 | 0→1 | 1→1 | 207→212 | 102% | 100% | clean |
 | TextureCombine | 4→4 | 4→4 | 26→26 | 1122→1177 | 105% | 100% | clean |
-| Mirror | 0→0 | 0→0 | 10→10 | 271→289 | 107% | 100% | clean |
 | Curtain | 0→0 | 0→1 | 13→13 | 481→528 | 110% | 100% | clean |
-| ImageToPlane | 3→3 | 1→1 | 8→8 | 244→268 | 110% | 100% | clean |
 | ArticulatedRig | 1→1 | 2→2 | 17→17 | 782→867 | 111% | 100% | clean |
-| ColorId | 0→0 | 0→0 | 9→9 | 734→839 | 114% | 100% | clean |
 | ReferenceManager | 3→2 ⚠ | 28→32 | 4→4 | 1859→2678 | 144% | 100% | clean |
 
 ### Open panel ports (1) — tracked in parity_map

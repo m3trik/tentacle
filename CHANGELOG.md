@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- HDR Manager and Shader Templates are shared tools (new `ui/tools/` + `slots/tools/` pairs; `docs/parity_map.py` drops the twin entries of every panel now shared).** HDR Manager composes `self.tk.HdrManager()`, disables what the host's `KNOBS` lacks (Blender: Samples, the viewport-only preview, the Select items) and swaps the map in place when an environment exists; Shader Templates saves under a prompted name and reports what the host built.
+  - Test(s): new `test_hdr_manager_panel.py` and `test_shader_templates_panel.py`; `test/blender/panel_slots_check.py` drives the shared HDR panel.
 - **2026-10-28 -- Game Shader and Mat Updater are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Each composes the host's engine (`self.tk.GameShader()` / `self.tk.MatUpdater()`) instead of subclassing it; a host with one surface shader (Blender) offers no shader-type choice, and Mat Updater's transfer combo shows disabled where the run writes straight to the Output Folder.
   - Test(s): new `test_game_shader_panel.py` and `test_mat_updater_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Key Stash and Smart Bake are shared tools (new `ui/tools/` + `slots/tools/` pairs; `docs/parity_map.py` drops Smart Bake's twin entry).** Key Stash stores from the source the host reads, selects a clip's objects and repaints from the store's change events; Smart Bake builds a `SmartBake` per run from mayatk's widgets and reports what the host's `BakeResult.describe()` says.

@@ -138,11 +138,13 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
 - [`slots/tools/game_shader.py`](#slots--tools--game_shader) — Game Shader: build a PBR material from a set of texture maps, packed for a
+- [`slots/tools/hdr_manager.py`](#slots--tools--hdr_manager) — HDR Manager: light the scene from an HDR environment map, spin it and adjust
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
+- [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
@@ -1954,6 +1956,33 @@ Game Shader: build a PBR material from a set of texture maps, packed for a
   - `GameShaderSlots.txt002_init(self, widget)` — Add a prefix/suffix/auto-mode picker to the affix field.
   - `GameShaderSlots.b000(self)` — Create Network: pick texture files and build their material(s).
 
+<a id="slots--tools--hdr_manager"></a>
+### `slots/tools/hdr_manager.py`
+
+HDR Manager: light the scene from an HDR environment map, spin it and adjust
+
+- **[`class HdrManagerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/hdr_manager.py#L25)**
+  - `HdrManagerSlots.header_init(self, widget) -> None` — Configure the header menu, the refresh button and the help text.
+  - `HdrManagerSlots.cmb000_init(self, widget) -> None` — Wire the HDR dropdown: option-box plugins, context menu, auto-refresh.
+  - `HdrManagerSlots.hdr_map(self) -> Optional[str]` *(property)* — The dropdown's picked HDR path (or the None token).
+  - `HdrManagerSlots.hdr_map_visibility(self) -> bool` *(property)* — The render-visibility toggle;
+  - `HdrManagerSlots.hdr_map_preview(self) -> bool` *(property)* — The viewport-visibility toggle;
+  - `HdrManagerSlots.cmb000(self, index, widget) -> None` — HDR map pick: the panel's apply, handed to the manager's
+  - `HdrManagerSlots.slider000(self, value, widget) -> None` — Rotate the environment around the up axis.
+  - `HdrManagerSlots.spn_intensity(self, value) -> None` — The environment's linear intensity.
+  - `HdrManagerSlots.spn_exposure(self, value) -> None` — The environment's exposure, in stops.
+  - `HdrManagerSlots.spn_resolution(self, value) -> None` — The HDR's importance-sampling resolution.
+  - `HdrManagerSlots.spn_samples(self, value) -> None` — The environment's light samples.
+  - `HdrManagerSlots.spn_diffuse(self, value) -> None` — The environment's diffuse contribution.
+  - `HdrManagerSlots.spn_specular(self, value) -> None` — The environment's specular contribution.
+  - `HdrManagerSlots.add_hdr(self) -> None` — Add HDR(s): one dialog picks loose files and/or folders (expanded
+  - `HdrManagerSlots.open_sourceimages(self) -> None` — Open the project's texture folder in the file manager.
+  - `HdrManagerSlots.clear_network(self) -> None` — Remove the HDR environment and reset the controls to defaults.
+  - `HdrManagerSlots.ctx_select_skydome(self) -> None` — Select the skydome light.
+  - `HdrManagerSlots.ctx_select_transform(self) -> None` — Select the skydome's transform.
+  - `HdrManagerSlots.ctx_select_file_node(self) -> None` — Select the file node feeding the skydome's HDR texture.
+  - `HdrManagerSlots.ctx_reveal_in_explorer(self) -> None` — Reveal the environment's HDR file in the file manager;
+
 <a id="slots--tools--image_to_plane"></a>
 ### `slots/tools/image_to_plane.py`
 
@@ -2020,6 +2049,26 @@ Mirror: mirror the selected meshes across an axis, with a live preview.
   - `MirrorSlots.header_init(self, widget)` — Configure header help text.
   - `MirrorSlots.prepare_operation(self, objects)` — Break instance links once, before the preview contract exists.
   - `MirrorSlots.perform_operation(self, objects, contract=None)` — Mirror *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--shader_templates"></a>
+### `slots/tools/shader_templates.py`
+
+Shader Templates: save a material's shader network as a reusable template
+
+- **[`class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/shader_templates.py#L22)**
+  - `ShaderTemplatesSlots.source_images_dir(self) -> str` *(property)* — Where Load Texture Maps opens: the scene project's texture folder,
+  - `ShaderTemplatesSlots.header_init(self, widget)` — Initialize the header widget.
+  - `ShaderTemplatesSlots.lbl_graph_material(self)` — Graph the last restored material in the host's shader editor.
+  - `ShaderTemplatesSlots.lbl_open_templates_dir(self)` — Open the user's shader templates directory in the file manager.
+  - `ShaderTemplatesSlots.cmb002_init(self, widget)` — Initialize the ComboBox for shader templates.
+  - `ShaderTemplatesSlots.refresh_templates(self, widget)` — List the templates, each carrying its file: shipped and the user's
+  - `ShaderTemplatesSlots.rename_template_safe(self, widget, new_name)` — Rename the selected (user) template to *new_name*, through the
+  - `ShaderTemplatesSlots.lbl000(self)` — Make the ComboBox editable, to rename the template.
+  - `ShaderTemplatesSlots.lbl001(self)` — Delete the selected (user) template.
+  - `ShaderTemplatesSlots.lbl002(self)` — Open the selected template in the default editor.
+  - `ShaderTemplatesSlots.b000(self)` — Create Network: rebuild the selected template, rebinding the loaded
+  - `ShaderTemplatesSlots.b001(self)` — Load Texture Maps: pick the maps Create Network rebinds by type.
+  - `ShaderTemplatesSlots.b002(self)` — Save Template: capture the selection's material network under a
 
 <a id="slots--tools--shell_xform"></a>
 ### `slots/tools/shell_xform.py`

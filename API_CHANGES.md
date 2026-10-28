@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (277)
+## Added (312)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -183,6 +183,27 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/game_shader.py::GameShaderSlots.shader_type(self) -> Optional[str]`
 - `slots/tools/game_shader.py::GameShaderSlots.txt000_init(self, widget)`
 - `slots/tools/game_shader.py::GameShaderSlots.txt002_init(self, widget)`
+- `slots/tools/hdr_manager.py::HdrManagerSlots(class)`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.add_hdr(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.clear_network(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.cmb000(self, index, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_reveal_in_explorer(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_file_node(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_skydome(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.ctx_select_transform(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map(self) -> Optional[str]`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map_preview(self) -> bool`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.hdr_map_visibility(self) -> bool`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.header_init(self, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.open_sourceimages(self) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.slider000(self, value, widget) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_diffuse(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_exposure(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_intensity(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_resolution(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_samples(self, value) -> None`
+- `slots/tools/hdr_manager.py::HdrManagerSlots.spn_specular(self, value) -> None`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots(class)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b000(self)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b001(self)`
@@ -220,6 +241,20 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/mirror.py::MirrorSlots.prepare_operation(self, objects)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots(class)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b000(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b001(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.b002(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.cmb002_init(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.header_init(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl000(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl001(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl002(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl_graph_material(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.lbl_open_templates_dir(self)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.refresh_templates(self, widget)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.rename_template_safe(self, widget, new_name)`
+- `slots/tools/shader_templates.py::ShaderTemplatesSlots.source_images_dir(self) -> str`
 - `slots/tools/shell_xform.py::ShellXformSlots(class)`
 - `slots/tools/shell_xform.py::ShellXformSlots.align_u_avg(self)`
 - `slots/tools/shell_xform.py::ShellXformSlots.align_u_max(self)`

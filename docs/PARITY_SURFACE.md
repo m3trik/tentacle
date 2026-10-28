@@ -9,49 +9,25 @@
 | ArnoldBridge | 0 | 0 | 4 | 0 | OK |
 | ArticulatedRig | 0 | 0 | 0 | 0 | OK |
 | AudioClips | 0 | 0 | 15 | 3 | OK |
-| Bevel | 0 | 0 | 0 | 0 | OK |
 | BlendshapeAnimator | 0 | 0 | 1 | 0 | OK |
-| Bridge | 0 | 0 | 0 | 0 | OK |
-| Calculator | 0 | 0 | 0 | 0 | OK |
 | Channels | 0 | 0 | 5 | 0 | OK |
-| ColorId | 0 | 0 | 0 | 0 | OK |
 | Curtain | 0 | 0 | 0 | 0 | OK |
-| CurveToTube | 0 | 0 | 0 | 0 | OK |
-| CutOnAxis | 0 | 0 | 0 | 0 | OK |
-| DuplicateGrid | 0 | 0 | 0 | 0 | OK |
-| DuplicateLinear | 0 | 0 | 0 | 0 | OK |
-| DynamicPipe | 0 | 0 | 0 | 0 | OK |
-| ExplodedView | 0 | 0 | 0 | 0 | OK |
-| GameShader | 0 | 0 | 1 | 0 | OK |
-| HdrManager | 0 | 0 | 0 | 2 | OK |
 | HierarchySync | 0 | 0 | 0 | 0 | OK |
-| ImageToPlane | 0 | 0 | 0 | 1 | OK |
-| ImageTracer | 0 | 0 | 0 | 0 | OK |
-| KeyStash | 0 | 0 | 0 | 0 | OK |
 | LightmapBaker | 0 | 0 | 1 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
-| MatUpdater | 0 | 0 | 1 | 0 | OK |
-| Mirror | 0 | 0 | 0 | 0 | OK |
 | Naming | 0 | 0 | 0 | 1 | OK |
 | ReferenceManager | 0 | 0 | 14 | 0 | OK |
 | RenderEffects | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | SceneExporter | 0 | 2 | 3 | 0 | open |
-| ShaderTemplates | 0 | 0 | 0 | 0 | OK |
 | ShadowRig | 0 | 0 | 0 | 0 | OK |
-| ShellXform | 0 | 0 | 0 | 0 | OK |
-| ShotManifest | 0 | 0 | 0 | 0 | OK |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | Shots | 0 | 0 | 0 | 0 | OK |
-| SmartBake | 0 | 0 | 4 | 2 | OK |
-| Snap | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
-| TelescopeRig | 0 | 0 | 0 | 0 | OK |
 | TextureCombine | 0 | 0 | 0 | 0 | OK |
 | TexturePathEditor | 0 | 0 | 1 | 5 | OK |
 | TubeRig | 0 | 3 | 8 | 6 | open |
 | UnityBridge | 0 | 0 | 0 | 0 | OK |
-| WheelRig | 0 | 0 | 0 | 0 | OK |
 
 ### Panel deltas
 
@@ -65,27 +41,13 @@
 **combo item deltas (review)**
   - `cmb_attr_type` 6->5 items; missing=['enum', 'double3'] extra=['vector']
 
-#### HdrManager
-**property deltas (review)**
-  - `open_sourceimages.setText` maya=`'Open Sourceimages Folder'` blender=`'Open HDR Folder'`
-  - `spn_samples..ui:enabled` maya=`None` blender=`'false'`
-
 #### HierarchySync
 **combo item deltas (review)**
   - `cmb_diff_options` 8->4 items; missing=['Mode: Full Hierarchy Compare', 'Mode: Selected Objects Only', 'Mode: Missing Objects Only', 'Mode: Extra Objects Only'] extra=[]
 
-#### ImageToPlane
-**property deltas (review)**
-  - `cmb_mat_type..ui:enabled` maya=`None` blender=`'false'`
-
 #### Naming
 **property deltas (review)**
   - `chk007.setText` maya=`'Locators Only'` blender=`'Empties Only'`
-
-#### SmartBake
-**property deltas (review)**
-  - `b000.class` maya=`'PushButton'` blender=`'QPushButton'`
-  - `b001.class` maya=`'PushButton'` blender=`'QPushButton'`
 
 #### TexturePathEditor
 **property deltas (review)**
@@ -220,4 +182,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 46 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 18 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 22 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 18 open-work items; 0 stale Maya handlers. Sweep PASSES.

@@ -169,27 +169,6 @@ CONTROLS = {
             "ported -- see _blendshape_animator.py's module docstring.",
         },
     },
-    "hdr_manager": {
-        # add_value / add_hdr_btn / cmb_add_mode / clear_network / config_buttons drift
-        # closed 2026-07-03 (ported to blendertk: option-box add_value on slider000, the
-        # Add HDR(s)… flow, Clear Network header action, config_buttons header chrome, and
-        # the slider000/spn_exposure/spn_intensity .ui promotion to uitk classes).
-        "spn_diffuse": {"status": "replaced", "to": "chk_diffuse", "reason": "Arnold float aiDiffuse contribution maps to the boolean Cycles world ray-visibility Diffuse toggle (EEVEE ignores it)"},
-        # spn_resolution: BUILT 2026-07-08 (was a false na). Now enabled + wired to
-        # btk.set_world_importance_resolution (world.cycles.sampling_method='MANUAL' +
-        # sample_map_resolution) -- the Cycles analogue of Arnold's skydome importance-sampling
-        # Resolution. No divergence to ledger (control present + functional on both, .ui `enabled`
-        # matches Maya's None now). spn_samples below stays na -- Cycles has no per-world sample count.
-        "spn_samples": {"status": "na", "reason": "Arnold skydome light samples (aiSamples); Cycles samples globally, no per-light sample count (documented drop)"},
-        "spn_specular": {"status": "replaced", "to": "chk_glossy", "reason": "Arnold float aiSpecular contribution maps to the boolean Cycles world ray-visibility Glossy toggle (EEVEE ignores it)"},
-        # Triaged divergences (were documented in prose/docstrings but never machine-readable):
-        "ctx_select_skydome": {"status": "na", "reason": "a Blender world isn't a selectable scene object"},
-        "ctx_select_transform": {"status": "na", "reason": "a Blender world isn't a selectable scene object"},
-        "ctx_select_file_node": {"status": "na", "reason": "a Blender world isn't a selectable scene object"},
-        # ctx_reveal_in_explorer / open_sourceimages: stale entries removed 2026-07-03 — both
-        # ship under the SAME objectName as mayatk (verified against the current file), not the
-        # "btn_reveal_hdr"/"btn_open_folder" names these entries claimed; no divergence to ledger.
-    },
     # naming_slots: fully 1:1 as of 2026-08-23 — both panels build the same header (cmb_scope
     # Selection/Scene/Directory/Files + chk_base_names + chk_dry_run), the same footer Apply button
     # (armed by a dry run, hidden otherwise) from a byte-identical _run/_arm_apply block,
@@ -209,64 +188,6 @@ CONTROLS = {
     # clause. Only the label differs ('World Space (decomposeMatrix)' -> 'World Space (driver Transform
     # Space)', naming Blender's TRANSFORMS-driver-var mechanism for Maya's decomposeMatrix node) -- a
     # report-only setText review delta, same capability, no ledger entry needed.
-    "color_id": {
-        # add_presets / preset_dir: BUILT — the Blender ColorIdSlots.header_init ships the swatch-
-        # palette preset combo 1:1 (color_id.py:330-334 widget.menu.add_presets=True + presets
-        # .preset_dir=self._PRESET_DIR + metadata_provider/on_metadata_loaded + _ensure_default_preset),
-        # a DCC-agnostic uitk feature (swatches are Qt-side) matching mayatk color_id.py:406-448. The
-        # store key is Blender's own 'blendertk/color_id' (color_id.py:237), not Maya's legacy
-        # 'mayatk/color_manager'. The header preset combo is not a distinct objectName the static sweep
-        # tracks, so no ledger row is needed now that both sides build it.
-        # chk012 (Wireframe): `na` row removed 2026-08-02 — the prior reason ("Blender has no
-        # per-object wireframe color") was factually wrong. Probed live on 5.1.2:
-        # View3DShading.wireframe_color_type takes ['THEME', 'OBJECT', 'RANDOM'], and 'OBJECT'
-        # draws the wires in obj.color. The checkbox is now ENABLED and wired
-        # (display_utils/color_id.py _channels/b001 -> ColorId.show_channels), defaulting checked
-        # like Maya's.
-        # chk013 (Outliner): TRUE parity as of 2026-08-02 — the Blender channel sets the
-        # object's outliner TEXT color exactly like Maya's outlinerColor. Blender publishes no
-        # such property (probed live: no Object.color_tag/outliner_color; SpaceOutliner exposes
-        # no tree at all), so blendertk's OutlinerTint stores it as a custom prop and PAINTS it
-        # via a SpaceOutliner POST_PIXEL draw handler over the internal TreeElement tree. It is
-        # fail-closed: struct offsets are re-validated against the live process before drawing
-        # and the overlay disables itself rather than risk the session. Same objectName, same
-        # label, same capability.
-        # chk016 (Set Per Color): NEW on both twins 2026-08-02 — opt-in grouping of each
-        # color's objects into an ID_<HEX> container (Maya objectSet / Blender color-tagged
-        # collection). Present and wired on both sides, so no ledger row.
-    },
-    "game_shader": {
-        # cmb002 (Output Template) + cmb003 (Ext): `na` rows removed 2026-08-02 — BUILT and ENABLED.
-        # The prior reason ("Blender flow wires existing textures and never writes output maps") was
-        # a self-imposed scope limit, not a platform one: the map pipeline behind both controls is
-        # ptk.MapFactory.prepare_maps / ptk.MapRegistry, which live in DCC-agnostic pythontk, and the
-        # SIBLING panel in the same package already ran it (mat_utils/_mat_utils.py MatUpdater ->
-        # ensure_image_deps + prepare_maps). blendertk's new GameShader.create_network
-        # (mat_utils/game_shader.py) now makes the same calls, with Pillow provisioned on demand by
-        # btk.ensure_image_deps and a documented graceful degrade (wire-as-is + warning) when it
-        # can't be installed. Both are QComboBoxes present + functional on both sides -> no rows.
-        # chk000 (AiBridge): stale `na` entry removed 2026-08-10 — the control is gone from the
-        # MAYA .ui too now, so there is no delta left to triage. The Arnold preview bridge is
-        # owned end-to-end by the dedicated ArnoldBridge panel (mayatk/mat_utils/arnold_bridge.py),
-        # which adds/removes it on any scope after material creation; folding it into shader
-        # creation was a second, weaker entry point for the same capability.
-        "cmb004": {"status": "na", "reason": "Shader type (Stingray PBS / Standard Surface / OpenPBR) picks a Maya shader NODE; Blender has exactly one surface node. Probed on Blender 5.1.2: no OpenPBR node type exists (0 of 101 shader nodes), but Principled IS the OpenPBR model — its inputs map onto ND_open_pbr_surface_surfaceshader's, MaterialX 1.39.4 ships bundled, and Blender's own USD export emits ND_open_pbr_surface_surfaceshader for a Principled material (every conversion node this tool builds translates: MixRGB->ND_mix_color3, Invert->ND_subtract_color3, SeparateColor->ND_extract_color3, NormalMap->ND_normalmap_float). So OpenPBR is reachable, and what the Maya combo actually selects is the downstream TARGET — which on this panel is cmb002 (Unity URP/HDRP, Unreal, glTF, Godot). A Blender shader-type combo would be a second control for the same decision with two items naming Maya shaders that are never created. Removed from the .ui 2026-08-02 rather than left disabled."},
-        # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (game_shader.py:76,107 ->
-        # btk.graph_materials opens the Shader Editor), matched by objectName (GameShader 0 triaged).
-    },
-    "image_tracer": {
-        "blue_pencil_button": {
-            "status": "na",
-            "reason": "Maya Blue Pencil; Grease-Pencil->curve is the deferred opt-in",
-        },
-        "chk000": {
-            "status": "na",
-            "reason": "Use Blue Pencil toggle; see blue_pencil_button",
-        },
-    },
-    "image_to_plane": {  # mayatk file stem is env_utils/image_to_plane/... ; added 2026-07-08
-        "cmb_mat_type": {"status": "na", "reason": "Maya shader-node-type pick (Stingray PBS realtime/DX11 vs Standard Surface Arnold/offline); Blender builds the one unified Principled BSDF for both EEVEE and Cycles, so there is no shader-node-type choice to make -- the Blender combo is disabled by design (documented in the module docstring). Same shape as game_shader.cmb004."},
-    },
     "lightmap_baker_slots": {  # the panel file stem (lightmap_baker_slots.py)
         # config_buttons header chrome closed 2026-07-03 (config_buttons("menu","collapse","hide")).
         # cmb002 Packing combo (Per-Object / Atlas by Material): BUILT 2026-07-13. blendertk
@@ -304,48 +225,6 @@ CONTROLS = {
         # denoise), so Blender has the switch too -- ungated by the processor, since Cycles
         # samples adaptively on the CPU and the GPU alike.
         "spn_gi_samples": {"status": "na", "reason": "Arnold's GIDiffuseSamples (and the GPU's adaptive AA x GI ceiling). Cycles is a unified path tracer: since Cycles X (Blender 3.0) removed branched path tracing there is no per-ray-type sample count -- one Samples value covers direct and indirect light, and Blender's spn_samples already is that."},
-    },
-    "mat_updater": {
-        "cmb_shader_type": {"status": "na", "reason": "Shader Type (retype the materials before wiring, via mtk.ShaderConverter -> StingrayPBS / standardSurface / openPBRSurface). Blender has no shader-type axis: a material is one Principled BSDF node graph, so there is no target to convert to and blendertk ships no ShaderConverter twin. The rest of the run (texture resolution + rewire) is mirrored."},
-        # chk_discover_sourceimages: removed 2026-07-11 — Blender ships it 1:1 (mat_updater.py:161,310
-        # -> _mat_utils.py:1469 maps discover_sourceimages -> discover_dir = the .blend workspace dir),
-        # matched by objectName against the Maya panel (mat_updater.py:785,958); MatUpdater 0 triaged.
-        # cmb_convert_format / cmb_max_size / cmb_mask_scale / txt_old_files: REMOVED from BOTH
-        # twins 2026-08-10 (separation of concerns) — file format, resolution clamp, mask/secondary
-        # scale and archiving-the-original are image *optimization*, owned by the Map Converter's
-        # Optimize tool (extapps/texture_maps/converter). This panel is reconfiguration only:
-        # which maps a material gets, and wiring/repathing to them. Dropped symmetrically, so
-        # there is no delta and no ledger row (txt_old_files' "na" row removed with them).
-        "cmb_transfer_mode": {
-            "status": "na",
-            "reason": "copy/move transfer doesn't map — Blender engine writes to output_dir, "
-                      "sources stay in place",
-        },
-    },
-    "shader_templates_slots": {  # mayatk file stem is shader_templates/shader_templates_slots.py
-        # b002 / lbl000 / lbl001 / lbl_open_templates_dir: stale entries removed 2026-07-03 — the
-        # current file is a verbatim 1:1 objectName mirror (its own module docstring: "same
-        # objectNames, same header-menu layout, same method shapes"); Save/Rename/Delete/Open-
-        # -templates-dir ship under the IDENTICAL names these entries claimed were renamed away
-        # from. No divergence to ledger.
-        # lbl002 ("Open Template File"): BUILT — the Blender twin ships it 1:1 on the cmb002
-        # submenu (shader_templates.py:167-172 add_action + def lbl002:206-209 -> ptk.open_explorer
-        # of self._store.path(template,"user")), matched by objectName against the Maya panel
-        # (_shader_templates.py:594-599 / lbl002:646-649). Saved templates are PresetStore JSON
-        # files, so open-in-editor is portable exactly as the Maya YAML entry is. No divergence.
-        # lbl_graph_material: removed 2026-07-11 — Blender ships it 1:1 (shader_templates.py:107,135
-        # -> btk.graph_materials opens the Shader Editor), matched by objectName against the Maya
-        # panel (_shader_templates.py:529,558); ShaderTemplates 0 triaged.
-    },
-    "telescope_rig": {
-        # cmb_axis (Aim Axis) BUILT 2026-07-28; btn_remove + the Auto collapse spinbox BUILT
-        # 2026-08-02 with the arity work (optional handles, 2-segment struts, auto collapse,
-        # bundle + teardown + scene stamp) landed in both twins in the same pass — the .ui files
-        # stay byte-identical and the engines mirror at the behavior level. Selection semantics
-        # are the one deliberate divergence and are inherent to the DCC: Maya reads click order
-        # (leading/trailing locator = base/end), Blender has none, so Empties are handles and
-        # segments order by distance from the ACTIVE object. Verified headless
-        # (test_telescope_rig.py 73/73). No delta.
     },
     "render_effects_slots": {
         # Render Effects panel (renamed from render_opacity 2026-09-05; redesigned 2026-10-03):
@@ -411,25 +290,6 @@ CONTROLS = {
         # Note: Maya's spline default is Auto (-1 = one joint per edge loop); TubePath
         # supports -1 but the Blender spec's minimum=2 makes Auto unreachable from the UI.
     },
-    # mirror / cut_on_axis / duplicate_linear: the cmb000->cmb002/cmb001/cmb003-style "renamed for
-    # QSettings isolation" entries formerly here were removed 2026-07-03 — all three files now keep
-    # the IDENTICAL objectName as mayatk (confirmed against current source: mirror.py/cut_on_axis.py/
-    # duplicate_linear.py docstrings each state "same objectNames" / "1:1 objectName mirror" and the
-    # QSettings collision is solved a different way at the Switchboard/MainWindow level instead).
-    # No divergence to ledger; the item-count drop (Maya's Manip pivot has no Blender analogue)
-    # still shows as a non-blocking combo-item "review" delta.
-    # duplicate_radial.chk008 (Suffix) removed 2026-07-08: it is NOT dropped — the Blender
-    # slot builds chk008 (identical .ui) and wires suffix=self.ui.chk008.isChecked() into
-    # duplicate_radial(..., suffix=…) -> Naming.append_location_based_suffix. Fully built on
-    # both sides (sweep sees no delta); the old "intentionally dropped" na was stale.
-    "cut_on_axis": {
-        # Weighted-spacing port BUILT 2026-07-28: cmb001 (interpolation combo) + s002 Spacing
-        # + s003 Weight Bias + s004 Weight Curve added to the Blender .ui/slot 1:1 (same
-        # INTERPOLATION_MODES table + toggle_weight_ui), and btk.cut_along_axis gained
-        # spacing/distribution/weight_bias/weight_curve via _cut_offsets on the shared
-        # ptk.ProgressionCurves (linear default reproduces the old even-fill exactly;
-        # verified headless in test_edit_utils.py). No delta.
-    },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
         # removed 2026-07-08 -- all three ship in Blender under the IDENTICAL objectName (verified
@@ -452,24 +312,6 @@ CONTROLS = {
         # sync_material_names + LightmapRecords.rename_lightmap; Blender-verified in
         # test_texture_path_editor.py. Their pending rows are gone.
     },
-    # UV Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). FULL parity as of
-    # 2026-07-11 (Phase 1c): the Blender twin now ships every Maya shell op — move/flip/rotate/
-    # straighten/mirror/distribute PLUS Align (min/avg/max + linear), Orient (shells + to-edge),
-    # Gather, and Randomize. Those Align/Orient/Gather/Randomize buttons were previously ruled `na`
-    # ("no bpy analogue"); that was an over-scope, corrected by the inverse audit. Realizations,
-    # each probed live in headless Blender 5.1 before building:
-    #   - orient_shells / orient_edges -> native bpy.ops.uv.align_rotation(AUTO|EDGE)
-    #   - randomize_shells            -> native bpy.ops.uv.randomize_uv_transform (seeded)
-    #   - align_u/v_min/avg/max       -> btk.align_uvs bmesh helper (avg = arithmetic mean of the
-    #                                    selected UVs; the natural reading of Maya avgU, exact
-    #                                    averaging method owed a live-Maya check)
-    #   - linear_align                -> btk.align_uvs mode="linear" (project onto the endpoint line)
-    #   - gather_shells               -> btk.gather_uv_shells bmesh helper (floor-subtract per island)
-    # All 15 controls (2 groups, 2 row labels, 7 align + 4 orient buttons) now match 1:1, so their
-    # ledger entries are dropped (dead — the sweep only consults `na` for a control MISSING from
-    # Blender). select_back_facing / select_overlapping / select_unmapped were removed from the
-    # Maya panel 2026-07-08, so there's no widget left to ledger either.
-    "shell_xform": {},
 }
 
 # --------------------------------------------------------------------------- tentacle shared slots
@@ -1020,12 +862,9 @@ DEFAULT_DELTAS = {
     "animation": {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
     },
-    # uv.cmb002 (the 17->3 Transform submenu) was relocated 2026-07-08 into the dedicated UV
-    # Transform tool (co-located mayatk/blendertk uv_utils/shell_xform.py). The Maya-only ops
-    # (Align/Orient/Gather/Randomize/select filters) are now ledgered under CONTROLS["shell_xform"]
-    # as `na`; Flip/Rotate (+ the move pad and Straighten/Mirror/Distribute) ship in the Blender
-    # twin. No cmb002 remains in the uv slot, so the former cmb002.items pending note is retired
-    # (no "uv" entry needed here while the panel has no other triaged deltas).
+    # uv.cmb002 (the 17->3 Transform submenu) was relocated 2026-07-08 into the UV Transform
+    # tool, now tentacle's shared Shell Xform panel (one surface, no deltas). No cmb002 remains
+    # in the uv slot, so no "uv" entry is needed here.
     # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
     # Transfer mode (2026-10-17); its vocabulary deltas moved with it.
     "texture_combine_slots": {
@@ -1080,17 +919,6 @@ PANELS = {
     # anything dropped into Assets/ on focus, so (like Maya's) this needs no live-RPC / fresh-
     # instance-launch dance, unlike the Marmoset/Substance external-app-relay bridges. Track any
     # remaining gaps via the CONTROLS/panel-table entries instead of this "unbuilt" ledger.
-    # SmartBakeSlots verified clean via `compare_panel_surface.py --panel smart_bake` (0
-    # untriaged / 0 pending / 5 triaged-OK / 0 stale-maya / 2 prop deltas [b000/b001 .ui
-    # widget `class` PushButton-vs-QPushButton — pre-existing uitk-promotion review delta, not
-    # blocking] / 0 item deltas) after ledgering the 5 real controls under the new
-    # "smart_bake_slots" CONTROLS row above -- chk_bake_blendshapes/chk_delete_inputs renamed,
-    # chk_override_layer replaced by chk_use_override (Blender's nla.bake always writes a
-    # brand-new Action, so there's no override-vs-base-layer axis left to name), and
-    # and chk_mute_drivers na (fully covered by chk_use_override). chk_inherited_vis was
-    # REMOVED from the Maya panel 2026-08-02 (API-only option; the FBX exporter already
-    # resolves inherited visibility, and baking it corrupts RenderOpacity fade encoding --
-    # measured, see _smart_bake.py), so there is no longer a control to ledger on either side.
     # BlendshapeAnimatorSlots: removed 2026-07-03 -- now a real blendertk twin (engine + Slots +
     # .ui under anim_utils/blendshape_animator, engine registered in blendertk/__init__.py).
     # scene.py's b015 -> marking_menu.show("blendshape_animator") is a NEW, Blender-only

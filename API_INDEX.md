@@ -508,6 +508,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class GameShaderSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, lbl_graph_material, mat_name, mat_prefix, mat_suffix, normal_map_type, output_extension, shader_type, opacity_mode, cmb002_init, cmb003_init, cmb004_init, txt000_init, txt002_init, b000
 
+### `slots/tools/hdr_manager.py` — HDR Manager: light the scene from an HDR environment map, spin it and adjust
+- `class HdrManagerSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb000_init, hdr_map, hdr_map_visibility, hdr_map_preview, cmb000, slider000, spn_intensity, spn_exposure, spn_resolution, spn_samples, spn_diffuse, spn_specular, add_hdr, open_sourceimages, clear_network, ctx_select_skydome, ctx_select_transform, ctx_select_file_node, ctx_reveal_in_explorer
+
 ### `slots/tools/image_to_plane.py` — Image to Plane: batch-create textured planes from image files.
 - `class ImageToPlaneSlots(Slots)`
   - methods: header_init, txt_suffix_init, b000, b004, b001, b002
@@ -527,6 +531,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
   - methods: header_init, prepare_operation, perform_operation
+
+### `slots/tools/shader_templates.py` — Shader Templates: save a material's shader network as a reusable template
+- `class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`
+  - methods: source_images_dir, header_init, lbl_graph_material, lbl_open_templates_dir, cmb002_init, refresh_templates, rename_template_safe, lbl000, lbl001, lbl002, b000, b001, b002
 
 ### `slots/tools/shell_xform.py` — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - `class ShellXformSlots(Slots)`
