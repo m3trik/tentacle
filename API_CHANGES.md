@@ -55,8 +55,10 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (93)
+## Moved out (95)
 
+- `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
+- `slots/_animation.py::AnimationMixin.list000_init` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.list000_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -151,13 +153,64 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_uv.py::UvMixin.get_map_size` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
 - `slots/_uv.py::UvMixin.s003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
 
-## Added (1579)
+## Added (1630)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
 - `slots/_slots.py::Slots.require_selection(self, message=None)`
 - `slots/_slots.py::Slots.run_operation(self, call, *args, empty=None, **kwargs)`
 - `slots/_slots.py::Slots.tk(self)`
+- `slots/animation.py::AnimationSlots(class)`
+- `slots/animation.py::AnimationSlots.b000(self)`
+- `slots/animation.py::AnimationSlots.b001(self)`
+- `slots/animation.py::AnimationSlots.b004(self)`
+- `slots/animation.py::AnimationSlots.b005(self)`
+- `slots/animation.py::AnimationSlots.b006(self)`
+- `slots/animation.py::AnimationSlots.list000(self, item)`
+- `slots/animation.py::AnimationSlots.list000_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb000(self, widget)`
+- `slots/animation.py::AnimationSlots.tb000_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb001(self, widget)`
+- `slots/animation.py::AnimationSlots.tb001_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb002(self, widget)`
+- `slots/animation.py::AnimationSlots.tb002_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb003(self, widget)`
+- `slots/animation.py::AnimationSlots.tb003_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb004(self, widget)`
+- `slots/animation.py::AnimationSlots.tb004_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb005(self, widget)`
+- `slots/animation.py::AnimationSlots.tb005_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb006(self, widget)`
+- `slots/animation.py::AnimationSlots.tb006_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb007(self, widget)`
+- `slots/animation.py::AnimationSlots.tb007_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb008(self, widget)`
+- `slots/animation.py::AnimationSlots.tb008_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb009(self, widget)`
+- `slots/animation.py::AnimationSlots.tb009_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb010(self, widget)`
+- `slots/animation.py::AnimationSlots.tb010_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb011(self, widget)`
+- `slots/animation.py::AnimationSlots.tb011_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb012(self, widget)`
+- `slots/animation.py::AnimationSlots.tb012_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb013(self, widget)`
+- `slots/animation.py::AnimationSlots.tb013_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb014(self, widget)`
+- `slots/animation.py::AnimationSlots.tb014_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb015(self, widget)`
+- `slots/animation.py::AnimationSlots.tb015_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb016(self, widget)`
+- `slots/animation.py::AnimationSlots.tb016_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb017(self, widget)`
+- `slots/animation.py::AnimationSlots.tb017_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb018(self, widget)`
+- `slots/animation.py::AnimationSlots.tb018_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb019(self, widget)`
+- `slots/animation.py::AnimationSlots.tb019_init(self, widget)`
+- `slots/animation.py::AnimationSlots.tb020(self, widget)`
+- `slots/animation.py::AnimationSlots.tb021(self, widget)`
+- `slots/animation.py::AnimationSlots.tb021_init(self, widget)`
 - `slots/cameras.py::CamerasSlots(class)`
 - `slots/cameras.py::CamerasSlots.b000(self)`
 - `slots/cameras.py::CamerasSlots.b001(self)`
@@ -1733,10 +1786,59 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (726)
+## Moved (825)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
+- `slots/blender/animation.py::AnimationSlots`
+- `slots/blender/animation.py::AnimationSlots.b000`
+- `slots/blender/animation.py::AnimationSlots.b004`
+- `slots/blender/animation.py::AnimationSlots.b005`
+- `slots/blender/animation.py::AnimationSlots.b006`
+- `slots/blender/animation.py::AnimationSlots.list000`
+- `slots/blender/animation.py::AnimationSlots.tb000`
+- `slots/blender/animation.py::AnimationSlots.tb000_init`
+- `slots/blender/animation.py::AnimationSlots.tb001`
+- `slots/blender/animation.py::AnimationSlots.tb001_init`
+- `slots/blender/animation.py::AnimationSlots.tb002`
+- `slots/blender/animation.py::AnimationSlots.tb002_init`
+- `slots/blender/animation.py::AnimationSlots.tb003`
+- `slots/blender/animation.py::AnimationSlots.tb003_init`
+- `slots/blender/animation.py::AnimationSlots.tb004`
+- `slots/blender/animation.py::AnimationSlots.tb004_init`
+- `slots/blender/animation.py::AnimationSlots.tb005`
+- `slots/blender/animation.py::AnimationSlots.tb005_init`
+- `slots/blender/animation.py::AnimationSlots.tb006`
+- `slots/blender/animation.py::AnimationSlots.tb006_init`
+- `slots/blender/animation.py::AnimationSlots.tb007`
+- `slots/blender/animation.py::AnimationSlots.tb007_init`
+- `slots/blender/animation.py::AnimationSlots.tb008`
+- `slots/blender/animation.py::AnimationSlots.tb008_init`
+- `slots/blender/animation.py::AnimationSlots.tb009`
+- `slots/blender/animation.py::AnimationSlots.tb009_init`
+- `slots/blender/animation.py::AnimationSlots.tb010`
+- `slots/blender/animation.py::AnimationSlots.tb010_init`
+- `slots/blender/animation.py::AnimationSlots.tb011`
+- `slots/blender/animation.py::AnimationSlots.tb011_init`
+- `slots/blender/animation.py::AnimationSlots.tb012`
+- `slots/blender/animation.py::AnimationSlots.tb012_init`
+- `slots/blender/animation.py::AnimationSlots.tb013`
+- `slots/blender/animation.py::AnimationSlots.tb013_init`
+- `slots/blender/animation.py::AnimationSlots.tb014`
+- `slots/blender/animation.py::AnimationSlots.tb014_init`
+- `slots/blender/animation.py::AnimationSlots.tb015`
+- `slots/blender/animation.py::AnimationSlots.tb015_init`
+- `slots/blender/animation.py::AnimationSlots.tb016`
+- `slots/blender/animation.py::AnimationSlots.tb016_init`
+- `slots/blender/animation.py::AnimationSlots.tb017`
+- `slots/blender/animation.py::AnimationSlots.tb017_init`
+- `slots/blender/animation.py::AnimationSlots.tb018`
+- `slots/blender/animation.py::AnimationSlots.tb018_init`
+- `slots/blender/animation.py::AnimationSlots.tb019`
+- `slots/blender/animation.py::AnimationSlots.tb019_init`
+- `slots/blender/animation.py::AnimationSlots.tb020`
+- `slots/blender/animation.py::AnimationSlots.tb021`
+- `slots/blender/animation.py::AnimationSlots.tb021_init`
 - `slots/blender/cameras.py::CamerasSlots`
 - `slots/blender/cameras.py::CamerasSlots.b000`
 - `slots/blender/cameras.py::CamerasSlots.b001`
@@ -2096,6 +2198,56 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/uv.py::UvSlots.tb022`
 - `slots/blender/uv.py::UvSlots.tb022_init`
 - `slots/blender/uv.py::UvSlots.uv_snapshot`
+- `slots/maya/animation.py::AnimationSlots`
+- `slots/maya/animation.py::AnimationSlots.b000`
+- `slots/maya/animation.py::AnimationSlots.b001`
+- `slots/maya/animation.py::AnimationSlots.b004`
+- `slots/maya/animation.py::AnimationSlots.b005`
+- `slots/maya/animation.py::AnimationSlots.b006`
+- `slots/maya/animation.py::AnimationSlots.list000`
+- `slots/maya/animation.py::AnimationSlots.tb000`
+- `slots/maya/animation.py::AnimationSlots.tb000_init`
+- `slots/maya/animation.py::AnimationSlots.tb001`
+- `slots/maya/animation.py::AnimationSlots.tb001_init`
+- `slots/maya/animation.py::AnimationSlots.tb002`
+- `slots/maya/animation.py::AnimationSlots.tb002_init`
+- `slots/maya/animation.py::AnimationSlots.tb003`
+- `slots/maya/animation.py::AnimationSlots.tb003_init`
+- `slots/maya/animation.py::AnimationSlots.tb004`
+- `slots/maya/animation.py::AnimationSlots.tb004_init`
+- `slots/maya/animation.py::AnimationSlots.tb005`
+- `slots/maya/animation.py::AnimationSlots.tb005_init`
+- `slots/maya/animation.py::AnimationSlots.tb006`
+- `slots/maya/animation.py::AnimationSlots.tb006_init`
+- `slots/maya/animation.py::AnimationSlots.tb007`
+- `slots/maya/animation.py::AnimationSlots.tb007_init`
+- `slots/maya/animation.py::AnimationSlots.tb008`
+- `slots/maya/animation.py::AnimationSlots.tb008_init`
+- `slots/maya/animation.py::AnimationSlots.tb009`
+- `slots/maya/animation.py::AnimationSlots.tb009_init`
+- `slots/maya/animation.py::AnimationSlots.tb010`
+- `slots/maya/animation.py::AnimationSlots.tb010_init`
+- `slots/maya/animation.py::AnimationSlots.tb011`
+- `slots/maya/animation.py::AnimationSlots.tb011_init`
+- `slots/maya/animation.py::AnimationSlots.tb012`
+- `slots/maya/animation.py::AnimationSlots.tb012_init`
+- `slots/maya/animation.py::AnimationSlots.tb013`
+- `slots/maya/animation.py::AnimationSlots.tb013_init`
+- `slots/maya/animation.py::AnimationSlots.tb014`
+- `slots/maya/animation.py::AnimationSlots.tb014_init`
+- `slots/maya/animation.py::AnimationSlots.tb015`
+- `slots/maya/animation.py::AnimationSlots.tb015_init`
+- `slots/maya/animation.py::AnimationSlots.tb016`
+- `slots/maya/animation.py::AnimationSlots.tb016_init`
+- `slots/maya/animation.py::AnimationSlots.tb017`
+- `slots/maya/animation.py::AnimationSlots.tb017_init`
+- `slots/maya/animation.py::AnimationSlots.tb018`
+- `slots/maya/animation.py::AnimationSlots.tb018_init`
+- `slots/maya/animation.py::AnimationSlots.tb019`
+- `slots/maya/animation.py::AnimationSlots.tb019_init`
+- `slots/maya/animation.py::AnimationSlots.tb020`
+- `slots/maya/animation.py::AnimationSlots.tb021`
+- `slots/maya/animation.py::AnimationSlots.tb021_init`
 - `slots/maya/cameras.py::CamerasSlots`
 - `slots/maya/cameras.py::CamerasSlots.b000`
 - `slots/maya/cameras.py::CamerasSlots.b001`

@@ -33,35 +33,10 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 29,
+          "line": 28,
           "deprecated": false
         }
       ]
-    },
-    {
-      "relpath": "slots/_animation.py",
-      "summary": "Text the animation panel's Maya and Blender forks say identically.",
-      "functions": [],
-      "classes": [
-        {
-          "name": "AnimationMixin",
-          "summary": "Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.",
-          "line": 46,
-          "bases": [],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "AnimationMixin.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
-              "line": 469,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
     },
     {
       "relpath": "slots/_slots.py",
@@ -172,6 +147,474 @@
       "constants": []
     },
     {
+      "relpath": "slots/animation.py",
+      "summary": "Animation: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AnimationSlots",
+          "summary": "",
+          "line": 24,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "AnimationSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.",
+              "line": 228,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "AnimationSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Dispatch a Tools leaf to its slot method.",
+              "line": 270,
+              "deprecated": false
+            },
+            {
+              "name": "tb020",
+              "qualname": "AnimationSlots.tb020",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Smart Bake",
+              "line": 274,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "AnimationSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open Shot Sequencer",
+              "line": 278,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "AnimationSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open Shot Manifest",
+              "line": 282,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "AnimationSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open Key Stash",
+              "line": 286,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "AnimationSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Repair Visibility Tangents (Maya: the Tools row is ``requires=\"maya\"``):",
+              "line": 290,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "AnimationSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Fit Playback Range: to the keyed extent of the selection, or of the",
+              "line": 299,
+              "deprecated": false
+            },
+            {
+              "name": "tb000_init",
+              "qualname": "AnimationSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Go To Frame Init",
+              "line": 313,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "AnimationSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Go To Frame: move the playhead to a frame (absolute, or relative to",
+              "line": 481,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "AnimationSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Invert Keyframes Init",
+              "line": 500,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "AnimationSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Invert Keys: mirror key times and/or values (Maya prefers the keys",
+              "line": 601,
+              "deprecated": false
+            },
+            {
+              "name": "tb002_init",
+              "qualname": "AnimationSlots.tb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Adjust Spacing Init",
+              "line": 625,
+              "deprecated": false
+            },
+            {
+              "name": "tb002",
+              "qualname": "AnimationSlots.tb002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Adjust Spacing: shift every key at or after the frame by the amount.",
+              "line": 733,
+              "deprecated": false
+            },
+            {
+              "name": "tb003_init",
+              "qualname": "AnimationSlots.tb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stagger Keys Init",
+              "line": 762,
+              "deprecated": false
+            },
+            {
+              "name": "tb003",
+              "qualname": "AnimationSlots.tb003",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Stagger Keys: re-time the selected objects to play one after another.",
+              "line": 933,
+              "deprecated": false
+            },
+            {
+              "name": "tb004_init",
+              "qualname": "AnimationSlots.tb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Keys Init",
+              "line": 963,
+              "deprecated": false
+            },
+            {
+              "name": "tb004",
+              "qualname": "AnimationSlots.tb004",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Keys: from the source (first selected in Maya, active in",
+              "line": 1030,
+              "deprecated": false
+            },
+            {
+              "name": "tb005_init",
+              "qualname": "AnimationSlots.tb005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add/Remove Intermediate Keys Init",
+              "line": 1050,
+              "deprecated": false
+            },
+            {
+              "name": "tb005",
+              "qualname": "AnimationSlots.tb005",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add/Remove Intermediate Keys over a window (-1 on a bound: each",
+              "line": 1139,
+              "deprecated": false
+            },
+            {
+              "name": "tb006_init",
+              "qualname": "AnimationSlots.tb006_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move Keys Init",
+              "line": 1183,
+              "deprecated": false
+            },
+            {
+              "name": "tb006",
+              "qualname": "AnimationSlots.tb006",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Move Keys: move the selection's keys to the current frame.",
+              "line": 1254,
+              "deprecated": false
+            },
+            {
+              "name": "tb007_init",
+              "qualname": "AnimationSlots.tb007_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Align Selected Keyframes Init",
+              "line": 1279,
+              "deprecated": false
+            },
+            {
+              "name": "tb007",
+              "qualname": "AnimationSlots.tb007",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Align Selected Keyframes: the keys picked in the Graph Editor (or",
+              "line": 1324,
+              "deprecated": false
+            },
+            {
+              "name": "tb008_init",
+              "qualname": "AnimationSlots.tb008_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Visibility Keys Init",
+              "line": 1352,
+              "deprecated": false
+            },
+            {
+              "name": "tb008",
+              "qualname": "AnimationSlots.tb008",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Set Visibility Keys",
+              "line": 1433,
+              "deprecated": false
+            },
+            {
+              "name": "tb009_init",
+              "qualname": "AnimationSlots.tb009_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Keys to Frames Init",
+              "line": 1457,
+              "deprecated": false
+            },
+            {
+              "name": "tb009",
+              "qualname": "AnimationSlots.tb009",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Keys to Frames",
+              "line": 1496,
+              "deprecated": false
+            },
+            {
+              "name": "tb010_init",
+              "qualname": "AnimationSlots.tb010_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete Keys Init",
+              "line": 1527,
+              "deprecated": false
+            },
+            {
+              "name": "tb010",
+              "qualname": "AnimationSlots.tb010",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete Keys: on the selection, over the chosen time range.",
+              "line": 1575,
+              "deprecated": false
+            },
+            {
+              "name": "tb011_init",
+              "qualname": "AnimationSlots.tb011_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tie/Untie Keyframes Init",
+              "line": 1595,
+              "deprecated": false
+            },
+            {
+              "name": "tb011",
+              "qualname": "AnimationSlots.tb011",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Tie/Untie Keyframes: the selection, or every keyed object when",
+              "line": 1642,
+              "deprecated": false
+            },
+            {
+              "name": "tb012_init",
+              "qualname": "AnimationSlots.tb012_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Copy Keys Init",
+              "line": 1670,
+              "deprecated": false
+            },
+            {
+              "name": "tb012",
+              "qualname": "AnimationSlots.tb012",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Copy Keys: capture the selection's keys or values for Paste Keys (Copy",
+              "line": 1711,
+              "deprecated": false
+            },
+            {
+              "name": "tb018_init",
+              "qualname": "AnimationSlots.tb018_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Paste Keys Init",
+              "line": 1761,
+              "deprecated": false
+            },
+            {
+              "name": "tb018",
+              "qualname": "AnimationSlots.tb018",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Paste Keys: paste the copied keys onto the selection.",
+              "line": 1785,
+              "deprecated": false
+            },
+            {
+              "name": "tb013_init",
+              "qualname": "AnimationSlots.tb013_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Keys Init",
+              "line": 1822,
+              "deprecated": false
+            },
+            {
+              "name": "tb013",
+              "qualname": "AnimationSlots.tb013",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Select Keys: on the selection, within a time range (shown in the",
+              "line": 1897,
+              "deprecated": false
+            },
+            {
+              "name": "tb014_init",
+              "qualname": "AnimationSlots.tb014_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Scale Keys Init",
+              "line": 1928,
+              "deprecated": false
+            },
+            {
+              "name": "tb014",
+              "qualname": "AnimationSlots.tb014",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Scale Keys: retime the selection's keys about a pivot.",
+              "line": 2231,
+              "deprecated": false
+            },
+            {
+              "name": "tb015_init",
+              "qualname": "AnimationSlots.tb015_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Repair Corrupted Curves Init",
+              "line": 2285,
+              "deprecated": false
+            },
+            {
+              "name": "tb015",
+              "qualname": "AnimationSlots.tb015",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Repair Corrupted Curves: the selected objects (in Maya with their",
+              "line": 2357,
+              "deprecated": false
+            },
+            {
+              "name": "tb021_init",
+              "qualname": "AnimationSlots.tb021_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Fractional Key Times Init",
+              "line": 2398,
+              "deprecated": false
+            },
+            {
+              "name": "tb021",
+              "qualname": "AnimationSlots.tb021",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Snap Fractional Key Times: the repair-scoped twin of Snap Keys.",
+              "line": 2410,
+              "deprecated": false
+            },
+            {
+              "name": "tb016_init",
+              "qualname": "AnimationSlots.tb016_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Animation Info Init",
+              "line": 2451,
+              "deprecated": false
+            },
+            {
+              "name": "tb016",
+              "qualname": "AnimationSlots.tb016",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Get Animation Info: render the report to the viewer dialog.",
+              "line": 2545,
+              "deprecated": false
+            },
+            {
+              "name": "tb017_init",
+              "qualname": "AnimationSlots.tb017_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Step Tangents Init",
+              "line": 2590,
+              "deprecated": false
+            },
+            {
+              "name": "tb017",
+              "qualname": "AnimationSlots.tb017",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Step Tangents: set the interpolation of the chosen keys.",
+              "line": 2679,
+              "deprecated": false
+            },
+            {
+              "name": "tb019_init",
+              "qualname": "AnimationSlots.tb019_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Optimize Keys Init",
+              "line": 2697,
+              "deprecated": false
+            },
+            {
+              "name": "tb019",
+              "qualname": "AnimationSlots.tb019",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Optimize Keys: remove redundant animation data from the selection,",
+              "line": 2801,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/blender/_slots_blender.py",
       "summary": "",
       "functions": [],
@@ -263,457 +706,6 @@
               "signature": "(self, data_type, **kwargs)",
               "summary": "Run native Data Transfer from the active mesh to the other selected meshes",
               "line": 99,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/animation.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "AnimationSlots",
-          "summary": "Blender port of the shared ``animation`` menu.",
-          "line": 8,
-          "bases": [
-            "AnimationMixin",
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list000",
-              "qualname": "AnimationSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its slot method.",
-              "line": 104,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "AnimationSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 109,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "AnimationSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Go To Frame (absolute, or relative offset from the current frame);",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "AnimationSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 248,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "AnimationSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Invert Keys (mirror key times and/or values — reverses timing / flips motion).",
-              "line": 323,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "AnimationSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 346,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "AnimationSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Stagger Keys (re-time selected objects sequentially).",
-              "line": 454,
-              "deprecated": false
-            },
-            {
-              "name": "tb009_init",
-              "qualname": "AnimationSlots.tb009_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 476,
-              "deprecated": false
-            },
-            {
-              "name": "tb009",
-              "qualname": "AnimationSlots.tb009",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Keys to Frames",
-              "line": 517,
-              "deprecated": false
-            },
-            {
-              "name": "tb010_init",
-              "qualname": "AnimationSlots.tb010_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 541,
-              "deprecated": false
-            },
-            {
-              "name": "tb010",
-              "qualname": "AnimationSlots.tb010",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Keys (clear all animation on the selection, or only a time-scoped subset).",
-              "line": 563,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "AnimationSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 578,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "AnimationSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Adjust Key Spacing (shift every key at/after the frame by the amount).",
-              "line": 679,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "AnimationSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 707,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "AnimationSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Keys (active object → other selected, independent copies).",
-              "line": 746,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "AnimationSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 772,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "AnimationSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add/Remove Intermediate Keys",
-              "line": 846,
-              "deprecated": false
-            },
-            {
-              "name": "tb013_init",
-              "qualname": "AnimationSlots.tb013_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 880,
-              "deprecated": false
-            },
-            {
-              "name": "tb013",
-              "qualname": "AnimationSlots.tb013",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Keys (``select_control_point`` — shows in the Dope Sheet / Graph Editor).",
-              "line": 932,
-              "deprecated": false
-            },
-            {
-              "name": "tb007_init",
-              "qualname": "AnimationSlots.tb007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 954,
-              "deprecated": false
-            },
-            {
-              "name": "tb007",
-              "qualname": "AnimationSlots.tb007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Align Selected Keyframes (keys picked in the Dope Sheet / Graph Editor).",
-              "line": 998,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "AnimationSlots.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1021,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "AnimationSlots.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Visibility Keys (key viewport + render visibility).",
-              "line": 1083,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "AnimationSlots.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1105,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "AnimationSlots.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move Keys (align the selection's keys to the current frame).",
-              "line": 1150,
-              "deprecated": false
-            },
-            {
-              "name": "tb012_init",
-              "qualname": "AnimationSlots.tb012_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1182,
-              "deprecated": false
-            },
-            {
-              "name": "tb012",
-              "qualname": "AnimationSlots.tb012",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Copy Keys (from the active object;",
-              "line": 1212,
-              "deprecated": false
-            },
-            {
-              "name": "tb018_init",
-              "qualname": "AnimationSlots.tb018_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1241,
-              "deprecated": false
-            },
-            {
-              "name": "tb018",
-              "qualname": "AnimationSlots.tb018",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Paste Keys (independent copies onto the selection).",
-              "line": 1262,
-              "deprecated": false
-            },
-            {
-              "name": "tb014_init",
-              "qualname": "AnimationSlots.tb014_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1290,
-              "deprecated": false
-            },
-            {
-              "name": "tb014",
-              "qualname": "AnimationSlots.tb014",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Scale Keys",
-              "line": 1467,
-              "deprecated": false
-            },
-            {
-              "name": "tb017_init",
-              "qualname": "AnimationSlots.tb017_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1518,
-              "deprecated": false
-            },
-            {
-              "name": "tb017",
-              "qualname": "AnimationSlots.tb017",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Tangents (key interpolation type — stepped / linear / smooth).",
-              "line": 1550,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "AnimationSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fit Playback Range (to the keyed extent of the selection, or the whole scene).",
-              "line": 1560,
-              "deprecated": false
-            },
-            {
-              "name": "tb011_init",
-              "qualname": "AnimationSlots.tb011_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1572,
-              "deprecated": false
-            },
-            {
-              "name": "tb011",
-              "qualname": "AnimationSlots.tb011",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tie/Untie Keyframes",
-              "line": 1614,
-              "deprecated": false
-            },
-            {
-              "name": "tb016_init",
-              "qualname": "AnimationSlots.tb016_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1634,
-              "deprecated": false
-            },
-            {
-              "name": "tb016",
-              "qualname": "AnimationSlots.tb016",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Animation Info — render a per-object keyframe summary to the viewer dialog.",
-              "line": 1679,
-              "deprecated": false
-            },
-            {
-              "name": "tb019_init",
-              "qualname": "AnimationSlots.tb019_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1713,
-              "deprecated": false
-            },
-            {
-              "name": "tb019",
-              "qualname": "AnimationSlots.tb019",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 1803,
-              "deprecated": false
-            },
-            {
-              "name": "tb015_init",
-              "qualname": "AnimationSlots.tb015_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1840,
-              "deprecated": false
-            },
-            {
-              "name": "tb015",
-              "qualname": "AnimationSlots.tb015",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;",
-              "line": 1899,
-              "deprecated": false
-            },
-            {
-              "name": "tb021_init",
-              "qualname": "AnimationSlots.tb021_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 1934,
-              "deprecated": false
-            },
-            {
-              "name": "tb021",
-              "qualname": "AnimationSlots.tb021",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1946,
-              "deprecated": false
-            },
-            {
-              "name": "tb020",
-              "qualname": "AnimationSlots.tb020",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Smart Bake",
-              "line": 1973,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "AnimationSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Shot Sequencer — tentacle's shared tool (slots/tools/shot_sequencer.py): shots",
-              "line": 1978,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "AnimationSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked",
-              "line": 1984,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "AnimationSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working",
-              "line": 1989,
               "deprecated": false
             }
           ]
@@ -2216,466 +2208,6 @@
               "signature": "(self, message=None, **kwargs)",
               "summary": "The current selection, or ``None`` -- after a message box -- when it is empty.",
               "line": 20,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/animation.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "AnimationSlots",
-          "summary": "",
-          "line": 8,
-          "bases": [
-            "AnimationMixin",
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000",
-              "qualname": "AnimationSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Dispatch a Tools leaf to its slot method.",
-              "line": 91,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "AnimationSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Repair Visibility Tangents",
-              "line": 95,
-              "deprecated": false
-            },
-            {
-              "name": "tb000_init",
-              "qualname": "AnimationSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Go To Frame Init",
-              "line": 99,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "AnimationSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Go To Frame: jump the time slider to the next/previous key or a snap target.",
-              "line": 237,
-              "deprecated": false
-            },
-            {
-              "name": "tb001_init",
-              "qualname": "AnimationSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Invert Keyframes Init",
-              "line": 264,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "AnimationSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Invert keyframes (selected keys preferred, fallback to all keys).",
-              "line": 342,
-              "deprecated": false
-            },
-            {
-              "name": "tb002_init",
-              "qualname": "AnimationSlots.tb002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Adjust Spacing Init",
-              "line": 376,
-              "deprecated": false
-            },
-            {
-              "name": "tb002",
-              "qualname": "AnimationSlots.tb002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Adjust spacing",
-              "line": 485,
-              "deprecated": false
-            },
-            {
-              "name": "tb003_init",
-              "qualname": "AnimationSlots.tb003_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Stagger Keys Init",
-              "line": 520,
-              "deprecated": false
-            },
-            {
-              "name": "tb003",
-              "qualname": "AnimationSlots.tb003",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Stagger Keys",
-              "line": 678,
-              "deprecated": false
-            },
-            {
-              "name": "tb004_init",
-              "qualname": "AnimationSlots.tb004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Keys Init",
-              "line": 712,
-              "deprecated": false
-            },
-            {
-              "name": "tb004",
-              "qualname": "AnimationSlots.tb004",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Keys",
-              "line": 767,
-              "deprecated": false
-            },
-            {
-              "name": "tb005_init",
-              "qualname": "AnimationSlots.tb005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add/Remove Intermediate Keys Init",
-              "line": 786,
-              "deprecated": false
-            },
-            {
-              "name": "tb005",
-              "qualname": "AnimationSlots.tb005",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Add/Remove Intermediate Keys.",
-              "line": 866,
-              "deprecated": false
-            },
-            {
-              "name": "tb006_init",
-              "qualname": "AnimationSlots.tb006_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move Keys Init",
-              "line": 918,
-              "deprecated": false
-            },
-            {
-              "name": "tb006",
-              "qualname": "AnimationSlots.tb006",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Move Keys: move the selected keys in time, with optional spacing/alignment.",
-              "line": 974,
-              "deprecated": false
-            },
-            {
-              "name": "tb007_init",
-              "qualname": "AnimationSlots.tb007_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Align Selected Keyframes Init",
-              "line": 998,
-              "deprecated": false
-            },
-            {
-              "name": "tb007",
-              "qualname": "AnimationSlots.tb007",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Align Selected Keyframes",
-              "line": 1043,
-              "deprecated": false
-            },
-            {
-              "name": "tb008_init",
-              "qualname": "AnimationSlots.tb008_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Visibility Keys Init",
-              "line": 1074,
-              "deprecated": false
-            },
-            {
-              "name": "tb008",
-              "qualname": "AnimationSlots.tb008",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set Visibility Keys",
-              "line": 1134,
-              "deprecated": false
-            },
-            {
-              "name": "tb009_init",
-              "qualname": "AnimationSlots.tb009_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Keys to Frames Init",
-              "line": 1162,
-              "deprecated": false
-            },
-            {
-              "name": "tb009",
-              "qualname": "AnimationSlots.tb009",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Keys to Frames",
-              "line": 1199,
-              "deprecated": false
-            },
-            {
-              "name": "tb010_init",
-              "qualname": "AnimationSlots.tb010_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Keys Init",
-              "line": 1234,
-              "deprecated": false
-            },
-            {
-              "name": "tb010",
-              "qualname": "AnimationSlots.tb010",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Delete Keys: delete keys on the selection over a chosen time range.",
-              "line": 1274,
-              "deprecated": false
-            },
-            {
-              "name": "tb011_init",
-              "qualname": "AnimationSlots.tb011_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tie/Untie Keyframes Init",
-              "line": 1294,
-              "deprecated": false
-            },
-            {
-              "name": "tb011",
-              "qualname": "AnimationSlots.tb011",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Tie/Untie Keyframes",
-              "line": 1342,
-              "deprecated": false
-            },
-            {
-              "name": "tb013_init",
-              "qualname": "AnimationSlots.tb013_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Keys Init",
-              "line": 1361,
-              "deprecated": false
-            },
-            {
-              "name": "tb013",
-              "qualname": "AnimationSlots.tb013",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Select Keys: select keys on the selection within a frame range.",
-              "line": 1421,
-              "deprecated": false
-            },
-            {
-              "name": "tb014_init",
-              "qualname": "AnimationSlots.tb014_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Scale Keys Init",
-              "line": 1453,
-              "deprecated": false
-            },
-            {
-              "name": "tb014",
-              "qualname": "AnimationSlots.tb014",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Scale Keys: scale the selected keys in time about a pivot.",
-              "line": 1651,
-              "deprecated": false
-            },
-            {
-              "name": "tb015_init",
-              "qualname": "AnimationSlots.tb015_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Repair Corrupted Curves - Initialize option box",
-              "line": 1733,
-              "deprecated": false
-            },
-            {
-              "name": "tb015",
-              "qualname": "AnimationSlots.tb015",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Repair Corrupted Curves",
-              "line": 1791,
-              "deprecated": false
-            },
-            {
-              "name": "tb021_init",
-              "qualname": "AnimationSlots.tb021_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Fractional Key Times — initialize the option box.",
-              "line": 1862,
-              "deprecated": false
-            },
-            {
-              "name": "tb021",
-              "qualname": "AnimationSlots.tb021",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Snap Fractional Key Times — the repair-scoped twin of Snap Keys.",
-              "line": 1873,
-              "deprecated": false
-            },
-            {
-              "name": "tb016_init",
-              "qualname": "AnimationSlots.tb016_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Animation Info — option box.",
-              "line": 1934,
-              "deprecated": false
-            },
-            {
-              "name": "tb016",
-              "qualname": "AnimationSlots.tb016",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Get Animation Info — render the report to the viewer dialog.",
-              "line": 2010,
-              "deprecated": false
-            },
-            {
-              "name": "tb017_init",
-              "qualname": "AnimationSlots.tb017_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Step Tangents Init",
-              "line": 2058,
-              "deprecated": false
-            },
-            {
-              "name": "tb017",
-              "qualname": "AnimationSlots.tb017",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Step Tangents — set stepped tangents on keys.",
-              "line": 2123,
-              "deprecated": false
-            },
-            {
-              "name": "tb012_init",
-              "qualname": "AnimationSlots.tb012_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Copy Keys Init",
-              "line": 2147,
-              "deprecated": false
-            },
-            {
-              "name": "tb012",
-              "qualname": "AnimationSlots.tb012",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Copy Keys: copy the selected objects' keys for later paste.",
-              "line": 2183,
-              "deprecated": false
-            },
-            {
-              "name": "tb018_init",
-              "qualname": "AnimationSlots.tb018_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Paste Keys Init",
-              "line": 2235,
-              "deprecated": false
-            },
-            {
-              "name": "tb018",
-              "qualname": "AnimationSlots.tb018",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Paste Keys: paste previously copied keys onto the selection.",
-              "line": 2258,
-              "deprecated": false
-            },
-            {
-              "name": "tb019_init",
-              "qualname": "AnimationSlots.tb019_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Optimize Keys Init",
-              "line": 2295,
-              "deprecated": false
-            },
-            {
-              "name": "tb019",
-              "qualname": "AnimationSlots.tb019",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Optimize Keys — remove redundant animation data.",
-              "line": 2389,
-              "deprecated": false
-            },
-            {
-              "name": "tb020",
-              "qualname": "AnimationSlots.tb020",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Smart Bake",
-              "line": 2444,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "AnimationSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Shot Sequencer",
-              "line": 2448,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "AnimationSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Shot Manifest",
-              "line": 2452,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "AnimationSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Fit Playback Range",
-              "line": 2456,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "AnimationSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Open Key Stash",
-              "line": 2460,
               "deprecated": false
             }
           ]

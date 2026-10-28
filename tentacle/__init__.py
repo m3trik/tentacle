@@ -20,7 +20,6 @@ DEFAULT_INCLUDE = {
     # until each is composed into one class (slots/<category>.py; MOVED_NAMES
     # below). Mixed in per panel, never folded into the DCC bases: a mixin's
     # widget-named slots (``tb002``) would bind every panel's same-named widget.
-    "slots._animation": "AnimationMixin",
 }
 
 #: Public names merged away (CODE_STANDARD section 5): no alias, so a read raises
@@ -45,6 +44,7 @@ MOVED_NAMES = {
     "MaterialsMixin": ("tentacle.slots.materials.MaterialsSlots", "0.17.0"),
     "SceneMixin": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
     "UvMixin": ("tentacle.slots.uv.UvSlots", "0.17.0"),
+    "AnimationMixin": ("tentacle.slots.animation.AnimationSlots", "0.17.0"),
 }
 
 

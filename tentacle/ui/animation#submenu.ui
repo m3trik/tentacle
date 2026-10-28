@@ -408,7 +408,7 @@ Option box: choose what gets captured — or pick Copy + Paste to capture and ap
      </size>
     </property>
     <property name="toolTip">
-     <string>Set the playback range to span the keyed animation, from the earliest keyframe to the latest.</string>
+     <string>Set the playback range to the keyed extent of the selection, or of the whole scene when nothing is selected.</string>
     </property>
     <property name="text">
      <string>Fit Playback Range</string>

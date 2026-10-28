@@ -52,7 +52,6 @@ HANDLERS = {
     # per-object) too. Remaining entries below are permanent divergences (a different control
     # model, or a verified-live absence of any Blender surface). Keys mirror the sweep's own
     # `_LIST000_ITEMS[Category]` naming, qualified with the item label.
-    "animation": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
     # took the Transfer tool UvMixin's option box was).
 }
@@ -61,31 +60,6 @@ CONTROLS_SLOTS = {
     # ---- migrated 2026-07-02 from the retired dcc_parity_overrides.json (its statuses
     # kept: "divergent" = different Blender paradigm covers it, "done-elsewhere" = built
     # under another objectName/mechanism — both count as triaged-OK, like "na").
-    "animation": {
-        "Repair Visibility Tangents": {"status": "na", "reason": "Maya-only visibility-curve tangent repair (mtk.Diagnostics.repair_visibility_tangents); Blender keys boolean props CONSTANT natively and the Blender header docstring explicitly documents omitting the tool rather than showing a dead entry."},
-        # b000 / b004: removed 2026-07-12 — BUILT. The Shots trio is tentacle's shared tools
-        # (slots/tools/shot_sequencer + shot_manifest, one panel for both hosts since 2026-10-28),
-        # so both forks' b000/b004 launch them via
-        # sb.handlers.marking_menu.show("shot_sequencer"/"shot_manifest"). The old `divergent`
-        # rulings ("VSE / linked Scenes cover it") described the pre-port message-box stubs.
-        "chk001": {"status": "divergent", "reason": "[Update] Blender's Go To Frame is a direct frame_set that always refreshes; Maya's auto-update playback toggle has no frame-nav analogue."},
-        "chk007": {"status": "replaced", "to": "tb004 action-copy", "reason": "Blender tb004 transfers by duplicating the whole action, so fcurve handles/tangents always transfer — a tangents on/off toggle is inapplicable to that model."},
-        "chk020": {"status": "na", "reason": "Delete Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box — channel scoping is covered by Dope Sheet/Graph Editor selection instead."},
-        # chk022 (Untie) -> cmb_tie on BOTH DCCs now (Tie/Untie combobox); name-matched, so no ledger entry needed.
-        "chk024": {"status": "na", "reason": "Stagger Keys 'Channel Box Attrs Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
-        "chk033": {"status": "na", "reason": "Move Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
-        "chk034": {"status": "na", "reason": "Select Keys 'Channel Box Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
-        "chk_channel_box": {"status": "na", "reason": "Scale Keys 'Channel Box Attrs Only' scopes to Maya Channel Box attribute selection; Blender has no Channel Box UI."},
-        # chk_delete_inputs / chk_mute_drivers / chk_override_layer / chk_preserve_outside: removed
-        # 2026-07-11 — these bake-option widgets are NOT built in tentacle's Maya animation slot nor
-        # the shared animation .ui; they live on the co-located SmartBake panel (ledgered under
-        # CONTROLS['smart_bake_slots'], where the Blender engine ships them as chk_use_override /
-        # chk_delete_sources). The entries here named non-existent slot widgets and were never
-        # consulted by the sweep (dead config).
-        "cmb037": {"status": "replaced", "to": "cmb_interp", "reason": "tb017 redesigned on Blender as an interpolation-type picker applied to all keys on the selection; code comment documents cmb_interp replacing cmb037/cmb040 (Maya's key-scope narrowing auto/current-time/selected dropped by design)."},
-        "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
-        "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
-    },
 }
 
 # Accepted same-named default/property divergences: {"pair": {"control.prop": reason}}.
@@ -98,9 +72,6 @@ CONTROLS_SLOTS = {
 DEFAULT_DELTAS = {
     "normals": {
         "cmb000.setCurrentIndex": "Deliberately different item list: Blender cmb000 = native ops (Flip / Recalculate Outside / Recalculate Inside via btk.flip_normals/recalculate_normals); Maya = polyNormal normalMode enum (Reverse/Propagate/Conform/…). Maya's index 3 ('Reverse and Extract') has no Blender counterpart, so copying it would default to a semantically unrelated op; default 0 ('Flip') is the correct reverse counterpart.",
-    },
-    "animation": {
-        "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
     },
     # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
     # Transfer mode (2026-10-17); its vocabulary deltas moved with it.

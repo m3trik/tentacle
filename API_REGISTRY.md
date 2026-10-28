@@ -5,10 +5,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 ## Index
 
 - [`__init__.py`](#__init__)
-- [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_slots.py`](#slots--_slots)
+- [`slots/animation.py`](#slots--animation) — Animation: one Slots class for both hosts.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
-- [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
@@ -22,7 +21,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/main.py`](#slots--main) — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 - [`slots/materials.py`](#slots--materials) — Materials: one Slots class for both hosts.
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
-- [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
 - [`slots/maya/cache.py`](#slots--maya--cache)
 - [`slots/maya/constrain.py`](#slots--maya--constrain)
@@ -181,15 +179,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L58) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L29) — constant
-
-<a id="slots--_animation"></a>
-### `slots/_animation.py`
-
-Text the animation panel's Maya and Blender forks say identically.
-
-- **[`class AnimationMixin`](tentacle/tentacle/slots/_animation.py#L46)** — Shared tooltip text and key-edit wrapper for ``slots/{maya,blender}/animation.py``.
-  - `AnimationMixin.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L28) — constant
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -206,6 +196,63 @@ Text the animation panel's Maya and Blender forks say identically.
   - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
   - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
 
+<a id="slots--animation"></a>
+### `slots/animation.py`
+
+Animation: one Slots class for both hosts.
+
+- **[`class AnimationSlots(Slots)`](tentacle/tentacle/slots/animation.py#L24)**
+  - `AnimationSlots.list000_init(self, widget)` — Tools list: Sequencing / Repair / Bake / Stash / Playback / Info.
+  - `AnimationSlots.list000(self, item)` — Dispatch a Tools leaf to its slot method.
+  - `AnimationSlots.tb020(self, widget)` — Smart Bake
+  - `AnimationSlots.b000(self)` — Open Shot Sequencer
+  - `AnimationSlots.b004(self)` — Open Shot Manifest
+  - `AnimationSlots.b006(self)` — Open Key Stash
+  - `AnimationSlots.b001(self)` — Repair Visibility Tangents (Maya: the Tools row is ``requires="maya"``):
+  - `AnimationSlots.b005(self)` — Fit Playback Range: to the keyed extent of the selection, or of the
+  - `AnimationSlots.tb000_init(self, widget)` — Go To Frame Init
+  - `AnimationSlots.tb000(self, widget)` — Go To Frame: move the playhead to a frame (absolute, or relative to
+  - `AnimationSlots.tb001_init(self, widget)` — Invert Keyframes Init
+  - `AnimationSlots.tb001(self, widget)` — Invert Keys: mirror key times and/or values (Maya prefers the keys
+  - `AnimationSlots.tb002_init(self, widget)` — Adjust Spacing Init
+  - `AnimationSlots.tb002(self, widget)` — Adjust Spacing: shift every key at or after the frame by the amount.
+  - `AnimationSlots.tb003_init(self, widget)` — Stagger Keys Init
+  - `AnimationSlots.tb003(self, widget)` — Stagger Keys: re-time the selected objects to play one after another.
+  - `AnimationSlots.tb004_init(self, widget)` — Transfer Keys Init
+  - `AnimationSlots.tb004(self, widget)` — Transfer Keys: from the source (first selected in Maya, active in
+  - `AnimationSlots.tb005_init(self, widget)` — Add/Remove Intermediate Keys Init
+  - `AnimationSlots.tb005(self, widget)` — Add/Remove Intermediate Keys over a window (-1 on a bound: each
+  - `AnimationSlots.tb006_init(self, widget)` — Move Keys Init
+  - `AnimationSlots.tb006(self, widget)` — Move Keys: move the selection's keys to the current frame.
+  - `AnimationSlots.tb007_init(self, widget)` — Align Selected Keyframes Init
+  - `AnimationSlots.tb007(self, widget)` — Align Selected Keyframes: the keys picked in the Graph Editor (or
+  - `AnimationSlots.tb008_init(self, widget)` — Set Visibility Keys Init
+  - `AnimationSlots.tb008(self, widget)` — Set Visibility Keys
+  - `AnimationSlots.tb009_init(self, widget)` — Snap Keys to Frames Init
+  - `AnimationSlots.tb009(self, widget)` — Snap Keys to Frames
+  - `AnimationSlots.tb010_init(self, widget)` — Delete Keys Init
+  - `AnimationSlots.tb010(self, widget)` — Delete Keys: on the selection, over the chosen time range.
+  - `AnimationSlots.tb011_init(self, widget)` — Tie/Untie Keyframes Init
+  - `AnimationSlots.tb011(self, widget)` — Tie/Untie Keyframes: the selection, or every keyed object when
+  - `AnimationSlots.tb012_init(self, widget)` — Copy Keys Init
+  - `AnimationSlots.tb012(self, widget)` — Copy Keys: capture the selection's keys or values for Paste Keys (Copy
+  - `AnimationSlots.tb018_init(self, widget)` — Paste Keys Init
+  - `AnimationSlots.tb018(self, widget)` — Paste Keys: paste the copied keys onto the selection.
+  - `AnimationSlots.tb013_init(self, widget)` — Select Keys Init
+  - `AnimationSlots.tb013(self, widget)` — Select Keys: on the selection, within a time range (shown in the
+  - `AnimationSlots.tb014_init(self, widget)` — Scale Keys Init
+  - `AnimationSlots.tb014(self, widget)` — Scale Keys: retime the selection's keys about a pivot.
+  - `AnimationSlots.tb015_init(self, widget)` — Repair Corrupted Curves Init
+  - `AnimationSlots.tb015(self, widget)` — Repair Corrupted Curves: the selected objects (in Maya with their
+  - `AnimationSlots.tb021_init(self, widget)` — Snap Fractional Key Times Init
+  - `AnimationSlots.tb021(self, widget)` — Snap Fractional Key Times: the repair-scoped twin of Snap Keys.
+  - `AnimationSlots.tb016_init(self, widget)` — Get Animation Info Init
+  - `AnimationSlots.tb016(self, widget)` — Get Animation Info: render the report to the viewer dialog.
+  - `AnimationSlots.tb017_init(self, widget)` — Step Tangents Init
+  - `AnimationSlots.tb017(self, widget)` — Step Tangents: set the interpolation of the chosen keys.
+  - `AnimationSlots.tb019_init(self, widget)` — Optimize Keys Init
+  - `AnimationSlots.tb019(self, widget)` — Optimize Keys: remove redundant animation data from the selection,
+
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
 
@@ -219,59 +266,6 @@ Text the animation panel's Maya and Blender forks say identically.
   - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
   - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``):
   - `SlotsBlender.transfer_from_active(self, data_type, **kwargs)` — Run native Data Transfer from the active mesh to the other selected meshes
-
-<a id="slots--blender--animation"></a>
-### `slots/blender/animation.py`
-
-- **[`class AnimationSlots(AnimationMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/animation.py#L8)** — Blender port of the shared ``animation`` menu.
-  - `AnimationSlots.list000(self, item)` — Dispatch a Tools leaf to its slot method.
-  - `AnimationSlots.tb000_init(self, widget)`
-  - `AnimationSlots.tb000(self, widget)` — Go To Frame (absolute, or relative offset from the current frame);
-  - `AnimationSlots.tb001_init(self, widget)`
-  - `AnimationSlots.tb001(self, widget)` — Invert Keys (mirror key times and/or values — reverses timing / flips motion).
-  - `AnimationSlots.tb003_init(self, widget)`
-  - `AnimationSlots.tb003(self, widget)` — Stagger Keys (re-time selected objects sequentially).
-  - `AnimationSlots.tb009_init(self, widget)`
-  - `AnimationSlots.tb009(self, widget)` — Snap Keys to Frames
-  - `AnimationSlots.tb010_init(self, widget)`
-  - `AnimationSlots.tb010(self, widget)` — Delete Keys (clear all animation on the selection, or only a time-scoped subset).
-  - `AnimationSlots.tb002_init(self, widget)`
-  - `AnimationSlots.tb002(self, widget)` — Adjust Key Spacing (shift every key at/after the frame by the amount).
-  - `AnimationSlots.tb004_init(self, widget)`
-  - `AnimationSlots.tb004(self, widget)` — Transfer Keys (active object → other selected, independent copies).
-  - `AnimationSlots.tb005_init(self, widget)`
-  - `AnimationSlots.tb005(self, widget)` — Add/Remove Intermediate Keys
-  - `AnimationSlots.tb013_init(self, widget)`
-  - `AnimationSlots.tb013(self, widget)` — Select Keys (``select_control_point`` — shows in the Dope Sheet / Graph Editor).
-  - `AnimationSlots.tb007_init(self, widget)`
-  - `AnimationSlots.tb007(self, widget)` — Align Selected Keyframes (keys picked in the Dope Sheet / Graph Editor).
-  - `AnimationSlots.tb008_init(self, widget)`
-  - `AnimationSlots.tb008(self, widget)` — Set Visibility Keys (key viewport + render visibility).
-  - `AnimationSlots.tb006_init(self, widget)`
-  - `AnimationSlots.tb006(self, widget)` — Move Keys (align the selection's keys to the current frame).
-  - `AnimationSlots.tb012_init(self, widget)`
-  - `AnimationSlots.tb012(self, widget)` — Copy Keys (from the active object;
-  - `AnimationSlots.tb018_init(self, widget)`
-  - `AnimationSlots.tb018(self, widget)` — Paste Keys (independent copies onto the selection).
-  - `AnimationSlots.tb014_init(self, widget)`
-  - `AnimationSlots.tb014(self, widget)` — Scale Keys
-  - `AnimationSlots.tb017_init(self, widget)`
-  - `AnimationSlots.tb017(self, widget)` — Set Tangents (key interpolation type — stepped / linear / smooth).
-  - `AnimationSlots.b005(self)` — Fit Playback Range (to the keyed extent of the selection, or the whole scene).
-  - `AnimationSlots.tb011_init(self, widget)`
-  - `AnimationSlots.tb011(self, widget)` — Tie/Untie Keyframes
-  - `AnimationSlots.tb016_init(self, widget)`
-  - `AnimationSlots.tb016(self, widget)` — Get Animation Info — render a per-object keyframe summary to the viewer dialog.
-  - `AnimationSlots.tb019_init(self, widget)`
-  - `AnimationSlots.tb019(self, widget)` — Optimize Keys — remove redundant animation data.
-  - `AnimationSlots.tb015_init(self, widget)`
-  - `AnimationSlots.tb015(self, widget)` — Repair Corrupted Curves — strip NaN/infinite or out-of-range keys;
-  - `AnimationSlots.tb021_init(self, widget)`
-  - `AnimationSlots.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
-  - `AnimationSlots.tb020(self, widget)` — Smart Bake
-  - `AnimationSlots.b000(self)` — Open Shot Sequencer — tentacle's shared tool (slots/tools/shot_sequencer.py): shots
-  - `AnimationSlots.b004(self)` — Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked
-  - `AnimationSlots.b006(self)` — Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working
 
 <a id="slots--blender--blender"></a>
 ### `slots/blender/blender.py`
@@ -500,60 +494,6 @@ Materials: one Slots class for both hosts.
 
 - **[`class SlotsMaya(Slots)`](tentacle/tentacle/slots/maya/_slots_maya.py#L8)** — App specific methods inherited by all other app specific slot classes.
   - `SlotsMaya.require_selection(self, message=None, **kwargs)` — The current selection, or ``None`` -- after a message box -- when it is empty.
-
-<a id="slots--maya--animation"></a>
-### `slots/maya/animation.py`
-
-- **[`class AnimationSlots(AnimationMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/animation.py#L8)**
-  - `AnimationSlots.list000(self, item)` — Dispatch a Tools leaf to its slot method.
-  - `AnimationSlots.b001(self)` — Repair Visibility Tangents
-  - `AnimationSlots.tb000_init(self, widget)` — Go To Frame Init
-  - `AnimationSlots.tb000(self, widget)` — Go To Frame: jump the time slider to the next/previous key or a snap target.
-  - `AnimationSlots.tb001_init(self, widget)` — Invert Keyframes Init
-  - `AnimationSlots.tb001(self, widget)` — Invert keyframes (selected keys preferred, fallback to all keys).
-  - `AnimationSlots.tb002_init(self, widget)` — Adjust Spacing Init
-  - `AnimationSlots.tb002(self, widget)` — Adjust spacing
-  - `AnimationSlots.tb003_init(self, widget)` — Stagger Keys Init
-  - `AnimationSlots.tb003(self, widget)` — Stagger Keys
-  - `AnimationSlots.tb004_init(self, widget)` — Transfer Keys Init
-  - `AnimationSlots.tb004(self, widget)` — Transfer Keys
-  - `AnimationSlots.tb005_init(self, widget)` — Add/Remove Intermediate Keys Init
-  - `AnimationSlots.tb005(self, widget)` — Add/Remove Intermediate Keys.
-  - `AnimationSlots.tb006_init(self, widget)` — Move Keys Init
-  - `AnimationSlots.tb006(self, widget)` — Move Keys: move the selected keys in time, with optional spacing/alignment.
-  - `AnimationSlots.tb007_init(self, widget)` — Align Selected Keyframes Init
-  - `AnimationSlots.tb007(self, widget)` — Align Selected Keyframes
-  - `AnimationSlots.tb008_init(self, widget)` — Set Visibility Keys Init
-  - `AnimationSlots.tb008(self, widget)` — Set Visibility Keys
-  - `AnimationSlots.tb009_init(self, widget)` — Snap Keys to Frames Init
-  - `AnimationSlots.tb009(self, widget)` — Snap Keys to Frames
-  - `AnimationSlots.tb010_init(self, widget)` — Delete Keys Init
-  - `AnimationSlots.tb010(self, widget)` — Delete Keys: delete keys on the selection over a chosen time range.
-  - `AnimationSlots.tb011_init(self, widget)` — Tie/Untie Keyframes Init
-  - `AnimationSlots.tb011(self, widget)` — Tie/Untie Keyframes
-  - `AnimationSlots.tb013_init(self, widget)` — Select Keys Init
-  - `AnimationSlots.tb013(self, widget)` — Select Keys: select keys on the selection within a frame range.
-  - `AnimationSlots.tb014_init(self, widget)` — Scale Keys Init
-  - `AnimationSlots.tb014(self, widget)` — Scale Keys: scale the selected keys in time about a pivot.
-  - `AnimationSlots.tb015_init(self, widget)` — Repair Corrupted Curves - Initialize option box
-  - `AnimationSlots.tb015(self, widget)` — Repair Corrupted Curves
-  - `AnimationSlots.tb021_init(self, widget)` — Snap Fractional Key Times — initialize the option box.
-  - `AnimationSlots.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
-  - `AnimationSlots.tb016_init(self, widget)` — Get Animation Info — option box.
-  - `AnimationSlots.tb016(self, widget)` — Get Animation Info — render the report to the viewer dialog.
-  - `AnimationSlots.tb017_init(self, widget)` — Step Tangents Init
-  - `AnimationSlots.tb017(self, widget)` — Step Tangents — set stepped tangents on keys.
-  - `AnimationSlots.tb012_init(self, widget)` — Copy Keys Init
-  - `AnimationSlots.tb012(self, widget)` — Copy Keys: copy the selected objects' keys for later paste.
-  - `AnimationSlots.tb018_init(self, widget)` — Paste Keys Init
-  - `AnimationSlots.tb018(self, widget)` — Paste Keys: paste previously copied keys onto the selection.
-  - `AnimationSlots.tb019_init(self, widget)` — Optimize Keys Init
-  - `AnimationSlots.tb019(self, widget)` — Optimize Keys — remove redundant animation data.
-  - `AnimationSlots.tb020(self, widget)` — Smart Bake
-  - `AnimationSlots.b000(self)` — Open Shot Sequencer
-  - `AnimationSlots.b004(self)` — Open Shot Manifest
-  - `AnimationSlots.b005(self)` — Fit Playback Range
-  - `AnimationSlots.b006(self)` — Open Key Stash
 
 <a id="slots--maya--arnold"></a>
 ### `slots/maya/arnold.py`

@@ -100,7 +100,7 @@ try:
     from tentacle.slots.normals import NormalsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.polygons import PolygonsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.uv import UvSlots  # composed: both hosts, over sb.tk
-    from tentacle.slots.blender.animation import AnimationSlots
+    from tentacle.slots.animation import AnimationSlots  # composed: both hosts, over sb.tk
     import blendertk as btk
 
     # ---- selection list000: select by type --------------------------------------------------
@@ -263,13 +263,20 @@ try:
     b.select_set(True)
     bpy.context.view_layer.objects.active = a
 
-    slot = make_slot(AnimationSlots)
+    # The composed class reaches Blender through sb.tk; tb019 reports progress.
+    slot = make_slot(AnimationSlots, _copied=None, _copied_frame=None)
+    slot.sb = NS(
+        message_box=lambda *a, **k: None,
+        tk=btk,
+        progress=contextlib.contextmanager(lambda **_kw: (yield lambda *a, **k: True)),
+        progress_adapter=lambda update: update,
+    )
     # shift keys >= absolute frame 15 by +5 (chk004 Relative off; selected-objects scope)
     slot.tb002(option_box(s002=spin(15), s003=spin(5), chk004=chk(False), chk003=chk(True),
                           cmb036=combo("objects"), chk021=chk(False)))
     check("animation tb002 adjusts spacing", key_times(a) == [10.0, 25.0], f"{key_times(a)}")
 
-    slot.tb004(option_box(chk006=chk(True), chk035=chk(False)))  # transfer active(a) -> b
+    slot.tb004(option_box(chk006=chk(True), chk007=chk(True), chk035=chk(False)))  # a -> b
     check("animation tb004 transfers keys to targets",
           key_times(b) == key_times(a)
           and b.animation_data.action is not a.animation_data.action,
@@ -285,7 +292,7 @@ try:
     check("animation tb005 remove keeps endpoints", key_times(a) == [10.0, 25.0],
           f"{key_times(a)}")
 
-    slot.tb013(option_box(cmb041=combo("range"), chk039=chk(False),
+    slot.tb013(option_box(cmb041=combo("range"), chk039=chk(False), chk034=chk(False),
                           s012=spin(20), s013=spin(30)))
     sel = [k.co.x for fc in btk.get_fcurves(a) for k in fc.keyframe_points
            if k.select_control_point]
@@ -372,7 +379,7 @@ try:
         tgt, tgt_key = claimed("XferTarget", (1, 10), at=1.0)  # the target holds 1
         src.select_set(True)
         bpy.context.view_layer.objects.active = src
-        slot.tb004(option_box(chk006=chk(False), chk035=chk(False)))
+        slot.tb004(option_box(chk006=chk(False), chk007=chk(True), chk035=chk(False)))
         xo_src, xo_key = claimed("XferOptSource", (0, 10, 20, 30), at=10.0)
         for kp, v in zip(btk.get_fcurves(xo_src)[0].keyframe_points, (1.0, 1.0, 1.0, 5.0)):
             kp.co.y = v  # 0..20 a flat run: the optimize drops 10
@@ -383,7 +390,7 @@ try:
         xo_tgt.select_set(True)
         xo_src.select_set(True)
         bpy.context.view_layer.objects.active = xo_src
-        slot.tb004(option_box(chk006=chk(False), chk035=chk(True)))
+        slot.tb004(option_box(chk006=chk(False), chk007=chk(True), chk035=chk(True)))
         check("animation tb004 (optimize) releases the claims of the source keys it drops",
               not claims.edit_ledger.owns_any(xo_key, 10.0),
               f"{key_times(xo_src)} {claims.edit_ledger.to_dict()}")
@@ -393,7 +400,7 @@ try:
         g, g_key = claimed("ClaimMoveKeys", (1, 5, 10), at=5.0)
         select_keys(g, 1)
         bpy.context.scene.frame_set(5)
-        slot.tb006(option_box(chk012=chk(False), chk031=chk(True),
+        slot.tb006(option_box(chk012=chk(False), chk031=chk(True), chk033=chk(False),
                               cmb_align=combo("start")))
         check("animation tb006 releases the shot claims of the key it lands on",
               key_times(g) == [5.0, 10.0] and not claims.edit_ledger.owns_any(g_key, 5.0),
@@ -421,7 +428,8 @@ try:
 
         j, j_key = claimed("ClaimPaste", (1, 10, 20), at=10.0)
         select_keys(j, 20)
-        slot._copied_action = btk.copy_keys(j, mode="selected")
+        slot._copied = btk.copy_keys(j, mode="selected")
+        slot._copied_frame = 10.0
         bpy.context.scene.frame_set(10)
         slot.tb018(option_box(cmb039=combo("playhead")))
         check("animation tb018 releases the shot claims of a key it pastes over",
@@ -429,7 +437,8 @@ try:
 
         k_obj, _k_key = claimed("ClaimScale", (0, 10), at=10.0)
         slot.tb014(option_box(cmb014=combo("uniform"),
-                              cmb_scale_pivot=NS(currentText=lambda: "Auto"),
+                              cmb_scale_pivot=combo("first_key"),
+                              chk_channel_box=chk(False),
                               d001=spin(2.0),
                               cmb_scale_mode=NS(currentText=lambda: "Relative"),
                               cmb033=combo("single_group"), cmb034=combo("none"),
@@ -442,20 +451,20 @@ try:
         m_obj, _m_key = claimed("ClaimStagger", (5, 15), at=15.0)
         slot.tb003(option_box(s005=spin(20), s004=spin(0), chk025=chk(False),
                               chk008=chk(False), chk014=chk(False),
-                              chk029=chk(False), chk009=chk(False)))
+                              chk029=chk(False), chk009=chk(False), chk024=chk(False)))
         check("animation tb003 carries the shot claims of the keys it staggers",
               claimed_at(m_obj) == [30.0], f"{key_times(m_obj)}")
 
         # A deleted key takes its claims with it, as a replaced one does.
         n_obj, n_key = claimed("ClaimDelete", (1, 10, 20), at=10.0)
         bpy.context.scene.frame_set(10)
-        slot.tb010(option_box(cmb004=combo("current")))
+        slot.tb010(option_box(cmb004=combo("current"), chk020=chk(False)))
         check("animation tb010 releases the shot claims of the keys it deletes",
               key_times(n_obj) == [1.0, 20.0]
               and not claims.edit_ledger.owns_any(n_key, 10.0),
               f"{key_times(n_obj)} {claims.edit_ledger.to_dict()}")
         _o_obj, o_key = claimed("ClaimClear", (1, 10, 20), at=10.0)
-        slot.tb010(option_box(cmb004=combo("all")))
+        slot.tb010(option_box(cmb004=combo("all"), chk020=chk(False)))
         check("animation tb010 (all) releases the claims of the animation it clears",
               not claims.edit_ledger.owns_any(o_key, 10.0),
               f"{claims.edit_ledger.to_dict()}")
@@ -563,6 +572,9 @@ try:
         tgt_cp.select_set(True)
         src_cp.select_set(True)
         bpy.context.view_layer.objects.active = src_cp
+        # Copy + Paste captures the active object (its picked keys, else its pose)
+        # and pastes it at the playhead onto the selection: 10 is replaced.
+        bpy.context.scene.frame_set(10)
         slot.tb012(option_box(cmb038=combo("copy_paste")))
         check("animation tb012 (Copy + Paste) releases the claims of a key it replaces",
               not claims.edit_ledger.owns_any(tgt_cp_key, 10.0),
