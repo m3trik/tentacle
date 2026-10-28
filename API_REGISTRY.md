@@ -127,6 +127,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
+- [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
 - [`slots/tools/blendshape_animator.py`](#slots--tools--blendshape_animator) — Blendshape Animator: build a morph between two meshes, add in-between
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
@@ -150,6 +151,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
+- [`slots/tools/render_effects.py`](#slots--tools--render_effects) — Render Effects: key per-object opacity fades and highlight pulses for export.
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
@@ -746,7 +748,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `RiggingSlots.tb005(self, widget)` — Add to Skin — unreachable (tb005_init hides the button);
   - `RiggingSlots.cmb002_init(self, widget)`
   - `RiggingSlots.cmb002(self, index, widget)` — Quick Rig — a procedural rig opens its panel (mayatk parity);
-  - `RiggingSlots.b004(self)` — Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled
+  - `RiggingSlots.b004(self)` — Render Effects — the shared tool over ``btk.RenderEffects`` (per-object ``opacity``
 
 <a id="slots--blender--scene"></a>
 ### `slots/blender/scene.py`
@@ -771,7 +773,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB).
   - `SceneSlots.b_cleanup(self)` — Scene Cleanup — purge orphan datablocks (no users / no fake user).
   - `SceneSlots.b004(self)` — Hierarchy Sync — diff/repair the scene hierarchy against a reference .blend
-  - `SceneSlots.b003(self)` — Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
+  - `SceneSlots.b003(self)` — Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
   - `SceneSlots.b015(self)` — Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,
   - `SceneSlots.b017(self)` — Scene Metadata — the tool-authored data-node channels in the shared data
 
@@ -1822,6 +1824,36 @@ Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
   - `ArticulatedRigSlots.btn_rebuild(self)`
   - `ArticulatedRigSlots.btn_remove(self)`
 
+<a id="slots--tools--audio_clips"></a>
+### `slots/tools/audio_clips.py`
+
+Audio Clips: the scene's audio files, placed on the timeline.
+
+- **[`class AudioClipsSlots(Slots)`](tentacle/tentacle/slots/tools/audio_clips.py#L28)** — Switchboard slots for the ``audio_clips.ui`` panel.
+  - `AudioClipsSlots.noun(self) -> str` *(property)* — One entry, capitalized: ``"Track"`` (Maya) or ``"Clip"`` (Blender).
+  - `AudioClipsSlots.header_init(self, widget) -> None` — The header menu: import, export and inspect options;
+  - `AudioClipsSlots.btn_export(self) -> None` — Export the audio in the header's Export mode (Maya).
+  - `AudioClipsSlots.btn_channels(self) -> None` — Open the Channels panel on the tracks' carrier (Maya).
+  - `AudioClipsSlots.cmb000_init(self, widget) -> None` — The list's option box: add, rename, replace and remove.
+  - `AudioClipsSlots.cmb000(self, index, widget=None) -> None` — A pick: Maya puts the track's sound on the Time Slider.
+  - `AudioClipsSlots.select_track(self, name: str) -> bool` — Show the track or clip answering to *name* -- the Shot Manifest's
+  - `AudioClipsSlots.btn_add_tracks(self) -> None` — Browse for audio files and add them.
+  - `AudioClipsSlots.btn_rename_track(self) -> None` — Rename the selected track or clip.
+  - `AudioClipsSlots.btn_replace_track(self) -> None` — Point the selected track or clip at another audio file.
+  - `AudioClipsSlots.btn_remove_selected(self) -> None` — Delete the selected track or clip.
+  - `AudioClipsSlots.btn_cleanup_unused(self) -> None` — Delete every track that holds no key (Maya).
+  - `AudioClipsSlots.btn_remove_audio(self) -> None` — Delete every track or clip in the scene.
+  - `AudioClipsSlots.tb001_init(self, widget) -> None` — The place action's label, and its option box.
+  - `AudioClipsSlots.tb001(self, widget=None) -> None` — Place the selected track or clip at the playhead (Maya: key an audio
+  - `AudioClipsSlots.btn_select_carrier(self) -> None` — Show where the audio lives (Maya: the carrier node;
+  - `AudioClipsSlots.btn_sync_audio(self) -> None` — Rebuild the sound nodes and the composite from the keys (Maya).
+  - `AudioClipsSlots.s000_init(self, widget) -> None`
+  - `AudioClipsSlots.s001_init(self, widget) -> None`
+  - `AudioClipsSlots.b003_init(self, widget) -> None`
+  - `AudioClipsSlots.b003(self) -> None` — Apply Trim: the Start/End frames off the selected clip's ends.
+  - `AudioClipsSlots.b004_init(self, widget) -> None` — Sync Scene Range: its fit mode in the option box.
+  - `AudioClipsSlots.b004(self, widget=None) -> None` — Fit the scene frame range to the clips.
+
 <a id="slots--tools--bevel"></a>
 ### `slots/tools/bevel.py`
 
@@ -2197,6 +2229,24 @@ Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
   - `NamingSlots.tb002(self, widget)` — Strip Chars: remove a number of leading/trailing characters from the names in scope.
   - `NamingSlots.tb003_init(self, widget)` — Initialize Suffix By Type — the editor for the shared naming convention.
   - `NamingSlots.tb003(self, widget)` — Suffix By Type
+
+<a id="slots--tools--render_effects"></a>
+### `slots/tools/render_effects.py`
+
+Render Effects: key per-object opacity fades and highlight pulses for export.
+
+- **[`class RenderEffectsSlots(Slots)`](tentacle/tentacle/slots/tools/render_effects.py#L50)** — Switchboard slots for the Render Effects UI.
+  - `RenderEffectsSlots.header_init(self, widget)` — Configure header menu.
+  - `RenderEffectsSlots.cmb_effect_init(self, widget)` — The effect picker: one entry per page.
+  - `RenderEffectsSlots.cmb_effect(self, index, widget=None)` — Show the picked effect's page.
+  - `RenderEffectsSlots.stk_effects_init(self, widget)` — Build every page into the stack, bind the recipe, register the rows.
+  - `RenderEffectsSlots.ui_field(self, name)` — A page field by objectName, from whichever page holds it.
+  - `RenderEffectsSlots.focus(self, channel, objects, title='', apply=None, apply_text='')` — Open on one effect for *objects*, as the manifest's row actions do.
+  - `RenderEffectsSlots.unfocus(self, *_args) -> None` — Back to the standalone panel: the picker, its title, the Key texts
+  - `RenderEffectsSlots.b000(self, widget=None)` — Key: the shown page's keyer (``PAGES``).
+  - `RenderEffectsSlots.btn_remove(self, widget=None)` — Strip the shown page's channel from the selection.
+  - `RenderEffectsSlots.btn_webxr_init(self, widget)`
+  - `RenderEffectsSlots.btn_webxr(self, widget=None)` — Preview the shown page's effect in WebXR.
 
 <a id="slots--tools--shader_templates"></a>
 ### `slots/tools/shader_templates.py`

@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Render Effects and Audio Clips are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Render Effects writes in one undo chunk after its targets and confirm are settled (a refused Key leaves no step), and its selection job now lives with the window (it was dropped at the first scene open). Audio Clips takes its nouns and labels from the host (`ITEM_NOUN`, `PLACE_LABEL`, `REVEAL_LABEL`) and disables what a host lacks (Blender: export, channels, Key All; Maya: trim, Sync Scene Range).
+  - Test(s): new `test_render_effects_panel.py` and `test_audio_clips_panel.py`.
 - **2026-10-28 -- Lightmap Baker is a shared tool (new `ui/tools/` + `slots/tools/` pair).** Each dial maps to the key the host's engine declares (Maya `gi_depth`, Blender `bounces`); Samples takes the host's range and each dial starts at the default tier in the host's units; Adaptive Sampling follows the host's `ADAPTIVE_DEVICES`. Scene, undo and Bake Report re-reads coalesce on one timer (Blender sent two load events per file).
   - Test(s): new `test_lightmap_baker_panel.py` (fake toolkit in both hosts' shapes, the real panel through Blender's handler without bpy, a fresh-Maya class).
 - **2026-10-28 -- Tube Rig and Blendshape Animator are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/tools/_blendshape_animator/` holds the tween tree's numeric-sort row).** Tube Rig reads its modes from the host's `TubeRig.MODES`, runs each batch in one `undo_step`, and disables Remove / Rename / Rebind where the host lacks them (Blender); Blendshape Animator composes the host's `BlendshapeAnimator` and offers Recover Setup where the host has it (Maya).

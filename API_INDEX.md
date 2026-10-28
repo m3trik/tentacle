@@ -462,6 +462,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, btn_ik_fk_init, parse_limits, refresh_table, btn_analyze, btn_build, btn_grab, btn_ik_fk, match_end_control, btn_rest, btn_insert, btn_fold, btn_limits_from_pose, btn_clear_limits, btn_rebuild, btn_remove
 
+### `slots/tools/audio_clips.py` — Audio Clips: the scene's audio files, placed on the timeline.
+- `class AudioClipsSlots(Slots)`
+  - methods: noun, header_init, btn_export, btn_channels, cmb000_init, cmb000, select_track, btn_add_tracks, btn_rename_track, btn_replace_track, btn_remove_selected, btn_cleanup_unused, btn_remove_audio, tb001_init, tb001, btn_select_carrier, btn_sync_audio, s000_init, s001_init, b003_init, b003, b004_init, b004
+
 ### `slots/tools/bevel.py` — Bevel: chamfer the selected polygon edges, with a live preview.
 - `class BevelSlots(Slots)`
   - methods: header_init, perform_operation
@@ -555,6 +559,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/naming.py` — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
 - `class NamingSlots(Slots)`
   - methods: logger, header_init, scope, dry_run, file_scope, base_names, valid_suffixes, txt000_init, txt000, txt001_init, txt001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003
+
+### `slots/tools/render_effects.py` — Render Effects: key per-object opacity fades and highlight pulses for export.
+- `class RenderEffectsSlots(Slots)`
+  - methods: header_init, cmb_effect_init, cmb_effect, stk_effects_init, ui_field, focus, unfocus, b000, btn_remove, btn_webxr_init, btn_webxr
 
 ### `slots/tools/shader_templates.py` — Shader Templates: save a material's shader network as a reusable template
 - `class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`

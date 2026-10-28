@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (458)
+## Added (494)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -107,6 +107,30 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.match_end_control(self)`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.parse_limits(text: str, channels: Sequence[str]) -> Dict[str, Tuple[Optional[float], Optional[float]]]`
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.refresh_table(self)`
+- `slots/tools/audio_clips.py::AudioClipsSlots(class)`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b003(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b003_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b004(self, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.b004_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_add_tracks(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_channels(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_cleanup_unused(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_export(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_remove_audio(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_remove_selected(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_rename_track(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_replace_track(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_select_carrier(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.btn_sync_audio(self) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.cmb000(self, index, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.header_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.noun(self) -> str`
+- `slots/tools/audio_clips.py::AudioClipsSlots.s000_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.s001_init(self, widget) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.select_track(self, name: str) -> bool`
+- `slots/tools/audio_clips.py::AudioClipsSlots.tb001(self, widget=None) -> None`
+- `slots/tools/audio_clips.py::AudioClipsSlots.tb001_init(self, widget) -> None`
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
@@ -345,6 +369,18 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/naming.py::NamingSlots.txt001(self, widget)`
 - `slots/tools/naming.py::NamingSlots.txt001_init(self, widget)`
 - `slots/tools/naming.py::NamingSlots.valid_suffixes(self)`
+- `slots/tools/render_effects.py::RenderEffectsSlots(class)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.b000(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_remove(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_webxr(self, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.btn_webxr_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.cmb_effect(self, index, widget=None)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.cmb_effect_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.focus(self, channel, objects, title='', apply=None, apply_text='')`
+- `slots/tools/render_effects.py::RenderEffectsSlots.header_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.stk_effects_init(self, widget)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.ui_field(self, name)`
+- `slots/tools/render_effects.py::RenderEffectsSlots.unfocus(self, *_args) -> None`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots(class)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b000(self)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.b001(self)`

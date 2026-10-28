@@ -574,9 +574,9 @@ class RiggingSlots(RiggingMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ deferred
     def b004(self):
-        """Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled
-        Alpha + ``highlight`` pulses driving Emission; ``key_fade`` dual-keys opacity + render
-        visibility for the Maya→Unity parity invariant). Mirrors Maya\'s rigging b004."""
+        """Render Effects — the shared tool over ``btk.RenderEffects`` (per-object ``opacity``
+        fades + ``highlight`` pulses; ``key_fade`` dual-keys opacity + render visibility for the
+        Maya→Unity parity invariant). Mirrors Maya\'s rigging b004."""
         self.sb.handlers.marking_menu.show("render_effects")
 
 

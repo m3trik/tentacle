@@ -3791,7 +3791,7 @@
               "qualname": "RiggingSlots.b004",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Render Effects — co-located blendertk panel (per-object ``opacity`` fades driving Principled",
+              "summary": "Render Effects — the shared tool over ``btk.RenderEffects`` (per-object ``opacity``",
               "line": 576,
               "deprecated": false
             }
@@ -3990,7 +3990,7 @@
               "qualname": "SceneSlots.b003",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/",
+              "summary": "Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:",
               "line": 761,
               "deprecated": false
             },
@@ -4000,7 +4000,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator — the shared tool (base+target mesh -> keyed shape key,",
-              "line": 772,
+              "line": 770,
               "deprecated": false
             },
             {
@@ -4009,7 +4009,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata — the tool-authored data-node channels in the shared data",
-              "line": 781,
+              "line": 779,
               "deprecated": false
             }
           ]
@@ -10930,6 +10930,231 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/audio_clips.py",
+      "summary": "Audio Clips: the scene's audio files, placed on the timeline.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AudioClipsSlots",
+          "summary": "Switchboard slots for the ``audio_clips.ui`` panel.",
+          "line": 28,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "noun",
+              "qualname": "AudioClipsSlots.noun",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "One entry, capitalized: ``\"Track\"`` (Maya) or ``\"Clip\"`` (Blender).",
+              "line": 77,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "AudioClipsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The header menu: import, export and inspect options;",
+              "line": 95,
+              "deprecated": false
+            },
+            {
+              "name": "btn_export",
+              "qualname": "AudioClipsSlots.btn_export",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Export the audio in the header's Export mode (Maya).",
+              "line": 227,
+              "deprecated": false
+            },
+            {
+              "name": "btn_channels",
+              "qualname": "AudioClipsSlots.btn_channels",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Open the Channels panel on the tracks' carrier (Maya).",
+              "line": 270,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "AudioClipsSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The list's option box: add, rename, replace and remove.",
+              "line": 286,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000",
+              "qualname": "AudioClipsSlots.cmb000",
+              "kind": "method",
+              "signature": "(self, index, widget=None) -> None",
+              "summary": "A pick: Maya puts the track's sound on the Time Slider.",
+              "line": 363,
+              "deprecated": false
+            },
+            {
+              "name": "select_track",
+              "qualname": "AudioClipsSlots.select_track",
+              "kind": "method",
+              "signature": "(self, name: str) -> bool",
+              "summary": "Show the track or clip answering to *name* -- the Shot Manifest's",
+              "line": 426,
+              "deprecated": false
+            },
+            {
+              "name": "btn_add_tracks",
+              "qualname": "AudioClipsSlots.btn_add_tracks",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Browse for audio files and add them.",
+              "line": 441,
+              "deprecated": false
+            },
+            {
+              "name": "btn_rename_track",
+              "qualname": "AudioClipsSlots.btn_rename_track",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Rename the selected track or clip.",
+              "line": 461,
+              "deprecated": false
+            },
+            {
+              "name": "btn_replace_track",
+              "qualname": "AudioClipsSlots.btn_replace_track",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Point the selected track or clip at another audio file.",
+              "line": 486,
+              "deprecated": false
+            },
+            {
+              "name": "btn_remove_selected",
+              "qualname": "AudioClipsSlots.btn_remove_selected",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Delete the selected track or clip.",
+              "line": 506,
+              "deprecated": false
+            },
+            {
+              "name": "btn_cleanup_unused",
+              "qualname": "AudioClipsSlots.btn_cleanup_unused",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Delete every track that holds no key (Maya).",
+              "line": 516,
+              "deprecated": false
+            },
+            {
+              "name": "btn_remove_audio",
+              "qualname": "AudioClipsSlots.btn_remove_audio",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Delete every track or clip in the scene.",
+              "line": 527,
+              "deprecated": false
+            },
+            {
+              "name": "tb001_init",
+              "qualname": "AudioClipsSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "The place action's label, and its option box.",
+              "line": 611,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "AudioClipsSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget=None) -> None",
+              "summary": "Place the selected track or clip at the playhead (Maya: key an audio",
+              "line": 733,
+              "deprecated": false
+            },
+            {
+              "name": "btn_select_carrier",
+              "qualname": "AudioClipsSlots.btn_select_carrier",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Show where the audio lives (Maya: the carrier node;",
+              "line": 773,
+              "deprecated": false
+            },
+            {
+              "name": "btn_sync_audio",
+              "qualname": "AudioClipsSlots.btn_sync_audio",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Rebuild the sound nodes and the composite from the keys (Maya).",
+              "line": 783,
+              "deprecated": false
+            },
+            {
+              "name": "s000_init",
+              "qualname": "AudioClipsSlots.s000_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 804,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "AudioClipsSlots.s001_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 810,
+              "deprecated": false
+            },
+            {
+              "name": "b003_init",
+              "qualname": "AudioClipsSlots.b003_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "",
+              "line": 814,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "AudioClipsSlots.b003",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Apply Trim: the Start/End frames off the selected clip's ends.",
+              "line": 817,
+              "deprecated": false
+            },
+            {
+              "name": "b004_init",
+              "qualname": "AudioClipsSlots.b004_init",
+              "kind": "method",
+              "signature": "(self, widget) -> None",
+              "summary": "Sync Scene Range: its fit mode in the option box.",
+              "line": 843,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "AudioClipsSlots.b004",
+              "kind": "method",
+              "signature": "(self, widget=None) -> None",
+              "summary": "Fit the scene frame range to the clips.",
+              "line": 864,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/bevel.py",
       "summary": "Bevel: chamfer the selected polygon edges, with a live preview.",
       "functions": [],
@@ -13277,6 +13502,123 @@
               "signature": "(self, widget)",
               "summary": "Suffix By Type",
               "line": 947,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/render_effects.py",
+      "summary": "Render Effects: key per-object opacity fades and highlight pulses for export.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RenderEffectsSlots",
+          "summary": "Switchboard slots for the Render Effects UI.",
+          "line": 50,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "RenderEffectsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header menu.",
+              "line": 158,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_effect_init",
+              "qualname": "RenderEffectsSlots.cmb_effect_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The effect picker: one entry per page.",
+              "line": 263,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_effect",
+              "qualname": "RenderEffectsSlots.cmb_effect",
+              "kind": "method",
+              "signature": "(self, index, widget=None)",
+              "summary": "Show the picked effect's page.",
+              "line": 269,
+              "deprecated": false
+            },
+            {
+              "name": "stk_effects_init",
+              "qualname": "RenderEffectsSlots.stk_effects_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Build every page into the stack, bind the recipe, register the rows.",
+              "line": 282,
+              "deprecated": false
+            },
+            {
+              "name": "ui_field",
+              "qualname": "RenderEffectsSlots.ui_field",
+              "kind": "method",
+              "signature": "(self, name)",
+              "summary": "A page field by objectName, from whichever page holds it.",
+              "line": 324,
+              "deprecated": false
+            },
+            {
+              "name": "focus",
+              "qualname": "RenderEffectsSlots.focus",
+              "kind": "method",
+              "signature": "(self, channel, objects, title='', apply=None, apply_text='')",
+              "summary": "Open on one effect for *objects*, as the manifest's row actions do.",
+              "line": 420,
+              "deprecated": false
+            },
+            {
+              "name": "unfocus",
+              "qualname": "RenderEffectsSlots.unfocus",
+              "kind": "method",
+              "signature": "(self, *_args) -> None",
+              "summary": "Back to the standalone panel: the picker, its title, the Key texts",
+              "line": 466,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "RenderEffectsSlots.b000",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Key: the shown page's keyer (``PAGES``).",
+              "line": 531,
+              "deprecated": false
+            },
+            {
+              "name": "btn_remove",
+              "qualname": "RenderEffectsSlots.btn_remove",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Strip the shown page's channel from the selection.",
+              "line": 537,
+              "deprecated": false
+            },
+            {
+              "name": "btn_webxr_init",
+              "qualname": "RenderEffectsSlots.btn_webxr_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 543,
+              "deprecated": false
+            },
+            {
+              "name": "btn_webxr",
+              "qualname": "RenderEffectsSlots.btn_webxr",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Preview the shown page's effect in WebXR.",
+              "line": 564,
               "deprecated": false
             }
           ]

@@ -66,33 +66,6 @@ CONTROLS = {
     # header-menu buttons (btn_open_scripts / btn_refresh_scripts / btn_clear_log / btn_open_uv_editor)
     # match by objectName. Nothing to ledger — no entry needed here anymore. (Prior to this the entry
     # marked cmb000 `na` for the thin send-only bridge; that gap is closed.)
-    # mayatk file stem is audio_utils/audio_clips/audio_clips_slots.py. Ported 2026-07-03 --
-    # see blendertk/blendertk/audio_utils/_audio_utils.py + audio_clips.py's module docstrings
-    # for the full "why" (Maya's single-slot Time-Slider + WAV-only playback forced the
-    # composite-WAV/DG-node/two-phase-register-then-key machinery below; the VSE plays any
-    # number of simultaneous strips natively and decodes MP3/OGG/FLAC/etc. on its own, so none
-    # of it has a Blender counterpart). cmb000/tb001 + the Rename/Replace/Remove-All menu
-    # buttons are reused 1:1 by objectName (real Blender builds, not stubs).
-    "audio_clips_slots": {
-        "chk_auto_convert": {"status": "na", "reason": "Maya's Time Slider only plays WAV/AIFF, so mayatk ffmpeg-converts MP3/OGG/M4A/FLAC on import; the VSE's own media backend decodes all of those natively -- there is no conversion step to gate."},
-        "cmb_export_mode": {"status": "na", "reason": "Composite/Keyed-Tracks/All-Tracks export exists only to get audio OUT of Maya's single-slot composite-WAV workaround; a VSE strip already IS a real audio asset in the .blend (and on disk, at its original path) with nothing to bake or export."},
-        "btn_export": {"status": "na", "reason": "same composite-export gap as cmb_export_mode -- no composite exists to export."},
-        "chk_trim_silence": {"status": "na", "reason": "a Composite-WAV export postprocess; no composite export step exists on the Blender side (see cmb_export_mode)."},
-        "chk_suffix_time_range": {"status": "na", "reason": "a Keyed-Tracks export filename convenience; no per-clip export step exists on the Blender side (see cmb_export_mode)."},
-        "btn_channels": {"status": "na", "reason": "opens the Channels UI pinned to Maya's data_internal carrier node's hidden per-track attrs; a VSE strip has no carrier node or hidden attrs to pin -- its properties already show directly in the Sequencer's own N-panel."},
-        "chk_auto_end_none": {"status": "na", "reason": "auto-keys an OFF value at a track's natural end so Maya's keyed-enum model has an explicit end marker; a VSE strip's end is already an intrinsic property (duration/right_handle) with no separate end-key to author."},
-        "chk_snap_frames": {"status": "na", "reason": "rounds keyed audio-event times to whole frames; a VSE strip's frame_start/handles are integer frame properties by construction -- there is no sub-frame state to snap away."},
-        "chk_next_event": {"status": "na", "reason": "auto-advances the combo to the next unkeyed track after keying one -- an artifact of Maya's manual one-track-at-a-time keying workflow; add_clip already both registers and places a clip in one step, so there is no unplaced-track queue to advance through."},
-        "chk_key_all": {"status": "na", "reason": "queues every loaded track to be keyed sequentially end-to-end -- exists only to work around Maya's single-slot Time Slider needing one composite; the VSE already plays any number of simultaneous strips, so there is no slot-contention problem this solves. Revisit as a genuine 'auto-lay-out clips end to end' convenience if ever requested -- would be portable (compose with move_clip/AudioUtils.list_clips), just out of this port's add/remove/trim/query/sync scope."},
-        "spn_stagger": {"status": "na", "reason": "the extra-frames spacing knob for chk_key_all's queue -- no Blender counterpart for the same reason (see chk_key_all)."},
-        "btn_cleanup_unused": {"status": "na", "reason": "deletes tracks that were registered (a file_map entry) but never keyed -- Maya's two-phase register-then-key workflow allows that unplaced state. A VSE strip is always both registered and placed the moment add_clip creates it, so there is no unused/unkeyed state to clean up."},
-        # cmb000/tb001 browse + carrier-select + sync actions folded from standalone option-box
-        # icons into their existing dropdown menus (2026-07-25). Maya keeps its 'Tracks'/carrier
-        # terminology; Blender uses VSE 'Clips'/Sequencer terms for the same behavior.
-        "btn_add_tracks": {"status": "renamed", "to": "btn_add_clips", "reason": "'Add Tracks…' browse row on the cmb000 'Tracks' menu; Blender's 'Add Clips…' folds the same audio-file picker into its 'Clips' menu (VSE strips are 'clips', not carrier-node tracks)."},
-        "btn_select_carrier": {"status": "renamed", "to": "btn_reveal_sequencer", "reason": "'Select Carrier Node' selects Maya's data_internal carrier in the viewport; the VSE analogue reveals/selects the strip in the Sequencer editor ('Reveal In Sequencer'). Same 'find the underlying object' action, folded into the tb001 menu on both sides."},
-        "btn_sync_audio": {"status": "renamed", "to": "btn_sync_range", "reason": "'Sync Audio to Timeline' rebuilds Maya's composite WAV/DG nodes from the track map; the VSE has no composite, so its sync ('Sync Scene Range') reconciles the scene frame range to the loaded clips. Both are the tb001 refresh/sync action folded from an icon into the menu."},
-    },
     "reference_manager_slots": {  # mayatk env_utils/reference_manager/reference_manager_slots.py
         "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
         # btn_unlink_import_all: renamed to Maya's exact label + objectName (2026-07-20), so it
@@ -158,15 +131,6 @@ CONTROLS = {
             "reason": "Maya Channel Control editor; Blender -> Properties/Drivers/Graph editors",
         },
         "hdr_connection_editor": {"status": "na", "reason": "Maya Connection Editor; no Blender analogue"},
-    },
-    "render_effects_slots": {
-        # Render Effects panel (renamed from render_opacity 2026-09-05; redesigned 2026-10-03):
-        # an effect picker (cmb_effect) over a stack of code-built pages (stk_effects, uitk
-        # FormRows) bound to the scene's effect recipe -- each its mode over a Settings fold,
-        # grp_settings_<channel> -- over ONE action row in the .ui that serves the shown
-        # page (b000 Key, btn_remove, btn_webxr). Ported 1:1 by objectName
-        # (the tb000/tb001 option boxes are gone on both sides); compare_panel_surface 0
-        # deltas; nothing pending.
     },
     "texture_path_editor": {
         # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
@@ -771,12 +735,7 @@ PANELS = {
     # HierarchyManagerSlots / SceneExporterSlots / UnityBridgeSlots / AudioClipsSlots /
     # SmartBakeSlots: removed 2026-07-03/04 -- all five now have real blendertk twins
     # (mechanically diffed above under their own panel rows, measured OK/GAP, not "no twin").
-    # AudioClipsSlots verified via
-    # `compare_panel_surface.py --panel audio_clips` (0 untriaged / 0 pending / 0 triaged-OK /
-    # 0 stale-maya / 3 prop deltas [setText wording only] / 0 item deltas) after ledgering the
-    # 12 controls under the new "audio_clips_slots" CONTROLS row above -- all Maya-only
-    # composite-WAV/DG-node/two-phase-keying machinery with no VSE counterpart (see that row's
-    # header comment). UnityBridgeSlots verified clean via
+    # (AudioClips and SmartBake are tentacle's shared tools now.) UnityBridgeSlots verified clean via
     # `compare_panel_surface.py --panel unity_bridge` (0 untriaged / 0 pending / 0 triaged-OK /
     # 0 stale-maya / 0 prop deltas / 0 item deltas): a native co-located blendertk panel (engine +
     # Slots + .ui under env_utils/unity_bridge, engine registered in blendertk/__init__.py,

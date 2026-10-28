@@ -759,11 +759,9 @@ class SceneSlots(SceneMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("hierarchy_sync")
 
     def b003(self):
-        """Audio Clips — native blendertk panel over the Video Sequence Editor (add/remove/
-        trim a clip + scene-range sync), 1:1 role with mayatk's ``AudioClipsSlots``. Mayatk's
-        launcher lives inside the (not-yet-ported) Shot Manifest panel; this sits here in
-        Scene ▸ Manage instead until that panel exists — see
-        ``blendertk.audio_utils.audio_clips`` for the scope. ``b003`` (not Maya's ``b012``,
+        """Audio Clips — the shared tool over ``btk.AudioClips`` (Video Sequence Editor clips:
+        add / remove / trim + scene-range sync). The Shot Manifest panel opens it too; this
+        sits here in Scene ▸ Manage. ``b003`` (not Maya's ``b012``,
         "Toggle Command Ports" — a Maya command-port concept with no Blender analogue) to
         avoid a cross-DCC objectName collision (see ``test_blender_slots.py``'s semantics
         guard); ``b003`` is unused by Maya's ``scene.py``."""
