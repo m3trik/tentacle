@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- The shared `Slots` base answers what composed categories need (`slots/_slots.py`, `slots/maya/_slots_maya.py`, `slots/blender/_slots_blender.py`, `slots/normals.py`).** `Slots.NOTHING_SELECTED`, `require_selection(message=None)` and `activate_tool(tool)` over `self.tk`; `SlotsMaya` / `SlotsBlender` are thin delegates to the new library operations until their last fork merges. Fixed (Blender): a scene import/export row for an operator this Blender lacks is left out instead of raising when clicked.
+  - Test(s): new `test_slots_helpers.py`.
 - **2026-10-28 -- Fixed: Workspace Map's Root Directory field set itself up (`ui/tools/workspace_map.ui`, `slots/tools/workspace_map.py`).** Its init raised on the plain `QLineEdit` (no `.menu`, no `set_action_color`), so typing a root never rescanned and Set To Workspace / Recursive Search never appeared; the field is uitk's `LineEdit` and the two rows sit in its option box, as the help says. The every-tool load tests (`test_tool_panels_blender.py`, `test_marking_menu_gui.py`) now fail on a Slots error the switchboard only logs.
 - **2026-10-28 -- Shot Sequencer is a shared tool (`ui/tools/shot_sequencer.ui`, `slots/tools/shot_sequencer.py`, `slots/tools/_shot_sequencer/`).** One panel and controller for both hosts over `SequencerHost`; every tool panel is tentacle's now. Maya's Delete on a stepped point clip now cuts the object's content curves as Blender's did; Blender's track labels disambiguate repeated leaf names.
   - Test(s): new `test_shot_sequencer_panel.py`, `test_shot_sequencer_controller.py` (Maya-hosted), `test_shot_sequencer_panel_blender.py`, `test/blender/shot_sequencer_*_check.py`.

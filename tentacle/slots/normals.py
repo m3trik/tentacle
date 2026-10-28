@@ -11,12 +11,6 @@ from tentacle import Slots
 
 
 class NormalsSlots(Slots):
-    #: Shown when an operation ran on an empty selection (it returned ``[]``).
-    NOTHING_SELECTED = (
-        "<b>Nothing selected.</b><br>"
-        "The operation requires at least one selected object."
-    )
-
     def _report(self, result):
         """Say so when *result* is the ``[]`` of an empty selection; for these
         operations a run returns ``None``."""

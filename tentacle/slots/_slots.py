@@ -45,6 +45,12 @@ class Slots(QtCore.QObject):
     #: slot class).
     _legacy_repeat_last_migrated = False
 
+    #: Default body for the empty-selection message box (see :meth:`require_selection`).
+    NOTHING_SELECTED = (
+        "<b>Nothing selected.</b><br>"
+        "The operation requires at least one selected object."
+    )
+
     @property
     def tk(self):
         """The host toolkit (``mtk`` / ``btk``) the entry point set on the
@@ -111,6 +117,51 @@ class Slots(QtCore.QObject):
         # ``ComboBox.add`` ends with ``restore_state = not self.has_header``, so a headerless
         # combo seeded by its own ``add`` would silently opt itself back IN to persistence.
         widget.restore_state = False
+
+    def require_selection(self, message=None):
+        """The selection, or ``None`` -- after a message box -- when it is empty.
+
+        The guard a slot runs before work that cannot answer an empty selection
+        itself. An operation that takes ``None`` for the selection returns ``[]``
+        on an empty one instead: report from its result, as ``normals.py`` does.
+        Read through the host toolkit (``self.tk.CoreUtils.selected_objects``),
+        so a Slots class shared by both hosts gets Maya's selection as
+        ``cmds.ls`` names it (components included) and Blender's selected objects.
+
+        Parameters:
+            message (str, optional): HTML shown when nothing is selected.
+                Defaults to :attr:`NOTHING_SELECTED`.
+
+        Returns:
+            list | None: The selection, or ``None`` when it is empty.
+        """
+        selection = self.tk.CoreUtils.selected_objects()
+        if not selection:
+            self.sb.message_box(message or self.NOTHING_SELECTED)
+            return None
+        return selection
+
+    def activate_tool(self, tool) -> bool:
+        """Activate a viewport tool through the host toolkit and confirm it, or say
+        why not.
+
+        *tool* is a name both hosts register (``self.tk.UiUtils.get_tool_types``:
+        ``"Multi-Cut"``, ``"Quad Draw"``, ``"Lasso Select"`` ...). The confirmation
+        matters from the marking menu, which closes on the click: the tool change
+        is otherwise easy to miss. A refusal -- no 3D view, no object of the type
+        the tool edits, the host's own error -- reaches the user as the host
+        words it (``set_tool`` raises ``ValueError`` / ``RuntimeError``).
+
+        Returns:
+            bool: True when the tool was set.
+        """
+        try:
+            self.tk.UiUtils.set_tool(tool)
+        except (RuntimeError, ValueError) as error:
+            self.sb.message_box(str(error))
+            return False
+        self.sb.message_box(f"<hl>{tool}</hl> tool active.")
+        return True
 
     def add_slot_widget(self, sublist, widget_class=None, **kwargs):
         """Add a slot-wired widget as an ExpandableList sublist entry.
