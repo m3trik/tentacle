@@ -29,14 +29,6 @@ is keyed ``"<control>.<property>"``.
 
 # --------------------------------------------------------------------------- co-located panels
 CONTROLS = {
-    # rizom_bridge_slots: fully 1:1 as of 2026-07-15 — the round-trip pipeline is now ported
-    # (blendertk RizomUVBridge.process_with_rizomuv: export __RZTMP copies -> headless RizomUV -> re-
-    # import -> transfer UVs back). cmb000 is now a real preset picker listing the same five
-    # scripts/*.lua stems mayatk does (optimize/pack/send/unwrap_hard/unwrap_organic, matched by the
-    # sweep's combo-item-list check), backed by the same parameters.PARAMS + version-gating. The
-    # header-menu buttons (btn_open_scripts / btn_refresh_scripts / btn_clear_log / btn_open_uv_editor)
-    # match by objectName. Nothing to ledger — no entry needed here anymore. (Prior to this the entry
-    # marked cmb000 `na` for the thin send-only bridge; that gap is closed.)
 }
 
 # --------------------------------------------------------------------------- tentacle shared slots
@@ -590,9 +582,6 @@ DEFAULT_DELTAS = {
 # --------------------------------------------------------------------------- Maya-only panels
 # mayatk *Slots classes with no blendertk twin: how to treat the gap.
 PANELS = {
-    "BlenderBridgeSlots": {"status": "counterpart", "to": "MayaBridgeSlots",
-                           "reason": "cross-DCC send pair — each package ships the bridge named "
-                                     "after its TARGET app"},
     # SHOTS TRIO — SHIPPED 2026-07-11 (user directive: full 1:1 workflow parity so a Maya user moves to
     # Blender with the SAME tentacle tools). All three panels ported 1:1; Shot Manifest and Shots are
     # tentacle's shared tools now (2026-10-28), the Sequencer still co-located in

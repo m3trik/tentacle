@@ -541,6 +541,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class BevelSlots(Slots)`
   - methods: header_init, perform_operation
 
+### `slots/tools/blender_bridge.py` — Blender Bridge: send the selection to a fresh Blender through an import
+- `class BlenderBridgeSlots(HostBridge)`
+  - methods: bridge_class, b000
+
 ### `slots/tools/blendshape_animator.py` — Blendshape Animator: build a morph between two meshes, add in-between
 - constants: COL_NAME, COL_WEIGHT, COL_FRAME, COL_TOPOLOGY, COL_STATUS, MODE_WEIGHT, MODE_FRAME, STATUS_KEYS
 - `class BlendshapeAnimatorSlots(Slots)`
@@ -639,6 +643,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class MatUpdaterSlots(Slots)`
   - methods: logger, header_init, selection_mode, move_to_folder, shader_type, cmb001_init, b001
 
+### `slots/tools/maya_bridge.py` — Maya Bridge: send the selection to a fresh Maya through an import template.
+- `class MayaBridgeSlots(HostBridge)`
+  - methods: bridge_class, b000
+
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
   - methods: header_init, prepare_operation, perform_operation
@@ -654,6 +662,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/render_effects.py` — Render Effects: key per-object opacity fades and highlight pulses for export.
 - `class RenderEffectsSlots(Slots)`
   - methods: header_init, cmb_effect_init, cmb_effect, stk_effects_init, ui_field, focus, unfocus, b000, btn_remove, btn_webxr_init, btn_webxr
+
+### `slots/tools/rizom_bridge.py` — RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and
+- `class RizomBridgeSlots(HostBridge)`
+  - methods: bridge_class, params_module, template_dir, list_template_modes, b000, open_uv_editor
 
 ### `slots/tools/scene_exporter.py` — Scene Exporter: batch-export the scene through its task/check pipeline.
 - `class SceneExporterSlots(Slots, pythontk.LoggingMixin)`

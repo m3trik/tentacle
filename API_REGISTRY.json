@@ -5146,7 +5146,7 @@
               "qualname": "UvSlots.b032",
               "kind": "method",
               "signature": "(self)",
-              "summary": "RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).",
+              "summary": "RizomUV Bridge — the shared tool (round-trip Lua presets + one-way send).",
               "line": 754,
               "deprecated": false
             },
@@ -13586,6 +13586,42 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/blender_bridge.py",
+      "summary": "Blender Bridge: send the selection to a fresh Blender through an import",
+      "functions": [],
+      "classes": [
+        {
+          "name": "BlenderBridgeSlots",
+          "summary": "",
+          "line": 34,
+          "bases": [
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "BlenderBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 123,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "BlenderBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Send the selected objects to Blender with the chosen template.",
+              "line": 127,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/blendshape_animator.py",
       "summary": "Blendshape Animator: build a morph between two meshes, add in-between",
       "functions": [],
@@ -16141,6 +16177,42 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/maya_bridge.py",
+      "summary": "Maya Bridge: send the selection to a fresh Maya through an import template.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MayaBridgeSlots",
+          "summary": "",
+          "line": 21,
+          "bases": [
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "MayaBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 58,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "MayaBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Send the selected objects to Maya with the chosen template.",
+              "line": 62,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/mirror.py",
       "summary": "Mirror: mirror the selected meshes across an axis, with a live preview.",
       "functions": [],
@@ -16790,6 +16862,78 @@
               "signature": "(self, widget=None)",
               "summary": "Preview the shown page's effect in WebXR.",
               "line": 564,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/rizom_bridge.py",
+      "summary": "RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RizomBridgeSlots",
+          "summary": "",
+          "line": 44,
+          "bases": [
+            "HostBridge"
+          ],
+          "members": [
+            {
+              "name": "bridge_class",
+              "qualname": "RizomBridgeSlots.bridge_class",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "params_module",
+              "qualname": "RizomBridgeSlots.params_module",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The registry, its rows gated by the installed RizomUV's version.",
+              "line": 149,
+              "deprecated": false
+            },
+            {
+              "name": "template_dir",
+              "qualname": "RizomBridgeSlots.template_dir",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The Lua presets (``RizomUVBridge.SCRIPT_DIR``): the panel's templates.",
+              "line": 154,
+              "deprecated": false
+            },
+            {
+              "name": "list_template_modes",
+              "qualname": "RizomBridgeSlots.list_template_modes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "``[(preset, \"\"), ...]``: the presets the installed RizomUV can run",
+              "line": 161,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "RizomBridgeSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Run the chosen preset: a round trip, or the one-way ``send``.",
+              "line": 172,
+              "deprecated": false
+            },
+            {
+              "name": "open_uv_editor",
+              "qualname": "RizomBridgeSlots.open_uv_editor",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the host's UV Editor (Blender: in a new window, since it has no",
+              "line": 201,
               "deprecated": false
             }
           ]

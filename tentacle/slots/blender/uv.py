@@ -17,9 +17,9 @@ class UvSlots(UvMixin, SlotsBlender):
     :class:`~tentacle.slots._uv.UvMixin`). Data-level UV work (pin/stack/texel density/UV-set
     cleanup) is backed by ``blendertk.uv_utils`` (bmesh — headless);
     move/transform/mirror/straighten/distribute live in the shared ``shell_xform`` tool
-    (launched via b033); UV / texture transfer and the material combine live in the blendertk
-    ``texture_combine`` panel (launched via b000); RizomUV rides the
-    blendertk bridge panel (round-trip presets + one-way send). The deferred Maya-only depth is in
+    (launched via b033); UV / texture transfer and the material combine live in the shared
+    ``texture_combine`` tool (launched via b000); RizomUV rides the
+    shared RizomUV Bridge tool (round-trip presets + one-way send). The deferred Maya-only depth is in
     the parity overrides (u3dLayout packing params + the unwrap_cylinder crease algorithm).
     """
 
@@ -752,7 +752,7 @@ class UvSlots(UvMixin, SlotsBlender):
 
     # ------------------------------------------------------------------ deferred (Maya / UV-editor)
     def b032(self):
-        """RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).
+        """RizomUV Bridge — the shared tool (round-trip Lua presets + one-way send).
         Mirrors Maya's b032 → ``marking_menu.show("rizom_bridge")``."""
         self.sb.handlers.marking_menu.show("rizom_bridge")
 

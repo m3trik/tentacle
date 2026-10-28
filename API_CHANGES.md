@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (994)
+## Added (1007)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -385,6 +385,9 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/blender_bridge.py::BlenderBridgeSlots(class)`
+- `slots/tools/blender_bridge.py::BlenderBridgeSlots.b000(self)`
+- `slots/tools/blender_bridge.py::BlenderBridgeSlots.bridge_class(self)`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots(class)`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000(self, widget) -> None`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000_init(self, widget) -> None`
@@ -644,6 +647,9 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/mat_updater.py::MatUpdaterSlots.move_to_folder(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.selection_mode(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.shader_type(self)`
+- `slots/tools/maya_bridge.py::MayaBridgeSlots(class)`
+- `slots/tools/maya_bridge.py::MayaBridgeSlots.b000(self)`
+- `slots/tools/maya_bridge.py::MayaBridgeSlots.bridge_class(self)`
 - `slots/tools/mirror.py::MirrorSlots(class)`
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
@@ -713,6 +719,13 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/render_effects.py::RenderEffectsSlots.stk_effects_init(self, widget)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.ui_field(self, name)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.unfocus(self, *_args) -> None`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots(class)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.b000(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.bridge_class(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.list_template_modes(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.open_uv_editor(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.params_module(self)`
+- `slots/tools/rizom_bridge.py::RizomBridgeSlots.template_dir(self)`
 - `slots/tools/scene_exporter.py::SceneExporterSlots(class)`
 - `slots/tools/scene_exporter.py::SceneExporterSlots.b000(self) -> None`
 - `slots/tools/scene_exporter.py::SceneExporterSlots.b006(self) -> None`

@@ -146,6 +146,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
+- [`slots/tools/blender_bridge.py`](#slots--tools--blender_bridge) — Blender Bridge: send the selection to a fresh Blender through an import
 - [`slots/tools/blendshape_animator.py`](#slots--tools--blendshape_animator) — Blendshape Animator: build a morph between two meshes, add in-between
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
@@ -170,10 +171,12 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/lightmap_baker.py`](#slots--tools--lightmap_baker) — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
 - [`slots/tools/marmoset_bridge.py`](#slots--tools--marmoset_bridge) — Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
+- [`slots/tools/maya_bridge.py`](#slots--tools--maya_bridge) — Maya Bridge: send the selection to a fresh Maya through an import template.
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
 - [`slots/tools/reference_manager.py`](#slots--tools--reference_manager) — Reference Manager: a workspace scene-file manager -- browse a project's scene
 - [`slots/tools/render_effects.py`](#slots--tools--render_effects) — Render Effects: key per-object opacity fades and highlight pulses for export.
+- [`slots/tools/rizom_bridge.py`](#slots--tools--rizom_bridge) — RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and
 - [`slots/tools/scene_exporter.py`](#slots--tools--scene_exporter) — Scene Exporter: batch-export the scene through its task/check pipeline.
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
@@ -952,7 +955,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.tb022_init(self, widget)`
   - `UvSlots.tb022(self, widget)` — Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
   - `UvSlots.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
-  - `UvSlots.b032(self)` — RizomUV Bridge — co-located blendertk panel (round-trip Lua presets + one-way send).
+  - `UvSlots.b032(self)` — RizomUV Bridge — the shared tool (round-trip Lua presets + one-way send).
   - `UvSlots.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
 
 <a id="slots--maya--_slots_maya"></a>
@@ -2246,6 +2249,15 @@ Bevel: chamfer the selected polygon edges, with a live preview.
   - `BevelSlots.header_init(self, widget)` — Configure header help text.
   - `BevelSlots.perform_operation(self, objects, contract=None)` — Bevel *objects* (Maya's Preview passes its cleanup *contract*).
 
+<a id="slots--tools--blender_bridge"></a>
+### `slots/tools/blender_bridge.py`
+
+Blender Bridge: send the selection to a fresh Blender through an import
+
+- **[`class BlenderBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/blender_bridge.py#L34)**
+  - `BlenderBridgeSlots.bridge_class(self)` *(property)*
+  - `BlenderBridgeSlots.b000(self)` — Send the selected objects to Blender with the chosen template.
+
 <a id="slots--tools--blendshape_animator"></a>
 ### `slots/tools/blendshape_animator.py`
 
@@ -2649,6 +2661,15 @@ Material Updater: rework scene materials for a target workflow preset,
   - `MatUpdaterSlots.cmb001_init(self, widget)` — Initialize Presets.
   - `MatUpdaterSlots.b001(self)` — Update Materials
 
+<a id="slots--tools--maya_bridge"></a>
+### `slots/tools/maya_bridge.py`
+
+Maya Bridge: send the selection to a fresh Maya through an import template.
+
+- **[`class MayaBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/maya_bridge.py#L21)**
+  - `MayaBridgeSlots.bridge_class(self)` *(property)*
+  - `MayaBridgeSlots.b000(self)` — Send the selected objects to Maya with the chosen template.
+
 <a id="slots--tools--mirror"></a>
 ### `slots/tools/mirror.py`
 
@@ -2741,6 +2762,19 @@ Render Effects: key per-object opacity fades and highlight pulses for export.
   - `RenderEffectsSlots.btn_remove(self, widget=None)` — Strip the shown page's channel from the selection.
   - `RenderEffectsSlots.btn_webxr_init(self, widget)`
   - `RenderEffectsSlots.btn_webxr(self, widget=None)` — Preview the shown page's effect in WebXR.
+
+<a id="slots--tools--rizom_bridge"></a>
+### `slots/tools/rizom_bridge.py`
+
+RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and
+
+- **[`class RizomBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/rizom_bridge.py#L44)**
+  - `RizomBridgeSlots.bridge_class(self)` *(property)*
+  - `RizomBridgeSlots.params_module(self)` *(property)* — The registry, its rows gated by the installed RizomUV's version.
+  - `RizomBridgeSlots.template_dir(self)` *(property)* — The Lua presets (``RizomUVBridge.SCRIPT_DIR``): the panel's templates.
+  - `RizomBridgeSlots.list_template_modes(self)` — ``[(preset, ""), ...]``: the presets the installed RizomUV can run
+  - `RizomBridgeSlots.b000(self)` — Run the chosen preset: a round trip, or the one-way ``send``.
+  - `RizomBridgeSlots.open_uv_editor(self)` — Open the host's UV Editor (Blender: in a new window, since it has no
 
 <a id="slots--tools--scene_exporter"></a>
 ### `slots/tools/scene_exporter.py`

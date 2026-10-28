@@ -17,6 +17,11 @@ HOSTS = {
     # Arnold renders inside Maya alone: Blender has no Arnold, and Cycles and
     # EEVEE read one material graph, so there is no preview network to add.
     "arnold_bridge": ("maya",),
+    # Sends to Blender (mayatk's BlenderBridge): a Blender session has no bridge
+    # to itself; its counterpart is the Maya Bridge.
+    "blender_bridge": ("maya",),
+    # Sends to Maya (blendertk's MayaBridge); Maya's counterpart is the Blender Bridge.
+    "maya_bridge": ("blender",),
     # blendertk has no LightRig yet (BACKLOG: "Light Rigs has no blendertk twin").
     "light_rig": ("maya",),
     # blendertk has no WorkspaceMap engine; Blender finds projects through the
