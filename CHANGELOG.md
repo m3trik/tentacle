@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Color ID and Image To Plane are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Color ID composes the host's `ColorId` instead of subclassing it, keeps its pin and swatch group, and stores palettes in the host's preset folder; the old one-off clearing of white swatches is gone (a white swatch stays white). Image To Plane fills its material-type combo from the host (disabled where there is one) and wires its buttons by name.
+  - Test(s): new `test_color_id_panel.py` and `test_image_to_plane_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Bridge and Shell Xform are shared tools (new `ui/tools/` + `slots/tools/` pairs; `slots/maya/uv.py`, `slots/blender/uv.py` docstrings).** Bridge disables the options the host's Bridge lists as unsupported (Blender: Blend / Curve, Taper, Twist) and previews on open where the host's Preview can; Shell Xform's every button is one `UvUtils` call (Straighten's two in one undo chunk).
   - Test(s): new `test_bridge_panel.py` and `test_shell_xform_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Telescope Rig and Wheel Rig are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Each is one Slots class over the host's engine: Telescope Rig asks it for the selection's roles and removes several rigs in one undo step; Wheel Rig builds through `WheelRig.from_selection` (one undo step) and shows the default rig name as the field's placeholder instead of writing a stored one into it. Wheel Rig's two retired widgets stay in its `.ui` (saved names), hidden.

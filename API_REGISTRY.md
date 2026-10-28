@@ -128,6 +128,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
+- [`slots/tools/color_id.py`](#slots--tools--color_id) — Color ID: color-code objects across channels from a swatch palette.
 - [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
 - [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
 - [`slots/tools/duplicate_grid.py`](#slots--tools--duplicate_grid) — Duplicate Grid: copies of the selection in a 3D grid.
@@ -136,6 +137,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/dynamic_pipe.py`](#slots--tools--dynamic_pipe) — Dynamic Pipe: a pipe mesh that follows a chain of handles live.
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
+- [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
@@ -1811,6 +1813,20 @@ Calculator: expressions, length units, and the scene's frame-rate helpers.
   - `CalculatorSlots.frames_to_sec(self)`
   - `CalculatorSlots.sec_to_frames(self)`
 
+<a id="slots--tools--color_id"></a>
+### `slots/tools/color_id.py`
+
+Color ID: color-code objects across channels from a swatch palette.
+
+- **[`class ColorIdSlots(Slots)`](tentacle/tentacle/slots/tools/color_id.py#L15)**
+  - `ColorIdSlots.header_init(self, widget)` — Configure header help text and preset combobox.
+  - `ColorIdSlots.selected_button(self)` *(property)* — The checked swatch in the palette group, or None.
+  - `ColorIdSlots.target_color(self)` *(property)* — The active swatch's color as 0-1 ``(r, g, b)``, or None without one.
+  - `ColorIdSlots.b000(self) -> None` — Reset: clear the ENABLED channels on the selection (Ctrl+click: every
+  - `ColorIdSlots.b001(self) -> None` — Set Color: apply the active color to the selection on the enabled channels.
+  - `ColorIdSlots.b002(self) -> None` — Select By Color: select the objects carrying the active color on the
+  - `ColorIdSlots.b003(self) -> None` — Get Color: read the selected object's color on the enabled channels into
+
 <a id="slots--tools--curve_to_tube"></a>
 ### `slots/tools/curve_to_tube.py`
 
@@ -1911,6 +1927,19 @@ Exploded View: spread the selected objects apart to inspect interior parts.
   - `ExplodedViewSlots.b001(self)` — Un-Explode (selected).
   - `ExplodedViewSlots.b002(self)` — Un-Explode All.
   - `ExplodedViewSlots.b003(self)` — Toggle Explode.
+
+<a id="slots--tools--image_to_plane"></a>
+### `slots/tools/image_to_plane.py`
+
+Image to Plane: batch-create textured planes from image files.
+
+- **[`class ImageToPlaneSlots(Slots)`](tentacle/tentacle/slots/tools/image_to_plane.py#L17)**
+  - `ImageToPlaneSlots.header_init(self, widget)` — Configure header menu.
+  - `ImageToPlaneSlots.txt_suffix_init(self, widget)` — Add a prefix/suffix/auto-mode picker to the affix field.
+  - `ImageToPlaneSlots.b000(self)` — Browse…: queue image files from a file dialog (no duplicates).
+  - `ImageToPlaneSlots.b004(self)` — Clear: empty the queue.
+  - `ImageToPlaneSlots.b001(self)` — Create Planes: one textured plane per queued image.
+  - `ImageToPlaneSlots.b002(self)` — Remove Selected: delete the selected planes and their materials.
 
 <a id="slots--tools--image_tracer"></a>
 ### `slots/tools/image_tracer.py`

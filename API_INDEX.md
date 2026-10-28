@@ -467,6 +467,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class CalculatorSlots(Slots)`
   - methods: header_init, on_input, on_clear, on_backspace, on_equal, on_convert_units, get_fps, get_current_time, frames_to_sec, sec_to_frames
 
+### `slots/tools/color_id.py` — Color ID: color-code objects across channels from a swatch palette.
+- `class ColorIdSlots(Slots)`
+  - methods: header_init, selected_button, target_color, b000, b001, b002, b003
+
 ### `slots/tools/curve_to_tube.py` — Curve to Tube: sweep a circular profile along the selected curves into a
 - `class CurveToTubeSlots(Slots)`
   - methods: header_init, b001_init, perform_operation
@@ -499,6 +503,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/exploded_view.py` — Exploded View: spread the selected objects apart to inspect interior parts.
 - `class ExplodedViewSlots(Slots)`
   - methods: header_init, b000, b001, b002, b003
+
+### `slots/tools/image_to_plane.py` — Image to Plane: batch-create textured planes from image files.
+- `class ImageToPlaneSlots(Slots)`
+  - methods: header_init, txt_suffix_init, b000, b004, b001, b002
 
 ### `slots/tools/image_tracer.py` — Image Tracer: trace a raster image's contours into curves, then fill them
 - `class ImageTracerSlots(Slots)`

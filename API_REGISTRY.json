@@ -10930,6 +10930,87 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/color_id.py",
+      "summary": "Color ID: color-code objects across channels from a swatch palette.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ColorIdSlots",
+          "summary": "",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ColorIdSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text and preset combobox.",
+              "line": 63,
+              "deprecated": false
+            },
+            {
+              "name": "selected_button",
+              "qualname": "ColorIdSlots.selected_button",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The checked swatch in the palette group, or None.",
+              "line": 139,
+              "deprecated": false
+            },
+            {
+              "name": "target_color",
+              "qualname": "ColorIdSlots.target_color",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The active swatch's color as 0-1 ``(r, g, b)``, or None without one.",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "ColorIdSlots.b000",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Reset: clear the ENABLED channels on the selection (Ctrl+click: every",
+              "line": 199,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "ColorIdSlots.b001",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Set Color: apply the active color to the selection on the enabled channels.",
+              "line": 220,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "ColorIdSlots.b002",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Select By Color: select the objects carrying the active color on the",
+              "line": 239,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "ColorIdSlots.b003",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Get Color: read the selected object's color on the enabled channels into",
+              "line": 250,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/curve_to_tube.py",
       "summary": "Curve to Tube: sweep a circular profile along the selected curves into a",
       "functions": [],
@@ -11472,6 +11553,78 @@
               "signature": "(self)",
               "summary": "Toggle Explode.",
               "line": 59,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/image_to_plane.py",
+      "summary": "Image to Plane: batch-create textured planes from image files.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ImageToPlaneSlots",
+          "summary": "",
+          "line": 17,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ImageToPlaneSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header menu.",
+              "line": 38,
+              "deprecated": false
+            },
+            {
+              "name": "txt_suffix_init",
+              "qualname": "ImageToPlaneSlots.txt_suffix_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add a prefix/suffix/auto-mode picker to the affix field.",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "ImageToPlaneSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Browse…: queue image files from a file dialog (no duplicates).",
+              "line": 154,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "ImageToPlaneSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Clear: empty the queue.",
+              "line": 173,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "ImageToPlaneSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Create Planes: one textured plane per queued image.",
+              "line": 182,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "ImageToPlaneSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Remove Selected: delete the selected planes and their materials.",
+              "line": 215,
               "deprecated": false
             }
           ]

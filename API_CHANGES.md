@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (223)
+## Added (238)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -106,6 +106,14 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/calculator.py::CalculatorSlots.on_equal(self)`
 - `slots/tools/calculator.py::CalculatorSlots.on_input(self, text)`
 - `slots/tools/calculator.py::CalculatorSlots.sec_to_frames(self)`
+- `slots/tools/color_id.py::ColorIdSlots(class)`
+- `slots/tools/color_id.py::ColorIdSlots.b000(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b001(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b002(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.b003(self) -> None`
+- `slots/tools/color_id.py::ColorIdSlots.header_init(self, widget)`
+- `slots/tools/color_id.py::ColorIdSlots.selected_button(self)`
+- `slots/tools/color_id.py::ColorIdSlots.target_color(self)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots(class)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots.b001_init(self, widget)`
 - `slots/tools/curve_to_tube.py::CurveToTubeSlots.header_init(self, widget)`
@@ -159,6 +167,13 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b002(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b003(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.header_init(self, widget)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots(class)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b000(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b001(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b002(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.b004(self)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.header_init(self, widget)`
+- `slots/tools/image_to_plane.py::ImageToPlaneSlots.txt_suffix_init(self, widget)`
 - `slots/tools/image_tracer.py::ImageTracerSlots(class)`
 - `slots/tools/image_tracer.py::ImageTracerSlots.b002(self)`
 - `slots/tools/image_tracer.py::ImageTracerSlots.b003(self)`

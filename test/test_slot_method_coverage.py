@@ -371,9 +371,15 @@ def _ui_names(ui_path: Path) -> set[str]:
     }
 
 
+#: What every loaded window carries beside its widgets (uitk's ``MainWindow``):
+#: read as ``self.ui.<name>``, declared by no ``.ui``.
+_WINDOW_ATTRIBUTES = frozenset({"settings", "sb"})
+
+
 def _ui_reads(py_path: Path) -> set[str]:
     """Names the module reads as ``self.ui.<name>``; a call (``self.ui.show()``) is a
-    window method, not a widget."""
+    window method, not a widget, and the window's own attributes
+    (:data:`_WINDOW_ATTRIBUTES`) are none either."""
     tree = ast.parse(py_path.read_text(encoding="utf-8"))
     called = {
         id(node.func) for node in ast.walk(tree) if isinstance(node, ast.Call)
@@ -384,6 +390,7 @@ def _ui_reads(py_path: Path) -> set[str]:
         if isinstance(node, ast.Attribute)
         and id(node) not in called
         and ast.unparse(node.value) == "self.ui"
+        and node.attr not in _WINDOW_ATTRIBUTES
     }
 
 
