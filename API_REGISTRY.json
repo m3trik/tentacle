@@ -10750,6 +10750,169 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/articulated_rig.py",
+      "summary": "Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ArticulatedRigSlots",
+          "summary": "Slots for the Articulated Rig panel.",
+          "line": 38,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ArticulatedRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "",
+              "line": 106,
+              "deprecated": false
+            },
+            {
+              "name": "btn_ik_fk_init",
+              "qualname": "ArticulatedRigSlots.btn_ik_fk_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Switch IK / FK's option box: put the end control back on the end",
+              "line": 164,
+              "deprecated": false
+            },
+            {
+              "name": "parse_limits",
+              "qualname": "ArticulatedRigSlots.parse_limits",
+              "kind": "staticmethod",
+              "signature": "(text: str, channels: Sequence[str]) -> Dict[str, Tuple[Optional[float], Optional[float]]]",
+              "summary": "The limits typed into a Limits cell (``ptk.ArticulationPlan.",
+              "line": 373,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_table",
+              "qualname": "ArticulatedRigSlots.refresh_table",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 388,
+              "deprecated": false
+            },
+            {
+              "name": "btn_analyze",
+              "qualname": "ArticulatedRigSlots.btn_analyze",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 571,
+              "deprecated": false
+            },
+            {
+              "name": "btn_build",
+              "qualname": "ArticulatedRigSlots.btn_build",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 592,
+              "deprecated": false
+            },
+            {
+              "name": "btn_grab",
+              "qualname": "ArticulatedRigSlots.btn_grab",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 660,
+              "deprecated": false
+            },
+            {
+              "name": "btn_ik_fk",
+              "qualname": "ArticulatedRigSlots.btn_ik_fk",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 665,
+              "deprecated": false
+            },
+            {
+              "name": "match_end_control",
+              "qualname": "ArticulatedRigSlots.match_end_control",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 682,
+              "deprecated": false
+            },
+            {
+              "name": "btn_rest",
+              "qualname": "ArticulatedRigSlots.btn_rest",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 690,
+              "deprecated": false
+            },
+            {
+              "name": "btn_insert",
+              "qualname": "ArticulatedRigSlots.btn_insert",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 698,
+              "deprecated": false
+            },
+            {
+              "name": "btn_fold",
+              "qualname": "ArticulatedRigSlots.btn_fold",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 712,
+              "deprecated": false
+            },
+            {
+              "name": "btn_limits_from_pose",
+              "qualname": "ArticulatedRigSlots.btn_limits_from_pose",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 725,
+              "deprecated": false
+            },
+            {
+              "name": "btn_clear_limits",
+              "qualname": "ArticulatedRigSlots.btn_clear_limits",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 744,
+              "deprecated": false
+            },
+            {
+              "name": "btn_rebuild",
+              "qualname": "ArticulatedRigSlots.btn_rebuild",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 759,
+              "deprecated": false
+            },
+            {
+              "name": "btn_remove",
+              "qualname": "ArticulatedRigSlots.btn_remove",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "",
+              "line": 768,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/bevel.py",
       "summary": "Bevel: chamfer the selected polygon edges, with a live preview.",
       "functions": [],
@@ -12421,6 +12584,268 @@
               "signature": "(self)",
               "summary": "Save Template: capture the selection's material network under a",
               "line": 269,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/shadow_rig.py",
+      "summary": "Shadow Rig: a ground plane carrying the targets' projected shadow, built for",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShadowRigSlots",
+          "summary": "",
+          "line": 25,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ShadowRigSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 91,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_type_init",
+              "qualname": "ShadowRigSlots.cmb_type_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "A rig type the panel only plans for is listed but not selectable.",
+              "line": 434,
+              "deprecated": false
+            },
+            {
+              "name": "txt_source_init",
+              "qualname": "ShadowRigSlots.txt_source_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Source Name's option box: the two actions about the source --",
+              "line": 441,
+              "deprecated": false
+            },
+            {
+              "name": "b003_init",
+              "qualname": "ShadowRigSlots.b003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Recalculate Silhouette's option box: the deeper updates of an",
+              "line": 490,
+              "deprecated": false
+            },
+            {
+              "name": "b002_init",
+              "qualname": "ShadowRigSlots.b002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Bake to Keyframes' option box: Restore Expression, its inverse.",
+              "line": 533,
+              "deprecated": false
+            },
+            {
+              "name": "b009_init",
+              "qualname": "ShadowRigSlots.b009_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Delete Rig's option box: Detach to Plane, the teardown that keeps",
+              "line": 553,
+              "deprecated": false
+            },
+            {
+              "name": "b001_init",
+              "qualname": "ShadowRigSlots.b001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the",
+              "line": 595,
+              "deprecated": false
+            },
+            {
+              "name": "prepare_operation",
+              "qualname": "ShadowRigSlots.prepare_operation",
+              "kind": "method",
+              "signature": "(self, objects)",
+              "summary": "Preview's one-shot precondition, run at enable outside any",
+              "line": 656,
+              "deprecated": false
+            },
+            {
+              "name": "source_from_selection",
+              "qualname": "ShadowRigSlots.source_from_selection",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Source From Selection (Source Name's option box): the selected",
+              "line": 667,
+              "deprecated": false
+            },
+            {
+              "name": "reproject_sources",
+              "qualname": "ShadowRigSlots.reproject_sources",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reproject (Source Name's option box): re-render the silhouette of",
+              "line": 699,
+              "deprecated": false
+            },
+            {
+              "name": "perform_operation",
+              "qualname": "ShadowRigSlots.perform_operation",
+              "kind": "method",
+              "signature": "(self, objects, contract=None)",
+              "summary": "Build one shadow rig per source for the selected target(s).",
+              "line": 794,
+              "deprecated": false
+            },
+            {
+              "name": "chk_follow_init",
+              "qualname": "ShadowRigSlots.chk_follow_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Follow Source arms the engine's watcher from the box's (saved)",
+              "line": 916,
+              "deprecated": false
+            },
+            {
+              "name": "chk_follow",
+              "qualname": "ShadowRigSlots.chk_follow",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Follow Source: re-render a silhouette as soon as its source -- or",
+              "line": 923,
+              "deprecated": false
+            },
+            {
+              "name": "s001_init",
+              "qualname": "ShadowRigSlots.s001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Softness shows the scene's value for the first Source Name -- its",
+              "line": 934,
+              "deprecated": false
+            },
+            {
+              "name": "s001",
+              "qualname": "ShadowRigSlots.s001",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Softness: the diameter the shadow gives the source(s) named in",
+              "line": 943,
+              "deprecated": false
+            },
+            {
+              "name": "s002",
+              "qualname": "ShadowRigSlots.s002",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Intensity: the overall darkness a new rig builds with, applied at",
+              "line": 996,
+              "deprecated": false
+            },
+            {
+              "name": "s003",
+              "qualname": "ShadowRigSlots.s003",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Ground Y: the floor's world height (Blender's Z) a new rig builds",
+              "line": 1003,
+              "deprecated": false
+            },
+            {
+              "name": "chk_horizon_preview_init",
+              "qualname": "ShadowRigSlots.chk_horizon_preview_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The box mirrors the SCENE, never a saved setting: checked while a",
+              "line": 1020,
+              "deprecated": false
+            },
+            {
+              "name": "chk_horizon_preview",
+              "qualname": "ShadowRigSlots.chk_horizon_preview",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Live Horizon Preview: the horizon plane(s) the selection touches",
+              "line": 1076,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "ShadowRigSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Bake to Keyframes: bake the rig(s) the selection touches (or all)",
+              "line": 1109,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "ShadowRigSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Recalculate Silhouette: re-render the rig(s) the selection touches",
+              "line": 1122,
+              "deprecated": false
+            },
+            {
+              "name": "apply_source",
+              "qualname": "ShadowRigSlots.apply_source",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Apply Source (Recalculate's option box): re-point the rig(s) the",
+              "line": 1138,
+              "deprecated": false
+            },
+            {
+              "name": "rebuild_rig",
+              "qualname": "ShadowRigSlots.rebuild_rig",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rebuild Rig (Recalculate's option box): re-create the rig(s) the",
+              "line": 1169,
+              "deprecated": false
+            },
+            {
+              "name": "restore_expression",
+              "qualname": "ShadowRigSlots.restore_expression",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Restore Expression (Bake's option box): un-bake the rig(s) the",
+              "line": 1197,
+              "deprecated": false
+            },
+            {
+              "name": "b009",
+              "qualname": "ShadowRigSlots.b009",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete Rig: tear down the rig(s) the selection touches.",
+              "line": 1213,
+              "deprecated": false
+            },
+            {
+              "name": "detach_to_plane",
+              "qualname": "ShadowRigSlots.detach_to_plane",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Detach to Plane (Delete Rig's option box): the rig(s) the selection",
+              "line": 1223,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "ShadowRigSlots.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Pack Atlas: pack or repack every shadow rig's tiles into the",
+              "line": 1241,
               "deprecated": false
             }
           ]

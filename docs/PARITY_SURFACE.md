@@ -7,7 +7,6 @@
 | panel | untriaged | pending | triaged OK | prop deltas | status |
 |:--|--:|--:|--:|--:|:--|
 | ArnoldBridge | 0 | 0 | 4 | 0 | OK |
-| ArticulatedRig | 0 | 0 | 0 | 0 | OK |
 | AudioClips | 0 | 0 | 15 | 3 | OK |
 | BlendshapeAnimator | 0 | 0 | 1 | 0 | OK |
 | Channels | 0 | 0 | 5 | 0 | OK |
@@ -20,7 +19,6 @@
 | RenderEffects | 0 | 0 | 0 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | SceneExporter | 0 | 2 | 3 | 0 | open |
-| ShadowRig | 0 | 0 | 0 | 0 | OK |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | Shots | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
@@ -182,4 +180,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 22 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 18 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 20 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 18 open-work items; 0 stale Maya handlers. Sweep PASSES.

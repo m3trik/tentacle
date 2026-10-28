@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (312)
+## Added (357)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -89,6 +89,23 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
 - `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots(class)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_analyze(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_build(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_clear_limits(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_fold(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_grab(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_ik_fk(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_ik_fk_init(self, widget)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_insert(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_limits_from_pose(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_rebuild(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_remove(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.btn_rest(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.header_init(self, widget)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.match_end_control(self)`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.parse_limits(text: str, channels: Sequence[str]) -> Dict[str, Tuple[Optional[float], Optional[float]]]`
+- `slots/tools/articulated_rig.py::ArticulatedRigSlots.refresh_table(self)`
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
@@ -255,6 +272,34 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.refresh_templates(self, widget)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.rename_template_safe(self, widget, new_name)`
 - `slots/tools/shader_templates.py::ShaderTemplatesSlots.source_images_dir(self) -> str`
+- `slots/tools/shadow_rig.py::ShadowRigSlots(class)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.apply_source(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b001_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b002(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b002_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b003(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b003_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b009(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b009_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.b010(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_follow(self, checked)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_follow_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_horizon_preview(self, checked)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.chk_horizon_preview_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.cmb_type_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.detach_to_plane(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.header_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.perform_operation(self, objects, contract=None)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.prepare_operation(self, objects)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.rebuild_rig(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.reproject_sources(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.restore_expression(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s001(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s001_init(self, widget)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s002(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.s003(self, value)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.source_from_selection(self)`
+- `slots/tools/shadow_rig.py::ShadowRigSlots.txt_source_init(self, widget)`
 - `slots/tools/shell_xform.py::ShellXformSlots(class)`
 - `slots/tools/shell_xform.py::ShellXformSlots.align_u_avg(self)`
 - `slots/tools/shell_xform.py::ShellXformSlots.align_u_max(self)`

@@ -455,6 +455,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_shot_manifest/view_combos.py` — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - `class ViewCombosMixin`
 
+### `slots/tools/articulated_rig.py` — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
+- `class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, btn_ik_fk_init, parse_limits, refresh_table, btn_analyze, btn_build, btn_grab, btn_ik_fk, match_end_control, btn_rest, btn_insert, btn_fold, btn_limits_from_pose, btn_clear_limits, btn_rebuild, btn_remove
+
 ### `slots/tools/bevel.py` — Bevel: chamfer the selected polygon edges, with a live preview.
 - `class BevelSlots(Slots)`
   - methods: header_init, perform_operation
@@ -535,6 +539,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/shader_templates.py` — Shader Templates: save a material's shader network as a reusable template
 - `class ShaderTemplatesSlots(Slots, pythontk.LoggingMixin)`
   - methods: source_images_dir, header_init, lbl_graph_material, lbl_open_templates_dir, cmb002_init, refresh_templates, rename_template_safe, lbl000, lbl001, lbl002, b000, b001, b002
+
+### `slots/tools/shadow_rig.py` — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
+- `class ShadowRigSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, cmb_type_init, txt_source_init, b003_init, b002_init, b009_init, b001_init, prepare_operation, source_from_selection, reproject_sources, perform_operation, chk_follow_init, chk_follow, s001_init, s001, s002, s003, chk_horizon_preview_init, chk_horizon_preview, b002, b003, apply_source, rebuild_rig, restore_expression, b009, detach_to_plane, b010
 
 ### `slots/tools/shell_xform.py` — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - `class ShellXformSlots(Slots)`

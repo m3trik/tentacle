@@ -125,6 +125,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/store_follow.py`](#slots--tools--_shot_manifest--store_follow) — The Shot Manifest panel following the scene's store: its events (a shot
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
@@ -145,6 +146,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
+- [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
@@ -1784,6 +1786,29 @@ The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 
 - **[`class ViewCombosMixin`](tentacle/tentacle/slots/tools/_shot_manifest/view_combos.py#L25)** — The view row, mixed into ``ShotManifestController``.
 
+<a id="slots--tools--articulated_rig"></a>
+### `slots/tools/articulated_rig.py`
+
+Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
+
+- **[`class ArticulatedRigSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/articulated_rig.py#L38)** — Slots for the Articulated Rig panel.
+  - `ArticulatedRigSlots.header_init(self, widget)`
+  - `ArticulatedRigSlots.btn_ik_fk_init(self, widget)` — Switch IK / FK's option box: put the end control back on the end
+  - `ArticulatedRigSlots.parse_limits(text: str, channels: Sequence[str]) -> Dict[str, Tuple[Optional[float], Optional[float]]]` *(static)* — The limits typed into a Limits cell (``ptk.ArticulationPlan.
+  - `ArticulatedRigSlots.refresh_table(self)`
+  - `ArticulatedRigSlots.btn_analyze(self)`
+  - `ArticulatedRigSlots.btn_build(self)`
+  - `ArticulatedRigSlots.btn_grab(self)`
+  - `ArticulatedRigSlots.btn_ik_fk(self)`
+  - `ArticulatedRigSlots.match_end_control(self)`
+  - `ArticulatedRigSlots.btn_rest(self)`
+  - `ArticulatedRigSlots.btn_insert(self)`
+  - `ArticulatedRigSlots.btn_fold(self)`
+  - `ArticulatedRigSlots.btn_limits_from_pose(self)`
+  - `ArticulatedRigSlots.btn_clear_limits(self)`
+  - `ArticulatedRigSlots.btn_rebuild(self)`
+  - `ArticulatedRigSlots.btn_remove(self)`
+
 <a id="slots--tools--bevel"></a>
 ### `slots/tools/bevel.py`
 
@@ -2069,6 +2094,40 @@ Shader Templates: save a material's shader network as a reusable template
   - `ShaderTemplatesSlots.b000(self)` — Create Network: rebuild the selected template, rebinding the loaded
   - `ShaderTemplatesSlots.b001(self)` — Load Texture Maps: pick the maps Create Network rebinds by type.
   - `ShaderTemplatesSlots.b002(self)` — Save Template: capture the selection's material network under a
+
+<a id="slots--tools--shadow_rig"></a>
+### `slots/tools/shadow_rig.py`
+
+Shadow Rig: a ground plane carrying the targets' projected shadow, built for
+
+- **[`class ShadowRigSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/shadow_rig.py#L25)**
+  - `ShadowRigSlots.header_init(self, widget)` — Configure header help text.
+  - `ShadowRigSlots.cmb_type_init(self, widget)` — A rig type the panel only plans for is listed but not selectable.
+  - `ShadowRigSlots.txt_source_init(self, widget)` — Source Name's option box: the two actions about the source --
+  - `ShadowRigSlots.b003_init(self, widget)` — Recalculate Silhouette's option box: the deeper updates of an
+  - `ShadowRigSlots.b002_init(self, widget)` — Bake to Keyframes' option box: Restore Expression, its inverse.
+  - `ShadowRigSlots.b009_init(self, widget)` — Delete Rig's option box: Detach to Plane, the teardown that keeps
+  - `ShadowRigSlots.b001_init(self, widget)` — Reset to Defaults, on uitk's shared reset grammar (Shift+Click saves the
+  - `ShadowRigSlots.prepare_operation(self, objects)` — Preview's one-shot precondition, run at enable outside any
+  - `ShadowRigSlots.source_from_selection(self)` — Source From Selection (Source Name's option box): the selected
+  - `ShadowRigSlots.reproject_sources(self)` — Reproject (Source Name's option box): re-render the silhouette of
+  - `ShadowRigSlots.perform_operation(self, objects, contract=None)` — Build one shadow rig per source for the selected target(s).
+  - `ShadowRigSlots.chk_follow_init(self, widget)` — Follow Source arms the engine's watcher from the box's (saved)
+  - `ShadowRigSlots.chk_follow(self, checked)` — Follow Source: re-render a silhouette as soon as its source -- or
+  - `ShadowRigSlots.s001_init(self, widget)` — Softness shows the scene's value for the first Source Name -- its
+  - `ShadowRigSlots.s001(self, value)` — Softness: the diameter the shadow gives the source(s) named in
+  - `ShadowRigSlots.s002(self, value)` — Intensity: the overall darkness a new rig builds with, applied at
+  - `ShadowRigSlots.s003(self, value)` — Ground Y: the floor's world height (Blender's Z) a new rig builds
+  - `ShadowRigSlots.chk_horizon_preview_init(self, widget)` — The box mirrors the SCENE, never a saved setting: checked while a
+  - `ShadowRigSlots.chk_horizon_preview(self, checked)` — Live Horizon Preview: the horizon plane(s) the selection touches
+  - `ShadowRigSlots.b002(self)` — Bake to Keyframes: bake the rig(s) the selection touches (or all)
+  - `ShadowRigSlots.b003(self)` — Recalculate Silhouette: re-render the rig(s) the selection touches
+  - `ShadowRigSlots.apply_source(self)` — Apply Source (Recalculate's option box): re-point the rig(s) the
+  - `ShadowRigSlots.rebuild_rig(self)` — Rebuild Rig (Recalculate's option box): re-create the rig(s) the
+  - `ShadowRigSlots.restore_expression(self)` — Restore Expression (Bake's option box): un-bake the rig(s) the
+  - `ShadowRigSlots.b009(self)` — Delete Rig: tear down the rig(s) the selection touches.
+  - `ShadowRigSlots.detach_to_plane(self)` — Detach to Plane (Delete Rig's option box): the rig(s) the selection
+  - `ShadowRigSlots.b010(self)` — Pack Atlas: pack or repack every shadow rig's tiles into the
 
 <a id="slots--tools--shell_xform"></a>
 ### `slots/tools/shell_xform.py`
