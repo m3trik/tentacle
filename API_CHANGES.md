@@ -7,12 +7,34 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (1117)
+## Added (1155)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
 - `slots/_slots.py::Slots.require_selection(self, message=None)`
 - `slots/_slots.py::Slots.tk(self)`
+- `slots/cameras.py::CamerasSlots(class)`
+- `slots/cameras.py::CamerasSlots.b000(self)`
+- `slots/cameras.py::CamerasSlots.b001(self)`
+- `slots/cameras.py::CamerasSlots.b002(self)`
+- `slots/cameras.py::CamerasSlots.b003(self)`
+- `slots/cameras.py::CamerasSlots.b004(self)`
+- `slots/cameras.py::CamerasSlots.b005(self)`
+- `slots/cameras.py::CamerasSlots.b006(self)`
+- `slots/cameras.py::CamerasSlots.b007(self)`
+- `slots/cameras.py::CamerasSlots.b010(self)`
+- `slots/cameras.py::CamerasSlots.b011(self)`
+- `slots/cameras.py::CamerasSlots.b012(self)`
+- `slots/cameras.py::CamerasSlots.b013(self)`
+- `slots/cameras.py::CamerasSlots.list000(self, item)`
+- `slots/cameras.py::CamerasSlots.list000_init(self, widget)`
+- `slots/crease.py::CreaseSlots(class)`
+- `slots/crease.py::CreaseSlots.b002(self, widget)`
+- `slots/crease.py::CreaseSlots.tb000(self, widget)`
+- `slots/crease.py::CreaseSlots.tb000_init(self, widget)`
+- `slots/deformation.py::DeformationSlots(class)`
+- `slots/deformation.py::DeformationSlots.tb001(self, widget)`
+- `slots/deformation.py::DeformationSlots.tb001_init(self, widget)`
 - `slots/normals.py::NormalsSlots(class)`
 - `slots/normals.py::NormalsSlots.b000(self)`
 - `slots/normals.py::NormalsSlots.b001(self)`
@@ -25,6 +47,17 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/normals.py::NormalsSlots.tb004_init(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010(self, widget)`
 - `slots/normals.py::NormalsSlots.tb010_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots(class)`
+- `slots/symmetry.py::SymmetrySlots.chk000(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk000_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk001(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk001_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk002(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk002_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk004(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk004_init(self, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk005(self, state, widget)`
+- `slots/symmetry.py::SymmetrySlots.chk005_init(self, widget)`
 - `slots/tools/__init__.py::HOSTS(constant)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge(class)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge.PRESETS_ROOT(self)`
@@ -1124,13 +1157,40 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.txt001_init(self, widget)`
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None`
 - `slots/tools/workspace_map.py::WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None`
+- `slots/utilities.py::UtilitiesSlots(class)`
+- `slots/utilities.py::UtilitiesSlots.b000(self)`
+- `slots/utilities.py::UtilitiesSlots.b001(self)`
+- `slots/utilities.py::UtilitiesSlots.b002(self)`
+- `slots/utilities.py::UtilitiesSlots.b003(self)`
 - `tcl.py::Tcl.register_shared(switchboard)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (22)
+## Moved (95)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
+- `slots/blender/cameras.py::CamerasSlots`
+- `slots/blender/cameras.py::CamerasSlots.b000`
+- `slots/blender/cameras.py::CamerasSlots.b001`
+- `slots/blender/cameras.py::CamerasSlots.b002`
+- `slots/blender/cameras.py::CamerasSlots.b003`
+- `slots/blender/cameras.py::CamerasSlots.b004`
+- `slots/blender/cameras.py::CamerasSlots.b005`
+- `slots/blender/cameras.py::CamerasSlots.b006`
+- `slots/blender/cameras.py::CamerasSlots.b007`
+- `slots/blender/cameras.py::CamerasSlots.b010`
+- `slots/blender/cameras.py::CamerasSlots.b011`
+- `slots/blender/cameras.py::CamerasSlots.b012`
+- `slots/blender/cameras.py::CamerasSlots.b013`
+- `slots/blender/cameras.py::CamerasSlots.list000`
+- `slots/blender/cameras.py::CamerasSlots.list000_init`
+- `slots/blender/crease.py::CreaseSlots`
+- `slots/blender/crease.py::CreaseSlots.b002`
+- `slots/blender/crease.py::CreaseSlots.tb000`
+- `slots/blender/crease.py::CreaseSlots.tb000_init`
+- `slots/blender/deformation.py::DeformationSlots`
+- `slots/blender/deformation.py::DeformationSlots.tb001`
+- `slots/blender/deformation.py::DeformationSlots.tb001_init`
 - `slots/blender/normals.py::NormalsSlots`
 - `slots/blender/normals.py::NormalsSlots.b000`
 - `slots/blender/normals.py::NormalsSlots.b001`
@@ -1142,6 +1202,44 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/normals.py::NormalsSlots.tb004`
 - `slots/blender/normals.py::NormalsSlots.tb004_init`
 - `slots/blender/normals.py::NormalsSlots.tb010`
+- `slots/blender/symmetry.py::SymmetrySlots`
+- `slots/blender/symmetry.py::SymmetrySlots.chk000`
+- `slots/blender/symmetry.py::SymmetrySlots.chk000_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk001`
+- `slots/blender/symmetry.py::SymmetrySlots.chk001_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk002`
+- `slots/blender/symmetry.py::SymmetrySlots.chk002_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk004`
+- `slots/blender/symmetry.py::SymmetrySlots.chk004_init`
+- `slots/blender/symmetry.py::SymmetrySlots.chk005`
+- `slots/blender/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/blender/utilities.py::UtilitiesSlots`
+- `slots/blender/utilities.py::UtilitiesSlots.b000`
+- `slots/blender/utilities.py::UtilitiesSlots.b001`
+- `slots/blender/utilities.py::UtilitiesSlots.b002`
+- `slots/blender/utilities.py::UtilitiesSlots.b003`
+- `slots/maya/cameras.py::CamerasSlots`
+- `slots/maya/cameras.py::CamerasSlots.b000`
+- `slots/maya/cameras.py::CamerasSlots.b001`
+- `slots/maya/cameras.py::CamerasSlots.b002`
+- `slots/maya/cameras.py::CamerasSlots.b003`
+- `slots/maya/cameras.py::CamerasSlots.b004`
+- `slots/maya/cameras.py::CamerasSlots.b005`
+- `slots/maya/cameras.py::CamerasSlots.b006`
+- `slots/maya/cameras.py::CamerasSlots.b007`
+- `slots/maya/cameras.py::CamerasSlots.b010`
+- `slots/maya/cameras.py::CamerasSlots.b011`
+- `slots/maya/cameras.py::CamerasSlots.b012`
+- `slots/maya/cameras.py::CamerasSlots.b013`
+- `slots/maya/cameras.py::CamerasSlots.list000`
+- `slots/maya/cameras.py::CamerasSlots.list000_init`
+- `slots/maya/crease.py::CreaseSlots`
+- `slots/maya/crease.py::CreaseSlots.b002`
+- `slots/maya/crease.py::CreaseSlots.tb000`
+- `slots/maya/crease.py::CreaseSlots.tb000_init`
+- `slots/maya/deformation.py::DeformationSlots`
+- `slots/maya/deformation.py::DeformationSlots.tb001`
+- `slots/maya/deformation.py::DeformationSlots.tb001_init`
 - `slots/maya/normals.py::NormalsSlots`
 - `slots/maya/normals.py::NormalsSlots.b000`
 - `slots/maya/normals.py::NormalsSlots.b001`
@@ -1153,3 +1251,16 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/normals.py::NormalsSlots.tb004`
 - `slots/maya/normals.py::NormalsSlots.tb004_init`
 - `slots/maya/normals.py::NormalsSlots.tb010`
+- `slots/maya/symmetry.py::SymmetrySlots`
+- `slots/maya/symmetry.py::SymmetrySlots.chk000`
+- `slots/maya/symmetry.py::SymmetrySlots.chk000_init`
+- `slots/maya/symmetry.py::SymmetrySlots.chk001`
+- `slots/maya/symmetry.py::SymmetrySlots.chk002`
+- `slots/maya/symmetry.py::SymmetrySlots.chk004`
+- `slots/maya/symmetry.py::SymmetrySlots.chk005`
+- `slots/maya/symmetry.py::SymmetrySlots.chk005_init`
+- `slots/maya/utilities.py::UtilitiesSlots`
+- `slots/maya/utilities.py::UtilitiesSlots.b000`
+- `slots/maya/utilities.py::UtilitiesSlots.b001`
+- `slots/maya/utilities.py::UtilitiesSlots.b002`
+- `slots/maya/utilities.py::UtilitiesSlots.b003`

@@ -90,18 +90,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
 
-### `slots/blender/cameras.py`
-- `class CamerasSlots(SlotsBlender)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013
-
-### `slots/blender/crease.py`
-- `class CreaseSlots(SlotsBlender)`
-  - methods: tb000_init, tb000, b002
-
-### `slots/blender/deformation.py`
-- `class DeformationSlots(SlotsBlender)`
-  - methods: tb001_init, tb001
-
 ### `slots/blender/display.py`
 - `class DisplaySlots(DisplayMixin, SlotsBlender)`
   - methods: list000, b013, b014
@@ -179,21 +167,25 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class SubdivisionSlots(SlotsBlender)`
   - methods: tb000_init, tb000, s000_init, s001_init, s000, s001, b000, b001, b005, b008, b011, b028
 
-### `slots/blender/symmetry.py`
-- `class SymmetrySlots(SlotsBlender)`
-  - methods: chk000_init, chk001_init, chk002_init, chk000, chk001, chk002, chk004, chk004_init, chk005_init, chk005
-
 ### `slots/blender/transform.py`
 - `class TransformSlots(TransformMixin, SlotsBlender)`
   - methods: header_init, b_snap_ts, fix_non_ortho_axes, tb000_init, tb000, tb002_init, tb002, tb005_init, tb005, b001, cmb002_init, cmb002, tb004_init, tb004, s023, chk023_init, chk023, tb001, b002_init, b_restore_axes, b002, tb003_init, chk024, chk025, chk026
 
-### `slots/blender/utilities.py`
-- `class UtilitiesSlots(SlotsBlender)`
-  - methods: b000, b001, b002, b003
-
 ### `slots/blender/uv.py`
 - `class UvSlots(UvMixin, SlotsBlender)`
   - methods: tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b003, b004, b029, tb022_init, tb022, b030, b032, b033
+
+### `slots/cameras.py` — Cameras: one Slots class for both hosts.
+- `class CamerasSlots(Slots)`
+  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013
+
+### `slots/crease.py` — Crease: one Slots class for both hosts.
+- `class CreaseSlots(Slots)`
+  - methods: tb000_init, tb000, b002
+
+### `slots/deformation.py` — Deformation: one Slots class for both hosts.
+- `class DeformationSlots(Slots)`
+  - methods: tb001_init, tb001
 
 ### `slots/maya/_slots_maya.py`
 - `class SlotsMaya(Slots)`
@@ -209,29 +201,17 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/cache.py`
 - `class CacheSlots(SlotsMaya)`
 
-### `slots/maya/cameras.py`
-- `class CamerasSlots(SlotsMaya)`
-  - methods: list000_init, list000, b000, b001, b002, b003, b004, b005, b006, b007, b010, b011, b012, b013
-
 ### `slots/maya/constrain.py`
 - `class ConstrainSlots(SlotsMaya)`
 
 ### `slots/maya/control.py`
 - `class ControlSlots(SlotsMaya)`
 
-### `slots/maya/crease.py`
-- `class CreaseSlots(SlotsMaya)`
-  - methods: tb000_init, tb000, b002
-
 ### `slots/maya/curves.py`
 - `class CurvesSlots(SlotsMaya)`
 
 ### `slots/maya/deform.py`
 - `class DeformSlots(SlotsMaya)`
-
-### `slots/maya/deformation.py`
-- `class DeformationSlots(SlotsMaya)`
-  - methods: tb001_init, tb001
 
 ### `slots/maya/display.py`
 - `class DisplaySlots(DisplayMixin, SlotsMaya)`
@@ -379,10 +359,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/surfaces.py`
 - `class SurfacesSlots(SlotsMaya)`
 
-### `slots/maya/symmetry.py`
-- `class SymmetrySlots(SlotsMaya)`
-  - methods: chk000_init, chk000, chk001, chk002, chk004, chk005_init, chk005
-
 ### `slots/maya/texturing.py`
 - `class TexturingSlots(SlotsMaya)`
 
@@ -392,10 +368,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/maya/transform.py`
 - `class TransformSlots(TransformMixin, SlotsMaya)`
   - methods: header_init, cmb002_init, cmb002, tb000_init, tb000, tb001, tb002_init, tb002, tb003_init, tb004_init, tb005_init, tb005, chk021, chk022, chk023, chk024, chk025, chk026, s021, s022, s023, b_snap_ts, b001, b002_init, b_restore_axes, b002, setTransformSnap
-
-### `slots/maya/utilities.py`
-- `class UtilitiesSlots(SlotsMaya)`
-  - methods: b000, b001, b002, b003
 
 ### `slots/maya/uv.py`
 - `class UvSlots(UvMixin, SlotsMaya)`
@@ -410,6 +382,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/normals.py` — Normals: one Slots class for both hosts.
 - `class NormalsSlots(Slots)`
   - methods: tb001_init, tb001, tb004_init, tb004, b000, b001, b002, b004, b006, tb010_init, tb010
+
+### `slots/symmetry.py` — Symmetry: one Slots class for both hosts.
+- `class SymmetrySlots(Slots)`
+  - methods: chk000_init, chk001_init, chk002_init, chk000, chk001, chk002, chk004_init, chk004, chk005_init, chk005
 
 ### `slots/tools/__init__.py` — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 - constants: HOSTS
@@ -802,6 +778,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/workspace_map.py` — Workspace Map: browse a folder tree of project workspaces and switch the
 - `class WorkspaceMapSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, txt000_init, txt001_init, tree000_init, update_current_dir, update_tree, populate_tree, refresh_tree, selected_workspace, filter_workspaces, b000, b001, b002, set_to_workspace, chk000, btn_open_workspace, btn_explore_folder, new_project, mark_root, save_template
+
+### `slots/utilities.py` — Utilities: one Slots class for both hosts.
+- `class UtilitiesSlots(Slots)`
+  - methods: b000, b001, b002, b003
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`

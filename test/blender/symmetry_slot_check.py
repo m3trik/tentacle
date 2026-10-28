@@ -1,4 +1,4 @@
-"""Manual harness for the Blender ``symmetry`` slot (``tentacle/slots/blender/symmetry.py``).
+"""Manual harness for the Symmetry slot (``tentacle/slots/symmetry.py``) over the real ``btk``.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -6,10 +6,11 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/symmetry_slot_check.py
 
-Drives the real ``SymmetrySlots`` slot methods with stubbed sb/widget objects (the slot's Qt/UI layer
-can't load headless): axis flags (``use_mirror_x/y/z``), Topo matching (``use_mirror_topology``),
-and the chk004 position radio — selecting it must clear topology matching, deselecting it must be
-a no-op (radio signal ordering: Topo handles its own activation).
+Drives the real ``SymmetrySlots`` slot methods (one class for both hosts, reaching Blender through
+``self.tk``) with stubbed sb/widget objects (the slot's Qt/UI layer can't load headless): axis
+flags (``use_mirror_x/y/z``), Topo matching (``use_mirror_topology``), and the chk004 position
+radio — selecting it must clear topology matching, deselecting it must be a no-op (radio signal
+ordering: Topo handles its own activation).
 """
 import sys
 import os
@@ -41,11 +42,17 @@ def check(name, cond, detail=""):
     lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
 
 
-def make_slot(cls):
-    """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
+def make_slot(cls, tk):
+    """Instance without the UI-loading __init__ (headless: no loaded_ui), on toolkit *tk*."""
     slot = cls.__new__(cls)
+    # What the skipped __init__ sets: the windows (``chk005`` reads ``self.ui``).
+    slot.ui = NS()
+    slot.submenu = NS()
     slot.messages = []
-    slot.sb = NS(message_box=lambda *a, **k: slot.messages.append(a[0] if a else ""))
+    slot.sb = NS(
+        message_box=lambda *a, **k: slot.messages.append(a[0] if a else ""),
+        tk=tk,
+    )
     return slot
 
 
@@ -71,9 +78,10 @@ def add_cube(name):
 try:
     import bpy
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6) for the slot imports
-    from tentacle.slots.blender.symmetry import SymmetrySlots
+    import blendertk as btk
+    from tentacle.slots.symmetry import SymmetrySlots
 
-    slot = make_slot(SymmetrySlots)
+    slot = make_slot(SymmetrySlots, btk)
 
     # chk000/1/2 set the matching mirror flag on every selected mesh
     reset()
@@ -108,36 +116,43 @@ try:
     slot.chk004(state=False, widget=None)
     check("chk004 deselected is a no-op", a.data.use_mirror_topology)
 
-    # non-mesh selections are filtered, not crashed on
-    reset()
-    bpy.ops.object.empty_add(type="PLAIN_AXES")
-    slot.chk000(state=True, widget=None)
-    slot.chk004(state=True, widget=None)
-    check("non-mesh selection is filtered (no crash)", True)
-
-    # chk000_init reflects the active mesh's current axis.
-    #
-    # Real QCheckBoxes, not NS(setChecked=...) stubs: chk000_init now seeds through
-    # ``Slots.mirror_app_state``, which blocks the widget's signals and clears its
-    # ``restore_state`` — a namespace stub has neither, and a stub that quietly lacks part of
-    # the widget contract is what let the sibling bug ship in the first place. See
-    # ``app_state_mirror_check.py`` for the full mirror/no-toast coverage.
+    # A non-mesh selection: the host's refusal is shown, nothing crashes, and the axis boxes go
+    # back to what the (absent) mesh mirrors.
     from qtpy import QtWidgets
 
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])  # noqa: F841
-
-    reset()
-    a = add_cube("A")
-    a.data.use_mirror_y = True
 
     def radio():
         w = QtWidgets.QCheckBox()
         w.restore_state = True  # uitk's default (MainWindow.register_widget)
         return w
 
+    reset()
+    bpy.ops.object.empty_add(type="PLAIN_AXES")
+    slot.messages.clear()
+    ui = NS(chk000=radio(), chk001=radio(), chk002=radio())
+    ui.chk000.setChecked(True)
+    slot.chk000(state=True, widget=NS(ui=ui))
+    check("non-mesh selection: the refusal is shown",
+          len(slot.messages) == 1 and "mesh" in slot.messages[-1], f"{slot.messages}")
+    check("non-mesh selection: the axis boxes are re-seeded (none checked)",
+          not any(getattr(ui, n).isChecked() for n in ("chk000", "chk001", "chk002")))
+
+    # chk000_init reflects the active mesh's current axis.
+    #
+    # Real QCheckBoxes, not NS(setChecked=...) stubs: chk000_init seeds through
+    # ``Slots.mirror_app_state``, which blocks the widget's signals and clears its
+    # ``restore_state`` — a namespace stub has neither, and a stub that quietly lacks part of
+    # the widget contract is what let the sibling bug ship in the first place. See
+    # ``app_state_mirror_check.py`` for the full mirror/no-toast coverage.
+    reset()
+    a = add_cube("A")
+    a.data.use_mirror_y = True
+
     ui = NS(chk000=radio(), chk001=radio(), chk002=radio())
     slot.sb = NS(message_box=lambda *a, **k: None,
-                 create_button_groups=lambda *a, **k: None)
+                 create_button_groups=lambda *a, **k: None,
+                 tk=btk)
     slot.chk000_init(NS(ui=ui))
     checked = [n for n in ("chk000", "chk001", "chk002") if getattr(ui, n).isChecked()]
     check("chk000_init reflects active mesh (y checked)", checked == ["chk001"],

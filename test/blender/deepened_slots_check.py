@@ -221,9 +221,9 @@ try:
     reset()
     src = add_cube("CSrc")
     tgt = add_cube("CTgt", (3, 0, 0))
-    from tentacle.slots.blender.crease import CreaseSlots
+    from tentacle.slots.crease import CreaseSlots
 
-    cslot = make_slot(CreaseSlots)
+    cslot = make_slot(CreaseSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     btk.crease_edges(src, amount=10)  # full crease on every edge (object mode)
     src.select_set(True)
     tgt.select_set(True)
@@ -944,7 +944,7 @@ try:
     # ---- scene b005: routes to the blendertk Naming panel; cameras b007 fails soft headless --
     # (b005 stopped driving the native Batch Rename op when the Naming panel shipped.)
     from tentacle.slots.blender.scene import SceneSlots
-    from tentacle.slots.blender.cameras import CamerasSlots
+    from tentacle.slots.cameras import CamerasSlots
 
     reset()
     shown = []
@@ -954,9 +954,9 @@ try:
 
     msgs = []
     slot = make_slot(CamerasSlots)
-    slot.sb = NS(message_box=msgs.append)
-    slot.b007()
-    check("cameras b007 fails soft without a 3D view", len(msgs) == 1, f"{msgs}")
+    slot.sb = NS(message_box=msgs.append, tk=btk)
+    slot.b007()  # nothing selected after reset(): one message, no error
+    check("cameras b007 fails soft headless (one message)", len(msgs) == 1, f"{msgs}")
 
     # ---- transform chk024/chk025: constraints -> snap-to-element ---------------------------
     reset()
@@ -1191,7 +1191,7 @@ try:
           "100k" not in info_menu.cmb_profile.toolTip(), info_menu.cmb_profile.toolTip())
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
-    from tentacle.slots.blender.deformation import DeformationSlots
+    from tentacle.slots.deformation import DeformationSlots
 
     shown = []
     slot = make_slot(DeformationSlots)

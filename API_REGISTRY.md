@@ -27,9 +27,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/cameras.py`](#slots--blender--cameras)
-- [`slots/blender/crease.py`](#slots--blender--crease)
-- [`slots/blender/deformation.py`](#slots--blender--deformation)
 - [`slots/blender/display.py`](#slots--blender--display)
 - [`slots/blender/duplicate.py`](#slots--blender--duplicate)
 - [`slots/blender/edit.py`](#slots--blender--edit)
@@ -48,21 +45,19 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/blender/selection.py`](#slots--blender--selection)
 - [`slots/blender/settings.py`](#slots--blender--settings)
 - [`slots/blender/subdivision.py`](#slots--blender--subdivision)
-- [`slots/blender/symmetry.py`](#slots--blender--symmetry)
 - [`slots/blender/transform.py`](#slots--blender--transform)
-- [`slots/blender/utilities.py`](#slots--blender--utilities)
 - [`slots/blender/uv.py`](#slots--blender--uv)
+- [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
+- [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
+- [`slots/deformation.py`](#slots--deformation) — Deformation: one Slots class for both hosts.
 - [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/animation.py`](#slots--maya--animation)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
 - [`slots/maya/cache.py`](#slots--maya--cache)
-- [`slots/maya/cameras.py`](#slots--maya--cameras)
 - [`slots/maya/constrain.py`](#slots--maya--constrain)
 - [`slots/maya/control.py`](#slots--maya--control)
-- [`slots/maya/crease.py`](#slots--maya--crease)
 - [`slots/maya/curves.py`](#slots--maya--curves)
 - [`slots/maya/deform.py`](#slots--maya--deform)
-- [`slots/maya/deformation.py`](#slots--maya--deformation)
 - [`slots/maya/display.py`](#slots--maya--display)
 - [`slots/maya/duplicate.py`](#slots--maya--duplicate)
 - [`slots/maya/edit.py`](#slots--maya--edit)
@@ -104,15 +99,14 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/stereo.py`](#slots--maya--stereo)
 - [`slots/maya/subdivision.py`](#slots--maya--subdivision)
 - [`slots/maya/surfaces.py`](#slots--maya--surfaces)
-- [`slots/maya/symmetry.py`](#slots--maya--symmetry)
 - [`slots/maya/texturing.py`](#slots--maya--texturing)
 - [`slots/maya/toon.py`](#slots--maya--toon)
 - [`slots/maya/transform.py`](#slots--maya--transform)
-- [`slots/maya/utilities.py`](#slots--maya--utilities)
 - [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
+- [`slots/symmetry.py`](#slots--symmetry) — Symmetry: one Slots class for both hosts.
 - [`slots/tools/__init__.py`](#slots--tools--__init__) — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 - [`slots/tools/_app_bridge/host_bridge.py`](#slots--tools--_app_bridge--host_bridge) — The app-bridge panels' one base, shared by both hosts.
 - [`slots/tools/_blendshape_animator/sort_item.py`](#slots--tools--_blendshape_animator--sort_item) — A tween-tree row that sorts its numeric columns by number.
@@ -210,6 +204,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - [`slots/tools/workspace_editor.py`](#slots--tools--workspace_editor) — Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
 - [`slots/tools/workspace_map.py`](#slots--tools--workspace_map) — Workspace Map: browse a folder tree of project workspaces and switch the
+- [`slots/utilities.py`](#slots--utilities) — Utilities: one Slots class for both hosts.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -511,40 +506,6 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/blender.py`
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
-
-<a id="slots--blender--cameras"></a>
-### `slots/blender/cameras.py`
-
-- **[`class CamerasSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/cameras.py#L8)** — Blender port of the shared ``cameras`` menu.
-  - `CamerasSlots.list000_init(self, widget)` — Initialize Camera Options List
-  - `CamerasSlots.list000(self, item)` — Camera Options List
-  - `CamerasSlots.b000(self)` — Cameras: Back View
-  - `CamerasSlots.b001(self)` — Cameras: Top View
-  - `CamerasSlots.b002(self)` — Cameras: Right View
-  - `CamerasSlots.b003(self)` — Cameras: Left View
-  - `CamerasSlots.b004(self)` — Cameras: Perspective View
-  - `CamerasSlots.b005(self)` — Cameras: Front View
-  - `CamerasSlots.b006(self)` — Cameras: Bottom View
-  - `CamerasSlots.b007(self)` — Cameras: Align View (align the viewport to the active element's normal and frame
-  - `CamerasSlots.b010(self)` — Camera: Dolly — arm the interactive dolly tool (LMB-drag to move the eye in/out).
-  - `CamerasSlots.b011(self)` — Camera: Roll — arm the interactive roll tool (LMB-drag to roll the view about its axis).
-  - `CamerasSlots.b012(self)` — Camera: Truck — arm the interactive track/pan tool (LMB-drag to pan the view).
-  - `CamerasSlots.b013(self)` — Camera: Orbit — arm the interactive tumble tool (LMB-drag to orbit the view).
-
-<a id="slots--blender--crease"></a>
-### `slots/blender/crease.py`
-
-- **[`class CreaseSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/crease.py#L7)** — Blender port of the shared ``crease`` menu.
-  - `CreaseSlots.tb000_init(self, widget)`
-  - `CreaseSlots.tb000(self, widget)` — Crease
-  - `CreaseSlots.b002(self, widget)` — Transfer Crease Edges (active mesh → other selected, native Data-Transfer).
-
-<a id="slots--blender--deformation"></a>
-### `slots/blender/deformation.py`
-
-- **[`class DeformationSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/deformation.py#L6)** — Blender port of the shared ``deformation`` menu.
-  - `DeformationSlots.tb001_init(self, widget)` — Init Curtain Generator launcher.
-  - `DeformationSlots.tb001(self, widget)` — Curtain Generator — open the curtain panel.
 
 <a id="slots--blender--display"></a>
 ### `slots/blender/display.py`
@@ -893,21 +854,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `SubdivisionSlots.b011(self)` — Apply Smooth Preview — bake the live Subdivision-Surface modifier to polygons
   - `SubdivisionSlots.b028(self)` — Quad Draw (Blender's retopo equivalent: the Poly Build tool) — EDIT_MESH-only, so
 
-<a id="slots--blender--symmetry"></a>
-### `slots/blender/symmetry.py`
-
-- **[`class SymmetrySlots(SlotsBlender)`](tentacle/tentacle/slots/blender/symmetry.py#L6)** — Blender port of the shared ``symmetry`` menu.
-  - `SymmetrySlots.chk000_init(self, widget)` — Set initial symmetry state from the active mesh.
-  - `SymmetrySlots.chk001_init(self, widget)` — Symmetry Y — mirrors the active mesh;
-  - `SymmetrySlots.chk002_init(self, widget)` — Symmetry Z — mirrors the active mesh;
-  - `SymmetrySlots.chk000(self, state, widget)` — Symmetry X
-  - `SymmetrySlots.chk001(self, state, widget)` — Symmetry Y
-  - `SymmetrySlots.chk002(self, state, widget)` — Symmetry Z
-  - `SymmetrySlots.chk004(self, state, widget)` — Symmetry: match by position (Blender mirror flags are always object-space;
-  - `SymmetrySlots.chk004_init(self, widget)` — Match-by-position — mirrors the active mesh;
-  - `SymmetrySlots.chk005_init(self, widget)` — Set symmetry reference space (position vs topology), mirrored from the active mesh.
-  - `SymmetrySlots.chk005(self, state, widget)` — Symmetry: Topo (match mirrored verts by topology instead of position).
-
 <a id="slots--blender--transform"></a>
 ### `slots/blender/transform.py`
 
@@ -938,15 +884,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `TransformSlots.chk025(self, state, widget)` — Transform Constraints: Surface (snap-to-face during move).
   - `TransformSlots.chk026(self, state, widget)` — Transform Constraints: Make Live (project transformed geometry onto surfaces —
 
-<a id="slots--blender--utilities"></a>
-### `slots/blender/utilities.py`
-
-- **[`class UtilitiesSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/utilities.py#L7)** — Blender port of the shared ``utilities`` menu.
-  - `UtilitiesSlots.b000(self)` — Measure
-  - `UtilitiesSlots.b001(self)` — Annotation
-  - `UtilitiesSlots.b002(self)` — Calculator
-  - `UtilitiesSlots.b003(self)` — Grease Pencil (add an empty stroke object to draw into)
-
 <a id="slots--blender--uv"></a>
 ### `slots/blender/uv.py`
 
@@ -975,6 +912,46 @@ Behavior shared by the Maya and Blender UV panels.
   - `UvSlots.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
   - `UvSlots.b032(self)` — RizomUV Bridge — the shared tool (round-trip Lua presets + one-way send).
   - `UvSlots.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
+
+<a id="slots--cameras"></a>
+### `slots/cameras.py`
+
+Cameras: one Slots class for both hosts.
+
+- **[`class CamerasSlots(Slots)`](tentacle/tentacle/slots/cameras.py#L20)**
+  - `CamerasSlots.list000_init(self, widget)` — Initialize the Camera Options list (rebuilt on every show).
+  - `CamerasSlots.list000(self, item)` — Camera Options list: run the leaf's operation.
+  - `CamerasSlots.b000(self)` — Cameras: Back View
+  - `CamerasSlots.b001(self)` — Cameras: Top View
+  - `CamerasSlots.b002(self)` — Cameras: Right View (Maya's 'side' camera).
+  - `CamerasSlots.b003(self)` — Cameras: Left View
+  - `CamerasSlots.b004(self)` — Cameras: Perspective View
+  - `CamerasSlots.b005(self)` — Cameras: Front View
+  - `CamerasSlots.b006(self)` — Cameras: Bottom View
+  - `CamerasSlots.b007(self)` — Cameras: Align View.
+  - `CamerasSlots.b010(self)` — Camera: Dolly.
+  - `CamerasSlots.b011(self)` — Camera: Roll.
+  - `CamerasSlots.b012(self)` — Camera: Truck.
+  - `CamerasSlots.b013(self)` — Camera: Orbit.
+
+<a id="slots--crease"></a>
+### `slots/crease.py`
+
+Crease: one Slots class for both hosts.
+
+- **[`class CreaseSlots(Slots)`](tentacle/tentacle/slots/crease.py#L16)**
+  - `CreaseSlots.tb000_init(self, widget)` — Initialize Crease: the amount and the optional smoothing angle.
+  - `CreaseSlots.tb000(self, widget)` — Crease: crease the selected edges (subdivision sharpness), softening or
+  - `CreaseSlots.b002(self, widget)` — Transfer Crease Edges: from the first selected (Maya) or active (Blender)
+
+<a id="slots--deformation"></a>
+### `slots/deformation.py`
+
+Deformation: one Slots class for both hosts.
+
+- **[`class DeformationSlots(Slots)`](tentacle/tentacle/slots/deformation.py#L14)**
+  - `DeformationSlots.tb001_init(self, widget)` — Initialize the Curtain Generator launcher.
+  - `DeformationSlots.tb001(self, widget)` — Curtain Generator: open the shared Curtain tool.
 
 <a id="slots--maya--_slots_maya"></a>
 ### `slots/maya/_slots_maya.py`
@@ -1046,25 +1023,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L8)**
 
-<a id="slots--maya--cameras"></a>
-### `slots/maya/cameras.py`
-
-- **[`class CamerasSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cameras.py#L9)**
-  - `CamerasSlots.list000_init(self, widget)` — Initialize Camera Options List
-  - `CamerasSlots.list000(self, item)` — Camera Options List
-  - `CamerasSlots.b000(self)` — Cameras: Back View
-  - `CamerasSlots.b001(self)` — Cameras: Top View
-  - `CamerasSlots.b002(self)` — Cameras: Right View
-  - `CamerasSlots.b003(self)` — Cameras: Left View
-  - `CamerasSlots.b004(self)` — Cameras: Perspective View
-  - `CamerasSlots.b005(self)` — Cameras: Front View
-  - `CamerasSlots.b006(self)` — Cameras: Bottom View
-  - `CamerasSlots.b007(self)` — Cameras: Align View
-  - `CamerasSlots.b010(self)` — Camera: Dolly
-  - `CamerasSlots.b011(self)` — Camera: Roll
-  - `CamerasSlots.b012(self)` — Camera: Truck
-  - `CamerasSlots.b013(self)` — Camera: Orbit
-
 <a id="slots--maya--constrain"></a>
 ### `slots/maya/constrain.py`
 
@@ -1075,14 +1033,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L8)**
 
-<a id="slots--maya--crease"></a>
-### `slots/maya/crease.py`
-
-- **[`class CreaseSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/crease.py#L8)**
-  - `CreaseSlots.tb000_init(self, widget)`
-  - `CreaseSlots.tb000(self, widget)` — Crease: crease the selected edges (subdivision sharpness), with an optional smoothing angle.
-  - `CreaseSlots.b002(self, widget)` — Transfer Crease Edges
-
 <a id="slots--maya--curves"></a>
 ### `slots/maya/curves.py`
 
@@ -1092,13 +1042,6 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/maya/deform.py`
 
 - **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L8)**
-
-<a id="slots--maya--deformation"></a>
-### `slots/maya/deformation.py`
-
-- **[`class DeformationSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deformation.py#L6)** — Slots for the Deformation panel (``deformation.ui``).
-  - `DeformationSlots.tb001_init(self, widget)` — Init Curtain Generator launcher.
-  - `DeformationSlots.tb001(self, widget)` — Curtain Generator — open the shared Curtain tool.
 
 <a id="slots--maya--display"></a>
 ### `slots/maya/display.py`
@@ -1588,18 +1531,6 @@ Behavior shared by the Maya and Blender UV panels.
 
 - **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L8)**
 
-<a id="slots--maya--symmetry"></a>
-### `slots/maya/symmetry.py`
-
-- **[`class SymmetrySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/symmetry.py#L7)**
-  - `SymmetrySlots.chk000_init(self, widget)` — Set initial symmetry state
-  - `SymmetrySlots.chk000(self, state, widget)` — Symmetry X: toggle modeling symmetry across the X axis.
-  - `SymmetrySlots.chk001(self, state, widget)` — Symmetry Y: toggle modeling symmetry across the Y axis.
-  - `SymmetrySlots.chk002(self, state, widget)` — Symmetry Z: toggle modeling symmetry across the Z axis.
-  - `SymmetrySlots.chk004(self, state, widget)` — Symmetry: Object space (radio partner of Topo;
-  - `SymmetrySlots.chk005_init(self, widget)` — Set symmetry reference space
-  - `SymmetrySlots.chk005(self, state, widget)` — Symmetry: Topo
-
 <a id="slots--maya--texturing"></a>
 ### `slots/maya/texturing.py`
 
@@ -1641,15 +1572,6 @@ Behavior shared by the Maya and Blender UV panels.
   - `TransformSlots.b_restore_axes(self)` — Restore Authored Axes - point the manipulator at the pre-freeze frame.
   - `TransformSlots.b002(self, widget)` — Un-Freeze Transforms
   - `TransformSlots.setTransformSnap(self, ctx, state)` — Set the transform tool's move, rotate, and scale snap states.
-
-<a id="slots--maya--utilities"></a>
-### `slots/maya/utilities.py`
-
-- **[`class UtilitiesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/utilities.py#L7)**
-  - `UtilitiesSlots.b000(self)` — Measure: create a distance-measure tool between two points.
-  - `UtilitiesSlots.b001(self)` — Annotation: create an annotation (text label) node.
-  - `UtilitiesSlots.b002(self)` — Calculator: open the calculator tool.
-  - `UtilitiesSlots.b003(self)` — Grease Pencil
 
 <a id="slots--maya--uv"></a>
 ### `slots/maya/uv.py`
@@ -1706,6 +1628,23 @@ Normals: one Slots class for both hosts.
   - `NormalsSlots.b006(self)` — Set To Face: vertex normals follow their faces (faceted shading).
   - `NormalsSlots.tb010_init(self, widget)` — Initialize Reverse Normals: Maya's five ``polyNormal`` modes, in both
   - `NormalsSlots.tb010(self, widget)` — Reverse Normals
+
+<a id="slots--symmetry"></a>
+### `slots/symmetry.py`
+
+Symmetry: one Slots class for both hosts.
+
+- **[`class SymmetrySlots(Slots)`](tentacle/tentacle/slots/symmetry.py#L20)**
+  - `SymmetrySlots.chk000_init(self, widget)` — Seed the axis group from the host.
+  - `SymmetrySlots.chk001_init(self, widget)` — Symmetry Y: mirrors the host;
+  - `SymmetrySlots.chk002_init(self, widget)` — Symmetry Z: mirrors the host;
+  - `SymmetrySlots.chk000(self, state, widget)` — Symmetry X: toggle modeling symmetry across the X axis.
+  - `SymmetrySlots.chk001(self, state, widget)` — Symmetry Y: toggle modeling symmetry across the Y axis.
+  - `SymmetrySlots.chk002(self, state, widget)` — Symmetry Z: toggle modeling symmetry across the Z axis.
+  - `SymmetrySlots.chk004_init(self, widget)` — Object space: mirrors the host;
+  - `SymmetrySlots.chk004(self, state, widget)` — Symmetry: object space.
+  - `SymmetrySlots.chk005_init(self, widget)` — Seed the space radio (object vs topology) from the host.
+  - `SymmetrySlots.chk005(self, state, widget)` — Symmetry: by topology.
 
 <a id="slots--tools--__init__"></a>
 ### `slots/tools/__init__.py`
@@ -3387,6 +3326,17 @@ Workspace Map: browse a folder tree of project workspaces and switch the
   - `WorkspaceMapSlots.new_project(self) -> None` — Create a project under the root from the ACTIVE template.
   - `WorkspaceMapSlots.mark_root(self) -> None` — Mark the ROOT directory as a shared Maya/Blender project.
   - `WorkspaceMapSlots.save_template(self) -> None` — Publish the ACTIVE project's file rules as a named workspace template.
+
+<a id="slots--utilities"></a>
+### `slots/utilities.py`
+
+Utilities: one Slots class for both hosts.
+
+- **[`class UtilitiesSlots(Slots)`](tentacle/tentacle/slots/utilities.py#L15)**
+  - `UtilitiesSlots.b000(self)` — Measure: activate the distance-measure tool (Maya's Distance Tool,
+  - `UtilitiesSlots.b001(self)` — Annotation: the host's own.
+  - `UtilitiesSlots.b002(self)` — Calculator: open the calculator panel.
+  - `UtilitiesSlots.b003(self)` — Pencil: sketch with the host's pencil, Blue Pencil (Maya) or a new
 
 <a id="tcl"></a>
 ### `tcl.py`

@@ -40,22 +40,6 @@ HANDLERS = {
     # (PointCloud.match_clouds / AssemblySorter) and mayatk refactored onto the same
     # shared implementation. Verified: blendertk test_auto_instancer.py headless +
     # mayatk auto_instancer/instancer_ground_truth suites green.
-    "cameras": {
-        # PARITY_SURFACE.md "combo item deltas (review)": `list000` 11->5 items; missing=
-        # ['Exclusive to Camera', 'Hidden from Camera', 'Remove from Exclusive',
-        # 'Remove from Hidden', 'Remove All for Camera', 'Remove All']. Audited 2026-07-04.
-        # list000 'Visibility Settings' BUILT 2026-07-28 — the rolled btk.CameraVisibility
-        # engine (cam_utils/camera_visibility.py) supplies the per-camera isolate primitive the
-        # old na correctly said Blender lacks: exclusive/hidden name sets as id-props on each
-        # camera (persist in the .blend), visibility derived from the ACTIVE scene camera with
-        # an exactly-reversible stash (user-hidden objects untouched; helper types not
-        # implicitly hidden by an exclusive set), optional msgbus auto-re-apply on camera
-        # switch. Documented divergence: Maya applies per look-through panel; Blender's
-        # look-through state is per-viewport draw state with no headless surface, so the sets
-        # follow scene.camera (which look-through sets). All 6 leaves wired in the Blender
-        # cameras slot; verified headless (test_cam_utils.py). The YAGNI ruling was overridden
-        # by the roll-our-own standard. No delta.
-    },
     "nurbs": {
         "b016": {"status": "na", "reason": "[Create Curve from Edges] widget removed from nurbs.ui 2026-05-20 (9f534ba3) but the handler is pinned by test_nurbs.py (create_curve_from_edges fallback) - retarget the test at mtk directly, then delete the handler"},
         # list000 "Nurbs actions" leaves -- code-built control keys sourced from

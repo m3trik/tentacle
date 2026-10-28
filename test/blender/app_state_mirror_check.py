@@ -209,7 +209,11 @@ try:
     check("selection b002-b007: init fires no slot", not ui.fired, f"{ui.fired}")
 
     # ================================================================ symmetry
-    from tentacle.slots.blender.symmetry import SymmetrySlots
+    from tentacle.slots.symmetry import SymmetrySlots
+    import blendertk as btk
+
+    # The composed slots reach Blender through ``self.tk``: every recorder carries it.
+    _Recorder.tk = btk
 
     reset_scene()
     bpy.ops.mesh.primitive_cube_add()

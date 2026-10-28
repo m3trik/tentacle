@@ -164,7 +164,7 @@ def main():
     )
     from tentacle.slots.blender.subdivision import SubdivisionSlots
     from tentacle.slots.blender.nurbs import NurbsSlots
-    from tentacle.slots.blender.utilities import UtilitiesSlots
+    from tentacle.slots.utilities import UtilitiesSlots
 
     # -- 1. the bug reproduces: knife is absent from OBJECT mode's tool list -----------------
     # It surfaces as a report WARNING (not an exception), which is why the tool silently stayed
@@ -245,8 +245,11 @@ def main():
     # -- 6. mode-agnostic tool: works with no edit_type and forces no mode change ------------
     reset()
     obj = add_cube()
+    import blendertk as btk
+
     slot = make_slot(UtilitiesSlots)
-    slot.b000()  # Measure
+    slot.sb.tk = btk  # the composed slot reaches Blender through self.tk
+    slot.b000()  # Measure (Slots.activate_tool -> btk.UiUtils.set_tool)
     landed, why = tool_landed("OBJECT", "builtin.measure")
     check(
         "Measure works from Object Mode without forcing Edit Mode",

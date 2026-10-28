@@ -1665,231 +1665,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/cameras.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "CamerasSlots",
-          "summary": "Blender port of the shared ``cameras`` menu.",
-          "line": 8,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "CamerasSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Camera Options List",
-              "line": 49,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "CamerasSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Camera Options List",
-              "line": 80,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "CamerasSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Back View",
-              "line": 145,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "CamerasSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Top View",
-              "line": 149,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "CamerasSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Right View",
-              "line": 153,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "CamerasSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Left View",
-              "line": 157,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "CamerasSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Perspective View",
-              "line": 161,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "CamerasSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Front View",
-              "line": 178,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "CamerasSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Bottom View",
-              "line": 182,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "CamerasSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Align View (align the viewport to the active element's normal and frame",
-              "line": 187,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "CamerasSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Dolly — arm the interactive dolly tool (LMB-drag to move the eye in/out).",
-              "line": 216,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "CamerasSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Roll — arm the interactive roll tool (LMB-drag to roll the view about its axis).",
-              "line": 220,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "CamerasSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Truck — arm the interactive track/pan tool (LMB-drag to pan the view).",
-              "line": 224,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "CamerasSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Orbit — arm the interactive tumble tool (LMB-drag to orbit the view).",
-              "line": 228,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/crease.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "CreaseSlots",
-          "summary": "Blender port of the shared ``crease`` menu.",
-          "line": 7,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "CreaseSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 23,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "CreaseSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Crease",
-              "line": 48,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "CreaseSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Crease Edges (active mesh → other selected, native Data-Transfer).",
-              "line": 59,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/blender/deformation.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DeformationSlots",
-          "summary": "Blender port of the shared ``deformation`` menu.",
-          "line": 6,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "tb001_init",
-              "qualname": "DeformationSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Curtain Generator launcher.",
-              "line": 17,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "DeformationSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Curtain Generator — open the curtain panel.",
-              "line": 25,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/display.py",
       "summary": "",
       "functions": [],
@@ -4542,114 +4317,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/symmetry.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SymmetrySlots",
-          "summary": "Blender port of the shared ``symmetry`` menu.",
-          "line": 6,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "chk000_init",
-              "qualname": "SymmetrySlots.chk000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set initial symmetry state from the active mesh.",
-              "line": 49,
-              "deprecated": false
-            },
-            {
-              "name": "chk001_init",
-              "qualname": "SymmetrySlots.chk001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Symmetry Y — mirrors the active mesh;",
-              "line": 74,
-              "deprecated": false
-            },
-            {
-              "name": "chk002_init",
-              "qualname": "SymmetrySlots.chk002_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Symmetry Z — mirrors the active mesh;",
-              "line": 78,
-              "deprecated": false
-            },
-            {
-              "name": "chk000",
-              "qualname": "SymmetrySlots.chk000",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry X",
-              "line": 82,
-              "deprecated": false
-            },
-            {
-              "name": "chk001",
-              "qualname": "SymmetrySlots.chk001",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry Y",
-              "line": 87,
-              "deprecated": false
-            },
-            {
-              "name": "chk002",
-              "qualname": "SymmetrySlots.chk002",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry Z",
-              "line": 92,
-              "deprecated": false
-            },
-            {
-              "name": "chk004",
-              "qualname": "SymmetrySlots.chk004",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry: match by position (Blender mirror flags are always object-space;",
-              "line": 98,
-              "deprecated": false
-            },
-            {
-              "name": "chk004_init",
-              "qualname": "SymmetrySlots.chk004_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Match-by-position — mirrors the active mesh;",
-              "line": 106,
-              "deprecated": false
-            },
-            {
-              "name": "chk005_init",
-              "qualname": "SymmetrySlots.chk005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set symmetry reference space (position vs topology), mirrored from the active mesh.",
-              "line": 110,
-              "deprecated": false
-            },
-            {
-              "name": "chk005",
-              "qualname": "SymmetrySlots.chk005",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry: Topo (match mirrored verts by topology instead of position).",
-              "line": 119,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/transform.py",
       "summary": "",
       "functions": [],
@@ -4894,60 +4561,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/blender/utilities.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "UtilitiesSlots",
-          "summary": "Blender port of the shared ``utilities`` menu.",
-          "line": 7,
-          "bases": [
-            "SlotsBlender"
-          ],
-          "members": [
-            {
-              "name": "b000",
-              "qualname": "UtilitiesSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Measure",
-              "line": 18,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "UtilitiesSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Annotation",
-              "line": 22,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "UtilitiesSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Calculator",
-              "line": 26,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "UtilitiesSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Grease Pencil (add an empty stroke object to draw into)",
-              "line": 30,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/blender/uv.py",
       "summary": "",
       "functions": [],
@@ -5175,6 +4788,231 @@
               "signature": "(self)",
               "summary": "Open the Shell Xform panel — the ``More..`` button in the Transform group.",
               "line": 759,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/cameras.py",
+      "summary": "Cameras: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "CamerasSlots",
+          "summary": "",
+          "line": 20,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "list000_init",
+              "qualname": "CamerasSlots.list000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the Camera Options list (rebuilt on every show).",
+              "line": 54,
+              "deprecated": false
+            },
+            {
+              "name": "list000",
+              "qualname": "CamerasSlots.list000",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Camera Options list: run the leaf's operation.",
+              "line": 69,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "CamerasSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Back View",
+              "line": 110,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "CamerasSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Top View",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "CamerasSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Right View (Maya's 'side' camera).",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "CamerasSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Left View",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "b004",
+              "qualname": "CamerasSlots.b004",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Perspective View",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "b005",
+              "qualname": "CamerasSlots.b005",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Front View",
+              "line": 130,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "CamerasSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Bottom View",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "b007",
+              "qualname": "CamerasSlots.b007",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Cameras: Align View.",
+              "line": 139,
+              "deprecated": false
+            },
+            {
+              "name": "b010",
+              "qualname": "CamerasSlots.b010",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Dolly.",
+              "line": 160,
+              "deprecated": false
+            },
+            {
+              "name": "b011",
+              "qualname": "CamerasSlots.b011",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Roll.",
+              "line": 164,
+              "deprecated": false
+            },
+            {
+              "name": "b012",
+              "qualname": "CamerasSlots.b012",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Truck.",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "b013",
+              "qualname": "CamerasSlots.b013",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Camera: Orbit.",
+              "line": 172,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/crease.py",
+      "summary": "Crease: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "CreaseSlots",
+          "summary": "",
+          "line": 16,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tb000_init",
+              "qualname": "CreaseSlots.tb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Crease: the amount and the optional smoothing angle.",
+              "line": 22,
+              "deprecated": false
+            },
+            {
+              "name": "tb000",
+              "qualname": "CreaseSlots.tb000",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Crease: crease the selected edges (subdivision sharpness), softening or",
+              "line": 56,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "CreaseSlots.b002",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Transfer Crease Edges: from the first selected (Maya) or active (Blender)",
+              "line": 67,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/deformation.py",
+      "summary": "Deformation: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "DeformationSlots",
+          "summary": "",
+          "line": 14,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "tb001_init",
+              "qualname": "DeformationSlots.tb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the Curtain Generator launcher.",
+              "line": 18,
+              "deprecated": false
+            },
+            {
+              "name": "tb001",
+              "qualname": "DeformationSlots.tb001",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Curtain Generator: open the shared Curtain tool.",
+              "line": 26,
               "deprecated": false
             }
           ]
@@ -5704,150 +5542,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/cameras.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "CamerasSlots",
-          "summary": "",
-          "line": 9,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "list000_init",
-              "qualname": "CamerasSlots.list000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Initialize Camera Options List",
-              "line": 20,
-              "deprecated": false
-            },
-            {
-              "name": "list000",
-              "qualname": "CamerasSlots.list000",
-              "kind": "method",
-              "signature": "(self, item)",
-              "summary": "Camera Options List",
-              "line": 73,
-              "deprecated": false
-            },
-            {
-              "name": "b000",
-              "qualname": "CamerasSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Back View",
-              "line": 107,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "CamerasSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Top View",
-              "line": 111,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "CamerasSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Right View",
-              "line": 115,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "CamerasSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Left View",
-              "line": 119,
-              "deprecated": false
-            },
-            {
-              "name": "b004",
-              "qualname": "CamerasSlots.b004",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Perspective View",
-              "line": 123,
-              "deprecated": false
-            },
-            {
-              "name": "b005",
-              "qualname": "CamerasSlots.b005",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Front View",
-              "line": 127,
-              "deprecated": false
-            },
-            {
-              "name": "b006",
-              "qualname": "CamerasSlots.b006",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Bottom View",
-              "line": 131,
-              "deprecated": false
-            },
-            {
-              "name": "b007",
-              "qualname": "CamerasSlots.b007",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Cameras: Align View",
-              "line": 135,
-              "deprecated": false
-            },
-            {
-              "name": "b010",
-              "qualname": "CamerasSlots.b010",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Dolly",
-              "line": 156,
-              "deprecated": false
-            },
-            {
-              "name": "b011",
-              "qualname": "CamerasSlots.b011",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Roll",
-              "line": 160,
-              "deprecated": false
-            },
-            {
-              "name": "b012",
-              "qualname": "CamerasSlots.b012",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Truck",
-              "line": 168,
-              "deprecated": false
-            },
-            {
-              "name": "b013",
-              "qualname": "CamerasSlots.b013",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Camera: Orbit",
-              "line": 173,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/constrain.py",
       "summary": "",
       "functions": [],
@@ -5882,51 +5576,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/crease.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "CreaseSlots",
-          "summary": "",
-          "line": 8,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb000_init",
-              "qualname": "CreaseSlots.tb000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "",
-              "line": 15,
-              "deprecated": false
-            },
-            {
-              "name": "tb000",
-              "qualname": "CreaseSlots.tb000",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Crease: crease the selected edges (subdivision sharpness), with an optional smoothing angle.",
-              "line": 48,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "CreaseSlots.b002",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Transfer Crease Edges",
-              "line": 56,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/curves.py",
       "summary": "",
       "functions": [],
@@ -5956,42 +5605,6 @@
             "SlotsMaya"
           ],
           "members": []
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/deformation.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "DeformationSlots",
-          "summary": "Slots for the Deformation panel (``deformation.ui``).",
-          "line": 6,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "tb001_init",
-              "qualname": "DeformationSlots.tb001_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Init Curtain Generator launcher.",
-              "line": 16,
-              "deprecated": false
-            },
-            {
-              "name": "tb001",
-              "qualname": "DeformationSlots.tb001",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Curtain Generator — open the shared Curtain tool.",
-              "line": 24,
-              "deprecated": false
-            }
-          ]
         }
       ],
       "constants": []
@@ -9275,87 +8888,6 @@
       "constants": []
     },
     {
-      "relpath": "slots/maya/symmetry.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "SymmetrySlots",
-          "summary": "",
-          "line": 7,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "chk000_init",
-              "qualname": "SymmetrySlots.chk000_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set initial symmetry state",
-              "line": 26,
-              "deprecated": false
-            },
-            {
-              "name": "chk000",
-              "qualname": "SymmetrySlots.chk000",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry X: toggle modeling symmetry across the X axis.",
-              "line": 34,
-              "deprecated": false
-            },
-            {
-              "name": "chk001",
-              "qualname": "SymmetrySlots.chk001",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry Y: toggle modeling symmetry across the Y axis.",
-              "line": 39,
-              "deprecated": false
-            },
-            {
-              "name": "chk002",
-              "qualname": "SymmetrySlots.chk002",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry Z: toggle modeling symmetry across the Z axis.",
-              "line": 44,
-              "deprecated": false
-            },
-            {
-              "name": "chk004",
-              "qualname": "SymmetrySlots.chk004",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry: Object space (radio partner of Topo;",
-              "line": 49,
-              "deprecated": false
-            },
-            {
-              "name": "chk005_init",
-              "qualname": "SymmetrySlots.chk005_init",
-              "kind": "method",
-              "signature": "(self, widget)",
-              "summary": "Set symmetry reference space",
-              "line": 56,
-              "deprecated": false
-            },
-            {
-              "name": "chk005",
-              "qualname": "SymmetrySlots.chk005",
-              "kind": "method",
-              "signature": "(self, state, widget)",
-              "summary": "Symmetry: Topo",
-              "line": 60,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
       "relpath": "slots/maya/texturing.py",
       "summary": "",
       "functions": [],
@@ -9644,60 +9176,6 @@
               "signature": "(self, ctx, state)",
               "summary": "Set the transform tool's move, rotate, and scale snap states.",
               "line": 625,
-              "deprecated": false
-            }
-          ]
-        }
-      ],
-      "constants": []
-    },
-    {
-      "relpath": "slots/maya/utilities.py",
-      "summary": "",
-      "functions": [],
-      "classes": [
-        {
-          "name": "UtilitiesSlots",
-          "summary": "",
-          "line": 7,
-          "bases": [
-            "SlotsMaya"
-          ],
-          "members": [
-            {
-              "name": "b000",
-              "qualname": "UtilitiesSlots.b000",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Measure: create a distance-measure tool between two points.",
-              "line": 11,
-              "deprecated": false
-            },
-            {
-              "name": "b001",
-              "qualname": "UtilitiesSlots.b001",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Annotation: create an annotation (text label) node.",
-              "line": 15,
-              "deprecated": false
-            },
-            {
-              "name": "b002",
-              "qualname": "UtilitiesSlots.b002",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Calculator: open the calculator tool.",
-              "line": 19,
-              "deprecated": false
-            },
-            {
-              "name": "b003",
-              "qualname": "UtilitiesSlots.b003",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "Grease Pencil",
-              "line": 23,
               "deprecated": false
             }
           ]
@@ -10075,6 +9553,114 @@
               "signature": "(self, widget)",
               "summary": "Reverse Normals",
               "line": 158,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/symmetry.py",
+      "summary": "Symmetry: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SymmetrySlots",
+          "summary": "",
+          "line": 20,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "chk000_init",
+              "qualname": "SymmetrySlots.chk000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Seed the axis group from the host.",
+              "line": 76,
+              "deprecated": false
+            },
+            {
+              "name": "chk001_init",
+              "qualname": "SymmetrySlots.chk001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Symmetry Y: mirrors the host;",
+              "line": 87,
+              "deprecated": false
+            },
+            {
+              "name": "chk002_init",
+              "qualname": "SymmetrySlots.chk002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Symmetry Z: mirrors the host;",
+              "line": 91,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "SymmetrySlots.chk000",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry X: toggle modeling symmetry across the X axis.",
+              "line": 95,
+              "deprecated": false
+            },
+            {
+              "name": "chk001",
+              "qualname": "SymmetrySlots.chk001",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry Y: toggle modeling symmetry across the Y axis.",
+              "line": 99,
+              "deprecated": false
+            },
+            {
+              "name": "chk002",
+              "qualname": "SymmetrySlots.chk002",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry Z: toggle modeling symmetry across the Z axis.",
+              "line": 103,
+              "deprecated": false
+            },
+            {
+              "name": "chk004_init",
+              "qualname": "SymmetrySlots.chk004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Object space: mirrors the host;",
+              "line": 108,
+              "deprecated": false
+            },
+            {
+              "name": "chk004",
+              "qualname": "SymmetrySlots.chk004",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry: object space.",
+              "line": 112,
+              "deprecated": false
+            },
+            {
+              "name": "chk005_init",
+              "qualname": "SymmetrySlots.chk005_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Seed the space radio (object vs topology) from the host.",
+              "line": 124,
+              "deprecated": false
+            },
+            {
+              "name": "chk005",
+              "qualname": "SymmetrySlots.chk005",
+              "kind": "method",
+              "signature": "(self, state, widget)",
+              "summary": "Symmetry: by topology.",
+              "line": 145,
               "deprecated": false
             }
           ]
@@ -20813,6 +20399,60 @@
               "signature": "(self) -> None",
               "summary": "Publish the ACTIVE project's file rules as a named workspace template.",
               "line": 352,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/utilities.py",
+      "summary": "Utilities: one Slots class for both hosts.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "UtilitiesSlots",
+          "summary": "",
+          "line": 15,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "b000",
+              "qualname": "UtilitiesSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Measure: activate the distance-measure tool (Maya's Distance Tool,",
+              "line": 19,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "UtilitiesSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Annotation: the host's own.",
+              "line": 24,
+              "deprecated": false
+            },
+            {
+              "name": "b002",
+              "qualname": "UtilitiesSlots.b002",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Calculator: open the calculator panel.",
+              "line": 35,
+              "deprecated": false
+            },
+            {
+              "name": "b003",
+              "qualname": "UtilitiesSlots.b003",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Pencil: sketch with the host's pencil, Blue Pencil (Maya) or a new",
+              "line": 39,
               "deprecated": false
             }
           ]
