@@ -3009,63 +3009,6 @@ class TestFormatBehaviorHtml(unittest.TestCase):
         self.assertEqual(self.format([], status_color="#FF0000"), "")
 
 
-class TestShotsControllerStoreEvents(unittest.TestCase):
-    """ShotsController._on_store_event handles ShotDefined and ShotRemoved.
-
-    Bug: ShotRemoved only called _populate_shot_combobox + _sync_footer,
-    never re-syncing detection widgets. Deleting the last shot left them
-    disabled. ShotDefined was unhandled entirely.
-    Fixed: 2026-04-07
-    """
-
-    def setUp(self):
-        from mayatk.anim_utils.shots.shots_slots import ShotsController
-
-        _fresh_store()
-        # Build a bare instance without __init__ (avoids UI wiring)
-        self.ctrl = object.__new__(ShotsController)
-        self.ctrl._sync_from_store = MagicMock()
-        self.ctrl._sync_shot_editor = MagicMock()
-        self.ctrl._sync_footer = MagicMock()
-        self.ctrl._relabel_shot_row = MagicMock()  # reads the panel's ui
-
-    def test_shot_defined_triggers_full_sync(self):
-        from mayatk.anim_utils.shots._shots import ShotDefined
-
-        shot = ShotBlock(shot_id=1, name="A01", start=1, end=30)
-        self.ctrl._on_store_event(ShotDefined(shot=shot))
-        self.ctrl._sync_from_store.assert_called_once()
-
-    def test_shot_removed_triggers_full_sync(self):
-        from mayatk.anim_utils.shots._shots import ShotRemoved
-
-        self.ctrl._on_store_event(ShotRemoved(shot_id=1))
-        self.ctrl._sync_from_store.assert_called_once()
-
-    def test_batch_complete_triggers_full_sync(self):
-        from mayatk.anim_utils.shots._shots import BatchComplete
-
-        self.ctrl._on_store_event(BatchComplete())
-        self.ctrl._sync_from_store.assert_called_once()
-
-    def test_shot_updated_does_not_trigger_full_sync(self):
-        from mayatk.anim_utils.shots._shots import ShotUpdated
-
-        shot = ShotBlock(shot_id=1, name="A01", start=1, end=30)
-        self.ctrl._on_store_event(ShotUpdated(shot=shot))
-        self.ctrl._sync_from_store.assert_not_called()
-        self.ctrl._sync_shot_editor.assert_called_once()
-        self.ctrl._relabel_shot_row.assert_called_once_with(shot)  # its row only
-
-    def test_a_sequencer_edit_triggers_full_sync(self):
-        """A trim or drag in the Shot Sequencer writes the bounds directly;
-        its ``scene_edit`` announcement is all this panel hears of it."""
-        from mayatk.anim_utils.shots._shots import ShotsEdited
-
-        self.ctrl._on_store_event(ShotsEdited(label="trim"))
-        self.ctrl._sync_from_store.assert_called_once()
-
-
 class TestDetectRegionsHonoursMode(unittest.TestCase, _ControllerHarness):
     """_detect_regions must use the store's detection_mode even when
     _steps is empty (first detection).
@@ -4532,58 +4475,6 @@ class TestReapplyReportsWhatItDid(unittest.TestCase, _ControllerHarness):
 
         self.builder.reapply_object.return_value = True
         self.assertEqual(apply(), "Re-applied ghost's behaviors in A01.")
-
-
-class TestRefreshState(unittest.TestCase):
-    """ShotsController.refresh_state() centralizes widget enable/disable."""
-
-    def setUp(self):
-        from mayatk.anim_utils.shots.shots_slots import ShotsController
-
-        _fresh_store()
-        self.ctrl = object.__new__(ShotsController)
-        # Mock UI widgets
-        self.ctrl.ui = MagicMock()
-        self.ctrl.ui.cmb_detection_mode = MagicMock()
-        self.ctrl.ui.spn_detection = MagicMock()
-        self.ctrl.ui.btn_apply_gap = MagicMock()
-
-    def test_no_shots_detection_relevant(self):
-        """With no shots and animation, detection widgets are enabled."""
-        store = _fresh_store()
-        store.detection_mode = "auto"
-        with patch.object(ShotStore, "has_animation", return_value=True):
-            self.ctrl.refresh_state()
-        self.ctrl.ui.cmb_detection_mode.setEnabled.assert_called_with(True)
-        self.ctrl.ui.spn_detection.setEnabled.assert_called_with(True)
-        self.ctrl.ui.btn_apply_gap.setEnabled.assert_called_with(False)
-
-    def test_with_shots_detection_disabled(self):
-        """With existing shots, detection widgets are disabled."""
-        store = _fresh_store()
-        store.define_shot("S01", 0, 100, ["obj"])
-        with patch.object(ShotStore, "has_animation", return_value=True):
-            self.ctrl.refresh_state()
-        self.ctrl.ui.cmb_detection_mode.setEnabled.assert_called_with(False)
-        self.ctrl.ui.spn_detection.setEnabled.assert_called_with(False)
-        self.ctrl.ui.btn_apply_gap.setEnabled.assert_called_with(True)
-
-    def test_auto_no_animation_disables_threshold(self):
-        """In auto mode with no animation, min gap spinner is disabled."""
-        store = _fresh_store()
-        store.detection_mode = "auto"
-        with patch.object(ShotStore, "has_animation", return_value=False):
-            self.ctrl.refresh_state()
-        self.ctrl.ui.cmb_detection_mode.setEnabled.assert_called_with(True)
-        self.ctrl.ui.spn_detection.setEnabled.assert_called_with(False)
-
-    def test_zero_as_end_disables_threshold(self):
-        """zero_as_end mode always disables the min gap spinner."""
-        store = _fresh_store()
-        store.detection_mode = "zero_as_end"
-        with patch.object(ShotStore, "has_animation", return_value=True):
-            self.ctrl.refresh_state()
-        self.ctrl.ui.spn_detection.setEnabled.assert_called_with(False)
 
 
 class TestShowInOutliner(unittest.TestCase):

@@ -673,9 +673,9 @@ PANELS = {
                            "reason": "cross-DCC send pair — each package ships the bridge named "
                                      "after its TARGET app"},
     # SHOTS TRIO — SHIPPED 2026-07-11 (user directive: full 1:1 workflow parity so a Maya user moves to
-    # Blender with the SAME tentacle tools). All three panels ported 1:1 (sweep: 0 element deltas each)
-    # and co-located in blendertk/anim_utils/shots/ (engine + <tool>.ui + <Tool>Slots, discovered by
-    # BlenderUiHandler; tentacle carries only the nav launch button). The DCC-agnostic core — shot model,
+    # Blender with the SAME tentacle tools). All three panels ported 1:1; Shot Manifest and Shots are
+    # tentacle's shared tools now (2026-10-28), the Sequencer still co-located in
+    # blendertk/anim_utils/shots/ until it moves. The DCC-agnostic core — shot model,
     # planner, detection math, and the whole manifest (CSV/mapping/behaviors[JSON]/range) — extracted to
     # pythontk.core_utils.engines.shots so mayatk + blendertk share ONE implementation. The divergence is
     # in the ENGINE, not the UX: Blender realises shots on native primitives (fcurve key-motion,

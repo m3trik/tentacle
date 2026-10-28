@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>shots</class>
+ <widget class="QMainWindow" name="shots">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>265</width>
+    <height>370</height>
+   </rect>
+  </property>
+  <property name="accessibleDescription">
+   <string>Generate shots from animation and edit their names, ranges and gaps.</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
+    <item>
+     <widget class="Header" name="header" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text" stdset="0">
+       <string>SHOTS</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="CollapsableGroup" name="detection">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Generate from Animation</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="ComboBox" name="cmb_detection_mode">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>How to generate shot boundaries from animation.
+• Auto-Detect – scan scene animation and cluster by gap.
+• All Keys – every selected key is a boundary (contiguous shots).
+• Skip Zero-Value – ignore keys with value 0.
+• Zero = Shot End – non-zero keys start shots, zero keys end them.</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Auto-Detect</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>All Keys</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Skip Zero-Value</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Zero = Shot End</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="SpinBox" name="spn_detection">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Minimum gap (frames) between generated shots.
+In Auto-Detect mode, clusters animation by this gap.
+In All Keys / Skip Zero mode, merges keys within this distance.
+Unused in Zero = Shot End mode.</string>
+         </property>
+         <property name="prefix">
+          <string>Min Gap:	</string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>0.100000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>5.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="CollapsableGroup" name="build">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Build</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_build">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="SpinBox" name="spn_initial_length">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Default frames allocated to a new shot before
+content-driven resizing is applied.</string>
+         </property>
+         <property name="prefix">
+          <string>Initial Length:	</string>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="minimum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>10.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>200.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chk_snap_whole_frames">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Round all shot frame values (start, end, keyframes)
+to whole numbers.  Applied at every mutation site so
+the stored model is always integer-aligned.</string>
+         </property>
+         <property name="text">
+          <string>Snap to Whole Frames</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ComboBox" name="cmb_fit_mode">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Extend Only: grow shot to fit behaviors/audio, never shrink below the initial length.
+Shrink &amp; Extend: resize to fit contents exactly.</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>Extend Only</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Shrink &amp; Extend to Fit</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="CollapsableGroup" name="shot_editor">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Selected Shot</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="ComboBox" name="cmb_shot_select">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Select a shot to view or edit its properties.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="LineEdit" name="txt_shot_name">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Shot name.</string>
+         </property>
+         <property name="placeholderText">
+          <string>Name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="shot_range_layout">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="SpinBox" name="spn_shot_start">
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Shot start frame.</string>
+           </property>
+           <property name="prefix">
+            <string>Start:	</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-100000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1000000.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="SpinBox" name="spn_shot_end">
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>19</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>Shot end frame.</string>
+           </property>
+           <property name="prefix">
+            <string>End:	</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="minimum">
+            <double>-100000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1000000.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="txt_shot_desc">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Shot description or notes.</string>
+         </property>
+         <property name="placeholderText">
+          <string>Description</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="SpinBox" name="spn_move_to">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Move the selected shot to this position in the timeline order (option box ▸ to apply).</string>
+         </property>
+         <property name="prefix">
+          <string>Move To:	</string>
+         </property>
+         <property name="minimum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="btn_swap_shot">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Trade timeline places with another shot, keys and all -- or copy
+this shot's animation over it.
+Option box ▸ for the mode, the shot, and what stays in place.</string>
+         </property>
+         <property name="text">
+          <string>Swap With</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="SpinBox" name="spn_space">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Empty room to add to the selected shot.
+Option box ▸ to add it at the head or the tail.
+Neighbouring shots ripple, so the spacing between shots is kept.
+A negative value removes room instead.</string>
+         </property>
+         <property name="prefix">
+          <string>Add Space:	</string>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="minimum">
+          <double>-100000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>5.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>10.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="btn_trim_empty">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Trim empty space from both ends of the selected shot.
+Option box ▸ to trim only the leading or only the trailing end.</string>
+         </property>
+         <property name="text">
+          <string>Trim Empty</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="b000">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Delete the selected shot: its keys go with it and the following
+shots close up into the space it occupied.
+Option box ▸ to keep the contents or leave the timeline alone.</string>
+         </property>
+         <property name="text">
+          <string>Delete</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="CollapsableGroup" name="all_shots">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>All Shots</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_all">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="leftMargin">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="rightMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
+        <number>1</number>
+       </property>
+       <item>
+        <widget class="PushButton" name="btn_apply_gap">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Re-space the shots so each gap between them is the amount set in the option box ▸,
+where the scope and Override Locked Gaps are picked too.</string>
+         </property>
+         <property name="text">
+          <string>Apply Gap</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="btn_shift_all">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Move every shot so the first one starts on the frame set in the option box ▸.
+The spacing between shots, and the animation inside them, is kept.</string>
+         </property>
+         <property name="text">
+          <string>Shift To</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="btn_trim_all">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Trim empty space from both ends of every shot.
+Option box ▸ to trim only the leading or only the trailing end.</string>
+         </property>
+         <property name="text">
+          <string>Trim Empty (All)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="btn_delete_shots">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>19</height>
+          </size>
+         </property>
+         <property name="toolTip">
+          <string>Delete shots by scope (option box ▸): Stale, Empty or All.
+Their records only -- no keyframe is touched and no other shot moves.</string>
+         </property>
+         <property name="text">
+          <string>Delete Stale Shots</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Fixed</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>10</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="Footer" name="footer" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Header</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
+  </customwidget>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>uitk.widgets.comboBox.ComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsableGroup</class>
+   <extends>QGroupBox</extends>
+   <header>uitk.widgets.collapsableGroup.CollapsableGroup.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>uitk.widgets.spinBox</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>uitk.widgets.pushButton</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uitk.widgets.lineEdit</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

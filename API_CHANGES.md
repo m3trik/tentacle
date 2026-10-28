@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (708)
+## Added (775)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -165,6 +165,41 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_extra(self) -> None`
 - `slots/tools/_shot_manifest/table_presenter.py::ManifestTableMixin.expand_missing(self) -> None`
 - `slots/tools/_shot_manifest/view_combos.py::ViewCombosMixin(class)`
+- `slots/tools/_shots/controller.py::ShotsController(class)`
+- `slots/tools/_shots/controller.py::ShotsController.confirm_removal(self, shots, scope: str = 'stale') -> bool`
+- `slots/tools/_shots/controller.py::ShotsController.delete_scope(self) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.label_apply_gap(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_delete_shots(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_shift_all(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.label_swap_shot(self, *_args) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_add_space(self, edge: str = 'leading') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_delete_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_delete_shots(self, scope: str = 'stale') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_detection_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_detection_mode_changed(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_drop_stale_shots_changed(self, checked: bool) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_fit_mode_changed(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_gap_changed(self, value, scope: str = 'all', respect_locks: bool = True) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_initial_length_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_move_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_navigate_shot(self, delta: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_new_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shift_all_shots(self, start: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_desc_changed(self, text: str) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_end_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_name_changed(self, text: str) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_selected(self, index: int) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_shot_start_changed(self, value: float) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_snap_whole_frames_changed(self, checked: bool) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_swap_shot(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_trim_all_shots(self, edge: str = 'both') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.on_trim_empty(self, edge: str = 'both') -> None`
+- `slots/tools/_shots/controller.py::ShotsController.refresh_state(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.remove_callbacks(self) -> None`
+- `slots/tools/_shots/controller.py::ShotsController.shot_label(shot) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.swap_mode(self) -> str`
+- `slots/tools/_shots/controller.py::ShotsController.swap_retain(self) -> list`
+- `slots/tools/_shots/controller.py::ShotsController.swap_target(self)`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode(class)`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.capture_source(self) -> None`
@@ -627,6 +662,38 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/shot_manifest.py::ShotManifestSlots.b004(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.btn_settings(self)`
 - `slots/tools/shot_manifest.py::ShotManifestSlots.header_init(self, widget)`
+- `slots/tools/shots.py::ShotsSlots(class)`
+- `slots/tools/shots.py::ShotsSlots.b000(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_add_leading_space(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_add_trailing_space(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_apply_gap(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_delete_shots(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_move_shot(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_shift_all(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_swap_shot(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_both(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_leading(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_all_trailing(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_both(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_empty(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_leading(self)`
+- `slots/tools/shots.py::ShotsSlots.btn_trim_trailing(self)`
+- `slots/tools/shots.py::ShotsSlots.chk_drop_stale_shots(self, checked)`
+- `slots/tools/shots.py::ShotsSlots.chk_snap_whole_frames(self, checked)`
+- `slots/tools/shots.py::ShotsSlots.cmb_delete_scope(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_detection_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_fit_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_shot_select(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_swap_mode(self, index)`
+- `slots/tools/shots.py::ShotsSlots.cmb_swap_with(self, index)`
+- `slots/tools/shots.py::ShotsSlots.header_init(self, widget)`
+- `slots/tools/shots.py::ShotsSlots.spn_detection(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_initial_length(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_shot_end(self, value)`
+- `slots/tools/shots.py::ShotsSlots.spn_shot_start(self, value)`
+- `slots/tools/shots.py::ShotsSlots.txt_shot_desc(self, text=None)`
+- `slots/tools/shots.py::ShotsSlots.txt_shot_name(self, text=None)`
 - `slots/tools/smart_bake.py::SmartBakeSlots(class)`
 - `slots/tools/smart_bake.py::SmartBakeSlots.b000(self, widget) -> None`
 - `slots/tools/smart_bake.py::SmartBakeSlots.b001(self, widget) -> None`

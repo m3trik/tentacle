@@ -1983,15 +1983,13 @@ class AnimationSlots(AnimationMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("shot_sequencer")
 
     def b004(self):
-        """Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
-        mayatk's CSV-driven scene assembly over linked Scenes/Collections behind the shared
-        pythontk shots core. (Replaced the pre-2026-07-11 "Maya-shot-pipeline specific" message
-        box — the panel shipped in blendertk.)"""
+        """Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked
+        Scenes/Collections behind the shared pythontk shots core (``btk.ManifestHost``)."""
         self.sb.handlers.marking_menu.show("shot_manifest")
 
     def b006(self):
-        """Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:
-        park keys out of the working animation, preview a stored range, retrieve later."""
+        """Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working
+        animation, preview a stored range, retrieve later."""
         self.sb.handlers.marking_menu.show("key_stash")
 
 

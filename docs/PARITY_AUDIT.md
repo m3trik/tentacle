@@ -10,10 +10,10 @@
 |:--|:--|:--|
 | **1. Menu buttons** | shared-menu widgets with a slot handler | Maya 207, Blender 208 — only **0** Maya-handled widget missing in Blender ⇒ ~100% *(presence; the metric that misled)* |
 | **2. Shared-menu slot depth** | `.add(` controls, Blender ÷ Maya | **85%** (339/400) — *floor only; undercounts loop-built controls & legit divergence. Spot-checks (pivot, selection) show menus are **largely faithful**.* 0 hollow handlers |
-| **3. Tool panels** | co-located `*Slots` tools | **8 present** pairs (of Maya's 11), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 1 below 50% by line count (see per-panel surface column) |
-| **4. Helper surface** | public names, Blender covers of mayatk | **57%** (1344/2338 names); 1 modules absent: render_utils |
+| **3. Tool panels** | co-located `*Slots` tools | **7 present** pairs (of Maya's 10), 1 open ports (tracked), 1 N/A by design, 1 counterpart-pair. 1 below 50% by line count (see per-panel surface column) |
+| **4. Helper surface** | public names, Blender covers of mayatk | **56%** (1277/2271 names); 1 modules absent: render_utils |
 
-**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 57% with 1 module(s) absent (render_utils); 1 panel ports open.
+**Bottom line:** depth numbers here are coarse floors — the per-element truth (every control/widget/handler, classified through the triage ledger) is [`PARITY_SURFACE.md`](PARITY_SURFACE.md); its UNTRIAGED and `pending` rows are the real work list. Helper library at 56% with 1 module(s) absent (render_utils); 1 panel ports open.
 
 ---
 
@@ -24,7 +24,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 383 | 349 | 292 | 76% |
+| anim_utils | 315 | 281 | 224 | 71% |
 | audio_utils | 81 | 36 | 21 | 26% |
 | cam_utils | 10 | 16 | 4 | 40% |
 | core_utils | 183 | 92 | 65 | 36% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 73 | 85 | 31 | 42% |
 | uv_utils | 117 | 100 | 86 | 74% |
 | xform_utils | 83 | 36 | 30 | 36% |
-| **TOTAL (unique)** | **2338** | **1764** | **1344** | **57%** |
+| **TOTAL (unique)** | **2271** | **1697** | **1277** | **56%** |
 
 > Caveat: many absent names are *internals of the missing panels* (they arrive when the panel is ported), and some mayatk helpers are replaced inline by native `bpy.ops` by design — so the absent count overstates *distinct* helper work. The hard gaps are the 3 absent modules plus `node_utils` attributes, `core_utils` geometry math, and `xform_utils` pivots.
 
@@ -52,7 +52,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 
 > **logic% is a line ratio — it understates panels whose Maya source carries large Maya-only machinery** (assemblies, namespaces, `_FileRef`, controllers). It is NOT a control-surface verdict: a panel can read low here yet still be control-surface-complete. For the per-panel name-level 1:1 check (every `config_buttons` / menu / option-box / action control), run `python m3trik/scripts/compare_panel_surface.py --panel <name>`.
 
-### Present pairs (8) — worst first by logic
+### Present pairs (7) — worst first by logic
 
 > **The `surface` column is the verdict that matters** — it comes from the name-level classified diff (`compare_panel_surface.py` + `parity_map.py`): `clean` = every element matched or consciously triaged; `N open` = ledgered pending gaps; `N!` = untriaged. A `clean` panel with a low logic% just needs less code in Blender (native-op collapse, shared helpers) — that is not a defect.
 
@@ -63,8 +63,7 @@ Co-located `*Slots` tools (own `.ui` + engine), launched from a menu button. Raw
 | MarmosetBridge | 0→0 | 0→0 | 2→2 | 282→233 | 83% | 100% | clean |
 | RizomBridge | 0→0 | 0→0 | 2→2 | 368→318 | 86% | 100% | clean |
 | SubstanceBridge | 1→1 | 0→0 | 2→2 | 294→273 | 93% | 100% | clean |
-| ShotSequencer | 1→1 | 18→18 | 2→2 | 917→875 | 95% | 100% | clean |
-| Shots | 9→9 | 15→15 | 19→19 | 1819→1836 | 101% | 100% | clean |
+| ShotSequencer | 1→1 | 18→18 | 2→2 | 916→874 | 95% | 100% | clean |
 | ReferenceManager | 3→2 ⚠ | 28→32 | 4→4 | 1859→2678 | 144% | 100% | clean |
 
 ### Open panel ports (1) — tracked in parity_map

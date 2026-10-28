@@ -1611,7 +1611,7 @@
               "qualname": "AnimationSlots.b004",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with",
+              "summary": "Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked",
               "line": 1985,
               "deprecated": false
             },
@@ -1620,8 +1620,8 @@
               "qualname": "AnimationSlots.b006",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:",
-              "line": 1992,
+              "summary": "Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working",
+              "line": 1990,
               "deprecated": false
             }
           ]
@@ -11500,6 +11500,330 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/_shots/controller.py",
+      "summary": "The Shots panel's controller: the scene's shot settings, the selected shot's",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotsController",
+          "summary": "Business logic for the Shots settings panel.",
+          "line": 31,
+          "bases": [
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "remove_callbacks",
+              "qualname": "ShotsController.remove_callbacks",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Remove store listeners and invalidation subscription (call on teardown).",
+              "line": 187,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_state",
+              "qualname": "ShotsController.refresh_state",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Central enable/disable refresh for all Shots UI widgets.",
+              "line": 253,
+              "deprecated": false
+            },
+            {
+              "name": "shot_label",
+              "qualname": "ShotsController.shot_label",
+              "kind": "staticmethod",
+              "signature": "(shot) -> str",
+              "summary": "A shot's row in the dropdown: ``\"Shot_1  [1–100]\"``.",
+              "line": 543,
+              "deprecated": false
+            },
+            {
+              "name": "on_navigate_shot",
+              "qualname": "ShotsController.on_navigate_shot",
+              "kind": "method",
+              "signature": "(self, delta: int) -> None",
+              "summary": "Make the previous (-1) or next (+1) shot the active one.",
+              "line": 636,
+              "deprecated": false
+            },
+            {
+              "name": "on_new_shot",
+              "qualname": "ShotsController.on_new_shot",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Append a new shot and make it the active one.",
+              "line": 646,
+              "deprecated": false
+            },
+            {
+              "name": "on_detection_changed",
+              "qualname": "ShotsController.on_detection_changed",
+              "kind": "method",
+              "signature": "(self, value: float) -> None",
+              "summary": "",
+              "line": 670,
+              "deprecated": false
+            },
+            {
+              "name": "on_detection_mode_changed",
+              "qualname": "ShotsController.on_detection_mode_changed",
+              "kind": "method",
+              "signature": "(self, index: int) -> None",
+              "summary": "",
+              "line": 678,
+              "deprecated": false
+            },
+            {
+              "name": "on_initial_length_changed",
+              "qualname": "ShotsController.on_initial_length_changed",
+              "kind": "method",
+              "signature": "(self, value: float) -> None",
+              "summary": "",
+              "line": 688,
+              "deprecated": false
+            },
+            {
+              "name": "on_snap_whole_frames_changed",
+              "qualname": "ShotsController.on_snap_whole_frames_changed",
+              "kind": "method",
+              "signature": "(self, checked: bool) -> None",
+              "summary": "",
+              "line": 696,
+              "deprecated": false
+            },
+            {
+              "name": "on_drop_stale_shots_changed",
+              "qualname": "ShotsController.on_drop_stale_shots_changed",
+              "kind": "method",
+              "signature": "(self, checked: bool) -> None",
+              "summary": "Whether this file's exports leave its stale shots out",
+              "line": 725,
+              "deprecated": false
+            },
+            {
+              "name": "on_fit_mode_changed",
+              "qualname": "ShotsController.on_fit_mode_changed",
+              "kind": "method",
+              "signature": "(self, index: int) -> None",
+              "summary": "",
+              "line": 736,
+              "deprecated": false
+            },
+            {
+              "name": "on_gap_changed",
+              "qualname": "ShotsController.on_gap_changed",
+              "kind": "method",
+              "signature": "(self, value, scope: str = 'all', respect_locks: bool = True) -> None",
+              "summary": "Set the store gap and re-space per *scope*.",
+              "line": 776,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_selected",
+              "qualname": "ShotsController.on_shot_selected",
+              "kind": "method",
+              "signature": "(self, index: int) -> None",
+              "summary": "User picked a different shot from the combobox.",
+              "line": 809,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_name_changed",
+              "qualname": "ShotsController.on_shot_name_changed",
+              "kind": "method",
+              "signature": "(self, text: str) -> None",
+              "summary": "Push a name the store accepts;",
+              "line": 828,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_start_changed",
+              "qualname": "ShotsController.on_shot_start_changed",
+              "kind": "method",
+              "signature": "(self, value: float) -> None",
+              "summary": "",
+              "line": 861,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_end_changed",
+              "qualname": "ShotsController.on_shot_end_changed",
+              "kind": "method",
+              "signature": "(self, value: float) -> None",
+              "summary": "",
+              "line": 880,
+              "deprecated": false
+            },
+            {
+              "name": "on_shot_desc_changed",
+              "qualname": "ShotsController.on_shot_desc_changed",
+              "kind": "method",
+              "signature": "(self, text: str) -> None",
+              "summary": "",
+              "line": 902,
+              "deprecated": false
+            },
+            {
+              "name": "delete_scope",
+              "qualname": "ShotsController.delete_scope",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "The scope Delete Shots takes (``\"stale\"`` until one is picked).",
+              "line": 989,
+              "deprecated": false
+            },
+            {
+              "name": "label_delete_shots",
+              "qualname": "ShotsController.label_delete_shots",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Name the picked scope on Delete Shots: \"Delete Empty Shots\".",
+              "line": 995,
+              "deprecated": false
+            },
+            {
+              "name": "swap_mode",
+              "qualname": "ShotsController.swap_mode",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "Swap With's mode: ``\"swap\"`` (until one is picked) or ``\"copy\"``.",
+              "line": 1086,
+              "deprecated": false
+            },
+            {
+              "name": "swap_target",
+              "qualname": "ShotsController.swap_target",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The other shot's id -- swapped with, or copied over -- or ``None``.",
+              "line": 1092,
+              "deprecated": false
+            },
+            {
+              "name": "swap_retain",
+              "qualname": "ShotsController.swap_retain",
+              "kind": "method",
+              "signature": "(self) -> list",
+              "summary": "The fields Swap With leaves in place: its checked Retain options.",
+              "line": 1097,
+              "deprecated": false
+            },
+            {
+              "name": "label_swap_shot",
+              "qualname": "ShotsController.label_swap_shot",
+              "kind": "method",
+              "signature": "(self, *_args) -> None",
+              "summary": "Name the mode and the picked shot on Swap With: \"Swap With: Shot_3\",",
+              "line": 1105,
+              "deprecated": false
+            },
+            {
+              "name": "label_shift_all",
+              "qualname": "ShotsController.label_shift_all",
+              "kind": "method",
+              "signature": "(self, *_args) -> None",
+              "summary": "Name the frame on Shift To: \"Shift To: 1\".",
+              "line": 1209,
+              "deprecated": false
+            },
+            {
+              "name": "label_apply_gap",
+              "qualname": "ShotsController.label_apply_gap",
+              "kind": "method",
+              "signature": "(self, *_args) -> None",
+              "summary": "Name the amount on Apply Gap: \"Apply Gap: 12\".",
+              "line": 1259,
+              "deprecated": false
+            },
+            {
+              "name": "on_delete_shot",
+              "qualname": "ShotsController.on_delete_shot",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Delete the active shot after confirmation.",
+              "line": 1271,
+              "deprecated": false
+            },
+            {
+              "name": "confirm_removal",
+              "qualname": "ShotsController.confirm_removal",
+              "kind": "method",
+              "signature": "(self, shots, scope: str = 'stale') -> bool",
+              "summary": "Ask before ``ShotStore.remove_shots_in_scope``, naming *shots*.",
+              "line": 1329,
+              "deprecated": false
+            },
+            {
+              "name": "on_delete_shots",
+              "qualname": "ShotsController.on_delete_shots",
+              "kind": "method",
+              "signature": "(self, scope: str = 'stale') -> None",
+              "summary": "Delete the shots of *scope* after naming them (All Shots group).",
+              "line": 1344,
+              "deprecated": false
+            },
+            {
+              "name": "on_move_shot",
+              "qualname": "ShotsController.on_move_shot",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Move the active shot to the position specified by spn_move_to.",
+              "line": 1374,
+              "deprecated": false
+            },
+            {
+              "name": "on_swap_shot",
+              "qualname": "ShotsController.on_swap_shot",
+              "kind": "method",
+              "signature": "(self) -> None",
+              "summary": "Swap With, in the mode its option box picks: trade the active",
+              "line": 1400,
+              "deprecated": false
+            },
+            {
+              "name": "on_trim_empty",
+              "qualname": "ShotsController.on_trim_empty",
+              "kind": "method",
+              "signature": "(self, edge: str = 'both') -> None",
+              "summary": "Trim empty space from the active shot, at *edge*.",
+              "line": 1441,
+              "deprecated": false
+            },
+            {
+              "name": "on_trim_all_shots",
+              "qualname": "ShotsController.on_trim_all_shots",
+              "kind": "method",
+              "signature": "(self, edge: str = 'both') -> None",
+              "summary": "Trim empty space from every shot, at *edge*.",
+              "line": 1462,
+              "deprecated": false
+            },
+            {
+              "name": "on_shift_all_shots",
+              "qualname": "ShotsController.on_shift_all_shots",
+              "kind": "method",
+              "signature": "(self, start: float) -> None",
+              "summary": "Shift every shot so the first one starts on *start*.",
+              "line": 1485,
+              "deprecated": false
+            },
+            {
+              "name": "on_add_space",
+              "qualname": "ShotsController.on_add_space",
+              "kind": "method",
+              "signature": "(self, edge: str = 'leading') -> None",
+              "summary": "Pad the active shot with ``spn_space`` frames of room at *edge*.",
+              "line": 1511,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/_texture_combine/transfer_mode.py",
       "summary": "The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.",
       "functions": [],
@@ -15972,6 +16296,303 @@
               "signature": "(self)",
               "summary": "Export the manifest's rows (the option menu says how).",
               "line": 42,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/shots.py",
+      "summary": "Shots: the scene's shot settings, the selected shot's fields and edits, and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ShotsSlots",
+          "summary": "Switchboard slots for the ``shots.ui`` panel.",
+          "line": 17,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ShotsSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Configure header help text.",
+              "line": 56,
+              "deprecated": false
+            },
+            {
+              "name": "spn_detection",
+              "qualname": "ShotsSlots.spn_detection",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Detection threshold changed.",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_detection_mode",
+              "qualname": "ShotsSlots.cmb_detection_mode",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "Detection mode combobox changed.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "spn_initial_length",
+              "qualname": "ShotsSlots.spn_initial_length",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Initial shot length changed.",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_fit_mode",
+              "qualname": "ShotsSlots.cmb_fit_mode",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "Fit mode combobox changed.",
+              "line": 130,
+              "deprecated": false
+            },
+            {
+              "name": "chk_snap_whole_frames",
+              "qualname": "ShotsSlots.chk_snap_whole_frames",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Snap-to-whole-frames checkbox toggled.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_shot_select",
+              "qualname": "ShotsSlots.cmb_shot_select",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "Shot selector combobox changed.",
+              "line": 140,
+              "deprecated": false
+            },
+            {
+              "name": "txt_shot_name",
+              "qualname": "ShotsSlots.txt_shot_name",
+              "kind": "method",
+              "signature": "(self, text=None)",
+              "summary": "Shot name edited (debounced: the field's text, not the signal's).",
+              "line": 144,
+              "deprecated": false
+            },
+            {
+              "name": "spn_shot_start",
+              "qualname": "ShotsSlots.spn_shot_start",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Shot start frame changed.",
+              "line": 148,
+              "deprecated": false
+            },
+            {
+              "name": "spn_shot_end",
+              "qualname": "ShotsSlots.spn_shot_end",
+              "kind": "method",
+              "signature": "(self, value)",
+              "summary": "Shot end frame changed.",
+              "line": 152,
+              "deprecated": false
+            },
+            {
+              "name": "txt_shot_desc",
+              "qualname": "ShotsSlots.txt_shot_desc",
+              "kind": "method",
+              "signature": "(self, text=None)",
+              "summary": "Shot description edited (debounced: the field's text).",
+              "line": 156,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "ShotsSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete the selected shot.",
+              "line": 160,
+              "deprecated": false
+            },
+            {
+              "name": "btn_delete_shots",
+              "qualname": "ShotsSlots.btn_delete_shots",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete the shots of the scope picked in the option box (All Shots).",
+              "line": 164,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_delete_scope",
+              "qualname": "ShotsSlots.cmb_delete_scope",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "A scope was picked: the button says what a click now deletes.",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "chk_drop_stale_shots",
+              "qualname": "ShotsSlots.chk_drop_stale_shots",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Leave Stale Shots Out of Exports toggled (Delete Shots' option box).",
+              "line": 172,
+              "deprecated": false
+            },
+            {
+              "name": "btn_move_shot",
+              "qualname": "ShotsSlots.btn_move_shot",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move shot to the position in spn_move_to.",
+              "line": 176,
+              "deprecated": false
+            },
+            {
+              "name": "btn_swap_shot",
+              "qualname": "ShotsSlots.btn_swap_shot",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Swap with, or copy over, the shot picked in the option box.",
+              "line": 180,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_swap_with",
+              "qualname": "ShotsSlots.cmb_swap_with",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "A shot was picked: the button names what a click swaps with.",
+              "line": 184,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_swap_mode",
+              "qualname": "ShotsSlots.cmb_swap_mode",
+              "kind": "method",
+              "signature": "(self, index)",
+              "summary": "A mode was picked: the button says what a click now does.",
+              "line": 188,
+              "deprecated": false
+            },
+            {
+              "name": "btn_apply_gap",
+              "qualname": "ShotsSlots.btn_apply_gap",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Apply the gap in the option box (spn_gap) to the scope it picks.",
+              "line": 192,
+              "deprecated": false
+            },
+            {
+              "name": "btn_shift_all",
+              "qualname": "ShotsSlots.btn_shift_all",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-base every shot onto the frame in the option box (spn_shift_all).",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_empty",
+              "qualname": "ShotsSlots.btn_trim_empty",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim both ends of the selected shot.",
+              "line": 206,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_leading",
+              "qualname": "ShotsSlots.btn_trim_leading",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim the selected shot's leading space.",
+              "line": 210,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_trailing",
+              "qualname": "ShotsSlots.btn_trim_trailing",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim the selected shot's trailing space.",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_both",
+              "qualname": "ShotsSlots.btn_trim_both",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim both ends of the selected shot (option box twin of the button).",
+              "line": 218,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_all",
+              "qualname": "ShotsSlots.btn_trim_all",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim both ends of every shot.",
+              "line": 222,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_all_leading",
+              "qualname": "ShotsSlots.btn_trim_all_leading",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim every shot's leading space.",
+              "line": 226,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_all_trailing",
+              "qualname": "ShotsSlots.btn_trim_all_trailing",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim every shot's trailing space.",
+              "line": 230,
+              "deprecated": false
+            },
+            {
+              "name": "btn_trim_all_both",
+              "qualname": "ShotsSlots.btn_trim_all_both",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Trim both ends of every shot (option box twin of the button).",
+              "line": 234,
+              "deprecated": false
+            },
+            {
+              "name": "btn_add_leading_space",
+              "qualname": "ShotsSlots.btn_add_leading_space",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Add empty room before the selected shot.",
+              "line": 238,
+              "deprecated": false
+            },
+            {
+              "name": "btn_add_trailing_space",
+              "qualname": "ShotsSlots.btn_add_trailing_space",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Add empty room after the selected shot.",
+              "line": 242,
               "deprecated": false
             }
           ]

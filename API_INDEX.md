@@ -490,6 +490,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/_shot_manifest/view_combos.py` — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 - `class ViewCombosMixin`
 
+### `slots/tools/_shots/controller.py` — The Shots panel's controller: the scene's shot settings, the selected shot's
+- `class ShotsController(pythontk.LoggingMixin)`
+  - methods: remove_callbacks, refresh_state, shot_label, on_navigate_shot, on_new_shot, on_detection_changed, on_detection_mode_changed, on_initial_length_changed, on_snap_whole_frames_changed, on_drop_stale_shots_changed, on_fit_mode_changed, on_gap_changed, on_shot_selected, on_shot_name_changed, on_shot_start_changed, on_shot_end_changed, on_shot_desc_changed, delete_scope, label_delete_shots, swap_mode, swap_target, swap_retain, label_swap_shot, label_shift_all, label_apply_gap, on_delete_shot, confirm_removal, on_delete_shots, on_move_shot, on_swap_shot, on_trim_empty, on_trim_all_shots, on_shift_all_shots, on_add_space
+
 ### `slots/tools/_texture_combine/transfer_mode.py` — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - `class TransferMode`
   - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, passes, resolve_auto, source_note, auto_note, pair, gate, lightmap_probe, sync, run, derived_name, texture_pass, read_files, overwrite_note, lightmap_pass
@@ -631,6 +635,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/shot_manifest.py` — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
 - `class ShotManifestSlots(Slots)`
   - methods: header_init, btn_settings, b002, b003, b004
+
+### `slots/tools/shots.py` — Shots: the scene's shot settings, the selected shot's fields and edits, and
+- `class ShotsSlots(Slots)`
+  - methods: header_init, spn_detection, cmb_detection_mode, spn_initial_length, cmb_fit_mode, chk_snap_whole_frames, cmb_shot_select, txt_shot_name, spn_shot_start, spn_shot_end, txt_shot_desc, b000, btn_delete_shots, cmb_delete_scope, chk_drop_stale_shots, btn_move_shot, btn_swap_shot, cmb_swap_with, cmb_swap_mode, btn_apply_gap, btn_shift_all, btn_trim_empty, btn_trim_leading, btn_trim_trailing, btn_trim_both, btn_trim_all, btn_trim_all_leading, btn_trim_all_trailing, btn_trim_all_both, btn_add_leading_space, btn_add_trailing_space
 
 ### `slots/tools/smart_bake.py` — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - `class SmartBakeSlots(Slots, pythontk.LoggingMixin)`

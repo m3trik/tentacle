@@ -133,6 +133,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shot_manifest/store_follow.py`](#slots--tools--_shot_manifest--store_follow) — The Shot Manifest panel following the scene's store: its events (a shot
 - [`slots/tools/_shot_manifest/table_presenter.py`](#slots--tools--_shot_manifest--table_presenter) — The Shot Manifest tree's rows: populating them (``ShotPairing.rows``: steps,
 - [`slots/tools/_shot_manifest/view_combos.py`](#slots--tools--_shot_manifest--view_combos) — The Shot Manifest's view row, above the table: Select, Expand, Collapse,
+- [`slots/tools/_shots/controller.py`](#slots--tools--_shots--controller) — The Shots panel's controller: the scene's shot settings, the selected shot's
 - [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - [`slots/tools/_unity_bridge/_unity_panel.py`](#slots--tools--_unity_bridge--_unity_panel) — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
@@ -168,6 +169,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/shadow_rig.py`](#slots--tools--shadow_rig) — Shadow Rig: a ground plane carrying the targets' projected shadow, built for
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
+- [`slots/tools/shots.py`](#slots--tools--shots) — Shots: the scene's shot settings, the selected shot's fields and edits, and
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
@@ -467,8 +469,8 @@ Behavior shared by the Maya and Blender UV panels.
   - `AnimationSlots.tb021(self, widget)` — Snap Fractional Key Times — the repair-scoped twin of Snap Keys.
   - `AnimationSlots.tb020(self, widget)` — Smart Bake
   - `AnimationSlots.b000(self)` — Open Shot Sequencer — native blendertk panel (anim_utils/shots/shot_sequencer), 1:1
-  - `AnimationSlots.b004(self)` — Open Shot Manifest — native blendertk panel (anim_utils/shots/shot_manifest), 1:1 with
-  - `AnimationSlots.b006(self)` — Open Key Stash — native blendertk panel (anim_utils/key_stash), 1:1 with mayatk's:
+  - `AnimationSlots.b004(self)` — Open Shot Manifest — the shared tool: CSV-driven scene assembly over linked
+  - `AnimationSlots.b006(self)` — Open Key Stash — the shared tool over ``btk.KeyStash``: park keys out of the working
 
 <a id="slots--blender--blender"></a>
 ### `slots/blender/blender.py`
@@ -1932,6 +1934,47 @@ The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 
 - **[`class ViewCombosMixin`](tentacle/tentacle/slots/tools/_shot_manifest/view_combos.py#L25)** — The view row, mixed into ``ShotManifestController``.
 
+<a id="slots--tools--_shots--controller"></a>
+### `slots/tools/_shots/controller.py`
+
+The Shots panel's controller: the scene's shot settings, the selected shot's
+
+- **[`class ShotsController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_shots/controller.py#L31)** — Business logic for the Shots settings panel.
+  - `ShotsController.remove_callbacks(self) -> None` — Remove store listeners and invalidation subscription (call on teardown).
+  - `ShotsController.refresh_state(self) -> None` — Central enable/disable refresh for all Shots UI widgets.
+  - `ShotsController.shot_label(shot) -> str` *(static)* — A shot's row in the dropdown: ``"Shot_1  [1–100]"``.
+  - `ShotsController.on_navigate_shot(self, delta: int) -> None` — Make the previous (-1) or next (+1) shot the active one.
+  - `ShotsController.on_new_shot(self) -> None` — Append a new shot and make it the active one.
+  - `ShotsController.on_detection_changed(self, value: float) -> None`
+  - `ShotsController.on_detection_mode_changed(self, index: int) -> None`
+  - `ShotsController.on_initial_length_changed(self, value: float) -> None`
+  - `ShotsController.on_snap_whole_frames_changed(self, checked: bool) -> None`
+  - `ShotsController.on_drop_stale_shots_changed(self, checked: bool) -> None` — Whether this file's exports leave its stale shots out
+  - `ShotsController.on_fit_mode_changed(self, index: int) -> None`
+  - `ShotsController.on_gap_changed(self, value, scope: str = 'all', respect_locks: bool = True) -> None` — Set the store gap and re-space per *scope*.
+  - `ShotsController.on_shot_selected(self, index: int) -> None` — User picked a different shot from the combobox.
+  - `ShotsController.on_shot_name_changed(self, text: str) -> None` — Push a name the store accepts;
+  - `ShotsController.on_shot_start_changed(self, value: float) -> None`
+  - `ShotsController.on_shot_end_changed(self, value: float) -> None`
+  - `ShotsController.on_shot_desc_changed(self, text: str) -> None`
+  - `ShotsController.delete_scope(self) -> str` — The scope Delete Shots takes (``"stale"`` until one is picked).
+  - `ShotsController.label_delete_shots(self) -> None` — Name the picked scope on Delete Shots: "Delete Empty Shots".
+  - `ShotsController.swap_mode(self) -> str` — Swap With's mode: ``"swap"`` (until one is picked) or ``"copy"``.
+  - `ShotsController.swap_target(self)` — The other shot's id -- swapped with, or copied over -- or ``None``.
+  - `ShotsController.swap_retain(self) -> list` — The fields Swap With leaves in place: its checked Retain options.
+  - `ShotsController.label_swap_shot(self, *_args) -> None` — Name the mode and the picked shot on Swap With: "Swap With: Shot_3",
+  - `ShotsController.label_shift_all(self, *_args) -> None` — Name the frame on Shift To: "Shift To: 1".
+  - `ShotsController.label_apply_gap(self, *_args) -> None` — Name the amount on Apply Gap: "Apply Gap: 12".
+  - `ShotsController.on_delete_shot(self) -> None` — Delete the active shot after confirmation.
+  - `ShotsController.confirm_removal(self, shots, scope: str = 'stale') -> bool` — Ask before ``ShotStore.remove_shots_in_scope``, naming *shots*.
+  - `ShotsController.on_delete_shots(self, scope: str = 'stale') -> None` — Delete the shots of *scope* after naming them (All Shots group).
+  - `ShotsController.on_move_shot(self) -> None` — Move the active shot to the position specified by spn_move_to.
+  - `ShotsController.on_swap_shot(self) -> None` — Swap With, in the mode its option box picks: trade the active
+  - `ShotsController.on_trim_empty(self, edge: str = 'both') -> None` — Trim empty space from the active shot, at *edge*.
+  - `ShotsController.on_trim_all_shots(self, edge: str = 'both') -> None` — Trim empty space from every shot, at *edge*.
+  - `ShotsController.on_shift_all_shots(self, start: float) -> None` — Shift every shot so the first one starts on *start*.
+  - `ShotsController.on_add_space(self, edge: str = 'leading') -> None` — Pad the active shot with ``spn_space`` frames of room at *edge*.
+
 <a id="slots--tools--_texture_combine--transfer_mode"></a>
 ### `slots/tools/_texture_combine/transfer_mode.py`
 
@@ -2603,6 +2646,44 @@ Shot Manifest: a shot sheet checked against the scene, and the shots built from 
   - `ShotManifestSlots.b002(self)` — Assess the steps against the scene.
   - `ShotManifestSlots.b003(self)` — Build shots from loaded steps (or auto-detect from scene).
   - `ShotManifestSlots.b004(self)` — Export the manifest's rows (the option menu says how).
+
+<a id="slots--tools--shots"></a>
+### `slots/tools/shots.py`
+
+Shots: the scene's shot settings, the selected shot's fields and edits, and
+
+- **[`class ShotsSlots(Slots)`](tentacle/tentacle/slots/tools/shots.py#L17)** — Switchboard slots for the ``shots.ui`` panel.
+  - `ShotsSlots.header_init(self, widget)` — Configure header help text.
+  - `ShotsSlots.spn_detection(self, value)` — Detection threshold changed.
+  - `ShotsSlots.cmb_detection_mode(self, index)` — Detection mode combobox changed.
+  - `ShotsSlots.spn_initial_length(self, value)` — Initial shot length changed.
+  - `ShotsSlots.cmb_fit_mode(self, index)` — Fit mode combobox changed.
+  - `ShotsSlots.chk_snap_whole_frames(self, checked)` — Snap-to-whole-frames checkbox toggled.
+  - `ShotsSlots.cmb_shot_select(self, index)` — Shot selector combobox changed.
+  - `ShotsSlots.txt_shot_name(self, text=None)` — Shot name edited (debounced: the field's text, not the signal's).
+  - `ShotsSlots.spn_shot_start(self, value)` — Shot start frame changed.
+  - `ShotsSlots.spn_shot_end(self, value)` — Shot end frame changed.
+  - `ShotsSlots.txt_shot_desc(self, text=None)` — Shot description edited (debounced: the field's text).
+  - `ShotsSlots.b000(self)` — Delete the selected shot.
+  - `ShotsSlots.btn_delete_shots(self)` — Delete the shots of the scope picked in the option box (All Shots).
+  - `ShotsSlots.cmb_delete_scope(self, index)` — A scope was picked: the button says what a click now deletes.
+  - `ShotsSlots.chk_drop_stale_shots(self, checked)` — Leave Stale Shots Out of Exports toggled (Delete Shots' option box).
+  - `ShotsSlots.btn_move_shot(self)` — Move shot to the position in spn_move_to.
+  - `ShotsSlots.btn_swap_shot(self)` — Swap with, or copy over, the shot picked in the option box.
+  - `ShotsSlots.cmb_swap_with(self, index)` — A shot was picked: the button names what a click swaps with.
+  - `ShotsSlots.cmb_swap_mode(self, index)` — A mode was picked: the button says what a click now does.
+  - `ShotsSlots.btn_apply_gap(self)` — Apply the gap in the option box (spn_gap) to the scope it picks.
+  - `ShotsSlots.btn_shift_all(self)` — Re-base every shot onto the frame in the option box (spn_shift_all).
+  - `ShotsSlots.btn_trim_empty(self)` — Trim both ends of the selected shot.
+  - `ShotsSlots.btn_trim_leading(self)` — Trim the selected shot's leading space.
+  - `ShotsSlots.btn_trim_trailing(self)` — Trim the selected shot's trailing space.
+  - `ShotsSlots.btn_trim_both(self)` — Trim both ends of the selected shot (option box twin of the button).
+  - `ShotsSlots.btn_trim_all(self)` — Trim both ends of every shot.
+  - `ShotsSlots.btn_trim_all_leading(self)` — Trim every shot's leading space.
+  - `ShotsSlots.btn_trim_all_trailing(self)` — Trim every shot's trailing space.
+  - `ShotsSlots.btn_trim_all_both(self)` — Trim both ends of every shot (option box twin of the button).
+  - `ShotsSlots.btn_add_leading_space(self)` — Add empty room before the selected shot.
+  - `ShotsSlots.btn_add_trailing_space(self)` — Add empty room after the selected shot.
 
 <a id="slots--tools--smart_bake"></a>
 ### `slots/tools/smart_bake.py`
