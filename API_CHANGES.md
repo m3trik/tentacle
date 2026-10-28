@@ -55,7 +55,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (85)
+## Moved out (93)
 
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin.header_init` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -142,8 +142,16 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_settings.py::SettingsMixin.tb000` → `tentacle.slots.settings.SettingsSlots` (from 0.17.0)
 - `slots/_transform.py::TransformMixin` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/_transform.py::TransformMixin.tb001_init` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b000` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b000_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b029_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.b030_init` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.cmb003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.get_map_size` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/_uv.py::UvMixin.s003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
 
-## Added (1546)
+## Added (1579)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -1688,11 +1696,44 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/utilities.py::UtilitiesSlots.b001(self)`
 - `slots/utilities.py::UtilitiesSlots.b002(self)`
 - `slots/utilities.py::UtilitiesSlots.b003(self)`
+- `slots/uv.py::UvSlots(class)`
+- `slots/uv.py::UvSlots.b000(self)`
+- `slots/uv.py::UvSlots.b000_init(self, widget)`
+- `slots/uv.py::UvSlots.b003(self)`
+- `slots/uv.py::UvSlots.b004(self)`
+- `slots/uv.py::UvSlots.b005(self)`
+- `slots/uv.py::UvSlots.b011(self)`
+- `slots/uv.py::UvSlots.b021(self, widget)`
+- `slots/uv.py::UvSlots.b029(self, widget)`
+- `slots/uv.py::UvSlots.b029_init(self, widget)`
+- `slots/uv.py::UvSlots.b030(self, widget)`
+- `slots/uv.py::UvSlots.b030_init(self, widget)`
+- `slots/uv.py::UvSlots.b031(self)`
+- `slots/uv.py::UvSlots.b032(self)`
+- `slots/uv.py::UvSlots.b033(self)`
+- `slots/uv.py::UvSlots.cmb003(self, index, widget)`
+- `slots/uv.py::UvSlots.get_map_size(self)`
+- `slots/uv.py::UvSlots.header_init(self, widget)`
+- `slots/uv.py::UvSlots.s003(self, value, widget)`
+- `slots/uv.py::UvSlots.tb000(self, widget)`
+- `slots/uv.py::UvSlots.tb000_init(self, widget)`
+- `slots/uv.py::UvSlots.tb001(self, widget)`
+- `slots/uv.py::UvSlots.tb001_init(self, widget)`
+- `slots/uv.py::UvSlots.tb004(self, widget)`
+- `slots/uv.py::UvSlots.tb004_init(self, widget)`
+- `slots/uv.py::UvSlots.tb007(self, widget)`
+- `slots/uv.py::UvSlots.tb007_init(self, widget)`
+- `slots/uv.py::UvSlots.tb009(self, widget)`
+- `slots/uv.py::UvSlots.tb009_init(self, widget)`
+- `slots/uv.py::UvSlots.tb022(self, widget)`
+- `slots/uv.py::UvSlots.tb022_init(self, widget)`
+- `slots/uv.py::UvSlots.uv_editor(self)`
+- `slots/uv.py::UvSlots.uv_snapshot(self)`
 - `tcl.py::Tcl.register_shared(switchboard)`
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
-## Moved (677)
+## Moved (726)
 
 _Still resolvable at the same call site -- hoisted to a base class or re-exported from another module. NOT a removal: no alias or minor bump is owed._
 
@@ -2030,6 +2071,31 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/blender/utilities.py::UtilitiesSlots.b001`
 - `slots/blender/utilities.py::UtilitiesSlots.b002`
 - `slots/blender/utilities.py::UtilitiesSlots.b003`
+- `slots/blender/uv.py::UvSlots`
+- `slots/blender/uv.py::UvSlots.b003`
+- `slots/blender/uv.py::UvSlots.b004`
+- `slots/blender/uv.py::UvSlots.b005`
+- `slots/blender/uv.py::UvSlots.b011`
+- `slots/blender/uv.py::UvSlots.b021`
+- `slots/blender/uv.py::UvSlots.b029`
+- `slots/blender/uv.py::UvSlots.b030`
+- `slots/blender/uv.py::UvSlots.b031`
+- `slots/blender/uv.py::UvSlots.b032`
+- `slots/blender/uv.py::UvSlots.b033`
+- `slots/blender/uv.py::UvSlots.header_init`
+- `slots/blender/uv.py::UvSlots.tb000`
+- `slots/blender/uv.py::UvSlots.tb000_init`
+- `slots/blender/uv.py::UvSlots.tb001`
+- `slots/blender/uv.py::UvSlots.tb001_init`
+- `slots/blender/uv.py::UvSlots.tb004`
+- `slots/blender/uv.py::UvSlots.tb004_init`
+- `slots/blender/uv.py::UvSlots.tb007`
+- `slots/blender/uv.py::UvSlots.tb007_init`
+- `slots/blender/uv.py::UvSlots.tb009`
+- `slots/blender/uv.py::UvSlots.tb009_init`
+- `slots/blender/uv.py::UvSlots.tb022`
+- `slots/blender/uv.py::UvSlots.tb022_init`
+- `slots/blender/uv.py::UvSlots.uv_snapshot`
 - `slots/maya/cameras.py::CamerasSlots`
 - `slots/maya/cameras.py::CamerasSlots.b000`
 - `slots/maya/cameras.py::CamerasSlots.b001`
@@ -2373,3 +2439,27 @@ _Still resolvable at the same call site -- hoisted to a base class or re-exporte
 - `slots/maya/utilities.py::UtilitiesSlots.b001`
 - `slots/maya/utilities.py::UtilitiesSlots.b002`
 - `slots/maya/utilities.py::UtilitiesSlots.b003`
+- `slots/maya/uv.py::UvSlots`
+- `slots/maya/uv.py::UvSlots.b003`
+- `slots/maya/uv.py::UvSlots.b004`
+- `slots/maya/uv.py::UvSlots.b005`
+- `slots/maya/uv.py::UvSlots.b011`
+- `slots/maya/uv.py::UvSlots.b021`
+- `slots/maya/uv.py::UvSlots.b029`
+- `slots/maya/uv.py::UvSlots.b030`
+- `slots/maya/uv.py::UvSlots.b031`
+- `slots/maya/uv.py::UvSlots.b032`
+- `slots/maya/uv.py::UvSlots.b033`
+- `slots/maya/uv.py::UvSlots.header_init`
+- `slots/maya/uv.py::UvSlots.tb000`
+- `slots/maya/uv.py::UvSlots.tb000_init`
+- `slots/maya/uv.py::UvSlots.tb001`
+- `slots/maya/uv.py::UvSlots.tb001_init`
+- `slots/maya/uv.py::UvSlots.tb004`
+- `slots/maya/uv.py::UvSlots.tb004_init`
+- `slots/maya/uv.py::UvSlots.tb007`
+- `slots/maya/uv.py::UvSlots.tb007_init`
+- `slots/maya/uv.py::UvSlots.tb009`
+- `slots/maya/uv.py::UvSlots.tb009_init`
+- `slots/maya/uv.py::UvSlots.tb022`
+- `slots/maya/uv.py::UvSlots.tb022_init`

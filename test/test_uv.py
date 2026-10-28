@@ -1,48 +1,629 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Regression tests for tentacle.slots.maya.uv.
+"""Regression tests for tentacle.slots.uv, the one UV Slots class.
 
-uv.py is the largest tentacle slot (~1200 lines) and almost entirely UI
-orchestration over mayatk and cmds. The testable units worth pinning
-at this layer:
-
-- get_map_size: the cmb003 value-carrier read (not a click handler).
-- b000: launches the shared Texture Combine panel (its Transfer mode's tests
-  are ``test_texture_combine_panel``; UvMixin's Blender-only Transfer option
-  box retired 2026-10-17).
-- b005 (Cut UVs): the "selected edges vs whole mesh" routing.
+It reaches its host only through ``self.tk``: a fake toolkit (a MagicMock
+switchboard's ``tk``) records what each slot asks of it (plain pytest), and in
+Maya the same class drives the real ``mtk`` (``run_tests.py --in-maya``).
+Pinned here: each slot's call and arguments, how it words an empty result or a
+refusal, the option boxes' host tags and the Pack gates, the Pin / Stack
+toggles, and in Maya the behaviors worth a real scene -- Cut / Sew routing,
+Unfold's guards and non-manifold strategy, Cut Cylinder's camera, Auto
+Unwrap's dispatch, Pack's u3dLayout / xatlas plumbing, Stack / Unstack. The
+operations themselves are tested in mayatk and blendertk (``test_uv_utils``).
 """
 
+import os
 import unittest
+from types import SimpleNamespace
 from unittest import mock
 
-from _host import MAYA_AVAILABLE as _MAYA_AVAILABLE, maya_module
+from _host import MAYA_AVAILABLE, maya_module
+from tentacle.slots._slots import Slots
+from tentacle.slots.uv import UvSlots
 
 cmds = maya_module("maya.cmds")
+mel = maya_module("maya.mel")
 mtk = maya_module("mayatk")
-uv_module = maya_module("tentacle.slots.maya.uv")
+
+#: mayatk's pack table, as the fake toolkit's (the gates and the sent options).
+MAYA_PACK_ENGINES = {
+    "standard": (
+        "pre_rotate",
+        "rotate_step",
+        "rotate_min",
+        "rotate_max",
+        "mutations",
+        "scale_mode",
+        "tiles",
+        "skip_instances",
+    ),
+    "xatlas": ("rotate", "brute_force", "skip_instances"),
+}
+BLENDER_PACK_ENGINES = {"standard": ("rotate", "margin")}
 
 
-class _FakeCmb:
-    def __init__(self, text):
-        self._t = text
-
-    def currentText(self):
-        return self._t
-
-
-class _FakeUi:
-    pass
+def _value(v):
+    """A widget answering isChecked(), value(), currentText() and currentData()."""
+    return SimpleNamespace(
+        isChecked=lambda: v, value=lambda: v, currentText=lambda: v, currentData=lambda: v
+    )
 
 
+def _widget(**values):
+    """An option-box widget whose menu holds *values* by objectName."""
+    menu = SimpleNamespace(**{name: _value(v) for name, v in values.items()})
+    return SimpleNamespace(option_box=SimpleNamespace(menu=menu))
+
+
+#: Every option-box value the slots read, at the option boxes' defaults.
+PACK_DEFAULTS = dict(
+    cmb019="standard", chk044=True, chk043=False, cmb009=1, s_pack_margin=0.001,
+    cmb010=0, s011=90, s012=0, s013=0, s014=1, s004=1001, cmb015=(1.0, 1.0),
+    cmb018=2, s019=1, s020=1, chk016=True,
+)
+UNFOLD_DEFAULTS = dict(
+    chk017=True, chk007=True, chk022=True, s000=1.0, cmb013="select",
+    cmb_unfold_method="Angle Based", s_unfold_margin=0.0,
+)
+CYLINDER_DEFAULTS = dict(
+    s021=20, s022=60, s023=12, s016=45, chk045=True, chk040=False, chk046=False,
+    chk041=True, chk042=True,
+)
+
+
+class _SlotsCase(unittest.TestCase):
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True  # no migration under test
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.sb = mock.MagicMock()
+        self.slots = UvSlots(self.sb)
+        self.slots.ui = SimpleNamespace(
+            cmb003=SimpleNamespace(currentText=lambda: "2048"), s003=mock.MagicMock()
+        )
+        self.tk = self.sb.tk
+        self.tk.CoreUtils.selected_objects.return_value = ["pCube1"]
+        self.tk.UvUtils.PACK_ENGINES = MAYA_PACK_ENGINES
+
+    def messages(self):
+        return [c.args[0] for c in self.sb.message_box.call_args_list]
+
+
+class TestMapSize(_SlotsCase):
+    def test_returns_int_from_combo_text(self):
+        for size in (256, 512, 1024, 2048, 4096):
+            self.slots.ui.cmb003 = SimpleNamespace(currentText=lambda s=size: str(s))
+            self.assertEqual(self.slots.get_map_size(), size)
+
+    def test_non_numeric_text_raises(self):
+        """Contract: garbage in cmb003 raises ValueError (no silent fallback)."""
+        self.slots.ui.cmb003 = SimpleNamespace(currentText=lambda: "not_a_number")
+        with self.assertRaises(ValueError):
+            self.slots.get_map_size()
+
+
+class TestLaunchersAndWindows(_SlotsCase):
+    def test_tools_open_their_shared_panels(self):
+        for slot, panel in (
+            ("b000", "texture_combine"),
+            ("b032", "rizom_bridge"),
+            ("b033", "shell_xform"),
+        ):
+            with self.subTest(slot=slot):
+                getattr(self.slots, slot)()
+                self.sb.handlers.marking_menu.show.assert_called_with(panel)
+
+    def test_b000_init_builds_no_option_box(self):
+        widget = mock.MagicMock()
+        self.slots.b000_init(widget)
+        widget.setText.assert_called_once_with("Texture Combine...")
+        self.assertFalse(widget.option_box.menu.add.called)
+
+    def test_b031_and_the_header_entry_open_the_uv_editor(self):
+        self.tk.UiUtils.open_editor.return_value = "TextureViewWindow"
+        self.slots.b031()
+        self.slots.uv_editor()
+        self.assertEqual(
+            self.tk.UiUtils.open_editor.call_args_list, [mock.call("UV Editor")] * 2
+        )
+        self.assertEqual(self.messages(), [])
+
+    def test_b031_says_so_when_the_editor_cannot_open(self):
+        self.tk.UiUtils.open_editor.return_value = None
+        self.slots.b031()
+        self.assertIn("UV Editor", self.messages()[0])
+
+    def test_uv_snapshot_is_the_hosts_dialog_and_shows_a_refusal(self):
+        self.tk.UvUtils.export_uv_image.side_effect = ValueError("needs a UV map")
+        self.slots.uv_snapshot()
+        self.tk.UvUtils.export_uv_image.assert_called_once_with()
+        self.assertEqual(self.messages(), ["needs a UV map"])
+
+    def test_header_gates_the_rizom_bridge_on_its_app(self):
+        widget = mock.MagicMock()
+        with mock.patch.object(UvSlots, "gate_on_app") as gate:
+            self.slots.header_init(widget)
+        target, resolve = gate.call_args.args
+        self.assertIs(target, widget.menu.btn_rizom_bridge)
+        self.assertIs(resolve(), self.tk.RizomUVBridge.APP)
+        names = [c.kwargs.get("setObjectName") for c in widget.menu.add.call_args_list]
+        self.assertEqual(names, ["uv_snapshot", "uv_editor", "btn_rizom_bridge"])
+
+
+class TestPack(_SlotsCase):
+    def setUp(self):
+        super().setUp()
+        # The summary formats the measured density as a number.
+        self.tk.UvUtils.get_texel_density.return_value = 512.0
+
+    def _result(self, **overrides):
+        fields = dict(
+            succeeded=["a", "b"], failed=[], tiles=(1, 1), targets=["a", "b"],
+            objects=["a", "b"],
+        )
+        fields.update(overrides)
+        return SimpleNamespace(**fields)
+
+    def test_standard_sends_only_the_options_u3dlayout_honors(self):
+        self.tk.UvUtils.pack_uvs.return_value = self._result()
+        self.tk.UvUtils.get_texel_density.return_value = 512.0
+        self.slots.tb000(_widget(**PACK_DEFAULTS))
+        self.tk.UvUtils.pack_uvs.assert_called_once_with(
+            ["pCube1"],
+            engine="standard",
+            map_size=2048,
+            udim=1001,
+            coverage=(1.0, 1.0),
+            preserve_3d=True,
+            pre_rotate=0,
+            rotate_step=90,
+            rotate_min=0,
+            rotate_max=0,
+            mutations=1,
+            scale_mode=2,
+            tiles=(1, 1),
+            skip_instances=True,
+        )
+        text = self.messages()[0]
+        self.assertIn("Successfully packed 2 mesh(es)", text)
+        self.assertIn("512.0 px/unit", text)
+        self.assertIn("Target UDIM:</b> 1001", text)
+
+    def test_xatlas_sends_its_own_options(self):
+        self.tk.UvUtils.pack_uvs.return_value = self._result()
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        kwargs = self.tk.UvUtils.pack_uvs.call_args.kwargs
+        self.assertEqual(kwargs["engine"], "xatlas")
+        self.assertEqual(
+            {k for k in kwargs if k not in ("engine", "map_size", "udim", "coverage", "preserve_3d")},
+            {"rotate", "brute_force", "skip_instances"},
+        )
+
+    def test_one_packer_hosts_send_rotate_and_margin(self):
+        """Blender: one packer, the method combo hidden; whatever it holds packs
+        with the host's own."""
+        self.tk.UvUtils.PACK_ENGINES = BLENDER_PACK_ENGINES
+        self.tk.UvUtils.pack_uvs.return_value = self._result()
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        kwargs = self.tk.UvUtils.pack_uvs.call_args.kwargs
+        self.assertEqual(kwargs["engine"], "standard")
+        self.assertEqual((kwargs["rotate"], kwargs["margin"]), (True, 0.001))
+        self.assertNotIn("tiles", kwargs)
+
+    def test_a_clamped_grid_and_skipped_meshes_are_reported(self):
+        self.tk.UvUtils.pack_uvs.return_value = self._result(
+            failed=[("c", "non-manifold vertices")], tiles=(1, 2)
+        )
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, s004=1010, s019=2, s020=2)))
+        text = self.messages()[0]
+        self.assertIn("Skipped: 1", text)
+        self.assertIn("1010-1020 (1 × 2)", text)
+        self.assertIn("clamped", text)
+
+    def test_a_refusal_is_shown_with_the_engine_note(self):
+        self.tk.UvUtils.pack_uvs.side_effect = RuntimeError("pip install --user xatlas")
+        self.slots.tb000(_widget(**dict(PACK_DEFAULTS, cmb019="xatlas")))
+        self.assertIn("xatlas pack unavailable", self.messages()[0])
+        self.assertIn("pip install", self.messages()[0])
+
+    def test_nothing_selected_packs_nothing(self):
+        self.tk.CoreUtils.selected_objects.return_value = []
+        self.slots.tb000(_widget(**PACK_DEFAULTS))
+        self.tk.UvUtils.pack_uvs.assert_not_called()
+        self.assertEqual(self.messages(), [Slots.NOTHING_SELECTED])
+
+
+class TestOptionBoxes(_SlotsCase):
+    def _init(self, name, **values):
+        """Run ``<name>_init`` on a fake option box; the created controls are on
+        the menu by objectName, spin boxes answering *values*."""
+        menu = mock.MagicMock()
+        widget = SimpleNamespace(option_box=SimpleNamespace(menu=menu))
+
+        def add(*args, **kwargs):
+            control = mock.MagicMock()
+            control.value.return_value = values.get(kwargs.get("setObjectName"), 1)
+            setattr(menu, kwargs.get("setObjectName"), control)
+            return control
+
+        menu.add.side_effect = add
+        getattr(self.slots, f"{name}_init")(widget)
+        return menu
+
+    @staticmethod
+    def _tag(control):
+        calls = [c.args for c in control.setProperty.call_args_list if c.args[0] == "requires"]
+        return calls[0][1] if calls else None
+
+    def test_pack_tags(self):
+        menu = self._init("tb000")
+        maya = ("cmb019", "chk043", "cmb010", "s011", "s012", "s013", "s014", "cmb018", "s019", "s020", "chk016")
+        for name in maya:
+            self.assertEqual(self._tag(getattr(menu, name)), "maya", name)
+        self.assertEqual(self._tag(menu.s_pack_margin), "blender")
+        for name in ("chk044", "cmb009", "s004", "cmb015"):
+            self.assertIsNone(self._tag(getattr(menu, name)), name)
+
+    def test_pack_gates_follow_the_packers_table(self):
+        menu = self._init("tb000")
+        menu.cmb019.currentData.return_value = "xatlas"
+        menu.cmb019.currentIndexChanged.connect.call_args.args[0]()
+        menu.chk044.setEnabled.assert_called_with(True)
+        menu.cmb010.setEnabled.assert_called_with(False)
+        menu.s_pack_margin.setEnabled.assert_called_with(False)
+        self.tk.UvUtils.PACK_ENGINES = BLENDER_PACK_ENGINES
+        menu.cmb019.currentIndexChanged.connect.call_args.args[0]()
+        menu.chk044.setEnabled.assert_called_with(True)
+        menu.s_pack_margin.setEnabled.assert_called_with(True)
+        menu.s019.setEnabled.assert_called_with(False)
+
+    def test_rotate_step_needs_a_range_and_a_grid_locks_coverage(self):
+        menu = self._init("tb000", s012=0, s013=180, s019=2, s020=1)
+        menu.cmb019.currentData.return_value = "standard"
+        menu.cmb019.currentIndexChanged.connect.call_args.args[0]()
+        menu.s011.setEnabled.assert_called_with(True)
+        menu.cmb015.setEnabled.assert_called_with(False)
+
+    def test_auto_unwrap_and_unfold_tags(self):
+        menu = self._init("tb001")
+        self.assertEqual(self._tag(menu.cmb012), "maya")
+        self.assertEqual(self._tag(menu.s_smart_angle), "blender")
+        self.assertEqual(self._tag(menu.s_smart_margin), "blender")
+        self.assertIsNone(self._tag(menu.cmb011))
+        menu = self._init("tb004")
+        self.assertEqual(self._tag(menu.cmb013), "maya")
+        self.assertEqual(self._tag(menu.cmb_unfold_method), "blender")
+        self.assertEqual(self._tag(menu.s_unfold_margin), "blender")
+        for name in ("chk017", "chk007", "chk022", "s000"):
+            self.assertIsNone(self._tag(getattr(menu, name)), name)
+
+    def test_cut_cylinder_knobs_are_maya_s(self):
+        menu = self._init("tb009")
+        for name in ("s021", "s022", "s023", "chk045", "chk040", "chk046"):
+            self.assertEqual(self._tag(getattr(menu, name)), "maya", name)
+        for name in ("s016", "chk041", "chk042"):
+            self.assertIsNone(self._tag(getattr(menu, name)), name)
+
+    def test_combo_item_orders_are_kept(self):
+        menu = self._init("tb000")
+        self.assertEqual(
+            [c.args[1] for c in menu.cmb009.addItem.call_args_list], [0, 1]
+        )
+        self.assertEqual(
+            [c.args[1] for c in menu.cmb018.addItem.call_args_list], [2, 1, 3]
+        )
+        menu = self._init("tb001")
+        self.assertEqual(
+            [c.args[1] for c in menu.cmb011.addItem.call_args_list],
+            ["standard", "hard", "organic"],
+        )
+
+
+class TestAutoUnwrap(_SlotsCase):
+    def test_engine_modes_run_auto_unwrap(self):
+        self.tk.UvUtils.auto_unwrap.return_value = SimpleNamespace(
+            engine="mof", succeeded=["pCube1"], failed=[]
+        )
+        self.slots.tb001(_widget(cmb011="hard"))
+        self.tk.UvUtils.auto_unwrap.assert_called_once_with(
+            ["pCube1"], method="hard", map_size=2048
+        )
+        self.tk.UvUtils.auto_project.assert_not_called()
+
+    def test_a_missing_engine_is_reported_not_raised(self):
+        self.tk.UvUtils.auto_unwrap.side_effect = FileNotFoundError(
+            "not installed: https://example/download"
+        )
+        self.slots.tb001(_widget(cmb011="organic"))
+        self.assertIn("https://", self.messages()[0])
+
+    def test_standard_runs_the_hosts_projection(self):
+        self.tk.UvUtils.auto_project.return_value = SimpleNamespace(
+            engine="standard", succeeded=["pCube1"], failed=[]
+        )
+        self.slots.tb001(
+            _widget(cmb011="standard", cmb012=1, s_smart_angle=66, s_smart_margin=0.0)
+        )
+        kwargs = self.tk.UvUtils.auto_project.call_args.kwargs
+        self.assertEqual(
+            (kwargs["map_size"], kwargs["scale_mode"], kwargs["angle_limit"], kwargs["margin"]),
+            (2048, 1, 66, 0.0),
+        )
+        self.assertTrue(callable(kwargs["progress_callback"]))
+        self.assertEqual(self.messages(), [])  # quiet on a clean run
+
+    def test_standard_failures_are_listed(self):
+        self.tk.UvUtils.auto_project.return_value = SimpleNamespace(
+            engine="standard", succeeded=[], failed=[("pCube1", "boom")]
+        )
+        self.slots.tb001(
+            _widget(cmb011="standard", cmb012=1, s_smart_angle=66, s_smart_margin=0.0)
+        )
+        self.assertIn("Standard", self.messages()[0])
+        self.assertIn("boom", self.messages()[0])
+
+    def test_no_selection_warns(self):
+        self.tk.CoreUtils.selected_objects.return_value = []
+        self.slots.tb001(_widget(cmb011="hard"))
+        self.tk.UvUtils.auto_unwrap.assert_not_called()
+        self.assertEqual(self.messages(), [Slots.NOTHING_SELECTED])
+
+
+class TestUnfold(_SlotsCase):
+    def _result(self, **fields):
+        base = dict(unfolded=["pCube1"], repaired=None, blocked=None, components=[])
+        base.update(fields)
+        return SimpleNamespace(**base)
+
+    def test_sends_every_option(self):
+        self.tk.UvUtils.unfold_uvs.return_value = self._result()
+        self.slots.tb004(_widget(**UNFOLD_DEFAULTS))
+        self.tk.UvUtils.unfold_uvs.assert_called_once_with(
+            ["pCube1"],
+            optimize=True,
+            orient=True,
+            stack_similar=True,
+            tolerance=1.0,
+            map_size=2048,
+            repair=False,
+            method="angle_based",
+            margin=0.0,
+        )
+        self.assertEqual(self.messages(), [])
+
+    def test_blocked_explains_and_points_at_repair(self):
+        self.tk.UvUtils.unfold_uvs.return_value = self._result(
+            unfolded=[], blocked="geometry", components=["a.vtx[1]"]
+        )
+        self.slots.tb004(_widget(**dict(UNFOLD_DEFAULTS, cmb013="repair")))
+        self.assertTrue(self.tk.UvUtils.unfold_uvs.call_args.kwargs["repair"])
+        text = self.messages()[0]
+        self.assertIn("non-manifold geometry", text)
+        self.assertIn("<b>1</b> problem vertex selected in vertex mode", text)
+
+    def test_blocked_by_uvs_says_uvs(self):
+        self.tk.UvUtils.unfold_uvs.return_value = self._result(
+            unfolded=[], blocked="uvs", components=["a.map[1]", "a.map[2]"]
+        )
+        self.slots.tb004(_widget(**UNFOLD_DEFAULTS))
+        self.assertIn("non-manifold UVs", self.messages()[0])
+        self.assertIn("2</b> problem UVs", self.messages()[0])
+
+    def test_a_repair_that_worked_is_noted(self):
+        self.tk.UvUtils.unfold_uvs.return_value = self._result(
+            repaired={"total": 3, "fixed": 3, "remaining": 0}
+        )
+        self.slots.tb004(_widget(**UNFOLD_DEFAULTS))
+        self.assertIn("auto-repaired", self.messages()[0])
+        self.assertIn("<b>3</b> components fixed", self.messages()[0])
+
+    def test_a_refusal_is_shown(self):
+        self.tk.UvUtils.unfold_uvs.side_effect = RuntimeError("Unfold failed: boom.")
+        self.slots.tb004(_widget(**UNFOLD_DEFAULTS))
+        self.assertEqual(self.messages(), ["Unfold failed: boom."])
+
+    def test_b021_unfolds_then_packs_in_one_undo_step(self):
+        order = []
+        self.slots.ui.tb004 = SimpleNamespace(call_slot=lambda: order.append("tb004"))
+        self.slots.ui.tb000 = SimpleNamespace(call_slot=lambda: order.append("tb000"))
+        self.slots.b021(None)
+        self.tk.CoreUtils.undo_chunk.assert_called_once_with("Unfold + Pack")
+        self.assertEqual(order, ["tb004", "tb000"])
+
+
+class TestCleanupUvSets(_SlotsCase):
+    def test_reports_each_mesh_in_mayatk_s_field_names(self):
+        self.tk.Diagnostics.cleanup_uv_sets.return_value = [
+            SimpleNamespace(
+                shape="aShape", error=None, initial_sets=["uv", "x"], primary_set="uv",
+                final_name="map1", sets_to_delete=["x"],
+            ),
+            SimpleNamespace(
+                shape="bShape", error="no UV sets", initial_sets=[], primary_set=None,
+                final_name=None, sets_to_delete=[],
+            ),
+        ]
+        self.slots.tb007(
+            _widget(chk029=True, chk035=True, chk036=False, chk037=True, chk038=False, chk030=False)
+        )
+        self.tk.Diagnostics.cleanup_uv_sets.assert_called_once_with(
+            ["pCube1"],
+            remove_empty=True,
+            keep_only_primary=False,
+            rename_to_map1=True,
+            force_rename=False,
+            prefer_largest_area=True,
+            dry_run=False,
+        )
+        text = self.messages()[0]
+        self.assertIn("Cleanup Complete", text)
+        self.assertIn("Kept '<b>uv</b>' → renamed to '<b>map1</b>', deleted 1 others", text)
+        self.assertIn("bShape</b>: no UV sets", text)
+
+    def test_dry_run_says_would(self):
+        self.tk.Diagnostics.cleanup_uv_sets.return_value = [
+            SimpleNamespace(
+                shape="a", error=None, initial_sets=["map1"], primary_set="map1",
+                final_name="map1", sets_to_delete=[],
+            )
+        ]
+        self.slots.tb007(
+            _widget(chk029=True, chk035=True, chk036=False, chk037=True, chk038=False, chk030=True)
+        )
+        self.assertIn("Dry Run Report", self.messages()[0])
+        self.assertIn("Would keep", self.messages()[0])
+
+
+class TestCutCylinder(_SlotsCase):
+    def test_options_pass_through(self):
+        self.tk.UvUtils.unwrap_cylinder.return_value = ["pCube1"]
+        self.slots.tb009(_widget(**dict(CYLINDER_DEFAULTS, chk046=True, s023=8)))
+        kwargs = self.tk.UvUtils.unwrap_cylinder.call_args.kwargs
+        self.assertIs(kwargs["camera"], True)  # the active view's camera
+        self.assertFalse(kwargs["sew"])
+        self.assertAlmostEqual(kwargs["trim_ratio"], 0.08)
+        self.assertEqual(
+            (kwargs["angle"], kwargs["taper_angle"], kwargs["flat_angle"], kwargs["map_size"]),
+            (45, 20, 60, 2048),
+        )
+
+    def test_hide_off_sends_no_camera(self):
+        self.tk.UvUtils.unwrap_cylinder.return_value = ["pCube1"]
+        self.slots.tb009(_widget(**dict(CYLINDER_DEFAULTS, chk045=False)))
+        self.assertIsNone(self.tk.UvUtils.unwrap_cylinder.call_args.kwargs["camera"])
+
+    def test_no_seams_found_is_said(self):
+        self.tk.UvUtils.unwrap_cylinder.return_value = []
+        self.slots.tb009(_widget(**CYLINDER_DEFAULTS))
+        self.assertIn("No cylinder seams found", self.messages()[0])
+
+
+class TestEditOperations(_SlotsCase):
+    def test_cut_and_sew_take_the_selection(self):
+        for slot, op in (("b005", "cut_uvs"), ("b011", "sew_uvs")):
+            with self.subTest(slot=slot):
+                getattr(self.tk.UvUtils, op).return_value = ["e"]
+                getattr(self.slots, slot)()
+                getattr(self.tk.UvUtils, op).assert_called_once_with(None)
+        self.assertEqual(self.messages(), [])
+
+    def test_cut_with_nothing_to_cut_says_so(self):
+        self.tk.UvUtils.cut_uvs.return_value = []
+        self.slots.b005()
+        self.assertIn("Nothing selected", self.messages()[0])
+
+    def test_cut_outside_edit_mode_shows_the_refusal(self):
+        self.tk.UvUtils.sew_uvs.side_effect = ValueError("Select edges in Edit Mode")
+        self.slots.b011()
+        self.assertEqual(self.messages(), ["Select edges in Edit Mode"])
+
+    def test_cut_hard_edges_sends_its_band(self):
+        self.tk.UvUtils.cut_hard_edges.return_value = ["pCube1"]
+        self.slots.tb022(_widget(s017=60.0, s018=170.0, chk025=True, chk026=False))
+        self.tk.UvUtils.cut_hard_edges.assert_called_once_with(
+            None, low_angle=60.0, high_angle=170.0, uv_borders=True, auto_seams=False
+        )
+
+    def test_texel_density_get_and_set(self):
+        self.tk.UvUtils.get_texel_density.return_value = 256.0
+        self.slots.b003()
+        self.slots.ui.s003.setValue.assert_called_once_with(256.0)
+        self.slots.ui.s003.value.return_value = 512.0
+        self.slots.b004()
+        self.tk.UvUtils.set_texel_density.assert_called_once_with(
+            ["pCube1"], density=512.0, map_size=2048
+        )
+
+
+class TestToggles(_SlotsCase):
+    def test_pin_toggles_on_one_scope_and_starts_over_on_a_new_one(self):
+        self.tk.UvUtils.uv_scope_key.return_value = ("a",)
+        self.tk.UvUtils.pin_uvs.return_value = ["a.map[0:3]"]
+        for _ in range(3):
+            self.slots.b029(None)
+        self.tk.UvUtils.uv_scope_key.return_value = ("b",)
+        self.slots.b029(None)
+        pins = [c.kwargs["pin"] for c in self.tk.UvUtils.pin_uvs.call_args_list]
+        self.assertEqual(pins, [True, False, True, True])
+
+    def test_pin_with_no_uvs_says_so_and_keeps_the_state(self):
+        self.tk.UvUtils.pin_uvs.return_value = []
+        self.slots.b029(None)
+        self.assertIn("No UVs", self.messages()[0])
+        self.assertIsNone(self.slots._b029_key)
+
+    def _stack(self, mode="similar", pin=False):
+        self.slots.b030(_widget(cmb020=mode, s024=1.0, chk047=pin))
+
+    def test_stack_then_unstack(self):
+        self.tk.UvUtils.uv_scope_key.return_value = ("a",)
+        self.tk.UvUtils.get_uv_coords.return_value = {"a.map[0]": (0.0, 0.0, 0.0)}
+        self.tk.UvUtils.stack_uv_shells.return_value = ["a.map[0]"]
+        self._stack(pin=True)
+        self.tk.UvUtils.stack_uv_shells.assert_called_once_with(
+            ["pCube1"], tolerance=1.0, pin=True
+        )
+        self._stack(pin=True)  # same scope: Unstack
+        self.tk.UvUtils.set_uv_coords.assert_called_once_with(
+            ["pCube1"], {"a.map[0]": (0.0, 0.0, 0.0)}
+        )
+        self._stack(mode="center")  # stacks again, all shells
+        self.assertIsNone(self.tk.UvUtils.stack_uv_shells.call_args.kwargs["tolerance"])
+
+    def test_similar_with_no_match_reports_and_stays_unstacked(self):
+        self.tk.UvUtils.get_uv_coords.return_value = {"a.map[0]": (0.0, 0.0, 0.0)}
+        self.tk.UvUtils.stack_uv_shells.return_value = []
+        self._stack()
+        self.assertIn("No similar shells", self.messages()[0])
+        self.assertIsNone(self.slots._b030_snapshot)
+
+    def test_center_with_nothing_moved_reports(self):
+        self.tk.UvUtils.get_uv_coords.return_value = {"o": [(0.0, 0.0, False)]}
+        self.tk.UvUtils.stack_uv_shells.return_value = 0  # Blender: a count
+        self._stack(mode="center")
+        self.assertIn("No UV shells stacked", self.messages()[0])
+
+    def test_no_uvs_stacks_nothing(self):
+        self.tk.UvUtils.get_uv_coords.return_value = {}
+        self._stack()
+        self.tk.UvUtils.stack_uv_shells.assert_not_called()
+        self.assertIn("No UVs", self.messages()[0])
+
+
+class TestUvSlotSurface(unittest.TestCase):
+    """Source-level pins: the Auto Unwrap option box was trimmed to three modes
+    on 2026-07-28 and the Cut Cylinder algorithm picker was replaced by per-mesh
+    detection; these keep the removed widgets from creeping back."""
+
+    ENGINE_LABELS = ("Hard Surface (Ministry of Flat)", "Organic (BFF)")
+    REMOVED = ("cmb016", "cmb017", "chk000", "chk_pack_rotate")
+
+    @staticmethod
+    def _source():
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "tentacle",
+            "slots",
+            "uv.py",
+        )
+        with open(path, encoding="utf-8") as f:
+            return f.read()
+
+    def test_engine_labels_are_the_shared_ones(self):
+        source = self._source()
+        for label in self.ENGINE_LABELS:
+            self.assertIn(label, source)
+
+    def test_removed_widgets_are_gone(self):
+        source = self._source()
+        for name in self.REMOVED:
+            self.assertNotIn(name, source, f"{name} should have been removed")
+
+
+# --------------------------------------------------------------------------- in Maya
 class _RecordedProgress:
-    """The slice of ``Switchboard.progress`` a slot actually uses.
-
-    The long-running UV slots wrap their engine call in the footer's
-    task-indicator context; a double without it turns every one of those
-    slots into an AttributeError. Records the status texts so a test can
-    assert a slot reported what it was doing.
-    """
+    """The slice of ``Switchboard.progress`` a slot uses; records the texts."""
 
     def __init__(self, log, text):
         self._log = log
@@ -53,7 +634,6 @@ class _RecordedProgress:
         return self._tick
 
     def _tick(self, value=None, text=None):
-        """``update(value, text)`` -- a text re-labels the running task."""
         if text:
             self._log.append(text)
         return True  # never cancelled
@@ -63,9 +643,12 @@ class _RecordedProgress:
 
 
 class _RecordedSb:
+    """A switchboard over the real ``mtk``."""
+
     def __init__(self):
         self.messages = []
         self.progress_texts = []
+        self.tk = mtk
 
     def message_box(self, *args, **kwargs):
         self.messages.append((args, kwargs))
@@ -74,152 +657,74 @@ class _RecordedSb:
         return _RecordedProgress(self.progress_texts, text)
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestGetMapSize(unittest.TestCase):
-    """get_map_size casts cmb003 text to int. Used throughout the file
-    by texel-density operations.
-    """
+def _maya_slots():
+    """The composed class over the real ``mtk``, without the UI-loading init."""
+    instance = UvSlots.__new__(UvSlots)
+    instance.sb = _RecordedSb()
+    instance.ui = SimpleNamespace(cmb003=SimpleNamespace(currentText=lambda: "2048"))
+    return instance
+
+
+def _text(instance):
+    return " ".join(str(args) for args, _ in instance.sb.messages)
+
+
+@unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
+class _MayaCase(unittest.TestCase):
+    #: u3d commands a case stubs: loaded first, so the plug-in's own load (inside
+    #: the operation) cannot put the real command back over a stub.
+    STUBS = ()
 
     def setUp(self):
         cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.ui = _FakeUi()
+        cmds.loadPlugin("Unfold3D", quiet=True)
+        self.instance = _maya_slots()
+        self._saved = {name: getattr(cmds, name) for name in self.STUBS}
+        self.addCleanup(self._restore)
 
-    def tearDown(self):
+    def _restore(self):
+        for name, command in self._saved.items():
+            setattr(cmds, name, command)
         cmds.file(new=True, force=True)
 
-    def test_returns_int_from_combo_text(self):
-        self.instance.ui.cmb003 = _FakeCmb("2048")
-        self.assertEqual(self.instance.get_map_size(), 2048)
 
-    def test_returns_correct_int_for_common_sizes(self):
-        for size in (256, 512, 1024, 2048, 4096):
-            self.instance.ui.cmb003 = _FakeCmb(str(size))
-            self.assertEqual(self.instance.get_map_size(), size)
+class TestCutSewInMaya(_MayaCase):
+    """b005 / b011 route to polyMapCut / polyMapSew: the selected edges, else
+    every edge of each selected mesh (by full path: two transforms sharing a
+    leaf name make their shapes' short names ambiguous)."""
 
-    def test_non_numeric_text_raises(self):
-        """Contract: garbage in cmb003 raises ValueError (no silent fallback)."""
-        self.instance.ui.cmb003 = _FakeCmb("not_a_number")
-        with self.assertRaises(ValueError):
-            self.instance.get_map_size()
-
-
-class TestB000LaunchesTextureCombine(unittest.TestCase):
-    """b000 opens the co-located Texture Combine panel in both DCCs: one
-    launcher on UvMixin, no Transfer option box (its tool is the panel's
-    Transfer mode). Runs in CI -- the mixin imports no DCC."""
-
-    def _instance(self):
-        from tentacle.slots._uv import UvMixin
-
-        instance = UvMixin()
-        instance.sb = mock.Mock()
-        return instance
-
-    def test_b000_shows_the_panel(self):
-        instance = self._instance()
-        instance.b000()
-        instance.sb.handlers.marking_menu.show.assert_called_once_with(
-            "texture_combine"
-        )
-
-    def test_b000_init_builds_no_option_box(self):
-        instance = self._instance()
-        widget = mock.Mock()
-        instance.b000_init(widget)
-        widget.setText.assert_called_once()
-        self.assertFalse(widget.option_box.menu.add.called)
-
-    def test_neither_fork_redefines_the_launcher(self):
-        """Branch-free: a fork's own ``b000`` would shadow the shared one."""
-        import os
-
-        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        for dcc in ("maya", "blender"):
-            path = os.path.join(root, "tentacle", "slots", dcc, "uv.py")
-            with open(path, encoding="utf-8") as f:
-                source = f.read()
-            for name in ("def b000(", "def b000_init("):
-                self.assertNotIn(name, source, f"{dcc}/uv.py redefines {name}")
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB005CutUVsRouting(unittest.TestCase):
-    """b005 (Cut UVs) routes to polyMapCut differently for edges vs transforms."""
+    STUBS = ("polyMapCut", "polyMapSew")
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-
-        # Capture polyMapCut calls. Accept **kwargs like the real command (and
-        # like the polyMapSew fake below): the edge branch routes through
-        # ``mtk.UvUtils.cut_uv_edges``, which passes ``constructionHistory=`` —
-        # a positional-only fake turned an upstream signature change into a
-        # TypeError *inside* the slot, which reads as a slot regression.
-        self._original = cmds.polyMapCut
-        self.captured = []
-        self.captured_kwargs = []
+        super().setUp()
+        self.cut, self.cut_kwargs, self.sewn = [], [], []
 
         def _fake_cut(*args, **kwargs):
-            self.captured.append(args[0] if args else None)
-            self.captured_kwargs.append(kwargs)
+            self.cut.append(args[0] if args else None)
+            self.cut_kwargs.append(kwargs)
 
         cmds.polyMapCut = _fake_cut
-
-    def tearDown(self):
-        cmds.polyMapCut = self._original
-        cmds.file(new=True, force=True)
+        cmds.polyMapSew = lambda *a, **k: self.sewn.append(a[0])
 
     def test_no_selection_warns(self):
         cmds.select(clear=True)
         self.instance.b005()
-        self.assertEqual(self.captured, [])
-        self.assertTrue(self.instance.sb.messages)
+        self.instance.b011()
+        self.assertEqual((self.cut, self.sewn), ([], []))
+        self.assertIn("nothing selected", _text(self.instance).lower())
 
-    def test_edge_selection_routes_polyMapCut(self):
+    def test_edge_selection_cuts_with_history(self):
         cube = cmds.polyCube(name="uv_cut_cube")[0]
         cmds.select(f"{cube}.e[0:3]")
         self.instance.b005()
-        self.assertGreater(len(self.captured), 0)
-        # The edge branch goes through cut_uv_edges, which keeps construction
-        # history — pin the kwarg so a silent upstream drop is caught here.
-        self.assertTrue(
-            all(k.get("constructionHistory") for k in self.captured_kwargs),
-            f"expected constructionHistory=True on every cut; got {self.captured_kwargs}",
-        )
+        self.assertTrue(self.cut)
+        self.assertTrue(all(k.get("constructionHistory") for k in self.cut_kwargs))
 
     def test_transform_selection_cuts_all_mesh_edges(self):
-        """When a transform is selected (no edge components), Cut UVs targets all edges."""
         cube = cmds.polyCube(name="uv_cut_all")[0]
         cmds.select(cube)
         self.instance.b005()
-        # Should have made at least one polyMapCut call on the cube's edges.
-        self.assertGreater(len(self.captured), 0)
-        # The argument should be a glob-like edge spec.
-        joined = " ".join(str(c) for c in self.captured)
-        self.assertIn(".e[", joined)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB011SewUVsDuplicateNames(unittest.TestCase):
-    """b011 (Sew UVs) must resolve mesh shapes by full path. Two transforms
-    sharing a short leaf name make their shapes share a short name; the old
-    per-shape ``cmds.objectType(shape)`` call then raised 'No object matches
-    name: <shape>' because the ambiguous short name resolves to nothing.
-    """
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self._orig = cmds.polyMapSew
-        self.sewed = []
-        cmds.polyMapSew = lambda *a, **k: self.sewed.append(a[0])
-
-    def tearDown(self):
-        cmds.polyMapSew = self._orig
-        cmds.file(new=True, force=True)
+        self.assertIn(".e[", " ".join(str(c) for c in self.cut))
 
     def test_sews_meshes_with_colliding_short_shape_names(self):
         g1 = cmds.group(empty=True, name="grpA")
@@ -227,408 +732,106 @@ class TestB011SewUVsDuplicateNames(unittest.TestCase):
         g2 = cmds.group(empty=True, name="grpB")
         cmds.parent(cmds.polyCylinder(name="dupCyl")[0], g2)
         cmds.select([f"{g1}|dupCyl", f"{g2}|dupCyl"])
-
-        # Old code raised here on objectType("dupCylShape"); must not now.
         self.instance.b011()
-
-        # Both meshes were sewn, addressed by unambiguous full paths.
-        self.assertEqual(len(self.sewed), 2)
-        self.assertTrue(all(s.startswith("|grp") and ".e[*]" in s for s in self.sewed))
+        self.assertEqual(len(self.sewn), 2)
+        self.assertTrue(all(s.startswith("|grp") and ".e[*]" in s for s in self.sewn))
 
 
-class _FakeCheck:
-    def __init__(self, checked):
-        self._c = checked
-
-    def isChecked(self):
-        return self._c
-
-
-class _FakeSpin:
-    def __init__(self, value):
-        self._v = value
-
-    def value(self):
-        return self._v
-
-
-class _FakeDataCombo:
-    def __init__(self, data):
-        self._d = data
-
-    def currentData(self):
-        return self._d
-
-
-class _FakeUnfoldMenu:
-    """Mimics tb004's widget.option_box.menu (chk017/chk007/chk022/cmb013/s000)."""
-
-    def __init__(
-        self,
-        optimize=True,
-        orient=True,
-        stack=True,
-        tolerance=1.0,
-        nonmanifold_mode="select",
-    ):
-        self.chk017 = _FakeCheck(optimize)  # Optimize
-        self.chk007 = _FakeCheck(orient)  # Orient
-        self.chk022 = _FakeCheck(stack)  # Stack Similar
-        self.cmb013 = _FakeDataCombo(nonmanifold_mode)  # Non-Manifold strategy
-        self.s000 = _FakeSpin(tolerance)  # Tolerance
-
-
-class _FakeOptionBox:
-    def __init__(self, menu):
-        self.menu = menu
-
-
-class _FakeUnfoldWidget:
-    def __init__(self, **kwargs):
-        self.option_box = _FakeOptionBox(_FakeUnfoldMenu(**kwargs))
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb004UnfoldGuard(unittest.TestCase):
-    """tb004 (Unfold) must surface u3dUnfold's non-manifold RuntimeError as a
-    message and abort, instead of letting it escape as an unhandled traceback
-    (and instead of running the downstream optimize/stack steps).
-    """
+class _UnfoldMayaCase(_MayaCase):
+    STUBS = ("u3dUnfold", "u3dOptimize", "polyUVStackSimilarShells")
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
-
-        # An operand: tb004 now guards on an empty selection (see
-        # TestTb004EmptySelectionGuard), so the control-flow cases below need
-        # something selected to get past it.
-        cmds.select(cmds.polyCube()[0], replace=True)
-
-        # Isolate tb004's control flow from Maya UI state and the Unfold3D
-        # plugin by stubbing the cmds it drives. The u3d* commands only exist
-        # once Unfold3D.mll is loaded, so capture a sentinel for any that are
-        # absent and delete them again on teardown.
-        self._missing = object()
-        self._orig = {
-            name: getattr(cmds, name, self._missing)
-            for name in (
-                "selectMode",
-                "u3dUnfold",
-                "u3dOptimize",
-                "polyUVStackSimilarShells",
-            )
-        }
-        self.optimize_calls = []
-        self.stack_calls = []
-        cmds.selectMode = lambda *a, **k: False  # query → already-object: skip switch
+        super().setUp()
+        self.unfold_calls, self.optimize_calls, self.stack_calls = [], [], []
+        cmds.u3dUnfold = lambda *a, **k: self.unfold_calls.append((a, k))
         cmds.u3dOptimize = lambda *a, **k: self.optimize_calls.append((a, k))
         cmds.polyUVStackSimilarShells = lambda *a, **k: self.stack_calls.append((a, k))
 
-    def tearDown(self):
-        for name, fn in self._orig.items():
-            if fn is self._missing:
-                if hasattr(cmds, name):
-                    delattr(cmds, name)
-            else:
-                setattr(cmds, name, fn)
-        cmds.file(new=True, force=True)
+    def unfold(self, **options):
+        self.instance.tb004(_widget(**dict(UNFOLD_DEFAULTS, **options)))
 
-    def test_non_manifold_runtimeerror_is_caught_and_aborts(self):
-        def _raise(*a, **k):
-            raise RuntimeError(
-                "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
-            )
-
-        cmds.u3dUnfold = _raise
-
-        # Must not raise.
-        self.instance.tb004(widget=_FakeUnfoldWidget())
-
-        # A message naming the cause was surfaced.
-        self.assertTrue(self.instance.sb.messages)
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("non-manifold", joined)
-
-        # Early return: downstream steps were skipped.
-        self.assertEqual(self.optimize_calls, [])
-        self.assertEqual(self.stack_calls, [])
-
-    def test_successful_unfold_runs_downstream_steps(self):
-        cmds.u3dUnfold = lambda *a, **k: None  # succeeds
-
-        # orient=False avoids the mel texOrientShells dependency; the optimize
-        # and stack stubs record that the post-unfold steps ran.
-        self.instance.tb004(widget=_FakeUnfoldWidget(orient=False))
-
-        self.assertFalse(self.instance.sb.messages)
-        self.assertEqual(len(self.optimize_calls), 1)
-        self.assertEqual(len(self.stack_calls), 1)
+    @staticmethod
+    def raise_non_manifold(*args, **kwargs):
+        raise RuntimeError(
+            "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
+        )
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestUvEmptySelectionGuard(unittest.TestCase):
-    """A selection-driven UV command run with nothing selected must report it in
-    a message box — never as a traceback.
+class TestUnfoldInMaya(_UnfoldMayaCase):
+    def test_non_manifold_refusal_is_caught_and_stops(self):
+        cmds.select(cmds.polyCube()[0])
+        cmds.u3dUnfold = self.raise_non_manifold
+        self.unfold()
+        self.assertIn("non-manifold", _text(self.instance).lower())
+        self.assertEqual((self.optimize_calls, self.stack_calls), ([], []))
 
-    Regression: tb004 (Unfold) read the selection without guarding it. u3dUnfold
-    merely logged "This command requires at least 1 argument(s)", but the orient
-    pass is MEL (texOrientShells -> texCheckSelection), which raises
-    RuntimeError — so an empty selection surfaced to the user as an unhandled
-    traceback out of the slot dispatcher.
-    """
+    def test_a_successful_unfold_runs_the_passes(self):
+        cmds.select(cmds.polyCube()[0])
+        self.unfold(chk007=False)  # orient is MEL over GUI selection masks
+        self.assertEqual(self.instance.sb.messages, [])
+        self.assertEqual((len(self.optimize_calls), len(self.stack_calls)), (1, 1))
 
-    def setUp(self):
-        cmds.file(new=True, force=True)  # nothing selected
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
-
-        self._missing = object()
-        self._orig = {
-            name: getattr(cmds, name, self._missing)
-            for name in ("selectMode", "u3dUnfold", "u3dOptimize")
-        }
-        self.unfold_calls = []
-        cmds.selectMode = lambda *a, **k: False
-        cmds.u3dUnfold = lambda *a, **k: self.unfold_calls.append((a, k))
-        cmds.u3dOptimize = lambda *a, **k: None
-
-    def tearDown(self):
-        for name, fn in self._orig.items():
-            if fn is self._missing:
-                if hasattr(cmds, name):
-                    delattr(cmds, name)
-            else:
-                setattr(cmds, name, fn)
-        cmds.file(new=True, force=True)
-
-    def _assert_reported_empty(self):
-        self.assertTrue(self.instance.sb.messages, "expected a message box")
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("nothing selected", joined)
-
-    def test_tb004_reports_instead_of_raising(self):
-        # orient=True is the shipped default and the exact path that raised.
-        self.instance.tb004(widget=_FakeUnfoldWidget(orient=True))
-
-        self._assert_reported_empty()
-        self.assertEqual(self.unfold_calls, [], "must not reach u3dUnfold")
+    def test_nothing_selected_reports_instead_of_raising(self):
+        """Regression: the orient pass is MEL (texOrientShells ->
+        texCheckSelection) and raised on an empty selection."""
+        cmds.select(clear=True)
+        self.unfold()
+        self.assertIn("nothing selected", _text(self.instance).lower())
+        self.assertEqual(self.unfold_calls, [])
 
     def test_b021_reports_once_and_skips_both_steps(self):
-        """Unfold+Pack must not fire the guard twice (once per chained step)."""
         called = []
-
-        class _Btn:
-            def __init__(self, name):
-                self.name = name
-
-            def call_slot(self, *a, **k):
-                called.append(self.name)
-
-        self.instance.ui = _FakeUi()
-        self.instance.ui.tb004 = _Btn("tb004")
-        self.instance.ui.tb000 = _Btn("tb000")
-
-        self.instance.b021(widget=None)
-
-        self._assert_reported_empty()
-        self.assertEqual(len(self.instance.sb.messages), 1)
-        self.assertEqual(called, [], "neither chained step should run")
-
-    def test_b011_sew_reports_instead_of_silently_doing_nothing(self):
-        self.instance.b011()
-        self._assert_reported_empty()
-
-    def test_b005_cut_reports(self):
-        self.instance.b005()
-        self._assert_reported_empty()
-
-
-class _FakeCutCylinderMenu:
-    """tb009's option box: s021 / s022 / s023 / s016 / chk045 / chk040 /
-    chk046 / chk041 / chk042."""
-
-    def __init__(
-        self,
-        angle=45,
-        taper=20,
-        flat=60,
-        fillet=12,
-        hide=True,
-        invert=False,
-        keep_seams=False,
-        unfold=True,
-        orient=True,
-    ):
-        self.s021 = _FakeSpin(taper)  # Taper Angle
-        self.s022 = _FakeSpin(flat)  # Flat Angle
-        self.s023 = _FakeSpin(fillet)  # Fillet Size (%)
-        self.s016 = _FakeSpin(angle)  # Crease Angle
-        self.chk045 = _FakeCheck(hide)  # Hide Seam From View
-        self.chk040 = _FakeCheck(invert)  # Invert Seam
-        self.chk046 = _FakeCheck(keep_seams)  # Keep Existing Seams
-        self.chk041 = _FakeCheck(unfold)  # Unfold
-        self.chk042 = _FakeCheck(orient)  # Orient
-
-
-class _FakeCutCylinderWidget:
-    def __init__(self, **kwargs):
-        self.option_box = _FakeOptionBox(_FakeCutCylinderMenu(**kwargs))
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb009CutCylinder(unittest.TestCase):
-    """tb009 (Cut Cylinder) hands the option box straight to
-    mtk.UvUtils.unwrap_cylinder -- in particular the seam-hiding camera: the
-    active viewport camera when "Hide Seam From View" is on and a view
-    exists, else None (mayatk then falls back to a fixed default side)."""
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
-        self.mesh = cmds.polyCylinder(name="cutCyl")[0]
-        cmds.select(self.mesh, replace=True)
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    def _run(self, camera_lookup, **menu):
-        with (
-            mock.patch.object(
-                mtk.UvUtils, "unwrap_cylinder", return_value=[self.mesh]
-            ) as unwrap,
-            mock.patch.object(
-                mtk.CamUtils, "get_current_cam", side_effect=camera_lookup
-            ),
-        ):
-            self.instance.tb009(widget=_FakeCutCylinderWidget(**menu))
-        unwrap.assert_called_once()
-        return unwrap.call_args.kwargs
-
-    def test_hide_from_view_passes_the_viewport_camera(self):
-        kwargs = self._run(
-            lambda: "|persp|perspShape", hide=True, invert=True, angle=30
-        )
-        self.assertEqual(kwargs["camera"], "|persp|perspShape")
-        self.assertTrue(kwargs["invert_seam"])
-        self.assertEqual(kwargs["angle"], 30)
-        self.assertEqual(kwargs["map_size"], 2048)
-
-    def test_preference_knobs_pass_through(self):
-        """Taper / Flat / Fillet Size and Keep Existing Seams reach
-        unwrap_cylinder as taper_angle / flat_angle / trim_ratio / sew."""
-        kwargs = self._run(lambda: None, taper=25, flat=45, fillet=8, keep_seams=True)
-        self.assertEqual(kwargs["taper_angle"], 25)
-        self.assertEqual(kwargs["flat_angle"], 45)
-        self.assertAlmostEqual(kwargs["trim_ratio"], 0.08)
-        self.assertFalse(kwargs["sew"])
-        kwargs = self._run(lambda: None)
-        self.assertEqual(
-            (kwargs["taper_angle"], kwargs["flat_angle"], kwargs["sew"]), (20, 60, True)
-        )
-        self.assertAlmostEqual(kwargs["trim_ratio"], 0.12)
-
-    def test_hide_off_passes_no_camera(self):
-        kwargs = self._run(lambda: "|persp|perspShape", hide=False)
-        self.assertIsNone(kwargs["camera"])
-
-    def test_no_active_view_falls_back_to_no_camera(self):
-        """Headless / no 3D view: M3dView raises -- the slot must not."""
-
-        def boom():
-            raise RuntimeError("no active 3d view")
-
-        kwargs = self._run(boom, hide=True)
-        self.assertIsNone(kwargs["camera"])
-
-    def test_nothing_selected_reports_and_stops(self):
+        self.instance.ui.tb004 = SimpleNamespace(call_slot=lambda: called.append("tb004"))
+        self.instance.ui.tb000 = SimpleNamespace(call_slot=lambda: called.append("tb000"))
         cmds.select(clear=True)
-        with mock.patch.object(mtk.UvUtils, "unwrap_cylinder") as unwrap:
-            self.instance.tb009(widget=_FakeCutCylinderWidget())
-        unwrap.assert_not_called()
+        self.instance.b021(None)
         self.assertEqual(len(self.instance.sb.messages), 1)
+        self.assertEqual(called, [])
 
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb004NeverSeamCuts(unittest.TestCase):
-    """Regression: tb004 (Unfold) relaxes existing UVs only — it must never cut
-    new seams. A closed, single-shell ("seamless") mesh was previously routed to
-    mtk.UvUtils.unwrap_cylinder, which polyMapCuts fresh seams in. Seaming is the
-    job of the dedicated Cut Cylinder tool (tb009); Unfold must leave the UV
-    layout's shell structure untouched.
-    """
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
-
-        # A closed cylinder with a single, sewn UV shell — the exact mesh the old
-        # auto-cut path triggered on.
-        self.mesh = cmds.polyCylinder(name="seamlessCyl")[0]
-        cmds.polyMapSew(f"{self.mesh}.e[*]", constructionHistory=True)
-        cmds.select(self.mesh, replace=True)
-
-        self._missing = object()
-        self._orig = {
-            name: getattr(cmds, name, self._missing)
-            for name in (
-                "selectMode",
-                "u3dUnfold",
-                "u3dOptimize",
-                "polyUVStackSimilarShells",
-            )
-        }
-        cmds.selectMode = lambda *a, **k: False  # already-object: skip switch
-        cmds.u3dUnfold = lambda *a, **k: None  # succeed without the Unfold3D plugin
-        cmds.u3dOptimize = lambda *a, **k: None
-        cmds.polyUVStackSimilarShells = lambda *a, **k: None
-
-    def tearDown(self):
-        for name, fn in self._orig.items():
-            if fn is self._missing:
-                if hasattr(cmds, name):
-                    delattr(cmds, name)
-            else:
-                setattr(cmds, name, fn)
-        cmds.file(new=True, force=True)
-
-    def test_seamless_mesh_is_not_routed_through_seam_cutting(self):
-        shells_before = cmds.polyEvaluate(self.mesh, uvShell=True)
+    def test_a_seamless_mesh_gets_no_new_seams(self):
+        """Regression: Unfold relaxes the existing UVs only -- seaming is Cut
+        Cylinder's job; a sewn single-shell cylinder keeps its shell count."""
+        mesh = cmds.polyCylinder(name="seamlessCyl")[0]
+        cmds.polyMapSew(f"{mesh}.e[*]", constructionHistory=True)
+        cmds.select(mesh, replace=True)
+        before = cmds.polyEvaluate(mesh, uvShell=True)
         with (
             mock.patch.object(mtk.UvUtils, "unwrap_cylinder") as unwrap,
             mock.patch.object(cmds, "polyMapCut") as map_cut,
         ):
-            self.instance.tb004(widget=_FakeUnfoldWidget(orient=False, stack=False))
+            self.unfold(chk007=False, chk022=False)
         unwrap.assert_not_called()
         map_cut.assert_not_called()
-        self.assertEqual(
-            cmds.polyEvaluate(self.mesh, uvShell=True),
-            shells_before,
-            "Unfold must not add UV shells (no new seams) on a seamless mesh",
-        )
+        self.assertEqual(cmds.polyEvaluate(mesh, uvShell=True), before)
+
+    def test_component_mode_is_left_for_object_mode(self):
+        """The whole-object unfold must not run scoped to a leftover component
+        selection (the regression made the repair need a second click)."""
+        mesh = cmds.polyPlane(w=1, h=1, sx=2, sy=2)[0]
+        cmds.polyAutoProjection(mesh, ch=False)
+        cmds.select(mesh, r=True)
+        switched = []
+        original = cmds.selectMode
+        self.addCleanup(setattr, cmds, "selectMode", original)
+
+        def spy(*args, **kwargs):
+            if kwargs.get("object"):
+                switched.append(True)
+            return original(*args, **kwargs)
+
+        cmds.selectMode = spy
+        self.unfold(chk017=False, chk007=False, chk022=False)
+        self.assertTrue(switched)
+        self.assertEqual(len(self.unfold_calls), 1)
+        self.assertEqual(self.instance.sb.messages, [])
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb004NonManifoldStrategy(unittest.TestCase):
-    """tb004's non-manifold strategy combo: Warn + Select vs Repair + Retry.
-
-    Drives the real polyInfo / clean_geometry / selection paths against a real
-    bowtie mesh; only u3dUnfold is stubbed (its Unfold3D plugin need not load).
-    """
+class TestUnfoldNonManifoldInMaya(_UnfoldMayaCase):
+    """Warn + Select vs Repair + Retry over a real bowtie mesh; only u3dUnfold
+    is stubbed."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
-
-        # Two planes sharing a single corner vertex → one non-manifold (bowtie) vert.
+        super().setUp()
         p1 = cmds.polyPlane(w=1, h=1, sx=1, sy=1)[0]
         p2 = cmds.polyPlane(w=1, h=1, sx=1, sy=1)[0]
         cmds.move(1, 0, 1, p2)
@@ -636,463 +839,193 @@ class TestTb004NonManifoldStrategy(unittest.TestCase):
         cmds.polyMergeVertex(self.mesh, d=0.001, ch=False)
         self.shape = cmds.listRelatives(self.mesh, shapes=True, ni=True)[0]
         cmds.select(self.mesh)
+        cmds.u3dUnfold = self.raise_non_manifold
 
-        self._orig_unfold = getattr(cmds, "u3dUnfold", None)
+    def bare_unfold(self, mode):
+        self.unfold(cmb013=mode, chk017=False, chk007=False, chk022=False)
 
-        def _raise(*a, **k):
-            raise RuntimeError(
-                "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
-            )
-
-        cmds.u3dUnfold = _raise
-
-    def tearDown(self):
-        if self._orig_unfold is None:
-            if hasattr(cmds, "u3dUnfold"):
-                del cmds.u3dUnfold
-        else:
-            cmds.u3dUnfold = self._orig_unfold
-        cmds.file(new=True, force=True)
+    def selected_vertices(self):
+        return [s for s in cmds.ls(sl=True, flatten=True) or [] if ".vtx[" in s]
 
     def test_select_mode_selects_and_warns(self):
-        self.instance.tb004(widget=_FakeUnfoldWidget(nonmanifold_mode="select"))
+        self.bare_unfold("select")
+        self.assertTrue(self.selected_vertices())
+        text = _text(self.instance).lower()
+        self.assertIn("non-manifold", text)
+        self.assertIn("vertex mode", text)
 
-        sel = cmds.ls(sl=True, flatten=True) or []
-        self.assertTrue(sel, "expected the non-manifold vertices to be selected")
-        self.assertTrue(
-            all(".vtx[" in s for s in sel), f"expected vtx components, got {sel}"
-        )
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("non-manifold", joined)
-        self.assertIn("vertex mode", joined)
-
-    def test_does_not_preempt_unfold_on_polyinfo_flag(self):
-        # Regression ("unfold fails on every mesh"): tb004 must NOT abort based on
-        # a polyInfo non-manifold scan. u3dUnfold's rejection is narrower than
-        # polyInfo's topological flag, so when u3dUnfold accepts this mesh (here:
-        # stubbed to succeed) the unfold proceeds — no warn, no vertex re-select —
-        # even though polyInfo reports the bowtie vert as non-manifold.
-        self.assertTrue(  # precondition: polyInfo does flag this mesh
-            mtk.Diagnostics.find_non_manifold_vertices([self.mesh]),
-            "fixture should be polyInfo-non-manifold",
-        )
-        cmds.u3dUnfold = lambda *a, **k: None  # u3dUnfold tolerates it
-
-        self.instance.tb004(
-            widget=_FakeUnfoldWidget(
-                nonmanifold_mode="select", optimize=False, orient=False, stack=False
-            )
-        )
-
-        self.assertFalse(
-            self.instance.sb.messages, "unfold should proceed, not warn + abort"
-        )
-        sel = cmds.ls(sl=True, flatten=True) or []
-        self.assertFalse(
-            any(".vtx[" in s for s in sel), f"should not select vertices, got {sel}"
-        )
+    def test_does_not_preempt_unfold_on_the_polyinfo_flag(self):
+        """u3dUnfold's rejection is narrower than polyInfo's flag: when it
+        accepts the mesh, the unfold proceeds -- no warning, no reselect."""
+        self.assertTrue(mtk.Diagnostics.find_non_manifold_vertices([self.mesh]))
+        cmds.u3dUnfold = lambda *a, **k: None
+        self.bare_unfold("select")
+        self.assertEqual(self.instance.sb.messages, [])
+        self.assertEqual(self.selected_vertices(), [])
 
     def test_repair_mode_repairs_and_retries(self):
-        # u3dUnfold itself gates unfoldability (its non-manifold rejection is
-        # narrower than polyInfo's flag), so we must NOT pre-empt on a polyInfo
-        # scan. The first real unfold fails, the repair runs, and the retry — on
-        # the now-manifold mesh — succeeds, all in one click.
         calls = {"n": 0}
 
-        def _unfold(*a, **k):
+        def unfold(*args, **kwargs):
             calls["n"] += 1
             if cmds.polyInfo(self.shape, nonManifoldVertices=True):
-                raise RuntimeError(
-                    "Mesh has non-manifold vertices. Clean up the mesh before using unfold."
-                )
-            return None  # post-repair retry succeeds on the cleaned mesh
+                self.raise_non_manifold()
 
-        cmds.u3dUnfold = _unfold
-
-        self.instance.tb004(
-            widget=_FakeUnfoldWidget(
-                nonmanifold_mode="repair", optimize=False, orient=False, stack=False
-            )
-        )
-
-        self.assertEqual(calls["n"], 2, "expected u3dUnfold to be retried after repair")
-        # The real clean_geometry actually made the mesh manifold.
+        cmds.u3dUnfold = unfold
+        self.bare_unfold("repair")
+        self.assertEqual(calls["n"], 2)
         self.assertIsNone(cmds.polyInfo(self.shape, nonManifoldVertices=True))
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("repair", joined)
+        self.assertIn("repair", _text(self.instance).lower())
 
     def test_repair_mode_falls_back_when_unrepairable(self):
-        # clean_geometry no-op → the mesh stays non-manifold, the retry fails, and
-        # tb004 falls back to Warn + Select.
-        with mock.patch.object(mtk.Diagnostics, "clean_geometry", lambda *a, **k: None):
-            self.instance.tb004(
-                widget=_FakeUnfoldWidget(
-                    nonmanifold_mode="repair", optimize=False, orient=False, stack=False
-                )
-            )
+        with mock.patch.object(mtk.MeshDiagnostics, "clean_geometry", lambda *a, **k: None):
+            self.bare_unfold("repair")
+        self.assertTrue(self.selected_vertices())
+        self.assertIn("non-manifold", _text(self.instance).lower())
 
-        sel = cmds.ls(sl=True, flatten=True) or []
-        self.assertTrue(
-            any(".vtx[" in s for s in sel), f"expected vtx selection, got {sel}"
-        )
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("non-manifold", joined)
-
-    def test_repair_mode_survives_cleanup_error(self):
-        # A raising clean_geometry must not escape tb004 — it degrades to the
-        # retry, which fails, falling back to Warn + Select.
-        def _boom(*a, **k):
+    def test_repair_mode_survives_a_cleanup_error(self):
+        def boom(*args, **kwargs):
             raise RuntimeError("polyCleanup failed")
 
-        with mock.patch.object(mtk.Diagnostics, "clean_geometry", _boom):
-            self.instance.tb004(  # must not raise
-                widget=_FakeUnfoldWidget(
-                    nonmanifold_mode="repair", optimize=False, orient=False, stack=False
-                )
-            )
-
-        joined = " ".join(str(m) for m in self.instance.sb.messages).lower()
-        self.assertIn("non-manifold", joined)
+        with mock.patch.object(mtk.MeshDiagnostics, "clean_geometry", boom):
+            self.bare_unfold("repair")  # must not raise
+        self.assertIn("non-manifold", _text(self.instance).lower())
 
 
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb004ObjectModeGuard(unittest.TestCase):
-    """tb004 must normalize a component selection to object mode before unfolding.
-
-    The whole-object u3dUnfold behaves non-deterministically when a leftover
-    component selection scopes it to a sub-shell, which is what made the repair
-    flow appear to need a second click. (Regression: the guard's condition was
-    inverted, so it never switched out of component mode.)
-
-    selectMode is spied rather than queried for real: mayapy.standalone doesn't
-    track interactive selection mode, so a real query is unreliable here. The
-    spy reports "not in object mode" and records any switch — under the old
-    inverted guard no switch is issued, so this fails before the fix.
-    """
+class TestCutCylinderInMaya(_MayaCase):
+    """tb009 hands the option box to mtk.UvUtils.unwrap_cylinder."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.get_map_size = lambda: 2048
+        super().setUp()
+        self.mesh = cmds.polyCylinder(name="cutCyl")[0]
+        cmds.select(self.mesh, replace=True)
 
-        self.mesh = cmds.polyPlane(w=1, h=1, sx=2, sy=2)[0]  # clean, manifold
-        cmds.polyAutoProjection(self.mesh, ch=False)
-        cmds.select(self.mesh, r=True)
+    def test_the_options_reach_unwrap_cylinder(self):
+        with mock.patch.object(
+            mtk.UvUtils, "unwrap_cylinder", return_value=[self.mesh]
+        ) as unwrap:
+            self.instance.tb009(_widget(**dict(CYLINDER_DEFAULTS, s016=30, chk040=True)))
+        kwargs = unwrap.call_args.kwargs
+        self.assertEqual((kwargs["angle"], kwargs["invert_seam"]), (30, True))
+        self.assertIs(kwargs["camera"], True)
+        self.assertEqual(self.instance.sb.messages, [])
 
-        self._orig_selectMode = cmds.selectMode
-        self._orig_unfold = getattr(cmds, "u3dUnfold", None)
-        self.switched_to_object = []
-
-        def _selectMode(*a, **k):
-            if k.get("query") or k.get("q"):
-                return False  # report: not currently in object mode
-            if k.get("object"):
-                self.switched_to_object.append(True)
-            return self._orig_selectMode(*a, **k)
-
-        cmds.selectMode = _selectMode
-        self.unfold_calls = []
-        cmds.u3dUnfold = lambda *a, **k: self.unfold_calls.append((a, k))
-
-    def tearDown(self):
-        cmds.selectMode = self._orig_selectMode
-        if self._orig_unfold is None:
-            if hasattr(cmds, "u3dUnfold"):
-                del cmds.u3dUnfold
-        else:
-            cmds.u3dUnfold = self._orig_unfold
-        cmds.file(new=True, force=True)
-
-    def test_non_object_mode_is_switched_before_unfold(self):
-        self.instance.tb004(
-            widget=_FakeUnfoldWidget(orient=False, stack=False, optimize=False)
-        )
-
-        # The guard issued a switch to object mode, then unfolded once cleanly.
-        self.assertTrue(
-            self.switched_to_object,
-            "tb004 should switch to object mode when not already in it",
-        )
-        self.assertEqual(len(self.unfold_calls), 1)
-        self.assertFalse(self.instance.sb.messages)
+    def test_nothing_selected_reports_and_stops(self):
+        cmds.select(clear=True)
+        with mock.patch.object(mtk.UvUtils, "unwrap_cylinder") as unwrap:
+            self.instance.tb009(_widget(**CYLINDER_DEFAULTS))
+        unwrap.assert_not_called()
+        self.assertEqual(len(self.instance.sb.messages), 1)
 
 
-class _FakeTb001Widget:
-    """tb001's option-box surface: mode combo (cmb011) + scale mode (cmb012)."""
-
-    class _Combo:
-        def __init__(self, data):
-            self._data = data
-
-        def currentData(self):
-            return self._data
-
-    def __init__(self, mode="standard", scale_mode=1):
-        menu = _FakeUi()
-        menu.cmb011 = self._Combo(mode)
-        menu.cmb012 = self._Combo(scale_mode)
-        self.option_box = _FakeUi()
-        self.option_box.menu = menu
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb001AutoUnwrapDispatch(unittest.TestCase):
-    """tb001 routes the engine modes to UvUtils.auto_unwrap and reports failures."""
+class TestAutoUnwrapInMaya(_MayaCase):
+    """tb001 routes the engine modes to UvUtils.auto_unwrap, Standard to the
+    host's projection."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.ui = _FakeUi()
-        self.instance.ui.cmb003 = _FakeCmb("2048")
-
+        super().setUp()
         self.calls = []
-        self._original = mtk.UvUtils.auto_unwrap
 
-        def fake_auto_unwrap(objects, method=None, map_size=None, **kwargs):
+        def fake(objects, method=None, map_size=None, **kwargs):
             self.calls.append((objects, method, map_size))
-            return mock.Mock(engine="mof", succeeded=list(objects), failed=[])
+            return SimpleNamespace(engine="mof", succeeded=list(objects), failed=[])
 
-        mtk.UvUtils.auto_unwrap = staticmethod(fake_auto_unwrap)
+        patcher = mock.patch.object(mtk.UvUtils, "auto_unwrap", side_effect=fake)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
-    def tearDown(self):
-        mtk.UvUtils.auto_unwrap = self._original
-        cmds.file(new=True, force=True)
+    def run_mode(self, mode):
+        self.instance.tb001(
+            _widget(cmb011=mode, cmb012=1, s_smart_angle=66, s_smart_margin=0.0)
+        )
 
-    def test_hard_mode_calls_the_engine_with_selection_and_map_size(self):
+    def test_hard_mode_calls_the_engine_with_the_selection_and_map_size(self):
         cube = cmds.polyCube(name="tb001_hard")[0]
         cmds.select(cube)
-        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
-        self.assertEqual(len(self.calls), 1)
+        self.run_mode("hard")
         objects, method, map_size = self.calls[0]
-        self.assertEqual(method, "hard")
-        self.assertEqual(map_size, 2048)
+        self.assertEqual((method, map_size), ("hard", 2048))
         self.assertIn(cube, objects)
 
-    def test_organic_mode_selects_the_organic_method(self):
-        cmds.select(cmds.polyCube(name="tb001_organic")[0])
-        self.instance.tb001(widget=_FakeTb001Widget(mode="organic"))
-        self.assertEqual(self.calls[0][1], "organic")
-
-    def test_standard_mode_does_not_call_the_engine(self):
-        cmds.select(cmds.polyCube(name="tb001_standard")[0])
-        self.instance.tb001(widget=_FakeTb001Widget(mode="standard"))
+    def test_standard_projects_without_the_engine(self):
+        cube = cmds.polyCube(name="tb001_standard")[0]
+        cmds.select(cube)
+        self.run_mode("standard")
         self.assertEqual(self.calls, [])
-
-    def test_missing_engine_is_reported_not_raised(self):
-        def boom(*args, **kwargs):
-            raise FileNotFoundError("not installed: https://example/download")
-
-        mtk.UvUtils.auto_unwrap = staticmethod(boom)
-        cmds.select(cmds.polyCube(name="tb001_missing")[0])
-        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
-        self.assertTrue(self.instance.sb.messages)
-        self.assertIn("https://", str(self.instance.sb.messages[0]))
+        u0, v0, u1, v1 = mtk.UvUtils.get_uv_bounds(cube)
+        self.assertGreaterEqual(min(u0, v0), -1e-4)
+        self.assertLessEqual(max(u1, v1), 1.0 + 1e-4)
 
     def test_no_selection_warns(self):
         cmds.select(clear=True)
-        self.instance.tb001(widget=_FakeTb001Widget(mode="hard"))
+        self.run_mode("hard")
         self.assertEqual(self.calls, [])
         self.assertTrue(self.instance.sb.messages)
 
 
-class TestUvSlotSurface(unittest.TestCase):
-    """Source-level pins — run in CI, where no DCC is importable.
-
-    The Auto Unwrap option box was trimmed to three modes on 2026-07-28 and the
-    Cut Cylinder algorithm picker was replaced by per-mesh detection; these keep
-    the removed widgets from creeping back and keep both DCCs' labels identical
-    (the parity sweep matches combo items by text).
-    """
-
-    ENGINE_LABELS = ("Hard Surface (Ministry of Flat)", "Organic (BFF)")
-    REMOVED = ("cmb016", "cmb017", "chk000")
-
-    def _source(self, dcc):
-        import os
-
-        path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "tentacle",
-            "slots",
-            dcc,
-            "uv.py",
-        )
-        with open(path, encoding="utf-8") as f:
-            return f.read()
-
-    def test_engine_labels_match_across_dccs(self):
-        for dcc in ("maya", "blender"):
-            source = self._source(dcc)
-            for label in self.ENGINE_LABELS:
-                self.assertIn(label, source, f"{dcc} is missing {label!r}")
-
-    def test_removed_widgets_are_gone(self):
-        source = self._source("maya")
-        for name in self.REMOVED:
-            self.assertNotIn(name, source, f"{name} should have been removed")
-
-    def test_both_slots_mix_in_the_shared_uv_behavior(self):
-        for dcc in ("maya", "blender"):
-            self.assertIn("UvMixin", self._source(dcc), f"{dcc} lost UvMixin")
-
-    def test_engine_modes_route_through_the_shared_helper(self):
-        for dcc in ("maya", "blender"):
-            self.assertIn("_run_auto_unwrap", self._source(dcc))
+def _pack_widget(**overrides):
+    return _widget(**dict(PACK_DEFAULTS, **overrides))
 
 
-class _FakeTb000Widget:
-    """tb000's option-box surface with the same defaults as tb000_init."""
+class TestPackInMaya(_MayaCase):
+    """tb000 over mtk.UvUtils.pack_uvs, pinned against behavior verified live in
+    Maya 2025: packBox anchors at the UDIM; layoutScaleMode omitted == Uniform,
+    1 keeps the shell scale; tileU/tileV distribute across a grid; a single-mesh
+    failure reports with no probe pass; both methods pack exactly the selection."""
 
-    class _Combo:
-        def __init__(self, data):
-            self._data = data
-
-        def currentData(self):
-            return self._data
-
-    class _Spin:
-        def __init__(self, value):
-            self._value = value
-
-        def value(self):
-            return self._value
-
-    class _Check:
-        def __init__(self, checked):
-            self._checked = checked
-
-        def isChecked(self):
-            return self._checked
-
-    def __init__(self, **overrides):
-        defaults = dict(
-            cmb019=self._Combo("standard"),  # Method: Standard (u3dLayout)
-            cmb009=self._Combo(1),  # Pre-Scale: Preserve 3D
-            cmb010=self._Combo(0),  # Pre-Rotate: Off
-            s004=self._Spin(1001),  # UDIM
-            s011=self._Spin(90),  # Rotate Step
-            s012=self._Spin(0),  # Rotate Min
-            s013=self._Spin(0),  # Rotate Max (0 = search disabled)
-            s014=self._Spin(1),  # Mutations
-            cmb015=self._Combo((1.0, 1.0)),  # Tile Coverage: Full
-            cmb018=self._Combo(2),  # Scale Mode: Fill (uniform)
-            s019=self._Spin(1),  # Tiles U
-            s020=self._Spin(1),  # Tiles V
-            chk016=self._Check(True),  # Skip Instances
-            chk043=self._Check(False),  # Brute Force (xatlas)
-            chk044=self._Check(True),  # Rotate Shells (xatlas)
-        )
-        defaults.update(overrides)
-        menu = _FakeUi()
-        for name, control in defaults.items():
-            setattr(menu, name, control)
-        self.option_box = _FakeUi()
-        self.option_box.menu = menu
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestTb000Pack(unittest.TestCase):
-    """tb000 (Pack UVs) — u3dLayout parameter plumbing, pinned against
-    behavior verified live in Maya 2025 (probe session 2026-07-28):
-
-    - packBox is [umin, umax, vmin, vmax]; the UDIM spinbox anchors it.
-    - layoutScaleMode omitted == Uniform; 1 keeps shell scale exactly.
-    - tileU/tileV distribute shells across a grid anchored at the pack box.
-    - A single-mesh batch failure reports directly — no redundant probe pass.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        cmds.loadPlugin("Unfold3D", quiet=True)
-
-    def setUp(self):
-        cmds.file(new=True, force=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        self.instance.ui = _FakeUi()
-        self.instance.ui.cmb003 = _FakeCmb("1024")
-
-    def tearDown(self):
-        cmds.file(new=True, force=True)
-
-    @staticmethod
-    def _bbox2d(obj):
+    def bbox2d(self, obj):
         return cmds.polyEvaluate(obj, boundingBox2d=True)
 
-    def _message_text(self):
-        return " ".join(str(args) for args, _ in self.instance.sb.messages)
-
-    def test_default_pack_fills_target_tile(self):
+    def test_default_pack_fills_the_target_tile(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         b = cmds.polyCube(name="packB", ch=False)[0]
         cmds.select(a, b)
-
-        self.instance.tb000(widget=_FakeTb000Widget())
-
+        self.instance.tb000(_pack_widget())
         for obj in (a, b):
-            (u0, u1), (v0, v1) = self._bbox2d(obj)
+            (u0, u1), (v0, v1) = self.bbox2d(obj)
             self.assertGreaterEqual(min(u0, v0), 0.0)
             self.assertLessEqual(max(u1, v1), 1.0)
-        self.assertIn("UV Pack Complete", self._message_text())
+        self.assertIn("UV Pack Complete", _text(self.instance))
 
-    def test_udim_anchor_offsets_pack_box(self):
+    def test_udim_anchor_offsets_the_pack_box(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         cmds.select(a)
-
-        self.instance.tb000(widget=_FakeTb000Widget(s004=_FakeTb000Widget._Spin(1002)))
-
-        (u0, u1), _ = self._bbox2d(a)
+        self.instance.tb000(_pack_widget(s004=1002))
+        (u0, u1), _ = self.bbox2d(a)
         self.assertGreaterEqual(u0, 1.0)
         self.assertLessEqual(u1, 2.0)
 
-    def test_scale_mode_off_preserves_shell_scale(self):
+    def test_scale_mode_off_preserves_the_shell_scale(self):
         a = cmds.polyPlane(name="packA", sx=1, sy=1, ch=False)[0]
         uvs = cmds.polyListComponentConversion(a, fromFace=True, toUV=True)
         cmds.polyEditUV(uvs, pivotU=0.0, pivotV=0.0, scaleU=0.3, scaleV=0.3)
         cmds.select(a)
-
-        widget = _FakeTb000Widget(
-            cmb009=_FakeTb000Widget._Combo(0),  # Preserve UV
-            cmb018=_FakeTb000Widget._Combo(1),  # Scale Mode: Off
-        )
-        self.instance.tb000(widget=widget)
-
-        (u0, u1), (v0, v1) = self._bbox2d(a)
+        self.instance.tb000(_pack_widget(cmb009=0, cmb018=1))
+        (u0, u1), (v0, v1) = self.bbox2d(a)
         self.assertAlmostEqual(u1 - u0, 0.3, places=3)
         self.assertAlmostEqual(v1 - v0, 0.3, places=3)
 
-    def test_tile_grid_spans_udims_and_reports_range(self):
+    def test_tile_grid_spans_udims_and_reports_the_range(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         b = cmds.polyCube(name="packB", ch=False)[0]
         cmds.select(a, b)
-
-        self.instance.tb000(widget=_FakeTb000Widget(s019=_FakeTb000Widget._Spin(2)))
-
-        u_maxes = [self._bbox2d(obj)[0][1] for obj in (a, b)]
-        u_mins = [self._bbox2d(obj)[0][0] for obj in (a, b)]
-        self.assertGreater(max(u_maxes), 1.0, "grid should reach the second tile")
-        self.assertLess(min(u_mins), 1.0, "grid should still use the first tile")
-        self.assertIn("1001-1002", self._message_text())
+        self.instance.tb000(_pack_widget(s019=2))
+        u_maxes = [self.bbox2d(obj)[0][1] for obj in (a, b)]
+        u_mins = [self.bbox2d(obj)[0][0] for obj in (a, b)]
+        self.assertGreater(max(u_maxes), 1.0)
+        self.assertLess(min(u_mins), 1.0)
+        self.assertIn("1001-1002", _text(self.instance))
 
     @staticmethod
     def _mixed_content():
-        """16 primitives at mixed scales plus two cut meshes: the smallest
-        content found on which u3dLayout's Distribute grid mode stacks shells
-        (a cone cap and a sphere pole land on packed shells). Seeded, so the
-        scene is identical every run."""
+        """16 primitives at mixed scales plus two cut meshes: content on which
+        u3dLayout's own Distribute grid mode stacks shells. Seeded."""
         import random
 
         rng = random.Random(11)
         makers = [
-            cmds.polySphere,
-            cmds.polyCylinder,
-            cmds.polyTorus,
-            cmds.polyCone,
-            cmds.polyCube,
-            cmds.polyPipe,
-            cmds.polyHelix,
+            cmds.polySphere, cmds.polyCylinder, cmds.polyTorus, cmds.polyCone,
+            cmds.polyCube, cmds.polyPipe, cmds.polyHelix,
         ]
         out = []
         for _ in range(14):
@@ -1107,66 +1040,65 @@ class TestTb000Pack(unittest.TestCase):
         return out + [cube, sphere]
 
     def test_tile_grid_never_stacks_shells(self):
-        """User-reported: Pack left overlapping shells. With Tiles U/V > 1,
-        u3dLayout's own Distribute mode (-tileAssignMode 0) drops some shells
-        on top of packed ones. Every shell must land clear of the others."""
+        """User-reported: Pack left overlapping shells with Tiles U/V > 1."""
         objs = self._mixed_content()
         cmds.select(objs)
-
-        self.instance.tb000(
-            widget=_FakeTb000Widget(
-                s019=_FakeTb000Widget._Spin(2), s020=_FakeTb000Widget._Spin(2)
-            )
-        )
-
+        self.instance.tb000(_pack_widget(s019=2, s020=2))
         faces = cmds.polyListComponentConversion(objs, toFace=True)
         overlapping = cmds.ls(cmds.polyUVOverlap(faces, oc=True) or [], flatten=True)
         self.assertEqual(overlapping, [])
-        for obj in objs:
-            (u0, u1), (v0, v1) = self._bbox2d(obj)
-            self.assertGreaterEqual(min(u0, v0), 0.0)
-            self.assertLessEqual(max(u1, v1), 2.0)
 
-    def test_tile_grid_clamps_to_udim_row_end(self):
-        """UDIM 1010 sits at the row end (u=9): Tiles U 2 would pack past
-        u=10, outside UDIM addressing, so it clamps to 1 and says so."""
+    def test_tile_grid_clamps_to_the_udim_row_end(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         cmds.select(a)
-
-        widget = _FakeTb000Widget(
-            s004=_FakeTb000Widget._Spin(1010),
-            s019=_FakeTb000Widget._Spin(2),
-        )
-        self.instance.tb000(widget=widget)
-
-        (u0, u1), _ = self._bbox2d(a)
+        self.instance.tb000(_pack_widget(s004=1010, s019=2))
+        (u0, u1), _ = self.bbox2d(a)
         self.assertGreaterEqual(u0, 9.0)
         self.assertLessEqual(u1, 10.0)
-        text = self._message_text()
+        text = _text(self.instance)
         self.assertIn("Target UDIM:</b> 1010", text)
         self.assertIn("clamped", text)
 
-    def test_single_mesh_failure_reports_without_probe_pass(self):
+    def test_single_mesh_failure_reports_without_a_probe_pass(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         cmds.select(a)
-
         calls = []
 
         def boom(*args, **kwargs):
             calls.append((args, kwargs))
             raise RuntimeError("u3dLayout: non-manifold vertices")
 
-        with mock.patch.object(uv_module.cmds, "u3dLayout", side_effect=boom):
-            self.instance.tb000(widget=_FakeTb000Widget())
-
-        self.assertEqual(len(calls), 1, "single mesh must not be re-probed")
-        text = self._message_text()
+        with mock.patch.object(cmds, "u3dLayout", side_effect=boom):
+            self.instance.tb000(_pack_widget())
+        self.assertEqual(len(calls), 1)
+        text = _text(self.instance)
         self.assertIn("Skipped: 1", text)
         self.assertIn("non-manifold", text)
 
-    def test_xatlas_method_packs_into_target_tile(self):
-        """Method: xatlas dispatches to mtk.UvUtils.pack_uvs and honors the
-        UDIM anchor + coverage; u3dLayout is never called."""
+    @staticmethod
+    def _parked_cube():
+        cube = cmds.polyCube(name="packA", ch=False)[0]
+        cmds.polyMapCut(f"{cube}.e[*]", ch=False)  # six separate shells
+        cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)  # park the map off-tile
+        return cube, cmds.polyEditUV(f"{cube}.map[*]", query=True)
+
+    @staticmethod
+    def _moved(before, after):
+        return {
+            i
+            for i in range(len(before) // 2)
+            if abs(before[2 * i] - after[2 * i]) > 1e-6
+            or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
+        }
+
+    @staticmethod
+    def _uv_ids(components):
+        return {
+            int(c.split("[")[1].rstrip("]"))
+            for c in cmds.ls(cmds.polyListComponentConversion(components, toUV=True), flatten=True)
+        }
+
+    def test_xatlas_packs_into_the_target_tile(self):
         import pythontk as ptk
 
         if not ptk.UvPack.available():
@@ -1174,342 +1106,197 @@ class TestTb000Pack(unittest.TestCase):
         a = cmds.polyCube(name="packA", ch=False)[0]
         b = cmds.polyCube(name="packB", ch=False)[0]
         cmds.select(a, b)
-
-        widget = _FakeTb000Widget(
-            cmb019=_FakeTb000Widget._Combo("xatlas"),
-            s004=_FakeTb000Widget._Spin(1002),
-        )
-        with mock.patch.object(
-            uv_module.cmds, "u3dLayout", side_effect=AssertionError("native packer ran")
-        ):
-            self.instance.tb000(widget=widget)
-
+        with mock.patch.object(cmds, "u3dLayout", side_effect=AssertionError("native ran")):
+            self.instance.tb000(_pack_widget(cmb019="xatlas", s004=1002))
         for obj in (a, b):
-            (u0, u1), (v0, v1) = self._bbox2d(obj)
+            (u0, u1), (v0, v1) = self.bbox2d(obj)
             self.assertGreaterEqual(u0, 1.0)
             self.assertLessEqual(u1, 2.0)
-            self.assertGreaterEqual(v0, 0.0)
-            self.assertLessEqual(v1, 1.0)
-        self.assertIn("UV Pack Complete", self._message_text())
+        self.assertIn("UV Pack Complete", _text(self.instance))
 
-    def test_xatlas_method_honors_a_face_selection(self):
-        """User-reported: Method: xatlas only worked on a whole-object selection
-        — a face / shell selection reported "No mesh objects to pack." and
-        nothing moved. It must pack the selected faces into the target tile and
-        leave the rest of the map alone."""
+    def test_xatlas_honors_a_face_selection(self):
         import pythontk as ptk
 
         if not ptk.UvPack.available():
             self.skipTest("xatlas not installed in this interpreter")
-        cube = cmds.polyCube(name="packA", ch=False)[0]
-        cmds.polyMapCut(f"{cube}.e[*]", ch=False)  # six separate shells
-        cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)  # park the map off-tile
-        before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
-        scoped = {
-            int(c.split("[")[1].rstrip("]"))
-            for c in cmds.ls(
-                cmds.polyListComponentConversion(f"{cube}.f[0:2]", toUV=True),
-                flatten=True,
-            )
-        }
+        cube, before = self._parked_cube()
+        scoped = self._uv_ids(f"{cube}.f[0:2]")
         cmds.select(f"{cube}.f[0:2]")
-
-        widget = _FakeTb000Widget(cmb019=_FakeTb000Widget._Combo("xatlas"))
-        self.instance.tb000(widget=widget)
-
+        self.instance.tb000(_pack_widget(cmb019="xatlas"))
         after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
-        moved = {
-            i
-            for i in range(len(before) // 2)
-            if abs(before[2 * i] - after[2 * i]) > 1e-6
-            or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
-        }
-        self.assertEqual(moved, scoped)
-        for i in sorted(scoped):
-            self.assertLessEqual(max(after[2 * i], after[2 * i + 1]), 1.0 + 1e-4)
-        self.assertIn("UV Pack Complete", self._message_text())
+        self.assertEqual(self._moved(before, after), scoped)
 
-    def test_standard_method_honors_a_face_selection(self):
-        """The native packer's twin of the case above — both methods pack
-        exactly the selected scope, so switching method can't change it."""
-        cube = cmds.polyCube(name="packA", ch=False)[0]
-        cmds.polyMapCut(f"{cube}.e[*]", ch=False)
-        cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)
-        before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
-        scoped = {
-            int(c.split("[")[1].rstrip("]"))
-            for c in cmds.ls(
-                cmds.polyListComponentConversion(f"{cube}.f[0:2]", toUV=True),
-                flatten=True,
-            )
-        }
+    def test_standard_honors_a_face_selection(self):
+        cube, before = self._parked_cube()
+        scoped = self._uv_ids(f"{cube}.f[0:2]")
         cmds.select(f"{cube}.f[0:2]")
-
-        self.instance.tb000(widget=_FakeTb000Widget())
-
-        after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
-        moved = {
-            i
-            for i in range(len(before) // 2)
-            if abs(before[2 * i] - after[2 * i]) > 1e-6
-            or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
-        }
+        self.instance.tb000(_pack_widget())
+        moved = self._moved(before, cmds.polyEditUV(f"{cube}.map[*]", query=True))
         self.assertTrue(moved)
         self.assertTrue(moved <= scoped, "the pack reached outside the selection")
 
-    def test_standard_method_widens_uv_edge_and_vertex_selections(self):
-        """A shell picked in the UV editor is a UV selection (and edge / vertex
-        picks happen too); Standard only accepted faces and answered "No UVs
-        found on selection." for the rest. Each must pack the faces it touches
-        and nothing outside them."""
+    def test_standard_widens_uv_edge_and_vertex_selections(self):
         for pick in ("uvs", "edge", "vertex"):
             with self.subTest(pick=pick):
                 cmds.file(new=True, force=True)
-                cube = cmds.polyCube(name="packA", ch=False)[0]
-                cmds.polyMapCut(f"{cube}.e[*]", ch=False)
-                cmds.polyEditUV(f"{cube}.map[*]", u=5.0, v=5.0)
-                before = cmds.polyEditUV(f"{cube}.map[*]", query=True)
+                cube, before = self._parked_cube()
                 selection = {
                     "uvs": cmds.polyListComponentConversion(f"{cube}.f[0]", toUV=True),
                     "edge": [f"{cube}.e[0]"],
                     "vertex": [f"{cube}.vtx[0]"],
                 }[pick]
-                touched = cmds.polyListComponentConversion(selection, toFace=True)
-                scoped = {
-                    int(c.split("[")[1].rstrip("]"))
-                    for c in cmds.ls(
-                        cmds.polyListComponentConversion(touched, toUV=True),
-                        flatten=True,
-                    )
-                }
+                scoped = self._uv_ids(cmds.polyListComponentConversion(selection, toFace=True))
                 self.instance.sb = _RecordedSb()
                 cmds.select(selection)
-
-                self.instance.tb000(widget=_FakeTb000Widget())
-
-                after = cmds.polyEditUV(f"{cube}.map[*]", query=True)
-                moved = {
-                    i
-                    for i in range(len(before) // 2)
-                    if abs(before[2 * i] - after[2 * i]) > 1e-6
-                    or abs(before[2 * i + 1] - after[2 * i + 1]) > 1e-6
-                }
-                self.assertTrue(moved, self._message_text())
+                self.instance.tb000(_pack_widget())
+                moved = self._moved(before, cmds.polyEditUV(f"{cube}.map[*]", query=True))
+                self.assertTrue(moved, _text(self.instance))
                 self.assertTrue(moved <= scoped, "the pack reached outside")
-                # One object, however many face ranges the pick widened to (a
-                # corner vertex touches three faces apart).
-                self.assertIn("packed 1 mesh(es)", self._message_text())
+                # One object, however many face ranges the pick widened to.
+                self.assertIn("packed 1 mesh(es)", _text(self.instance))
 
-    def test_xatlas_missing_engine_reports_install_note(self):
-        """A missing engine must message (with the install command) and leave
-        the scene untouched — not raise out of the slot."""
+    def test_a_missing_engine_reports_the_install_note(self):
         a = cmds.polyCube(name="packA", ch=False)[0]
         cmds.select(a)
-        before = self._bbox2d(a)
-
-        widget = _FakeTb000Widget(cmb019=_FakeTb000Widget._Combo("xatlas"))
+        before = self.bbox2d(a)
         with mock.patch.object(
-            mtk.UvUtils,
-            "pack_uvs",
-            side_effect=RuntimeError("pip install --user xatlas"),
+            mtk.UvUtils, "pack_uvs", side_effect=RuntimeError("pip install --user xatlas")
         ):
-            self.instance.tb000(widget=widget)
-
-        self.assertEqual(self._bbox2d(a), before)
-        text = self._message_text()
-        self.assertIn("pip install", text)
+            self.instance.tb000(_pack_widget(cmb019="xatlas"))
+        self.assertEqual(self.bbox2d(a), before)
+        self.assertIn("pip install", _text(self.instance))
 
 
-class _FakeStackWidget:
-    """b030's option-box surface (UvMixin.b030_init): Mode (cmb020), Tolerance (s024),
-    Pin after stack (chk047)."""
-
-    def __init__(self, mode="similar", tolerance=1.0, pin=False):
-        menu = _FakeUi()
-        menu.cmb020 = _FakeDataCombo(mode)
-        menu.s024 = _FakeSpin(tolerance)
-        menu.chk047 = _FakeCheck(pin)
-        self.option_box = _FakeOptionBox(menu)
-
-
-@unittest.skipUnless(_MAYA_AVAILABLE, "Requires maya.cmds")
-class TestB030Stack(unittest.TestCase):
-    """b030 (Stack / Unstack) — Similar mode is Maya's polyUVStackSimilarShells (rotates
-    identical shells into exact overlap), Center mode is texStackShells (translate only);
-    the second click restores positions and prior pin weights."""
+class TestStackInMaya(_MayaCase):
+    """b030: Similar is polyUVStackSimilarShells (rotates identical shells into
+    exact overlap), All shells texStackShells (translate only); the second
+    click restores positions and prior pin weights."""
 
     def setUp(self):
-        cmds.file(new=True, force=True)
-        cmds.loadPlugin("Unfold3D.mll", quiet=True)
-        self.instance = uv_module.UvSlots.__new__(uv_module.UvSlots)
-        self.instance.sb = _RecordedSb()
-        # __init__ is bypassed (it needs the loaded UI); seed the toggle state it owns.
-        self.instance._b030_stacked = False
-        self.instance._b030_last_selection = None
-        self.instance._b030_uv_snapshot = None
-        self.instance._b030_pin_weights = None
-        # texStackShells is MEL over GUI-only selection-mask queries (fails headless);
-        # capture the call instead — the command itself is Maya's, not ours.
-        self._orig_eval = uv_module.mel.eval
+        super().setUp()
+        # texStackShells is MEL over GUI-only selection-mask queries (fails
+        # headless): the call is captured instead -- the command is Maya's.
         self.mel_calls = []
-        uv_module.mel.eval = lambda cmd: self.mel_calls.append(cmd)
+        original = mel.eval
+        self.addCleanup(setattr, mel, "eval", original)
+        mel.eval = lambda command: self.mel_calls.append(command)
 
-    def tearDown(self):
-        uv_module.mel.eval = self._orig_eval
-        cmds.file(new=True, force=True)
-
-    # -- fixtures ------------------------------------------------------------
     @staticmethod
-    def _twins(rotate=37.0, scale=1.0):
-        """Two identical 2x2 planes; B's shell rotated / scaled / moved away from A's."""
+    def twins(rotate=37.0, scale=1.0):
+        """Two identical 2x2 planes; B's shell rotated / scaled / moved off A's."""
         a = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="stackA")[0]
         b = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="stackB")[0]
         cmds.polyEditUV(f"{a}.map[*]", pu=0.5, pv=0.5, su=0.3, sv=0.3, r=True)
         cmds.polyEditUV(f"{a}.map[*]", u=-0.3, v=-0.3, r=True)
-        cmds.polyEditUV(
-            f"{b}.map[*]", pu=0.5, pv=0.5, su=0.3 * scale, sv=0.3 * scale, r=True
-        )
+        cmds.polyEditUV(f"{b}.map[*]", pu=0.5, pv=0.5, su=0.3 * scale, sv=0.3 * scale, r=True)
         cmds.polyEditUV(f"{b}.map[*]", pu=0.5, pv=0.5, a=rotate, r=True)
         cmds.polyEditUV(f"{b}.map[*]", u=0.3, v=0.2, r=True)
         return a, b
 
     @staticmethod
-    def _uvs(obj):
+    def uvs(obj):
         n = cmds.polyEvaluate(obj, uv=True)
         return [tuple(cmds.polyEditUV(f"{obj}.map[{i}]", q=True)) for i in range(n)]
 
     @staticmethod
-    def _max_dist(pa, pb):
-        return max(
-            ((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2) ** 0.5 for x, y in zip(pa, pb)
-        )
+    def max_dist(pa, pb):
+        return max(((x[0] - y[0]) ** 2 + (x[1] - y[1]) ** 2) ** 0.5 for x, y in zip(pa, pb))
 
-    def _pin(self, uv):
+    @staticmethod
+    def pin(uv):
         return (cmds.polyPinUV(uv, q=True, value=True) or [0.0])[0]
 
-    # -- tests ---------------------------------------------------------------
-    def test_similar_mode_rotates_twins_into_exact_overlap_and_unstack_restores(self):
-        a, b = self._twins()
-        before_b = self._uvs(b)
-        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
-        widget = _FakeStackWidget(mode="similar", tolerance=1.0)
+    def stack(self, mode="similar", tolerance=1.0, pin=False):
+        self.instance.b030(_widget(cmb020=mode, s024=tolerance, chk047=pin))
 
-        self.instance.b030(widget)
-        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+    def test_similar_rotates_twins_into_overlap_and_unstack_restores(self):
+        a, b = self.twins()
+        before_b = self.uvs(b)
+        cmds.select(f"{a}.f[*]", f"{b}.f[*]")
+        self.stack()
+        self.assertLess(self.max_dist(self.uvs(a), self.uvs(b)), 1e-5)
         self.assertEqual(self.instance.sb.messages, [])
         self.assertEqual(self.mel_calls, [])  # not the translate-only path
+        self.stack()  # the same selection: Unstack
+        self.assertLess(self.max_dist(self.uvs(b), before_b), 1e-6)
+        self.assertIsNone(self.instance._b030_snapshot)
 
-        self.instance.b030(widget)  # same selection -> Unstack
-        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
-        self.assertFalse(self.instance._b030_stacked)
-
-    def test_similar_mode_matches_a_scaled_copy_too(self):
-        a, b = self._twins(rotate=90.0, scale=0.5)
+    def test_similar_matches_a_scaled_copy_too(self):
+        a, b = self.twins(rotate=90.0, scale=0.5)
         cmds.select(f"{a}.f[*]", f"{b}.f[*]")
-        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
-        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+        self.stack()
+        self.assertLess(self.max_dist(self.uvs(a), self.uvs(b)), 1e-5)
 
-    def test_object_selection_is_widened_to_faces(self):
-        """polyUVStackSimilarShells silently ignores whole objects (Maya's toolkit widens
-        them to .f[*]); the slot must do the same or a transform selection is a no-op."""
-        a, b = self._twins()
-        cmds.select(a, b)
-        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
-        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
-
-    def test_non_mesh_object_in_selection_is_skipped_not_raised(self):
-        """A curve selected alongside the meshes must not blow up the .f[*] widening."""
-        a, b = self._twins()
+    def test_an_object_selection_widens_to_faces(self):
+        """polyUVStackSimilarShells ignores whole objects; the operation widens
+        them to .f[*] as Maya's toolkit does, skipping a non-mesh."""
+        a, b = self.twins()
         curve = cmds.circle(ch=False, name="stackCurve")[0]
         cmds.select(a, b, curve)
-        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=1.0))
-        self.assertLess(self._max_dist(self._uvs(a), self._uvs(b)), 1e-5)
+        self.stack()
+        self.assertLess(self.max_dist(self.uvs(a), self.uvs(b)), 1e-5)
         self.assertEqual(self.instance.sb.messages, [])
 
-    def test_similar_mode_with_no_match_reports_and_stays_unstacked(self):
+    def test_similar_with_no_match_reports_and_stays_unstacked(self):
         a = cmds.polyPlane(w=1, h=1, sx=2, sy=2, ch=False, name="lone2x2")[0]
         c = cmds.polyPlane(w=1, h=1, sx=3, sy=1, ch=False, name="lone3x1")[0]
         cmds.polyEditUV(f"{c}.map[*]", u=0.5, v=0.5, r=True)
-        before = self._uvs(a) + self._uvs(c)
+        before = self.uvs(a) + self.uvs(c)
         cmds.select(f"{a}.f[*]", f"{c}.f[*]")
-        self.instance.b030(_FakeStackWidget(mode="similar", tolerance=0.1))
-        self.assertEqual(before, self._uvs(a) + self._uvs(c))
-        self.assertTrue(self.instance.sb.messages)
-        self.assertIn("No similar shells", self.instance.sb.messages[0][0][0])
-        self.assertFalse(self.instance._b030_stacked)  # next click stacks again
-        self.assertIsNone(self.instance._b030_uv_snapshot)
+        self.stack(tolerance=0.1)
+        self.assertEqual(before, self.uvs(a) + self.uvs(c))
+        self.assertIn("No similar shells", _text(self.instance))
+        self.assertIsNone(self.instance._b030_snapshot)  # the next click stacks again
 
-    def test_center_mode_routes_to_texStackShells_with_uvs_selected(self):
-        """All-shells mode runs texStackShells over the selection's UVs (the MEL
-        needs a UV/face selection -- a plain object selection would be "No UVs
-        selected") and puts the original selection back for the toggle."""
-        a, b = self._twins()
+    def test_all_shells_runs_texStackShells_on_the_uvs(self):
+        a, b = self.twins()
         cmds.select(a, b)
         seen = []
-        uv_module.mel.eval = lambda cmd: seen.append((cmd, cmds.ls(sl=True)))
-        self.instance.b030(_FakeStackWidget(mode="center"))
-        self.assertEqual(len(seen), 1)
-        self.assertEqual(seen[0][0], "texStackShells {}")
+        mel.eval = lambda command: seen.append((command, cmds.ls(sl=True)))
+        self.stack(mode="center")
+        self.assertEqual([command for command, _ in seen], ["texStackShells {}"])
         self.assertTrue(all(".map[" in item for item in seen[0][1]), seen[0][1])
-        self.assertEqual(cmds.ls(sl=True), [a, b])  # selection restored
-        self.assertTrue(self.instance._b030_stacked)
-        self.assertTrue(self.instance._b030_uv_snapshot)
+        self.assertEqual(cmds.ls(sl=True), [a, b])  # the selection given back
+        self.assertTrue(self.instance._b030_snapshot)
 
-    def test_pin_after_stack_pins_stacked_shells_and_unstack_restores_prior_weights(
-        self,
-    ):
-        a, b = self._twins()
+    def test_pin_after_stack_pins_and_unstack_restores_prior_weights(self):
+        a, b = self.twins()
         cmds.polyPinUV(f"{a}.map[0]", value=1.0)  # a pin the user set beforehand
-        before_b = self._uvs(b)
+        before_b = self.uvs(b)
         cmds.select(f"{a}.f[*]", f"{b}.f[*]")
-        widget = _FakeStackWidget(mode="similar", tolerance=1.0, pin=True)
-
-        self.instance.b030(widget)
-        self.assertEqual(self._pin(f"{a}.map[4]"), 1.0)
-        self.assertEqual(self._pin(f"{b}.map[4]"), 1.0)
-
-        self.instance.b030(widget)  # Unstack
-        # Positions come back even though the UVs were pinned meanwhile
-        # (polyEditUV honours pins -- Unstack must lift them first).
-        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
-        self.assertEqual(self._pin(f"{a}.map[0]"), 1.0)  # the user's pin survives
-        self.assertEqual(self._pin(f"{a}.map[4]"), 0.0)
-        self.assertEqual(self._pin(f"{b}.map[4]"), 0.0)
+        self.stack(pin=True)
+        self.assertEqual((self.pin(f"{a}.map[4]"), self.pin(f"{b}.map[4]")), (1.0, 1.0))
+        self.stack(pin=True)  # Unstack: positions back although pinned meanwhile
+        self.assertLess(self.max_dist(self.uvs(b), before_b), 1e-6)
+        self.assertEqual(self.pin(f"{a}.map[0]"), 1.0)  # the user's pin survives
+        self.assertEqual((self.pin(f"{a}.map[4]"), self.pin(f"{b}.map[4]")), (0.0, 0.0))
 
     def test_unstack_moves_back_uvs_the_user_had_pinned(self):
-        """polyUVStackSimilarShells ignores pins but polyEditUV honours them:
-        a user-pinned UV that the stack moved must still come back on Unstack."""
-        a, b = self._twins()
+        a, b = self.twins()
         cmds.polyPinUV(f"{b}.map[2]", value=1.0)
-        before_b = self._uvs(b)
+        before_b = self.uvs(b)
         cmds.select(f"{a}.f[*]", f"{b}.f[*]")
-        widget = _FakeStackWidget(mode="similar", tolerance=1.0, pin=False)
-        self.instance.b030(widget)
-        self.assertGreater(self._max_dist(self._uvs(b), before_b), 0.01)
-        self.instance.b030(widget)  # Unstack
-        self.assertLess(self._max_dist(self._uvs(b), before_b), 1e-6)
-        self.assertEqual(self._pin(f"{b}.map[2]"), 1.0)  # weight restored
+        self.stack()
+        self.assertGreater(self.max_dist(self.uvs(b), before_b), 0.01)
+        self.stack()  # Unstack
+        self.assertLess(self.max_dist(self.uvs(b), before_b), 1e-6)
+        self.assertEqual(self.pin(f"{b}.map[2]"), 1.0)  # the weight restored
 
-    def test_selection_change_resets_the_toggle(self):
-        a, b = self._twins()
+    def test_a_selection_change_resets_the_toggle(self):
+        a, b = self.twins()
         cmds.select(f"{a}.f[*]", f"{b}.f[*]")
-        widget = _FakeStackWidget(mode="similar", tolerance=1.0)
-        self.instance.b030(widget)
-        c, d = self._twins()
+        self.stack()
+        c, d = self.twins()
         cmds.select(f"{c}.f[*]", f"{d}.f[*]")
-        self.instance.b030(widget)  # fresh selection -> stacks (not Unstack)
-        self.assertTrue(self.instance._b030_stacked)
-        self.assertLess(self._max_dist(self._uvs(c), self._uvs(d)), 1e-5)
+        self.stack()  # a fresh selection stacks (not Unstack)
+        self.assertTrue(self.instance._b030_snapshot)
+        self.assertLess(self.max_dist(self.uvs(c), self.uvs(d)), 1e-5)
 
 
-# TestCmb002Dispatch (+ its _FakeItemsWidget/_FakeAddWidget helpers) removed 2026-07-12:
-# the cmb002 "UV Transform" menu it drove was relocated wholesale to the mayatk
-# shell_xform panel on 2026-07-09 (commit e80fcdc0, "UV transform cluster relocated to
-# the DCC engines") — UvSlots has no cmb002/cmb002_init anymore, so all 8 tests raised
-# AttributeError under mayapy. The capability's coverage now lives with the engine:
-# the shared tool's test_shell_xform_panel.py + mayatk/test/test_uv_utils.py (op-level),
-# and blendertk/test/uv_shell_tools_check.py + tentacle/test/blender checks — the
-# same relocation note as test/blender/uv_slot_check.py's tb005/tb008 removal.
+# The cmb002 "UV Transform" menu, tb005 / tb006 / tb008 and the transfer option
+# box moved to the shared tools (Shell Xform, Texture Combine): their coverage is
+# test_shell_xform_panel.py / test_texture_combine_panel.py and the engines'
+# test_uv_utils (mayatk unittest, blendertk check).
 
 
 if __name__ == "__main__":

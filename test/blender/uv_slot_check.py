@@ -1,4 +1,4 @@
-"""Manual harness for the Blender ``uv`` slot (``tentacle/slots/blender/uv.py``).
+"""Manual harness for the composed ``uv`` slot (``tentacle/slots/uv.py``) in Blender.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a
@@ -6,12 +6,13 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
 
     blender --background --factory-startup --python tentacle/test/blender/uv_slot_check.py
 
-Drives the real ``UvSlots`` slot methods with a stubbed option-box menu (mirrors the fake widget
-idiom in ``edit_slot_check.py`` / ``rendering_slot_check.py``) but everything downstream is live
-``bpy``/bmesh state — this proves the widget objectNames the option boxes expose (tb000's
-cmb009/s004, tb004's chk022/s000, tb022's chk026) are wired to the real underlying geometry
-change, not just present in the .ui. (uv tb005/tb006/tb008 Straighten/Distribute/Mirror moved to
-the shared shell_xform tool and are covered by its tests.)
+Drives the real ``UvSlots`` slot methods over ``btk`` (the switchboard's ``tk``) with a stubbed
+option-box menu (mirrors the fake widget idiom in ``edit_slot_check.py`` /
+``rendering_slot_check.py``) but everything downstream is live ``bpy``/bmesh state — this proves
+the option boxes' objectNames (tb000's cmb009/s004/cmb015, tb004's chk022/s000, tb022's chk026)
+reach the real geometry change through the blendertk operations, not just the .ui. (uv
+tb005/tb006/tb008 Straighten/Distribute/Mirror moved to the shared shell_xform tool and are
+covered by its tests.)
 """
 import sys
 import os
@@ -43,16 +44,20 @@ def check(name, cond, detail=""):
     lines.append(f"{'OK  ' if cond else 'FAIL'} {name}{(' | ' + detail) if detail else ''}")
 
 
-def make_slot(cls):
-    """Instance without the UI-loading __init__ (headless: no loaded_ui)."""
+def make_slot(cls, messages=None):
+    """Instance without the UI-loading __init__ (headless: no loaded_ui), over ``btk``."""
     import contextlib
+
+    import blendertk as btk
 
     slot = cls.__new__(cls)
     # progress(): the footer task marquee the long UV slots wrap their engine call in.
     slot.sb = NS(
-        message_box=lambda *a, **k: None,
+        message_box=(messages.append if messages is not None else lambda *a, **k: None),
         progress=lambda *a, **k: contextlib.nullcontext(lambda *a, **k: True),
+        tk=btk,  # a composed Slots class reaches its host through Slots.tk
     )
+    slot.ui = NS(cmb003=NS(currentText=lambda: "1024"))
     return slot
 
 
@@ -82,13 +87,24 @@ def option_box(menu):
     return NS(option_box=NS(menu=menu))
 
 
+def pack_menu(udim=1001, preserve_3d=False, coverage=(1.0, 1.0)):
+    """tb000's controls Blender reads: the (hidden) method combo, Pre-Scale, Rotate Shells,
+    Margin, UDIM and Tile Coverage."""
+    return NS(
+        cmb019=combo(data="standard"),
+        cmb009=combo(data=1 if preserve_3d else 0),
+        chk044=chk(True),
+        s_pack_margin=spin(0.001),
+        s004=spin(udim),
+        cmb015=combo(data=coverage),
+    )
+
+
 try:
     import bpy
     import bmesh
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt for the slot imports
-    from tentacle.slots.blender.uv import UvSlots
-
-    slot = make_slot(UvSlots)
+    from tentacle.slots.uv import UvSlots
 
     def uv_bounds(o):
         bm = bmesh.new()
@@ -120,45 +136,46 @@ try:
     # ---- tb000 Pack UVs: s004 target-UDIM tile shifts the packed 0-1 layout into that tile
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(
-        cmb009=combo(data=0),  # Pre-Scale: Preserve UV (skip the average-islands-scale pre-pass)
-        s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1012),
-        cmb015=combo(data=(1.0, 1.0)),  # Tile Coverage: Full
-    )
-    slot.tb000(option_box(menu))
+    msgs = []
+    slot = make_slot(UvSlots, msgs)
+    slot.tb000(option_box(pack_menu(udim=1012)))
     b = uv_bounds(o)
     check(
         "tb000 s004 shifts the packed layout into UDIM 1012 (tile u=1,v=1)",
         1.0 - 1e-3 <= b[0] and b[1] <= 2.0 + 1e-3 and 1.0 - 1e-3 <= b[2] and b[3] <= 2.0 + 1e-3,
         f"bounds={b}",
     )
+    check(
+        "tb000 summarizes the pack (texel density, map size, UDIM)",
+        msgs and "UV Pack Complete" in msgs[-1] and "Target UDIM:</b> 1012" in msgs[-1],
+        f"{msgs[-1:] if msgs else msgs}",
+    )
 
     # tb000 with the default tile (1001) leaves the pack in the 0-1 square
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(cmb009=combo(data=0), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001),
-                cmb015=combo(data=(1.0, 1.0)))
-    slot.tb000(option_box(menu))
+    make_slot(UvSlots).tb000(option_box(pack_menu()))
     b = uv_bounds(o)
-    check(
-        "tb000 s004=1001 (default tile) leaves the pack in 0-1",
-        -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3,
-        f"bounds={b}",
-    )
+    check("tb000 s004=1001 (default tile) leaves the pack in 0-1", -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3, f"bounds={b}")
 
     # tb000 Pre-Scale "Preserve 3D" (cmb009=1) runs an average-islands-scale pre-pass before
-    # packing; the result still fits the 0-1 square (proves the new cmb009 branch is wired).
+    # packing; the result still fits the 0-1 square.
     reset()
     o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
-    menu = NS(cmb009=combo(data=1), s_pack_margin=spin(0.001), chk_pack_rotate=chk(True), s004=spin(1001),
-                cmb015=combo(data=(1.0, 1.0)))
-    slot.tb000(option_box(menu))
+    make_slot(UvSlots).tb000(option_box(pack_menu(preserve_3d=True)))
     b = uv_bounds(o)
     check(
-        "tb000 cmb009=Preserve 3D runs the pre-scale pass + packs into 0-1 (new branch wired)",
+        "tb000 cmb009=Preserve 3D runs the pre-scale pass + packs into 0-1",
         -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3 and -1e-3 <= b[2] and b[3] <= 1.0 + 1e-3,
         f"bounds={b}",
     )
+
+    # tb000 cmb015 Tile Coverage: Half (U) shrinks the packed map about the tile corner
+    reset()
+    o = quads_object([(0.0, 0.0, 0.3, 0.3), (0.6, 0.6, 0.9, 0.9)])
+    make_slot(UvSlots).tb000(option_box(pack_menu(coverage=(0.5, 1.0))))
+    b = uv_bounds(o)
+    check("tb000 cmb015 Half (U) packs into u 0-0.5", b[1] <= 0.5 + 1e-3, f"bounds={b}")
 
     # ---- tb004 Unfold: chk022 Stack Similar + s000 tolerance groups same-size islands
     reset()
@@ -176,10 +193,10 @@ try:
         c.select_set(True)
     bpy.context.view_layer.objects.active = cube_a
     menu = NS(
-        cmb_unfold_method=combo("Angle Based"), s_unfold_margin=spin(0.0),
+        cmb_unfold_method=combo("Angle Based"), s_unfold_margin=spin(0.0), cmb013=combo(data="select"),
         chk017=chk(False), chk007=chk(False), chk022=chk(True), s000=spin(1.0),
     )
-    slot.tb004(option_box(menu))
+    make_slot(UvSlots).tb004(option_box(menu))
     bounds_a, bounds_b, bounds_c = uv_bounds(cube_a), uv_bounds(cube_b), uv_bounds(cube_c)
     check(
         "tb004 chk022 Stack Similar groups the two matching-shape cubes together",
@@ -190,35 +207,46 @@ try:
         bounds_c != bounds_a, f"c={bounds_c}",
     )
 
-    # ---- (uv tb005 Straighten / tb008 Mirror were relocated to the shared shell_xform tool;
-    # their coverage now lives there + in deepened_slots_check.py. The stale slot.tb005/tb008 calls
-    # here raised AttributeError on the current Uv slot — removed 2026-07-11.)
-
     # ---- tb022 Cut Hard Edges: chk026 Include Auto Seams marks extra seams
     reset()
     bpy.ops.mesh.primitive_cube_add()
     o = bpy.context.active_object
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.select_all(action="SELECT")
-    bm = bmesh.from_edit_mesh(o.data)
-    seams_before = sum(1 for e in bm.edges if e.seam)
-    bpy.ops.object.mode_set(mode="OBJECT")
+    seams_before = sum(1 for e in o.data.edges if e.use_seam)
     o.select_set(True)
     bpy.context.view_layer.objects.active = o
-    menu = NS(
-        s017=spin(70), s018=spin(180), chk025=chk(False), chk026=chk(True),
-    )
-    slot.tb022(option_box(menu))
-    bpy.ops.object.mode_set(mode="EDIT")
-    bm2 = bmesh.from_edit_mesh(o.data)
-    seams_after = sum(1 for e in bm2.edges if e.seam)
+    menu = NS(s017=spin(70), s018=spin(180), chk025=chk(False), chk026=chk(True))
+    make_slot(UvSlots).tb022(option_box(menu))
+    seams_after = sum(1 for e in o.data.edges if e.use_seam)
     check("tb022 chk026 Include Auto Seams marks new seams", seams_after > seams_before,
           f"{seams_before}->{seams_after}")
+
+    # ---- b005 Cut: Edit-Mode seams only; Object Mode says so
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    o = bpy.context.active_object
+    msgs = []
+    make_slot(UvSlots, msgs).b005()
+    check("b005 in Object Mode asks for Edit-Mode edges", msgs and "Edit Mode" in msgs[0], f"{msgs}")
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    make_slot(UvSlots).b005()
     bpy.ops.object.mode_set(mode="OBJECT")
+    check("b005 seams the selected edges", sum(1 for e in o.data.edges if e.use_seam) == 12)
+
+    # ---- tb001 Auto Unwrap, Standard: Smart UV Project into 0-1
+    reset()
+    bpy.ops.mesh.primitive_cube_add()
+    o = bpy.context.active_object
+    menu = NS(cmb011=combo(data="standard"), cmb012=combo(data=1), s_smart_angle=spin(66),
+              s_smart_margin=spin(0.0))
+    make_slot(UvSlots).tb001(option_box(menu))
+    b = uv_bounds(o)
+    check("tb001 Standard projects into 0-1", -1e-3 <= b[0] and b[1] <= 1.0 + 1e-3, f"bounds={b}")
 
     # ---- b000 launches the shared Texture Combine panel (its Transfer mode's
     # checks are tentacle's test_texture_combine_panel).
     shown = []
+    slot = make_slot(UvSlots)
     slot.sb.handlers = NS(marking_menu=NS(show=shown.append))
     slot.b000()
     check("b000 opens the texture_combine panel", shown == ["texture_combine"], f"{shown}")

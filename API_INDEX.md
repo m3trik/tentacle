@@ -14,10 +14,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class Slots(QtCore.QObject)`
   - methods: tk, mirror_app_state, require_selection, activate_tool, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
-### `slots/_uv.py` — Behavior shared by the Maya and Blender UV panels.
-- `class UvMixin`
-  - methods: b000_init, b000, b030_init, get_map_size, cmb003, s003, b029_init
-
 ### `slots/blender/_slots_blender.py`
 - `class SlotsBlender(Slots)`
   - methods: selected_objects, active_object, effective_fps, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
@@ -28,10 +24,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/blender/blender.py`
 - `class BlenderSlots(SlotsBlender)`
-
-### `slots/blender/uv.py`
-- `class UvSlots(UvMixin, SlotsBlender)`
-  - methods: tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb009_init, tb009, b005, b011, b021, tb007_init, tb007, header_init, uv_snapshot, b031, b003, b004, b029, tb022_init, tb022, b030, b032, b033
 
 ### `slots/cameras.py` — Cameras: one Slots class for both hosts.
 - `class CamerasSlots(Slots)`
@@ -177,10 +169,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/maya/toon.py`
 - `class ToonSlots(SlotsMaya)`
-
-### `slots/maya/uv.py`
-- `class UvSlots(UvMixin, SlotsMaya)`
-  - methods: header_init, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, b003, b004, b005, b011, b021, tb022_init, tb022, b029, b030, b031, b032, b033
 
 ### `slots/maya/visualize.py`
 - `class VisualizeSlots(SlotsMaya)`
@@ -635,6 +623,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/utilities.py` — Utilities: one Slots class for both hosts.
 - `class UtilitiesSlots(Slots)`
   - methods: b000, b001, b002, b003
+
+### `slots/uv.py` — UV: one Slots class for both hosts.
+- `class UvSlots(Slots)`
+  - methods: get_map_size, cmb003, s003, header_init, uv_snapshot, uv_editor, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030_init, b030, b031, b032, b033, b000_init, b000
 
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`

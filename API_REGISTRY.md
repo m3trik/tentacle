@@ -7,11 +7,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_animation.py`](#slots--_animation) — Text the animation panel's Maya and Blender forks say identically.
 - [`slots/_slots.py`](#slots--_slots)
-- [`slots/_uv.py`](#slots--_uv) — Behavior shared by the Maya and Blender UV panels.
 - [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/animation.py`](#slots--blender--animation)
 - [`slots/blender/blender.py`](#slots--blender--blender)
-- [`slots/blender/uv.py`](#slots--blender--uv)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
 - [`slots/deformation.py`](#slots--deformation) — Deformation: one Slots class for both hosts.
@@ -56,7 +54,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/maya/surfaces.py`](#slots--maya--surfaces)
 - [`slots/maya/texturing.py`](#slots--maya--texturing)
 - [`slots/maya/toon.py`](#slots--maya--toon)
-- [`slots/maya/uv.py`](#slots--maya--uv)
 - [`slots/maya/visualize.py`](#slots--maya--visualize)
 - [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
@@ -170,6 +167,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/workspace_map.py`](#slots--tools--workspace_map) — Workspace Map: browse a folder tree of project workspaces and switch the
 - [`slots/transform.py`](#slots--transform) — Transform: one Slots class for both hosts.
 - [`slots/utilities.py`](#slots--utilities) — Utilities: one Slots class for both hosts.
+- [`slots/uv.py`](#slots--uv) — UV: one Slots class for both hosts.
 - [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
@@ -183,7 +181,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 
 - [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L58) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L30) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L29) — constant
 
 <a id="slots--_animation"></a>
 ### `slots/_animation.py`
@@ -207,20 +205,6 @@ Text the animation panel's Maya and Blender forks say identically.
   - `Slots.recheck_app_gates(self) -> int` — Re-probe every gated app and re-present its widgets.
   - `Slots.toggle_camera_view(self)` — Toggle between the last two viewport-camera views in slot history.
   - `Slots.register_camera_view_toggle(self)` — Wire :meth:`toggle_camera_view` to its triggers.
-
-<a id="slots--_uv"></a>
-### `slots/_uv.py`
-
-Behavior shared by the Maya and Blender UV panels.
-
-- **[`class UvMixin`](tentacle/tentacle/slots/_uv.py#L6)** — Shared UV-panel behavior (see ``slots/maya/uv.py``, ``slots/blender/uv.py``).
-  - `UvMixin.b000_init(self, widget)` — The Texture Combine launcher: a plain button, the panel is the UI.
-  - `UvMixin.b000(self)` — Open the Texture Combine panel (Combine / Transfer modes).
-  - `UvMixin.b030_init(self, widget)` — Stack button — non-checkable text button with the stack option box.
-  - `UvMixin.get_map_size(self)` — Get the map size from the combobox as an int.
-  - `UvMixin.cmb003(self, index, widget)` — UV Map Size — passive input;
-  - `UvMixin.s003(self, value, widget)` — Texel Density — passive input;
-  - `UvMixin.b029_init(self, widget)` — Initialize Pin/Unpin button — non-checkable text button.
 
 <a id="slots--blender--_slots_blender"></a>
 ### `slots/blender/_slots_blender.py`
@@ -293,35 +277,6 @@ Behavior shared by the Maya and Blender UV panels.
 ### `slots/blender/blender.py`
 
 - **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
-
-<a id="slots--blender--uv"></a>
-### `slots/blender/uv.py`
-
-- **[`class UvSlots(UvMixin, SlotsBlender)`](tentacle/tentacle/slots/blender/uv.py#L10)** — Blender port of the shared ``uv`` menu.
-  - `UvSlots.tb000_init(self, widget)`
-  - `UvSlots.tb000(self, widget)` — Pack UVs (optionally equal-texel-density pre-scaled), then moved into the target
-  - `UvSlots.tb001_init(self, widget)`
-  - `UvSlots.tb001(self, widget)` — Auto Unwrap (Smart UV Project, or an external unwrapping engine).
-  - `UvSlots.tb004_init(self, widget)`
-  - `UvSlots.tb004(self, widget)` — Unfold (unwrap, then optionally relax, axis-align, and stack similar shells).
-  - `UvSlots.tb009_init(self, widget)`
-  - `UvSlots.tb009(self, widget)` — Cut Cylinder — seam by crease angle, then unfold.
-  - `UvSlots.b005(self)` — Cut UVs (mark seam on selected edges)
-  - `UvSlots.b011(self)` — Sew UVs (clear seam on selected edges)
-  - `UvSlots.b021(self, widget)` — Unfold and Pack UVs
-  - `UvSlots.tb007_init(self, widget)` — Cleanup UV Sets option box (reuses the Maya objectNames + labels — same options,
-  - `UvSlots.tb007(self, widget)` — Cleanup UV Sets (standardize/clean the UV layers — mirror of Maya's cleanup_uv_sets).
-  - `UvSlots.header_init(self, widget)` — Header menu — Create UV Snapshot + RizomUV Bridge (reuse the Maya objectNames + labels,
-  - `UvSlots.uv_snapshot(self)` — Create UV Snapshot — export the active mesh's UV layout to an image.
-  - `UvSlots.b031(self)` — Open UV Editor
-  - `UvSlots.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
-  - `UvSlots.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
-  - `UvSlots.b029(self, widget)` — Pin / Unpin UVs (dual-state toggle, Maya parity: first click on a fresh selection
-  - `UvSlots.tb022_init(self, widget)`
-  - `UvSlots.tb022(self, widget)` — Cut UV Hard Edges (mark seams on edges whose dihedral angle is in the [low, high]
-  - `UvSlots.b030(self, widget)` — Stack / Unstack shells (dual-state toggle: first click stacks the targeted
-  - `UvSlots.b032(self)` — RizomUV Bridge — the shared tool (round-trip Lua presets + one-way send).
-  - `UvSlots.b033(self)` — Open the Shell Xform panel — the ``More..`` button in the Transform group.
 
 <a id="slots--cameras"></a>
 ### `slots/cameras.py`
@@ -754,34 +709,6 @@ Materials: one Slots class for both hosts.
 ### `slots/maya/toon.py`
 
 - **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L8)**
-
-<a id="slots--maya--uv"></a>
-### `slots/maya/uv.py`
-
-- **[`class UvSlots(UvMixin, SlotsMaya)`](tentacle/tentacle/slots/maya/uv.py#L12)**
-  - `UvSlots.header_init(self, widget)` — Initialize UV Menu Header
-  - `UvSlots.tb000_init(self, widget)` — Initialize UV packing tool interface.
-  - `UvSlots.tb000(self, widget)` — Pack UVs with specified settings.
-  - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap.
-  - `UvSlots.tb001(self, widget)` — Auto Unwrap: automatically unwrap UVs for the selected objects.
-  - `UvSlots.tb004_init(self, widget)` — Initialize Unfold UV
-  - `UvSlots.tb004(self, widget)` — Unfold: relax/unfold the selected UVs to reduce stretch and distortion.
-  - `UvSlots.tb007_init(self, widget)` — Initialize Cleanup UV Sets
-  - `UvSlots.tb007(self, widget)` — Cleanup UV Sets
-  - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
-  - `UvSlots.tb009(self, widget)` — Cut Cylinder
-  - `UvSlots.b003(self)` — Get texel density.
-  - `UvSlots.b004(self)` — Set Texel Density
-  - `UvSlots.b005(self)` — Cut UVs: split the UV shell along the selected edges.
-  - `UvSlots.b011(self)` — Sew UVs: stitch the selected UV edges back together.
-  - `UvSlots.b021(self, widget)` — Unfold and Pack UVs
-  - `UvSlots.tb022_init(self, widget)` — Initialize Cut Hard Edges option menu.
-  - `UvSlots.tb022(self, widget)` — Cut UV hard edges (always), optionally also UV borders and auto-detected seams.
-  - `UvSlots.b029(self, widget)` — Pin / Unpin selected UVs (dual-state toggle).
-  - `UvSlots.b030(self, widget)` — Stack / Unstack shells (dual-state toggle).
-  - `UvSlots.b031(self)` — Open UV Editor
-  - `UvSlots.b032(self)` — RizomUV Bridge
-  - `UvSlots.b033(self)` — Open the Shell Xform panel (move / flip / rotate / align / orient / distribute).
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`
@@ -2845,6 +2772,45 @@ Utilities: one Slots class for both hosts.
   - `UtilitiesSlots.b001(self)` — Annotation: the host's own.
   - `UtilitiesSlots.b002(self)` — Calculator: open the calculator panel.
   - `UtilitiesSlots.b003(self)` — Pencil: sketch with the host's pencil, Blue Pencil (Maya) or a new
+
+<a id="slots--uv"></a>
+### `slots/uv.py`
+
+UV: one Slots class for both hosts.
+
+- **[`class UvSlots(Slots)`](tentacle/tentacle/slots/uv.py#L19)**
+  - `UvSlots.get_map_size(self)` — Get the map size from the combobox as an int.
+  - `UvSlots.cmb003(self, index, widget)` — UV Map Size -- passive input;
+  - `UvSlots.s003(self, value, widget)` — Texel Density -- passive input;
+  - `UvSlots.header_init(self, widget)` — Header menu: Create UV Snapshot, Open UV Editor, RizomUV Bridge.
+  - `UvSlots.uv_snapshot(self)` — Create UV Snapshot: the host's UV layout image export, through its own dialog.
+  - `UvSlots.uv_editor(self)` — Open UV Editor (the header's entry).
+  - `UvSlots.tb000_init(self, widget)` — Initialize Pack UVs.
+  - `UvSlots.tb000(self, widget)` — Pack UVs: hand the selection to ``UvUtils.pack_uvs`` (scope, gutters,
+  - `UvSlots.tb001_init(self, widget)` — Initialize Auto Unwrap: the method (cmb011) picks the host's own
+  - `UvSlots.tb001(self, widget)` — Auto Unwrap: the selected meshes, by the host's own projection
+  - `UvSlots.tb004_init(self, widget)` — Initialize Unfold: flatten the existing UVs along their seams (never
+  - `UvSlots.tb004(self, widget)` — Unfold: relax / unfold the selected meshes' UVs (``UvUtils.unfold_uvs``).
+  - `UvSlots.tb007_init(self, widget)` — Initialize Cleanup UV Sets
+  - `UvSlots.tb007(self, widget)` — Cleanup UV Sets: keep each mesh's best (or active) UV set, remove the
+  - `UvSlots.tb009_init(self, widget)` — Initialize Cut Cylinder.
+  - `UvSlots.tb009(self, widget)` — Cut Cylinder (``UvUtils.unwrap_cylinder``).
+  - `UvSlots.b003(self)` — Get Texel Density (into the s003 readout, against the cmb003 map size).
+  - `UvSlots.b004(self)` — Set Texel Density (from the s003 value, against the cmb003 map size).
+  - `UvSlots.b005(self)` — Cut UVs: split the UV shells along the selected edges (Maya: a mesh
+  - `UvSlots.b011(self)` — Sew UVs: stitch the selected UV edges back together (Maya: a mesh
+  - `UvSlots.b021(self, widget)` — Unfold + Pack: the panel's Unfold, then its Pack, as one undo step.
+  - `UvSlots.tb022_init(self, widget)` — Initialize Cut Hard Edges
+  - `UvSlots.tb022(self, widget)` — Cut Hard Edges: cut the UVs along the hard edges (always), optionally
+  - `UvSlots.b029_init(self, widget)` — Pin / Unpin: a plain text button.
+  - `UvSlots.b029(self, widget)` — Pin / Unpin the selected UVs (toggle: the first click on a fresh scope
+  - `UvSlots.b030_init(self, widget)` — Stack: a plain text button with the stack option box (Mode, Tolerance,
+  - `UvSlots.b030(self, widget)` — Stack / Unstack shells (toggle).
+  - `UvSlots.b031(self)` — Open UV Editor
+  - `UvSlots.b032(self)` — RizomUV Bridge: the shared tool (round-trip Lua presets + one-way send).
+  - `UvSlots.b033(self)` — Open the Shell Xform panel (move / flip / rotate / align / orient /
+  - `UvSlots.b000_init(self, widget)` — The Texture Combine launcher: a plain button, the panel is the UI.
+  - `UvSlots.b000(self)` — Open the Texture Combine panel (Combine / Transfer modes).
 
 <a id="tcl"></a>
 ### `tcl.py`

@@ -99,7 +99,7 @@ try:
     from tentacle.slots.transform import TransformSlots  # composed: over sb.tk
     from tentacle.slots.normals import NormalsSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.polygons import PolygonsSlots  # composed: both hosts, over sb.tk
-    from tentacle.slots.blender.uv import UvSlots
+    from tentacle.slots.uv import UvSlots  # composed: both hosts, over sb.tk
     from tentacle.slots.blender.animation import AnimationSlots
     import blendertk as btk
 
@@ -154,7 +154,7 @@ try:
     readout = {}
     ui = NS(cmb003=NS(currentText=lambda: "1024"),
             s003=NS(value=lambda: 512.0, setValue=lambda v: readout.__setitem__("d", v)))
-    slot = make_slot(UvSlots, ui=ui)
+    slot = make_slot(UvSlots, ui=ui, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.b003()
     check("uv b003 reads density into s003", abs(readout.get("d", 0) - 1024.0) < 1e-3,
           f"d={readout.get('d')}")
@@ -172,7 +172,7 @@ try:
         bm.free()
         return n
 
-    slot = make_slot(UvSlots, ui=ui, _b029_pinned=False, _b029_last_selection=None)
+    slot = make_slot(UvSlots, ui=ui, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.b029(None)
     pinned_after_first = pin_count(o)
     slot.b029(None)
@@ -183,7 +183,7 @@ try:
     # ---- uv tb022: cut hard edges -------------------------------------------------------------
     reset()
     o = add_cube("Hard")  # every cube edge is 90 degrees
-    slot = make_slot(UvSlots, ui=ui)
+    slot = make_slot(UvSlots, ui=ui, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     slot.tb022(option_box(
         s017=spin(70.0), s018=spin(180.0), chk025=chk(False), chk026=chk(False)
     ))
@@ -891,7 +891,7 @@ try:
         btk.CoreUtils.tag_redraw = _tr
 
     # ---- uv tb005/tb006/b030 (shell ops through the slot readers)
-    from tentacle.slots.blender.uv import UvSlots
+    from tentacle.slots.uv import UvSlots
 
     def uv_quads(rects, name="Q"):
         bm = _bm.new()
@@ -913,7 +913,7 @@ try:
 
     reset()
     o = uv_quads([(0.0, 0.0, 0.2, 0.2), (0.6, 0.6, 0.8, 0.8)])
-    slot = make_slot(UvSlots)
+    slot = make_slot(UvSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     stack_w = option_box(cmb020=combo("center"), s024=spin(1.0), chk047=chk(False))
     slot.b030(stack_w)  # stack
     snap_after_stack = btk.get_uv_coords([o])
@@ -936,7 +936,7 @@ try:
         loop[uvl].uv = (0.6 + x * _math.cos(a) - y * _math.sin(a), 0.55 + x * _math.sin(a) + y * _math.cos(a))
     bm.to_mesh(o.data)
     bm.free()
-    slot = make_slot(UvSlots)
+    slot = make_slot(UvSlots, sb=NS(message_box=lambda *a, **k: None, tk=btk))
     stack_w = option_box(cmb020=combo("similar"), s024=spin(1.0), chk047=chk(True))
     before = btk.get_uv_coords([o], pins=True)[o.name]
     slot.b030(stack_w)  # stack (similar + pin)

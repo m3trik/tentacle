@@ -434,13 +434,13 @@ class TestSelectionConstraintRowAndConvertList(_PersistenceBase):
 
 
 # ===========================================================================
-# UV: b030 (Stack) option box comes from the shared UvMixin.b030_init
+# UV: b030 (Stack) option box comes from the composed UvSlots.b030_init
 # ===========================================================================
 
 
 class TestUvStackOptionBox(_PersistenceBase):
     """The Stack button's option box (Mode cmb020 / Tolerance s024 / Pin chk047) is
-    built by the DCC-shared ``UvMixin.b030_init`` -- prove it lands on the REAL
+    built by the composed ``UvSlots.b030_init`` (both hosts) -- prove it lands on the REAL
     widget (not a fake) with its documented defaults, that ``_stack_options``
     reads it back, and that a flipped Pin persists like any other option-box
     widget."""

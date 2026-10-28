@@ -55,7 +55,6 @@ HANDLERS = {
     "animation": {},
     # b000 is the Texture Combine launcher in both forks (2026-10-17: blendertk's twin panel
     # took the Transfer tool UvMixin's option box was).
-    "uv": {},
 }
 
 CONTROLS_SLOTS = {
@@ -87,54 +86,6 @@ CONTROLS_SLOTS = {
         "cmb040": {"status": "replaced", "to": "cmb_interp", "reason": "Maya in/out/both tangent selector has no direct Blender analogue (fcurve interpolation is per-segment, not split in/out); code comment documents cmb_interp replacing cmb037/cmb040."},
         "cmb_traversal": {"status": "divergent", "reason": "[Dependency traversal (info)] no comparable per-object animation dependency graph to traverse."},
     },
-    "uv": {
-        "chk016": {"status": "na", "reason": "Instance dedupe is inherent in Blender: linked duplicates share one mesh datablock/UV map and multi-object edit via _uv_op operates on each unique datablock once, so a Skip-Instances pack toggle is moot (Maya side exists only to pre-filter duplicate instance transforms for u3dLayout)."},
-        "chk040": {"status": "na", "reason": "Blender Cut Cylinder rides smart_project auto-seaming which places the lengthwise cut itself; the slot explicitly documents 'chk040 (Invert Seam) has no Blender analogue'."},
-        "chk045": {"status": "na", "reason": "Hide Seam From View: Maya's band-based seamer (mtk.UvUtils.get_auto_seam_edges) lands the lengthwise seam on the side facing away from the active viewport camera; Blender Cut Cylinder rides smart_project which places seams itself (same rationale as chk040). A blendertk twin of the band seamer would carry both -- see .claude/BACKLOG.md."},
-        "chk046": {"status": "na", "reason": "Keep Existing Seams (unwrap_cylinder sew=False): the Maya band seamer sews stale UV borders shut before cutting; Blender's smart_project re-seams from scratch and has no equivalent pre-sew, so there is no toggle to mirror. Rides the same blendertk twin as chk040 / chk045."},
-        "s021": {"status": "na", "reason": "Taper Angle (band seamer taper tolerance): a parameter of mtk.UvUtils.get_auto_seam_edges' profile reading, which Blender's smart_project auto-seaming does not have. Rides the blendertk twin (see .claude/BACKLOG.md)."},
-        "s022": {"status": "na", "reason": "Flat Angle (band seamer rings-vs-sectors threshold): same rationale as s021."},
-        "s023": {"status": "na", "reason": "Fillet Size (band seamer trim ratio, % of radius): same rationale as s021."},
-        # cmb011 (Auto Unwrap mode) 2026-07-28: trimmed on BOTH DCCs to three
-        # byte-identical items -- "Standard" (each DCC's own auto projection:
-        # polyAutoProjection / smart_project), "Hard Surface (Ministry of Flat)"
-        # and "Organic (BFF)". The two engine modes call UvUtils.auto_unwrap,
-        # mirrored in mayatk and blendertk. No delta.
-        # chk000 (Smart Fit), cmb017 (Cut Algorithm) and the seam / planar /
-        # cylindrical / spherical / normal modes: REMOVED from the Maya panel
-        # 2026-07-28 with that trim, so their na rows are retired.
-        # cmb016 (Cut Cylinder Algorithm): REMOVED 2026-07-28 -- one band-based
-        # seamer (mtk.UvUtils.get_auto_seam_edges, 2026-08-15) reads straight,
-        # turned and bent tubes alike, so there is nothing to select on either
-        # DCC.
-        # cmb009 (Pre-Scale Mode): removed 2026-07-11 — BUILT. The Blender Pack UVs option box now
-        # ships cmb009 with Maya's exact labels ("Pre-Scale: Preserve UV" / "Preserve 3D", default
-        # Preserve 3D): Preserve 3D runs a native `bpy.ops.uv.average_islands_scale()` pass (equal
-        # texel density) before `pack_islands`; Preserve UV skips it. Matched by objectName + items
-        # against the Maya panel (uv.py 12 -> 11 triaged, no combo delta).
-        "cmb010": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "Packing-time shell orientation is covered by pack_islands' rotate toggle (chk_pack_rotate); u3dLayout's one-shot axis pre-rotate modes (X/Y/Z to V, 3D-orientation-based) have no counterpart in that model."},
-        "cmb012": {"status": "replaced", "to": "smart_project (s_smart_angle/s_smart_margin)", "reason": "Maya's Standard-projection Scale Mode is a polyAutoProjection flag; Blender's Smart UV Project normalizes to the unit square by default (= Maya's Uniform default) and its option box exposes the native operator params (angle limit / island margin) instead."},
-        "cmb013": {"status": "na", "reason": "Non-Manifold strategy exists solely to handle Maya u3dUnfold's non-manifold RuntimeError (Warn+Select / Repair+Retry); Blender's uv.unwrap does not reject non-manifold meshes, so there is no failure mode to strategize and tb004 needs no error path."},
-        "s011": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search step; Blender pack_islands exposes packing rotation as a single rotate toggle (chk_pack_rotate) with no step/range search granularity."},
-        "s012": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search minimum; covered by pack_islands' boolean rotate model (chk_pack_rotate) which has no min/max range."},
-        "s013": {"status": "replaced", "to": "chk_pack_rotate (pack_islands rotate)", "reason": "u3dLayout rotation-search maximum (opt-in gate for the search); covered by pack_islands' boolean rotate model (chk_pack_rotate) which has no min/max range."},
-        "cmb018": {"status": "na", "reason": "Post-pack scale-to-fit is u3dLayout -layoutScaleMode (Fill uniform / Off keep-density / Stretch non-uniform). Blender's pack_islands has no post-pack fit mode: it always fits the islands into the target region, so only the Fill behavior exists and there is nothing to select. Keep-density is instead reached on the Blender side by leaving Pre-Scale on Preserve UV (skipping average_islands_scale) -- same u3dLayout-params-are-Maya-only rationale as s011/s012/s013/s014."},
-        "cmb019": {"status": "pending", "reason": "Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only."},
-        "chk043": {"status": "pending", "reason": "Brute Force (xatlas-only quality toggle) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(brute_force=)."},
-        "chk044": {"status": "pending", "reason": "Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate."},
-        "s019": {"status": "na", "reason": "u3dLayout -tileU multi-tile distribution (pack across an N-wide grid of UDIM tiles anchored at the target UDIM). bpy.ops.uv.pack_islands packs into a single region with no tile-grid parameter, so there is no native counterpart to drive -- same u3dLayout-params-are-Maya-only rationale as s011/s012/s013/s014."},
-        "s020": {"status": "na", "reason": "u3dLayout -tileV multi-tile distribution (the vertical half of the s019 tile grid); same absent pack_islands capability."},
-        "s014": {"status": "na", "reason": "u3dLayout -mutations is an Unfold3D-engine optimization-pass count; pack_islands has no iteration parameter, and the module docstring documents u3dLayout packing params as deferred Maya-only depth with no Blender analogue."},
-        "uv_editor": {"status": "renamed", "to": "b031", "reason": "Maya's header button is a convenience duplicate that just calls b031; Blender header_init documents 'Open UV Editor is already on b031' (shared uv#submenu.ui button, btk.open_editor) and drops the duplicate."},
-        # cmb014 (Transfer UVs Scope) BUILT 2026-07-28 with the b000 option box (see
-        # HANDLERS['uv']). No delta.
-        # d000 (similarity threshold) BUILT 2026-07-28 with the b000 option box (see
-        # HANDLERS['uv']). No delta.
-        # cmb015 (Pack UVs Tile Coverage) BUILT 2026-07-28: post-pack whole-map scale about the
-        # target tile's bottom-left corner via the new btk.scale_uvs primitive (pack_islands has
-        # no packBox analogue), after tb000's existing tile-delta move. Same items/default as
-        # Maya. No delta.
-    },
 }
 
 # Accepted same-named default/property divergences: {"pair": {"control.prop": reason}}.
@@ -151,9 +102,6 @@ DEFAULT_DELTAS = {
     "animation": {
         "cmb038.items": "Blender drops Maya's 'Mode: Channel Box' copy-scope item -- Blender has no Channel Box UI; channel scoping is covered by Dope Sheet/Graph Editor selection instead (same rationale as the chk020/024/033/034/chk_channel_box na family). Resolves the 'see parity_map.py cmb038' reference in slots/blender/animation.py.",
     },
-    # uv.cmb002 (the 17->3 Transform submenu) was relocated 2026-07-08 into the UV Transform
-    # tool, now tentacle's shared Shell Xform panel (one surface, no deltas). No cmb002 remains
-    # in the uv slot, so no "uv" entry is needed here.
     # The Transfer tool left tentacle's uv b000 option box for the Texture Combine panels'
     # Transfer mode (2026-10-17); its vocabulary deltas moved with it.
 }
