@@ -446,6 +446,26 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class HierarchyTreeRenderer(pythontk.LoggingMixin)`
   - methods: session, matcher, populate_current_scene_tree, populate_reference_tree, show_reference_placeholder, show_reference_error, populate_tree_with_hierarchy, apply_difference_formatting, clear_tree_colors, format_tree_differences, apply_ignore_styling, build_item_path, selected_item_keys, get_selected_tree_items, count_tree_items, store_tree_selection, restore_tree_selection, get_tree_structure, condense_to_roots, filter_to_leaves, apply_diff_options
 
+### `slots/tools/_reference_manager/controller.py` — The Reference Manager panel's controller: the browsed workspace, the table
+- `class ReferenceManagerController(pythontk.LoggingMixin)`
+  - methods: tk, norm, role, table_signals_blocked, message, report, error_box, footer_status, header_menu, naming_options, type_extensions, include_type_checked_by_default, include_type_tooltip, included_extensions, is_importable, foreign_route, filter_menu, scene_notes, note, migrate_settings_notes, set_note, refresh_file_list, update_table, update_listing_footer, format_table_item, row_references, sync_reference_icons, sync_selection_to_references, handle_item_selection, apply_notes_column_visibility, refilter_on_naming_change, row_path, capture_context_row, context_row, label_open_action, select_item_silently, prepare_item_for_edit, restore_item_display, item_double_clicked, item_changed, editor_closed
+
+### `slots/tools/_reference_manager/listing.py` — The Reference Manager's listing rules: how a scene file reads as a row and
+- `class SceneListing`
+  - methods: display_name, split_patterns, text_matches_filter, matches_notes_filter, scenes_folder, format_name, strip_all_suffixes, filter_by_folder_structure, delete_prompt
+
+### `slots/tools/_reference_manager/references.py` — The Reference Manager's reference actions: a row's reference and display
+- `class ReferenceActions`
+  - methods: toggle_reference_at_row, cycle_display_mode_at_row, add_unlink_namespace_action, unlink_namespace_mode, ask_scene_data, unlink_references, unlink_import_row, unlink_all, unreference_all, convert_to_assembly
+
+### `slots/tools/_reference_manager/scene_files.py` — The Reference Manager's scene files: open / close / save / rename / delete, the
+- `class SceneFiles`
+  - methods: normalize_structure_pattern, default_save_name, resolve_save_target, save_scene_preview, folder_structure_preview, wire_structure_tooltip, open_scene_at_row, confirm_discard_unsaved, save_current_scene, open_path, close_scene, save_to_workspace, rename_path, rename_scene, delete_scene, open_file_location, copy_path, resolve_rig_mode, resolve_conversion, conversion_progress, bake_foreign_path, import_paths
+
+### `slots/tools/_reference_manager/workspaces.py` — The Reference Manager's workspace browser: the Root Directory, the workspace
+- `class WorkspaceBrowser`
+  - methods: root_dir, workspace_dir, save_workspace_selection, restore_workspace_index, update_current_dir, update_workspace_combo, set_workspace, update_workspace_footer, flash_footer, set_project, set_root_to_current, open_root_dir, new_workspace, mark_workspace, select_workspace
+
 ### `slots/tools/_shot_manifest/controller.py` — The Shot Manifest panel's controller: its state, the steps the table shows,
 - `class ShotManifestController(ManifestTableMixin, RangeColumnMixin, StoreFollowMixin, ManifestSourceMixin, MappingPickerMixin, RowMenusMixin, HeaderMenuMixin, ViewCombosMixin, ExportPreviewMixin, pythontk.LoggingMixin)`
   - methods: build, assess
@@ -612,6 +632,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class NamingSlots(Slots)`
   - methods: logger, header_init, scope, dry_run, file_scope, base_names, valid_suffixes, txt000_init, txt000, txt001_init, txt001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003
 
+### `slots/tools/reference_manager.py` — Reference Manager: a workspace scene-file manager -- browse a project's scene
+- `class ReferenceManagerSlots(Slots)`
+  - methods: header_init, tbl000_init, btn_open_scene, btn_rename_scene, btn_delete_scene, btn_toggle_reference, btn_unlink_import, btn_open_file_location, btn_copy_path, txt000_init, b000, b006, b001, btn_new_workspace, btn_mark_workspace, chk000, chk003, cmb000_init, cmb000, txt001_init, txt001, chk_ignore_case, cmb_filter_target, chk_filter_suffix, chk_filter_folder_structure, chk_hide_suffix, chk_hide_extension, chk_show_notes_column, txt_suffix, txt_subfolder_structure, btn_convert_assembly, btn_unlink_import_all
+
 ### `slots/tools/render_effects.py` — Render Effects: key per-object opacity fades and highlight pulses for export.
 - `class RenderEffectsSlots(Slots)`
   - methods: header_init, cmb_effect_init, cmb_effect, stk_effects_init, ui_field, focus, unfocus, b000, btn_remove, btn_webxr_init, btn_webxr
@@ -655,6 +679,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/texture_combine.py` — Texture Combine: several materials into one atlas and one material, in
 - `class TextureCombineSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb_mode_init, open_output_folder, cmb_set_init, select_set, recombine_set, restore_set, forget_set, tbl_sources_init, parse_scale, select_row_members, remove_override, reset_scales, b001, b002, cmb_sizing_init, cmb_normalize_init, cmb_atlas_init, s_spacing_init, chk_rotate_init, chk_lightmaps_init, cmb_tt_transfer_init, cmb_tt_source_init, cmb_tt_targets_init, cmb_tt_resolution_init, t_tt_dst_uvset_init, chk_tt_lightmaps_init, t_name_init, record_name, t_output_init, cmb_quality_init, s_padding_init, chk_assign_init, t_affix_init, material_affix, cmb_shader_init, overwrites_target, assign_options, sync_shared, status, b000, combine
+
+### `slots/tools/texture_path_editor.py` — Texture Path Editor: inspect and fix the scene's texture paths.
+- `class TexturePathEditorSlots(Slots, pythontk.LoggingMixin)`
+  - methods: labels, header_init, tb_set_texture_directory_init, tb_normalize_paths_init, tb_resolve_missing_textures_init, tbl000_init, refresh_texture_table, setup_formatting, open_source_images, reload_scene_textures, tb_set_texture_directory, tb_find_and_copy_textures, tb_normalize_paths, make_paths_absolute, tb_resolve_missing_textures, select_textures_for_objects, select_broken_paths, select_absolute_paths, row_browse_for_file, row_rename_file, handle_cell_edit, select_material, select_file_node, row_show_in_hypershade, delete_file_node, cleanup_scene_callbacks
 
 ### `slots/tools/tube_rig.py` — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - `class TubeRigSlots(Slots)`

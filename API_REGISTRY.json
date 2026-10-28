@@ -2733,7 +2733,7 @@
               "qualname": "MaterialsSlots.b010",
               "kind": "method",
               "signature": "(self)",
-              "summary": "Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /",
+              "summary": "Texture Path Editor — the shared tool over ``btk.TexturePathEditor`` (list / repath /",
               "line": 678,
               "deprecated": false
             },
@@ -2743,7 +2743,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR",
-              "line": 683,
+              "line": 684,
               "deprecated": false
             },
             {
@@ -2752,7 +2752,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Emissive Groups — co-located blendertk panel (named face groups a game engine gates at",
-              "line": 688,
+              "line": 689,
               "deprecated": false
             },
             {
@@ -2761,7 +2761,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /",
-              "line": 693,
+              "line": 694,
               "deprecated": false
             },
             {
@@ -2770,7 +2770,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials (Material Updater) — co-located blendertk panel (batch-reprocess material",
-              "line": 698,
+              "line": 699,
               "deprecated": false
             },
             {
@@ -2779,7 +2779,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Packer",
-              "line": 735,
+              "line": 736,
               "deprecated": false
             },
             {
@@ -2788,7 +2788,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Converter",
-              "line": 739,
+              "line": 740,
               "deprecated": false
             },
             {
@@ -2797,7 +2797,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Map Compositor",
-              "line": 743,
+              "line": 744,
               "deprecated": false
             },
             {
@@ -2806,7 +2806,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Metashape Workflow",
-              "line": 747,
+              "line": 748,
               "deprecated": false
             },
             {
@@ -2815,7 +2815,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "RealityCapture Workflow",
-              "line": 751,
+              "line": 752,
               "deprecated": false
             },
             {
@@ -2824,7 +2824,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Brush Splat Workflow",
-              "line": 755,
+              "line": 756,
               "deprecated": false
             },
             {
@@ -2833,7 +2833,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Marmoset Bridge",
-              "line": 764,
+              "line": 765,
               "deprecated": false
             },
             {
@@ -2842,7 +2842,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Substance Bridge",
-              "line": 768,
+              "line": 769,
               "deprecated": false
             }
           ]
@@ -10815,6 +10815,961 @@
       ]
     },
     {
+      "relpath": "slots/tools/_reference_manager/controller.py",
+      "summary": "The Reference Manager panel's controller: the browsed workspace, the table",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ReferenceManagerController",
+          "summary": "State and behavior behind ``reference_manager.ui`` (see the module docstring).",
+          "line": 28,
+          "bases": [
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "tk",
+              "qualname": "ReferenceManagerController.tk",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host toolkit (``Slots.tk``).",
+              "line": 85,
+              "deprecated": false
+            },
+            {
+              "name": "norm",
+              "qualname": "ReferenceManagerController.norm",
+              "kind": "staticmethod",
+              "signature": "(path) -> str",
+              "summary": "The panel's comparison key for a path: normalized, case-folded only where",
+              "line": 91,
+              "deprecated": false
+            },
+            {
+              "name": "role",
+              "qualname": "ReferenceManagerController.role",
+              "kind": "method",
+              "signature": "(self, offset: int)",
+              "summary": "``Qt.UserRole + offset`` (the row data roles above).",
+              "line": 96,
+              "deprecated": false
+            },
+            {
+              "name": "table_signals_blocked",
+              "qualname": "ReferenceManagerController.table_signals_blocked",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Run a table rebuild without its signals: a programmatic change must not",
+              "line": 101,
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "qualname": "ReferenceManagerController.message",
+              "kind": "method",
+              "signature": "(self, text, *buttons)",
+              "summary": "The panel's message box (``sb.message_box``).",
+              "line": 111,
+              "deprecated": false
+            },
+            {
+              "name": "report",
+              "qualname": "ReferenceManagerController.report",
+              "kind": "method",
+              "signature": "(self, message: str) -> None",
+              "summary": "The engine's ``report``: its plain-text outcome, in a message box.",
+              "line": 115,
+              "deprecated": false
+            },
+            {
+              "name": "error_box",
+              "qualname": "ReferenceManagerController.error_box",
+              "kind": "method",
+              "signature": "(self, lead: str, name: str, error) -> None",
+              "summary": "Report *error* for the scene file *name*.",
+              "line": 119,
+              "deprecated": false
+            },
+            {
+              "name": "footer_status",
+              "qualname": "ReferenceManagerController.footer_status",
+              "kind": "method",
+              "signature": "(self, text, level='warning')",
+              "summary": "Leave *text* in the footer's status label (no-op without a footer).",
+              "line": 127,
+              "deprecated": false
+            },
+            {
+              "name": "header_menu",
+              "qualname": "ReferenceManagerController.header_menu",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The header menu -- home of the naming, filter and include options.",
+              "line": 134,
+              "deprecated": false
+            },
+            {
+              "name": "naming_options",
+              "qualname": "ReferenceManagerController.naming_options",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "``(case_style, suffix, structure_pattern)`` from the header menu's Naming",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "type_extensions",
+              "qualname": "ReferenceManagerController.type_extensions",
+              "kind": "classmethod",
+              "signature": "(cls, include_type)",
+              "summary": "Every extension the Include Types toggle *include_type* lists (``usd`` ->",
+              "line": 162,
+              "deprecated": false
+            },
+            {
+              "name": "include_type_checked_by_default",
+              "qualname": "ReferenceManagerController.include_type_checked_by_default",
+              "kind": "method",
+              "signature": "(self, include_type) -> bool",
+              "summary": "True for the host's own scene types (the engine's ``INCLUDE_DEFAULTS``).",
+              "line": 169,
+              "deprecated": false
+            },
+            {
+              "name": "include_type_tooltip",
+              "qualname": "ReferenceManagerController.include_type_tooltip",
+              "kind": "method",
+              "signature": "(self, include_type) -> str",
+              "summary": "What the Include Types toggle lists, and how a row of it references.",
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "included_extensions",
+              "qualname": "ReferenceManagerController.included_extensions",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The extensions whose Include Types checkbox is checked;",
+              "line": 185,
+              "deprecated": false
+            },
+            {
+              "name": "is_importable",
+              "qualname": "ReferenceManagerController.is_importable",
+              "kind": "method",
+              "signature": "(self, path) -> bool",
+              "summary": "True if Unlink and Import can bring *path*'s row in with no reference",
+              "line": 198,
+              "deprecated": false
+            },
+            {
+              "name": "foreign_route",
+              "qualname": "ReferenceManagerController.foreign_route",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The conversion route from the header menu: ``\"fbx\"`` (default) / ``\"usd\"``.",
+              "line": 206,
+              "deprecated": false
+            },
+            {
+              "name": "filter_menu",
+              "qualname": "ReferenceManagerController.filter_menu",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The Filter field's option menu (ignore case, target);",
+              "line": 218,
+              "deprecated": false
+            },
+            {
+              "name": "scene_notes",
+              "qualname": "ReferenceManagerController.scene_notes",
+              "kind": "property",
+              "signature": "(self) -> 'ptk.SceneNotes'",
+              "summary": "The Notes column's store (``ptk.SceneNotes``: one file per project, shared",
+              "line": 226,
+              "deprecated": false
+            },
+            {
+              "name": "note",
+              "qualname": "ReferenceManagerController.note",
+              "kind": "method",
+              "signature": "(self, path) -> str",
+              "summary": "*path*'s note ('' without one;",
+              "line": 235,
+              "deprecated": false
+            },
+            {
+              "name": "migrate_settings_notes",
+              "qualname": "ReferenceManagerController.migrate_settings_notes",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Move notes a panel kept in its settings (keyed by path, before 2026-10-13)",
+              "line": 242,
+              "deprecated": false
+            },
+            {
+              "name": "set_note",
+              "qualname": "ReferenceManagerController.set_note",
+              "kind": "method",
+              "signature": "(self, path, text) -> None",
+              "summary": "Save *text* as *path*'s note;",
+              "line": 258,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_file_list",
+              "qualname": "ReferenceManagerController.refresh_file_list",
+              "kind": "method",
+              "signature": "(self, invalidate=False)",
+              "summary": "Rebuild the table for the browsed workspace, then re-select its",
+              "line": 279,
+              "deprecated": false
+            },
+            {
+              "name": "update_table",
+              "qualname": "ReferenceManagerController.update_table",
+              "kind": "method",
+              "signature": "(self, file_names, file_list)",
+              "summary": "(Re)fill the table with *file_list* labelled *file_names*: items reused",
+              "line": 410,
+              "deprecated": false
+            },
+            {
+              "name": "update_listing_footer",
+              "qualname": "ReferenceManagerController.update_listing_footer",
+              "kind": "method",
+              "signature": "(self, listed: int, referenced: int)",
+              "summary": "The footer's listing summary -- files shown, rows referenced, files the",
+              "line": 504,
+              "deprecated": false
+            },
+            {
+              "name": "format_table_item",
+              "qualname": "ReferenceManagerController.format_table_item",
+              "kind": "method",
+              "signature": "(self, item, file_path, is_current)",
+              "summary": "The current scene's name cell: enabled (rename / delete / open) but not",
+              "line": 521,
+              "deprecated": false
+            },
+            {
+              "name": "row_references",
+              "qualname": "ReferenceManagerController.row_references",
+              "kind": "method",
+              "signature": "(self, path) -> list",
+              "summary": "The references a row stands for -- through the bake standing in for it too.",
+              "line": 559,
+              "deprecated": false
+            },
+            {
+              "name": "sync_reference_icons",
+              "qualname": "ReferenceManagerController.sync_reference_icons",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The reference and display-mode icons of every row, from the live references.",
+              "line": 571,
+              "deprecated": false
+            },
+            {
+              "name": "sync_selection_to_references",
+              "qualname": "ReferenceManagerController.sync_selection_to_references",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Select exactly the rows the scene references (selectable rows only).",
+              "line": 588,
+              "deprecated": false
+            },
+            {
+              "name": "handle_item_selection",
+              "qualname": "ReferenceManagerController.handle_item_selection",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The selection changed: reference the newly selected rows, remove the",
+              "line": 604,
+              "deprecated": false
+            },
+            {
+              "name": "apply_notes_column_visibility",
+              "qualname": "ReferenceManagerController.apply_notes_column_visibility",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Show the Notes column only while Show Notes Column is checked (view-only:",
+              "line": 647,
+              "deprecated": false
+            },
+            {
+              "name": "refilter_on_naming_change",
+              "qualname": "ReferenceManagerController.refilter_on_naming_change",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-filter when a naming field changes while a filter / display option",
+              "line": 654,
+              "deprecated": false
+            },
+            {
+              "name": "row_path",
+              "qualname": "ReferenceManagerController.row_path",
+              "kind": "method",
+              "signature": "(self, row)",
+              "summary": "The path on *row*'s name cell (None for no row).",
+              "line": 667,
+              "deprecated": false
+            },
+            {
+              "name": "capture_context_row",
+              "qualname": "ReferenceManagerController.capture_context_row",
+              "kind": "method",
+              "signature": "(self, pos)",
+              "summary": "Store the right-clicked row (the menu acts on it, not the selection) and",
+              "line": 672,
+              "deprecated": false
+            },
+            {
+              "name": "context_row",
+              "qualname": "ReferenceManagerController.context_row",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "The right-clicked row, validated against the row count, or None.",
+              "line": 680,
+              "deprecated": false
+            },
+            {
+              "name": "label_open_action",
+              "qualname": "ReferenceManagerController.label_open_action",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Read the context menu's Open as 'Reopen' on the open scene's row: opening",
+              "line": 687,
+              "deprecated": false
+            },
+            {
+              "name": "select_item_silently",
+              "qualname": "ReferenceManagerController.select_item_silently",
+              "kind": "method",
+              "signature": "(self, item, selected: bool) -> None",
+              "summary": "Set *item*'s selection without firing the selection -> reference sync.",
+              "line": 700,
+              "deprecated": false
+            },
+            {
+              "name": "prepare_item_for_edit",
+              "qualname": "ReferenceManagerController.prepare_item_for_edit",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Show the full file name in the name cell an inline rename edits.",
+              "line": 710,
+              "deprecated": false
+            },
+            {
+              "name": "restore_item_display",
+              "qualname": "ReferenceManagerController.restore_item_display",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Restore the name cell's label after an edit.",
+              "line": 719,
+              "deprecated": false
+            },
+            {
+              "name": "item_double_clicked",
+              "qualname": "ReferenceManagerController.item_double_clicked",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Double-click a name to rename it inline (editable rows only: never a",
+              "line": 729,
+              "deprecated": false
+            },
+            {
+              "name": "item_changed",
+              "qualname": "ReferenceManagerController.item_changed",
+              "kind": "method",
+              "signature": "(self, item)",
+              "summary": "Commit an inline rename (the name column) or a note (the Notes column).",
+              "line": 741,
+              "deprecated": false
+            },
+            {
+              "name": "editor_closed",
+              "qualname": "ReferenceManagerController.editor_closed",
+              "kind": "method",
+              "signature": "(self, *_args)",
+              "summary": "The inline editor closed: the name cell shows its label again.",
+              "line": 785,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_reference_manager/listing.py",
+      "summary": "The Reference Manager's listing rules: how a scene file reads as a row and",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneListing",
+          "summary": "Row labels, filter matches and the naming conventions' path rules.",
+          "line": 17,
+          "bases": [],
+          "members": [
+            {
+              "name": "display_name",
+              "qualname": "SceneListing.display_name",
+              "kind": "staticmethod",
+              "signature": "(path: str, hide_extension: bool, hide_suffix: str) -> str",
+              "summary": "The table label for *path* -- its basename, less the extension and/or a",
+              "line": 27,
+              "deprecated": false
+            },
+            {
+              "name": "split_patterns",
+              "qualname": "SceneListing.split_patterns",
+              "kind": "classmethod",
+              "signature": "(cls, text: str) -> List[str]",
+              "summary": "*text* split on every :attr:`DELIMITERS` entry, each part trimmed.",
+              "line": 44,
+              "deprecated": false
+            },
+            {
+              "name": "text_matches_filter",
+              "qualname": "SceneListing.text_matches_filter",
+              "kind": "staticmethod",
+              "signature": "(text: str, filter_patterns: Sequence[str], ignore_case: bool = True) -> bool",
+              "summary": "True if *text* (a file name) matches ANY of the already-split glob",
+              "line": 55,
+              "deprecated": false
+            },
+            {
+              "name": "matches_notes_filter",
+              "qualname": "SceneListing.matches_notes_filter",
+              "kind": "classmethod",
+              "signature": "(cls, notes_text: str, filter_text: str, ignore_case: bool = True) -> bool",
+              "summary": "True if the note *notes_text* matches the filter.",
+              "line": 70,
+              "deprecated": false
+            },
+            {
+              "name": "scenes_folder",
+              "qualname": "SceneListing.scenes_folder",
+              "kind": "staticmethod",
+              "signature": "(workspace: str) -> str",
+              "summary": "The ``{scenes}`` placeholder for *workspace*: its ``scene`` file rule when",
+              "line": 90,
+              "deprecated": false
+            },
+            {
+              "name": "format_name",
+              "qualname": "SceneListing.format_name",
+              "kind": "staticmethod",
+              "signature": "(name: str, case_style: str = 'None', suffix: str = '') -> str",
+              "summary": "*name* in the *case_style* convention (``ptk.StrUtils.set_case``;",
+              "line": 103,
+              "deprecated": false
+            },
+            {
+              "name": "strip_all_suffixes",
+              "qualname": "SceneListing.strip_all_suffixes",
+              "kind": "staticmethod",
+              "signature": "(base: str, suffix: str) -> str",
+              "summary": "*base* less EVERY trailing *suffix*: a prefill still ending in one (a",
+              "line": 116,
+              "deprecated": false
+            },
+            {
+              "name": "filter_by_folder_structure",
+              "qualname": "SceneListing.filter_by_folder_structure",
+              "kind": "staticmethod",
+              "signature": "(files: Iterable[str], workspace: str, pattern: str, suffix: str, scenes: str) -> List[str]",
+              "summary": "The *files* whose folder ends with *pattern* resolved for each",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "delete_prompt",
+              "qualname": "SceneListing.delete_prompt",
+              "kind": "classmethod",
+              "signature": "(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str",
+              "summary": "Confirmation text for deleting *paths*.",
+              "line": 166,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_reference_manager/references.py",
+      "summary": "The Reference Manager's reference actions: a row's reference and display",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ReferenceActions",
+          "summary": "The row and bulk reference actions (see the module docstring).",
+          "line": 15,
+          "bases": [],
+          "members": [
+            {
+              "name": "toggle_reference_at_row",
+              "qualname": "ReferenceActions.toggle_reference_at_row",
+              "kind": "method",
+              "signature": "(self, row, col=None)",
+              "summary": "Reference the row's file, or remove the references it stands for.",
+              "line": 51,
+              "deprecated": false
+            },
+            {
+              "name": "cycle_display_mode_at_row",
+              "qualname": "ReferenceActions.cycle_display_mode_at_row",
+              "kind": "method",
+              "signature": "(self, row, col=None)",
+              "summary": "Cycle the row's references' display: Normal -> Reference -> Template.",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "add_unlink_namespace_action",
+              "qualname": "ReferenceActions.add_unlink_namespace_action",
+              "kind": "method",
+              "signature": "(self, button)",
+              "summary": "Give *button* the cycling namespace-mode action (applies to every unlink);",
+              "line": 129,
+              "deprecated": false
+            },
+            {
+              "name": "unlink_namespace_mode",
+              "qualname": "ReferenceActions.unlink_namespace_mode",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "The namespace handling picked beside Unlink and Import All: the engine's",
+              "line": 147,
+              "deprecated": false
+            },
+            {
+              "name": "ask_scene_data",
+              "qualname": "ReferenceActions.ask_scene_data",
+              "kind": "method",
+              "signature": "(self, summary, namespace)",
+              "summary": "The unlink question for a reference bringing scene data of its own: merge",
+              "line": 169,
+              "deprecated": false
+            },
+            {
+              "name": "unlink_references",
+              "qualname": "ReferenceActions.unlink_references",
+              "kind": "method",
+              "signature": "(self, namespaces)",
+              "summary": "Unlink and import the references named *namespaces* (confirmed).",
+              "line": 189,
+              "deprecated": false
+            },
+            {
+              "name": "unlink_import_row",
+              "qualname": "ReferenceActions.unlink_import_row",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unlink and Import at the right-clicked row: a referenced row's data made",
+              "line": 205,
+              "deprecated": false
+            },
+            {
+              "name": "unlink_all",
+              "qualname": "ReferenceActions.unlink_all",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unlink and import every reference (confirmed: an unlink is not undoable).",
+              "line": 225,
+              "deprecated": false
+            },
+            {
+              "name": "unreference_all",
+              "qualname": "ReferenceActions.unreference_all",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Remove every reference from the scene (confirmed).",
+              "line": 247,
+              "deprecated": false
+            },
+            {
+              "name": "convert_to_assembly",
+              "qualname": "ReferenceActions.convert_to_assembly",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Replace every reference with an assembly (confirmed;",
+              "line": 272,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_reference_manager/scene_files.py",
+      "summary": "The Reference Manager's scene files: open / close / save / rename / delete, the",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SceneFiles",
+          "summary": "The scene-file actions (see the module docstring).",
+          "line": 24,
+          "bases": [],
+          "members": [
+            {
+              "name": "normalize_structure_pattern",
+              "qualname": "SceneFiles.normalize_structure_pattern",
+              "kind": "method",
+              "signature": "(self, pattern: str) -> str",
+              "summary": "The folder-structure pattern trimmed, with the common ``{scene}`` typo read",
+              "line": 31,
+              "deprecated": false
+            },
+            {
+              "name": "default_save_name",
+              "qualname": "SceneFiles.default_save_name",
+              "kind": "method",
+              "signature": "(self, case_style: str, suffix: str) -> str",
+              "summary": "The name Save would prepopulate: the open scene's base, less every trailing",
+              "line": 46,
+              "deprecated": false
+            },
+            {
+              "name": "resolve_save_target",
+              "qualname": "SceneFiles.resolve_save_target",
+              "kind": "method",
+              "signature": "(self, name, case_style, suffix, pattern) -> str",
+              "summary": "The absolute path Save To Workspace writes for *name* under the browsed",
+              "line": 57,
+              "deprecated": false
+            },
+            {
+              "name": "save_scene_preview",
+              "qualname": "SceneFiles.save_scene_preview",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "Live tooltip for the footer's Save button: the exact path Save would write.",
+              "line": 86,
+              "deprecated": false
+            },
+            {
+              "name": "folder_structure_preview",
+              "qualname": "SceneFiles.folder_structure_preview",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "Live tooltip for the Folder Structure field: its placeholders resolved",
+              "line": 109,
+              "deprecated": false
+            },
+            {
+              "name": "wire_structure_tooltip",
+              "qualname": "SceneFiles.wire_structure_tooltip",
+              "kind": "method",
+              "signature": "(self, menu) -> None",
+              "summary": "Bind the live folder-structure preview once the field's ``.tooltip`` proxy",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "open_scene_at_row",
+              "qualname": "SceneFiles.open_scene_at_row",
+              "kind": "method",
+              "signature": "(self, row, col=None)",
+              "summary": "Open the row's scene -- or close it (a new empty scene) when it already is",
+              "line": 168,
+              "deprecated": false
+            },
+            {
+              "name": "confirm_discard_unsaved",
+              "qualname": "SceneFiles.confirm_discard_unsaved",
+              "kind": "method",
+              "signature": "(self) -> bool",
+              "summary": "True if it is OK to replace the open scene: nothing unsaved, the user saved,",
+              "line": 181,
+              "deprecated": false
+            },
+            {
+              "name": "save_current_scene",
+              "qualname": "SceneFiles.save_current_scene",
+              "kind": "method",
+              "signature": "(self) -> bool",
+              "summary": "Save the open scene in place -- or, when it cannot be written where it came",
+              "line": 197,
+              "deprecated": false
+            },
+            {
+              "name": "open_path",
+              "qualname": "SceneFiles.open_path",
+              "kind": "method",
+              "signature": "(self, path) -> bool",
+              "summary": "Open *path*, offering to save the open scene's changes first -- the single",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "close_scene",
+              "qualname": "SceneFiles.close_scene",
+              "kind": "method",
+              "signature": "(self) -> bool",
+              "summary": "Close the open scene (a new empty one), guarding unsaved changes.",
+              "line": 234,
+              "deprecated": false
+            },
+            {
+              "name": "save_to_workspace",
+              "qualname": "SceneFiles.save_to_workspace",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Save the open scene into the workspace under the Naming conventions,",
+              "line": 244,
+              "deprecated": false
+            },
+            {
+              "name": "rename_path",
+              "qualname": "SceneFiles.rename_path",
+              "kind": "method",
+              "signature": "(self, old_path, new_path, folder=None, item=None) -> Optional[str]",
+              "summary": "Rename *old_path* to *new_path* through the engine (the open scene saved and",
+              "line": 287,
+              "deprecated": false
+            },
+            {
+              "name": "rename_scene",
+              "qualname": "SceneFiles.rename_scene",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rename the right-clicked row's scene, prompting for the new name under the",
+              "line": 309,
+              "deprecated": false
+            },
+            {
+              "name": "delete_scene",
+              "qualname": "SceneFiles.delete_scene",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete the right-clicked row's scene: to the trash, or -- a drive with none,",
+              "line": 347,
+              "deprecated": false
+            },
+            {
+              "name": "open_file_location",
+              "qualname": "SceneFiles.open_file_location",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reveal the right-clicked row's file in the file manager.",
+              "line": 386,
+              "deprecated": false
+            },
+            {
+              "name": "copy_path",
+              "qualname": "SceneFiles.copy_path",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Copy the right-clicked row's full path to the clipboard.",
+              "line": 400,
+              "deprecated": false
+            },
+            {
+              "name": "resolve_rig_mode",
+              "qualname": "SceneFiles.resolve_rig_mode",
+              "kind": "method",
+              "signature": "(self, path)",
+              "summary": "How a foreign scene's rig logic travels: asked only when it has some.",
+              "line": 410,
+              "deprecated": false
+            },
+            {
+              "name": "resolve_conversion",
+              "qualname": "SceneFiles.resolve_conversion",
+              "kind": "method",
+              "signature": "(self, path)",
+              "summary": "The route + rig mode ``bake_scene`` / ``import_scene`` take for *path*, or",
+              "line": 431,
+              "deprecated": false
+            },
+            {
+              "name": "conversion_progress",
+              "qualname": "SceneFiles.conversion_progress",
+              "kind": "method",
+              "signature": "(self, text)",
+              "summary": "Footer progress for one conversion;",
+              "line": 440,
+              "deprecated": false
+            },
+            {
+              "name": "bake_foreign_path",
+              "qualname": "SceneFiles.bake_foreign_path",
+              "kind": "method",
+              "signature": "(self, path, project=None)",
+              "summary": "Bake *path* to the host's cached native scene and return it, or None.",
+              "line": 451,
+              "deprecated": false
+            },
+            {
+              "name": "import_paths",
+              "qualname": "SceneFiles.import_paths",
+              "kind": "method",
+              "signature": "(self, paths)",
+              "summary": "Import each row in *paths* as local data with no reference behind it.",
+              "line": 479,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/_reference_manager/workspaces.py",
+      "summary": "The Reference Manager's workspace browser: the Root Directory, the workspace",
+      "functions": [],
+      "classes": [
+        {
+          "name": "WorkspaceBrowser",
+          "summary": "The Root Directory and Workspaces fields (see the module docstring).",
+          "line": 19,
+          "bases": [],
+          "members": [
+            {
+              "name": "root_dir",
+              "qualname": "WorkspaceBrowser.root_dir",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "The Root Directory field's text.",
+              "line": 30,
+              "deprecated": false
+            },
+            {
+              "name": "workspace_dir",
+              "qualname": "WorkspaceBrowser.workspace_dir",
+              "kind": "method",
+              "signature": "(self) -> str",
+              "summary": "The workspace being browsed: the combo's selection, else the root.",
+              "line": 35,
+              "deprecated": false
+            },
+            {
+              "name": "save_workspace_selection",
+              "qualname": "WorkspaceBrowser.save_workspace_selection",
+              "kind": "method",
+              "signature": "(self, root_dir: str, workspace_name: str)",
+              "summary": "Remember which workspace was last selected for *root_dir* (capped).",
+              "line": 48,
+              "deprecated": false
+            },
+            {
+              "name": "restore_workspace_index",
+              "qualname": "WorkspaceBrowser.restore_workspace_index",
+              "kind": "method",
+              "signature": "(self, widget) -> bool",
+              "summary": "Select the workspace last used for the current root, if still listed.",
+              "line": 58,
+              "deprecated": false
+            },
+            {
+              "name": "update_current_dir",
+              "qualname": "WorkspaceBrowser.update_current_dir",
+              "kind": "method",
+              "signature": "(self, text: Optional[str] = None)",
+              "summary": "The Root Directory changed (or was validated): rescan its workspaces when",
+              "line": 71,
+              "deprecated": false
+            },
+            {
+              "name": "update_workspace_combo",
+              "qualname": "WorkspaceBrowser.update_workspace_combo",
+              "kind": "method",
+              "signature": "(self, root_dir=None)",
+              "summary": "Repopulate the workspace combo from the workspaces under *root_dir* (the",
+              "line": 98,
+              "deprecated": false
+            },
+            {
+              "name": "set_workspace",
+              "qualname": "WorkspaceBrowser.set_workspace",
+              "kind": "method",
+              "signature": "(self, workspace_path: str, invalidate: bool = True) -> bool",
+              "summary": "Browse *workspace_path* and refresh the file list.",
+              "line": 142,
+              "deprecated": false
+            },
+            {
+              "name": "update_workspace_footer",
+              "qualname": "WorkspaceBrowser.update_workspace_footer",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Name the browsed workspace in the footer's status.",
+              "line": 159,
+              "deprecated": false
+            },
+            {
+              "name": "flash_footer",
+              "qualname": "WorkspaceBrowser.flash_footer",
+              "kind": "method",
+              "signature": "(self, text, level='success')",
+              "summary": "Show *text* in the footer's status for a moment, then the workspace again.",
+              "line": 167,
+              "deprecated": false
+            },
+            {
+              "name": "set_project",
+              "qualname": "WorkspaceBrowser.set_project",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set the host's project (session workspace) to the browsed workspace -- the",
+              "line": 175,
+              "deprecated": false
+            },
+            {
+              "name": "set_root_to_current",
+              "qualname": "WorkspaceBrowser.set_root_to_current",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set the Root Directory to the host's current workspace.",
+              "line": 198,
+              "deprecated": false
+            },
+            {
+              "name": "open_root_dir",
+              "qualname": "WorkspaceBrowser.open_root_dir",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reveal the Root Directory in the file manager.",
+              "line": 202,
+              "deprecated": false
+            },
+            {
+              "name": "new_workspace",
+              "qualname": "WorkspaceBrowser.new_workspace",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Create a marked workspace (``workspace.mel``, rules from the active",
+              "line": 210,
+              "deprecated": false
+            },
+            {
+              "name": "mark_workspace",
+              "qualname": "WorkspaceBrowser.mark_workspace",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mark the browsed workspace as a shared Maya/Blender project: a",
+              "line": 232,
+              "deprecated": false
+            },
+            {
+              "name": "select_workspace",
+              "qualname": "WorkspaceBrowser.select_workspace",
+              "kind": "method",
+              "signature": "(self, path)",
+              "summary": "Select the combo entry whose data is *path* (after a repopulate).",
+              "line": 251,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/_shot_manifest/controller.py",
       "summary": "The Shot Manifest panel's controller: its state, the steps the table shows,",
       "functions": [],
@@ -15203,6 +16158,312 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/reference_manager.py",
+      "summary": "Reference Manager: a workspace scene-file manager -- browse a project's scene",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ReferenceManagerSlots",
+          "summary": "Switchboard slots for the ``reference_manager.ui`` panel.",
+          "line": 19,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "ReferenceManagerSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Header buttons, the Naming / Filter-Display / Foreign Scenes / Include",
+              "line": 126,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "ReferenceManagerSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Table setup: the one-time construction, then the signals re-wired to this",
+              "line": 362,
+              "deprecated": false
+            },
+            {
+              "name": "btn_open_scene",
+              "qualname": "ReferenceManagerSlots.btn_open_scene",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the right-clicked row's scene (a reopen on the open scene's row).",
+              "line": 514,
+              "deprecated": false
+            },
+            {
+              "name": "btn_rename_scene",
+              "qualname": "ReferenceManagerSlots.btn_rename_scene",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rename the right-clicked row's scene.",
+              "line": 522,
+              "deprecated": false
+            },
+            {
+              "name": "btn_delete_scene",
+              "qualname": "ReferenceManagerSlots.btn_delete_scene",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Delete the right-clicked row's scene.",
+              "line": 526,
+              "deprecated": false
+            },
+            {
+              "name": "btn_toggle_reference",
+              "qualname": "ReferenceManagerSlots.btn_toggle_reference",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reference / unreference the right-clicked row.",
+              "line": 530,
+              "deprecated": false
+            },
+            {
+              "name": "btn_unlink_import",
+              "qualname": "ReferenceManagerSlots.btn_unlink_import",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unlink and import the right-clicked row (make it local / import it).",
+              "line": 536,
+              "deprecated": false
+            },
+            {
+              "name": "btn_open_file_location",
+              "qualname": "ReferenceManagerSlots.btn_open_file_location",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Reveal the right-clicked row's file.",
+              "line": 540,
+              "deprecated": false
+            },
+            {
+              "name": "btn_copy_path",
+              "qualname": "ReferenceManagerSlots.btn_copy_path",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Copy the right-clicked row's full path.",
+              "line": 544,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "ReferenceManagerSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Root Directory: recent-folder pins, the browse / open / workspace actions",
+              "line": 549,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "ReferenceManagerSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Browse for a root directory.",
+              "line": 638,
+              "deprecated": false
+            },
+            {
+              "name": "b006",
+              "qualname": "ReferenceManagerSlots.b006",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the root directory in the file explorer.",
+              "line": 642,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "ReferenceManagerSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Set the root directory to the session's current workspace.",
+              "line": 646,
+              "deprecated": false
+            },
+            {
+              "name": "btn_new_workspace",
+              "qualname": "ReferenceManagerSlots.btn_new_workspace",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Create a workspace under the root.",
+              "line": 650,
+              "deprecated": false
+            },
+            {
+              "name": "btn_mark_workspace",
+              "qualname": "ReferenceManagerSlots.btn_mark_workspace",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Mark the selected workspace folder as a project.",
+              "line": 654,
+              "deprecated": false
+            },
+            {
+              "name": "chk000",
+              "qualname": "ReferenceManagerSlots.chk000",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Recursive Search: rescan the root's workspaces.",
+              "line": 667,
+              "deprecated": false
+            },
+            {
+              "name": "chk003",
+              "qualname": "ReferenceManagerSlots.chk003",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Ignore Empty Workspaces: rescan the root's workspaces.",
+              "line": 677,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000_init",
+              "qualname": "ReferenceManagerSlots.cmb000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Workspaces: its ▸ action sets the session's project to the selection (on",
+              "line": 688,
+              "deprecated": false
+            },
+            {
+              "name": "cmb000",
+              "qualname": "ReferenceManagerSlots.cmb000",
+              "kind": "method",
+              "signature": "(self, index, widget)",
+              "summary": "Browse the selected workspace.",
+              "line": 701,
+              "deprecated": false
+            },
+            {
+              "name": "txt001_init",
+              "qualname": "ReferenceManagerSlots.txt001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Filter: an on/off toggle (persisted), Ignore Case and what it matches.",
+              "line": 710,
+              "deprecated": false
+            },
+            {
+              "name": "txt001",
+              "qualname": "ReferenceManagerSlots.txt001",
+              "kind": "method",
+              "signature": "(self, text)",
+              "summary": "Filter the list by the typed text.",
+              "line": 741,
+              "deprecated": false
+            },
+            {
+              "name": "chk_ignore_case",
+              "qualname": "ReferenceManagerSlots.chk_ignore_case",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Re-filter.",
+              "line": 750,
+              "deprecated": false
+            },
+            {
+              "name": "cmb_filter_target",
+              "qualname": "ReferenceManagerSlots.cmb_filter_target",
+              "kind": "method",
+              "signature": "(self, index, widget=None)",
+              "summary": "Re-filter.",
+              "line": 754,
+              "deprecated": false
+            },
+            {
+              "name": "chk_filter_suffix",
+              "qualname": "ReferenceManagerSlots.chk_filter_suffix",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Re-filter.",
+              "line": 759,
+              "deprecated": false
+            },
+            {
+              "name": "chk_filter_folder_structure",
+              "qualname": "ReferenceManagerSlots.chk_filter_folder_structure",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Re-filter.",
+              "line": 763,
+              "deprecated": false
+            },
+            {
+              "name": "chk_hide_suffix",
+              "qualname": "ReferenceManagerSlots.chk_hide_suffix",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Re-label.",
+              "line": 767,
+              "deprecated": false
+            },
+            {
+              "name": "chk_hide_extension",
+              "qualname": "ReferenceManagerSlots.chk_hide_extension",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Re-label.",
+              "line": 771,
+              "deprecated": false
+            },
+            {
+              "name": "chk_show_notes_column",
+              "qualname": "ReferenceManagerSlots.chk_show_notes_column",
+              "kind": "method",
+              "signature": "(self, checked)",
+              "summary": "Show / hide the Notes column.",
+              "line": 775,
+              "deprecated": false
+            },
+            {
+              "name": "txt_suffix",
+              "qualname": "ReferenceManagerSlots.txt_suffix",
+              "kind": "method",
+              "signature": "(self, text)",
+              "summary": "Re-filter when a filter reads the suffix.",
+              "line": 779,
+              "deprecated": false
+            },
+            {
+              "name": "txt_subfolder_structure",
+              "qualname": "ReferenceManagerSlots.txt_subfolder_structure",
+              "kind": "method",
+              "signature": "(self, text)",
+              "summary": "Re-filter when a filter reads the folder structure.",
+              "line": 783,
+              "deprecated": false
+            },
+            {
+              "name": "btn_convert_assembly",
+              "qualname": "ReferenceManagerSlots.btn_convert_assembly",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Convert every reference to an assembly (Maya).",
+              "line": 787,
+              "deprecated": false
+            },
+            {
+              "name": "btn_unlink_import_all",
+              "qualname": "ReferenceManagerSlots.btn_unlink_import_all",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Unlink and import every reference.",
+              "line": 791,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/render_effects.py",
       "summary": "Render Effects: key per-object opacity fades and highlight pulses for export.",
       "functions": [],
@@ -17181,6 +18442,259 @@
               "signature": "(self) -> None",
               "summary": "",
               "line": 1023,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/texture_path_editor.py",
+      "summary": "Texture Path Editor: inspect and fix the scene's texture paths.",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TexturePathEditorSlots",
+          "summary": "",
+          "line": 27,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "labels",
+              "qualname": "TexturePathEditorSlots.labels",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The host's words for the node and shader columns and row actions.",
+              "line": 114,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "TexturePathEditorSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The header menu: General / Naming / Path Management / Selection.",
+              "line": 122,
+              "deprecated": false
+            },
+            {
+              "name": "tb_set_texture_directory_init",
+              "qualname": "TexturePathEditorSlots.tb_set_texture_directory_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Set Directory option box: the relocate mode and Allow Missing Targets.",
+              "line": 524,
+              "deprecated": false
+            },
+            {
+              "name": "tb_normalize_paths_init",
+              "qualname": "TexturePathEditorSlots.tb_normalize_paths_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Normalize Paths option box: what becomes of external textures.",
+              "line": 555,
+              "deprecated": false
+            },
+            {
+              "name": "tb_resolve_missing_textures_init",
+              "qualname": "TexturePathEditorSlots.tb_resolve_missing_textures_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "The Resolve Missing option box: one checkbox per strategy.",
+              "line": 576,
+              "deprecated": false
+            },
+            {
+              "name": "tbl000_init",
+              "qualname": "TexturePathEditorSlots.tbl000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Build the row menu once, then (re)populate the table.",
+              "line": 628,
+              "deprecated": false
+            },
+            {
+              "name": "refresh_texture_table",
+              "qualname": "TexturePathEditorSlots.refresh_texture_table",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-read the scene into the table (the header's refresh button).",
+              "line": 738,
+              "deprecated": false
+            },
+            {
+              "name": "setup_formatting",
+              "qualname": "TexturePathEditorSlots.setup_formatting",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Mark the path cell red when its file is missing (amber when over-long",
+              "line": 847,
+              "deprecated": false
+            },
+            {
+              "name": "open_source_images",
+              "qualname": "TexturePathEditorSlots.open_source_images",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open the project's texture folder in the file explorer.",
+              "line": 1204,
+              "deprecated": false
+            },
+            {
+              "name": "reload_scene_textures",
+              "qualname": "TexturePathEditorSlots.reload_scene_textures",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Re-read every scene texture from disk.",
+              "line": 1214,
+              "deprecated": false
+            },
+            {
+              "name": "tb_set_texture_directory",
+              "qualname": "TexturePathEditorSlots.tb_set_texture_directory",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Repath the scope's textures under a chosen directory.",
+              "line": 1224,
+              "deprecated": false
+            },
+            {
+              "name": "tb_find_and_copy_textures",
+              "qualname": "TexturePathEditorSlots.tb_find_and_copy_textures",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Open the Find & Copy panel over the current scope.",
+              "line": 1268,
+              "deprecated": false
+            },
+            {
+              "name": "tb_normalize_paths",
+              "qualname": "TexturePathEditorSlots.tb_normalize_paths",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Rewrite the scope's paths inside the project to relative;",
+              "line": 1288,
+              "deprecated": false
+            },
+            {
+              "name": "make_paths_absolute",
+              "qualname": "TexturePathEditorSlots.make_paths_absolute",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Rewrite the scope's relative paths to absolute -- inverse of Normalize.",
+              "line": 1312,
+              "deprecated": false
+            },
+            {
+              "name": "tb_resolve_missing_textures",
+              "qualname": "TexturePathEditorSlots.tb_resolve_missing_textures",
+              "kind": "method",
+              "signature": "(self, widget=None)",
+              "summary": "Rebind the scope's missing textures to files found in the project's",
+              "line": 1342,
+              "deprecated": false
+            },
+            {
+              "name": "select_textures_for_objects",
+              "qualname": "TexturePathEditorSlots.select_textures_for_objects",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Select the rows whose textures the scene selection's materials read.",
+              "line": 1363,
+              "deprecated": false
+            },
+            {
+              "name": "select_broken_paths",
+              "qualname": "TexturePathEditorSlots.select_broken_paths",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Select the rows whose texture file is missing.",
+              "line": 1379,
+              "deprecated": false
+            },
+            {
+              "name": "select_absolute_paths",
+              "qualname": "TexturePathEditorSlots.select_absolute_paths",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Select the rows whose path is stored absolute -- Normalize candidates",
+              "line": 1393,
+              "deprecated": false
+            },
+            {
+              "name": "row_browse_for_file",
+              "qualname": "TexturePathEditorSlots.row_browse_for_file",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Repath the row's texture to a picked file (several rows: a folder).",
+              "line": 1476,
+              "deprecated": false
+            },
+            {
+              "name": "row_rename_file",
+              "qualname": "TexturePathEditorSlots.row_rename_file",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Rename one row's texture file, edited in its own cell: the path cell",
+              "line": 1689,
+              "deprecated": false
+            },
+            {
+              "name": "handle_cell_edit",
+              "qualname": "TexturePathEditorSlots.handle_cell_edit",
+              "kind": "method",
+              "signature": "(self, row: int, col: int)",
+              "summary": "An edited cell: the shader / node cells rename what they name, the",
+              "line": 1731,
+              "deprecated": false
+            },
+            {
+              "name": "select_material",
+              "qualname": "TexturePathEditorSlots.select_material",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Select the scene objects using the selected rows' materials (a",
+              "line": 1851,
+              "deprecated": false
+            },
+            {
+              "name": "select_file_node",
+              "qualname": "TexturePathEditorSlots.select_file_node",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Select the selected rows' texture nodes.",
+              "line": 1870,
+              "deprecated": false
+            },
+            {
+              "name": "row_show_in_hypershade",
+              "qualname": "TexturePathEditorSlots.row_show_in_hypershade",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Graph the selected rows' textures in the node editor.",
+              "line": 1884,
+              "deprecated": false
+            },
+            {
+              "name": "delete_file_node",
+              "qualname": "TexturePathEditorSlots.delete_file_node",
+              "kind": "method",
+              "signature": "(self, selection=None)",
+              "summary": "Delete the selected rows' texture nodes, confirmed with what it would",
+              "line": 1892,
+              "deprecated": false
+            },
+            {
+              "name": "cleanup_scene_callbacks",
+              "qualname": "TexturePathEditorSlots.cleanup_scene_callbacks",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Drop the scene-change subscriptions.",
+              "line": 2322,
               "deprecated": false
             }
           ]

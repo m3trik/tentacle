@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (775)
+## Added (937)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -99,6 +99,108 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.store_tree_selection(self, tree_widget) -> List[str]`
 - `slots/tools/_hierarchy_sync/tree_renderer.py::OPEN_SCENE_PLACEHOLDER(constant)`
 - `slots/tools/_hierarchy_sync/tree_renderer.py::ORIG_TOOLTIP_ROLE(constant)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController(class)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.apply_notes_column_visibility(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.capture_context_row(self, pos)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.context_row(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.editor_closed(self, *_args)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.error_box(self, lead: str, name: str, error) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.filter_menu(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.footer_status(self, text, level='warning')`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.foreign_route(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.format_table_item(self, item, file_path, is_current)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.handle_item_selection(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.header_menu(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.include_type_checked_by_default(self, include_type) -> bool`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.include_type_tooltip(self, include_type) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.included_extensions(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.is_importable(self, path) -> bool`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.item_changed(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.item_double_clicked(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.label_open_action(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.message(self, text, *buttons)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.migrate_settings_notes(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.naming_options(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.norm(path) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.note(self, path) -> str`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.prepare_item_for_edit(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.refilter_on_naming_change(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.refresh_file_list(self, invalidate=False)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.report(self, message: str) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.restore_item_display(self, item)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.role(self, offset: int)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.row_path(self, row)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.row_references(self, path) -> list`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.scene_notes(self) -> 'ptk.SceneNotes'`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.select_item_silently(self, item, selected: bool) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.set_note(self, path, text) -> None`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.sync_reference_icons(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.sync_selection_to_references(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.table_signals_blocked(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.tk(self)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.type_extensions(cls, include_type)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_listing_footer(self, listed: int, referenced: int)`
+- `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_table(self, file_names, file_list)`
+- `slots/tools/_reference_manager/listing.py::SceneListing(class)`
+- `slots/tools/_reference_manager/listing.py::SceneListing.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str`
+- `slots/tools/_reference_manager/listing.py::SceneListing.display_name(path: str, hide_extension: bool, hide_suffix: str) -> str`
+- `slots/tools/_reference_manager/listing.py::SceneListing.filter_by_folder_structure(files: Iterable[str], workspace: str, pattern: str, suffix: str, scenes: str) -> List[str]`
+- `slots/tools/_reference_manager/listing.py::SceneListing.format_name(name: str, case_style: str = 'None', suffix: str = '') -> str`
+- `slots/tools/_reference_manager/listing.py::SceneListing.matches_notes_filter(cls, notes_text: str, filter_text: str, ignore_case: bool = True) -> bool`
+- `slots/tools/_reference_manager/listing.py::SceneListing.scenes_folder(workspace: str) -> str`
+- `slots/tools/_reference_manager/listing.py::SceneListing.split_patterns(cls, text: str) -> List[str]`
+- `slots/tools/_reference_manager/listing.py::SceneListing.strip_all_suffixes(base: str, suffix: str) -> str`
+- `slots/tools/_reference_manager/listing.py::SceneListing.text_matches_filter(text: str, filter_patterns: Sequence[str], ignore_case: bool = True) -> bool`
+- `slots/tools/_reference_manager/references.py::ReferenceActions(class)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.add_unlink_namespace_action(self, button)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.ask_scene_data(self, summary, namespace)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.convert_to_assembly(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.cycle_display_mode_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.toggle_reference_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_all(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_import_row(self)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_namespace_mode(self) -> str`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unlink_references(self, namespaces)`
+- `slots/tools/_reference_manager/references.py::ReferenceActions.unreference_all(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles(class)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.bake_foreign_path(self, path, project=None)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.close_scene(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.confirm_discard_unsaved(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.conversion_progress(self, text)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.copy_path(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.delete_scene(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.folder_structure_preview(self) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.import_paths(self, paths)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.normalize_structure_pattern(self, pattern: str) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_file_location(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_path(self, path) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.open_scene_at_row(self, row, col=None)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.rename_path(self, old_path, new_path, folder=None, item=None) -> Optional[str]`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.rename_scene(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_conversion(self, path)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_rig_mode(self, path)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.resolve_save_target(self, name, case_style, suffix, pattern) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_current_scene(self) -> bool`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_scene_preview(self) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.save_to_workspace(self)`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.wire_structure_tooltip(self, menu) -> None`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser(class)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.flash_footer(self, text, level='success')`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.mark_workspace(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.new_workspace(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.open_root_dir(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.restore_workspace_index(self, widget) -> bool`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.root_dir(self) -> str`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.save_workspace_selection(self, root_dir: str, workspace_name: str)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.select_workspace(self, path)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_project(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_root_to_current(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.set_workspace(self, workspace_path: str, invalidate: bool = True) -> bool`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_current_dir(self, text: Optional[str] = None)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_workspace_combo(self, root_dir=None)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.update_workspace_footer(self)`
+- `slots/tools/_reference_manager/workspaces.py::WorkspaceBrowser.workspace_dir(self) -> str`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController(class)`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.assess(self, skip_key_check: bool = False, note: str = '') -> None`
 - `slots/tools/_shot_manifest/controller.py::ShotManifestController.build(self) -> None`
@@ -546,6 +648,39 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/naming.py::NamingSlots.txt001(self, widget)`
 - `slots/tools/naming.py::NamingSlots.txt001_init(self, widget)`
 - `slots/tools/naming.py::NamingSlots.valid_suffixes(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots(class)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b000(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b001(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.b006(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_convert_assembly(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_copy_path(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_delete_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_mark_workspace(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_new_workspace(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_open_file_location(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_open_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_rename_scene(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_toggle_reference(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_unlink_import(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.btn_unlink_import_all(self)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk000(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk003(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_filter_folder_structure(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_filter_suffix(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_hide_extension(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_hide_suffix(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_ignore_case(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.chk_show_notes_column(self, checked)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb000(self, index, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.cmb_filter_target(self, index, widget=None)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.header_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.tbl000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt000_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt001(self, text)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt001_init(self, widget)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt_subfolder_structure(self, text)`
+- `slots/tools/reference_manager.py::ReferenceManagerSlots.txt_suffix(self, text)`
 - `slots/tools/render_effects.py::RenderEffectsSlots(class)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.b000(self, widget=None)`
 - `slots/tools/render_effects.py::RenderEffectsSlots.btn_remove(self, widget=None)`
@@ -755,6 +890,33 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/texture_combine.py::TextureCombineSlots.t_output_init(self, widget) -> None`
 - `slots/tools/texture_combine.py::TextureCombineSlots.t_tt_dst_uvset_init(self, widget) -> None`
 - `slots/tools/texture_combine.py::TextureCombineSlots.tbl_sources_init(self, widget) -> None`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots(class)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.cleanup_scene_callbacks(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.delete_file_node(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.handle_cell_edit(self, row: int, col: int)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.header_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.labels(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.make_paths_absolute(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.open_source_images(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.refresh_texture_table(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.reload_scene_textures(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_browse_for_file(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_rename_file(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.row_show_in_hypershade(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_absolute_paths(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_broken_paths(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_file_node(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_material(self, selection=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.select_textures_for_objects(self)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.setup_formatting(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_find_and_copy_textures(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_normalize_paths(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_normalize_paths_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_resolve_missing_textures(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_resolve_missing_textures_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_set_texture_directory(self, widget=None)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tb_set_texture_directory_init(self, widget)`
+- `slots/tools/texture_path_editor.py::TexturePathEditorSlots.tbl000_init(self, widget)`
 - `slots/tools/tube_rig.py::TubeRigSlots(class)`
 - `slots/tools/tube_rig.py::TubeRigSlots.apply_mode(self, index: int)`
 - `slots/tools/tube_rig.py::TubeRigSlots.b000(self)`

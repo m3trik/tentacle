@@ -115,7 +115,7 @@ class DisplaySlots(DisplayMixin, SlotsBlender):
     def _template_selected(self):
         """Template the selection — dimmed WIRE, non-renderable, non-selectable — the Blender
         analogue of Maya's Display ▸ Wireframe ▸ Template Selected (b021 -> cmds.toggle(template=1);
-        matches blendertk.reference_manager's 'template' mode: display_type='WIRE' + hide_select).
+        matches btk.EnvUtils.set_reference_display_mode's 'template' mode: display_type='WIRE' + hide_select).
 
         Toggle handling accounts for a Blender quirk verified live (5.1): setting hide_select=True
         DESELECTS the object, so templated objects can't be re-selected to untemplate. So: with a

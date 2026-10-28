@@ -8,21 +8,9 @@
 |:--|--:|--:|--:|--:|:--|
 | ArnoldBridge | 0 | 0 | 4 | 0 | OK |
 | MarmosetBridge | 0 | 0 | 0 | 0 | OK |
-| ReferenceManager | 0 | 0 | 14 | 0 | OK |
 | RizomBridge | 0 | 0 | 0 | 0 | OK |
 | ShotSequencer | 0 | 0 | 0 | 0 | OK |
 | SubstanceBridge | 0 | 0 | 0 | 0 | OK |
-| TexturePathEditor | 0 | 0 | 1 | 5 | OK |
-
-### Panel deltas
-
-#### TexturePathEditor
-**property deltas (review)**
-  - `btn_open_source_images.setText` maya=`'Open Source Images'` blender=`'Open Textures Folder'`
-  - `chk_stem.setText` maya=`'Stem  — exact name, different extension'` blender=`'Stem  — exact name, any extension'`
-  - `delete_file_node.setText` maya=`'Delete File Node'` blender=`'Remove Texture'`
-  - `row_show_in_hypershade.setText` maya=`'Show in Hypershade'` blender=`'Show in Shader Editor'`
-  - `select_file_node.setText` maya=`'Select File Node'` blender=`'Select Texture Node'`
 
 **Open panel ports (1):**
 - **LightRig** — mayatk LightRig (2026-10-17, save / swap / restore named light rigs) has no blendertk twin yet -- a gap, not a divergence; ledgered in .claude/BACKLOG.md ('Light Rigs has no blendertk twin')
@@ -135,4 +123,4 @@ Blender-only panels: MayaBridge, WorkspaceEditor
 - **uv** `chk044` — optbox QCheckBox 'Rotate Shells (xatlas)'  [pending] Rotate Shells (xatlas) -- rides the cmb019 port; maps 1:1 onto ptk.UvPack.pack_islands(rotate=). Distinct from chk_pack_rotate, which drives the native pack_islands rotate.
 - **uv** `cmb019` — optbox QComboBox None  [pending] Pack Method combo (Standard / xatlas). The xatlas engine itself is portable -- ptk.UvPack is array-in/array-out with no DCC imports, and the package pip-installs into Blender's Python the same way -- so the Blender Pack option box can gain the same method combo dispatching to a blendertk pack_uvs twin (uv arrays via bmesh/foreach_get, per-island transform write-back; honor mirrored charts like mayatk's _uv_pack does). Until built, Blender packs via its native pack_islands only.
 
-## Totals: 7 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.
+## Totals: 5 panels paired; 26 tentacle slots paired; 33 native-menu stubs (counterpart-set); 13 open-work items; 0 stale Maya handlers. Sweep PASSES.

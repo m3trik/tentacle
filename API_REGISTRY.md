@@ -121,6 +121,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_hierarchy_sync/controller.py`](#slots--tools--_hierarchy_sync--controller) — The Hierarchy Sync panel's state: the reference path, the paths the user
 - [`slots/tools/_hierarchy_sync/tree_matcher.py`](#slots--tools--_hierarchy_sync--tree_matcher) — Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
 - [`slots/tools/_hierarchy_sync/tree_renderer.py`](#slots--tools--_hierarchy_sync--tree_renderer) — The Hierarchy Sync trees: filling them, the diff's colours, the ignored
+- [`slots/tools/_reference_manager/controller.py`](#slots--tools--_reference_manager--controller) — The Reference Manager panel's controller: the browsed workspace, the table
+- [`slots/tools/_reference_manager/listing.py`](#slots--tools--_reference_manager--listing) — The Reference Manager's listing rules: how a scene file reads as a row and
+- [`slots/tools/_reference_manager/references.py`](#slots--tools--_reference_manager--references) — The Reference Manager's reference actions: a row's reference and display
+- [`slots/tools/_reference_manager/scene_files.py`](#slots--tools--_reference_manager--scene_files) — The Reference Manager's scene files: open / close / save / rename / delete, the
+- [`slots/tools/_reference_manager/workspaces.py`](#slots--tools--_reference_manager--workspaces) — The Reference Manager's workspace browser: the Root Directory, the workspace
 - [`slots/tools/_shot_manifest/controller.py`](#slots--tools--_shot_manifest--controller) — The Shot Manifest panel's controller: its state, the steps the table shows,
 - [`slots/tools/_shot_manifest/export_preview.py`](#slots--tools--_shot_manifest--export_preview) — The Shot Manifest's Export button (beside Assess): a live preview of the
 - [`slots/tools/_shot_manifest/header_menu.py`](#slots--tools--_shot_manifest--header_menu) — The Shot Manifest's header menu: Long Names, Local Edits' Edits mode and
@@ -163,6 +168,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
+- [`slots/tools/reference_manager.py`](#slots--tools--reference_manager) — Reference Manager: a workspace scene-file manager -- browse a project's scene
 - [`slots/tools/render_effects.py`](#slots--tools--render_effects) — Render Effects: key per-object opacity fades and highlight pulses for export.
 - [`slots/tools/scene_exporter.py`](#slots--tools--scene_exporter) — Scene Exporter: batch-export the scene through its task/check pipeline.
 - [`slots/tools/shader_templates.py`](#slots--tools--shader_templates) — Shader Templates: save a material's shader network as a reusable template
@@ -174,6 +180,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
 - [`slots/tools/texture_combine.py`](#slots--tools--texture_combine) — Texture Combine: several materials into one atlas and one material, in
+- [`slots/tools/texture_path_editor.py`](#slots--tools--texture_path_editor) — Texture Path Editor: inspect and fix the scene's texture paths.
 - [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - [`slots/tools/unity_bridge.py`](#slots--tools--unity_bridge) — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
@@ -629,7 +636,7 @@ Behavior shared by the Maya and Blender UV panels.
   - `MaterialsSlots.lbl004(self)` — Select Node — select the object(s) using the current material.
   - `MaterialsSlots.lbl006(self)` — Open in Editor — graph the current material in the Shader Editor.
   - `MaterialsSlots.b021(self)` — Image to Plane — open the panel (batch image→plane with aspect sizing, material affix
-  - `MaterialsSlots.b010(self)` — Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /
+  - `MaterialsSlots.b010(self)` — Texture Path Editor — the shared tool over ``btk.TexturePathEditor`` (list / repath /
   - `MaterialsSlots.b009(self)` — Game Shader — co-located blendertk panel (auto-build a Principled material from a PBR
   - `MaterialsSlots.b027(self)` — Emissive Groups — co-located blendertk panel (named face groups a game engine gates at
   - `MaterialsSlots.b011(self)` — Shader Templates — co-located blendertk panel (Principled-BSDF presets: create new /
@@ -1796,6 +1803,138 @@ The Hierarchy Sync trees: filling them, the diff's colours, the ignored
   - `HierarchyTreeRenderer.filter_to_leaves(paths) -> List[str]` *(static)* — Keep only paths that are not a parent of another path in *paths*.
   - `HierarchyTreeRenderer.apply_diff_options(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None` — Select and expand the diff in the trees.
 
+<a id="slots--tools--_reference_manager--controller"></a>
+### `slots/tools/_reference_manager/controller.py`
+
+The Reference Manager panel's controller: the browsed workspace, the table
+
+- **[`class ReferenceManagerController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_reference_manager/controller.py#L28)** — State and behavior behind ``reference_manager.ui`` (see the module docstring).
+  - `ReferenceManagerController.tk(self)` *(property)* — The host toolkit (``Slots.tk``).
+  - `ReferenceManagerController.norm(path) -> str` *(static)* — The panel's comparison key for a path: normalized, case-folded only where
+  - `ReferenceManagerController.role(self, offset: int)` — ``Qt.UserRole + offset`` (the row data roles above).
+  - `ReferenceManagerController.table_signals_blocked(self)` — Run a table rebuild without its signals: a programmatic change must not
+  - `ReferenceManagerController.message(self, text, *buttons)` — The panel's message box (``sb.message_box``).
+  - `ReferenceManagerController.report(self, message: str) -> None` — The engine's ``report``: its plain-text outcome, in a message box.
+  - `ReferenceManagerController.error_box(self, lead: str, name: str, error) -> None` — Report *error* for the scene file *name*.
+  - `ReferenceManagerController.footer_status(self, text, level='warning')` — Leave *text* in the footer's status label (no-op without a footer).
+  - `ReferenceManagerController.header_menu(self)` — The header menu -- home of the naming, filter and include options.
+  - `ReferenceManagerController.naming_options(self)` — ``(case_style, suffix, structure_pattern)`` from the header menu's Naming
+  - `ReferenceManagerController.type_extensions(cls, include_type)` *(class)* — Every extension the Include Types toggle *include_type* lists (``usd`` ->
+  - `ReferenceManagerController.include_type_checked_by_default(self, include_type) -> bool` — True for the host's own scene types (the engine's ``INCLUDE_DEFAULTS``).
+  - `ReferenceManagerController.include_type_tooltip(self, include_type) -> str` — What the Include Types toggle lists, and how a row of it references.
+  - `ReferenceManagerController.included_extensions(self)` — The extensions whose Include Types checkbox is checked;
+  - `ReferenceManagerController.is_importable(self, path) -> bool` — True if Unlink and Import can bring *path*'s row in with no reference
+  - `ReferenceManagerController.foreign_route(self)` — The conversion route from the header menu: ``"fbx"`` (default) / ``"usd"``.
+  - `ReferenceManagerController.filter_menu(self)` — The Filter field's option menu (ignore case, target);
+  - `ReferenceManagerController.scene_notes(self) -> 'ptk.SceneNotes'` *(property)* — The Notes column's store (``ptk.SceneNotes``: one file per project, shared
+  - `ReferenceManagerController.note(self, path) -> str` — *path*'s note ('' without one;
+  - `ReferenceManagerController.migrate_settings_notes(self)` — Move notes a panel kept in its settings (keyed by path, before 2026-10-13)
+  - `ReferenceManagerController.set_note(self, path, text) -> None` — Save *text* as *path*'s note;
+  - `ReferenceManagerController.refresh_file_list(self, invalidate=False)` — Rebuild the table for the browsed workspace, then re-select its
+  - `ReferenceManagerController.update_table(self, file_names, file_list)` — (Re)fill the table with *file_list* labelled *file_names*: items reused
+  - `ReferenceManagerController.update_listing_footer(self, listed: int, referenced: int)` — The footer's listing summary -- files shown, rows referenced, files the
+  - `ReferenceManagerController.format_table_item(self, item, file_path, is_current)` — The current scene's name cell: enabled (rename / delete / open) but not
+  - `ReferenceManagerController.row_references(self, path) -> list` — The references a row stands for -- through the bake standing in for it too.
+  - `ReferenceManagerController.sync_reference_icons(self)` — The reference and display-mode icons of every row, from the live references.
+  - `ReferenceManagerController.sync_selection_to_references(self)` — Select exactly the rows the scene references (selectable rows only).
+  - `ReferenceManagerController.handle_item_selection(self)` — The selection changed: reference the newly selected rows, remove the
+  - `ReferenceManagerController.apply_notes_column_visibility(self)` — Show the Notes column only while Show Notes Column is checked (view-only:
+  - `ReferenceManagerController.refilter_on_naming_change(self)` — Re-filter when a naming field changes while a filter / display option
+  - `ReferenceManagerController.row_path(self, row)` — The path on *row*'s name cell (None for no row).
+  - `ReferenceManagerController.capture_context_row(self, pos)` — Store the right-clicked row (the menu acts on it, not the selection) and
+  - `ReferenceManagerController.context_row(self)` — The right-clicked row, validated against the row count, or None.
+  - `ReferenceManagerController.label_open_action(self)` — Read the context menu's Open as 'Reopen' on the open scene's row: opening
+  - `ReferenceManagerController.select_item_silently(self, item, selected: bool) -> None` — Set *item*'s selection without firing the selection -> reference sync.
+  - `ReferenceManagerController.prepare_item_for_edit(self, item)` — Show the full file name in the name cell an inline rename edits.
+  - `ReferenceManagerController.restore_item_display(self, item)` — Restore the name cell's label after an edit.
+  - `ReferenceManagerController.item_double_clicked(self, item)` — Double-click a name to rename it inline (editable rows only: never a
+  - `ReferenceManagerController.item_changed(self, item)` — Commit an inline rename (the name column) or a note (the Notes column).
+  - `ReferenceManagerController.editor_closed(self, *_args)` — The inline editor closed: the name cell shows its label again.
+
+<a id="slots--tools--_reference_manager--listing"></a>
+### `slots/tools/_reference_manager/listing.py`
+
+The Reference Manager's listing rules: how a scene file reads as a row and
+
+- **[`class SceneListing`](tentacle/tentacle/slots/tools/_reference_manager/listing.py#L17)** — Row labels, filter matches and the naming conventions' path rules.
+  - `SceneListing.display_name(path: str, hide_extension: bool, hide_suffix: str) -> str` *(static)* — The table label for *path* -- its basename, less the extension and/or a
+  - `SceneListing.split_patterns(cls, text: str) -> List[str]` *(class)* — *text* split on every :attr:`DELIMITERS` entry, each part trimmed.
+  - `SceneListing.text_matches_filter(text: str, filter_patterns: Sequence[str], ignore_case: bool = True) -> bool` *(static)* — True if *text* (a file name) matches ANY of the already-split glob
+  - `SceneListing.matches_notes_filter(cls, notes_text: str, filter_text: str, ignore_case: bool = True) -> bool` *(class)* — True if the note *notes_text* matches the filter.
+  - `SceneListing.scenes_folder(workspace: str) -> str` *(static)* — The ``{scenes}`` placeholder for *workspace*: its ``scene`` file rule when
+  - `SceneListing.format_name(name: str, case_style: str = 'None', suffix: str = '') -> str` *(static)* — *name* in the *case_style* convention (``ptk.StrUtils.set_case``;
+  - `SceneListing.strip_all_suffixes(base: str, suffix: str) -> str` *(static)* — *base* less EVERY trailing *suffix*: a prefill still ending in one (a
+  - `SceneListing.filter_by_folder_structure(files: Iterable[str], workspace: str, pattern: str, suffix: str, scenes: str) -> List[str]` *(static)* — The *files* whose folder ends with *pattern* resolved for each
+  - `SceneListing.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str` *(class)* — Confirmation text for deleting *paths*.
+
+<a id="slots--tools--_reference_manager--references"></a>
+### `slots/tools/_reference_manager/references.py`
+
+The Reference Manager's reference actions: a row's reference and display
+
+- **[`class ReferenceActions`](tentacle/tentacle/slots/tools/_reference_manager/references.py#L15)** — The row and bulk reference actions (see the module docstring).
+  - `ReferenceActions.toggle_reference_at_row(self, row, col=None)` — Reference the row's file, or remove the references it stands for.
+  - `ReferenceActions.cycle_display_mode_at_row(self, row, col=None)` — Cycle the row's references' display: Normal -> Reference -> Template.
+  - `ReferenceActions.add_unlink_namespace_action(self, button)` — Give *button* the cycling namespace-mode action (applies to every unlink);
+  - `ReferenceActions.unlink_namespace_mode(self) -> str` — The namespace handling picked beside Unlink and Import All: the engine's
+  - `ReferenceActions.ask_scene_data(self, summary, namespace)` — The unlink question for a reference bringing scene data of its own: merge
+  - `ReferenceActions.unlink_references(self, namespaces)` — Unlink and import the references named *namespaces* (confirmed).
+  - `ReferenceActions.unlink_import_row(self)` — Unlink and Import at the right-clicked row: a referenced row's data made
+  - `ReferenceActions.unlink_all(self)` — Unlink and import every reference (confirmed: an unlink is not undoable).
+  - `ReferenceActions.unreference_all(self)` — Remove every reference from the scene (confirmed).
+  - `ReferenceActions.convert_to_assembly(self)` — Replace every reference with an assembly (confirmed;
+
+<a id="slots--tools--_reference_manager--scene_files"></a>
+### `slots/tools/_reference_manager/scene_files.py`
+
+The Reference Manager's scene files: open / close / save / rename / delete, the
+
+- **[`class SceneFiles`](tentacle/tentacle/slots/tools/_reference_manager/scene_files.py#L24)** — The scene-file actions (see the module docstring).
+  - `SceneFiles.normalize_structure_pattern(self, pattern: str) -> str` — The folder-structure pattern trimmed, with the common ``{scene}`` typo read
+  - `SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str` — The name Save would prepopulate: the open scene's base, less every trailing
+  - `SceneFiles.resolve_save_target(self, name, case_style, suffix, pattern) -> str` — The absolute path Save To Workspace writes for *name* under the browsed
+  - `SceneFiles.save_scene_preview(self) -> str` — Live tooltip for the footer's Save button: the exact path Save would write.
+  - `SceneFiles.folder_structure_preview(self) -> str` — Live tooltip for the Folder Structure field: its placeholders resolved
+  - `SceneFiles.wire_structure_tooltip(self, menu) -> None` — Bind the live folder-structure preview once the field's ``.tooltip`` proxy
+  - `SceneFiles.open_scene_at_row(self, row, col=None)` — Open the row's scene -- or close it (a new empty scene) when it already is
+  - `SceneFiles.confirm_discard_unsaved(self) -> bool` — True if it is OK to replace the open scene: nothing unsaved, the user saved,
+  - `SceneFiles.save_current_scene(self) -> bool` — Save the open scene in place -- or, when it cannot be written where it came
+  - `SceneFiles.open_path(self, path) -> bool` — Open *path*, offering to save the open scene's changes first -- the single
+  - `SceneFiles.close_scene(self) -> bool` — Close the open scene (a new empty one), guarding unsaved changes.
+  - `SceneFiles.save_to_workspace(self)` — Save the open scene into the workspace under the Naming conventions,
+  - `SceneFiles.rename_path(self, old_path, new_path, folder=None, item=None) -> Optional[str]` — Rename *old_path* to *new_path* through the engine (the open scene saved and
+  - `SceneFiles.rename_scene(self)` — Rename the right-clicked row's scene, prompting for the new name under the
+  - `SceneFiles.delete_scene(self)` — Delete the right-clicked row's scene: to the trash, or -- a drive with none,
+  - `SceneFiles.open_file_location(self)` — Reveal the right-clicked row's file in the file manager.
+  - `SceneFiles.copy_path(self)` — Copy the right-clicked row's full path to the clipboard.
+  - `SceneFiles.resolve_rig_mode(self, path)` — How a foreign scene's rig logic travels: asked only when it has some.
+  - `SceneFiles.resolve_conversion(self, path)` — The route + rig mode ``bake_scene`` / ``import_scene`` take for *path*, or
+  - `SceneFiles.conversion_progress(self, text)` — Footer progress for one conversion;
+  - `SceneFiles.bake_foreign_path(self, path, project=None)` — Bake *path* to the host's cached native scene and return it, or None.
+  - `SceneFiles.import_paths(self, paths)` — Import each row in *paths* as local data with no reference behind it.
+
+<a id="slots--tools--_reference_manager--workspaces"></a>
+### `slots/tools/_reference_manager/workspaces.py`
+
+The Reference Manager's workspace browser: the Root Directory, the workspace
+
+- **[`class WorkspaceBrowser`](tentacle/tentacle/slots/tools/_reference_manager/workspaces.py#L19)** — The Root Directory and Workspaces fields (see the module docstring).
+  - `WorkspaceBrowser.root_dir(self) -> str` — The Root Directory field's text.
+  - `WorkspaceBrowser.workspace_dir(self) -> str` — The workspace being browsed: the combo's selection, else the root.
+  - `WorkspaceBrowser.save_workspace_selection(self, root_dir: str, workspace_name: str)` — Remember which workspace was last selected for *root_dir* (capped).
+  - `WorkspaceBrowser.restore_workspace_index(self, widget) -> bool` — Select the workspace last used for the current root, if still listed.
+  - `WorkspaceBrowser.update_current_dir(self, text: Optional[str] = None)` — The Root Directory changed (or was validated): rescan its workspaces when
+  - `WorkspaceBrowser.update_workspace_combo(self, root_dir=None)` — Repopulate the workspace combo from the workspaces under *root_dir* (the
+  - `WorkspaceBrowser.set_workspace(self, workspace_path: str, invalidate: bool = True) -> bool` — Browse *workspace_path* and refresh the file list.
+  - `WorkspaceBrowser.update_workspace_footer(self)` — Name the browsed workspace in the footer's status.
+  - `WorkspaceBrowser.flash_footer(self, text, level='success')` — Show *text* in the footer's status for a moment, then the workspace again.
+  - `WorkspaceBrowser.set_project(self)` — Set the host's project (session workspace) to the browsed workspace -- the
+  - `WorkspaceBrowser.set_root_to_current(self)` — Set the Root Directory to the host's current workspace.
+  - `WorkspaceBrowser.open_root_dir(self)` — Reveal the Root Directory in the file manager.
+  - `WorkspaceBrowser.new_workspace(self)` — Create a marked workspace (``workspace.mel``, rules from the active
+  - `WorkspaceBrowser.mark_workspace(self)` — Mark the browsed workspace as a shared Maya/Blender project: a
+  - `WorkspaceBrowser.select_workspace(self, path)` — Select the combo entry whose data is *path* (after a repopulate).
+
 <a id="slots--tools--_shot_manifest--controller"></a>
 ### `slots/tools/_shot_manifest/controller.py`
 
@@ -2495,6 +2634,45 @@ Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
   - `NamingSlots.tb003_init(self, widget)` — Initialize Suffix By Type — the editor for the shared naming convention.
   - `NamingSlots.tb003(self, widget)` — Suffix By Type
 
+<a id="slots--tools--reference_manager"></a>
+### `slots/tools/reference_manager.py`
+
+Reference Manager: a workspace scene-file manager -- browse a project's scene
+
+- **[`class ReferenceManagerSlots(Slots)`](tentacle/tentacle/slots/tools/reference_manager.py#L19)** — Switchboard slots for the ``reference_manager.ui`` panel.
+  - `ReferenceManagerSlots.header_init(self, widget)` — Header buttons, the Naming / Filter-Display / Foreign Scenes / Include
+  - `ReferenceManagerSlots.tbl000_init(self, widget)` — Table setup: the one-time construction, then the signals re-wired to this
+  - `ReferenceManagerSlots.btn_open_scene(self)` — Open the right-clicked row's scene (a reopen on the open scene's row).
+  - `ReferenceManagerSlots.btn_rename_scene(self)` — Rename the right-clicked row's scene.
+  - `ReferenceManagerSlots.btn_delete_scene(self)` — Delete the right-clicked row's scene.
+  - `ReferenceManagerSlots.btn_toggle_reference(self)` — Reference / unreference the right-clicked row.
+  - `ReferenceManagerSlots.btn_unlink_import(self)` — Unlink and import the right-clicked row (make it local / import it).
+  - `ReferenceManagerSlots.btn_open_file_location(self)` — Reveal the right-clicked row's file.
+  - `ReferenceManagerSlots.btn_copy_path(self)` — Copy the right-clicked row's full path.
+  - `ReferenceManagerSlots.txt000_init(self, widget)` — Root Directory: recent-folder pins, the browse / open / workspace actions
+  - `ReferenceManagerSlots.b000(self)` — Browse for a root directory.
+  - `ReferenceManagerSlots.b006(self)` — Open the root directory in the file explorer.
+  - `ReferenceManagerSlots.b001(self)` — Set the root directory to the session's current workspace.
+  - `ReferenceManagerSlots.btn_new_workspace(self)` — Create a workspace under the root.
+  - `ReferenceManagerSlots.btn_mark_workspace(self)` — Mark the selected workspace folder as a project.
+  - `ReferenceManagerSlots.chk000(self, checked)` — Recursive Search: rescan the root's workspaces.
+  - `ReferenceManagerSlots.chk003(self, checked)` — Ignore Empty Workspaces: rescan the root's workspaces.
+  - `ReferenceManagerSlots.cmb000_init(self, widget)` — Workspaces: its ▸ action sets the session's project to the selection (on
+  - `ReferenceManagerSlots.cmb000(self, index, widget)` — Browse the selected workspace.
+  - `ReferenceManagerSlots.txt001_init(self, widget)` — Filter: an on/off toggle (persisted), Ignore Case and what it matches.
+  - `ReferenceManagerSlots.txt001(self, text)` — Filter the list by the typed text.
+  - `ReferenceManagerSlots.chk_ignore_case(self, checked)` — Re-filter.
+  - `ReferenceManagerSlots.cmb_filter_target(self, index, widget=None)` — Re-filter.
+  - `ReferenceManagerSlots.chk_filter_suffix(self, checked)` — Re-filter.
+  - `ReferenceManagerSlots.chk_filter_folder_structure(self, checked)` — Re-filter.
+  - `ReferenceManagerSlots.chk_hide_suffix(self, checked)` — Re-label.
+  - `ReferenceManagerSlots.chk_hide_extension(self, checked)` — Re-label.
+  - `ReferenceManagerSlots.chk_show_notes_column(self, checked)` — Show / hide the Notes column.
+  - `ReferenceManagerSlots.txt_suffix(self, text)` — Re-filter when a filter reads the suffix.
+  - `ReferenceManagerSlots.txt_subfolder_structure(self, text)` — Re-filter when a filter reads the folder structure.
+  - `ReferenceManagerSlots.btn_convert_assembly(self)` — Convert every reference to an assembly (Maya).
+  - `ReferenceManagerSlots.btn_unlink_import_all(self)` — Unlink and import every reference.
+
 <a id="slots--tools--render_effects"></a>
 ### `slots/tools/render_effects.py`
 
@@ -2769,6 +2947,39 @@ Texture Combine: several materials into one atlas and one material, in
   - `TextureCombineSlots.status(self, text: str) -> None`
   - `TextureCombineSlots.b000(self) -> None` — Run the current mode.
   - `TextureCombineSlots.combine(self) -> None`
+
+<a id="slots--tools--texture_path_editor"></a>
+### `slots/tools/texture_path_editor.py`
+
+Texture Path Editor: inspect and fix the scene's texture paths.
+
+- **[`class TexturePathEditorSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/texture_path_editor.py#L27)**
+  - `TexturePathEditorSlots.labels(self)` *(property)* — The host's words for the node and shader columns and row actions.
+  - `TexturePathEditorSlots.header_init(self, widget)` — The header menu: General / Naming / Path Management / Selection.
+  - `TexturePathEditorSlots.tb_set_texture_directory_init(self, widget)` — The Set Directory option box: the relocate mode and Allow Missing Targets.
+  - `TexturePathEditorSlots.tb_normalize_paths_init(self, widget)` — The Normalize Paths option box: what becomes of external textures.
+  - `TexturePathEditorSlots.tb_resolve_missing_textures_init(self, widget)` — The Resolve Missing option box: one checkbox per strategy.
+  - `TexturePathEditorSlots.tbl000_init(self, widget)` — Build the row menu once, then (re)populate the table.
+  - `TexturePathEditorSlots.refresh_texture_table(self)` — Re-read the scene into the table (the header's refresh button).
+  - `TexturePathEditorSlots.setup_formatting(self, widget)` — Mark the path cell red when its file is missing (amber when over-long
+  - `TexturePathEditorSlots.open_source_images(self)` — Open the project's texture folder in the file explorer.
+  - `TexturePathEditorSlots.reload_scene_textures(self)` — Re-read every scene texture from disk.
+  - `TexturePathEditorSlots.tb_set_texture_directory(self, widget=None)` — Repath the scope's textures under a chosen directory.
+  - `TexturePathEditorSlots.tb_find_and_copy_textures(self, widget=None)` — Open the Find & Copy panel over the current scope.
+  - `TexturePathEditorSlots.tb_normalize_paths(self, widget=None)` — Rewrite the scope's paths inside the project to relative;
+  - `TexturePathEditorSlots.make_paths_absolute(self)` — Rewrite the scope's relative paths to absolute -- inverse of Normalize.
+  - `TexturePathEditorSlots.tb_resolve_missing_textures(self, widget=None)` — Rebind the scope's missing textures to files found in the project's
+  - `TexturePathEditorSlots.select_textures_for_objects(self)` — Select the rows whose textures the scene selection's materials read.
+  - `TexturePathEditorSlots.select_broken_paths(self)` — Select the rows whose texture file is missing.
+  - `TexturePathEditorSlots.select_absolute_paths(self)` — Select the rows whose path is stored absolute -- Normalize candidates
+  - `TexturePathEditorSlots.row_browse_for_file(self, selection=None)` — Repath the row's texture to a picked file (several rows: a folder).
+  - `TexturePathEditorSlots.row_rename_file(self, selection=None)` — Rename one row's texture file, edited in its own cell: the path cell
+  - `TexturePathEditorSlots.handle_cell_edit(self, row: int, col: int)` — An edited cell: the shader / node cells rename what they name, the
+  - `TexturePathEditorSlots.select_material(self, selection=None)` — Select the scene objects using the selected rows' materials (a
+  - `TexturePathEditorSlots.select_file_node(self, selection=None)` — Select the selected rows' texture nodes.
+  - `TexturePathEditorSlots.row_show_in_hypershade(self, selection=None)` — Graph the selected rows' textures in the node editor.
+  - `TexturePathEditorSlots.delete_file_node(self, selection=None)` — Delete the selected rows' texture nodes, confirmed with what it would
+  - `TexturePathEditorSlots.cleanup_scene_callbacks(self)` — Drop the scene-change subscriptions.
 
 <a id="slots--tools--tube_rig"></a>
 ### `slots/tools/tube_rig.py`

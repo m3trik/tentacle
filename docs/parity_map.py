@@ -43,69 +43,6 @@ CONTROLS = {
     # header-menu buttons (btn_open_scripts / btn_refresh_scripts / btn_clear_log / btn_open_uv_editor)
     # match by objectName. Nothing to ledger — no entry needed here anymore. (Prior to this the entry
     # marked cmb000 `na` for the thin send-only bridge; that gap is closed.)
-    "reference_manager_slots": {  # mayatk env_utils/reference_manager/reference_manager_slots.py
-        "btn_convert_assembly": {"status": "na", "reason": "assemblies have no Blender analogue"},
-        # btn_unlink_import_all: renamed to Maya's exact label + objectName (2026-07-20), so it
-        # matches name-for-name. Un-Reference All is footer-only on both panels (2026-09-18).
-        "set_action": {
-            "status": "na",
-            "reason": "TWO Maya-only option-box actions. (1) The namespace-mode cycle beside Unlink and Import All (remove / keep / keep on the top-level node only): Blender has no namespaces — a linked library's datablocks carry no prefix, and 'make local' merges them into the .blend's own name space with a numeric .001 suffix on collision — so there is no prefix to keep, and nothing for the three modes to choose between. (2) The Set-Maya-Project action on the Workspaces combo (cmb000): Blender has no session-global project the way `workspace -o` is one — the panel's combo selection IS its workspace state — so there is nothing to commit it to.",
-        },
-        # Context menu flattened 2026-07-25 to a 1:1 mirror of Maya's flat list (Open / Rename /
-        # Delete / Reference-Unreference / Unlink-and-Import / Open File Location). Both panels now
-        # carry these row_* / btn_* twins name-for-name; the Blender-only extras (Append / Reload /
-        # Relocate / Remove / per-ref Display submenu) were dropped for parity.
-        "btn_unlink_import": {
-            "status": "renamed", "to": "row_unlink_import",
-            "reason": "context menu ('Unlink and Import' — make a linked ref local, OR import a foreign scene; folds in the old 'Import (convert)')",
-        },
-        "btn_toggle_reference": {
-            "status": "renamed", "to": "row_toggle_reference",
-            "reason": "context menu ('Reference / Unreference' toggle)",
-        },
-        "b000": {"status": "renamed", "to": "btn_set_dir", "reason": "root option box ('Set Directory…' — the directory browse folded from a standalone folder icon into the option menu)"},
-        "b001": {"status": "renamed", "to": "btn_set_current_ws", "reason": "root option box"},
-        "b006": {"status": "renamed", "to": "btn_open_dir", "reason": "root option box"},
-        "btn_open_scene": {"status": "renamed", "to": "row_open", "reason": "context menu"},
-        "btn_rename_scene": {"status": "renamed", "to": "row_rename", "reason": "context menu"},
-        "btn_delete_scene": {"status": "renamed", "to": "row_delete", "reason": "context menu"},
-        "btn_open_file_location": {"status": "renamed", "to": "row_location", "reason": "context menu"},
-        "btn_copy_path": {"status": "renamed", "to": "row_copy_path", "reason": "context menu ('Copy Path' — full file path to the clipboard)"},
-        # Cross-DCC import (task 3): each panel lists the OTHER DCC's scenes and imports them via the
-        # existing headless converter (import_blender_scene / import_maya_scene). The separate
-        # 'Import (convert)' item (btn_import_scene / row_import) was removed 2026-07-25 and folded
-        # into 'Unlink and Import' on BOTH panels, so neither control exists any more — no entry.
-        # chk_hide_binary retired 2026-07-20: both panels now carry the same Include Types row
-        # (chk_include_ma / _mb / _fbx / _usd / _blend), so hiding .mb is just unchecking "mb" —
-        # the control exists on BOTH sides under identical objectNames and needs no ledger entry.
-        "chk000": {"status": "renamed", "to": "chk_recursive", "reason": "Recursive Search lives on the Root Directory option box (same control/placement/default as Maya)"},
-        "chk003": {
-            "status": "na",
-            "reason": "ignore-empty-workspaces is moot; find_workspaces never returns empty dirs",
-        },
-    },
-    "texture_path_editor": {
-        # btn_open_source_images / delete_file_node / row_show_in_hypershade: stale `na` entries
-        # removed 2026-07-08 -- all three ship in Blender under the IDENTICAL objectName (verified
-        # against blendertk/mat_utils/texture_path_editor.py: open_source_images os.startfile()s the
-        # resolved <blenddir>/textures folder; delete_file_node removes the image datablock via
-        # bpy.data.images.remove after a confirm; row_show_in_hypershade graphs the row's material via
-        # btk.open_editor("Shader Editor")). The capabilities were ported+relabeled, not dropped --
-        # the label differences are report-only setText review deltas, not divergences to ledger.
-        # select_file_node: `na` ("no separable file node in Blender") removed 2026-08-22 -- another
-        # false na. It reasoned from NAMES (a Blender image has no node-name handle) to conclude the
-        # CAPABILITY was absent. Maya's file node splits in Blender into the image datablock (owns
-        # the path) and the ShaderNodeTexImage nodes referencing it; selecting the latter is the
-        # real analogue and now ships as btk.select_image_nodes (+ the pure query
-        # image_texture_nodes), walking node groups, with Maya's replace-select semantics.
-        # Blender-verified in test_texture_path_editor.py (51/51).
-        "chk_exclude_arnold": {"status": "na", "reason": "Hides rows whose texture is used only by an Arnold shader (classification rendernode/arnold*) — an Arnold preview shader owns a dedicated file node per texture, so each bridged Maya material contributes a duplicate row. Blender has no Arnold integration and no parallel-preview-shader convention, and its rows come from image datablocks (shared by reference, never duplicated per renderer), so there is nothing to exclude."},
-        # Allow Missing Targets, Rename File, Keep Names In Sync (+ its two option-box
-        # fields) and the truncate length landed in the Blender panel 2026-10-05 -- engine
-        # btk.MatUtils.set_texture_directory(allow_missing=...), rename_texture_file /
-        # sync_material_names + LightmapRecords.rename_lightmap; Blender-verified in
-        # test_texture_path_editor.py. Their pending rows are gone.
-    },
 }
 
 # --------------------------------------------------------------------------- tentacle shared slots
@@ -308,7 +245,7 @@ HANDLERS = {
         # list000[Wireframe].Template Selected: BUILT 2026-07-08 (was a false 'replaced->Shaded
         # Selected' na). The Blender display slot now ships a real "Template Selected" item under the
         # identical label -- obj.display_type='WIRE' + hide_render=True + hide_select=True (the Maya
-        # cmds.toggle(template=1) analogue, matching blendertk.reference_manager's own 'template'
+        # cmds.toggle(template=1) analogue, matching btk.EnvUtils.set_reference_display_mode's 'template'
         # mode). Re-click with nothing selected releases every templated object (hide_select DESELECTS
         # in Blender -- verified live -- so a plain toggle-on-selection would be one-way). No
         # divergence to ledger. 'Shaded Selected' is KEPT as a Blender-only extra item -> a

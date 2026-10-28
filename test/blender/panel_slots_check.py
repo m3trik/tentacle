@@ -1,6 +1,6 @@
 """Manual harness for the shared tool panels in a real Blender (mirror / duplicate_linear /
-duplicate_radial / duplicate_grid / cut_on_axis / hdr_manager / curtain). The Reference Manager panel became a
-table mirror of mayatk's; its library round trip is ``blendertk/test/test_reference_manager.py``.
+duplicate_radial / duplicate_grid / cut_on_axis / hdr_manager / curtain). Reference Manager's
+library round trip is ``blendertk/test/test_reference_manager.py``.
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a

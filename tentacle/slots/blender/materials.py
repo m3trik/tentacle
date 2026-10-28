@@ -676,8 +676,9 @@ class MaterialsSlots(MaterialsMixin, SlotsBlender):
         self.sb.handlers.marking_menu.show("image_to_plane")
 
     def b010(self):
-        """Texture Path Editor — co-located blendertk panel (list / repath / resolve-missing /
-        normalize paths). Subsumes Maya's b010 and the old native Find-Missing-Files."""
+        """Texture Path Editor — the shared tool over ``btk.TexturePathEditor`` (list / repath /
+        resolve-missing / normalize paths). Subsumes Maya's b010 and the old native
+        Find-Missing-Files."""
         self.sb.handlers.marking_menu.show("texture_path_editor")
 
     def b009(self):

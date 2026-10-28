@@ -18,7 +18,7 @@ class SceneSlots(SceneMixin, SlotsBlender):
     ``btk.UsdUtils``' interchange import / export (``SceneMixin._import_usd`` /
     ``_export_one_shot``): the stock importer skips hidden prims and folds single-child
     groups away, and the stock exporter drops hidden objects in every mode.
-    Reference Manager opens the library-link panel (``blender_menus/reference_manager``).
+    Reference Manager opens the shared library-link tool (over ``btk.ReferenceManager``).
     Scene Exporter and Hierarchy Sync are tentacle's shared tools, the same panels as Maya's:
     the former (task/check pipeline, FBX or GLB) reached from the Export list — see
     ``blendertk.env_utils.scene_exporter`` for which tasks/checks are ported vs. declared
