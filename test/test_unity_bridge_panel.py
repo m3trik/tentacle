@@ -16,7 +16,7 @@ read. Then the panel loads for real through an offscreen Switchboard over the fa
 toolkit, with and without the optional unitytk, and in Maya the same methods drive
 the real ``mtk`` on a real scene (``Unity Bridge`` sends into a temp project). The
 engines' own side is the libraries': ``test_unity_bridge.py`` in each, and
-``BridgeHost`` / ``BakeSet`` in mayatk's ``test_maya_bridge_slots_base.py``.
+``BridgeHost``'s scope precedence in mayatk's ``mock_tests/test_bridge_host_scope.py``.
 """
 
 import importlib.util
