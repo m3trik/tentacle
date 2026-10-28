@@ -1355,7 +1355,7 @@ class SceneSlots(Slots):
         self.sb.message_box(f"Command Ports <hl>{state}</hl>{port_lines}", timeout=4)
         # Mirror to the console: the ports are what an external editor dials.
         console_lines = ", ".join(f"{p} ({s})" for p, s in ports.items())
-        print(f"Command Ports {state}: {console_lines}")
+        self.sb.logger.log_raw(f"Command Ports {state}: {console_lines}")
 
     def b017(self):
         """Scene Metadata: the tool-authored data-node channels (``DataNodes.dump``)

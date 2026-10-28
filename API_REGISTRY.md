@@ -7,7 +7,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/animation.py`](#slots--animation) — Animation: one Slots class for both hosts.
-- [`slots/blender/_slots_blender.py`](#slots--blender--_slots_blender)
 - [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
@@ -20,7 +19,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/lighting.py`](#slots--lighting) — Lighting: one Slots class for both hosts.
 - [`slots/main.py`](#slots--main) — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 - [`slots/materials.py`](#slots--materials) — Materials: one Slots class for both hosts.
-- [`slots/maya/_slots_maya.py`](#slots--maya--_slots_maya)
 - [`slots/maya/arnold.py`](#slots--maya--arnold)
 - [`slots/maya/cache.py`](#slots--maya--cache)
 - [`slots/maya/constrain.py`](#slots--maya--constrain)
@@ -177,9 +175,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L58) — Format a string using preset variables.
+- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L54) — Format a string using preset variables.
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L28) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L22) — constant
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -253,24 +251,10 @@ Animation: one Slots class for both hosts.
   - `AnimationSlots.tb019_init(self, widget)` — Optimize Keys Init
   - `AnimationSlots.tb019(self, widget)` — Optimize Keys: remove redundant animation data from the selection,
 
-<a id="slots--blender--_slots_blender"></a>
-### `slots/blender/_slots_blender.py`
-
-- **[`class SlotsBlender(Slots)`](tentacle/tentacle/slots/blender/_slots_blender.py#L7)** — App specific methods inherited by all other Blender slot classes.
-  - `SlotsBlender.selected_objects()` *(static)* — The current object selection: ``btk.CoreUtils.selected_objects`` (the
-  - `SlotsBlender.active_object()` *(static)* — The active object (or ``None``): ``btk.CoreUtils.active_object`` (the
-  - `SlotsBlender.effective_fps() -> float` *(static)* — The scene frame rate as the user understands it, ``fps / fps_base`` (an
-  - `SlotsBlender.ensure_edit_mode(self, obj_type='MESH', select_mode=None)` — Put an object of ``obj_type`` into Edit Mode, optionally setting the mesh
-  - `SlotsBlender.ensure_object_mode(self)` — Leave Edit (or any other) Mode before object-level work:
-  - `SlotsBlender.set_viewport_tool(self, tool_id, label=None, edit_type=None)` — Activate a builtin viewport tool by idname: ``btk.UiUtils.set_tool``,
-  - `SlotsBlender.resolve_op(op_path)` *(static)* — The ``bpy.ops`` callable at a dotted path (``"wm.link"``), or None when the
-  - `SlotsBlender.invoke_op(self, op_path, **kwargs)` — Invoke an operator's dialog by dotted path (``INVOKE_DEFAULT``):
-  - `SlotsBlender.transfer_from_active(self, data_type, **kwargs)` — Run native Data Transfer from the active mesh to the other selected meshes
-
 <a id="slots--blender--blender"></a>
 ### `slots/blender/blender.py`
 
-- **[`class BlenderSlots(SlotsBlender)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
+- **[`class BlenderSlots(Slots)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
 
 <a id="slots--cameras"></a>
 ### `slots/cameras.py`
@@ -489,176 +473,170 @@ Materials: one Slots class for both hosts.
   - `MaterialsSlots.b024(self, widget=None)` — RealityCapture Workflow.
   - `MaterialsSlots.b025(self, widget=None)` — Brush Splat Workflow.
 
-<a id="slots--maya--_slots_maya"></a>
-### `slots/maya/_slots_maya.py`
-
-- **[`class SlotsMaya(Slots)`](tentacle/tentacle/slots/maya/_slots_maya.py#L8)** — App specific methods inherited by all other app specific slot classes.
-  - `SlotsMaya.require_selection(self, message=None, **kwargs)` — The current selection, or ``None`` -- after a message box -- when it is empty.
-
 <a id="slots--maya--arnold"></a>
 ### `slots/maya/arnold.py`
 
-- **[`class ArnoldSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/arnold.py#L8)**
+- **[`class ArnoldSlots(Slots)`](tentacle/tentacle/slots/maya/arnold.py#L8)**
 
 <a id="slots--maya--cache"></a>
 ### `slots/maya/cache.py`
 
-- **[`class CacheSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/cache.py#L8)**
+- **[`class CacheSlots(Slots)`](tentacle/tentacle/slots/maya/cache.py#L8)**
 
 <a id="slots--maya--constrain"></a>
 ### `slots/maya/constrain.py`
 
-- **[`class ConstrainSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/constrain.py#L8)**
+- **[`class ConstrainSlots(Slots)`](tentacle/tentacle/slots/maya/constrain.py#L8)**
 
 <a id="slots--maya--control"></a>
 ### `slots/maya/control.py`
 
-- **[`class ControlSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/control.py#L8)**
+- **[`class ControlSlots(Slots)`](tentacle/tentacle/slots/maya/control.py#L8)**
 
 <a id="slots--maya--curves"></a>
 ### `slots/maya/curves.py`
 
-- **[`class CurvesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/curves.py#L8)**
+- **[`class CurvesSlots(Slots)`](tentacle/tentacle/slots/maya/curves.py#L8)**
 
 <a id="slots--maya--deform"></a>
 ### `slots/maya/deform.py`
 
-- **[`class DeformSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/deform.py#L8)**
+- **[`class DeformSlots(Slots)`](tentacle/tentacle/slots/maya/deform.py#L8)**
 
 <a id="slots--maya--edit_mesh"></a>
 ### `slots/maya/edit_mesh.py`
 
-- **[`class EditMeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/edit_mesh.py#L8)**
+- **[`class EditMeshSlots(Slots)`](tentacle/tentacle/slots/maya/edit_mesh.py#L8)**
 
 <a id="slots--maya--effects"></a>
 ### `slots/maya/effects.py`
 
-- **[`class EffectsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/effects.py#L8)**
+- **[`class EffectsSlots(Slots)`](tentacle/tentacle/slots/maya/effects.py#L8)**
 
 <a id="slots--maya--fields_solvers"></a>
 ### `slots/maya/fields_solvers.py`
 
-- **[`class FieldsSolversSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fields_solvers.py#L8)**
+- **[`class FieldsSolversSlots(Slots)`](tentacle/tentacle/slots/maya/fields_solvers.py#L8)**
 
 <a id="slots--maya--fluids"></a>
 ### `slots/maya/fluids.py`
 
-- **[`class FluidsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/fluids.py#L8)**
+- **[`class FluidsSlots(Slots)`](tentacle/tentacle/slots/maya/fluids.py#L8)**
 
 <a id="slots--maya--generate"></a>
 ### `slots/maya/generate.py`
 
-- **[`class GenerateSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/generate.py#L8)**
+- **[`class GenerateSlots(Slots)`](tentacle/tentacle/slots/maya/generate.py#L8)**
 
 <a id="slots--maya--help"></a>
 ### `slots/maya/help.py`
 
-- **[`class HelpSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/help.py#L8)**
+- **[`class HelpSlots(Slots)`](tentacle/tentacle/slots/maya/help.py#L8)**
 
 <a id="slots--maya--key"></a>
 ### `slots/maya/key.py`
 
-- **[`class KeySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/key.py#L8)**
+- **[`class KeySlots(Slots)`](tentacle/tentacle/slots/maya/key.py#L8)**
 
 <a id="slots--maya--lighting_shading"></a>
 ### `slots/maya/lighting_shading.py`
 
-- **[`class LightingShadingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/lighting_shading.py#L8)**
+- **[`class LightingShadingSlots(Slots)`](tentacle/tentacle/slots/maya/lighting_shading.py#L8)**
 
 <a id="slots--maya--mash"></a>
 ### `slots/maya/mash.py`
 
-- **[`class MashSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mash.py#L8)**
+- **[`class MashSlots(Slots)`](tentacle/tentacle/slots/maya/mash.py#L8)**
 
 <a id="slots--maya--mesh"></a>
 ### `slots/maya/mesh.py`
 
-- **[`class MeshSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh.py#L8)**
+- **[`class MeshSlots(Slots)`](tentacle/tentacle/slots/maya/mesh.py#L8)**
 
 <a id="slots--maya--mesh_display"></a>
 ### `slots/maya/mesh_display.py`
 
-- **[`class MeshDisplaySlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_display.py#L8)**
+- **[`class MeshDisplaySlots(Slots)`](tentacle/tentacle/slots/maya/mesh_display.py#L8)**
 
 <a id="slots--maya--mesh_tools"></a>
 ### `slots/maya/mesh_tools.py`
 
-- **[`class MeshToolsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/mesh_tools.py#L8)**
+- **[`class MeshToolsSlots(Slots)`](tentacle/tentacle/slots/maya/mesh_tools.py#L8)**
 
 <a id="slots--maya--ncloth"></a>
 ### `slots/maya/ncloth.py`
 
-- **[`class NClothSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/ncloth.py#L8)**
+- **[`class NClothSlots(Slots)`](tentacle/tentacle/slots/maya/ncloth.py#L8)**
 
 <a id="slots--maya--nconstraint"></a>
 ### `slots/maya/nconstraint.py`
 
-- **[`class NConstraintSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nconstraint.py#L8)**
+- **[`class NConstraintSlots(Slots)`](tentacle/tentacle/slots/maya/nconstraint.py#L8)**
 
 <a id="slots--maya--nhair"></a>
 ### `slots/maya/nhair.py`
 
-- **[`class NHairSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nhair.py#L8)**
+- **[`class NHairSlots(Slots)`](tentacle/tentacle/slots/maya/nhair.py#L8)**
 
 <a id="slots--maya--nparticles"></a>
 ### `slots/maya/nparticles.py`
 
-- **[`class NParticlesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/nparticles.py#L8)**
+- **[`class NParticlesSlots(Slots)`](tentacle/tentacle/slots/maya/nparticles.py#L8)**
 
 <a id="slots--maya--playback"></a>
 ### `slots/maya/playback.py`
 
-- **[`class PlaybackSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/playback.py#L8)**
+- **[`class PlaybackSlots(Slots)`](tentacle/tentacle/slots/maya/playback.py#L8)**
 
 <a id="slots--maya--render"></a>
 ### `slots/maya/render.py`
 
-- **[`class RenderSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/render.py#L8)**
+- **[`class RenderSlots(Slots)`](tentacle/tentacle/slots/maya/render.py#L8)**
 
 <a id="slots--maya--select"></a>
 ### `slots/maya/select.py`
 
-- **[`class SelectSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/select.py#L8)**
+- **[`class SelectSlots(Slots)`](tentacle/tentacle/slots/maya/select.py#L8)**
 
 <a id="slots--maya--skeleton"></a>
 ### `slots/maya/skeleton.py`
 
-- **[`class SkeletonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skeleton.py#L8)**
+- **[`class SkeletonSlots(Slots)`](tentacle/tentacle/slots/maya/skeleton.py#L8)**
 
 <a id="slots--maya--skin"></a>
 ### `slots/maya/skin.py`
 
-- **[`class SkinSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/skin.py#L8)**
+- **[`class SkinSlots(Slots)`](tentacle/tentacle/slots/maya/skin.py#L8)**
 
 <a id="slots--maya--stereo"></a>
 ### `slots/maya/stereo.py`
 
-- **[`class StereoSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/stereo.py#L8)**
+- **[`class StereoSlots(Slots)`](tentacle/tentacle/slots/maya/stereo.py#L8)**
 
 <a id="slots--maya--surfaces"></a>
 ### `slots/maya/surfaces.py`
 
-- **[`class SurfacesSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/surfaces.py#L8)**
+- **[`class SurfacesSlots(Slots)`](tentacle/tentacle/slots/maya/surfaces.py#L8)**
 
 <a id="slots--maya--texturing"></a>
 ### `slots/maya/texturing.py`
 
-- **[`class TexturingSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/texturing.py#L8)**
+- **[`class TexturingSlots(Slots)`](tentacle/tentacle/slots/maya/texturing.py#L8)**
 
 <a id="slots--maya--toon"></a>
 ### `slots/maya/toon.py`
 
-- **[`class ToonSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/toon.py#L8)**
+- **[`class ToonSlots(Slots)`](tentacle/tentacle/slots/maya/toon.py#L8)**
 
 <a id="slots--maya--visualize"></a>
 ### `slots/maya/visualize.py`
 
-- **[`class VisualizeSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/visualize.py#L8)**
+- **[`class VisualizeSlots(Slots)`](tentacle/tentacle/slots/maya/visualize.py#L8)**
 
 <a id="slots--maya--windows"></a>
 ### `slots/maya/windows.py`
 
-- **[`class WindowsSlots(SlotsMaya)`](tentacle/tentacle/slots/maya/windows.py#L8)**
+- **[`class WindowsSlots(Slots)`](tentacle/tentacle/slots/maya/windows.py#L8)**
 
 <a id="slots--normals"></a>
 ### `slots/normals.py`

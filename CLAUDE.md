@@ -10,8 +10,8 @@
 
 ## Architecture
 
-- **One `<Base>Slots(Slots)` per marking-menu category, shared by both hosts** (`slots/<category>.py`; exemplar [`slots/normals.py`](tentacle/slots/normals.py)): host behavior through `self.tk` or the tool's API, never a per-host fork or a mixin (§3); a widget only one host serves carries a `requires` tag (§15, hidden, never a stub). The categories still forked in `slots/<dcc>/` (with their `slots/_<category>.py` mixin) fold in during the composition phase; never add to a fork.
-- `slots/<dcc>/*.py` otherwise holds each host's native-menu wrappers (`ui/maya_menus`, `ui/blender_menus`).
+- **One `<Base>Slots(Slots)` per marking-menu category, shared by both hosts** (`slots/<category>.py`; exemplar [`slots/normals.py`](tentacle/slots/normals.py)): host behavior through `self.tk` or the tool's API, never a per-host fork or a mixin (§3); a widget only one host serves carries a `requires` tag (§15, hidden, never a stub).
+- `slots/<dcc>/*.py` holds only each host's native-menu wrappers (`ui/maya_menus`, `ui/blender_menus`; `Slots` subclasses with no host logic). No per-host base, no category fork.
 - `tentacle/tcl_maya.py` — Maya integration entry + MarkingMenu. `tcl_blender.py` is a full Blender integration (drives `slots/blender` + the `blendertk` engine); `tcl_max.py` is a thin wrapper.
 - **UI**: Qt via [uitk](../uitk/CLAUDE.md). Widget naming: `tb###`, `b###`, `list###`, etc.
 

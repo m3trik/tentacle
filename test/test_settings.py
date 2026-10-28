@@ -17,6 +17,7 @@ Host-free but for two calls: the updater's interpreter
 The activation-key rewrite and repeat-last editing live in uitk
 (``MarkingMenu.set_activation_key``), covered by its own tests.
 """
+import logging
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -71,6 +72,7 @@ class _FakeSb:
         self.editors = _FakeEditors()
         self.answer = answer  # what a modal message_box returns
         self.boxes = []  # (text, buttons) per message_box call
+        self.logger = logging.getLogger("test_settings")  # a failure is logged too
         self.tk = SimpleNamespace(
             EnvUtils=SimpleNamespace(python_executable=lambda: python)
         )

@@ -17,8 +17,8 @@ class Slots(QtCore.QObject):
     """
 
     #: uitk slot decorators, re-exposed on the base so concrete slot modules never
-    #: import uitk themselves: ``@SlotsMaya.Signals("on_item_interacted")``,
-    #: ``@SlotsMaya.Cancelable(120)``. ``BridgeSlotsBase`` rides along for the same
+    #: import uitk themselves: ``@Slots.Signals("on_item_interacted")``,
+    #: ``@Slots.Cancelable(120)``. ``BridgeSlotsBase`` rides along for the same
     #: reason: the app-bridge panels' shared base (``slots/tools/_app_bridge``)
     #: subclasses it, ``class HostBridge(Slots.BridgeSlotsBase)``.
     #:

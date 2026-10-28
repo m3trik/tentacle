@@ -172,88 +172,98 @@ class ClipMotionMixin:
         # closes; Blender: the VSE sound strip, whose position IS its keyed
         # state).
         if clip.data.get("is_audio"):
-            orig_start = clip.data.get("orig_start")
-            orig_end = clip.data.get("orig_end")
-            track_id = clip.data.get("audio_track_id")
-            if orig_start is None or orig_end is None or not track_id:
-                return False
-            # The widget draws only the part of the segment inside its shot and
-            # reports where THAT landed, so the move is measured from it: from
-            # the segment's own start it was off by however much of the
-            # segment began before the shot.
-            delta = new_start - clip.data.get("vis_start", orig_start)
-            if abs(delta) < FLOAT_ZERO_EPS:
-                return False
-            ledger = self.sequencer.ledger if self.sequencer is not None else None
-            with self.host.moving_audio_track(track_id, ledger=ledger) as (
-                move,
-                lowest,
-            ):
-                self._lift_make_room_land(
-                    clip,
-                    orig_start,
-                    orig_end,
-                    delta,
-                    lowest,
-                    move,
-                    shown_from=clip.data.get("vis_start"),
-                )
-            clip.data["orig_start"] = orig_start + delta
-            clip.data["orig_end"] = orig_end + delta
-            if "vis_start" in clip.data:
-                clip.data["vis_start"] += delta
-            # The audio segment cache still holds the pre-move span -- the
-            # immediate rebuild would snap the clip back to its old position
-            # until the next refresh.
-            self._audio_segments_cache = None
-            return True
-
+            return self._move_audio_clip(clip, new_start)
         # Sub-row attribute clip move
         attr_name = clip.data.get("attr_name")
         if attr_name:
-            obj_name = clip.data.get("obj")
-            orig_start = clip.data.get("orig_start")
-            orig_end = clip.data.get("orig_end")
-            if not obj_name or orig_start is None or orig_end is None:
-                return False
-            if not self.host.object_exists(obj_name):
-                return False
-            delta = new_start - orig_start
-            if abs(delta) < FLOAT_ZERO_EPS:
-                return False
-            if self.sequencer is None:
-                return True
-            curves = self.host.curves_for_attr(obj_name, attr_name)
-            if clip.data.get("is_stepped"):
-                # Stepped sub-row clip: a point window at orig_start.
-                # Shift-out tracking is omitted here because sub-rows are
-                # built from live scene data (_provide_sub_rows), not from the
-                # cached segments that _shifted_out_keys filters.
-
-                def move(lo, _hi, d):
-                    self.sequencer.move_stepped_keys(
-                        obj_name, lo, lo + d, attr_name=attr_name
-                    )
-
-            elif curves:
-                # Move to Shot's key-level primitive, not a plain relative key
-                # shift: that one refuses to slide a key past another (the lift
-                # below the curve's first key did nothing) and leaves the edit
-                # ledger's claims behind.
-
-                def move(lo, hi, d):
-                    self.sequencer.move_attribute_keys(
-                        obj_name, attr_name, d, window=(lo, hi)
-                    )
-
-            else:
-                return True
-            self._lift_make_room_land(
-                clip, orig_start, orig_end, delta, self.host.first_key(curves), move
-            )
-            return True
-
+            return self._move_attribute_clip(clip, new_start, attr_name)
         # Animation clip move -- per-object within a shot
+        return self._move_animation_clip(clip, new_start, widget)
+
+    def _move_audio_clip(self, clip, new_start: float) -> bool:
+        """The audio half of :meth:`_apply_clip_move`."""
+        orig_start = clip.data.get("orig_start")
+        orig_end = clip.data.get("orig_end")
+        track_id = clip.data.get("audio_track_id")
+        if orig_start is None or orig_end is None or not track_id:
+            return False
+        # The widget draws only the part of the segment inside its shot and
+        # reports where THAT landed, so the move is measured from it: from
+        # the segment's own start it was off by however much of the
+        # segment began before the shot.
+        delta = new_start - clip.data.get("vis_start", orig_start)
+        if abs(delta) < FLOAT_ZERO_EPS:
+            return False
+        ledger = self.sequencer.ledger if self.sequencer is not None else None
+        with self.host.moving_audio_track(track_id, ledger=ledger) as (
+            move,
+            lowest,
+        ):
+            self._lift_make_room_land(
+                clip,
+                orig_start,
+                orig_end,
+                delta,
+                lowest,
+                move,
+                shown_from=clip.data.get("vis_start"),
+            )
+        clip.data["orig_start"] = orig_start + delta
+        clip.data["orig_end"] = orig_end + delta
+        if "vis_start" in clip.data:
+            clip.data["vis_start"] += delta
+        # The audio segment cache still holds the pre-move span -- the
+        # immediate rebuild would snap the clip back to its old position
+        # until the next refresh.
+        self._audio_segments_cache = None
+        return True
+
+    def _move_attribute_clip(self, clip, new_start: float, attr_name: str) -> bool:
+        """The sub-row attribute half of :meth:`_apply_clip_move`."""
+        obj_name = clip.data.get("obj")
+        orig_start = clip.data.get("orig_start")
+        orig_end = clip.data.get("orig_end")
+        if not obj_name or orig_start is None or orig_end is None:
+            return False
+        if not self.host.object_exists(obj_name):
+            return False
+        delta = new_start - orig_start
+        if abs(delta) < FLOAT_ZERO_EPS:
+            return False
+        if self.sequencer is None:
+            return True
+        curves = self.host.curves_for_attr(obj_name, attr_name)
+        if clip.data.get("is_stepped"):
+            # Stepped sub-row clip: a point window at orig_start.
+            # Shift-out tracking is omitted here because sub-rows are
+            # built from live scene data (_provide_sub_rows), not from the
+            # cached segments that _shifted_out_keys filters.
+
+            def move(lo, _hi, d):
+                self.sequencer.move_stepped_keys(
+                    obj_name, lo, lo + d, attr_name=attr_name
+                )
+
+        elif curves:
+            # Move to Shot's key-level primitive, not a plain relative key
+            # shift: that one refuses to slide a key past another (the lift
+            # below the curve's first key did nothing) and leaves the edit
+            # ledger's claims behind.
+
+            def move(lo, hi, d):
+                self.sequencer.move_attribute_keys(
+                    obj_name, attr_name, d, window=(lo, hi)
+                )
+
+        else:
+            return True
+        self._lift_make_room_land(
+            clip, orig_start, orig_end, delta, self.host.first_key(curves), move
+        )
+        return True
+
+    def _move_animation_clip(self, clip, new_start: float, widget) -> bool:
+        """The per-object animation half of :meth:`_apply_clip_move`."""
         if self.sequencer is None:
             return False
 

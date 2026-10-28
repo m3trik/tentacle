@@ -104,7 +104,7 @@ class SettingsSlots(Slots):
         try:
             Tcl.reload()
         except Exception as error:
-            print(f"Tentacle reload failed: {error}")
+            self.sb.logger.error(f"Tentacle reload failed: {error}")
             self.sb.message_box(
                 "<b>Reload failed.</b><br><small>{}</small>".format(
                     html.escape(str(error))
@@ -164,7 +164,7 @@ class SettingsSlots(Slots):
                 "<small>Run Reload Scripts (or restart) to apply.</small>"
             )
         except Exception as error:
-            print(f"Update check failed: {error}")
+            self.sb.logger.error(f"Update check failed: {error}")
             self.sb.message_box(
                 "<b>Update check failed.</b><br><small>{}</small>".format(
                     html.escape(str(error))

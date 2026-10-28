@@ -107,8 +107,8 @@ tentacle/
 ├── tcl_blender.py         TclBlender entry point — Qt host + keymap bridge + launcher + add-on
 ├── slots/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
-│   ├── maya/              ~60 SlotsMaya subclasses
-│   └── blender/           SlotsBlender subclasses (Phase 3+)
+│   ├── maya/              Maya's native-menu wrappers
+│   └── blender/           Blender's native-menu wrapper
 └── ui/                    .ui definitions; maya_menus/ + blender_menus/ hold DCC submenus
 ```
 

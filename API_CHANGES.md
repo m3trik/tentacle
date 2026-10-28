@@ -55,7 +55,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (95)
+## Moved out (107)
 
 - `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin.list000_init` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
@@ -152,6 +152,18 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/_uv.py::UvMixin.cmb003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
 - `slots/_uv.py::UvMixin.get_map_size` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
 - `slots/_uv.py::UvMixin.s003` → `tentacle.slots.uv.UvSlots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.active_object` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.effective_fps` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.ensure_edit_mode` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.ensure_object_mode` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.invoke_op` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.resolve_op` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.selected_objects` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.set_viewport_tool` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/_slots_blender.py::SlotsBlender.transfer_from_active` → `tentacle.Slots` (from 0.17.0)
+- `slots/maya/_slots_maya.py::SlotsMaya` → `tentacle.Slots` (from 0.17.0)
+- `slots/maya/_slots_maya.py::SlotsMaya.require_selection` → `tentacle.Slots` (from 0.17.0)
 
 ## Added (1630)
 

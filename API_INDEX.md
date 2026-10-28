@@ -14,12 +14,8 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class AnimationSlots(Slots)`
   - methods: list000_init, list000, tb020, b000, b004, b006, b001, b005, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003, tb004_init, tb004, tb005_init, tb005, tb006_init, tb006, tb007_init, tb007, tb008_init, tb008, tb009_init, tb009, tb010_init, tb010, tb011_init, tb011, tb012_init, tb012, tb018_init, tb018, tb013_init, tb013, tb014_init, tb014, tb015_init, tb015, tb021_init, tb021, tb016_init, tb016, tb017_init, tb017, tb019_init, tb019
 
-### `slots/blender/_slots_blender.py`
-- `class SlotsBlender(Slots)`
-  - methods: selected_objects, active_object, effective_fps, ensure_edit_mode, ensure_object_mode, set_viewport_tool, resolve_op, invoke_op, transfer_from_active
-
 ### `slots/blender/blender.py`
-- `class BlenderSlots(SlotsBlender)`
+- `class BlenderSlots(Slots)`
 
 ### `slots/cameras.py` — Cameras: one Slots class for both hosts.
 - `class CamerasSlots(Slots)`
@@ -65,108 +61,104 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class MaterialsSlots(Slots)`
   - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, lbl004, lbl006, txt000_init, b006_init, b006, b004, b033, b014, b015, header_init, list000_init, list000, select_by_mat, b003, list001_init, list001, b007, b013, tb001_init, tb001, tb002_init, tb002, b009, b010, b011, b018, b019, b020, b021, b026, b027, b008, b016, b022, b023, b024, b025
 
-### `slots/maya/_slots_maya.py`
-- `class SlotsMaya(Slots)`
-  - methods: require_selection
-
 ### `slots/maya/arnold.py`
-- `class ArnoldSlots(SlotsMaya)`
+- `class ArnoldSlots(Slots)`
 
 ### `slots/maya/cache.py`
-- `class CacheSlots(SlotsMaya)`
+- `class CacheSlots(Slots)`
 
 ### `slots/maya/constrain.py`
-- `class ConstrainSlots(SlotsMaya)`
+- `class ConstrainSlots(Slots)`
 
 ### `slots/maya/control.py`
-- `class ControlSlots(SlotsMaya)`
+- `class ControlSlots(Slots)`
 
 ### `slots/maya/curves.py`
-- `class CurvesSlots(SlotsMaya)`
+- `class CurvesSlots(Slots)`
 
 ### `slots/maya/deform.py`
-- `class DeformSlots(SlotsMaya)`
+- `class DeformSlots(Slots)`
 
 ### `slots/maya/edit_mesh.py`
-- `class EditMeshSlots(SlotsMaya)`
+- `class EditMeshSlots(Slots)`
 
 ### `slots/maya/effects.py`
-- `class EffectsSlots(SlotsMaya)`
+- `class EffectsSlots(Slots)`
 
 ### `slots/maya/fields_solvers.py`
-- `class FieldsSolversSlots(SlotsMaya)`
+- `class FieldsSolversSlots(Slots)`
 
 ### `slots/maya/fluids.py`
-- `class FluidsSlots(SlotsMaya)`
+- `class FluidsSlots(Slots)`
 
 ### `slots/maya/generate.py`
-- `class GenerateSlots(SlotsMaya)`
+- `class GenerateSlots(Slots)`
 
 ### `slots/maya/help.py`
-- `class HelpSlots(SlotsMaya)`
+- `class HelpSlots(Slots)`
 
 ### `slots/maya/key.py`
-- `class KeySlots(SlotsMaya)`
+- `class KeySlots(Slots)`
 
 ### `slots/maya/lighting_shading.py`
-- `class LightingShadingSlots(SlotsMaya)`
+- `class LightingShadingSlots(Slots)`
 
 ### `slots/maya/mash.py`
-- `class MashSlots(SlotsMaya)`
+- `class MashSlots(Slots)`
 
 ### `slots/maya/mesh.py`
-- `class MeshSlots(SlotsMaya)`
+- `class MeshSlots(Slots)`
 
 ### `slots/maya/mesh_display.py`
-- `class MeshDisplaySlots(SlotsMaya)`
+- `class MeshDisplaySlots(Slots)`
 
 ### `slots/maya/mesh_tools.py`
-- `class MeshToolsSlots(SlotsMaya)`
+- `class MeshToolsSlots(Slots)`
 
 ### `slots/maya/ncloth.py`
-- `class NClothSlots(SlotsMaya)`
+- `class NClothSlots(Slots)`
 
 ### `slots/maya/nconstraint.py`
-- `class NConstraintSlots(SlotsMaya)`
+- `class NConstraintSlots(Slots)`
 
 ### `slots/maya/nhair.py`
-- `class NHairSlots(SlotsMaya)`
+- `class NHairSlots(Slots)`
 
 ### `slots/maya/nparticles.py`
-- `class NParticlesSlots(SlotsMaya)`
+- `class NParticlesSlots(Slots)`
 
 ### `slots/maya/playback.py`
-- `class PlaybackSlots(SlotsMaya)`
+- `class PlaybackSlots(Slots)`
 
 ### `slots/maya/render.py`
-- `class RenderSlots(SlotsMaya)`
+- `class RenderSlots(Slots)`
 
 ### `slots/maya/select.py`
-- `class SelectSlots(SlotsMaya)`
+- `class SelectSlots(Slots)`
 
 ### `slots/maya/skeleton.py`
-- `class SkeletonSlots(SlotsMaya)`
+- `class SkeletonSlots(Slots)`
 
 ### `slots/maya/skin.py`
-- `class SkinSlots(SlotsMaya)`
+- `class SkinSlots(Slots)`
 
 ### `slots/maya/stereo.py`
-- `class StereoSlots(SlotsMaya)`
+- `class StereoSlots(Slots)`
 
 ### `slots/maya/surfaces.py`
-- `class SurfacesSlots(SlotsMaya)`
+- `class SurfacesSlots(Slots)`
 
 ### `slots/maya/texturing.py`
-- `class TexturingSlots(SlotsMaya)`
+- `class TexturingSlots(Slots)`
 
 ### `slots/maya/toon.py`
-- `class ToonSlots(SlotsMaya)`
+- `class ToonSlots(Slots)`
 
 ### `slots/maya/visualize.py`
-- `class VisualizeSlots(SlotsMaya)`
+- `class VisualizeSlots(Slots)`
 
 ### `slots/maya/windows.py`
-- `class WindowsSlots(SlotsMaya)`
+- `class WindowsSlots(Slots)`
 
 ### `slots/normals.py` — Normals: one Slots class for both hosts.
 - `class NormalsSlots(Slots)`

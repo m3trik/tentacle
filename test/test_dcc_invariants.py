@@ -24,17 +24,13 @@ SLOTS_ROOT = ROOT / "tentacle" / "slots"
 # while under construction, so it is covered only on checkouts where its slot dir
 # is present — keeping main green without weakening the Maya guarantee. Add a
 # stable DCC to DCCS directly; gate an under-construction one on its dir.
-DCCS = {"maya": "SlotsMaya"}
-# Detect via the base FILE, not the dir: a leftover __pycache__/ keeps the dir
-# present after the slot sources are removed, which would wrongly include Blender.
-if (SLOTS_ROOT / "blender" / "_slots_blender.py").is_file():
-    DCCS["blender"] = "SlotsBlender"
+DCCS = {"maya": "Slots", "blender": "Slots"}
 
 
 def _slot_files(dcc):
     """Concrete slot modules for a DCC (excludes the package marker + base)."""
     d = SLOTS_ROOT / dcc
-    skip = {"__init__.py", f"_slots_{dcc}.py"}
+    skip = {"__init__.py"}
     return sorted(
         f for f in d.glob("*.py") if f.name not in skip and not f.name.startswith("__")
     )
@@ -71,19 +67,14 @@ class TestDccSlotInvariants(unittest.TestCase):
     """The invariants shared by every DCC slot package."""
 
     def test_package_and_base_wiring(self):
-        """Slot dir + __init__ + base file exist; the base inherits Slots."""
-        for dcc, base in DCCS.items():
+        """Each host's slot dir (its native-menu wrappers) exists as a package; no
+        per-host base is left (every forked category is one composed class)."""
+        for dcc in DCCS:
             with self.subTest(dcc=dcc):
                 d = SLOTS_ROOT / dcc
                 self.assertTrue(d.is_dir(), f"Missing directory: {d}")
                 self.assertTrue((d / "__init__.py").exists(), "Missing __init__.py")
-                base_file = d / f"_slots_{dcc}.py"
-                self.assertTrue(base_file.exists(), f"Missing {base_file.name}")
-                classes = _parse_classes(base_file.read_text(encoding="utf-8"))
-                self.assertTrue(
-                    any(name == base and "Slots" in bases for name, bases in classes),
-                    f"{base} must inherit from Slots",
-                )
+                self.assertFalse((d / f"_slots_{dcc}.py").exists(), "a per-host base is back")
 
     def test_exactly_one_base_subclass_per_file(self):
         """Every slot module defines exactly one <SlotsDcc> subclass."""

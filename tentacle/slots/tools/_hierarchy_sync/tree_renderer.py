@@ -480,127 +480,145 @@ class HierarchyTreeRenderer(ptk.LoggingMixin):
         diff = self._ctrl.diff_result
         if not diff:
             return
+        if auto_select:
+            self._auto_select_diff(
+                diff, tree001, tree000, select_root_only, select_leaves_only
+            )
+        if expand_diff:
+            self._expand_diff(diff, tree000, tree001)
+        if auto_select:
+            self._report_selection(tree000, tree001)
+
+    def _condensed(self, paths, tree, select_root_only, select_leaves_only):
+        """*paths* condensed to their roots or leaves as asked, ignored ones out."""
+        if select_root_only and paths:
+            paths = self.condense_to_roots(paths)
+        elif select_leaves_only and paths:
+            paths = self.filter_to_leaves(paths)
+        return [p for p in paths if not self._ctrl.is_path_ignored(tree, p)]
+
+    def _auto_select_diff(
+        self, diff, tree001, tree000, select_root_only, select_leaves_only
+    ) -> None:
+        """Select the diff's items in both trees (:meth:`apply_diff_options`)."""
         strict = not self.session.fuzzy_matching
-        ctrl = self._ctrl
 
         def condensed(paths, tree):
-            if select_root_only and paths:
-                paths = self.condense_to_roots(paths)
-            elif select_leaves_only and paths:
-                paths = self.filter_to_leaves(paths)
-            return [p for p in paths if not ctrl.is_path_ignored(tree, p)]
+            return self._condensed(paths, tree, select_root_only, select_leaves_only)
 
-        if auto_select:
-            tree001.clearSelection()
-            tree000.clearSelection()
-            matcher = self.matcher()
-            ref_index = matcher.build_tree_index(tree000)
-            cur_index = matcher.build_tree_index(tree001)
-            selected = 0
+        tree001.clearSelection()
+        tree000.clearSelection()
+        matcher = self.matcher()
+        ref_index = matcher.build_tree_index(tree000)
+        cur_index = matcher.build_tree_index(tree001)
+        selected = 0
 
-            unresolved_missing = []
-            for path in condensed(diff.get("missing", []), tree000):
-                candidates, strategy = matcher.find_path_matches(
-                    path, *ref_index, prefer_cleaned=True, strict=strict
-                )
-                if not candidates:
-                    unresolved_missing.append(path)
-                    continue
-                self.logger.debug(
-                    f"Missing '{path}' -> {len(candidates)} via {strategy}"
-                )
-                selected += self._select_and_reveal(candidates)
-
-            if unresolved_missing and not strict:
-                unresolved_missing, found = self._select_fuzzy_children(
-                    unresolved_missing, matcher, ref_index
-                )
-                selected += found
-
-            unresolved_extra = []
-            for path in condensed(diff.get("extra", []), tree001):
-                candidates, strategy = matcher.find_path_matches(
-                    path, *cur_index, prefer_cleaned=False, strict=strict
-                )
-                if not candidates:
-                    unresolved_extra.append(path)
-                    continue
-                matcher.log_matching_debug(path, candidates, strategy, "Extra")
-                selected += self._select_and_reveal(candidates)
-
-            for diff_key, ref_key, cur_key in (
-                ("reparented", "reference_path", "current_path"),
-                ("fuzzy_matches", "target_name", "current_name"),
-            ):
-                for entry in diff.get(diff_key, []):
-                    for key, index in ((ref_key, ref_index), (cur_key, cur_index)):
-                        path = entry.get(key, "")
-                        if path:
-                            candidates, _ = matcher.find_path_matches(
-                                path, *index, prefer_cleaned=True, strict=False
-                            )
-                            selected += self._select_and_reveal(candidates)
-
-            if unresolved_missing and not strict:
-                unresolved_missing, found = self._select_suffix_variants(
-                    unresolved_missing, matcher, ref_index
-                )
-                selected += found
-
-            for tree in (tree000, tree001):
-                for item in list(TreePathMatcher.iter_items(tree)):
-                    if item.isSelected() and item.childCount():
-                        selected += self._select_children(item)
-
-            if unresolved_missing or unresolved_extra:
-                self.logger.warning(
-                    f"Unresolved diff paths (missing={len(unresolved_missing)}, "
-                    f"extra={len(unresolved_extra)}) "
-                    f"sample missing={unresolved_missing[:5]} "
-                    f"extra={unresolved_extra[:5]}"
-                )
-            self.logger.debug(f"Auto-selected {selected} diff items")
-            for tree in (tree000, tree001):
-                tree.viewport().update()
-
-        if expand_diff:
-            expanded = 0
-            for diff_key, entry_key, tree in (
-                ("missing", None, tree000),
-                ("extra", None, tree001),
-                ("reparented", "reference_path", tree000),
-                ("reparented", "current_path", tree001),
-                ("fuzzy_matches", "target_name", tree000),
-                ("fuzzy_matches", "current_name", tree001),
-            ):
-                for entry in diff.get(diff_key, []):
-                    path = entry.get(entry_key, "") if entry_key else entry
-                    if not path or ctrl.is_path_ignored(tree, path):
-                        continue
-                    for item in tree.findItems(
-                        path.split("|")[-1], QtCore.Qt.MatchRecursive
-                    ):
-                        if self._matches_hierarchy_path(item, path):
-                            expanded += self._expand_parents(item)
-            if expanded:
-                self.logger.debug(f"Expanded {expanded} nodes showing differences")
-
-        if auto_select:
-            n_ref = sum(
-                1 for i in TreePathMatcher.iter_items(tree000) if i.isSelected()
+        unresolved_missing = []
+        for path in condensed(diff.get("missing", []), tree000):
+            candidates, strategy = matcher.find_path_matches(
+                path, *ref_index, prefer_cleaned=True, strict=strict
             )
-            n_cur = sum(
-                1 for i in TreePathMatcher.iter_items(tree001) if i.isSelected()
+            if not candidates:
+                unresolved_missing.append(path)
+                continue
+            self.logger.debug(
+                f"Missing '{path}' -> {len(candidates)} via {strategy}"
             )
-            (tree000 if n_ref >= n_cur else tree001).setFocus()
-            if n_ref or n_cur:
-                self.logger.success(
-                    f"Auto-select complete: {n_ref} item(s) in the REFERENCE tree, "
-                    f"{n_cur} in the CURRENT tree. "
-                    "Use 'Pull' to import missing or 'Fix' to repair."
-                )
-            else:
-                self.logger.warning("No items remain selected after auto-select.")
+            selected += self._select_and_reveal(candidates)
+
+        if unresolved_missing and not strict:
+            unresolved_missing, found = self._select_fuzzy_children(
+                unresolved_missing, matcher, ref_index
+            )
+            selected += found
+
+        unresolved_extra = []
+        for path in condensed(diff.get("extra", []), tree001):
+            candidates, strategy = matcher.find_path_matches(
+                path, *cur_index, prefer_cleaned=False, strict=strict
+            )
+            if not candidates:
+                unresolved_extra.append(path)
+                continue
+            matcher.log_matching_debug(path, candidates, strategy, "Extra")
+            selected += self._select_and_reveal(candidates)
+
+        for diff_key, ref_key, cur_key in (
+            ("reparented", "reference_path", "current_path"),
+            ("fuzzy_matches", "target_name", "current_name"),
+        ):
+            for entry in diff.get(diff_key, []):
+                for key, index in ((ref_key, ref_index), (cur_key, cur_index)):
+                    path = entry.get(key, "")
+                    if path:
+                        candidates, _ = matcher.find_path_matches(
+                            path, *index, prefer_cleaned=True, strict=False
+                        )
+                        selected += self._select_and_reveal(candidates)
+
+        if unresolved_missing and not strict:
+            unresolved_missing, found = self._select_suffix_variants(
+                unresolved_missing, matcher, ref_index
+            )
+            selected += found
+
+        for tree in (tree000, tree001):
+            for item in list(TreePathMatcher.iter_items(tree)):
+                if item.isSelected() and item.childCount():
+                    selected += self._select_children(item)
+
+        if unresolved_missing or unresolved_extra:
+            self.logger.warning(
+                f"Unresolved diff paths (missing={len(unresolved_missing)}, "
+                f"extra={len(unresolved_extra)}) "
+                f"sample missing={unresolved_missing[:5]} "
+                f"extra={unresolved_extra[:5]}"
+            )
+        self.logger.debug(f"Auto-selected {selected} diff items")
+        for tree in (tree000, tree001):
+            tree.viewport().update()
+
+    def _expand_diff(self, diff, tree000, tree001) -> None:
+        """Expand the parents of every item the diff names (:meth:`apply_diff_options`)."""
+        ctrl = self._ctrl
+        expanded = 0
+        for diff_key, entry_key, tree in (
+            ("missing", None, tree000),
+            ("extra", None, tree001),
+            ("reparented", "reference_path", tree000),
+            ("reparented", "current_path", tree001),
+            ("fuzzy_matches", "target_name", tree000),
+            ("fuzzy_matches", "current_name", tree001),
+        ):
+            for entry in diff.get(diff_key, []):
+                path = entry.get(entry_key, "") if entry_key else entry
+                if not path or ctrl.is_path_ignored(tree, path):
+                    continue
+                for item in tree.findItems(
+                    path.split("|")[-1], QtCore.Qt.MatchRecursive
+                ):
+                    if self._matches_hierarchy_path(item, path):
+                        expanded += self._expand_parents(item)
+        if expanded:
+            self.logger.debug(f"Expanded {expanded} nodes showing differences")
+
+    def _report_selection(self, tree000, tree001) -> None:
+        """Focus the tree holding more of the selection and say what was selected."""
+        n_ref = sum(
+            1 for i in TreePathMatcher.iter_items(tree000) if i.isSelected()
+        )
+        n_cur = sum(
+            1 for i in TreePathMatcher.iter_items(tree001) if i.isSelected()
+        )
+        (tree000 if n_ref >= n_cur else tree001).setFocus()
+        if n_ref or n_cur:
+            self.logger.success(
+                f"Auto-select complete: {n_ref} item(s) in the REFERENCE tree, "
+                f"{n_cur} in the CURRENT tree. "
+                "Use 'Pull' to import missing or 'Fix' to repair."
+            )
+        else:
+            self.logger.warning("No items remain selected after auto-select.")
 
     def _select_fuzzy_children(self, unresolved, matcher, ref_index):
         """Select, for each unresolved missing path whose parent resolves to

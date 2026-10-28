@@ -1,4 +1,4 @@
-"""Manual harness for mode-gated viewport tools (``SlotsBlender.set_viewport_tool``).
+"""Manual harness for mode-gated viewport tools (``btk.UiUtils.set_tool``).
 
 Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unittest target — the
 ``blender/`` subdir and the non-``test_`` name keep it out of auto-discovery. Run it against a

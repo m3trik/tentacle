@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PKG = ROOT / "tentacle"
 SLOTS_DIR = PKG / "slots" / "blender"
 MAYA_SLOTS_DIR = PKG / "slots" / "maya"
-_SKIP = {"__init__.py", "_slots_blender.py"}
+_SKIP = {"__init__.py"}
 
 try:  # the live module — needs a Qt binding + blendertk, absent in the [maya]-only CI env
     from tentacle import tcl_blender as _tcl_blender
@@ -208,7 +208,7 @@ class TestViewportToolUsesOverride(unittest.TestCase):
 
     A bare ``bpy.ops.wm.tool_set_by_id`` invoked from the Qt marking menu runs in a
     restricted context (``context.space_data is None``): it returns success but the tool
-    silently never changes — the "Multi-Cut does nothing" bug. ``SlotsBlender.set_viewport_tool``
+    silently never changes — the "Multi-Cut does nothing" bug. ``btk.UiUtils.set_tool``
     wraps it in a VIEW_3D ``temp_override`` so it lands on the real viewport. The base class is
     the only place allowed to call the op directly; concrete slots route through the helper.
     """

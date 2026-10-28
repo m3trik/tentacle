@@ -2,10 +2,10 @@
 # coding=utf-8
 
 # From this package:
-from tentacle import SlotsMaya
+from tentacle import Slots
 
 
-class ControlSlots(SlotsMaya):
+class ControlSlots(Slots):
     def __init__(self, switchboard):
         super().__init__(switchboard)
 

@@ -1,9 +1,9 @@
 # !/usr/bin/python
 # coding=utf-8
-from tentacle import SlotsBlender
+from tentacle import Slots
 
 
-class BlenderSlots(SlotsBlender):
+class BlenderSlots(Slots):
     """Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
 
     The chord menu is a thin launcher for Blender's OWN native menus — the exact mirror of

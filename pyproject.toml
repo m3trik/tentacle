@@ -136,9 +136,6 @@ max-statements = 100
 "**/templates/**" = ["F821"]  # exec-templates carry __PLACEHOLDER__ tokens substituted at run time
 # Unmoved code: the guardrails start on the new layout, not here.
 "tentacle/tcl*.py" = ["C901", "PLR0904", "PLR0915", "T201"]
-"tentacle/slots/_*.py" = ["C901", "PLR0904", "PLR0915", "T201"]
-"tentacle/slots/maya/**" = ["C901", "PLR0904", "PLR0915", "T201"]
-"tentacle/slots/blender/**" = ["C901", "PLR0904", "PLR0915", "T201"]
 # A bootstrap: it runs before qtpy is installed, and prints to the host console.
 "tentacle/tentacle_installer.py" = ["C901", "PLR0904", "PLR0915", "T201", "TID251"]
 "test/**" = ["C901", "PLR0904", "PLR0915", "T201"]
@@ -170,6 +167,3 @@ entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.
 # class (composed category or shared tool) reaches its host only through
 # self.tk, the host library's API.
 "slots" = ["maya", "blender", "entry"]
-# The per-host categories: exempt until each merges into one composed class.
-"slots/maya" = []
-"slots/blender" = []

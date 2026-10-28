@@ -25,7 +25,7 @@ PKG = ROOT / "tentacle"
 SLOTS_DIR = PKG / "slots" / "maya"
 
 # Files that aren't concrete slots (base class, package marker)
-_SKIP = {"__init__.py", "_slots_maya.py"}
+_SKIP = {"__init__.py"}
 
 
 def slot_files() -> List[Path]:

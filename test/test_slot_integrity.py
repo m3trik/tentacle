@@ -22,7 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 # Files that are not concrete slot modules
-_SKIP = {"__init__.py", "_slots_maya.py"}
+_SKIP = {"__init__.py"}
 
 
 def _slot_files():

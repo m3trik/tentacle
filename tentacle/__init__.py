@@ -14,12 +14,6 @@ DEFAULT_INCLUDE = {
     "tcl_max": "TclMax",
     "tcl_maya": "TclMaya",
     "slots._slots": "Slots",
-    "slots.maya._slots_maya": "SlotsMaya",
-    "slots.blender._slots_blender": "SlotsBlender",
-    # The shared mixins of the categories still forked (slots/_<category>.py),
-    # until each is composed into one class (slots/<category>.py; MOVED_NAMES
-    # below). Mixed in per panel, never folded into the DCC bases: a mixin's
-    # widget-named slots (``tb002``) would bind every panel's same-named widget.
 }
 
 #: Public names merged away (CODE_STANDARD section 5): no alias, so a read raises
@@ -27,6 +21,8 @@ DEFAULT_INCLUDE = {
 #: composed into one Slots class lists the mixin its forks shared.
 MOVED_NAMES = {
     "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),
+    "SlotsMaya": ("tentacle.Slots", "0.17.0"),
+    "SlotsBlender": ("tentacle.Slots", "0.17.0"),
     "DisplayMixin": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
     "DuplicateMixin": ("tentacle.slots.duplicate.DuplicateSlots", "0.17.0"),
     "LightingMixin": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),

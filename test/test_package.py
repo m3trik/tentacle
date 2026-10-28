@@ -96,7 +96,7 @@ class TestPackageMetadata(unittest.TestCase):
         pkg_dir = Path(tentacle.__file__).parent
         for mod_path in tentacle.DEFAULT_INCLUDE:
             # e.g. "tcl_maya" -> tentacle/tcl_maya.py
-            # e.g. "slots.maya._slots_maya" -> tentacle/slots/maya/_slots_maya.py
+            # e.g. "slots._slots" -> tentacle/slots/_slots.py
             rel = mod_path.replace(".", "/") + ".py"
             full = pkg_dir / rel
             self.assertTrue(full.exists(), f"DEFAULT_INCLUDE module missing: {full}")
