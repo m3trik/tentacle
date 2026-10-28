@@ -137,9 +137,11 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/dynamic_pipe.py`](#slots--tools--dynamic_pipe) — Dynamic Pipe: a pipe mesh that follows a chain of handles live.
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
+- [`slots/tools/game_shader.py`](#slots--tools--game_shader) — Game Shader: build a PBR material from a set of texture maps, packed for a
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
 - [`slots/tools/image_tracer.py`](#slots--tools--image_tracer) — Image Tracer: trace a raster image's contours into curves, then fill them
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
+- [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/shell_xform.py`](#slots--tools--shell_xform) — Shell Xform: move, flip, rotate, straighten, mirror, distribute, align and
 - [`slots/tools/shot_manifest.py`](#slots--tools--shot_manifest) — Shot Manifest: a shot sheet checked against the scene, and the shots built from it.
@@ -1930,6 +1932,28 @@ Exploded View: spread the selected objects apart to inspect interior parts.
   - `ExplodedViewSlots.b002(self)` — Un-Explode All.
   - `ExplodedViewSlots.b003(self)` — Toggle Explode.
 
+<a id="slots--tools--game_shader"></a>
+### `slots/tools/game_shader.py`
+
+Game Shader: build a PBR material from a set of texture maps, packed for a
+
+- **[`class GameShaderSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/game_shader.py#L20)**
+  - `GameShaderSlots.header_init(self, widget)` — Initialize the header widget.
+  - `GameShaderSlots.lbl_graph_material(self)` — Open in Editor: graph the material last built here, else the one the
+  - `GameShaderSlots.mat_name(self) -> str` *(property)* — The Material Name field's text ('' derives the name from the textures).
+  - `GameShaderSlots.mat_prefix(self) -> str` *(property)* — Return the affix text when it resolves as a prefix, else empty string.
+  - `GameShaderSlots.mat_suffix(self) -> str` *(property)* — Return the affix text when it resolves as a suffix, else empty string.
+  - `GameShaderSlots.normal_map_type(self) -> str` *(property)* — The Normal Map combo's convention: 'OpenGL' or 'DirectX'.
+  - `GameShaderSlots.output_extension(self) -> str` *(property)* — Selected output extension, or '' when 'Profile default' is chosen.
+  - `GameShaderSlots.shader_type(self) -> Optional[str]` *(property)* — The Shader Type combo's ``shader_type`` (Maya: 'stingray',
+  - `GameShaderSlots.opacity_mode(self) -> Optional[str]` *(property)* — The opacity graph the panel asks for.
+  - `GameShaderSlots.cmb002_init(self, widget)` — Initialize Presets
+  - `GameShaderSlots.cmb003_init(self, widget)` — Initialize Output Format.
+  - `GameShaderSlots.cmb004_init(self, widget)` — Initialize Shader Type from the host's surface shaders.
+  - `GameShaderSlots.txt000_init(self, widget)` — Material-name field — clearable back to the auto-derived name.
+  - `GameShaderSlots.txt002_init(self, widget)` — Add a prefix/suffix/auto-mode picker to the affix field.
+  - `GameShaderSlots.b000(self)` — Create Network: pick texture files and build their material(s).
+
 <a id="slots--tools--image_to_plane"></a>
 ### `slots/tools/image_to_plane.py`
 
@@ -1972,6 +1996,20 @@ Key Stash: park keys out of the working animation as clips, then preview or
   - `KeyStashSlots.b001(self) -> None` — Retrieve
   - `KeyStashSlots.chk001(self, checked: bool) -> None` — Preview (toggle)
   - `KeyStashSlots.b003(self) -> None` — Drop
+
+<a id="slots--tools--mat_updater"></a>
+### `slots/tools/mat_updater.py`
+
+Material Updater: rework scene materials for a target workflow preset,
+
+- **[`class MatUpdaterSlots(Slots)`](tentacle/tentacle/slots/tools/mat_updater.py#L22)**
+  - `MatUpdaterSlots.logger(self)` *(property)* — The engine's logger: the run report and this panel's notes share it.
+  - `MatUpdaterSlots.header_init(self, widget)` — Format global options in the header menu.
+  - `MatUpdaterSlots.selection_mode(self)` *(property)*
+  - `MatUpdaterSlots.move_to_folder(self)` *(property)*
+  - `MatUpdaterSlots.shader_type(self)` *(property)* — The selected retype target, or None for "keep the current type"
+  - `MatUpdaterSlots.cmb001_init(self, widget)` — Initialize Presets.
+  - `MatUpdaterSlots.b001(self)` — Update Materials
 
 <a id="slots--tools--mirror"></a>
 ### `slots/tools/mirror.py`
@@ -2110,26 +2148,26 @@ The host-agnostic entry point — one launcher snippet for every DCC.
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2264) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2269) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2274) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2279) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2284) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2289) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2294) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2299) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2304) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2309) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2314) — Remove the click tracer.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2262) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2267) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2272) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2277) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2282) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2287) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2292) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L2297) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2302) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2307) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2312) — Remove the click tracer.
 - **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1503)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L2029)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L2027)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2142)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2140)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.

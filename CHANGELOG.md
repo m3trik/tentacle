@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- Game Shader and Mat Updater are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Each composes the host's engine (`self.tk.GameShader()` / `self.tk.MatUpdater()`) instead of subclassing it; a host with one surface shader (Blender) offers no shader-type choice, and Mat Updater's transfer combo shows disabled where the run writes straight to the Output Folder.
+  - Test(s): new `test_game_shader_panel.py` and `test_mat_updater_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Key Stash and Smart Bake are shared tools (new `ui/tools/` + `slots/tools/` pairs; `docs/parity_map.py` drops Smart Bake's twin entry).** Key Stash stores from the source the host reads, selects a clip's objects and repaints from the store's change events; Smart Bake builds a `SmartBake` per run from mayatk's widgets and reports what the host's `BakeResult.describe()` says.
   - Test(s): new `test_key_stash_panel.py` and `test_smart_bake_panel.py` (fake toolkit; Maya cases in a fresh Maya).
 - **2026-10-28 -- Color ID and Image To Plane are shared tools (new `ui/tools/` + `slots/tools/` pairs).** Color ID composes the host's `ColorId` instead of subclassing it, keeps its pin and swatch group, and stores palettes in the host's preset folder; the old one-off clearing of white swatches is gone (a white swatch stays white). Image To Plane fills its material-type combo from the host (disabled where there is one) and wires its buttons by name.

@@ -504,6 +504,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class ExplodedViewSlots(Slots)`
   - methods: header_init, b000, b001, b002, b003
 
+### `slots/tools/game_shader.py` — Game Shader: build a PBR material from a set of texture maps, packed for a
+- `class GameShaderSlots(Slots, pythontk.LoggingMixin)`
+  - methods: header_init, lbl_graph_material, mat_name, mat_prefix, mat_suffix, normal_map_type, output_extension, shader_type, opacity_mode, cmb002_init, cmb003_init, cmb004_init, txt000_init, txt002_init, b000
+
 ### `slots/tools/image_to_plane.py` — Image to Plane: batch-create textured planes from image files.
 - `class ImageToPlaneSlots(Slots)`
   - methods: header_init, txt_suffix_init, b000, b004, b001, b002
@@ -515,6 +519,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `slots/tools/key_stash.py` — Key Stash: park keys out of the working animation as clips, then preview or
 - `class KeyStashSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, store, refresh, refresh_from_scene, b000, b001, chk001, b003
+
+### `slots/tools/mat_updater.py` — Material Updater: rework scene materials for a target workflow preset,
+- `class MatUpdaterSlots(Slots)`
+  - methods: logger, header_init, selection_mode, move_to_folder, shader_type, cmb001_init, b001
 
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`

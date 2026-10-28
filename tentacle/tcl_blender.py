@@ -1541,11 +1541,9 @@ class TclBlender(MarkingMenu):
             ui_source=("ui", "ui/blender_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            # BlenderUiHandler scans the blendertk package recursively, so tools that ship
-            # their own co-located ``.ui`` + ``<Tool>Slots`` (curtain, mirror, cut_on_axis,
-            # duplicate_*, hdr_manager, reference_manager) are discovered and served by
-            # ``marking_menu.show("<tool>")`` — exactly the mayatk/MayaUiHandler split, so the
-            # Blender tool panels live in blendertk (next to their engine) rather than here.
+            # BlenderUiHandler serves the shared tools (``ui/tools`` + ``slots/tools``) and,
+            # until they move here, the panels still beside their engine in blendertk --
+            # both through ``marking_menu.show("<tool>")``, as MayaUiHandler does in Maya.
             handlers={"ui": btk.BlenderUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,

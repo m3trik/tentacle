@@ -11561,6 +11561,160 @@
       "constants": []
     },
     {
+      "relpath": "slots/tools/game_shader.py",
+      "summary": "Game Shader: build a PBR material from a set of texture maps, packed for a",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GameShaderSlots",
+          "summary": "",
+          "line": 20,
+          "bases": [
+            "Slots",
+            "pythontk.LoggingMixin"
+          ],
+          "members": [
+            {
+              "name": "header_init",
+              "qualname": "GameShaderSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize the header widget.",
+              "line": 62,
+              "deprecated": false
+            },
+            {
+              "name": "lbl_graph_material",
+              "qualname": "GameShaderSlots.lbl_graph_material",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Open in Editor: graph the material last built here, else the one the",
+              "line": 118,
+              "deprecated": false
+            },
+            {
+              "name": "mat_name",
+              "qualname": "GameShaderSlots.mat_name",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The Material Name field's text ('' derives the name from the textures).",
+              "line": 132,
+              "deprecated": false
+            },
+            {
+              "name": "mat_prefix",
+              "qualname": "GameShaderSlots.mat_prefix",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "Return the affix text when it resolves as a prefix, else empty string.",
+              "line": 137,
+              "deprecated": false
+            },
+            {
+              "name": "mat_suffix",
+              "qualname": "GameShaderSlots.mat_suffix",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "Return the affix text when it resolves as a suffix, else empty string.",
+              "line": 145,
+              "deprecated": false
+            },
+            {
+              "name": "normal_map_type",
+              "qualname": "GameShaderSlots.normal_map_type",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "The Normal Map combo's convention: 'OpenGL' or 'DirectX'.",
+              "line": 153,
+              "deprecated": false
+            },
+            {
+              "name": "output_extension",
+              "qualname": "GameShaderSlots.output_extension",
+              "kind": "property",
+              "signature": "(self) -> str",
+              "summary": "Selected output extension, or '' when 'Profile default' is chosen.",
+              "line": 158,
+              "deprecated": false
+            },
+            {
+              "name": "shader_type",
+              "qualname": "GameShaderSlots.shader_type",
+              "kind": "property",
+              "signature": "(self) -> Optional[str]",
+              "summary": "The Shader Type combo's ``shader_type`` (Maya: 'stingray',",
+              "line": 171,
+              "deprecated": false
+            },
+            {
+              "name": "opacity_mode",
+              "qualname": "GameShaderSlots.opacity_mode",
+              "kind": "property",
+              "signature": "(self) -> Optional[str]",
+              "summary": "The opacity graph the panel asks for.",
+              "line": 180,
+              "deprecated": false
+            },
+            {
+              "name": "cmb002_init",
+              "qualname": "GameShaderSlots.cmb002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Presets",
+              "line": 200,
+              "deprecated": false
+            },
+            {
+              "name": "cmb003_init",
+              "qualname": "GameShaderSlots.cmb003_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Output Format.",
+              "line": 214,
+              "deprecated": false
+            },
+            {
+              "name": "cmb004_init",
+              "qualname": "GameShaderSlots.cmb004_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Shader Type from the host's surface shaders.",
+              "line": 231,
+              "deprecated": false
+            },
+            {
+              "name": "txt000_init",
+              "qualname": "GameShaderSlots.txt000_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Material-name field — clearable back to the auto-derived name.",
+              "line": 248,
+              "deprecated": false
+            },
+            {
+              "name": "txt002_init",
+              "qualname": "GameShaderSlots.txt002_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Add a prefix/suffix/auto-mode picker to the affix field.",
+              "line": 252,
+              "deprecated": false
+            },
+            {
+              "name": "b000",
+              "qualname": "GameShaderSlots.b000",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Create Network: pick texture files and build their material(s).",
+              "line": 296,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
       "relpath": "slots/tools/image_to_plane.py",
       "summary": "Image to Plane: batch-create textured planes from image files.",
       "functions": [],
@@ -11806,6 +11960,87 @@
               "signature": "(self) -> None",
               "summary": "Drop",
               "line": 281,
+              "deprecated": false
+            }
+          ]
+        }
+      ],
+      "constants": []
+    },
+    {
+      "relpath": "slots/tools/mat_updater.py",
+      "summary": "Material Updater: rework scene materials for a target workflow preset,",
+      "functions": [],
+      "classes": [
+        {
+          "name": "MatUpdaterSlots",
+          "summary": "",
+          "line": 22,
+          "bases": [
+            "Slots"
+          ],
+          "members": [
+            {
+              "name": "logger",
+              "qualname": "MatUpdaterSlots.logger",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The engine's logger: the run report and this panel's notes share it.",
+              "line": 64,
+              "deprecated": false
+            },
+            {
+              "name": "header_init",
+              "qualname": "MatUpdaterSlots.header_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Format global options in the header menu.",
+              "line": 157,
+              "deprecated": false
+            },
+            {
+              "name": "selection_mode",
+              "qualname": "MatUpdaterSlots.selection_mode",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 418,
+              "deprecated": false
+            },
+            {
+              "name": "move_to_folder",
+              "qualname": "MatUpdaterSlots.move_to_folder",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "",
+              "line": 422,
+              "deprecated": false
+            },
+            {
+              "name": "shader_type",
+              "qualname": "MatUpdaterSlots.shader_type",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The selected retype target, or None for \"keep the current type\"",
+              "line": 426,
+              "deprecated": false
+            },
+            {
+              "name": "cmb001_init",
+              "qualname": "MatUpdaterSlots.cmb001_init",
+              "kind": "method",
+              "signature": "(self, widget)",
+              "summary": "Initialize Presets.",
+              "line": 433,
+              "deprecated": false
+            },
+            {
+              "name": "b001",
+              "qualname": "MatUpdaterSlots.b001",
+              "kind": "method",
+              "signature": "(self)",
+              "summary": "Update Materials",
+              "line": 492,
               "deprecated": false
             }
           ]
@@ -12653,7 +12888,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return the process QApplication, creating one if Blender has none.",
-          "line": 2264,
+          "line": 2262,
           "deprecated": false
         },
         {
@@ -12662,7 +12897,7 @@
           "kind": "function",
           "signature": "(app)",
           "summary": "Establish ``app.blender_widget`` — the parent for the marking menu.",
-          "line": 2269,
+          "line": 2267,
           "deprecated": false
         },
         {
@@ -12671,7 +12906,7 @@
           "kind": "function",
           "signature": "(app, interval=0.01)",
           "summary": "Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).",
-          "line": 2274,
+          "line": 2272,
           "deprecated": false
         },
         {
@@ -12680,7 +12915,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).",
-          "line": 2279,
+          "line": 2277,
           "deprecated": false
         },
         {
@@ -12689,7 +12924,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Stand up the Qt host and return a :class:`TclBlender` (idempotent).",
-          "line": 2284,
+          "line": 2282,
           "deprecated": false
         },
         {
@@ -12698,7 +12933,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 2289,
+          "line": 2287,
           "deprecated": false
         },
         {
@@ -12707,7 +12942,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 2294,
+          "line": 2292,
           "deprecated": false
         },
         {
@@ -12716,7 +12951,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 2299,
+          "line": 2297,
           "deprecated": false
         },
         {
@@ -12725,7 +12960,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 2304,
+          "line": 2302,
           "deprecated": false
         },
         {
@@ -12734,7 +12969,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Turn on the opt-in click tracer.",
-          "line": 2309,
+          "line": 2307,
           "deprecated": false
         },
         {
@@ -12743,7 +12978,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Remove the click tracer.",
-          "line": 2314,
+          "line": 2312,
           "deprecated": false
         }
       ],
@@ -12762,7 +12997,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).",
-              "line": 1661,
+              "line": 1659,
               "deprecated": false
             },
             {
@@ -12771,7 +13006,7 @@
               "kind": "method",
               "signature": "(self, new_key)",
               "summary": "Rebind the activation key — and move Blender's half of the binding with it.",
-              "line": 1710,
+              "line": 1708,
               "deprecated": false
             },
             {
@@ -12780,7 +13015,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1741,
+              "line": 1739,
               "deprecated": false
             },
             {
@@ -12789,7 +13024,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1752,
+              "line": 1750,
               "deprecated": false
             },
             {
@@ -12798,7 +13033,7 @@
               "kind": "method",
               "signature": "(self, event)",
               "summary": "",
-              "line": 1770,
+              "line": 1768,
               "deprecated": false
             }
           ]
@@ -12806,7 +13041,7 @@
         {
           "name": "Diagnostics",
           "summary": "The live-activation-state report — run in Blender's Python console to see why the key isn't",
-          "line": 2029,
+          "line": 2027,
           "bases": [],
           "members": [
             {
@@ -12815,7 +13050,7 @@
               "kind": "staticmethod",
               "signature": "(emit=True)",
               "summary": "Return (and, when ``emit``, print) the live activation state — run in Blender's Python",
-              "line": 2034,
+              "line": 2032,
               "deprecated": false
             }
           ]
@@ -12823,7 +13058,7 @@
         {
           "name": "BlenderHost",
           "summary": "Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu",
-          "line": 2142,
+          "line": 2140,
           "bases": [],
           "members": [
             {
@@ -12832,7 +13067,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a",
-              "line": 2148,
+              "line": 2146,
               "deprecated": false
             },
             {
@@ -12841,7 +13076,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: stand up the host.",
-              "line": 2168,
+              "line": 2166,
               "deprecated": false
             },
             {
@@ -12850,7 +13085,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 2201,
+              "line": 2199,
               "deprecated": false
             },
             {
@@ -12859,7 +13094,7 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
-              "line": 2206,
+              "line": 2204,
               "deprecated": false
             }
           ]

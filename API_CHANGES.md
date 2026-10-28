@@ -7,7 +7,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/_normals.py::NormalsMixin` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 - `slots/_normals.py::NormalsMixin.tb010_init` → `tentacle.slots.normals.NormalsSlots` (from 0.17.0)
 
-## Added (253)
+## Added (277)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.tk(self)`
@@ -167,6 +167,22 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b002(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.b003(self)`
 - `slots/tools/exploded_view.py::ExplodedViewSlots.header_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots(class)`
+- `slots/tools/game_shader.py::GameShaderSlots.b000(self)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb002_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb003_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.cmb004_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.header_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.lbl_graph_material(self)`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_name(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_prefix(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.mat_suffix(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.normal_map_type(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.opacity_mode(self) -> Optional[str]`
+- `slots/tools/game_shader.py::GameShaderSlots.output_extension(self) -> str`
+- `slots/tools/game_shader.py::GameShaderSlots.shader_type(self) -> Optional[str]`
+- `slots/tools/game_shader.py::GameShaderSlots.txt000_init(self, widget)`
+- `slots/tools/game_shader.py::GameShaderSlots.txt002_init(self, widget)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots(class)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b000(self)`
 - `slots/tools/image_to_plane.py::ImageToPlaneSlots.b001(self)`
@@ -192,6 +208,14 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/key_stash.py::KeyStashSlots.refresh(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.refresh_from_scene(self) -> None`
 - `slots/tools/key_stash.py::KeyStashSlots.store(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots(class)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.b001(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.cmb001_init(self, widget)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.header_init(self, widget)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.logger(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.move_to_folder(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.selection_mode(self)`
+- `slots/tools/mat_updater.py::MatUpdaterSlots.shader_type(self)`
 - `slots/tools/mirror.py::MirrorSlots(class)`
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
