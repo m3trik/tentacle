@@ -91,6 +91,24 @@ try:
             }
         )
 
+    def own_key_times(obj_name):
+        """*obj_name*'s key times less the samples the shot system claims.
+
+        Keys leaving a shot pin the pose they held on the next shot's facing
+        bound -- the one rule: an op on one shot never changes what another
+        plays inside its own span -- and that pin is the system's, not the
+        object's animation (``ShotSequencer._animator_key_times``; blendertk's
+        engine suite reads a moved object's keys the same way).
+        """
+        obj = bpy.data.objects.get(obj_name)
+        return sorted(
+            {
+                round(float(t), 3)
+                for fc in AnimUtils.get_fcurves(obj)
+                for t in ctl.sequencer._animator_key_times(obj_name, fc)
+            }
+        )
+
     def keyed(name, frames_values, index=0):
         bpy.ops.mesh.primitive_cube_add()
         o = bpy.context.active_object
@@ -335,11 +353,11 @@ try:
     a, b = store.shot_by_id(a_id), store.shot_by_id(b_id)
     check(
         "move-to-shot: B keys + strip now inside A; A extended to fit; B emptied",
-        all(a.start <= t <= a.end for t in key_times("B"))
+        all(a.start <= t <= a.end for t in own_key_times("B"))
         and a.start <= AudioUtils.get_clip("Cue")["frame_start"] <= a.end
         and "B" in a.objects
         and "B" not in b.objects,
-        f"A={(a.start, a.end, a.objects)} B={(b.start, b.end, b.objects)} strip={AudioUtils.get_clip('Cue')['frame_start']}",
+        f"A={(a.start, a.end, a.objects)} B={(b.start, b.end, b.objects)} strip={AudioUtils.get_clip('Cue')['frame_start']} B keys={own_key_times('B')}",
     )
     names = sorted(td.name for td in widget.tracks())
     check(
@@ -358,12 +376,16 @@ try:
     pump()
     check(
         "delete clip: B's transform keys gone",
-        key_times("B") == [],
-        f"{key_times('B')}",
+        own_key_times("B") == [],
+        f"{own_key_times('B')}",
     )
     ctl.on_undo()
     pump()
-    check("undo restores B's keys", len(key_times("B")) == 11, f"{len(key_times('B'))}")
+    check(
+        "undo restores B's keys",
+        len(own_key_times("B")) == 11,
+        f"{own_key_times('B')}",
+    )
 
     # ---- playhead <-> scene frame, scrub arming, frame-change handler --------------------------
     scene = (
@@ -506,19 +528,23 @@ try:
         not any("Delete" in t for t in titles),
         f"{titles}",
     )
-    labels = (
-        ["---" if a.isSeparator() else a.text() for a in sub_menu.actions()]
-        if sub_menu is not None
-        else []
+    # One list of shots for Move and Copy: a Copy toggle (a widget row) heads
+    # the submenu, then a separator, then the shots.
+    rows = sub_menu.actions() if sub_menu is not None else []
+    toggle = (
+        rows[0].defaultWidget().findChild(QtWidgets.QCheckBox)
+        if rows and isinstance(rows[0], QtWidgets.QWidgetAction)
+        else None
     )
+    labels = ["---" if a.isSeparator() else a.text() for a in rows[1:]]
     check(
-        "clip menu: Move to Shot leads with the neighbours, then the named shots",
-        labels[:2] == ["Previous Shot  (B)", "---"],
-        f"{labels}",
+        "clip menu: Move to Shot leads with the Copy toggle, the neighbours, then the named shots",
+        toggle is not None and labels[:3] == ["---", "Previous Shot  (B)", "---"],
+        f"toggle={toggle is not None} {labels}",
     )
     check(
         "clip menu: Move to Shot lists the OTHER shots only",
-        len(labels) == 4 and all("C" not in lab.split("  ")[0] for lab in labels[2:]),
+        len(labels) == 5 and all("C" not in lab.split("  ")[0] for lab in labels[3:]),
         f"{labels}",
     )
 

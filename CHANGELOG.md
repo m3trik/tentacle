@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- The live Blender sequencer check reads an object's own keys and expects Move to Shot's Copy toggle (`test/blender/shot_sequencer_live_check.py`).** It failed 5 of 53 since Oct 10-12 against two deliberate changes (the Copy toggle; the downstream shot's claimed pose sample); test-only.
+  - Test(s): `shot_sequencer_live` --in-blender 53/53 (main tree and clean HEAD).
 - **2026-10-28 -- Scene's import and foreign export use the switchboard's busy cursor (`slots/scene.py`).** The raw `setOverrideCursor` / `restoreOverrideCursor` pair restored whatever cursor sat on top of the stack, not its own; `self.sb.busy_cursor()` pops its own entry. The launcher's lint exemption (`pyproject.toml`) keeps only `T201` and `C901`, for the host-console prints and the live-input poller.
   - Test(s): `test_scene_mixin.py` (its stand-in switchboard records `busy_cursor`).
 - **2026-10-28 -- The per-host Slots bases are gone (`slots/maya/_slots_maya.py`, `slots/blender/_slots_blender.py` removed; `MOVED_NAMES` `SlotsMaya` / `SlotsBlender` -> `tentacle.Slots`).** Every forked category is composed, so `slots/maya` and `slots/blender` hold only the native-menu wrappers, which subclass `Slots`; their lint and layer-role exemptions are gone (`pyproject.toml`). Logged instead of printed: the command-port and settings failure lines. Split for size: Hierarchy Sync's `apply_diff_options` and the Shot Sequencer's `_apply_clip_move` (no behavior change).
