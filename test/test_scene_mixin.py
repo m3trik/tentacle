@@ -11,6 +11,7 @@ Import list's pull body; Check GLB / FBX; the Tools list -- runs without ``maya.
 or ``bpy``. The host operations themselves are tested in mayatk and blendertk.
 """
 
+import contextlib
 import os
 import sys
 import unittest
@@ -181,13 +182,14 @@ class _FakeSwitchboard:
         self.save_kwargs = None
         self.open_kwargs = None
         self.cursors = []
-        self.QtWidgets = _Attr(
-            QApplication=_Attr(
-                setOverrideCursor=lambda *a: self.cursors.append("set"),
-                restoreOverrideCursor=lambda *a: self.cursors.append("restore"),
-            )
-        )
-        self.QtCore = _Attr(Qt=_Attr(WaitCursor=object()))
+
+    @contextlib.contextmanager
+    def busy_cursor(self):
+        self.cursors.append("set")
+        try:
+            yield
+        finally:
+            self.cursors.append("restore")
 
     def progress(self, **kwargs):
         return _FakeProgress()

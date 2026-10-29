@@ -31,7 +31,6 @@ import sys
 import os
 import traceback
 from pathlib import Path
-from types import SimpleNamespace as NS
 
 MONO = Path(__file__).resolve().parents[3]
 for pkg in ("pythontk", "uitk", "tentacle", "blendertk"):

@@ -667,7 +667,8 @@ def _input_main():
         )  # tells product breakage from context artifact
 
         HTCAPTION, HTRIGHT, HTBOTTOM = 2, 11, 15
-        mid_x = lambda r: (r[0] + r[2]) // 2
+        def mid_x(r):
+            return (r[0] + r[2]) // 2
 
         def _bottom(r):
             return _find_grab(

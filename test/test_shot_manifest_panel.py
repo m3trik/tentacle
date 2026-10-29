@@ -33,7 +33,7 @@ def setUpModule():
 # ---------------------------------------------------------------------------
 # Imports under test
 # ---------------------------------------------------------------------------
-from mayatk.anim_utils.shots._shots import ShotBlock, ShotStore
+from mayatk.anim_utils.shots._shots import ShotStore
 from mayatk.anim_utils.shots.shot_manifest._shot_manifest import (
     BuilderStep,
     BuilderObject,

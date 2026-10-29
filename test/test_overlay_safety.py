@@ -1,7 +1,7 @@
 import unittest
-from qtpy import QtWidgets, QtCore
-from unittest.mock import MagicMock, patch
-from uitk.widgets.marking_menu.overlay import Overlay, Path
+from qtpy import QtWidgets
+from unittest.mock import MagicMock
+from uitk.widgets.marking_menu.overlay import Overlay
 
 
 from _host import qt_widgets_available as _can_create_widgets

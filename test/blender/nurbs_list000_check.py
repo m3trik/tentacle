@@ -350,5 +350,5 @@ except Exception:
     lines.append("FAIL unhandled exception")
 
 print("\n".join(lines))
-ok = all(l.startswith("OK") for l in lines) and lines
-print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for l in lines if l.startswith('OK'))}/{len(lines)})")
+ok = all(line.startswith("OK") for line in lines) and lines
+print(f"===RESULT: {'PASS' if ok else 'FAIL'}=== ({sum(1 for line in lines if line.startswith('OK'))}/{len(lines)})")

@@ -15,7 +15,6 @@ grabbing the mouse takes. Read the dump, then fix the bridge accordingly. Window
 import sys
 import os
 import ctypes
-from ctypes import wintypes
 from pathlib import Path
 
 MONO = Path(__file__).resolve().parents[3]

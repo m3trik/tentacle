@@ -256,7 +256,7 @@ def _report_and_quit():
             else "NO — the addon item keeps the old key, so the bridge must read the USER keyconfig"
         ),
     )
-    adopted = f"setkey:Key_F12" in _result.get("adopt", [])
+    adopted = "setkey:Key_F12" in _result.get("adopt", [])
     print(
         "adoption  =",
         (

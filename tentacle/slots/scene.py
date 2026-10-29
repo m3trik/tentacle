@@ -355,21 +355,18 @@ class SceneSlots(Slots):
         )
         if not src:
             return
-        app = self.sb.QtWidgets.QApplication
-        app.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            if importer is not None:
-                imported = importer(src)
-            else:
-                engine = self.tk.EnvUtils.foreign_scene_import()
-                imported = engine().import_scene(src, via=self._transfer_carrier())
+            with self.sb.busy_cursor():
+                if importer is not None:
+                    imported = importer(src)
+                else:
+                    engine = self.tk.EnvUtils.foreign_scene_import()
+                    imported = engine().import_scene(src, via=self._transfer_carrier())
         except Exception as error:  # noqa: BLE001 - every engine failure, one report
             self.sb.message_box(
                 f"{kind} import failed: <hl>{html.escape(str(error))}</hl>"
             )
             return
-        finally:
-            app.restoreOverrideCursor()
         self.sb.message_box(
             f"Imported <hl>{len(imported)}</hl> object(s) from "
             f"<hl>{os.path.basename(src)}</hl>."
@@ -873,19 +870,16 @@ class SceneSlots(Slots):
         """
         bridge = self._foreign_bridge()
         app = bridge.spec.app.name  # the TARGET app
-        qapp = self.sb.QtWidgets.QApplication
-        qapp.setOverrideCursor(self.sb.QtCore.Qt.WaitCursor)
         try:
-            result = bridge().save_as(
-                out_path, objects, params={ptk.CARRIER_PARAM: carrier}
-            )
+            with self.sb.busy_cursor():
+                result = bridge().save_as(
+                    out_path, objects, params={ptk.CARRIER_PARAM: carrier}
+                )
         except Exception as error:  # noqa: BLE001 - every bridge failure, one report
             self.sb.message_box(
                 f"Export to {app} failed: <hl>{html.escape(str(error))}</hl>"
             )
             return None
-        finally:
-            qapp.restoreOverrideCursor()
 
         if not result:  # handled failure -- the bridge already logged the reason
             self.sb.message_box(

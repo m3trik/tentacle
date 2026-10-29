@@ -134,8 +134,10 @@ max-statements = 100
 
 [tool.ruff.lint.per-file-ignores]
 "**/templates/**" = ["F821"]  # exec-templates carry __PLACEHOLDER__ tokens substituted at run time
-# Unmoved code: the guardrails start on the new layout, not here.
-"tentacle/tcl*.py" = ["C901", "PLR0904", "PLR0915", "T201"]
+# The launcher writes to the host console (Maya's "# Warning: ... #" lines, Blender's
+# console before any logger exists); install_poller's tick is live-input code that only
+# real key gestures verify.
+"tentacle/tcl*.py" = ["C901", "T201"]
 # A bootstrap: it runs before qtpy is installed, and prints to the host console.
 "tentacle/tentacle_installer.py" = ["C901", "PLR0904", "PLR0915", "T201", "TID251"]
 "test/**" = ["C901", "PLR0904", "PLR0915", "T201"]
