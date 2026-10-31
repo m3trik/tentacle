@@ -157,9 +157,11 @@ class NamingSlots(Slots):
                 body="What every operation acts on.",
                 bullets=[
                     "<b>Selection</b> — the current selection.",
-                    "<b>Scene</b> — every renameable object in the scene (Maya "
-                    "leaves out its default and read-only nodes, and shapes: a "
-                    "shape follows its transform).",
+                    "<b>Scene</b> — your objects in the scene: transforms, and "
+                    "the node types Suffix By Type names (materials, shading "
+                    "groups, sets, layers, deformers). Never Maya's default, "
+                    "read-only or system nodes, history, or shapes (a shape "
+                    "follows its transform).",
                     "<b>Directory</b> — the files in a directory you pick "
                     "(not its sub-directories).",
                     "<b>Files</b> — files you pick.",
@@ -238,8 +240,9 @@ class NamingSlots(Slots):
                             "<b>Strip Chars</b> — remove leading or trailing "
                             "characters.",
                             "<b>Suffix By Location</b> — auto-number objects by "
-                            "distance from a reference point (alphabetical or "
-                            "integer). Scene only.",
+                            "location (alphabetical or integer): along an axis "
+                            "(Auto picks the one they are most spread out on) or "
+                            "by distance from a reference point. Scene only.",
                             "<b>Suffix By Type</b> — append type-based suffixes "
                             "(<code>_GEO</code>, <code>_GRP</code>, "
                             "<code>_JNT</code>, …). Suffix strings are "
@@ -789,17 +792,46 @@ class NamingSlots(Slots):
     # Suffix By Location
     # ------------------------------------------------------------------
 
+    #: Suffix By Location's Order items -> the engine's ``(order,
+    #: first_obj_as_ref)``. The combo saves its index, so the two distance items
+    #: keep their place and meaning, and the axis items are appended.
+    LOCATION_ORDERS = {
+        "Scene Origin": ("distance", False),
+        "First Object": ("distance", True),
+        "Auto Axis": ("auto", False),
+        "X Axis": ("x", False),
+        "Y Axis": ("y", False),
+        "Z Axis": ("z", False),
+    }
+
     def tb001_init(self, widget):
         """Initialize Suffix By Location"""
         widget.option_box.menu.setTitle("Suffix By Location")
-        # Reference point is a choice between two named origins, not a modifier.
+        # What the numbers follow: one choice, not a modifier. The objectName is
+        # a saved setting (it predates the axis orders).
         ref = widget.option_box.menu.add(
             "QComboBox",
             setObjectName="cmb_reference",
-            setToolTip="Scene Origin: measure from the world origin (0,0,0).\nFirst Object: measure from the first selected object.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Order",
+                body="What the numbers follow. An object's location is its pivot.",
+                bullets=[
+                    "<b>Scene Origin</b> — distance from the world origin.",
+                    "<b>First Object</b> — distance from the first selected "
+                    "object.",
+                    "<b>Auto Axis</b> — along the axis the objects are most "
+                    "spread out on, so a row is numbered along the row.",
+                    "<b>X / Y / Z Axis</b> — along that world axis, from its "
+                    "negative end to its positive end.",
+                ],
+                notes=[
+                    "A tie goes to the other axes, then the name — never to the "
+                    "selection order. <b>Reverse</b> numbers from the far end.",
+                ],
+            ),
         )
-        ref.addItems(["Scene Origin", "First Object"])
-        ref.setCurrentText("Scene Origin")  # preserve prior default (checkbox off)
+        ref.addItems(list(self.LOCATION_ORDERS))
+        ref.setCurrentText("Auto Axis")  # a new user's default; a saved index wins
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Alphabetical",
@@ -830,15 +862,18 @@ class NamingSlots(Slots):
             "QCheckBox",
             setText="Reverse",
             setObjectName="chk004",
-            setToolTip="Reverse the naming order. (Farthest object first)",
+            setToolTip="Reverse the naming order: the farthest object, or the "
+            "positive end of the axis, first.",
         )
 
     def tb001(self, widget):
-        """Suffix By Location: number the objects in scope by their distance from
-        the reference point (the engine keeps only what has a location: in
-        Maya, the transforms)."""
+        """Suffix By Location: number the objects in scope by location -- by
+        distance from a reference point, or along an axis (the engine keeps
+        only what has a location: in Maya, the transforms)."""
         menu = widget.option_box.menu
-        first_obj_as_ref = menu.cmb_reference.currentText() == "First Object"
+        order, first_obj_as_ref = self.LOCATION_ORDERS.get(
+            menu.cmb_reference.currentText(), ("auto", False)
+        )
         alphabetical = menu.chk005.isChecked()
         strip_trailing_ints = menu.tb001_chk002.isChecked()
         strip_defined_suffixes = menu.chk003.isChecked()
@@ -855,6 +890,7 @@ class NamingSlots(Slots):
             self.tk.Naming.append_location_based_suffix,
             objects,
             undo="Suffix By Location",
+            order=order,
             first_obj_as_ref=first_obj_as_ref,
             alphabetical=alphabetical,
             strip_trailing_ints=strip_trailing_ints,

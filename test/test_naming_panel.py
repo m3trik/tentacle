@@ -372,6 +372,7 @@ class TestNamingPanelScene(_PanelCase):
             {k: v for k, v in kwargs.items() if k != "valid_suffixes"},
             {
                 "dry_run": False,
+                "order": "distance",
                 "first_obj_as_ref": True,
                 "alphabetical": True,
                 "strip_trailing_ints": False,
@@ -406,6 +407,37 @@ class TestNamingPanelScene(_PanelCase):
                     ["|a", "|b"], case, dry_run=False
                 )
                 self.assertEqual(ptk.StrUtils.set_case("myBigBox", case), result)
+
+    def test_suffix_by_location_orders_by_axis_or_distance(self):
+        """The Order combo saves its index: the two distance items keep their
+        place and meaning, the axis items follow, and a new user starts on Auto."""
+        items = list(NamingSlots.LOCATION_ORDERS)
+        self.assertEqual(items[:2], ["Scene Origin", "First Object"])
+        self.assertEqual(items[2:], ["Auto Axis", "X Axis", "Y Axis", "Z Axis"])
+        expected = {
+            "Scene Origin": ("distance", False),
+            "First Object": ("distance", True),
+            "Auto Axis": ("auto", False),
+            "X Axis": ("x", False),
+            "Y Axis": ("y", False),
+            "Z Axis": ("z", False),
+        }
+        for label, (order, first) in expected.items():
+            with self.subTest(label=label):
+                slots, sb = _panel()
+                menu = sb.loaded_ui.naming.tb001.option_box.menu
+                menu.cmb_reference.currentText.return_value = label
+                for box in ("chk005", "tb001_chk002", "chk003", "chk004", "tb001_chk007"):
+                    getattr(menu, box).isChecked.return_value = False
+                slots.tb001(sb.loaded_ui.naming.tb001)
+                _args, kwargs = sb.tk.Naming.append_location_based_suffix.call_args
+                self.assertEqual((kwargs["order"], kwargs["first_obj_as_ref"]), (order, first))
+        slots, sb = _panel()
+        widget = mock.MagicMock()
+        slots.tb001_init(widget)
+        ref = widget.option_box.menu.add.return_value
+        ref.addItems.assert_any_call(items)
+        ref.setCurrentText.assert_any_call("Auto Axis")
 
     def test_suffix_by_type_passes_spelling_and_placement(self):
         slots, sb = _panel()
