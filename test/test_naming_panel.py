@@ -385,6 +385,28 @@ class TestNamingPanelScene(_PanelCase):
             [("Convert Case",), ("Strip Chars",), ("Suffix By Location",)],
         )
 
+    def test_convert_case_keeps_the_rest_of_the_name(self):
+        """Capitalize / Title raise first letters only: Python's own turned
+        'myBigBox' into 'Mybigbox'. The items (a saved index) stay as they were."""
+        self.assertEqual(
+            list(NamingSlots.CASE_MODES),
+            ["capitalize", "upper", "lower", "swapcase", "title"],
+        )
+        for label, case, result in (
+            ("capitalize", "upper_first", "MyBigBox"),
+            ("title", "upper_initials", "MyBigBox"),
+            ("upper", "upper", "MYBIGBOX"),
+        ):
+            with self.subTest(label=label):
+                slots, sb = _panel()
+                ui = sb.loaded_ui.naming
+                ui.tb000.option_box.menu.cmb001.currentText.return_value = label
+                slots.tb000(ui.tb000)
+                sb.tk.Naming.set_case.assert_called_once_with(
+                    ["|a", "|b"], case, dry_run=False
+                )
+                self.assertEqual(ptk.StrUtils.set_case("myBigBox", case), result)
+
     def test_suffix_by_type_passes_spelling_and_placement(self):
         slots, sb = _panel()
         menu = sb.loaded_ui.naming.tb003.option_box.menu

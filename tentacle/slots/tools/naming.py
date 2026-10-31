@@ -233,7 +233,8 @@ class NamingSlots(Slots):
                             "<b>Rename</b> — replace matched names with a new "
                             "pattern. Option box: retain a defined type suffix.",
                             "<b>Convert Case</b> — upper / lower / title / "
-                            "capitalize / swapcase the names.",
+                            "capitalize / swapcase the names (title and "
+                            "capitalize keep the rest of each name's case).",
                             "<b>Strip Chars</b> — remove leading or trailing "
                             "characters.",
                             "<b>Suffix By Location</b> — auto-number objects by "
@@ -734,19 +735,46 @@ class NamingSlots(Slots):
     # Convert Case
     # ------------------------------------------------------------------
 
+    #: Convert Case's items -> the ``ptk.StrUtils.set_case`` case each applies.
+    #: Capitalize and Title raise first letters and keep the rest
+    #: (``myBigBox`` -> ``MyBigBox``, ``arm_L_ctrl`` -> ``Arm_L_Ctrl``), where
+    #: Python's own lower every other letter. The combo saves its index: append.
+    CASE_MODES = {
+        "capitalize": "upper_first",
+        "upper": "upper",
+        "lower": "lower",
+        "swapcase": "swapcase",
+        "title": "upper_initials",
+    }
+
     def tb000_init(self, widget):
         """Initialize Convert Case"""
         widget.option_box.menu.setTitle("Convert Case")
         widget.option_box.menu.add(
             "QComboBox",
-            addItems=["capitalize", "upper", "lower", "swapcase", "title"],
+            addItems=list(self.CASE_MODES),
             setObjectName="cmb001",
-            setToolTip="Set desired python case operator.",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Case",
+                bullets=[
+                    "<b>capitalize</b> — the first letter upper case "
+                    "(<code>myBigBox</code> → <code>MyBigBox</code>).",
+                    "<b>upper</b> / <b>lower</b> — every letter.",
+                    "<b>swapcase</b> — every letter's case flipped.",
+                    "<b>title</b> — each word's first letter upper case "
+                    "(<code>arm_L_ctrl</code> → <code>Arm_L_Ctrl</code>).",
+                ],
+                notes=[
+                    "Capitalize and Title only raise letters: the rest of the "
+                    "name keeps its case.",
+                ],
+            ),
         )
 
     def tb000(self, widget):
         """Convert Case"""
-        case = widget.option_box.menu.cmb001.currentText()
+        label = widget.option_box.menu.cmb001.currentText()
+        case = self.CASE_MODES.get(label, label)
 
         self._begin()
         if self._run_on_files(ptk.FileNaming.set_case, case):
