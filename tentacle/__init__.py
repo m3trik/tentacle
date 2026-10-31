@@ -41,6 +41,14 @@ MOVED_NAMES = {
     "SceneMixin": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
     "UvMixin": ("tentacle.slots.uv.UvSlots", "0.17.0"),
     "AnimationMixin": ("tentacle.slots.animation.AnimationSlots", "0.17.0"),
+    # Panels merged into one tool (``slots.tools.RENAMED_FROM``).
+    "BlenderBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
+    "MayaBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
+    "WorkspaceMapSlots": ("tentacle.slots.tools.workspaces.WorkspacesSlots", "0.17.0"),
+    "WorkspaceEditorSlots": (
+        "tentacle.slots.tools.workspaces.WorkspacesSlots",
+        "0.17.0",
+    ),
 }
 
 

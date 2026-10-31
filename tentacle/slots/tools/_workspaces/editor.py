@@ -1,18 +1,19 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
-project-root field, one file-rules table, and rule edits that write through to
-``workspace.mel`` at once (no Accept step).
+"""The Workspaces panel's editor: the minimal take on Maya's File ▸ Project
+Window -- one project-root field, one file-rules table, and rule edits that write
+through to ``workspace.mel`` at once (no Accept step).
 
-A Blender tool (``tentacle.slots.tools.HOSTS``): Blender has no project system,
-so this panel is its project window, while Maya's own Project Window is Maya's
-(the Workspace tab's Edit Workspace row opens each host's; Maya users are never
-offered a second one).
+Private to :mod:`tentacle.slots.tools.workspaces`, which builds it where the host
+serves the editor's group (``requires="blender"`` in the ``.ui``): Blender has no
+project system, so this is its project window, while Maya's own Project Window
+is Maya's (the Workspace tab's Edit Workspace row opens each host's; Maya users
+are never offered a second one).
 
-- **Project Root**: a single path field. Browsing to or typing an existing
-  workspace loads its rules and makes it the current workspace; a fresh path
-  shows the active template, and the project (marker + folders) is created, and
-  made current, by **Create Project** or by the first rule edit. Option-box
+- **Project Root**: a single path field (``txt002``). Browsing to or typing an
+  existing workspace loads its rules and makes it the current workspace; a fresh
+  path shows the active template, and the project (marker + folders) is created,
+  and made current, by **Create Project** or by the first rule edit. Option-box
   icons: browse, and open in the file browser.
 - **Rule table**: RULE ▸ LOCATION plus per-row icons (reset the rule to its
   template default, remove it). Every committed edit, add, remove, reset or
@@ -35,30 +36,43 @@ import os
 import pythontk as ptk
 from qtpy import QtCore, QtWidgets
 
-from tentacle import Slots
 
+class WorkspaceEditorPart(ptk.LoggingMixin):
+    """The editor's widgets and state (see the module docstring)."""
 
-class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
+    #: What the part reads off the host toolkit beyond what both carry: nothing
+    #: (``EnvUtils``' workspace functions are twins).
+    TOOLKIT_NEEDS = ()
+
     #: How long the root field waits after a keystroke before it retargets (ms).
     ROOT_SETTLE_MS = 500
 
-    def __init__(self, switchboard):
-        super().__init__(switchboard)
+    def __init__(self, slots):
+        super().__init__()
         self.logger.setLevel("WARNING")
-        self.logger.set_log_prefix("[workspace_editor] ")
-        self.ui = self.sb.loaded_ui.workspace_editor
+        self.logger.set_log_prefix("[workspaces] ")
+        self.slots = slots
+        self.sb = slots.sb
+        self.ui = slots.ui
         self._loaded_rules = {}  # rules as last written/read: the removal-diff baseline
         self._nice_view = True  # Maya's default: View in Nice names
         self._updating = False  # suppress write-through during programmatic populates
         self._preset_mgr = None  # uitk PresetManager over the workspace-template store
         self._root_gen = 0  # root-field debounce generation (see _on_root_changed)
 
+    @property
+    def tk(self):
+        """The host toolkit, the panel's (``Slots.tk``)."""
+        return self.slots.tk
+
     # ------------------------------------------------------------------ header
     def header_init(self, widget):
-        """Rule add, view toggle, reset/clear, template combo, help text."""
+        """Create Project, rule add, view toggle, reset/clear (dispatched by name
+        to the panel's slots), the template combo, and the editor's chrome (a
+        refresh that reloads the rules)."""
         widget.config_buttons("refresh", "menu", "collapse", "hide")
         widget.refresh_requested.connect(self._load)
-        widget.menu.add("Separator", setTitle="Project:")
+        widget.menu.add("Separator", setTitle="Project Root:")
         widget.menu.add(
             "QPushButton",
             setText="Create Project",
@@ -66,7 +80,7 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
             setToolTip="Build the project at the current root now: marker + the active\n"
             "template's rule folders (Maya's File ▸ Project Window ▸ New). Editing\n"
             "any rule does this implicitly; this is the explicit verb.",
-        ).clicked.connect(self.create_project)
+        )
         widget.menu.add("Separator", setTitle="File Rules:")
         widget.menu.add(
             "QPushButton",
@@ -75,7 +89,7 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
             setToolTip="Append an empty rule row (Maya's Custom Data Locations ▸ Add new\n"
             "file rule); it saves once both cells are filled in. Added in Nice Names\n"
             "view, a known label (e.g. 'Render Data') resolves to its rule key.",
-        ).clicked.connect(self.add_rule)
+        )
         widget.menu.add(
             "QCheckBox",
             setText="View File Rules",
@@ -83,7 +97,7 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
             setChecked=False,
             setToolTip="Show raw file-rule keys instead of nice names, and make the rule\n"
             "column editable (Maya's Edit ▸ View in File Rules).",
-        ).toggled.connect(self._on_view_toggled)
+        )
         widget.menu.add("Separator", setTitle="Edit:")
         widget.menu.add(
             "QPushButton",
@@ -91,14 +105,14 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
             setObjectName="btn_reset",
             setToolTip="Restore the default file rules (the active template's) and save\n"
             "(Maya's Edit ▸ Reset Settings, applied immediately).",
-        ).clicked.connect(self.reset_rules)
+        )
         widget.menu.add(
             "QPushButton",
             setText="Clear Settings",
             setObjectName="btn_clear",
             setToolTip="Remove every file rule from the project and save (Maya's Edit ▸\n"
             "Clear Settings, applied immediately; hand-written lines survive).",
-        ).clicked.connect(self.clear_rules)
+        )
         widget.menu.add("Separator", setTitle="Templates:")
         combo = widget.menu.add(
             self.sb.ComboBox,
@@ -114,31 +128,33 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
             value_applier=self._apply_template,
         )
         self._preset_mgr.wire_combo(combo, placeholder="Templates…")
-        widget.set_help_text(
-            self.sb.tooltip.fmt(
-                title="Workspace Editor (Project Window)",
-                body="Define a shared Maya/Blender project workspace, the mirror of "
-                "Maya's File ▸ Project Window. File rules map a location (Scenes, "
-                "Source Images, …) to a folder; both applications resolve through "
-                "the rules, never through hardcoded folder names. Edits save to "
-                "workspace.mel immediately: there is no Accept step.",
-                steps=[
-                    "Set the <b>Project Root</b> (▸ browses; an existing workspace "
-                    "loads its rules and becomes the current workspace, a fresh path "
-                    "shows the active template).",
-                    "<b>Create Project</b> (header menu) builds it: marker + rule "
-                    "folders. Editing any rule on a fresh path does the same "
-                    "implicitly.",
-                    "Edit the rule table (<b>double-click</b> a location cell; the row "
-                    "icons reset a rule to its template default or remove it).",
-                    "The header menu adds rules, toggles Nice Names ↔ File Rules, "
-                    "and resets/clears the rules.",
-                    "The <b>Templates</b> combo saves/loads named rule sets; the "
-                    "active one defines how every new workspace is built, in "
-                    "<i>both</i> applications (Maya reads the same store).",
-                ],
-            )
-        )
+
+    @staticmethod
+    def help_spec() -> dict:
+        """The editor's help (``tooltip.fmt`` keywords); the panel composes the card."""
+        return {
+            "title": "Workspace Editor (Project Window)",
+            "body": "Define a shared Maya/Blender project workspace, the mirror of "
+            "Maya's File ▸ Project Window. File rules map a location (Scenes, "
+            "Source Images, …) to a folder; both applications resolve through "
+            "the rules, never through hardcoded folder names. Edits save to "
+            "workspace.mel immediately: there is no Accept step.",
+            "steps": [
+                "Set the <b>Project Root</b> (▸ browses; an existing workspace "
+                "loads its rules and becomes the current workspace, a fresh path "
+                "shows the active template).",
+                "<b>Create Project</b> (header menu) builds it: marker + rule "
+                "folders. Editing any rule on a fresh path does the same "
+                "implicitly.",
+                "Edit the rule table (<b>double-click</b> a location cell; the row "
+                "icons reset a rule to its template default or remove it).",
+                "The header menu adds rules, toggles Nice Names ↔ File Rules, "
+                "and resets/clears the rules.",
+                "The <b>Templates</b> combo saves/loads named rule sets; the "
+                "active one defines how every new workspace is built, in "
+                "<i>both</i> applications (Maya reads the same store).",
+            ],
+        }
 
     # ------------------------------------------------------------------ fields
     @staticmethod
@@ -170,7 +186,7 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
         signal.connect(handler)
         conns[signal_name] = handler
 
-    def txt000_init(self, widget):
+    def txt002_init(self, widget):
         """Project Root: one full path (browse + open-folder option-box actions)."""
         if not getattr(widget, "is_initialized", False):
             widget.refresh_on_show = True
@@ -228,7 +244,7 @@ class WorkspaceEditorSlots(Slots, ptk.LoggingMixin):
     # ------------------------------------------------------------------ root resolution
     def _root(self):
         """The project root path ('' when unset)."""
-        widget = getattr(self.ui, "txt000", None)
+        widget = getattr(self.ui, "txt002", None)
         return widget.text().strip() if widget is not None else ""
 
     def _on_root_changed(self, _text=None):

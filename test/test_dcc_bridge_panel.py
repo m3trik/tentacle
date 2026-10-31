@@ -1,26 +1,27 @@
 #!/usr/bin/python
 # coding=utf-8
-"""The cross-DCC send pair: Blender Bridge (a Maya tool) and Maya Bridge (a
-Blender tool), each one Slots class on ``HostBridge``.
+"""The DCC Bridge (``slots/tools/dcc_bridge.py``): one Slots class on ``HostBridge``
+that sends to the other DCC -- the Blender Bridge in Maya, the Maya Bridge in
+Blender.
 
-Each library ships the bridge named after its TARGET app, so the two tools never
-share a host: ``BlenderBridgeSlots`` (``slots/tools/blender_bridge.py``) drives
-``mtk.BlenderBridge``, ``MayaBridgeSlots`` (``slots/tools/maya_bridge.py``) drives
-``btk.MayaBridge``, and ``tentacle.slots.tools.HOSTS`` registers each on its one
-host. Both reach the host only through ``self.tk``: the engine (its registry,
-template folder and ``(template, mode)`` list), ``BridgeHost`` for the Scope, and
-(Blender Bridge's save dialog) ``EnvUtils`` for the scene's name. A fake toolkit
-stands in for ``mtk`` / ``btk`` and records what each panel asks of it.
+Each library ships the bridge named after its TARGET app, so the engine is the
+host's bridge to the other app (``EnvUtils.foreign_scene_bridge``): mayatk's
+``BlenderBridge``, blendertk's ``MayaBridge``. The panel reaches the host only
+through ``self.tk``: the engine (its registry, template folder, ``(template,
+mode)`` list and app name), ``BridgeHost`` for the Scope, and (the save dialog)
+``EnvUtils`` for the scene's name. A fake toolkit per host stands in for ``mtk`` /
+``btk`` and records what the panel asks of it.
 
-The unit cases run each panel's methods on an instance never built (``__new__``);
-then each loads for real through an offscreen Switchboard over the fake toolkit,
-and in Maya the Blender Bridge drives the real ``mtk`` (no Blender launches: the
+The unit cases run the panel's methods on an instance never built (``__new__``);
+then it loads for real through an offscreen Switchboard over each host's fake
+toolkit, and in Maya it drives the real ``mtk`` (no Blender launches: the
 engine's send is stood in for). The engines' own side is the libraries'
 (``test_blender_bridge.py`` in mayatk, ``test_maya_bridge.py`` in blendertk).
 """
 
 import os
 import shutil
+import sys
 import tempfile
 import types
 import unittest
@@ -31,14 +32,13 @@ from unittest import mock
 import tentacle
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots.tools._app_bridge.host_bridge import HostBridge
-from tentacle.slots.tools.blender_bridge import BlenderBridgeSlots
-from tentacle.slots.tools.maya_bridge import MayaBridgeSlots
+from tentacle.slots.tools.dcc_bridge import DccBridgeSlots
 
-UI_DIR = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
+UI_FILE = Path(tentacle.__file__).resolve().parent / "ui" / "tools" / "dcc_bridge.ui"
 
 
 # ---------------------------------------------------------------------------
-# The fake toolkit
+# The fake toolkits
 # ---------------------------------------------------------------------------
 
 
@@ -63,15 +63,54 @@ class _Registry:
     PARAMS = {"SCOPE": None, "CLEAR_SCENE": None}
 
 
-class _BlenderEngine:
-    """``mtk.BlenderBridge``'s surface: a script-launch engine with blocking modes.
+class _Engine:
+    """What both hosts' bridges to the other app share: a script-launch engine
+    over a template folder, with an app name and a run spec."""
 
-    ``bake_lightmaps`` derives its artifact (``BRIDGE_OUTPUT = auto``),
-    ``save_blend`` asks for it, ``save_usd`` declares an extension the engine
-    cannot write.
-    """
-
+    APP = ""
     TEMPLATE_DIR = Path("templates")
+    save_extensions = ()
+    run_spec = types.SimpleNamespace(modes=("save_as",))
+
+    def __init__(self):
+        self.logger = _Log()
+        self.app_path = f"C:/{self.APP}/{self.APP.lower()}.exe"
+        self.app_spec = types.SimpleNamespace(not_found_message=self.not_found())
+        self.calls = []
+
+    @classmethod
+    def not_found(cls):
+        return f"{cls.APP} executable not found."
+
+    @classmethod
+    def params_registry(cls):
+        return _Registry
+
+    @classmethod
+    def list_template_modes(cls):
+        return [("import", "send_to")]
+
+    def send(self, **kwargs):
+        self.calls.append(("send", kwargs))
+        return {}
+
+    def save_as(self, out_path, **kwargs):
+        self.calls.append(("save_as", out_path, kwargs))
+        return {"output": out_path}
+
+    def round_trip(self, **kwargs):
+        self.calls.append(("round_trip", kwargs))
+        return {"output": kwargs["out"], "reassembled": ["|a", "|b"]}
+
+
+class _BlenderEngine(_Engine):
+    """``mtk.BlenderBridge``'s surface: blocking modes read off each template's
+    declarations. ``bake_lightmaps`` derives its artifact (``BRIDGE_OUTPUT =
+    auto``), ``save_blend`` asks for it, ``save_usd`` declares an extension the
+    engine cannot write."""
+
+    APP = "Blender"
+    spec = types.SimpleNamespace(app=types.SimpleNamespace(name="Blender"))
     save_extensions = (".blend", ".json")
     run_spec = types.SimpleNamespace(modes=("save_as", "round_trip"))
     DECLARED = {
@@ -84,17 +123,6 @@ class _BlenderEngine:
         "save_blend": {},
         "save_usd": {"BRIDGE_OUTPUT_EXT": ".usd"},
     }
-    NOT_FOUND = "Blender executable not found."
-
-    def __init__(self):
-        self.logger = _Log()
-        self.app_path = "C:/Blender/blender.exe"
-        self.app_spec = types.SimpleNamespace(not_found_message=self.NOT_FOUND)
-        self.calls = []
-
-    @classmethod
-    def params_registry(cls):
-        return _Registry
 
     @classmethod
     def list_template_modes(cls):
@@ -125,61 +153,48 @@ class _BlenderEngine:
     def default_output_path(self, template):
         return f"C:/temp/{template}.lightmaps.json"
 
-    def send(self, **kwargs):
-        self.calls.append(("send", kwargs))
-        return {}
 
-    def save_as(self, out_path, **kwargs):
-        self.calls.append(("save_as", out_path, kwargs))
-        return {"output": out_path}
+class _MayaEngine(_Engine):
+    """``btk.MayaBridge``'s surface: one interactive import template; its run spec
+    serves ``save_as``, but it reads no template declarations."""
 
-    def round_trip(self, **kwargs):
-        self.calls.append(("round_trip", kwargs))
-        return {"output": kwargs["out"], "reassembled": ["|a", "|b"]}
-
-
-class _MayaEngine(_BlenderEngine):
-    """``btk.MayaBridge``'s surface: one interactive import template."""
-
+    APP = "Maya"
+    spec = types.SimpleNamespace(app=types.SimpleNamespace(name="Maya"))
     save_extensions = (".ma", ".mb")
-    run_spec = types.SimpleNamespace(modes=("save_as",))
-    NOT_FOUND = "Maya executable not found."
-
-    @classmethod
-    def list_template_modes(cls):
-        return [("import", "send_to")]
 
 
-def _toolkit(name):
-    """``mtk`` / ``btk`` as the panels reach them: by name, nothing else. Each
-    library carries only the engine for the OTHER app."""
+#: Per host: (its toolkit's name, its bridge to the other app, the Send label).
+HOSTS = {
+    "maya": ("mayatk", _BlenderEngine, "Send to Blender"),
+    "blender": ("blendertk", _MayaEngine, "Send to Maya"),
+}
+
+
+#: What the panel may ask ``EnvUtils``: names BOTH libraries serve, so a call
+#: only one host answers fails here instead of in the other host's session.
+ENV_UTILS_ASKED = ("foreign_scene_bridge", "saved_scene_path")
+
+
+def _toolkit(host, engine=None):
+    """``mtk`` / ``btk`` as the panel reaches them: by name, nothing else. Each
+    library's bridge to the other app is the one ``EnvUtils`` names."""
+    name, default_engine, _label = HOSTS[host]
     tk = types.SimpleNamespace(
         __name__=name,
         BridgeHost=mock.MagicMock(name="BridgeHost"),
-        EnvUtils=mock.MagicMock(name="EnvUtils"),
+        EnvUtils=mock.MagicMock(name="EnvUtils", spec=list(ENV_UTILS_ASKED)),
     )
-    if name == "mayatk":
-        tk.BlenderBridge = _BlenderEngine
-    else:
-        tk.MayaBridge = _MayaEngine
+    tk.EnvUtils.foreign_scene_bridge.return_value = engine or default_engine
     return tk
 
 
-#: The two tools: (Slots class, its one host's toolkit name, its engine, button).
-TOOLS = (
-    (BlenderBridgeSlots, "mayatk", _BlenderEngine, "Send to Blender"),
-    (MayaBridgeSlots, "blendertk", _MayaEngine, "Send to Maya"),
-)
-
-
-def _stub(cls, params=None, pair=("import", "send_to"), objects=("|a",)):
-    """A *cls* panel never built, over the attributes its methods read; the
-    Scope resolves to *objects* and ships them as they are."""
-    _cls, host, engine, _label = next(t for t in TOOLS if t[0] is cls)
-    slots = cls.__new__(cls)
+def _stub(host, params=None, pair=("import", "send_to"), objects=("|a",)):
+    """The panel in *host*, never built, over the attributes its methods read;
+    the Scope resolves to *objects* and ships them as they are."""
+    slots = DccBridgeSlots.__new__(DccBridgeSlots)
     slots.sb = mock.MagicMock(name="switchboard")
     slots.sb.tk = _toolkit(host)
-    slots._bridge = engine()
+    slots._bridge = HOSTS[host][1]()
     slots._output_dir_edit = None
     slots._selected_template_mode = lambda: pair
     slots.collect_param_values = lambda: dict(params or {})
@@ -195,36 +210,28 @@ def _stub(cls, params=None, pair=("import", "send_to"), objects=("|a",)):
 # ---------------------------------------------------------------------------
 
 
-class TestCrossDccBridgeShape(unittest.TestCase):
-    def test_each_is_one_class_on_the_bridge_base(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                self.assertEqual(cls.__bases__, (HostBridge,))
-                self.assertFalse(cls.REQUIRE_OUTPUT_DIR)
-                self.assertEqual(cls.LOG_TAG, cls.UI_NAME)
+class TestDccBridgeShape(unittest.TestCase):
+    def test_one_class_on_the_bridge_base(self):
+        self.assertEqual(DccBridgeSlots.__bases__, (HostBridge,))
+        self.assertFalse(DccBridgeSlots.REQUIRE_OUTPUT_DIR)
+        self.assertEqual(DccBridgeSlots.UI_NAME, "dcc_bridge")
+        self.assertEqual(DccBridgeSlots.LOG_TAG, DccBridgeSlots.UI_NAME)
 
-    def test_each_is_named_after_its_target_app(self):
-        self.assertEqual(BlenderBridgeSlots.UI_NAME, "blender_bridge")
-        self.assertEqual(MayaBridgeSlots.UI_NAME, "maya_bridge")
-        self.assertEqual(BlenderBridgeSlots.HELP_SPEC["title"], "Blender Bridge")
-        self.assertEqual(MayaBridgeSlots.HELP_SPEC["title"], "Maya Bridge")
-
-    def test_the_help_names_the_button_the_ui_shows(self):
-        for cls, _host, _engine, label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                root = ET.parse(UI_DIR / f"{cls.UI_NAME}.ui").getroot()
-                text = root.find(
-                    ".//widget[@name='b000']/property[@name='text']/string"
-                ).text
-                self.assertEqual(text, label)
-                self.assertIn(f"<b>{label}</b>", " ".join(cls.HELP_SPEC["steps"]))
+    def test_the_ui_names_no_app(self):
+        """The ``.ui`` is shared: what names the target is set from the engine."""
+        root = ET.parse(UI_FILE).getroot()
+        text = " ".join(s.text or "" for s in root.iter("string"))
+        for app in ("Blender", "Maya"):
+            self.assertNotIn(f"Send to {app}", text)
+        self.assertNotIn("BLENDER BRIDGE", text)
+        self.assertNotIn("MAYA BRIDGE", text)
 
 
-class TestCrossDccBridgeAsksItsHost(unittest.TestCase):
+class TestDccBridgeAsksItsHost(unittest.TestCase):
     def test_the_engine_is_the_hosts_bridge_to_the_other_app(self):
-        for cls, _host, engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls)
+        for host, (_name, engine, _label) in HOSTS.items():
+            with self.subTest(host=host):
+                slots = _stub(host)
                 self.assertIs(slots.bridge_class, engine)
                 self.assertIsInstance(slots.make_bridge(), engine)
                 self.assertIs(slots.params_module, _Registry)
@@ -232,37 +239,79 @@ class TestCrossDccBridgeAsksItsHost(unittest.TestCase):
                 self.assertEqual(
                     slots.list_template_modes(), engine.list_template_modes()
                 )
+                self.assertEqual(slots.target_app, engine.APP)
+
+    def test_what_the_panel_asks_envutils_both_libraries_serve(self):
+        """``ENV_UTILS_ASKED`` specs the fake, so it must hold of both real
+        libraries: each name callable on ``mtk.EnvUtils`` and ``btk.EnvUtils``
+        (both import without their host)."""
+        mono = Path(tentacle.__file__).resolve().parents[2]
+        for repo in ("mayatk", "blendertk"):
+            path = str(mono / repo)
+            if path not in sys.path:
+                sys.path.insert(0, path)
+        import blendertk
+        import mayatk
+
+        for lib in (mayatk, blendertk):
+            for name in ENV_UTILS_ASKED:
+                with self.subTest(lib=lib.__name__, name=name):
+                    self.assertTrue(callable(getattr(lib.EnvUtils, name, None)))
 
     def test_presets_stay_where_each_host_kept_them(self):
+        """Under the per-host panel names the bridges had before they merged."""
+        self.assertEqual(_stub("maya").PRESETS_ROOT, Path("mayatk") / "blender_bridge")
         self.assertEqual(
-            _stub(BlenderBridgeSlots).PRESETS_ROOT, Path("mayatk") / "blender_bridge"
-        )
-        self.assertEqual(
-            _stub(MayaBridgeSlots).PRESETS_ROOT, Path("blendertk") / "maya_bridge"
+            _stub("blender").PRESETS_ROOT, Path("blendertk") / "maya_bridge"
         )
 
     def test_the_scope_resolves_and_closes_through_the_host(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls, objects=["|grp"])
+        for host in HOSTS:
+            with self.subTest(host=host):
+                slots = _stub(host, objects=["|grp"])
                 params = {"SCOPE": "selected"}
                 self.assertEqual(slots.scoped_objects(params), ["|grp"])
-                host = slots.tk.BridgeHost
-                host.resolve_scope.assert_called_once_with("selected", slots._bridge)
-                host.scope_closure.assert_called_once_with(["|grp"], params)
+                bridge_host = slots.tk.BridgeHost
+                bridge_host.resolve_scope.assert_called_once_with(
+                    "selected", slots._bridge
+                )
+                bridge_host.scope_closure.assert_called_once_with(["|grp"], params)
+
+
+class TestDccBridgeHelp(unittest.TestCase):
+    """Each host reads its own bridge's help: the title, the Send button and the
+    sections of the templates its engine ships."""
+
+    def test_the_help_names_the_target_and_its_send_button(self):
+        for host, (_name, engine, label) in HOSTS.items():
+            with self.subTest(host=host):
+                spec = _stub(host).help_spec()
+                self.assertEqual(spec["title"], f"{engine.APP} Bridge")
+                self.assertIn(f"<b>{label}</b>", " ".join(spec["steps"]))
+                other = "Maya" if engine.APP == "Blender" else "Blender"
+                self.assertNotIn(f"fresh {other}", spec["body"])
+
+    def test_the_bake_section_shows_where_the_engine_ships_the_bake(self):
+        titles = {
+            host: [title for title, _ in _stub(host).help_spec()["sections"]]
+            for host in HOSTS
+        }
+        bake = DccBridgeSlots.TEMPLATE_HELP["bake_lightmaps"][0]
+        self.assertIn(bake, titles["maya"])
+        self.assertNotIn(bake, titles["blender"])
 
 
 # ---------------------------------------------------------------------------
-# b000: the interactive send (both)
+# b000: the interactive send (both hosts)
 # ---------------------------------------------------------------------------
 
 
-class TestCrossDccBridgeSend(unittest.TestCase):
+class TestDccBridgeSend(unittest.TestCase):
     def test_sends_the_scope_with_the_chosen_template(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
+        for host in HOSTS:
+            with self.subTest(host=host):
                 params = {"SCOPE": "selected", "CLEAR_SCENE": True}
-                slots = _stub(cls, params=params, objects=["|a", "|b"])
+                slots = _stub(host, params=params, objects=["|a", "|b"])
                 slots.b000()
                 self.assertEqual(
                     slots._bridge.calls,
@@ -285,16 +334,16 @@ class TestCrossDccBridgeSend(unittest.TestCase):
                 self.assertEqual(slots._bridge.logger.said("error"), [])
 
     def test_an_empty_scope_sends_nothing(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls, objects=[])
+        for host in HOSTS:
+            with self.subTest(host=host):
+                slots = _stub(host, objects=[])
                 slots.b000()
                 self.assertEqual(slots._bridge.calls, [])
 
     def test_no_template_asks_for_one(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls, pair=None)
+        for host in HOSTS:
+            with self.subTest(host=host):
+                slots = _stub(host, pair=None)
                 slots.b000()
                 self.assertEqual(slots._bridge.calls, [])
                 self.assertIn(
@@ -302,45 +351,57 @@ class TestCrossDccBridgeSend(unittest.TestCase):
                 )
 
     def test_a_missing_target_app_shows_the_engines_sentence(self):
-        for cls, _host, engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls)
+        for host, (_name, engine, _label) in HOSTS.items():
+            with self.subTest(host=host):
+                slots = _stub(host)
                 slots._bridge.app_path = None
                 slots.b000()
                 self.assertEqual(slots._bridge.calls, [])
-                self.assertEqual(slots._bridge.logger.said("error"), [engine.NOT_FOUND])
+                self.assertEqual(
+                    slots._bridge.logger.said("error"), [engine.not_found()]
+                )
 
     def test_an_engine_error_lands_in_the_log(self):
-        for cls, _host, _engine, _label in TOOLS:
-            with self.subTest(tool=cls.__name__):
-                slots = _stub(cls)
+        for host in HOSTS:
+            with self.subTest(host=host):
+                slots = _stub(host)
                 slots._bridge.send = mock.MagicMock(side_effect=RuntimeError("boom"))
                 slots.b000()
                 error = slots._bridge.logger.said("error")[0]
                 self.assertTrue(error.startswith("Bridge raised:"), error)
                 self.assertIn("boom", error)
 
-    def test_the_blender_send_reports_progress(self):
-        slots = _stub(BlenderBridgeSlots)
+    def test_the_send_reports_progress_naming_the_target(self):
+        for host, (_name, engine, _label) in HOSTS.items():
+            with self.subTest(host=host):
+                slots = _stub(host)
+                slots.b000()
+                slots.sb.progress.assert_called_once_with(
+                    text=f"Working: Send to {engine.APP} (import)"
+                )
+
+    def test_an_engine_that_reads_no_declarations_sends_every_template(self):
+        """``MayaBridge``'s run spec serves ``save_as``, but it reads no template's
+        output declarations, so its templates take the interactive route (as the
+        Maya Bridge's did) instead of failing on a declaration it cannot read."""
+        slots = _stub("blender", pair=("save_ma", "save_as"))
+        self.assertEqual(slots._blocking_modes(), ())
         slots.b000()
-        slots.sb.progress.assert_called_once_with(
-            text="Working: Send to Blender (import)"
-        )
+        self.assertEqual([c[0] for c in slots._bridge.calls], ["send"])
+        slots.sb.save_file_dialog.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
-# b000: Blender Bridge's blocking routes (save_as, round_trip)
+# b000: the blocking routes (an engine with them: the Blender target)
 # ---------------------------------------------------------------------------
 
 
-class TestBlenderBridgeBlocking(unittest.TestCase):
+class TestDccBridgeBlocking(unittest.TestCase):
     def test_an_auto_round_trip_derives_its_artifact_and_reports_the_return(self):
         """The bake: no save dialog, the template's own timeout, and the bindings
         the return leg wired are reported."""
         params = {"SCOPE": "selected"}
-        slots = _stub(
-            BlenderBridgeSlots, params=params, pair=("bake_lightmaps", "round_trip")
-        )
+        slots = _stub("maya", params=params, pair=("bake_lightmaps", "round_trip"))
         slots.b000()
         slots.sb.save_file_dialog.assert_not_called()
         self.assertEqual(
@@ -370,14 +431,15 @@ class TestBlenderBridgeBlocking(unittest.TestCase):
         )
 
     def test_a_prompted_save_as_asks_where_seeded_from_the_scene(self):
-        slots = _stub(BlenderBridgeSlots, pair=("save_blend", "save_as"))
-        slots.tk.EnvUtils.get_env_info.return_value = "C:/work/room.ma"
+        slots = _stub("maya", pair=("save_blend", "save_as"))
+        slots.tk.EnvUtils.saved_scene_path.return_value = "C:/work/room.ma"
         slots.sb.save_file_dialog.return_value = "C:/work/room.blend"
         slots.b000()
-        slots.tk.EnvUtils.get_env_info.assert_called_once_with("scene")
+        slots.tk.EnvUtils.saved_scene_path.assert_called_once_with()
         kwargs = slots.sb.save_file_dialog.call_args.kwargs
         self.assertEqual(Path(kwargs["start_dir"]), Path("C:/work/room.blend"))
         self.assertEqual(kwargs["file_types"], ["*.blend", "*.json"])
+        self.assertEqual(kwargs["filter_description"], "Blender bridge output")
         verb, out_path, sent = slots._bridge.calls[0]
         self.assertEqual((verb, out_path), ("save_as", "C:/work/room.blend"))
         self.assertIsNone(sent["timeout"])
@@ -386,16 +448,16 @@ class TestBlenderBridgeBlocking(unittest.TestCase):
         )
 
     def test_an_unsaved_scene_seeds_untitled(self):
-        slots = _stub(BlenderBridgeSlots, pair=("save_blend", "save_as"))
-        slots.tk.EnvUtils.get_env_info.return_value = ""
+        slots = _stub("maya", pair=("save_blend", "save_as"))
+        slots.tk.EnvUtils.saved_scene_path.return_value = ""
         slots.sb.save_file_dialog.return_value = ""
         slots.b000()
         start = Path(slots.sb.save_file_dialog.call_args.kwargs["start_dir"])
         self.assertEqual(start.name, "untitled.blend")
 
     def test_a_cancelled_save_dialog_sends_nothing(self):
-        slots = _stub(BlenderBridgeSlots, pair=("save_blend", "save_as"))
-        slots.tk.EnvUtils.get_env_info.return_value = ""
+        slots = _stub("maya", pair=("save_blend", "save_as"))
+        slots.tk.EnvUtils.saved_scene_path.return_value = ""
         slots.sb.save_file_dialog.return_value = None
         slots.b000()
         self.assertEqual(slots._bridge.calls, [])
@@ -404,18 +466,18 @@ class TestBlenderBridgeBlocking(unittest.TestCase):
     def test_an_extension_the_engine_cannot_write_falls_back(self):
         """``resolve_save_path`` would append ``.blend`` to a ``.usd`` name, so the
         dialog offers what the engine writes and says why."""
-        slots = _stub(BlenderBridgeSlots, pair=("save_usd", "save_as"))
-        slots.tk.EnvUtils.get_env_info.return_value = "C:/work/room.ma"
+        slots = _stub("maya", pair=("save_usd", "save_as"))
+        slots.tk.EnvUtils.saved_scene_path.return_value = "C:/work/room.ma"
         slots.sb.save_file_dialog.return_value = ""
         slots.b000()
         start = Path(slots.sb.save_file_dialog.call_args.kwargs["start_dir"])
         self.assertEqual(start.name, "room.blend")
-        self.assertIn(
-            "BRIDGE_OUTPUT_EXT '.usd'", slots._bridge.logger.said("warning")[0]
-        )
+        warning = slots._bridge.logger.said("warning")[0]
+        self.assertIn("BRIDGE_OUTPUT_EXT '.usd'", warning)
+        self.assertIn("_BlenderEngine.save_extensions", warning)
 
     def test_a_blocking_run_with_no_artifact_is_an_error(self):
-        slots = _stub(BlenderBridgeSlots, pair=("bake_lightmaps", "round_trip"))
+        slots = _stub("maya", pair=("bake_lightmaps", "round_trip"))
         slots._bridge.round_trip = mock.MagicMock(return_value=None)
         slots.b000()
         self.assertEqual(
@@ -425,18 +487,18 @@ class TestBlenderBridgeBlocking(unittest.TestCase):
 
     def test_a_mode_the_run_spec_does_not_serve_launches_interactively(self):
         """``send_to`` is the interactive spec's; only the run spec's modes block."""
-        slots = _stub(BlenderBridgeSlots, pair=("import", "send_to"))
+        slots = _stub("maya", pair=("import", "send_to"))
         slots.b000()
         self.assertEqual([c[0] for c in slots._bridge.calls], ["send"])
         slots.sb.save_file_dialog.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
-# Each panel loaded for real on its host (offscreen Qt, no DCC)
+# The panel loaded for real in each host (offscreen Qt, no DCC)
 # ---------------------------------------------------------------------------
 
 
-def _qt_toolkit(name, templates: Path):
+def _qt_toolkit(host, templates: Path):
     """The fake toolkit, its engine over real templates and a real registry: the
     built panel makes real rows and shows a template's own."""
     from uitk import AttributeSpec, Parameters, ParamRegistry
@@ -458,27 +520,21 @@ def _qt_toolkit(name, templates: Path):
     (templates / "bake_lightmaps.py").write_text(
         '"""Bake the lightmaps."""\nQUALITY = __QUALITY__\n', encoding="utf-8"
     )
-    tk = _toolkit(name)
-    base = tk.BlenderBridge if name == "mayatk" else tk.MayaBridge
 
-    class _Engine(base):
+    class _Real(HOSTS[host][1]):
         TEMPLATE_DIR = templates
 
         @classmethod
         def params_registry(cls):
             return _Rows
 
-    if name == "mayatk":
-        tk.BlenderBridge = _Engine
-    else:
-        tk.MayaBridge = _Engine
-    return tk
+    return _toolkit(host, engine=_Real)
 
 
-class TestCrossDccBridgePanelsLoad(unittest.TestCase):
-    """Each panel built through a real (offscreen) Switchboard over its host's
-    fake toolkit: the combo lists the engine's pairs and the rows follow the
-    template."""
+class TestDccBridgePanelLoads(unittest.TestCase):
+    """The panel built through a real (offscreen) Switchboard over each host's
+    fake toolkit: the chrome names the target, the combo lists the engine's
+    pairs and the rows follow the template."""
 
     @classmethod
     def setUpClass(cls):
@@ -489,29 +545,33 @@ class TestCrossDccBridgePanelsLoad(unittest.TestCase):
             raise unittest.SkipTest(f"Qt unavailable: {error}") from error
         from uitk.testing import TestSandbox
 
-        TestSandbox.activate()  # the panels' settings and presets stay off the live stores
+        TestSandbox.activate()  # the panel's settings and presets stay off the live stores
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 
     def setUp(self):
-        self.templates = Path(tempfile.mkdtemp(prefix="cross_dcc_templates_"))
+        self.templates = Path(tempfile.mkdtemp(prefix="dcc_bridge_templates_"))
         self.addCleanup(shutil.rmtree, self.templates, True)
 
-    def _load(self, cls, host):
+    def _load(self, host):
         from uitk import Switchboard
 
-        sb = Switchboard(ui_source=str(UI_DIR / f"{cls.UI_NAME}.ui"), slot_source=cls)
+        sb = Switchboard(
+            ui_source=str(UI_FILE), slot_source=DccBridgeSlots, context_tags={host}
+        )
         sb.tk = _qt_toolkit(host, self.templates)  # set before any panel is built
-        ui = sb.get_ui(cls.UI_NAME)
+        ui = sb.get_ui("dcc_bridge")
         slots = sb.get_slots_instance(ui)
-        self.assertIsInstance(slots, cls)
+        self.assertIsInstance(slots, DccBridgeSlots)
         return ui, slots
 
-    def test_the_blender_bridge_lists_its_engines_templates(self):
-        ui, slots = self._load(BlenderBridgeSlots, "mayatk")
+    def _labels(self, ui, slots):
         slots._populate_template_combo(ui.cmb000)  # cmb000 fills on first show
-        labels = [ui.cmb000.itemText(i) for i in range(ui.cmb000.count())]
+        return [ui.cmb000.itemText(i) for i in range(ui.cmb000.count())]
+
+    def test_in_maya_it_is_the_blender_bridge(self):
+        ui, slots = self._load("maya")
         self.assertEqual(
-            labels,
+            self._labels(ui, slots),
             ["import (send_to)", "bake_lightmaps (round_trip)", "save_blend (save_as)"],
         )
         ui.cmb000.setCurrentIndex(0)
@@ -520,16 +580,18 @@ class TestCrossDccBridgePanelsLoad(unittest.TestCase):
         self.assertEqual(slots._relevant_param_keys(), {"QUALITY"})
         self.assertEqual(slots.PRESETS_ROOT, Path("mayatk") / "blender_bridge")
         self.assertEqual(ui.b000.text(), "Send to Blender")
+        self.assertEqual(ui.header.title(), "BLENDER BRIDGE")
+        self.assertIn("mayatk's Blender bridge", ui.cmb000.toolTip())
 
-    def test_the_maya_bridge_lists_its_engines_templates(self):
-        ui, slots = self._load(MayaBridgeSlots, "blendertk")
-        slots._populate_template_combo(ui.cmb000)
-        labels = [ui.cmb000.itemText(i) for i in range(ui.cmb000.count())]
-        self.assertEqual(labels, ["import (send_to)"])
+    def test_in_blender_it_is_the_maya_bridge(self):
+        ui, slots = self._load("blender")
+        self.assertEqual(self._labels(ui, slots), ["import (send_to)"])
         ui.cmb000.setCurrentIndex(0)
         self.assertEqual(slots._relevant_param_keys(), {"CLEAR_SCENE"})
         self.assertEqual(slots.PRESETS_ROOT, Path("blendertk") / "maya_bridge")
         self.assertEqual(ui.b000.text(), "Send to Maya")
+        self.assertEqual(ui.header.title(), "MAYA BRIDGE")
+        self.assertIn("blendertk's Maya bridge", ui.cmb000.toolTip())
 
 
 # ---------------------------------------------------------------------------
@@ -538,10 +600,10 @@ class TestCrossDccBridgePanelsLoad(unittest.TestCase):
 
 
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
-class TestBlenderBridgePanelInMaya(unittest.TestCase):
-    """The Blender Bridge's host calls against the real ``mtk`` on a real scene.
-    Built with ``__new__`` (a batch mayapy cannot host the Qt rows ``__init__``
-    builds); the engine's send is stood in for, so no Blender launches."""
+class TestDccBridgePanelInMaya(unittest.TestCase):
+    """The panel's host calls against the real ``mtk`` on a real scene. Built
+    with ``__new__`` (a batch mayapy cannot host the Qt rows ``__init__`` builds);
+    the engine's send is stood in for, so no Blender launches."""
 
     def setUp(self):
         self.cmds = maya_module("maya.cmds")
@@ -550,15 +612,16 @@ class TestBlenderBridgePanelInMaya(unittest.TestCase):
         self.addCleanup(self.cmds.file, new=True, force=True)
 
     def _panel(self, **kwargs):
-        slots = _stub(BlenderBridgeSlots, **kwargs)
+        slots = _stub("maya", **kwargs)
         slots.sb.tk = self.mtk
         slots._bridge = self.mtk.BlenderBridge(blender_path="not-used.exe")
         return slots
 
-    def test_the_panel_reads_mayatks_engine(self):
+    def test_the_panel_reads_mayatks_bridge_to_blender(self):
         slots = self._panel()
         engine = self.mtk.BlenderBridge
         self.assertIs(slots.bridge_class, engine)
+        self.assertEqual(slots.target_app, "Blender")
         self.assertIs(slots.params_module, engine.params_registry())
         self.assertIn("SCOPE", slots.params_module.PARAMS)
         self.assertTrue((slots.template_dir / "import.py").is_file())
@@ -566,6 +629,7 @@ class TestBlenderBridgePanelInMaya(unittest.TestCase):
         self.assertEqual(pairs["import"], "send_to")
         self.assertEqual(pairs["bake_lightmaps"], "round_trip")
         self.assertEqual(slots.PRESETS_ROOT, Path("mayatk") / "blender_bridge")
+        self.assertIn("round_trip", slots._blocking_modes())
 
     def test_send_hands_the_selection_to_the_engine(self):
         cmds = self.cmds

@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-28 -- One DCC Bridge panel and one Workspaces panel serve both hosts (`slots/tools/dcc_bridge.py`, `slots/tools/workspaces.py`).** The Blender Bridge (Maya) and Maya Bridge (Blender) are one `dcc_bridge` panel; the Workspace Map (Maya) and Workspace Editor (Blender) are one `workspaces` panel. `slots.tools.RENAMED_FROM` / `RENAMED_HOSTS` name the panels each took over, and uitk's `PanelRenames.carry` copies their users' saved values into the tool's store once per host. The old Slots classes get MOVED_NAMES rows. DCC Bridge's Save As no longer fails in Blender: it seeds from `EnvUtils.saved_scene_path()`.
+  - Test(s): `test_dcc_bridge_panel.py`, `test_workspaces_panel.py` (the carry, both hosts).
 - **2026-10-29 -- The standalone panels live in tentacle (`tcl_standalone.py`, `__main__.py`, `slots/tools/`, `ui/tools/`).** extapps' twelve Qt panels are tentacle's: one `.ui` and one Slots class each, over the engines that stay in extapps. `tentacle` / `python -m tentacle` opens their browser and `tentacle <panel>` one panel; the `uitk.external_apps.in_process` entry points let a host launch them in process; `slots.tools.STANDALONE` names them, so no host registers one in its own switchboard. Depends on `extapps>=0.7.0`.
   - Test(s): the twelve `test_<panel>_panel.py` modules and `test_tcl_standalone.py`, moved with their panels.
 - **2026-10-28 -- The live Blender sequencer check reads an object's own keys and expects Move to Shot's Copy toggle (`test/blender/shot_sequencer_live_check.py`).** It failed 5 of 53 since Oct 10-12 against two deliberate changes (the Copy toggle; the downstream shot's claimed pose sample); test-only.

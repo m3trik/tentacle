@@ -1,19 +1,18 @@
 # !/usr/bin/python
 # coding=utf-8
-"""Workspace Map: browse a folder tree of project workspaces and switch the
-current one.
+"""The Workspaces panel's map: browse a folder tree of project workspaces and
+switch the current one.
 
-A thin driver over the host toolkit's ``WorkspaceMap`` (``self.tk``), which
-finds the workspaces (a folder holding a ``workspace.mel``, the shared
-Maya/Blender project format) under a root and measures each; this class shows
-them as a tree. The header menu builds a project from the active workspace
-template, marks the root folder as a shared project, or publishes the current
-project's rules as a template (``EnvUtils``, the template store both hosts
-read).
+A thin driver over the host toolkit's ``WorkspaceMap`` (``self.tk``; pythontk's
+``WorkspaceMapBase`` bound to the host), which finds the workspaces under a root
+(folders holding a ``workspace.mel``, the shared Maya/Blender project format, and
+whatever else the host opens as one) and measures each; this part shows them as
+a tree. Its header rows build a project from the active workspace template, mark
+the root folder as a shared project, or publish the current project's rules as a
+template (``EnvUtils``, the template store both hosts read).
 
-A Maya tool for now (``tentacle.slots.tools.HOSTS``): blendertk has no
-``WorkspaceMap``; Blender reaches projects through the Workspace tab and edits
-one in the Workspace Editor.
+Private to :mod:`tentacle.slots.tools.workspaces`, which builds it in every host
+and routes the map's widgets and menu rows to it by name.
 """
 
 import os
@@ -21,17 +20,22 @@ from typing import Dict, Optional
 
 import pythontk as ptk
 
-from tentacle import Slots
 
+class WorkspaceMapPart(ptk.LoggingMixin):
+    """The map's widgets and state (see the module docstring)."""
 
-class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
+    #: What the part reads off the host toolkit: the scan engine.
+    TOOLKIT_NEEDS = ("WorkspaceMap",)
+
     #: How long the root field waits after a keystroke before it rescans (ms).
     ROOT_SETTLE_MS = 500
 
-    def __init__(self, switchboard):
-        super().__init__(switchboard)
+    def __init__(self, slots):
+        super().__init__()
         self.logger.setLevel("WARNING")
-        self.ui = self.sb.loaded_ui.workspace_map
+        self.slots = slots
+        self.sb = slots.sb
+        self.ui = slots.ui
         self.engine = self.tk.WorkspaceMap()
         self._browse_option = None
         self._last_dir_valid = None
@@ -41,13 +45,18 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
         # this instance mid-load.
         self.sb.defer_with_timer(lambda: self.refresh_tree(invalidate=True), ms=100)
 
+    @property
+    def tk(self):
+        """The host toolkit, the panel's (``Slots.tk``)."""
+        return self.slots.tk
+
     # ------------------------------------------------------------------ header
     def header_init(self, widget):
-        """Project creation actions + help text.
+        """The project rows (dispatched by name to the panel's slots).
 
-        No ``config_buttons`` call: the panel takes the handler's default
-        chrome (menu / collapse / pin-or-hide); setting it here would drop the
-        collapse and dismissal buttons.
+        No ``config_buttons`` call: the map takes the handler's default chrome
+        (menu / collapse / pin-or-hide); setting it here would drop the collapse
+        and dismissal buttons.
         """
         widget.menu.add("Separator", setTitle="Project:")
         widget.menu.add(
@@ -55,9 +64,8 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
             setText="New Project",
             setObjectName="new_project",
             setToolTip="Create a project under the root directory, built from the\n"
-            "ACTIVE workspace template (shared with Blender). Maya's own\n"
-            "Project Window can customize a project but cannot build one from\n"
-            "a saved template.",
+            "ACTIVE workspace template (the store Maya and Blender share;\n"
+            "Maya's own Project Window cannot build from one).",
         )
         widget.menu.add(
             "QPushButton",
@@ -65,8 +73,8 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
             setObjectName="mark_root",
             setToolTip="Write a workspace.mel into the ROOT folder describing the layout\n"
             "it already has, so Maya and Blender both resolve it as a project.\n"
-            "No files move. For the unmarked folder you just browsed to: the\n"
-            "tree itself only ever lists folders that are projects already.",
+            "No files move. Acts on the root folder you browsed to, not on a\n"
+            "tree row.",
         )
         widget.menu.add(
             "QPushButton",
@@ -76,57 +84,59 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
             "template: what every later New Project (in Maya or Blender)\n"
             "is built from.",
         )
-        widget.set_help_text(
-            self.sb.tooltip.fmt(
-                title="Workspace Map",
-                body="Browse a directory tree of workspaces and switch between "
-                "them. A workspace is a folder holding a <i>workspace.mel</i>, "
-                "the shared Maya/Blender project format, so projects authored "
-                "in either application show up here.",
-                steps=[
-                    "Enter or browse to a root directory in the "
-                    "<b>Root Directory</b> field (option box ▸ for browse / "
-                    "Set To Workspace / Recursive Search).",
-                    "Expand the tree and <b>double-click</b> a workspace to make "
-                    "it the current project (the right-click menu does the same, "
-                    "plus Explore Folder).",
-                    "The header menu (▾) creates a project from the active "
-                    "workspace template, or publishes the current project's "
-                    "rules as a template.",
-                ],
-                sections=[
-                    (
-                        "Root Directory field option box (▸)",
-                        [
-                            "<b>Browse…</b>: pick a root directory.",
-                            "<b>Set To Workspace</b>: set the root to the current "
-                            "workspace's directory.",
-                            "<b>Recursive Search</b>: also discover nested "
-                            "workspace folders under each child folder.",
-                        ],
-                    ),
-                    (
-                        "Header menu (▾)",
-                        [
-                            "<b>New Project</b>: build one under the root from the "
-                            "active workspace template.",
-                            "<b>Mark Root As Shared Project</b>: write a "
-                            "workspace.mel describing the root folder's existing "
-                            "layout, so Blender sees it as a project too.",
-                            "<b>Save Rules As Template</b>: publish the active "
-                            "project's rules for future New Projects.",
-                        ],
-                    ),
-                    (
-                        "Tree right-click",
-                        [
-                            "<b>Open Workspace</b>: make it the current project.",
-                            "<b>Explore Folder</b>: open it in the file browser.",
-                        ],
-                    ),
-                ],
-            )
-        )
+
+    @staticmethod
+    def help_spec() -> dict:
+        """The map's help (``tooltip.fmt`` keywords); the panel composes the card."""
+        return {
+            "title": "Workspace Map",
+            "body": "Browse a directory tree of workspaces and switch between "
+            "them. A workspace is a folder holding a <i>workspace.mel</i>, "
+            "the shared Maya/Blender project format, so projects authored "
+            "in either application show up here.",
+            "steps": [
+                "Enter or browse to a root directory in the "
+                "<b>Root Directory</b> field (option box ▸ for browse / "
+                "Set To Workspace / Recursive Search).",
+                "Expand the tree and <b>double-click</b> a workspace to make "
+                "it the current project (the right-click menu does the same, "
+                "plus Explore Folder).",
+                "The header menu (▾) creates a project from the active "
+                "workspace template, or publishes the current project's "
+                "rules as a template.",
+            ],
+            "sections": [
+                (
+                    "Root Directory field option box (▸)",
+                    [
+                        "<b>Browse…</b>: pick a root directory.",
+                        "<b>Set To Workspace</b>: set the root to the current "
+                        "workspace's directory.",
+                        "<b>Recursive Search</b>: also discover nested "
+                        "workspace folders under each child folder.",
+                    ],
+                ),
+                (
+                    "Header menu (▾)",
+                    [
+                        "<b>New Project</b>: build one under the root from the "
+                        "active workspace template.",
+                        "<b>Mark Root As Shared Project</b>: write a "
+                        "workspace.mel describing the root folder's existing "
+                        "layout, so Maya and Blender both resolve it as a project.",
+                        "<b>Save Rules As Template</b>: publish the active "
+                        "project's rules for future New Projects.",
+                    ],
+                ),
+                (
+                    "Tree right-click",
+                    [
+                        "<b>Open Workspace</b>: make it the current project.",
+                        "<b>Explore Folder</b>: open it in the file browser.",
+                    ],
+                ),
+            ],
+        }
 
     # ------------------------------------------------------------------ fields
     def txt000_init(self, widget):
@@ -197,16 +207,30 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
     # ------------------------------------------------------------------ the tree
     def update_current_dir(self, text: Optional[str] = None) -> None:
         """Retarget the scan at the root field's directory (rescans only when it
-        changed, or became valid again)."""
+        changed, or became valid again).
+
+        An empty field is no root, not the launch folder (``normpath`` reads it
+        as '.'): nothing scans, the tree empties, and the field is not marked
+        invalid (Blender with nothing saved or pinned has no session root).
+        """
         if self._updating_directory:
             return
         self._updating_directory = True
         try:
-            new_dir = os.path.normpath((text or self.ui.txt000.text()).strip())
-            is_valid = os.path.isdir(new_dir)
+            text = (text or self.ui.txt000.text()).strip()
+            new_dir = os.path.normpath(text) if text else ""
+            is_valid = (
+                bool(new_dir) and os.path.isabs(new_dir) and os.path.isdir(new_dir)
+            )
             changed = new_dir != self.engine.current_working_dir
-            self.ui.txt000.setToolTip(new_dir if is_valid else "Invalid directory")
-            self.ui.txt000.set_action_color("reset" if is_valid else "invalid")
+            if not new_dir:
+                tooltip = "Set a root directory to list its workspaces."
+            else:
+                tooltip = new_dir if is_valid else "Invalid directory"
+            self.ui.txt000.setToolTip(tooltip)
+            self.ui.txt000.set_action_color(
+                "reset" if is_valid or not new_dir else "invalid"
+            )
             revalidate = is_valid and (changed or self._last_dir_valid is False)
             self._last_dir_valid = is_valid
             if revalidate:
@@ -333,6 +357,9 @@ class WorkspaceMapSlots(Slots, ptk.LoggingMixin):
     def mark_root(self) -> None:
         """Mark the ROOT directory as a shared Maya/Blender project."""
         root = self.engine.current_working_dir
+        if not (root and os.path.isdir(root)):
+            self.sb.message_box("Set a valid root directory first.")
+            return
         if ptk.Workspace(root).is_marked:
             self.sb.message_box(
                 f"<hl>{os.path.basename(os.path.normpath(root))}</hl> is already a project."
