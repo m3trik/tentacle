@@ -3,7 +3,7 @@
 """The Unity Bridge panel's one Slots class, and the bridge panels' shared base.
 
 ``UnityBridgeSlots`` (``slots/tools/unity_bridge.py``) sits on ``HostBridge``
-(``slots/tools/_app_bridge/``), uitk's ``BridgeSlotsBase`` over the host toolkit. It
+(``slots/tools/_app_bridge/``), uitk's ``ParamPanelSlots`` over the host toolkit. It
 reaches its host only through ``self.tk``: the engine and its parameter registry
 (``UnityBridge``), the Scope reads and the optional-package install
 (``BridgeHost``), the Bake Source row (``BakeSourceSet``). A fake toolkit stands in
@@ -159,11 +159,11 @@ class TestUnityBridgeShape(unittest.TestCase):
     def test_one_class_for_both_hosts_on_the_bridge_base(self):
         """The mixin first, so its hooks win over the base's; the base is uitk's
         bridge base with ``Slots``' own ``tk`` -- the same property, and no
-        ``QObject`` (``BridgeSlotsBase.__init__`` never chains to one)."""
+        ``QObject`` (``ParamPanelSlots.__init__`` never chains to one)."""
         mro = UnityBridgeSlots.__mro__
         self.assertEqual(UnityBridgeSlots.__bases__, (UnityPanelMixin, HostBridge))
-        self.assertLess(mro.index(UnityPanelMixin), mro.index(Slots.BridgeSlotsBase))
-        self.assertTrue(issubclass(HostBridge, Slots.BridgeSlotsBase))
+        self.assertLess(mro.index(UnityPanelMixin), mro.index(Slots.ParamPanelSlots))
+        self.assertTrue(issubclass(HostBridge, Slots.ParamPanelSlots))
         self.assertIs(vars(HostBridge)["tk"], vars(Slots)["tk"])
         qobject = Slots.__mro__[1]
         self.assertFalse(issubclass(HostBridge, qobject))

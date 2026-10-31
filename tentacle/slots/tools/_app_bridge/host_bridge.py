@@ -2,7 +2,7 @@
 # coding=utf-8
 """The app-bridge panels' one base, shared by both hosts.
 
-:class:`HostBridge` is uitk's :class:`BridgeSlotsBase` (the parameter rows, the
+:class:`HostBridge` is uitk's :class:`ParamPanelSlots` (the parameter rows, the
 presets, the log pane, the Output Dir row, the header) with the host behavior every
 bridge panel shares, reached through ``self.tk`` like any tentacle Slots class:
 
@@ -22,7 +22,7 @@ bridge panel shares, reached through ``self.tk`` like any tentacle Slots class:
 A panel subclasses this, names ``UI_NAME`` and :attr:`bridge_class`, and writes
 its ``b000``; everything else is a hook to override only where the bridge differs.
 
-Not a :class:`tentacle.Slots` itself: ``BridgeSlotsBase`` is a plain class whose
+Not a :class:`tentacle.Slots` itself: ``ParamPanelSlots`` is a plain class whose
 ``__init__`` never calls ``super()``, and ``Slots`` is a ``QObject`` (a Shiboken
 metaclass, and a ``QObject.__init__`` that must run before any Qt call). Mixed in,
 in either order, the two ``__init__``s would have to be called by hand. None of
@@ -40,8 +40,8 @@ import pythontk as ptk
 from tentacle import Slots
 
 
-class HostBridge(Slots.BridgeSlotsBase):
-    """uitk's ``BridgeSlotsBase`` over the host toolkit (``self.tk``).
+class HostBridge(Slots.ParamPanelSlots):
+    """uitk's ``ParamPanelSlots`` over the host toolkit (``self.tk``).
 
     Subclasses set ``UI_NAME`` and :attr:`bridge_class`, and implement ``b000``.
     """

@@ -3,7 +3,7 @@
 """What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
 
 :class:`UnityPanelMixin` is mixed into each Unity panel's Slots class, listed
-FIRST among its bases so its hooks override :class:`uitk.bridge.BridgeSlotsBase`'s
+FIRST among its bases so its hooks override :class:`uitk.bridge.ParamPanelSlots`'s
 defaults: the selection-driven ``UnityBridgeSlots`` (one class for Maya and
 Blender) and the standalone, model-file-driven ``UnityWorkflowSlots``. The panels differ
 only in what they send (the engine from ``make_bridge``, the parameter registry,

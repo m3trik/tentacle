@@ -18,6 +18,8 @@ DEFAULT_INCLUDE = {
 #: MovedNameError naming the new home. ``{name: (new home, version)}``; a category
 #: composed into one Slots class lists the mixin its forks shared.
 MOVED_NAMES = {
+    # uitk's parameter panel is no longer named for one use (2026-10-31).
+    "Slots.BridgeSlotsBase": ("tentacle.Slots.ParamPanelSlots", "0.17.0"),
     "NormalsMixin": ("tentacle.slots.normals.NormalsSlots", "0.17.0"),
     "SlotsMaya": ("tentacle.Slots", "0.17.0"),
     "SlotsBlender": ("tentacle.Slots", "0.17.0"),

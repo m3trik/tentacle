@@ -3,7 +3,7 @@
 import inspect
 
 from qtpy import QtCore
-from uitk import AttributeSpec, BridgeSlotsBase, Cancelable, ParamRegistry, Signals
+from uitk import AttributeSpec, ParamPanelSlots, Cancelable, ParamRegistry, Signals
 
 
 class Slots(QtCore.QObject):
@@ -18,9 +18,9 @@ class Slots(QtCore.QObject):
 
     #: uitk slot decorators, re-exposed on the base so concrete slot modules never
     #: import uitk themselves: ``@Slots.Signals("on_item_interacted")``,
-    #: ``@Slots.Cancelable(120)``. ``BridgeSlotsBase`` rides along for the same
+    #: ``@Slots.Cancelable(120)``. ``ParamPanelSlots`` rides along for the same
     #: reason: the app-bridge panels' shared base (``slots/tools/_app_bridge``)
-    #: subclasses it, ``class HostBridge(Slots.BridgeSlotsBase)``.
+    #: subclasses it, ``class HostBridge(Slots.ParamPanelSlots)``.
     #:
     #: ``self.sb`` is the single uitk gateway for the slots layer, and it reaches
     #: the whole of uitk: any public symbol resolves off it directly
@@ -41,7 +41,7 @@ class Slots(QtCore.QObject):
     #: with the first Slots module.
     Signals = Signals
     Cancelable = Cancelable
-    BridgeSlotsBase = BridgeSlotsBase
+    ParamPanelSlots = ParamPanelSlots
     AttributeSpec = AttributeSpec
     ParamRegistry = ParamRegistry
 
