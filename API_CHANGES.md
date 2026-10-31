@@ -2,60 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Removed (48)
-
-_A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the name left for another package._
-
-- `slots/blender/editors.py::EditorsSlots.b006_init` — was `(self, widget)`
-- `slots/blender/editors.py::EditorsSlots.b007_init` — was `(self, widget)`
-- `slots/blender/editors.py::EditorsSlots.b008_init` — was `(self, widget)`
-- `slots/blender/editors.py::EditorsSlots.b012_init` — was `(self, widget)`
-- `slots/blender/editors.py::EditorsSlots.b013_init` — was `(self, widget)`
-- `slots/blender/hud.py::HudSelectionMixin` — was `(class)`
-- `slots/blender/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, active) -> None`
-- `slots/blender/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
-- `slots/blender/hud.py::StatusMixin` — was `(class)`
-- `slots/blender/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
-- `slots/blender/hud.py::WarningsMixin` — was `(class)`
-- `slots/blender/lighting.py::LightingSlots.b002_init` — was `(self, widget)`
-- `slots/blender/materials.py::MaterialsSlots.b_shader_editor` — was `(self)`
-- `slots/blender/polygons.py::PolygonsSlots.b038_init` — was `(self, widget)`
-- `slots/blender/scene.py::SceneSlots.b008` — was `(self)`
-- `slots/blender/transform.py::TransformSlots.tb004` — was `(self, widget)`
-- `slots/maya/display.py::DisplaySlots.b000` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b001` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b002` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b003` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b004` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b005` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b006` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b007` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b009` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b011` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b012` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b021` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b022` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b023` — was `(self)`
-- `slots/maya/display.py::DisplaySlots.b024` — was `(self)`
-- `slots/maya/editors.py::EditorsSlots.getEditorWidget` — was `(self, name)`
-- `slots/maya/hud.py::HudSelectionMixin` — was `(class)`
-- `slots/maya/hud.py::HudSelectionMixin.insert_component_info` — was `(self, hud, selection) -> None`
-- `slots/maya/hud.py::HudSelectionMixin.insert_selection_info` — was `(self, hud, selection) -> None`
-- `slots/maya/hud.py::StatusMixin` — was `(class)`
-- `slots/maya/hud.py::StatusMixin.insert_scene_status` — was `(self, hud) -> None`
-- `slots/maya/hud.py::WarningsMixin` — was `(class)`
-- `slots/maya/nurbs.py::NurbsSlots.b016` — was `(self)`
-- `slots/maya/rigging.py::RiggingSlots.chk000` — was `(self, state, widget)`
-- `slots/maya/rigging.py::RiggingSlots.chk001` — was `(self, state, widget)`
-- `slots/maya/rigging.py::RiggingSlots.chk002` — was `(self, state, widget)`
-- `slots/maya/rigging.py::RiggingSlots.s000` — was `(self, value, widget)`
-- `slots/maya/selection.py::SelectionSlots.chkxxx` — was `(self, **kwargs)`
-- `slots/maya/selection.py::SelectionSlots.get_selection_tool` — was `()`
-- `slots/maya/selection.py::SelectionSlots.set_selection_tool` — was `(tool)`
-- `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
-- `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
-
-## Moved out (142)
+## Moved out (190)
 
 - `__init__.py::greeting` → `tentacle.Tcl.greeting` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
@@ -164,6 +111,22 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/_slots_blender.py::SlotsBlender.set_viewport_tool` → `tentacle.Slots` (from 0.17.0)
 - `slots/blender/_slots_blender.py::SlotsBlender.transfer_from_active` → `tentacle.Slots` (from 0.17.0)
 - `slots/blender/blender.py::BlenderSlots` → `blendertk.BlenderUiHandler` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b006_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b007_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b008_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b012_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/editors.py::EditorsSlots.b013_init` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin.insert_component_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::HudSelectionMixin.insert_selection_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::StatusMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::StatusMixin.insert_scene_status` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/hud.py::WarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/blender/lighting.py::LightingSlots.b002_init` → `tentacle.slots.lighting.LightingSlots` (from 0.17.0)
+- `slots/blender/materials.py::MaterialsSlots.b_shader_editor` → `tentacle.slots.materials.MaterialsSlots` (from 0.17.0)
+- `slots/blender/polygons.py::PolygonsSlots.b038_init` → `tentacle.slots.polygons.PolygonsSlots` (from 0.17.0)
+- `slots/blender/scene.py::SceneSlots.b008` → `tentacle.slots.scene.SceneSlots` (from 0.17.0)
+- `slots/blender/transform.py::TransformSlots.tb004` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/maya/_slots_maya.py::SlotsMaya` → `tentacle.Slots` (from 0.17.0)
 - `slots/maya/_slots_maya.py::SlotsMaya.require_selection` → `tentacle.Slots` (from 0.17.0)
 - `slots/maya/arnold.py::ArnoldSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
@@ -172,12 +135,34 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/control.py::ControlSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/curves.py::CurvesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/deform.py::DeformSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b000` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b001` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b002` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b003` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b004` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b005` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b006` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b007` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b009` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b011` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b012` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b021` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b022` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b023` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
+- `slots/maya/display.py::DisplaySlots.b024` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
 - `slots/maya/edit_mesh.py::EditMeshSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/editors.py::EditorsSlots.getEditorWidget` → `tentacle.slots.editors.EditorsSlots` (from 0.17.0)
 - `slots/maya/effects.py::EffectsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/fields_solvers.py::FieldsSolversSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/fluids.py::FluidsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/generate.py::GenerateSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/help.py::HelpSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin.insert_component_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::HudSelectionMixin.insert_selection_info` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::StatusMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::StatusMixin.insert_scene_status` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
+- `slots/maya/hud.py::WarningsMixin` → `tentacle.slots.hud.HudSlots` (from 0.17.0)
 - `slots/maya/key.py::KeySlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/lighting_shading.py::LightingShadingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/mash.py::MashSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
@@ -188,15 +173,25 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/nconstraint.py::NConstraintSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/nhair.py::NHairSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/nparticles.py::NParticlesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nurbs.py::NurbsSlots.b016` → `tentacle.slots.nurbs.NurbsSlots` (from 0.17.0)
 - `slots/maya/playback.py::PlaybackSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/render.py::RenderSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk000` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk001` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.chk002` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
+- `slots/maya/rigging.py::RiggingSlots.s000` → `tentacle.slots.rigging.RiggingSlots` (from 0.17.0)
 - `slots/maya/select.py::SelectSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.chkxxx` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.get_selection_tool` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
+- `slots/maya/selection.py::SelectionSlots.set_selection_tool` → `tentacle.slots.selection.SelectionSlots` (from 0.17.0)
 - `slots/maya/skeleton.py::SkeletonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/skin.py::SkinSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/stereo.py::StereoSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` → `tentacle.slots.subdivision.SubdivisionSlots` (from 0.17.0)
 - `slots/maya/surfaces.py::SurfacesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/texturing.py::TexturingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/toon.py::ToonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/transform.py::TransformSlots.setTransformSnap` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/maya/visualize.py::VisualizeSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/windows.py::WindowsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 
