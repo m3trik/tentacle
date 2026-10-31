@@ -5,31 +5,11 @@
 
 :data:`HOSTS` declares the tools one host serves; every other tool serves both.
 :data:`RENAMED_FROM` declares the panel names a tool took over, and
-:data:`RENAMED_HOSTS` the host each served.
-:data:`STANDALONE` names the panels that open in a switchboard of their own.
+:data:`RENAMED_HOSTS` the host each served. The host-free standalone apps
+(Map Converter, the photogrammetry workflows, WebXR Preview, ...) are extapps':
+a category's slots open one BY NAME through the host's external-app handler
+(``self.sb.handlers.external_app.launch("converter")``), never from here.
 """
-
-#: The standalone panels (``tentacle/tcl_standalone.py``): each needs no DCC, so
-#: it opens in a switchboard of its own -- outside any host (``python -m tentacle
-#: <panel>``), or from inside one through the host's external-app handler (the
-#: ``uitk.external_apps.in_process`` entry points), which a host's slots launch it
-#: with and hand their context to (``ui.slots.source_dir``, its scope providers).
-#: No host registers one in its own switchboard (``Tcl.unserved_tools``), so a
-#: host never offers it twice.
-STANDALONE = (
-    "compositor",
-    "converter",
-    "packer",
-    "mesh_convert",
-    "metashape_workflow",
-    "realityscan_workflow",
-    "gaussian_splat_workflow",
-    "substance_workflow",
-    "marmoset_workflow",
-    "unity_workflow",
-    "webxr_preview",
-    "look_match",
-)
 
 #: ``{tool: hosts it serves}`` (``Tcl.HOSTS`` keys) for the tools that serve one
 #: host, each with the reason. A tool not named here serves every host. The

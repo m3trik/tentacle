@@ -224,9 +224,9 @@ class MaterialsSlots(Slots):
     #: failure, so a broken engine costs its own entry a gate, not the whole list.
     #:
     #: ``b022``-``b025`` (Map Compositor and the photogrammetry workflows) are
-    #: deliberately absent: those are standalone panels (``tcl_standalone.py``)
-    #: that open without their app and say what is missing (Brush offers its
-    #: download), so a gate would hide the very panel that explains it.
+    #: deliberately absent: those are extapps' standalone apps, which open
+    #: without their app and say what is missing (Brush offers its download), so
+    #: a gate would hide the very panel that explains it.
     _EXTERNAL_APP_GATES = {
         "b019": lambda tk: tk.MarmosetBridge.APP,
         "b020": lambda tk: tk.SubstanceBridge.APP,
@@ -1578,9 +1578,9 @@ class MaterialsSlots(Slots):
 
     # ------------------------------------------------------------------ standalone panels
     def _launch_extapp(self, app, show=True):
-        """Launch the standalone panel *app* (``tcl_standalone.py``) in-process
-        through the external-app handler; a failure (a package that will not
-        install or import) is a message, never a traceback.
+        """Launch extapps' standalone app *app* in-process, by name, through the
+        external-app handler; a failure (a package that will not install or
+        import) is a message, never a traceback.
 
         Returns:
             The panel's window, or None.

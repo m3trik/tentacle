@@ -66,16 +66,6 @@ class TclMaya(MarkingMenu):
         # The composed Slots classes and the tool panels both hosts share.
         Tcl.register_shared(self.sb)
 
-        # tentacle provides the standalone panels (tcl_standalone.py) as external
-        # apps. Named as their provider, a tentacle that reaches Maya as a source
-        # checkout on PYTHONPATH (no installed metadata) has its entry-point
-        # table read from its pyproject.toml instead.
-        try:
-            self.sb.handlers.external_app.add_provider(Tcl.DIST, probe_module="tentacle")
-            self.sb.handlers.external_app.discover()  # now: the checkout's table wins
-        except Exception:  # never let provisioning wiring block startup
-            pass
-
         # Register the Maya hotkey-collision checker on the bundled
         # ShortcutEditor whenever it's built. Lazily wired so the editor
         # module stays unimported until the user opens it.
@@ -101,13 +91,14 @@ class TclMaya(MarkingMenu):
         except Exception as error:  # never let a preset issue block launch
             print(f"# Warning: tentacle: apply_saved_macros failed: {error} #")
 
-        # The standalone panels (compositor, photogrammetry, texture/mesh tools)
-        # self-describe via tentacle's ``uitk.external_apps.in_process`` entry
-        # points and are auto-registered by ExternalAppHandler on construction
-        # -- no per-app list here; each opens in a switchboard of its own
-        # (``slots.tools.STANDALONE``). ``context_tags={"maya"}`` (above) hides
-        # apps gated ``hide_maya`` (Substance/Marmoset, which Maya serves through
-        # its own bridges). Their engines are extapps', a tentacle dependency.
+        # The standalone apps (compositor, photogrammetry, texture/mesh tools) are
+        # extapps', a separate product: they self-describe via extapps'
+        # ``uitk.external_apps.in_process`` entry points and are auto-registered
+        # by ExternalAppHandler on construction -- no per-app list here; the
+        # category slots open each BY NAME (``external_app.launch``), in a
+        # switchboard of its own. ``context_tags={"maya"}`` (above) hides apps
+        # gated ``hide_maya`` (Substance/Marmoset, which Maya serves through its
+        # own bridges).
 
 
 # --------------------------------------------------------------------------------------------

@@ -8,11 +8,11 @@ pinned here against it: the playblast encoder guard, the default output path
 and the output field that shows it without holding it.
 
 And the structural rule the WebXR move was worth doing for: the panel launches
-the shared ``webxr_preview`` panel and never grows its own copy of the preview
-again. That rule is checked against the source rather than by running it,
-because a re-grown push flow is exactly the drift that is invisible until the
-two hosts disagree. The preview's own behaviour is tested with it, in
-``test_webxr_preview_panel.py``.
+extapps' ``webxr_preview`` app (by name) and never grows its own copy of the
+preview again. That rule is checked against the source rather than by running
+it, because a re-grown push flow is exactly the drift that is invisible until
+the two hosts disagree. The preview's own behaviour is tested with it, in
+extapps' ``test_webxr_preview_panel.py``.
 """
 
 import ast

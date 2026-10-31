@@ -109,19 +109,23 @@ class TestPackageMetadata(unittest.TestCase):
 
 
 class TestExternalAppRegistration(unittest.TestCase):
-    """The standalone panels are auto-discovered from tentacle's own entry
-    points -- the hosts must carry NO hand-maintained registration table.
+    """The standalone apps are extapps', a separate product: tentacle declares
+    none and depends on none, and its category slots open each BY NAME through
+    the host's external-app handler, which discovers them from extapps' own
+    ``uitk.external_apps.in_process`` entry points.
 
     The old per-app ``(name, module, entry)`` loop in tcl_maya / tcl_blender
     drifted from the entry points (and from each other) every time an app was
     added or moved. The refactor deleted it in favour of
-    ``ExternalAppHandler.discover()`` reading the entry points directly, with
-    ``install_spec`` derived from the distribution. These tests guard that
-    contract: (1) no host reintroduces a manual table, and (2) the entry
-    points (the single source of truth) declare the expected apps and the
-    per-host visibility gates the hosts rely on. ``test_tcl_standalone.py``
-    holds the whole roster to ``slots.tools.STANDALONE``.
+    ``ExternalAppHandler.discover()`` reading the entry points directly. These
+    tests guard that contract: (1) no host reintroduces a manual table, (2)
+    tentacle declares no app and no extapps dependency, and (3) every name a
+    slot launches is one of extapps' entry points.
     """
+
+    #: The calls that open an external app by name: the handler's own, and
+    #: the materials slots' wrappers around it.
+    LAUNCHERS = {"launch", "_launch_extapp", "_open_texture_app"}
 
     @staticmethod
     def _registered_modules(filename):
@@ -161,6 +165,53 @@ class TestExternalAppRegistration(unittest.TestCase):
                 return mapping
         return {}
 
+    @classmethod
+    def _launched_names(cls):
+        """``{app name: [file, ...]}`` for every literal name a category slot
+        opens through the handler (``external_app.launch("converter")``)."""
+        import ast
+        import tentacle
+
+        found = {}
+        slots = Path(tentacle.__file__).parent / "slots"
+        for path in sorted(slots.rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not (isinstance(node, ast.Call) and node.args):
+                    continue
+                func = node.func
+                name = getattr(func, "attr", None) or getattr(func, "id", None)
+                if name not in cls.LAUNCHERS or not isinstance(node.args[0], ast.Constant):
+                    continue
+                if name == "launch" and "external_app" not in ast.unparse(func):
+                    continue
+                found.setdefault(node.args[0].value, []).append(path.name)
+        return found
+
+    @staticmethod
+    def _extapps_entry_points():
+        """extapps' in-process entry-point names: from its checkout's
+        pyproject.toml beside tentacle's (newer than an editable install's
+        metadata), else from its installed metadata; None when neither is here."""
+        group = "uitk.external_apps.in_process"
+        toml = ROOT.parent / "extapps" / "pyproject.toml"
+        if toml.is_file():
+            try:
+                import tomllib
+            except ModuleNotFoundError:  # < 3.11
+                tomllib = None
+            if tomllib is not None:
+                with open(toml, "rb") as handle:
+                    table = tomllib.load(handle)["project"]["entry-points"]
+                return set(table[group])
+        from importlib.metadata import PackageNotFoundError, distribution
+
+        try:
+            eps = distribution("extapps").entry_points
+        except PackageNotFoundError:
+            return None
+        return {ep.name for ep in eps if ep.group == group}
+
     def test_hosts_have_no_manual_registration_table(self):
         """Regression guard: neither host may hand-enumerate the standalone apps."""
         for filename in ("tcl_maya.py", "tcl_blender.py"):
@@ -168,44 +219,42 @@ class TestExternalAppRegistration(unittest.TestCase):
                 self._registered_modules(filename),
                 {},
                 f"{filename} reintroduced a hardcoded external-app register() "
-                f"table — apps must self-describe via tentacle's entry points and "
+                f"table — apps must self-describe via extapps' entry points and "
                 f"be picked up by ExternalAppHandler.discover() instead.",
             )
 
-    def test_entry_points_declare_apps_and_maya_gates(self):
-        """tentacle's entry points are the SSoT — they must carry the core apps
-        and gate Substance/Marmoset out of Maya (native bridges supersede).
-        Read from the source pyproject, not metadata an editable install wrote
-        before the last edit."""
-        from importlib.metadata import EntryPoint
-
+    def test_tentacle_declares_no_app_and_no_extapps_dependency(self):
+        """Read from the source pyproject, not metadata an editable install
+        wrote before the last edit: no external-app table, no provider row and
+        no extapps requirement (the apps' installs are the handler's)."""
         try:
             import tomllib
         except ModuleNotFoundError:  # < 3.11
-            try:
-                import tomli as tomllib
-            except ModuleNotFoundError:
-                self.skipTest("no TOML parser available")
+            self.skipTest("no TOML parser available")
         toml = ROOT / "pyproject.toml"
         if not toml.is_file():
             self.skipTest("no pyproject.toml (installed, not a source checkout)")
         with open(toml, "rb") as handle:
-            table = tomllib.load(handle)["project"]["entry-points"]
-        group = "uitk.external_apps.in_process"
-        eps = [EntryPoint(n, v, group) for n, v in table[group].items()]
+            project = tomllib.load(handle)["project"]
+        groups = set(project.get("entry-points", {}))
+        self.assertFalse({g for g in groups if g.startswith("uitk.external_app")}, groups)
+        self.assertFalse(
+            [d for d in project["dependencies"] if d.startswith("extapps")],
+            project["dependencies"],
+        )
 
-        names = {ep.name for ep in eps}
-        for expected in ("compositor", "metashape_workflow", "mesh_convert",
-                         "substance_workflow", "marmoset_workflow"):
-            self.assertIn(expected, names, f"tentacle no longer declares {expected!r}")
-
-        extras = {ep.name: set(ep.extras or ()) for ep in eps}
-        for gated in ("substance_workflow", "marmoset_workflow"):
-            self.assertIn(
-                "hide_maya", extras.get(gated, set()),
-                f"{gated} must keep the 'hide_maya' gate so Maya (which ships a "
-                f"native bridge) doesn't surface the redundant external panel.",
-            )
+    def test_every_launched_name_is_an_extapps_entry_point(self):
+        """Bug: a slot that launches a name extapps does not declare (a rename on
+        one side) opens nothing, and says only that the app is unknown. The names
+        the Materials, Scene and Rendering slots open are held to extapps' table."""
+        names = self._extapps_entry_points()
+        if names is None:
+            self.skipTest("extapps neither checked out beside tentacle nor installed")
+        launched = self._launched_names()
+        files = {f for paths in launched.values() for f in paths}
+        self.assertLessEqual({"materials.py", "scene.py", "rendering.py"}, files)
+        unknown = {n: f for n, f in launched.items() if n not in names}
+        self.assertEqual(unknown, {}, f"launched names extapps does not declare: {unknown}")
 
 
 class TestGreeting(unittest.TestCase):

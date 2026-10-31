@@ -381,9 +381,8 @@ class TestEveryToolIsOneUiAndOneSlotsClass(unittest.TestCase):
                 self.assertTrue(ui.is_file(), f"{tool}: no ui/tools/{ui.name}")
                 self.assertTrue(py.is_file(), f"{tool}: no slots/tools/{py.name}")
                 # Case-blind, as test_dcc_invariants' rule: the class name keys
-                # users' shortcut overrides, so one published as
-                # ``WebXrPreviewSlots`` keeps its spelling (a standalone panel's
-                # launcher hands its switchboard the class itself, by this rule).
+                # users' shortcut overrides, so a class published with inner
+                # capitals (``DccBridgeSlots``) keeps its spelling.
                 expected = tool.replace("_", "") + "slots"
                 classes = [
                     n.name.lower()

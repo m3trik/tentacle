@@ -170,21 +170,20 @@ class TestSharedRoots(unittest.TestCase):
 
     def test_a_host_registers_only_the_tools_it_serves(self):
         """A one-host tool's .ui and Slots module both stay out of the other host
-        (``"<tool>.*"``), so nothing there can offer it; a standalone panel stays
-        out of every host's switchboard (it opens in its own)."""
-        from tentacle.slots.tools import HOSTS, STANDALONE
+        (``"<tool>.*"``), so nothing there can offer it."""
+        from tentacle.slots.tools import HOSTS
 
+        left_out_anywhere = 0
         for host in ("maya", "blender"):
             with self.subTest(host=host):
-                left_out = sorted(
-                    {t for t, hosts in HOSTS.items() if host not in hosts}
-                    | set(STANDALONE)
-                )
-                self.assertTrue(left_out, f"{host}: the check is vacuous")
+                left_out = sorted(t for t, hosts in HOSTS.items() if host not in hosts)
+                left_out_anywhere += len(left_out)
                 self.assertEqual(
-                    self._registered({host})["exclude"], [f"{t}.*" for t in left_out]
+                    self._registered({host})["exclude"],
+                    [f"{t}.*" for t in left_out] or None,
                 )
                 self.assertEqual(Tcl.unserved_tools({host}), left_out)
+        self.assertTrue(left_out_anywhere, "the check is vacuous: no host leaves a tool out")
 
     def test_a_contextless_switchboard_registers_every_tool(self):
         """uitk's rule: no context tags, no filtering (a bare test or dev switchboard)."""

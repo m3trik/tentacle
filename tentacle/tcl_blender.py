@@ -127,12 +127,13 @@ class _QtBootstrap:
     def bootstrap_paths():
         """Put the monorepo packages on ``sys.path`` and pin ``QT_API`` (idempotent)."""
         os.environ.setdefault("QT_API", "pyside6")
-        # ``extapps`` rides along so the standalone panels tentacle launches in process (Map
-        # Converter / Packer / Compositor + the photogrammetry workflows) can import their engines
-        # in Blender's own interpreter -- Maya gets it from mayapy's site-packages; Blender's bundled
-        # Python has no such install, and without it a panel's import fails at launch. A
-        # pip-installed deployment finds extapps in site-packages (a tentacle dependency) and this
-        # path-add simply no-ops (the dir guard below).
+        # ``extapps`` rides along so the standalone apps the menus open in process by name (Map
+        # Converter / Packer / Compositor + the photogrammetry workflows) import in Blender's own
+        # interpreter from a checkout -- Maya gets it from mayapy's site-packages; Blender's bundled
+        # Python has no such install, and without it an app's import fails at launch. A sys.path
+        # entry, never an import: extapps is a separate product, no tentacle dependency. A
+        # pip-installed deployment finds it in site-packages and this path-add simply no-ops (the
+        # dir guard below).
         if not _Config.MONOREPO:
             return  # not a monorepo checkout (pip install): site-packages already resolves these
         for pkg in ("pythontk", "uitk", "tentacle", "blendertk", "extapps"):
@@ -1563,21 +1564,13 @@ class TclBlender(MarkingMenu):
         # The composed Slots classes and the tool panels both hosts share.
         Tcl.register_shared(self.sb)
 
-        # The standalone panels -- the same ones Maya opens (tcl_standalone.py).
-        # They self-describe via tentacle's ``uitk.external_apps.in_process``
-        # entry points and are auto-registered by ExternalAppHandler on
-        # construction, so the materials slot can launch them verbatim via
-        # ``external_app.launch``; each opens in a switchboard of its own
-        # (``slots.tools.STANDALONE``). ``context_tags={"blender"}`` (above)
-        # surfaces the Substance/Marmoset panels here (they're gated out of Maya
-        # only). Named as their provider, a tentacle on ``sys.path`` as a source
-        # checkout (``_QtBootstrap``, no installed metadata) has its entry-point
-        # table read from its pyproject.toml instead.
-        try:
-            self.sb.handlers.external_app.add_provider(Tcl.DIST, probe_module="tentacle")
-            self.sb.handlers.external_app.discover()  # now: the checkout's table wins
-        except Exception:  # never let provisioning wiring block startup
-            pass
+        # The standalone apps -- the same ones Maya opens -- are extapps', a
+        # separate product: they self-describe via extapps'
+        # ``uitk.external_apps.in_process`` entry points and are auto-registered
+        # by ExternalAppHandler on construction, so the category slots open each
+        # BY NAME (``external_app.launch``), in a switchboard of its own.
+        # ``context_tags={"blender"}`` (above) surfaces the Substance/Marmoset
+        # apps here (they're gated out of Maya only).
 
         # Bridge the activation key from Blender's keymap to this Qt menu (GHOST owns the
         # keyboard, so MarkingMenu's QShortcut can't fire from the viewport). Automatic on

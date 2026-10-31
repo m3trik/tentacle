@@ -667,11 +667,9 @@ class Tcl(_TclInternal):
 
     @staticmethod
     def unserved_tools(context_tags=None):
-        """The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``),
-        and the standalone panels, which open in a switchboard of their own
-        (``slots.tools.STANDALONE``): what :meth:`register_shared` leaves out. An
-        empty context (a bare test or dev switchboard) serves every tool, uitk's
-        rule for ``requires``.
+        """The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):
+        what :meth:`register_shared` leaves out. An empty context (a bare test or
+        dev switchboard) serves every tool, uitk's rule for ``requires``.
 
         Parameters:
             context_tags (iterable): The host's tags (``{"maya"}``), as its entry
@@ -682,15 +680,13 @@ class Tcl(_TclInternal):
         """
         # The tools' table, not this class's HOSTS (host -> its probe module).
         from tentacle.slots.tools import HOSTS as TOOL_HOSTS
-        from tentacle.slots.tools import STANDALONE
 
         context = set(context_tags or ())
         if not context:
             return []
-        unserved = {
+        return sorted(
             tool for tool, hosts in TOOL_HOSTS.items() if not context & set(hosts)
-        }
-        return sorted(unserved | set(STANDALONE))
+        )
 
     @staticmethod
     def register_shared(switchboard):

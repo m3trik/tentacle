@@ -7,7 +7,7 @@
 
 A Qt marking-menu launcher for DCC apps.
 
-Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships 60+ tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — plus [standalone panels](#standalone-panels) that need no DCC; a thin 3ds Max wrapper exists to build on.
+Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships 60+ tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name; a thin 3ds Max wrapper exists to build on.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
@@ -97,35 +97,19 @@ Tcl.launch(
 
 User preferences (theme, repeat-last shortcut, etc.) live in the in-app **Preferences** panel.
 
-## Standalone panels
+## Standalone apps
 
-The content-pipeline tools need no DCC: the Map Compositor, Map Converter, Map
-Packer and Mesh Converter, the Metashape / RealityCapture / Brush Splat
+The content-pipeline tools that need no DCC -- the Map Compositor, Map Converter,
+Map Packer and Mesh Converter, the Metashape / RealityCapture / Brush Splat
 photogrammetry workflows, the Substance, Marmoset and Unity workflows, the WebXR
-Preview and Look Match. Their engines are [extapps](https://github.com/m3trik/extapps)'
-and pythontk's. In Maya or Blender they open from the menus as before; outside
-one, the `tentacle` command (`python -m tentacle` runs the same program) opens them:
-
-| Command | Opens |
-|---|---|
-| `tentacle` | A browser listing every panel: search, filter by tag, double-click to open |
-| `tentacle compositor` | One panel, by name (`metashape_workflow`, `mesh_convert`, ...) |
-| `tentacle --shortcut desktop` | Writes a desktop shortcut that opens the browser, then exits (`--shortcut start_menu`: the Start menu, or the Linux applications menu) |
-| `tentacle compositor --shortcut desktop` | Writes a shortcut that opens one panel |
-
-The command opens no console window and quits once its last window is closed or
-hidden; its output goes to `%LOCALAPPDATA%\uitk\tentacle\tentacle.log` on Windows
-(the desktop session's journal on Linux), and an uncaught error shows in a message
-box. A shortcut can also be made from inside Maya or Blender: right-click a panel's
-row in the UI Browser, *Create desktop shortcut* / *Add to Start menu*. It runs the
-host's own Python without opening the host, so tentacle has to import there without
-the host's startup scripts (installed with pip, or on a `PYTHONPATH` saved in your
-user environment); otherwise nothing is written and the message says why.
-
-Launchers made before the panels moved here run `python -m extapps <panel>`; they
-keep working (extapps' hub serves the panels from tentacle, and installs `tentacletk`
-into that Python where it is missing). From code:
-`from tentacle.tcl_standalone import CompositorUI; CompositorUI().show(pos="screen", app_exec=True)`.
+Preview and Look Match -- are [extapps](https://github.com/m3trik/extapps)', a
+separate product: each app's engine, panel and Slots class live there. In Maya or
+Blender the menus open eight of them by name through uitk's external-app handler,
+which finds them wherever extapps is installed: the Map Packer, Converter and
+Compositor and the three photogrammetry workflows (Materials), the Mesh Converter
+(Scene) and the WebXR Preview (Rendering); the UI Browser lists them all. Outside
+a DCC, `extapps` (or `python -m extapps [app]`) opens them. tentacle does not
+depend on extapps.
 
 ## Project layout
 
@@ -135,8 +119,6 @@ tentacle/
 ├── tcl_maya.py            TclMaya entry point
 ├── tcl_max.py             TclMax  (wrapper, no slot library yet)
 ├── tcl_blender.py         TclBlender entry point — Qt host + keymap bridge + launcher + add-on
-├── tcl_standalone.py      the standalone panels' launcher (one <Tool>UI per panel)
-├── __main__.py            the standalone panels' hub (`python -m tentacle`)
 ├── slots/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
 │   ├── <category>.py      one Slots class per marking-menu category, both hosts

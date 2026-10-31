@@ -14,6 +14,13 @@ implementation.
 ``unitytk`` is optional in every host (installed on demand), so it is imported
 inside the methods that use it; so is ``qtpy``, which only the New Unity Project
 dialogs need.
+
+**Vendored copy -- keep byte-identical.** This file is duplicated at
+``tentacle/slots/tools/_unity_bridge/_unity_panel.py`` (the SSoT: edit it there)
+and ``extapps/unity_workflow/_unity_panel.py``. No importable home exists while
+both panels need it: extapps imports no tentacle, ``unitytk`` is optional and
+Qt-free, and ``uitk`` carries no app vocabulary. Mirror every change into both
+copies; drift fails ``extapps/test/test_vendor_sync.py``.
 """
 
 import os
