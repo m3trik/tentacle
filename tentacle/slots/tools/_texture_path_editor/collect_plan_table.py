@@ -5,10 +5,11 @@
 A dry run fills it with the host engine's plan (``plan_find_and_copy``, rows
 of ``ptk.FileCollect.plan``): each texture node and lightmap, the file it
 reads, where it would land and what happens to it. A row several different
-same-named files could be has a picker in its Source cell; picking one
-re-derives every destination through the one ``ptk.FileCollect.plan`` call (a
-picked file may clash with another row's), and Apply commits :attr:`rows` --
-exactly the plan on screen.
+same-named files could be has a picker in its Source cell; picking one asks the
+engine for the plan again with the pick (``replan``: the one call that derives
+destinations and knows the scene's other readers -- a picked file may clash
+with another row's, or be one a move must keep), and Apply commits
+:attr:`rows` -- exactly the plan on screen.
 
 Private to :mod:`tentacle.slots.tools.texture_path_editor`.
 """
@@ -39,6 +40,7 @@ class CollectPlanTable:
         self.dest_dir = ""
         self.mode = "copy"
         self.choices: Dict[Any, str] = {}
+        self.replan = None
         self.table.setVisible(False)
 
     @property
@@ -46,38 +48,55 @@ class CollectPlanTable:
         """Whether a row still waits for its file to be picked."""
         return any(r["status"] == ptk.FileCollect.AMBIGUOUS for r in self.rows)
 
-    def show(self, rows, dest_dir: str, mode: str = "copy") -> None:
-        """Show a fresh plan (a dry run's); earlier picks are dropped."""
+    def show(self, rows, dest_dir: str, mode: str, replan) -> None:
+        """Show a fresh plan (a dry run's); earlier picks are dropped.
+
+        Parameters:
+            rows: The engine's plan (``plan_find_and_copy``).
+            dest_dir: The folder it was planned into.
+            mode: ``"copy"`` or ``"move"``.
+            replan: ``replan(choices) -> rows`` -- the engine's plan again with
+                the picks (``{row key: path}``).
+        """
         self.rows = [dict(r) for r in rows or []]
         self.dest_dir = dest_dir or ""
         self.mode = mode
         self.choices = {}
+        self.replan = replan
         self._fill()
 
     def pick(self, key, path: str) -> None:
         """Take *path* as the file of the row *key* names
-        (``ptk.FileCollect.row_key``) and re-derive the plan around it."""
+        (``ptk.FileCollect.row_key``) and have the engine plan around it."""
         if not path or path == self.PICK:
             return
         self.choices[key] = path
-        self.rows = ptk.FileCollect.plan(self.rows, self.dest_dir, self.choices)
+        self.rows = [dict(r) for r in self.replan(dict(self.choices))]
         self._fill()
 
     def clear(self) -> None:
         """Drop the plan: its scope or answers are no longer the panel's."""
-        self.rows, self.choices = [], {}
+        self.rows, self.choices, self.replan = [], {}, None
         self.table.setRowCount(0)
         self.table.setVisible(False)
 
     # ------------------------------------------------------------------ cells
-    def status_text(self, row) -> str:
-        """What happens to *row*, in the panel's words."""
+    def status_text(self, row, kept=None) -> str:
+        """What happens to *row*, in the panel's words. Whether a move takes its
+        source away reads the plan's one per-file decision
+        (``ptk.FileCollect.kept_files``), the set the move itself reads."""
         Collect = ptk.FileCollect
+        if kept is None:
+            kept = Collect.kept_files(self.rows)
         status = row["status"]
+        moved = (
+            self.mode == "move"
+            and bool(row.get("source"))
+            and kept.isdisjoint(Collect.source_files(row["source"]))
+        )
         if status == Collect.RELOCATE:
-            text = "Move" if self.mode == "move" and not row.get("keep_source") else "Copy"
+            text = "Move" if moved else "Copy"
             return text + (f" — kept apart in {row['folder']}/" if row["folder"] else "")
-        moved = self.mode == "move" and not row.get("keep_source")
         return {
             Collect.REUSE: "Reuse — the same file is there"
             + ("; the original is removed" if moved else ""),
@@ -101,13 +120,14 @@ class CollectPlanTable:
         if not self.rows:
             self.clear()
             return
+        kept = ptk.FileCollect.kept_files(self.rows)
         table.add(
             [
                 [
                     str(row["owner"]),
                     row.get("source") or "",
                     self.destination_text(row),
-                    self.status_text(row),
+                    self.status_text(row, kept),
                 ]
                 for row in self.rows
             ],

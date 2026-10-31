@@ -1307,11 +1307,15 @@ class TestCollectPlanTable(_PanelCase):
         self.addCleanup(self.table.deleteLater)
         self.plan = CollectPlanTable(self.table)
 
+    def _replan(self, choices):
+        """The engine's plan again with the picks, as the panel asks for it."""
+        return ptk.FileCollect.plan(self.rows, self.dest, choices)
+
     def _picker(self):
         return self.table.cellWidget(0, self.plan.SOURCE_COLUMN)
 
     def test_an_ambiguous_row_offers_its_candidates(self):
-        self.plan.show(self.rows, self.dest)
+        self.plan.show(self.rows, self.dest, "copy", replan=self._replan)
 
         self.assertEqual(self.table.rowCount(), 1)
         self.assertEqual(self.table.item(0, 0).text(), "file1")
@@ -1328,7 +1332,11 @@ class TestCollectPlanTable(_PanelCase):
     def test_a_pick_re_derives_the_plan_and_apply_commits_it(self):
         slots, sb = _panel()
         engine = sb.tk.TexturePathEditor.return_value
-        engine.plan_find_and_copy.return_value = self.rows
+        engine.plan_find_and_copy.side_effect = (
+            lambda nodes, values, lightmaps=None, choices=None, progress=None: (
+                self._replan(choices)
+            )
+        )
         engine.find_and_copy_textures.return_value = False
         slots._find_and_copy_workflow(["file1"])
         slots._plan_table = self.plan
@@ -1358,6 +1366,43 @@ class TestCollectPlanTable(_PanelCase):
         self.assertFalse(call.kwargs.get("dry_run", False))
         self.assertEqual(self.plan.rows, [], "the plan is spent")
 
+
+
+    def test_a_row_reads_the_moves_one_per_file_decision(self):
+        """A texture row reading the file a lightmap row keeps (another scene
+        reads it) said "Move", while the move kept the file."""
+        path = self.candidates[0]
+        rows = ptk.FileCollect.plan(
+            [
+                {"owner": "map", "kind": "lightmap", "source": path, "keep_source": True},
+                {"owner": "file1", "kind": "texture", "source": path},
+            ],
+            self.dest,
+        )
+        self.plan.show(rows, self.dest, "move", replan=self._replan)
+        self.assertEqual(
+            [self.table.item(r, 3).text() for r in range(2)], ["Copy", "Copy"]
+        )
+
+    def test_a_cancelled_apply_leaves_no_stale_plan(self):
+        slots, sb = _panel()
+        engine = sb.tk.TexturePathEditor.return_value
+        engine.plan_find_and_copy.return_value = [dict(_PLANNED_ROW)]
+        slots._find_and_copy_workflow(["tex_a"])
+        slots._plan_table = self.plan
+        values = {"source_dir": "", "dest_dir": self.dest, "mode": "Copy", "dry_run": True}
+        commit = slots._run_find_and_copy(values)
+        self.assertTrue(self.plan.rows)
+        engine.find_and_copy_textures.side_effect = ptk.OperationCancelled("Cancelled")
+        sb.loaded_ui.texture_path_editor.tbl000.reset_mock()
+
+        with self.assertRaises(ptk.OperationCancelled):
+            commit()
+
+        self.assertEqual(self.plan.rows, [], "the spent plan stayed on screen")
+        self.assertTrue(self.table.isHidden())
+        self.assertIsNone(engine.active_logger)
+        slots.ui.tbl000.init_slot.assert_called_once()  # the table re-read the scene
 
 
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")

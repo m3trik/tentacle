@@ -324,10 +324,10 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
         )
         widget.menu.add(
             self.sb.registered_widgets.PushButton,
-            setText="Find && Copy Textures…",
+            setText="Collect Textures…",
             setObjectName="tb_find_and_copy_textures",
             setToolTip=self.sb.tooltip.fmt(
-                title="Find &amp; Copy Textures",
+                title="Collect Textures",
                 body="Gather the files behind the (selected, or all) textures, "
                 "relocate them into one destination, and repath. Paths become "
                 "relative when the destination is inside the project.",
@@ -457,8 +457,9 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                         "<b>Set Directory…</b> — repath to a chosen folder "
                         "(subdirs flatten). Option box (▸) chooses leave / copy / "
                         "move.",
-                        "<b>Find &amp; Copy Textures…</b> — gather every texture "
-                        "and relocate them into one destination. Opens a panel "
+                        "<b>Collect Textures…</b> — gather every texture into "
+                        "one destination (Find &amp; Copy: a search folder finds "
+                        "the missing ones first). Opens a panel "
                         "carrying every option: Copy / Move, the folder to "
                         "search, the folder to write into, and a dry run.",
                         "<b>Normalize Paths</b> — rewrite absolute paths inside "
@@ -2287,7 +2288,18 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                 planned = self.engine.find_and_copy_textures(
                     node_names, values, lightmaps=lightmaps, dry_run=True, plan=rows
                 )
-                plan.show(rows, values.get("dest_dir") or "", self._find_mode(values))
+                plan.show(
+                    rows,
+                    values.get("dest_dir") or "",
+                    self._find_mode(values),
+                    replan=lambda choices: self.engine.plan_find_and_copy(
+                        node_names,
+                        values,
+                        lightmaps=lightmaps,
+                        choices=choices,
+                        progress=progress,
+                    ),
+                )
         finally:
             self.engine.active_logger = None
         self.refresh_texture_table()
@@ -2299,7 +2311,10 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
 
     def _commit_plan(self, node_names, values, lightmaps):
         """Apply: commit exactly the plan on screen -- the previewed rows, the
-        picks made in the table since applied (``plan=``)."""
+        picks made in the table since applied (``plan=``). The plan is spent
+        however the commit ends: a cancel (the engine reports how many files
+        were already copied) or a failure leaves no stale plan on screen, and
+        the table shows the scene as it now is."""
         panel = self._find_copy_panel
         plan = self._collect_plan(panel)
         rows = list(plan.rows)
@@ -2314,8 +2329,8 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
             )
         finally:
             self.engine.active_logger = None
-        plan.clear()
-        self.refresh_texture_table()
+            plan.clear()
+            self.refresh_texture_table()
         return None
 
     def _find_mode(self, values) -> str:
