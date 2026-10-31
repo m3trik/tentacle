@@ -55,8 +55,9 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/maya/subdivision.py::SubdivisionSlots.smoothProxy` — was `()`
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` — was `(self, ctx, state)`
 
-## Moved out (107)
+## Moved out (142)
 
+- `__init__.py::greeting` → `tentacle.Tcl.greeting` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin.list000_init` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
 - `slots/_display.py::DisplayMixin` → `tentacle.slots.display.DisplaySlots` (from 0.17.0)
@@ -162,14 +163,51 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/blender/_slots_blender.py::SlotsBlender.selected_objects` → `tentacle.Slots` (from 0.17.0)
 - `slots/blender/_slots_blender.py::SlotsBlender.set_viewport_tool` → `tentacle.Slots` (from 0.17.0)
 - `slots/blender/_slots_blender.py::SlotsBlender.transfer_from_active` → `tentacle.Slots` (from 0.17.0)
+- `slots/blender/blender.py::BlenderSlots` → `blendertk.BlenderUiHandler` (from 0.17.0)
 - `slots/maya/_slots_maya.py::SlotsMaya` → `tentacle.Slots` (from 0.17.0)
 - `slots/maya/_slots_maya.py::SlotsMaya.require_selection` → `tentacle.Slots` (from 0.17.0)
+- `slots/maya/arnold.py::ArnoldSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/cache.py::CacheSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/constrain.py::ConstrainSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/control.py::ControlSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/curves.py::CurvesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/deform.py::DeformSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/edit_mesh.py::EditMeshSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/effects.py::EffectsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/fields_solvers.py::FieldsSolversSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/fluids.py::FluidsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/generate.py::GenerateSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/help.py::HelpSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/key.py::KeySlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/lighting_shading.py::LightingShadingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mash.py::MashSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh.py::MeshSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh_display.py::MeshDisplaySlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/mesh_tools.py::MeshToolsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/ncloth.py::NClothSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nconstraint.py::NConstraintSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nhair.py::NHairSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/nparticles.py::NParticlesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/playback.py::PlaybackSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/render.py::RenderSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/select.py::SelectSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/skeleton.py::SkeletonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/skin.py::SkinSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/stereo.py::StereoSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/surfaces.py::SurfacesSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/texturing.py::TexturingSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/toon.py::ToonSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/visualize.py::VisualizeSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `slots/maya/windows.py::WindowsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 
-## Added (1630)
+## Added (1886)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
+- `slots/_slots.py::Slots.hide_unless(self, widget, available) -> bool`
+- `slots/_slots.py::Slots.host_key(self, base: str) -> str`
 - `slots/_slots.py::Slots.require_selection(self, message=None)`
+- `slots/_slots.py::Slots.requires(self, widget, host) -> bool`
 - `slots/_slots.py::Slots.run_operation(self, call, *args, empty=None, **kwargs)`
 - `slots/_slots.py::Slots.tk(self)`
 - `slots/animation.py::AnimationSlots(class)`
@@ -620,6 +658,9 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/symmetry.py::SymmetrySlots.chk005(self, state, widget)`
 - `slots/symmetry.py::SymmetrySlots.chk005_init(self, widget)`
 - `slots/tools/__init__.py::HOSTS(constant)`
+- `slots/tools/__init__.py::RENAMED_FROM(constant)`
+- `slots/tools/__init__.py::RENAMED_HOSTS(constant)`
+- `slots/tools/__init__.py::STANDALONE(constant)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge(class)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge.PRESETS_ROOT(self)`
 - `slots/tools/_app_bridge/host_bridge.py::HostBridge.bridge_class(self)`
@@ -642,6 +683,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/_channels/inline_rename.py::FooterRename(class)`
 - `slots/tools/_channels/inline_rename.py::FooterRename.edit(self)`
 - `slots/tools/_channels/inline_rename.py::InlineRename(class)`
+- `slots/tools/_channels/inline_rename.py::InlineRename.eventFilter(self, watched, event) -> bool`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController(class)`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_analysis(self) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_ignored_paths(self) -> None`
@@ -696,6 +738,38 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/_hierarchy_sync/tree_renderer.py::HierarchyTreeRenderer.store_tree_selection(self, tree_widget) -> List[str]`
 - `slots/tools/_hierarchy_sync/tree_renderer.py::OPEN_SCENE_PLACEHOLDER(constant)`
 - `slots/tools/_hierarchy_sync/tree_renderer.py::ORIG_TOOLTIP_ROLE(constant)`
+- `slots/tools/_marmoset_workflow/parameters.py::PARAMS(constant)`
+- `slots/tools/_marmoset_workflow/parameters.py::Parameters(class)`
+- `slots/tools/_photogrammetry/gaussian_splat_parameters.py::PARAMS(constant)`
+- `slots/tools/_photogrammetry/gaussian_splat_parameters.py::Parameters(class)`
+- `slots/tools/_photogrammetry/gaussian_splat_parameters.py::Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'`
+- `slots/tools/_photogrammetry/gaussian_splat_parameters.py::Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'`
+- `slots/tools/_photogrammetry/metashape_parameters.py::PARAMS(constant)`
+- `slots/tools/_photogrammetry/metashape_parameters.py::Parameters(class)`
+- `slots/tools/_photogrammetry/metashape_parameters.py::Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'`
+- `slots/tools/_photogrammetry/metashape_parameters.py::Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'`
+- `slots/tools/_photogrammetry/panel_slots.py::FramesSourceMixin(class)`
+- `slots/tools/_photogrammetry/panel_slots.py::FramesSourceMixin.resolved_frames_dir(self) -> str`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots(class)`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.b000(self) -> None`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.cancel_run(self) -> None`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.header_menu_items(self)`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.make_preset_store(self)`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.open_output_folder(self) -> None`
+- `slots/tools/_photogrammetry/panel_slots.py::PhotogrammetryPanelSlots.resolved_project_name(self) -> str`
+- `slots/tools/_photogrammetry/realityscan_parameters.py::PARAMS(constant)`
+- `slots/tools/_photogrammetry/realityscan_parameters.py::Parameters(class)`
+- `slots/tools/_photogrammetry/realityscan_parameters.py::Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'`
+- `slots/tools/_photogrammetry/realityscan_parameters.py::Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESSING_KEYS(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESSING_KNOB_KEYS(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESSING_PARAMS(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESSING_STORE_TRUE_FLAGS(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESSING_VALUE_FLAGS(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::PREPROCESS_MASTER_KEY(constant)`
+- `slots/tools/_photogrammetry/shared_parameters.py::SharedParams(class)`
+- `slots/tools/_photogrammetry/shared_parameters.py::SharedParams.preprocessing_argv(values: 'Dict[str, Any]') -> 'List[str]'`
+- `slots/tools/_photogrammetry/shared_parameters.py::SharedParams.render_flag_argv(values: 'Dict[str, Any]', value_flags: 'Dict[str, str]', store_true_flags: 'Optional[Dict[str, str]]' = None, bool_flags: 'Optional[Dict[str, str]]' = None) -> 'List[str]'`
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController(class)`
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController.apply_notes_column_visibility(self)`
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController.capture_context_row(self, pos)`
@@ -738,16 +812,6 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController.type_extensions(cls, include_type)`
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_listing_footer(self, listed: int, referenced: int)`
 - `slots/tools/_reference_manager/controller.py::ReferenceManagerController.update_table(self, file_names, file_list)`
-- `slots/tools/_reference_manager/listing.py::SceneListing(class)`
-- `slots/tools/_reference_manager/listing.py::SceneListing.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str`
-- `slots/tools/_reference_manager/listing.py::SceneListing.display_name(path: str, hide_extension: bool, hide_suffix: str) -> str`
-- `slots/tools/_reference_manager/listing.py::SceneListing.filter_by_folder_structure(files: Iterable[str], workspace: str, pattern: str, suffix: str, scenes: str) -> List[str]`
-- `slots/tools/_reference_manager/listing.py::SceneListing.format_name(name: str, case_style: str = 'None', suffix: str = '') -> str`
-- `slots/tools/_reference_manager/listing.py::SceneListing.matches_notes_filter(cls, notes_text: str, filter_text: str, ignore_case: bool = True) -> bool`
-- `slots/tools/_reference_manager/listing.py::SceneListing.scenes_folder(workspace: str) -> str`
-- `slots/tools/_reference_manager/listing.py::SceneListing.split_patterns(cls, text: str) -> List[str]`
-- `slots/tools/_reference_manager/listing.py::SceneListing.strip_all_suffixes(base: str, suffix: str) -> str`
-- `slots/tools/_reference_manager/listing.py::SceneListing.text_matches_filter(text: str, filter_patterns: Sequence[str], ignore_case: bool = True) -> bool`
 - `slots/tools/_reference_manager/references.py::ReferenceActions(class)`
 - `slots/tools/_reference_manager/references.py::ReferenceActions.add_unlink_namespace_action(self, button)`
 - `slots/tools/_reference_manager/references.py::ReferenceActions.ask_scene_data(self, summary, namespace)`
@@ -766,6 +830,7 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.conversion_progress(self, text)`
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.copy_path(self)`
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str`
+- `slots/tools/_reference_manager/scene_files.py::SceneFiles.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str`
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.delete_scene(self)`
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.folder_structure_preview(self) -> str`
 - `slots/tools/_reference_manager/scene_files.py::SceneFiles.import_paths(self, paths)`
@@ -1032,6 +1097,53 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.default_output_dir(self) -> str`
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.list_template_modes(self)`
 - `slots/tools/_unity_bridge/_unity_panel.py::UnityPanelMixin.template_dir(self) -> Path`
+- `slots/tools/_unity_workflow/parameters.py::PARAMS(constant)`
+- `slots/tools/_unity_workflow/parameters.py::Parameters(class)`
+- `slots/tools/_webxr_preview/parameters.py::AUTHORED_EXTENSION(constant)`
+- `slots/tools/_webxr_preview/parameters.py::EXPORT_KEYS(constant)`
+- `slots/tools/_webxr_preview/parameters.py::FILE_KEYS(constant)`
+- `slots/tools/_webxr_preview/parameters.py::GLB_KEYS(constant)`
+- `slots/tools/_webxr_preview/parameters.py::KTX2_KEYS(constant)`
+- `slots/tools/_webxr_preview/parameters.py::PARAMS(constant)`
+- `slots/tools/_webxr_preview/parameters.py::Parameters(class)`
+- `slots/tools/_webxr_preview/parameters.py::SOURCE_FILE_TYPES(constant)`
+- `slots/tools/_webxr_preview/parameters.py::TEXTURE_KEYS(constant)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart(class)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.add_rule(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.clear_rules(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.create_project(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.header_init(self, widget)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.help_spec() -> dict`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.open_folder(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.remove_row(self, row)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.reset_row(self, row)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.reset_rules(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.tbl000_init(self, widget)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.tk(self)`
+- `slots/tools/_workspaces/editor.py::WorkspaceEditorPart.txt002_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart(class)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b000(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b001(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.b002(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.btn_explore_folder(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.btn_open_workspace(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.chk000(self, checked) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.filter_workspaces(self, text) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.header_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.help_spec() -> dict`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.mark_root(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.new_project(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.populate_tree(self, tree_data: Dict) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.refresh_tree(self, invalidate: bool = False) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.save_template(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.selected_workspace(self) -> Optional[Dict]`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.set_to_workspace(self) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.tk(self)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.tree000_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.txt000_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.txt001_init(self, widget)`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.update_current_dir(self, text: Optional[str] = None) -> None`
+- `slots/tools/_workspaces/map.py::WorkspaceMapPart.update_tree(self, filter_text: Optional[str] = None) -> None`
 - `slots/tools/arnold_bridge.py::ArnoldBridgeSlots(class)`
 - `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b000(self) -> None`
 - `slots/tools/arnold_bridge.py::ArnoldBridgeSlots.b001(self) -> None`
@@ -1057,7 +1169,6 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/articulated_rig.py::ArticulatedRigSlots.refresh_table(self)`
 - `slots/tools/audio_clips.py::AudioClipsSlots(class)`
 - `slots/tools/audio_clips.py::AudioClipsSlots.b003(self) -> None`
-- `slots/tools/audio_clips.py::AudioClipsSlots.b003_init(self, widget) -> None`
 - `slots/tools/audio_clips.py::AudioClipsSlots.b004(self, widget=None) -> None`
 - `slots/tools/audio_clips.py::AudioClipsSlots.b004_init(self, widget) -> None`
 - `slots/tools/audio_clips.py::AudioClipsSlots.btn_add_tracks(self) -> None`
@@ -1082,9 +1193,6 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/bevel.py::BevelSlots(class)`
 - `slots/tools/bevel.py::BevelSlots.header_init(self, widget)`
 - `slots/tools/bevel.py::BevelSlots.perform_operation(self, objects, contract=None)`
-- `slots/tools/blender_bridge.py::BlenderBridgeSlots(class)`
-- `slots/tools/blender_bridge.py::BlenderBridgeSlots.b000(self)`
-- `slots/tools/blender_bridge.py::BlenderBridgeSlots.bridge_class(self)`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots(class)`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000(self, widget) -> None`
 - `slots/tools/blendshape_animator.py::BlendshapeAnimatorSlots.b000_init(self, widget) -> None`
@@ -1142,6 +1250,38 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/color_id.py::ColorIdSlots.header_init(self, widget)`
 - `slots/tools/color_id.py::ColorIdSlots.selected_button(self)`
 - `slots/tools/color_id.py::ColorIdSlots.target_color(self)`
+- `slots/tools/compositor.py::CompositorSlots(class)`
+- `slots/tools/compositor.py::CompositorSlots.b002(self)`
+- `slots/tools/compositor.py::CompositorSlots.header_init(self, widget)`
+- `slots/tools/compositor.py::CompositorSlots.map_name(self) -> str`
+- `slots/tools/compositor.py::CompositorSlots.output_dir(self) -> str`
+- `slots/tools/compositor.py::CompositorSlots.process(self, images, source_dir, output_dir, map_name=None)`
+- `slots/tools/compositor.py::CompositorSlots.txt000_init(self, widget)`
+- `slots/tools/compositor.py::CompositorSlots.txt001_init(self, widget)`
+- `slots/tools/compositor.py::CompositorSlots.txt002_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots(class)`
+- `slots/tools/converter.py::ConverterSlots.b000(self)`
+- `slots/tools/converter.py::ConverterSlots.b001(self)`
+- `slots/tools/converter.py::ConverterSlots.b004(self)`
+- `slots/tools/converter.py::ConverterSlots.b007(self)`
+- `slots/tools/converter.py::ConverterSlots.b010(self)`
+- `slots/tools/converter.py::ConverterSlots.b011(self)`
+- `slots/tools/converter.py::ConverterSlots.b012(self)`
+- `slots/tools/converter.py::ConverterSlots.header_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.optimize_formats(self) -> Tuple[str, ...]`
+- `slots/tools/converter.py::ConverterSlots.register_scope(self, label: str, provider: Callable[[], Iterable[str]], *, select: bool = False) -> None`
+- `slots/tools/converter.py::ConverterSlots.scopes(self) -> Tuple[str, ...]`
+- `slots/tools/converter.py::ConverterSlots.source_dir(self)`
+- `slots/tools/converter.py::ConverterSlots.tb000(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb000_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb001(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb001_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb002(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb002_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb003(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.tb003_init(self, widget)`
+- `slots/tools/converter.py::ConverterSlots.texture_provider(self) -> Optional[Callable[[], Iterable[str]]]`
+- `slots/tools/converter.py::ConverterSlots.unregister_scope(self, label: str) -> None`
 - `slots/tools/curtain.py::CurtainSlots(class)`
 - `slots/tools/curtain.py::CurtainSlots.b001_init(self, widget)`
 - `slots/tools/curtain.py::CurtainSlots.b002(self)`
@@ -1156,6 +1296,12 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots.header_init(self, widget)`
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots.perform_operation(self, objects, contract=None)`
 - `slots/tools/cut_on_axis.py::CutOnAxisSlots.toggle_weight_ui(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots(class)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.PRESETS_ROOT(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.b000(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.bridge_class(self)`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.help_spec(self) -> dict`
+- `slots/tools/dcc_bridge.py::DccBridgeSlots.target_app(self) -> str`
 - `slots/tools/duplicate_grid.py::DuplicateGridSlots(class)`
 - `slots/tools/duplicate_grid.py::DuplicateGridSlots.b001_init(self, widget)`
 - `slots/tools/duplicate_grid.py::DuplicateGridSlots.header_init(self, widget)`
@@ -1217,6 +1363,19 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/game_shader.py::GameShaderSlots.shader_type(self) -> Optional[str]`
 - `slots/tools/game_shader.py::GameShaderSlots.txt000_init(self, widget)`
 - `slots/tools/game_shader.py::GameShaderSlots.txt002_init(self, widget)`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots(class)`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.cancel_run(self) -> None`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.default_output_dir(self) -> str`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.header_init(self, widget) -> None`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.help_spec(self) -> dict`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.install_brush(self) -> None`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.make_bridge(self) -> GaussianSplatRunner`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.open_brush_viewer(self) -> None`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.open_result_in_brush(self) -> None`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.params_module(self)`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.resolved_colmap_dir(self) -> str`
+- `slots/tools/gaussian_splat_workflow.py::GaussianSplatWorkflowSlots.template_dir(self) -> Path`
 - `slots/tools/hdr_manager.py::HdrManagerSlots(class)`
 - `slots/tools/hdr_manager.py::HdrManagerSlots.add_hdr(self) -> None`
 - `slots/tools/hdr_manager.py::HdrManagerSlots.clear_network(self) -> None`
@@ -1332,10 +1491,62 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.track_selected(self) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt000_init(self, widget) -> None`
 - `slots/tools/lightmap_baker.py::LightmapBakerSlots.txt_output_dir_init(self, widget) -> None`
+- `slots/tools/look_match.py::DOCS_URL(constant)`
+- `slots/tools/look_match.py::LookMatchSlots(class)`
+- `slots/tools/look_match.py::LookMatchSlots.b_accept(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_discard(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_draw_ellipse(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_draw_line(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_draw_poly(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_draw_rect(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_edit_regions(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_fit(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_fit_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_paint(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_redo(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_redo_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_region_delete(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_reload(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_render(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_save_rig(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_solve(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_undo(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_undo_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.b_update(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.brightness_text(value: Optional[float]) -> str`
+- `slots/tools/look_match.py::LookMatchSlots.browse_session(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.chk_all_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_a_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_b_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_mix_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_mode_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_session_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmb_solve_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.cmp_view_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.delete_mix(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.header_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.mix_key(mix) -> str`
+- `slots/tools/look_match.py::LookMatchSlots.open_session(self, path: str) -> bool`
+- `slots/tools/look_match.py::LookMatchSlots.save_mix(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.save_mix_as(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.status_glyph(row: Dict[str, Any]) -> str`
+- `slots/tools/look_match.py::LookMatchSlots.stop_service(self, wait: bool = True) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.stop_worker(self) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.tbl_mix_init(self, widget) -> None`
+- `slots/tools/look_match.py::LookMatchSlots.tbl_regions_init(self, widget) -> None`
 - `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots(class)`
 - `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.b000(self)`
 - `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.bridge_class(self)`
 - `slots/tools/marmoset_bridge.py::MarmosetBridgeSlots.select_initial_template_index(self, pairs)`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots(class)`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.b000(self) -> None`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.make_bridge(self) -> MarmosetWorkflow`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.params_module(self)`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.resolved_model_path(self) -> str`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.select_initial_template_index(self, pairs: List[Tuple[str, str]]) -> int`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.set_model_path(self, path: str) -> None`
+- `slots/tools/marmoset_workflow.py::MarmosetWorkflowSlots.template_dir(self) -> Path`
 - `slots/tools/mat_updater.py::MatUpdaterSlots(class)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.b001(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.cmb001_init(self, widget)`
@@ -1344,9 +1555,19 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/mat_updater.py::MatUpdaterSlots.move_to_folder(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.selection_mode(self)`
 - `slots/tools/mat_updater.py::MatUpdaterSlots.shader_type(self)`
-- `slots/tools/maya_bridge.py::MayaBridgeSlots(class)`
-- `slots/tools/maya_bridge.py::MayaBridgeSlots.b000(self)`
-- `slots/tools/maya_bridge.py::MayaBridgeSlots.bridge_class(self)`
+- `slots/tools/mesh_convert.py::MeshConvertSlots(class)`
+- `slots/tools/mesh_convert.py::MeshConvertSlots.fbx_provider(self) -> Optional[Callable[[], Iterable[str]]]`
+- `slots/tools/mesh_convert.py::MeshConvertSlots.header_init(self, widget) -> None`
+- `slots/tools/mesh_convert.py::MeshConvertSlots.source_dir(self) -> str`
+- `slots/tools/mesh_convert.py::MeshConvertSlots.tb000(self, widget) -> None`
+- `slots/tools/mesh_convert.py::MeshConvertSlots.tb000_init(self, widget) -> None`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots(class)`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.default_output_dir(self) -> str`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.help_spec(self) -> dict`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.make_bridge(self) -> MetashapeRunner`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.params_module(self)`
+- `slots/tools/metashape_workflow.py::MetashapeWorkflowSlots.template_dir(self) -> Path`
 - `slots/tools/mirror.py::MirrorSlots(class)`
 - `slots/tools/mirror.py::MirrorSlots.header_init(self, widget)`
 - `slots/tools/mirror.py::MirrorSlots.perform_operation(self, objects, contract=None)`
@@ -1371,6 +1592,26 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/naming.py::NamingSlots.txt001(self, widget)`
 - `slots/tools/naming.py::NamingSlots.txt001_init(self, widget)`
 - `slots/tools/naming.py::NamingSlots.valid_suffixes(self)`
+- `slots/tools/packer.py::PackerSlots(class)`
+- `slots/tools/packer.py::PackerSlots.b000(self)`
+- `slots/tools/packer.py::PackerSlots.b001(self)`
+- `slots/tools/packer.py::PackerSlots.cmbA_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbB_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbFormat_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbG_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbMissing_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbMode_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbPreset_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.cmbR_init(self, widget)`
+- `slots/tools/packer.py::PackerSlots.source_dir(self)`
+- `slots/tools/packer.py::PackerSlots.txtSuffix_init(self, widget)`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots(class)`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.default_output_dir(self) -> str`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.help_spec(self) -> dict`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.make_bridge(self) -> RealityScanRunner`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.params_module(self)`
+- `slots/tools/realityscan_workflow.py::RealityscanWorkflowSlots.template_dir(self) -> Path`
 - `slots/tools/reference_manager.py::ReferenceManagerSlots(class)`
 - `slots/tools/reference_manager.py::ReferenceManagerSlots.b000(self)`
 - `slots/tools/reference_manager.py::ReferenceManagerSlots.b001(self)`
@@ -1584,6 +1825,26 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/substance_bridge.py::SubstanceBridgeSlots.b000(self)`
 - `slots/tools/substance_bridge.py::SubstanceBridgeSlots.bridge_class(self)`
 - `slots/tools/substance_bridge.py::SubstanceBridgeSlots.select_initial_template_index(self, pairs)`
+- `slots/tools/substance_workflow.py::ADVANCED_PARAMS(constant)`
+- `slots/tools/substance_workflow.py::BAKE_RESOLUTIONS(constant)`
+- `slots/tools/substance_workflow.py::BLEND_MODES(constant)`
+- `slots/tools/substance_workflow.py::MESH_EXTS(constant)`
+- `slots/tools/substance_workflow.py::PIPELINE_STAGES(constant)`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots(class)`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.b000(self) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_advanced_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_browse_mesh(self) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_browse_project(self) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_browse_template(self) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_launch(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.btn_stages_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.cmb000_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.cmb003(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.header_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.set_mesh_path(self, path: str) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.txt000_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.txt001_init(self, widget) -> None`
+- `slots/tools/substance_workflow.py::SubstanceWorkflowSlots.txt002_init(self, widget) -> None`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots(class)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.build_rig(self)`
 - `slots/tools/telescope_rig.py::TelescopeRigSlots.header_init(self, widget)`
@@ -1676,6 +1937,31 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/unity_bridge.py::UnityBridgeSlots.b000(self)`
 - `slots/tools/unity_bridge.py::UnityBridgeSlots.bridge_class(self)`
 - `slots/tools/unity_bridge.py::UnityBridgeSlots.make_bridge(self)`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots(class)`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots.b000(self) -> None`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots.make_bridge(self)`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots.params_module(self)`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots.resolved_model_path(self) -> str`
+- `slots/tools/unity_workflow.py::UnityWorkflowSlots.set_model_path(self, path: str) -> None`
+- `slots/tools/webxr_preview.py::FILE_SOURCE(constant)`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots(class)`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.add_scene(self, paths: Optional[List[str]] = None) -> _Scene`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.b000(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.check_share_link(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.copy_scene_link(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.copy_share_link(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.engine(self)`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.make_bridge(self)`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.open_preview_page(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.params_module(self)`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.remove_scene(self, scene: _Scene) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.set_source_file(self, path: str) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.set_source_files(self, paths: List[str]) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.share_link(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.stop_server(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.stop_sharing(self) -> None`
+- `slots/tools/webxr_preview.py::WebXrPreviewSlots.template_dir(self) -> Path`
 - `slots/tools/wheel_rig.py::WheelRigSlots(class)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.b000(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.header_init(self, widget)`
@@ -1686,38 +1972,29 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/tools/wheel_rig.py::WheelRigSlots.set_wheel_height(self)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.txt000_init(self, widget)`
 - `slots/tools/wheel_rig.py::WheelRigSlots.update_rig_name_placeholder(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots(class)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.add_rule(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.clear_rules(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.create_project(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.header_init(self, widget)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.open_folder(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.remove_row(self, row)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.reset_row(self, row)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.reset_rules(self)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.tbl000_init(self, widget)`
-- `slots/tools/workspace_editor.py::WorkspaceEditorSlots.txt000_init(self, widget)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots(class)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.b000(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.b001(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.b002(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.btn_explore_folder(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.btn_open_workspace(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.chk000(self, checked) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.filter_workspaces(self, text) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.header_init(self, widget)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.mark_root(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.new_project(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.populate_tree(self, tree_data: Dict) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.refresh_tree(self, invalidate: bool = False) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.save_template(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.selected_workspace(self) -> Optional[Dict]`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.set_to_workspace(self) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.tree000_init(self, widget)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.txt000_init(self, widget)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.txt001_init(self, widget)`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None`
-- `slots/tools/workspace_map.py::WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None`
+- `slots/tools/workspaces.py::WorkspacesSlots(class)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b000(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b001(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.b002(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_add_rule(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_clear(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_create(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_explore_folder(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_open_workspace(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.btn_reset(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.chk000(self, checked)`
+- `slots/tools/workspaces.py::WorkspacesSlots.chk_raw_names(self, checked)`
+- `slots/tools/workspaces.py::WorkspacesSlots.header_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.mark_root(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.new_project(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.parts(self) -> list`
+- `slots/tools/workspaces.py::WorkspacesSlots.save_template(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.set_to_workspace(self)`
+- `slots/tools/workspaces.py::WorkspacesSlots.tbl000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.tree000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt000_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt001_init(self, widget)`
+- `slots/tools/workspaces.py::WorkspacesSlots.txt002_init(self, widget)`
 - `slots/transform.py::TransformSlots(class)`
 - `slots/transform.py::TransformSlots.b001(self)`
 - `slots/transform.py::TransformSlots.b002(self, widget)`
@@ -1794,9 +2071,23 @@ _A break: each owes a `ptk.Deprecation` alias, or a `MOVED_NAMES` entry when the
 - `slots/uv.py::UvSlots.tb022_init(self, widget)`
 - `slots/uv.py::UvSlots.uv_editor(self)`
 - `slots/uv.py::UvSlots.uv_snapshot(self)`
+- `tcl.py::Tcl.greeting(string, outputToConsole=True)`
 - `tcl.py::Tcl.register_shared(switchboard)`
 - `tcl.py::Tcl.reload(cls)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
+- `tcl_standalone.py::CompositorUI(class)`
+- `tcl_standalone.py::ConverterUI(class)`
+- `tcl_standalone.py::GaussianSplatWorkflowUI(class)`
+- `tcl_standalone.py::LookMatchUI(class)`
+- `tcl_standalone.py::MarmosetWorkflowUI(class)`
+- `tcl_standalone.py::MeshConvertUI(class)`
+- `tcl_standalone.py::MetashapeWorkflowUI(class)`
+- `tcl_standalone.py::PackerUI(class)`
+- `tcl_standalone.py::PanelLauncher(class)`
+- `tcl_standalone.py::RealityScanWorkflowUI(class)`
+- `tcl_standalone.py::SubstanceWorkflowUI(class)`
+- `tcl_standalone.py::UnityWorkflowUI(class)`
+- `tcl_standalone.py::WebXrPreviewUI(class)`
 
 ## Moved (825)
 

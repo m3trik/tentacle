@@ -7,7 +7,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`__init__.py`](#__init__)
 - [`slots/_slots.py`](#slots--_slots)
 - [`slots/animation.py`](#slots--animation) — Animation: one Slots class for both hosts.
-- [`slots/blender/blender.py`](#slots--blender--blender)
 - [`slots/cameras.py`](#slots--cameras) — Cameras: one Slots class for both hosts.
 - [`slots/crease.py`](#slots--crease) — Crease: one Slots class for both hosts.
 - [`slots/deformation.py`](#slots--deformation) — Deformation: one Slots class for both hosts.
@@ -19,39 +18,6 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/lighting.py`](#slots--lighting) — Lighting: one Slots class for both hosts.
 - [`slots/main.py`](#slots--main) — Main: the start menu hub and its Workspace tab, one Slots class for both hosts.
 - [`slots/materials.py`](#slots--materials) — Materials: one Slots class for both hosts.
-- [`slots/maya/arnold.py`](#slots--maya--arnold)
-- [`slots/maya/cache.py`](#slots--maya--cache)
-- [`slots/maya/constrain.py`](#slots--maya--constrain)
-- [`slots/maya/control.py`](#slots--maya--control)
-- [`slots/maya/curves.py`](#slots--maya--curves)
-- [`slots/maya/deform.py`](#slots--maya--deform)
-- [`slots/maya/edit_mesh.py`](#slots--maya--edit_mesh)
-- [`slots/maya/effects.py`](#slots--maya--effects)
-- [`slots/maya/fields_solvers.py`](#slots--maya--fields_solvers)
-- [`slots/maya/fluids.py`](#slots--maya--fluids)
-- [`slots/maya/generate.py`](#slots--maya--generate)
-- [`slots/maya/help.py`](#slots--maya--help)
-- [`slots/maya/key.py`](#slots--maya--key)
-- [`slots/maya/lighting_shading.py`](#slots--maya--lighting_shading)
-- [`slots/maya/mash.py`](#slots--maya--mash)
-- [`slots/maya/mesh.py`](#slots--maya--mesh)
-- [`slots/maya/mesh_display.py`](#slots--maya--mesh_display)
-- [`slots/maya/mesh_tools.py`](#slots--maya--mesh_tools)
-- [`slots/maya/ncloth.py`](#slots--maya--ncloth)
-- [`slots/maya/nconstraint.py`](#slots--maya--nconstraint)
-- [`slots/maya/nhair.py`](#slots--maya--nhair)
-- [`slots/maya/nparticles.py`](#slots--maya--nparticles)
-- [`slots/maya/playback.py`](#slots--maya--playback)
-- [`slots/maya/render.py`](#slots--maya--render)
-- [`slots/maya/select.py`](#slots--maya--select)
-- [`slots/maya/skeleton.py`](#slots--maya--skeleton)
-- [`slots/maya/skin.py`](#slots--maya--skin)
-- [`slots/maya/stereo.py`](#slots--maya--stereo)
-- [`slots/maya/surfaces.py`](#slots--maya--surfaces)
-- [`slots/maya/texturing.py`](#slots--maya--texturing)
-- [`slots/maya/toon.py`](#slots--maya--toon)
-- [`slots/maya/visualize.py`](#slots--maya--visualize)
-- [`slots/maya/windows.py`](#slots--maya--windows)
 - [`slots/normals.py`](#slots--normals) — Normals: one Slots class for both hosts.
 - [`slots/nurbs.py`](#slots--nurbs) — NURBS: one Slots class for both hosts.
 - [`slots/pivot.py`](#slots--pivot) — Pivot: one Slots class for both hosts.
@@ -73,8 +39,13 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_hierarchy_sync/controller.py`](#slots--tools--_hierarchy_sync--controller) — The Hierarchy Sync panel's state: the reference path, the paths the user
 - [`slots/tools/_hierarchy_sync/tree_matcher.py`](#slots--tools--_hierarchy_sync--tree_matcher) — Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
 - [`slots/tools/_hierarchy_sync/tree_renderer.py`](#slots--tools--_hierarchy_sync--tree_renderer) — The Hierarchy Sync trees: filling them, the diff's colours, the ignored
+- [`slots/tools/_marmoset_workflow/parameters.py`](#slots--tools--_marmoset_workflow--parameters) — Tunable parameters surfaced in the Marmoset Workflow panel.
+- [`slots/tools/_photogrammetry/gaussian_splat_parameters.py`](#slots--tools--_photogrammetry--gaussian_splat_parameters) — Tunable parameters surfaced in the Brush (gaussian-splat) Workflow panel.
+- [`slots/tools/_photogrammetry/metashape_parameters.py`](#slots--tools--_photogrammetry--metashape_parameters) — Tunable parameters surfaced in the Metashape Workflow panel.
+- [`slots/tools/_photogrammetry/panel_slots.py`](#slots--tools--_photogrammetry--panel_slots) — Shared scaffolding for the photogrammetry workflow panels.
+- [`slots/tools/_photogrammetry/realityscan_parameters.py`](#slots--tools--_photogrammetry--realityscan_parameters) — Tunable parameters surfaced in the RealityCapture Workflow panel.
+- [`slots/tools/_photogrammetry/shared_parameters.py`](#slots--tools--_photogrammetry--shared_parameters) — Input pre-processing parameter specs shared by the image-in engines.
 - [`slots/tools/_reference_manager/controller.py`](#slots--tools--_reference_manager--controller) — The Reference Manager panel's controller: the browsed workspace, the table
-- [`slots/tools/_reference_manager/listing.py`](#slots--tools--_reference_manager--listing) — The Reference Manager's listing rules: how a scene file reads as a row and
 - [`slots/tools/_reference_manager/references.py`](#slots--tools--_reference_manager--references) — The Reference Manager's reference actions: a row's reference and display
 - [`slots/tools/_reference_manager/scene_files.py`](#slots--tools--_reference_manager--scene_files) — The Reference Manager's scene files: open / close / save / rename / delete, the
 - [`slots/tools/_reference_manager/workspaces.py`](#slots--tools--_reference_manager--workspaces) — The Reference Manager's workspace browser: the Root Directory, the workspace
@@ -108,19 +79,25 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/_shots/controller.py`](#slots--tools--_shots--controller) — The Shots panel's controller: the scene's shot settings, the selected shot's
 - [`slots/tools/_texture_combine/transfer_mode.py`](#slots--tools--_texture_combine--transfer_mode) — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - [`slots/tools/_unity_bridge/_unity_panel.py`](#slots--tools--_unity_bridge--_unity_panel) — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
+- [`slots/tools/_unity_workflow/parameters.py`](#slots--tools--_unity_workflow--parameters) — User-tunable parameters for the standalone Unity Workflow panel.
+- [`slots/tools/_webxr_preview/parameters.py`](#slots--tools--_webxr_preview--parameters) — Tunable parameters surfaced in the WebXR Preview panel.
+- [`slots/tools/_workspaces/editor.py`](#slots--tools--_workspaces--editor) — The Workspaces panel's editor: the minimal take on Maya's File ▸ Project
+- [`slots/tools/_workspaces/map.py`](#slots--tools--_workspaces--map) — The Workspaces panel's map: browse a folder tree of project workspaces and
 - [`slots/tools/arnold_bridge.py`](#slots--tools--arnold_bridge) — Arnold Preview Shader: add or remove the Arnold preview network beside each
 - [`slots/tools/articulated_rig.py`](#slots--tools--articulated_rig) — Articulated Rig: rig a prop of rigid parts on hinges, swivels, balls and
 - [`slots/tools/audio_clips.py`](#slots--tools--audio_clips) — Audio Clips: the scene's audio files, placed on the timeline.
 - [`slots/tools/bevel.py`](#slots--tools--bevel) — Bevel: chamfer the selected polygon edges, with a live preview.
-- [`slots/tools/blender_bridge.py`](#slots--tools--blender_bridge) — Blender Bridge: send the selection to a fresh Blender through an import
 - [`slots/tools/blendshape_animator.py`](#slots--tools--blendshape_animator) — Blendshape Animator: build a morph between two meshes, add in-between
 - [`slots/tools/bridge.py`](#slots--tools--bridge) — Bridge: connect two open edge loops with new polygon faces, with a live preview.
 - [`slots/tools/calculator.py`](#slots--tools--calculator) — Calculator: expressions, length units, and the scene's frame-rate helpers.
 - [`slots/tools/channels.py`](#slots--tools--channels) — Channels: the selected objects' attributes in one editable table.
 - [`slots/tools/color_id.py`](#slots--tools--color_id) — Color ID: color-code objects across channels from a swatch palette.
+- [`slots/tools/compositor.py`](#slots--tools--compositor) — UI slot bindings for the Map Compositor: several texture maps of each type
+- [`slots/tools/converter.py`](#slots--tools--converter) — Map Converter UI — slot file for ``converter.ui``.
 - [`slots/tools/curtain.py`](#slots--tools--curtain) — Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
 - [`slots/tools/curve_to_tube.py`](#slots--tools--curve_to_tube) — Curve to Tube: sweep a circular profile along the selected curves into a
 - [`slots/tools/cut_on_axis.py`](#slots--tools--cut_on_axis) — Cut On Axis: slice the selected meshes along an axis, then optionally delete
+- [`slots/tools/dcc_bridge.py`](#slots--tools--dcc_bridge) — DCC Bridge: send the selection to a fresh copy of the other DCC through an
 - [`slots/tools/duplicate_grid.py`](#slots--tools--duplicate_grid) — Duplicate Grid: copies of the selection in a 3D grid.
 - [`slots/tools/duplicate_linear.py`](#slots--tools--duplicate_linear) — Duplicate Linear: copies of the selection along a line, each interpolating
 - [`slots/tools/duplicate_radial.py`](#slots--tools--duplicate_radial) — Duplicate Radial: copies of the selection in a radial pattern about a pivot.
@@ -128,6 +105,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/emissive_groups.py`](#slots--tools--emissive_groups) — Emissive Groups: named face groups whose emissive regions a game engine gates.
 - [`slots/tools/exploded_view.py`](#slots--tools--exploded_view) — Exploded View: spread the selected objects apart to inspect interior parts.
 - [`slots/tools/game_shader.py`](#slots--tools--game_shader) — Game Shader: build a PBR material from a set of texture maps, packed for a
+- [`slots/tools/gaussian_splat_workflow.py`](#slots--tools--gaussian_splat_workflow) — Slots for the Brush (gaussian-splat) Workflow panel.
 - [`slots/tools/hdr_manager.py`](#slots--tools--hdr_manager) — HDR Manager: light the scene from an HDR environment map, spin it and adjust
 - [`slots/tools/hierarchy_sync.py`](#slots--tools--hierarchy_sync) — Hierarchy Sync: diff the scene's hierarchy against a reference file, then
 - [`slots/tools/image_to_plane.py`](#slots--tools--image_to_plane) — Image to Plane: batch-create textured planes from image files.
@@ -135,11 +113,16 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/key_stash.py`](#slots--tools--key_stash) — Key Stash: park keys out of the working animation as clips, then preview or
 - [`slots/tools/light_rig.py`](#slots--tools--light_rig) — Light Rigs: save the scene's lights as named rigs, swap between them and
 - [`slots/tools/lightmap_baker.py`](#slots--tools--lightmap_baker) — Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
+- [`slots/tools/look_match.py`](#slots--tools--look_match) — Slots for the Look Match panel: light a baked scene to match a reference image.
 - [`slots/tools/marmoset_bridge.py`](#slots--tools--marmoset_bridge) — Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
+- [`slots/tools/marmoset_workflow.py`](#slots--tools--marmoset_workflow) — Slots for the standalone Marmoset Workflow panel.
 - [`slots/tools/mat_updater.py`](#slots--tools--mat_updater) — Material Updater: rework scene materials for a target workflow preset,
-- [`slots/tools/maya_bridge.py`](#slots--tools--maya_bridge) — Maya Bridge: send the selection to a fresh Maya through an import template.
+- [`slots/tools/mesh_convert.py`](#slots--tools--mesh_convert) — Mesh Converter: batch-convert FBX files to binary glTF (GLB) with FBX2glTF.
+- [`slots/tools/metashape_workflow.py`](#slots--tools--metashape_workflow) — Slots for the Metashape Workflow panel.
 - [`slots/tools/mirror.py`](#slots--tools--mirror) — Mirror: mirror the selected meshes across an axis, with a live preview.
 - [`slots/tools/naming.py`](#slots--tools--naming) — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
+- [`slots/tools/packer.py`](#slots--tools--packer) — Map Packer UI — slot file for ``packer.ui``: channel-pack/unpack texture maps.
+- [`slots/tools/realityscan_workflow.py`](#slots--tools--realityscan_workflow) — Slots for the RealityCapture Workflow panel.
 - [`slots/tools/reference_manager.py`](#slots--tools--reference_manager) — Reference Manager: a workspace scene-file manager -- browse a project's scene
 - [`slots/tools/render_effects.py`](#slots--tools--render_effects) — Render Effects: key per-object opacity fades and highlight pulses for export.
 - [`slots/tools/rizom_bridge.py`](#slots--tools--rizom_bridge) — RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and
@@ -153,14 +136,16 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/tools/smart_bake.py`](#slots--tools--smart_bake) — Smart Bake: bake what drives the scene's animation to keys, reversibly.
 - [`slots/tools/snap.py`](#slots--tools--snap) — Snap: vertices to a target surface, to the closest target vertex, or to the grid.
 - [`slots/tools/substance_bridge.py`](#slots--tools--substance_bridge) — Substance Bridge: send the selection to Substance Painter through a template.
+- [`slots/tools/substance_workflow.py`](#slots--tools--substance_workflow) — Switchboard slots for the Substance Workflow UI.
 - [`slots/tools/telescope_rig.py`](#slots--tools--telescope_rig) — Telescope Rig: nested segments that extend and retract between a base and an
 - [`slots/tools/texture_combine.py`](#slots--tools--texture_combine) — Texture Combine: several materials into one atlas and one material, in
 - [`slots/tools/texture_path_editor.py`](#slots--tools--texture_path_editor) — Texture Path Editor: inspect and fix the scene's texture paths.
 - [`slots/tools/tube_rig.py`](#slots--tools--tube_rig) — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - [`slots/tools/unity_bridge.py`](#slots--tools--unity_bridge) — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
+- [`slots/tools/unity_workflow.py`](#slots--tools--unity_workflow) — Slots for the standalone Unity Workflow panel.
+- [`slots/tools/webxr_preview.py`](#slots--tools--webxr_preview) — Slots for the WebXR Preview panel — the single UI for the live preview.
 - [`slots/tools/wheel_rig.py`](#slots--tools--wheel_rig) — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
-- [`slots/tools/workspace_editor.py`](#slots--tools--workspace_editor) — Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
-- [`slots/tools/workspace_map.py`](#slots--tools--workspace_map) — Workspace Map: browse a folder tree of project workspaces and switch the
+- [`slots/tools/workspaces.py`](#slots--tools--workspaces) — Workspaces: a host's project workspaces in one panel -- the Workspace Map
 - [`slots/transform.py`](#slots--transform) — Transform: one Slots class for both hosts.
 - [`slots/utilities.py`](#slots--utilities) — Utilities: one Slots class for both hosts.
 - [`slots/uv.py`](#slots--uv) — UV: one Slots class for both hosts.
@@ -168,6 +153,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - [`tcl_max.py`](#tcl_max)
 - [`tcl_maya.py`](#tcl_maya)
+- [`tcl_standalone.py`](#tcl_standalone) — The standalone panels: each a window of its own, in a switchboard of its own.
 - [`tentacle_installer.py`](#tentacle_installer) — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
 ---
@@ -175,9 +161,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 <a id="__init__"></a>
 ### `__init__.py`
 
-- [`greeting(string, outputToConsole=True)`](tentacle/tentacle/__init__.py#L54) — Format a string using preset variables.
-- [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L11) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L22) — constant
+- [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L9) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L20) — constant
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -185,6 +170,9 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - **[`class Slots(QtCore.QObject)`](tentacle/tentacle/slots/_slots.py#L9)** — Provides methods that can be triggered by widgets in the ui.
   - `Slots.tk(self)` *(property)* — The host toolkit (``mtk`` / ``btk``) the entry point set on the
   - `Slots.mirror_app_state(widget, seed=None) -> None` *(static)* — Declare that *widget*'s value mirrors live DCC state, optionally seeding it.
+  - `Slots.requires(self, widget, host) -> bool` — Tag a code-built *widget* as served only by *host* -- the ``requires``
+  - `Slots.hide_unless(self, widget, available) -> bool` — Hide *widget* when this host cannot serve it: its engine lacks the
+  - `Slots.host_key(self, base: str) -> str` — *base* namespaced by host (uitk's ``host_namespace_suffix`` of the
   - `Slots.require_selection(self, message=None)` — The selection, or ``None`` -- after a message box -- when it is empty.
   - `Slots.activate_tool(self, tool) -> bool` — Activate a viewport tool through the host toolkit and confirm it, or say
   - `Slots.run_operation(self, call, *args, empty=None, **kwargs)` — Call a host operation and report it: a refusal (``ValueError`` for a
@@ -250,11 +238,6 @@ Animation: one Slots class for both hosts.
   - `AnimationSlots.tb017(self, widget)` — Step Tangents: set the interpolation of the chosen keys.
   - `AnimationSlots.tb019_init(self, widget)` — Optimize Keys Init
   - `AnimationSlots.tb019(self, widget)` — Optimize Keys: remove redundant animation data from the selection,
-
-<a id="slots--blender--blender"></a>
-### `slots/blender/blender.py`
-
-- **[`class BlenderSlots(Slots)`](tentacle/tentacle/slots/blender/blender.py#L6)** — Base-name anchor for the Blender both-button chord menu (``blender#startmenu``).
 
 <a id="slots--cameras"></a>
 ### `slots/cameras.py`
@@ -473,171 +456,6 @@ Materials: one Slots class for both hosts.
   - `MaterialsSlots.b024(self, widget=None)` — RealityCapture Workflow.
   - `MaterialsSlots.b025(self, widget=None)` — Brush Splat Workflow.
 
-<a id="slots--maya--arnold"></a>
-### `slots/maya/arnold.py`
-
-- **[`class ArnoldSlots(Slots)`](tentacle/tentacle/slots/maya/arnold.py#L8)**
-
-<a id="slots--maya--cache"></a>
-### `slots/maya/cache.py`
-
-- **[`class CacheSlots(Slots)`](tentacle/tentacle/slots/maya/cache.py#L8)**
-
-<a id="slots--maya--constrain"></a>
-### `slots/maya/constrain.py`
-
-- **[`class ConstrainSlots(Slots)`](tentacle/tentacle/slots/maya/constrain.py#L8)**
-
-<a id="slots--maya--control"></a>
-### `slots/maya/control.py`
-
-- **[`class ControlSlots(Slots)`](tentacle/tentacle/slots/maya/control.py#L8)**
-
-<a id="slots--maya--curves"></a>
-### `slots/maya/curves.py`
-
-- **[`class CurvesSlots(Slots)`](tentacle/tentacle/slots/maya/curves.py#L8)**
-
-<a id="slots--maya--deform"></a>
-### `slots/maya/deform.py`
-
-- **[`class DeformSlots(Slots)`](tentacle/tentacle/slots/maya/deform.py#L8)**
-
-<a id="slots--maya--edit_mesh"></a>
-### `slots/maya/edit_mesh.py`
-
-- **[`class EditMeshSlots(Slots)`](tentacle/tentacle/slots/maya/edit_mesh.py#L8)**
-
-<a id="slots--maya--effects"></a>
-### `slots/maya/effects.py`
-
-- **[`class EffectsSlots(Slots)`](tentacle/tentacle/slots/maya/effects.py#L8)**
-
-<a id="slots--maya--fields_solvers"></a>
-### `slots/maya/fields_solvers.py`
-
-- **[`class FieldsSolversSlots(Slots)`](tentacle/tentacle/slots/maya/fields_solvers.py#L8)**
-
-<a id="slots--maya--fluids"></a>
-### `slots/maya/fluids.py`
-
-- **[`class FluidsSlots(Slots)`](tentacle/tentacle/slots/maya/fluids.py#L8)**
-
-<a id="slots--maya--generate"></a>
-### `slots/maya/generate.py`
-
-- **[`class GenerateSlots(Slots)`](tentacle/tentacle/slots/maya/generate.py#L8)**
-
-<a id="slots--maya--help"></a>
-### `slots/maya/help.py`
-
-- **[`class HelpSlots(Slots)`](tentacle/tentacle/slots/maya/help.py#L8)**
-
-<a id="slots--maya--key"></a>
-### `slots/maya/key.py`
-
-- **[`class KeySlots(Slots)`](tentacle/tentacle/slots/maya/key.py#L8)**
-
-<a id="slots--maya--lighting_shading"></a>
-### `slots/maya/lighting_shading.py`
-
-- **[`class LightingShadingSlots(Slots)`](tentacle/tentacle/slots/maya/lighting_shading.py#L8)**
-
-<a id="slots--maya--mash"></a>
-### `slots/maya/mash.py`
-
-- **[`class MashSlots(Slots)`](tentacle/tentacle/slots/maya/mash.py#L8)**
-
-<a id="slots--maya--mesh"></a>
-### `slots/maya/mesh.py`
-
-- **[`class MeshSlots(Slots)`](tentacle/tentacle/slots/maya/mesh.py#L8)**
-
-<a id="slots--maya--mesh_display"></a>
-### `slots/maya/mesh_display.py`
-
-- **[`class MeshDisplaySlots(Slots)`](tentacle/tentacle/slots/maya/mesh_display.py#L8)**
-
-<a id="slots--maya--mesh_tools"></a>
-### `slots/maya/mesh_tools.py`
-
-- **[`class MeshToolsSlots(Slots)`](tentacle/tentacle/slots/maya/mesh_tools.py#L8)**
-
-<a id="slots--maya--ncloth"></a>
-### `slots/maya/ncloth.py`
-
-- **[`class NClothSlots(Slots)`](tentacle/tentacle/slots/maya/ncloth.py#L8)**
-
-<a id="slots--maya--nconstraint"></a>
-### `slots/maya/nconstraint.py`
-
-- **[`class NConstraintSlots(Slots)`](tentacle/tentacle/slots/maya/nconstraint.py#L8)**
-
-<a id="slots--maya--nhair"></a>
-### `slots/maya/nhair.py`
-
-- **[`class NHairSlots(Slots)`](tentacle/tentacle/slots/maya/nhair.py#L8)**
-
-<a id="slots--maya--nparticles"></a>
-### `slots/maya/nparticles.py`
-
-- **[`class NParticlesSlots(Slots)`](tentacle/tentacle/slots/maya/nparticles.py#L8)**
-
-<a id="slots--maya--playback"></a>
-### `slots/maya/playback.py`
-
-- **[`class PlaybackSlots(Slots)`](tentacle/tentacle/slots/maya/playback.py#L8)**
-
-<a id="slots--maya--render"></a>
-### `slots/maya/render.py`
-
-- **[`class RenderSlots(Slots)`](tentacle/tentacle/slots/maya/render.py#L8)**
-
-<a id="slots--maya--select"></a>
-### `slots/maya/select.py`
-
-- **[`class SelectSlots(Slots)`](tentacle/tentacle/slots/maya/select.py#L8)**
-
-<a id="slots--maya--skeleton"></a>
-### `slots/maya/skeleton.py`
-
-- **[`class SkeletonSlots(Slots)`](tentacle/tentacle/slots/maya/skeleton.py#L8)**
-
-<a id="slots--maya--skin"></a>
-### `slots/maya/skin.py`
-
-- **[`class SkinSlots(Slots)`](tentacle/tentacle/slots/maya/skin.py#L8)**
-
-<a id="slots--maya--stereo"></a>
-### `slots/maya/stereo.py`
-
-- **[`class StereoSlots(Slots)`](tentacle/tentacle/slots/maya/stereo.py#L8)**
-
-<a id="slots--maya--surfaces"></a>
-### `slots/maya/surfaces.py`
-
-- **[`class SurfacesSlots(Slots)`](tentacle/tentacle/slots/maya/surfaces.py#L8)**
-
-<a id="slots--maya--texturing"></a>
-### `slots/maya/texturing.py`
-
-- **[`class TexturingSlots(Slots)`](tentacle/tentacle/slots/maya/texturing.py#L8)**
-
-<a id="slots--maya--toon"></a>
-### `slots/maya/toon.py`
-
-- **[`class ToonSlots(Slots)`](tentacle/tentacle/slots/maya/toon.py#L8)**
-
-<a id="slots--maya--visualize"></a>
-### `slots/maya/visualize.py`
-
-- **[`class VisualizeSlots(Slots)`](tentacle/tentacle/slots/maya/visualize.py#L8)**
-
-<a id="slots--maya--windows"></a>
-### `slots/maya/windows.py`
-
-- **[`class WindowsSlots(Slots)`](tentacle/tentacle/slots/maya/windows.py#L8)**
-
 <a id="slots--normals"></a>
 ### `slots/normals.py`
 
@@ -824,8 +642,8 @@ Scene: one Slots class for both hosts.
   - `SceneSlots.tb003(self, widget)` — Export Scene in the chosen format, using the configured options.
   - `SceneSlots.list003_init(self, widget)` — Tools list: the scene actions grouped into one expandable row.
   - `SceneSlots.list003(self, item)` — Dispatch a Tools leaf to its own slot.
-  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB): the DCC-agnostic extapps tool, its file
-  - `SceneSlots.b010(self)` — The other DCC's bridge: the shared tool named after its TARGET app
+  - `SceneSlots.b013(self)` — Mesh Converter (FBX -> GLB): the DCC-agnostic standalone panel, its file
+  - `SceneSlots.b010(self)` — The other DCC's bridge: the shared DCC Bridge, over the host's bridge to
   - `SceneSlots.b016(self)` — Unity Bridge: send the selection to a Unity project's Assets/.
   - `SceneSlots.b001(self)` — Reference Manager (Maya references, Blender linked libraries).
   - `SceneSlots.b004(self)` — Hierarchy Sync: diff / pull / fix the hierarchy against a reference scene.
@@ -835,7 +653,7 @@ Scene: one Slots class for both hosts.
   - `SceneSlots.b014_init(self, widget)` — Initialize Save to Original Scene: enabled, labelled and tooltipped from the
   - `SceneSlots.b014(self)` — Save to Original Scene: save the open autosave back to its original, the
   - `SceneSlots.b006(self)` — Cleanup Unknown (Maya): unknown nodes and plugins, legacy XGen expressions.
-  - `SceneSlots.b_cleanup(self)` — Scene Cleanup (Blender): purge orphan datablocks (no users, no fake user).
+  - `SceneSlots.b_cleanup(self)` — Scene Cleanup (Blender): purge the data-blocks nothing uses -- Blender's own
   - `SceneSlots.b009(self)` — Fix OCIO (Maya): repair the Color Management / OCIO config preferences.
   - `SceneSlots.b011(self)` — Fix Color Spaces: each texture's color space by its map type
   - `SceneSlots.b018(self)` — Fix Mangled Names (Maya): the selection, or the whole scene when nothing is
@@ -960,7 +778,10 @@ Symmetry: one Slots class for both hosts.
 
 Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
 
-- [`HOSTS`](tentacle/tentacle/slots/tools/__init__.py#L16) — constant
+- [`STANDALONE`](tentacle/tentacle/slots/tools/__init__.py#L19) — constant
+- [`HOSTS`](tentacle/tentacle/slots/tools/__init__.py#L41) — constant
+- [`RENAMED_FROM`](tentacle/tentacle/slots/tools/__init__.py#L59) — constant
+- [`RENAMED_HOSTS`](tentacle/tentacle/slots/tools/__init__.py#L74) — constant
 
 <a id="slots--tools--_app_bridge--host_bridge"></a>
 ### `slots/tools/_app_bridge/host_bridge.py`
@@ -1010,9 +831,10 @@ The value cell of an enum attribute: its labels in a combobox, plus Rename /
 
 Rename the panel's target in place: the target field, and the footer in
 
-- **[`class InlineRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L9)** — Double-click-to-rename on a read-only line edit.
-- **[`class FooterRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L78)** — An inline rename page on a uitk ``Footer``.
-  - `FooterRename.edit(self)` — Swap the footer's label for the line edit, holding the name.
+- **[`class InlineRename(QtCore.QObject)`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L9)** — Double-click-to-rename on a read-only line edit.
+  - `InlineRename.eventFilter(self, watched, event) -> bool` — The field's double-click (start an edit) and Escape (end one).
+- **[`class FooterRename`](tentacle/tentacle/slots/tools/_channels/inline_rename.py#L90)** — An inline rename on a uitk ``Footer``, through its public in-place edit.
+  - `FooterRename.edit(self)` — Edit the target's name in the footer;
 
 <a id="slots--tools--_hierarchy_sync--controller"></a>
 ### `slots/tools/_hierarchy_sync/controller.py`
@@ -1086,12 +908,80 @@ The Hierarchy Sync trees: filling them, the diff's colours, the ignored
   - `HierarchyTreeRenderer.filter_to_leaves(paths) -> List[str]` *(static)* — Keep only paths that are not a parent of another path in *paths*.
   - `HierarchyTreeRenderer.apply_diff_options(self, tree001, tree000, auto_select: bool, expand_diff: bool, select_root_only: bool = False, select_leaves_only: bool = False) -> None` — Select and expand the diff in the trees.
 
+<a id="slots--tools--_marmoset_workflow--parameters"></a>
+### `slots/tools/_marmoset_workflow/parameters.py`
+
+Tunable parameters surfaced in the Marmoset Workflow panel.
+
+- [`PARAMS`](tentacle/tentacle/slots/tools/_marmoset_workflow/parameters.py#L28) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_marmoset_workflow/parameters.py#L52)** — The Marmoset Workflow panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+
+<a id="slots--tools--_photogrammetry--gaussian_splat_parameters"></a>
+### `slots/tools/_photogrammetry/gaussian_splat_parameters.py`
+
+Tunable parameters surfaced in the Brush (gaussian-splat) Workflow panel.
+
+- [`PARAMS`](tentacle/tentacle/slots/tools/_photogrammetry/gaussian_splat_parameters.py#L26) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_photogrammetry/gaussian_splat_parameters.py#L119)** — The Brush (gaussian-splat) panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+  - `Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'` *(static)* — Render collected param *values* into ``run_combined`` CLI flags via the
+  - `Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'` *(class)* — Params relevant to the selected run mode — drives row visibility.
+
+<a id="slots--tools--_photogrammetry--metashape_parameters"></a>
+### `slots/tools/_photogrammetry/metashape_parameters.py`
+
+Tunable parameters surfaced in the Metashape Workflow panel.
+
+- [`PARAMS`](tentacle/tentacle/slots/tools/_photogrammetry/metashape_parameters.py#L41) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_photogrammetry/metashape_parameters.py#L374)** — The Metashape panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+  - `Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'` *(static)* — Render collected param *values* into ``run_combined`` CLI flags (via the
+  - `Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'` *(class)* — Params relevant to the panel's current input — drives row visibility.
+
+<a id="slots--tools--_photogrammetry--panel_slots"></a>
+### `slots/tools/_photogrammetry/panel_slots.py`
+
+Shared scaffolding for the photogrammetry workflow panels.
+
+- **[`class PhotogrammetryPanelSlots(Slots.BridgeSlotsBase)`](tentacle/tentacle/slots/tools/_photogrammetry/panel_slots.py#L44)** — Base for the photogrammetry workflow panels (engine-agnostic scaffolding).
+  - `PhotogrammetryPanelSlots.header_menu_items(self)` — Process-runner header menu: Cancel Run / Open Output Folder / Clear
+  - `PhotogrammetryPanelSlots.make_preset_store(self)` — Semantic-preset mode: the engine-scoped store the headless runner uses
+  - `PhotogrammetryPanelSlots.resolved_project_name(self) -> str`
+  - `PhotogrammetryPanelSlots.cancel_run(self) -> None`
+  - `PhotogrammetryPanelSlots.open_output_folder(self) -> None` — Reveal the output folder.
+  - `PhotogrammetryPanelSlots.b000(self) -> None` — Run Workflow.
+- **[`class FramesSourceMixin`](tentacle/tentacle/slots/tools/_photogrammetry/panel_slots.py#L385)** — A single 'Source' row + browser for image-in panels (Metashape, RC).
+  - `FramesSourceMixin.resolved_frames_dir(self) -> str`
+
+<a id="slots--tools--_photogrammetry--realityscan_parameters"></a>
+### `slots/tools/_photogrammetry/realityscan_parameters.py`
+
+Tunable parameters surfaced in the RealityCapture Workflow panel.
+
+- [`PARAMS`](tentacle/tentacle/slots/tools/_photogrammetry/realityscan_parameters.py#L41) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_photogrammetry/realityscan_parameters.py#L166)** — The RealityScan panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+  - `Parameters.to_argv(values: 'Dict[str, Any]') -> 'List[str]'` *(static)* — Render collected param *values* into ``run_combined`` CLI flags (via the
+  - `Parameters.referenced_keys(cls, source: str = '') -> 'set[str]'` *(class)* — Params relevant to the panel's current input — drives row visibility.
+
+<a id="slots--tools--_photogrammetry--shared_parameters"></a>
+### `slots/tools/_photogrammetry/shared_parameters.py`
+
+Input pre-processing parameter specs shared by the image-in engines.
+
+- [`PREPROCESS_MASTER_KEY`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L30) — constant
+- [`PREPROCESSING_PARAMS`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L34) — constant
+- [`PREPROCESSING_VALUE_FLAGS`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L125) — constant
+- [`PREPROCESSING_STORE_TRUE_FLAGS`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L135) — constant
+- [`PREPROCESSING_KEYS`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L141) — constant
+- [`PREPROCESSING_KNOB_KEYS`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L148) — constant
+- **[`class SharedParams`](tentacle/tentacle/slots/tools/_photogrammetry/shared_parameters.py#L153)** — Argv renderers shared by the image-in engines' ``<engine>_parameters`` modules.
+  - `SharedParams.render_flag_argv(values: 'Dict[str, Any]', value_flags: 'Dict[str, str]', store_true_flags: 'Optional[Dict[str, str]]' = None, bool_flags: 'Optional[Dict[str, str]]' = None) -> 'List[str]'` *(static)* — Render *values* into CLI flags — the shared loop behind every engine's
+  - `SharedParams.preprocessing_argv(values: 'Dict[str, Any]') -> 'List[str]'` *(static)* — Render the input pre-processing CLI flags from collected *values*.
+
 <a id="slots--tools--_reference_manager--controller"></a>
 ### `slots/tools/_reference_manager/controller.py`
 
 The Reference Manager panel's controller: the browsed workspace, the table
 
-- **[`class ReferenceManagerController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_reference_manager/controller.py#L28)** — State and behavior behind ``reference_manager.ui`` (see the module docstring).
+- **[`class ReferenceManagerController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_reference_manager/controller.py#L27)** — State and behavior behind ``reference_manager.ui`` (see the module docstring).
   - `ReferenceManagerController.tk(self)` *(property)* — The host toolkit (``Slots.tk``).
   - `ReferenceManagerController.norm(path) -> str` *(static)* — The panel's comparison key for a path: normalized, case-folded only where
   - `ReferenceManagerController.role(self, offset: int)` — ``Qt.UserRole + offset`` (the row data roles above).
@@ -1134,22 +1024,6 @@ The Reference Manager panel's controller: the browsed workspace, the table
   - `ReferenceManagerController.item_changed(self, item)` — Commit an inline rename (the name column) or a note (the Notes column).
   - `ReferenceManagerController.editor_closed(self, *_args)` — The inline editor closed: the name cell shows its label again.
 
-<a id="slots--tools--_reference_manager--listing"></a>
-### `slots/tools/_reference_manager/listing.py`
-
-The Reference Manager's listing rules: how a scene file reads as a row and
-
-- **[`class SceneListing`](tentacle/tentacle/slots/tools/_reference_manager/listing.py#L17)** — Row labels, filter matches and the naming conventions' path rules.
-  - `SceneListing.display_name(path: str, hide_extension: bool, hide_suffix: str) -> str` *(static)* — The table label for *path* -- its basename, less the extension and/or a
-  - `SceneListing.split_patterns(cls, text: str) -> List[str]` *(class)* — *text* split on every :attr:`DELIMITERS` entry, each part trimmed.
-  - `SceneListing.text_matches_filter(text: str, filter_patterns: Sequence[str], ignore_case: bool = True) -> bool` *(static)* — True if *text* (a file name) matches ANY of the already-split glob
-  - `SceneListing.matches_notes_filter(cls, notes_text: str, filter_text: str, ignore_case: bool = True) -> bool` *(class)* — True if the note *notes_text* matches the filter.
-  - `SceneListing.scenes_folder(workspace: str) -> str` *(static)* — The ``{scenes}`` placeholder for *workspace*: its ``scene`` file rule when
-  - `SceneListing.format_name(name: str, case_style: str = 'None', suffix: str = '') -> str` *(static)* — *name* in the *case_style* convention (``ptk.StrUtils.set_case``;
-  - `SceneListing.strip_all_suffixes(base: str, suffix: str) -> str` *(static)* — *base* less EVERY trailing *suffix*: a prefill still ending in one (a
-  - `SceneListing.filter_by_folder_structure(files: Iterable[str], workspace: str, pattern: str, suffix: str, scenes: str) -> List[str]` *(static)* — The *files* whose folder ends with *pattern* resolved for each
-  - `SceneListing.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str` *(class)* — Confirmation text for deleting *paths*.
-
 <a id="slots--tools--_reference_manager--references"></a>
 ### `slots/tools/_reference_manager/references.py`
 
@@ -1172,9 +1046,9 @@ The Reference Manager's reference actions: a row's reference and display
 
 The Reference Manager's scene files: open / close / save / rename / delete, the
 
-- **[`class SceneFiles`](tentacle/tentacle/slots/tools/_reference_manager/scene_files.py#L24)** — The scene-file actions (see the module docstring).
-  - `SceneFiles.normalize_structure_pattern(self, pattern: str) -> str` — The folder-structure pattern trimmed, with the common ``{scene}`` typo read
-  - `SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str` — The name Save would prepopulate: the open scene's base, less every trailing
+- **[`class SceneFiles`](tentacle/tentacle/slots/tools/_reference_manager/scene_files.py#L22)** — The scene-file actions (see the module docstring).
+  - `SceneFiles.normalize_structure_pattern(self, pattern: str) -> str` — The folder-structure pattern as Save reads it
+  - `SceneFiles.default_save_name(self, case_style: str, suffix: str) -> str` — The name Save would prepopulate for the open scene
   - `SceneFiles.resolve_save_target(self, name, case_style, suffix, pattern) -> str` — The absolute path Save To Workspace writes for *name* under the browsed
   - `SceneFiles.save_scene_preview(self) -> str` — Live tooltip for the footer's Save button: the exact path Save would write.
   - `SceneFiles.folder_structure_preview(self) -> str` — Live tooltip for the Folder Structure field: its placeholders resolved
@@ -1187,6 +1061,7 @@ The Reference Manager's scene files: open / close / save / rename / delete, the
   - `SceneFiles.save_to_workspace(self)` — Save the open scene into the workspace under the Naming conventions,
   - `SceneFiles.rename_path(self, old_path, new_path, folder=None, item=None) -> Optional[str]` — Rename *old_path* to *new_path* through the engine (the open scene saved and
   - `SceneFiles.rename_scene(self)` — Rename the right-clicked row's scene, prompting for the new name under the
+  - `SceneFiles.delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str` *(class)* — Confirmation text for deleting *paths*.
   - `SceneFiles.delete_scene(self)` — Delete the right-clicked row's scene: to the trash, or -- a drive with none,
   - `SceneFiles.open_file_location(self)` — Reveal the right-clicked row's file in the file manager.
   - `SceneFiles.copy_path(self)` — Copy the right-clicked row's full path to the clipboard.
@@ -1535,7 +1410,7 @@ Transport: the playhead, audio scrub and the transport row.
 
 The shot sequencer's undo ledger.
 
-- **[`class UndoLedgerMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/undo_ledger.py#L13)** — Shot-boundary restore points, and the panel's Undo / Redo.
+- **[`class UndoLedgerMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/undo_ledger.py#L13)** — The panel's Undo / Redo over the shot-boundary restore points.
   - `UndoLedgerMixin.on_undo(self) -> None` — Handle undo_requested from the widget: one step of the host's undo,
   - `UndoLedgerMixin.on_redo(self) -> None` — Handle redo_requested from the widget (see :meth:`on_undo`).
 
@@ -1627,10 +1502,81 @@ The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 
 What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
 
-- **[`class UnityPanelMixin`](tentacle/tentacle/slots/tools/_unity_bridge/_unity_panel.py#L33)** — Unity-panel behavior shared by the three Unity Slots classes.
+- **[`class UnityPanelMixin`](tentacle/tentacle/slots/tools/_unity_bridge/_unity_panel.py#L26)** — Unity-panel behavior shared by both Unity Slots classes.
   - `UnityPanelMixin.template_dir(self) -> Path` *(property)*
   - `UnityPanelMixin.list_template_modes(self)`
   - `UnityPanelMixin.default_output_dir(self) -> str`
+
+<a id="slots--tools--_unity_workflow--parameters"></a>
+### `slots/tools/_unity_workflow/parameters.py`
+
+User-tunable parameters for the standalone Unity Workflow panel.
+
+- [`PARAMS`](tentacle/tentacle/slots/tools/_unity_workflow/parameters.py#L26) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_unity_workflow/parameters.py#L127)** — The Unity Workflow panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+
+<a id="slots--tools--_webxr_preview--parameters"></a>
+### `slots/tools/_webxr_preview/parameters.py`
+
+Tunable parameters surfaced in the WebXR Preview panel.
+
+- [`SOURCE_FILE_TYPES`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L43) — constant
+- [`AUTHORED_EXTENSION`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L47) — constant
+- [`EXPORT_KEYS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L53) — constant
+- [`FILE_KEYS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L56) — constant
+- [`GLB_KEYS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L61) — constant
+- [`TEXTURE_KEYS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L66) — constant
+- [`KTX2_KEYS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L72) — constant
+- [`PARAMS`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L182) — constant
+- **[`class Parameters(ParamRegistry)`](tentacle/tentacle/slots/tools/_webxr_preview/parameters.py#L363)** — The WebXR Preview panel's registry, declared as data (:class:`uitk.bridge.ParamRegistry`).
+
+<a id="slots--tools--_workspaces--editor"></a>
+### `slots/tools/_workspaces/editor.py`
+
+The Workspaces panel's editor: the minimal take on Maya's File ▸ Project
+
+- **[`class WorkspaceEditorPart(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_workspaces/editor.py#L40)** — The editor's widgets and state (see the module docstring).
+  - `WorkspaceEditorPart.tk(self)` *(property)* — The host toolkit, the panel's (``Slots.tk``).
+  - `WorkspaceEditorPart.header_init(self, widget)` — Create Project, rule add, view toggle, reset/clear (dispatched by name
+  - `WorkspaceEditorPart.help_spec() -> dict` *(static)* — The editor's help (``tooltip.fmt`` keywords);
+  - `WorkspaceEditorPart.txt002_init(self, widget)` — Project Root: one full path (browse + open-folder option-box actions).
+  - `WorkspaceEditorPart.tbl000_init(self, widget)`
+  - `WorkspaceEditorPart.add_rule(self)` — Append an empty, editable rule row (saves once both cells are filled).
+  - `WorkspaceEditorPart.reset_row(self, row)` — Reset *row*'s location to the active template's default for its rule.
+  - `WorkspaceEditorPart.remove_row(self, row)` — Remove *row* and delete its rule from workspace.mel.
+  - `WorkspaceEditorPart.reset_rules(self)` — Restore the default file rules (the active template's) and save.
+  - `WorkspaceEditorPart.clear_rules(self)` — Remove every file rule and save (hand-written marker lines survive).
+  - `WorkspaceEditorPart.create_project(self)` — Build the project at the current root: marker + the active template's rule
+  - `WorkspaceEditorPart.open_folder(self)` — Open the project root in the system file browser.
+
+<a id="slots--tools--_workspaces--map"></a>
+### `slots/tools/_workspaces/map.py`
+
+The Workspaces panel's map: browse a folder tree of project workspaces and
+
+- **[`class WorkspaceMapPart(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_workspaces/map.py#L24)** — The map's widgets and state (see the module docstring).
+  - `WorkspaceMapPart.tk(self)` *(property)* — The host toolkit, the panel's (``Slots.tk``).
+  - `WorkspaceMapPart.header_init(self, widget)` — The project rows (dispatched by name to the panel's slots).
+  - `WorkspaceMapPart.help_spec() -> dict` *(static)* — The map's help (``tooltip.fmt`` keywords);
+  - `WorkspaceMapPart.txt000_init(self, widget)` — The root directory field: browse, Set To Workspace, Recursive Search.
+  - `WorkspaceMapPart.txt001_init(self, widget)` — The workspace-name filter.
+  - `WorkspaceMapPart.tree000_init(self, widget)` — The workspace tree, its double-click and its right-click menu.
+  - `WorkspaceMapPart.update_current_dir(self, text: Optional[str] = None) -> None` — Retarget the scan at the root field's directory (rescans only when it
+  - `WorkspaceMapPart.update_tree(self, filter_text: Optional[str] = None) -> None` — Rebuild the tree from the last scan, narrowed to *filter_text*.
+  - `WorkspaceMapPart.populate_tree(self, tree_data: Dict) -> None` — Clear and refill the tree: a row per parent folder, its workspaces
+  - `WorkspaceMapPart.refresh_tree(self, invalidate: bool = False) -> None` — Refill the tree;
+  - `WorkspaceMapPart.selected_workspace(self) -> Optional[Dict]` — The workspace row under the tree cursor, or None (a folder row is none).
+  - `WorkspaceMapPart.filter_workspaces(self, text) -> None`
+  - `WorkspaceMapPart.b000(self) -> None` — Browse for the root directory.
+  - `WorkspaceMapPart.b001(self) -> None` — Set to Workspace.
+  - `WorkspaceMapPart.b002(self) -> None` — Refresh: rescan the root.
+  - `WorkspaceMapPart.set_to_workspace(self) -> None` — Set the root to the current workspace's folder.
+  - `WorkspaceMapPart.chk000(self, checked) -> None` — Recursive Search: rescan when it changes.
+  - `WorkspaceMapPart.btn_open_workspace(self) -> None` — Make the selected workspace the current project.
+  - `WorkspaceMapPart.btn_explore_folder(self) -> None` — Open the selected workspace's folder in the file browser.
+  - `WorkspaceMapPart.new_project(self) -> None` — Create a project under the root from the ACTIVE template.
+  - `WorkspaceMapPart.mark_root(self) -> None` — Mark the ROOT directory as a shared Maya/Blender project.
+  - `WorkspaceMapPart.save_template(self) -> None` — Publish the ACTIVE project's file rules as a named workspace template.
 
 <a id="slots--tools--arnold_bridge"></a>
 ### `slots/tools/arnold_bridge.py`
@@ -1692,7 +1638,6 @@ Audio Clips: the scene's audio files, placed on the timeline.
   - `AudioClipsSlots.btn_sync_audio(self) -> None` — Rebuild the sound nodes and the composite from the keys (Maya).
   - `AudioClipsSlots.s000_init(self, widget) -> None`
   - `AudioClipsSlots.s001_init(self, widget) -> None`
-  - `AudioClipsSlots.b003_init(self, widget) -> None`
   - `AudioClipsSlots.b003(self) -> None` — Apply Trim: the Start/End frames off the selected clip's ends.
   - `AudioClipsSlots.b004_init(self, widget) -> None` — Sync Scene Range: its fit mode in the option box.
   - `AudioClipsSlots.b004(self, widget=None) -> None` — Fit the scene frame range to the clips.
@@ -1705,15 +1650,6 @@ Bevel: chamfer the selected polygon edges, with a live preview.
 - **[`class BevelSlots(Slots)`](tentacle/tentacle/slots/tools/bevel.py#L12)**
   - `BevelSlots.header_init(self, widget)` — Configure header help text.
   - `BevelSlots.perform_operation(self, objects, contract=None)` — Bevel *objects* (Maya's Preview passes its cleanup *contract*).
-
-<a id="slots--tools--blender_bridge"></a>
-### `slots/tools/blender_bridge.py`
-
-Blender Bridge: send the selection to a fresh Blender through an import
-
-- **[`class BlenderBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/blender_bridge.py#L34)**
-  - `BlenderBridgeSlots.bridge_class(self)` *(property)*
-  - `BlenderBridgeSlots.b000(self)` — Send the selected objects to Blender with the chosen template.
 
 <a id="slots--tools--blendshape_animator"></a>
 ### `slots/tools/blendshape_animator.py`
@@ -1802,6 +1738,50 @@ Color ID: color-code objects across channels from a swatch palette.
   - `ColorIdSlots.b002(self) -> None` — Select By Color: select the objects carrying the active color on the
   - `ColorIdSlots.b003(self) -> None` — Get Color: read the selected object's color on the enabled channels into
 
+<a id="slots--tools--compositor"></a>
+### `slots/tools/compositor.py`
+
+UI slot bindings for the Map Compositor: several texture maps of each type
+
+- **[`class CompositorSlots(Slots, _CompositorSlotsInternal)`](tentacle/tentacle/slots/tools/compositor.py#L109)** — UI slot handler.
+  - `CompositorSlots.output_dir(self) -> str` *(property)*
+  - `CompositorSlots.map_name(self) -> str` *(property)*
+  - `CompositorSlots.header_init(self, widget)` — Populate the header menu with global options.
+  - `CompositorSlots.txt000_init(self, widget)` — Init Source — a directory of maps, or specific image files.
+  - `CompositorSlots.txt001_init(self, widget)` — Init Destination Directory
+  - `CompositorSlots.txt002_init(self, widget)` — Init Map Name
+  - `CompositorSlots.b002(self)` — Combine Maps
+  - `CompositorSlots.process(self, images, source_dir, output_dir, map_name=None)` — Validate dirs, prepare sorted-image groups, and drive the engine.
+
+<a id="slots--tools--converter"></a>
+### `slots/tools/converter.py`
+
+Map Converter UI — slot file for ``converter.ui``.
+
+- **[`class ConverterSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/converter.py#L39)** — Switchboard slots for ``converter.ui``.
+  - `ConverterSlots.source_dir(self)` *(property)* — Get the starting directory for file dialogs.
+  - `ConverterSlots.scopes(self) -> Tuple[str, ...]` *(property)* — Scope labels currently offered, in combobox order.
+  - `ConverterSlots.register_scope(self, label: str, provider: Callable[[], Iterable[str]], *, select: bool = False) -> None` — Offer *label* in the Scope combobox, resolved by calling *provider*.
+  - `ConverterSlots.unregister_scope(self, label: str) -> None` — Drop a previously registered scope (no-op if it isn't registered).
+  - `ConverterSlots.texture_provider(self) -> Optional[Callable[[], Iterable[str]]]` *(property)* — Provider for the plain "Selected" scope.
+  - `ConverterSlots.header_init(self, widget)` — Add the global Scope combobox to the header menu.
+  - `ConverterSlots.optimize_formats(self) -> Tuple[str, ...]` *(property)* — The containers Optimize offers: every writable one, then the
+  - `ConverterSlots.tb000_init(self, widget)` — Populate the Optimize toolbutton's option menu.
+  - `ConverterSlots.tb000(self, widget)` — Optimize a texture map(s)
+  - `ConverterSlots.tb001_init(self, widget)`
+  - `ConverterSlots.tb001(self, widget)` — Batch converts Spec/Gloss maps to PBR Metal/Rough using MapFactory.
+  - `ConverterSlots.tb003_init(self, widget)` — Initialize a 'Bump to Normal' toolbutton with options.
+  - `ConverterSlots.tb003(self, widget)` — Bump/Height to Normal converter (single entry point with options).
+  - `ConverterSlots.tb002_init(self, widget)` — Populate the Flip Channels option menu (per-channel source + suffix).
+  - `ConverterSlots.tb002(self, widget)` — Flip/swizzle texture channels (per-channel invert, swap, or constant fill).
+  - `ConverterSlots.b000(self)` — Convert DirectX to OpenGL
+  - `ConverterSlots.b001(self)` — Convert OpenGL to DirectX
+  - `ConverterSlots.b004(self)` — Batch pack Transparency into Albedo across texture sets.
+  - `ConverterSlots.b007(self)` — Unpack Specular and Gloss maps from SpecularGloss textures.
+  - `ConverterSlots.b010(self)` — Convert Smoothness maps to Roughness maps.
+  - `ConverterSlots.b011(self)` — Convert Roughness maps to Smoothness maps.
+  - `ConverterSlots.b012(self)` — Batch-prepare textures for a target PBR workflow using MapFactory.
+
 <a id="slots--tools--curtain"></a>
 ### `slots/tools/curtain.py`
 
@@ -1833,6 +1813,18 @@ Cut On Axis: slice the selected meshes along an axis, then optionally delete
   - `CutOnAxisSlots.header_init(self, widget)` — Configure header help text.
   - `CutOnAxisSlots.toggle_weight_ui(self)` — Enable the weight fields only for the modes that consume them:
   - `CutOnAxisSlots.perform_operation(self, objects, contract=None)` — Cut *objects* (Maya's Preview passes its cleanup *contract*).
+
+<a id="slots--tools--dcc_bridge"></a>
+### `slots/tools/dcc_bridge.py`
+
+DCC Bridge: send the selection to a fresh copy of the other DCC through an
+
+- **[`class DccBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/dcc_bridge.py#L35)**
+  - `DccBridgeSlots.bridge_class(self)` *(property)* — The host's bridge to the other DCC (``EnvUtils.foreign_scene_bridge``):
+  - `DccBridgeSlots.target_app(self) -> str` *(property)* — The other DCC's name, the engine's: "Blender" in Maya, "Maya" in Blender.
+  - `DccBridgeSlots.PRESETS_ROOT(self)` *(property)* — ``<host library>/<target>_bridge``: each host's presets stay under the
+  - `DccBridgeSlots.help_spec(self) -> dict` — The header help, naming the target app;
+  - `DccBridgeSlots.b000(self)` — Send the selected objects to the other DCC with the chosen template.
 
 <a id="slots--tools--duplicate_grid"></a>
 ### `slots/tools/duplicate_grid.py`
@@ -1936,6 +1928,25 @@ Game Shader: build a PBR material from a set of texture maps, packed for a
   - `GameShaderSlots.txt000_init(self, widget)` — Material-name field — clearable back to the auto-derived name.
   - `GameShaderSlots.txt002_init(self, widget)` — Add a prefix/suffix/auto-mode picker to the affix field.
   - `GameShaderSlots.b000(self)` — Create Network: pick texture files and build their material(s).
+
+<a id="slots--tools--gaussian_splat_workflow"></a>
+### `slots/tools/gaussian_splat_workflow.py`
+
+Slots for the Brush (gaussian-splat) Workflow panel.
+
+- **[`class GaussianSplatWorkflowSlots(PhotogrammetryPanelSlots)`](tentacle/tentacle/slots/tools/gaussian_splat_workflow.py#L36)** — Switchboard slots wired to ``gaussian_splat_workflow.ui``.
+  - `GaussianSplatWorkflowSlots.resolved_colmap_dir(self) -> str`
+  - `GaussianSplatWorkflowSlots.params_module(self)` *(property)*
+  - `GaussianSplatWorkflowSlots.template_dir(self) -> Path` *(property)*
+  - `GaussianSplatWorkflowSlots.make_bridge(self) -> GaussianSplatRunner`
+  - `GaussianSplatWorkflowSlots.header_init(self, widget) -> None`
+  - `GaussianSplatWorkflowSlots.open_brush_viewer(self) -> None` — Open Brush's GUI viewer with nothing loaded (``brush`` defaults to the
+  - `GaussianSplatWorkflowSlots.open_result_in_brush(self) -> None` — Open the latest trained splat in Brush's viewer.
+  - `GaussianSplatWorkflowSlots.install_brush(self) -> None` — Download + install Brush if it isn't already discoverable.
+  - `GaussianSplatWorkflowSlots.cancel_run(self) -> None` — Cancel an in-flight Brush download too — the base 'Cancel Run' action
+  - `GaussianSplatWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+  - `GaussianSplatWorkflowSlots.default_output_dir(self) -> str`
+  - `GaussianSplatWorkflowSlots.help_spec(self) -> dict`
 
 <a id="slots--tools--hdr_manager"></a>
 ### `slots/tools/hdr_manager.py`
@@ -2094,6 +2105,55 @@ Lightmap Baker: bake the scene's lighting into lightmaps the engine reads.
   - `LightmapBakerSlots.show_bake_state(self) -> None` — Show the scene's bake state, map by map, in a viewer
   - `LightmapBakerSlots.open_output(self) -> None` — Open the bake's output folder in the file manager.
 
+<a id="slots--tools--look_match"></a>
+### `slots/tools/look_match.py`
+
+Slots for the Look Match panel: light a baked scene to match a reference image.
+
+- [`DOCS_URL`](tentacle/tentacle/slots/tools/look_match.py#L31) — constant
+- **[`class LookMatchSlots(Slots, _LookMatchSlotsInternal)`](tentacle/tentacle/slots/tools/look_match.py#L94)** — The Look Match panel (see the module docstring).
+  - `LookMatchSlots.header_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_session_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_mix_init(self, widget) -> None`
+  - `LookMatchSlots.b_undo_init(self, widget) -> None`
+  - `LookMatchSlots.b_redo_init(self, widget) -> None`
+  - `LookMatchSlots.b_undo(self) -> None`
+  - `LookMatchSlots.b_redo(self) -> None`
+  - `LookMatchSlots.b_fit_init(self, widget) -> None`
+  - `LookMatchSlots.tbl_mix_init(self, widget) -> None`
+  - `LookMatchSlots.chk_all_init(self, widget) -> None`
+  - `LookMatchSlots.tbl_regions_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_mode_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_a_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_b_init(self, widget) -> None`
+  - `LookMatchSlots.cmb_solve_init(self, widget) -> None`
+  - `LookMatchSlots.cmp_view_init(self, widget) -> None`
+  - `LookMatchSlots.browse_session(self) -> None`
+  - `LookMatchSlots.open_session(self, path: str) -> bool` — Start opening the session file at *path*;
+  - `LookMatchSlots.save_mix(self) -> None`
+  - `LookMatchSlots.save_mix_as(self) -> None`
+  - `LookMatchSlots.delete_mix(self) -> None` — Delete the picked mix: to the platform's trash, where it can be
+  - `LookMatchSlots.b_solve(self) -> None`
+  - `LookMatchSlots.b_fit(self) -> None`
+  - `LookMatchSlots.b_accept(self) -> None`
+  - `LookMatchSlots.b_discard(self) -> None`
+  - `LookMatchSlots.b_render(self) -> None`
+  - `LookMatchSlots.stop_service(self, wait: bool = True) -> None` — End the WebXR viewer this panel started (never one it did not): its
+  - `LookMatchSlots.b_edit_regions(self) -> None`
+  - `LookMatchSlots.b_draw_rect(self) -> None`
+  - `LookMatchSlots.b_draw_ellipse(self) -> None`
+  - `LookMatchSlots.b_draw_poly(self) -> None`
+  - `LookMatchSlots.b_draw_line(self) -> None`
+  - `LookMatchSlots.b_region_delete(self) -> None`
+  - `LookMatchSlots.b_paint(self) -> None`
+  - `LookMatchSlots.b_reload(self) -> None`
+  - `LookMatchSlots.b_update(self) -> None`
+  - `LookMatchSlots.stop_worker(self) -> None` — End the bake workers this panel launched (never one it did not),
+  - `LookMatchSlots.b_save_rig(self) -> None`
+  - `LookMatchSlots.mix_key(mix) -> str` *(static)* — A mix's identity: what a render records, so it can say it is stale.
+  - `LookMatchSlots.status_glyph(row: Dict[str, Any]) -> str` *(static)* — A region's state in a shape, not only a colour: within, brighter,
+  - `LookMatchSlots.brightness_text(value: Optional[float]) -> str` *(static)*
+
 <a id="slots--tools--marmoset_bridge"></a>
 ### `slots/tools/marmoset_bridge.py`
 
@@ -2103,6 +2163,21 @@ Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
   - `MarmosetBridgeSlots.bridge_class(self)` *(property)*
   - `MarmosetBridgeSlots.select_initial_template_index(self, pairs)` — Prefer 'bake (roundtrip)' then 'bake (send_to)', else the first entry.
   - `MarmosetBridgeSlots.b000(self)` — Send the Scope's objects with the chosen template + mode.
+
+<a id="slots--tools--marmoset_workflow"></a>
+### `slots/tools/marmoset_workflow.py`
+
+Slots for the standalone Marmoset Workflow panel.
+
+- **[`class MarmosetWorkflowSlots(Slots.BridgeSlotsBase)`](tentacle/tentacle/slots/tools/marmoset_workflow.py#L49)** — Switchboard slots wired to ``marmoset_workflow.ui``.
+  - `MarmosetWorkflowSlots.params_module(self)` *(property)*
+  - `MarmosetWorkflowSlots.template_dir(self) -> Path` *(property)*
+  - `MarmosetWorkflowSlots.make_bridge(self) -> MarmosetWorkflow`
+  - `MarmosetWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]` — Engine templates filtered to the 'set up a project' subset.
+  - `MarmosetWorkflowSlots.select_initial_template_index(self, pairs: List[Tuple[str, str]]) -> int` — Prefer 'lookdev (send_to)', else first entry.
+  - `MarmosetWorkflowSlots.resolved_model_path(self) -> str`
+  - `MarmosetWorkflowSlots.set_model_path(self, path: str) -> None` — Pre-fill the Model File field (e.g.
+  - `MarmosetWorkflowSlots.b000(self) -> None` — Set up the picked model in Toolbag using the chosen template + mode.
 
 <a id="slots--tools--mat_updater"></a>
 ### `slots/tools/mat_updater.py`
@@ -2118,14 +2193,30 @@ Material Updater: rework scene materials for a target workflow preset,
   - `MatUpdaterSlots.cmb001_init(self, widget)` — Initialize Presets.
   - `MatUpdaterSlots.b001(self)` — Update Materials
 
-<a id="slots--tools--maya_bridge"></a>
-### `slots/tools/maya_bridge.py`
+<a id="slots--tools--mesh_convert"></a>
+### `slots/tools/mesh_convert.py`
 
-Maya Bridge: send the selection to a fresh Maya through an import template.
+Mesh Converter: batch-convert FBX files to binary glTF (GLB) with FBX2glTF.
 
-- **[`class MayaBridgeSlots(HostBridge)`](tentacle/tentacle/slots/tools/maya_bridge.py#L21)**
-  - `MayaBridgeSlots.bridge_class(self)` *(property)*
-  - `MayaBridgeSlots.b000(self)` — Send the selected objects to Maya with the chosen template.
+- **[`class MeshConvertSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/mesh_convert.py#L18)** — Switchboard slots for the Mesh Converter UI.
+  - `MeshConvertSlots.source_dir(self) -> str` *(property)* — Starting directory for the FBX file dialog.
+  - `MeshConvertSlots.fbx_provider(self) -> Optional[Callable[[], Iterable[str]]]` *(property)* — Callable returning FBX paths from the host DCC selection.
+  - `MeshConvertSlots.header_init(self, widget) -> None` — Add the From-FBX-references toggle to the header menu.
+  - `MeshConvertSlots.tb000_init(self, widget) -> None` — Set up the FBX -> GLB tool button option box.
+  - `MeshConvertSlots.tb000(self, widget) -> None` — Convert the selected FBX file(s) to GLB beside their source.
+
+<a id="slots--tools--metashape_workflow"></a>
+### `slots/tools/metashape_workflow.py`
+
+Slots for the Metashape Workflow panel.
+
+- **[`class MetashapeWorkflowSlots(FramesSourceMixin, PhotogrammetryPanelSlots)`](tentacle/tentacle/slots/tools/metashape_workflow.py#L40)** — Switchboard slots wired to ``metashape_workflow.ui``.
+  - `MetashapeWorkflowSlots.params_module(self)` *(property)*
+  - `MetashapeWorkflowSlots.template_dir(self) -> Path` *(property)*
+  - `MetashapeWorkflowSlots.make_bridge(self) -> MetashapeRunner`
+  - `MetashapeWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+  - `MetashapeWorkflowSlots.default_output_dir(self) -> str`
+  - `MetashapeWorkflowSlots.help_spec(self) -> dict`
 
 <a id="slots--tools--mirror"></a>
 ### `slots/tools/mirror.py`
@@ -2162,6 +2253,38 @@ Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
   - `NamingSlots.tb002(self, widget)` — Strip Chars: remove a number of leading/trailing characters from the names in scope.
   - `NamingSlots.tb003_init(self, widget)` — Initialize Suffix By Type — the editor for the shared naming convention.
   - `NamingSlots.tb003(self, widget)` — Suffix By Type
+
+<a id="slots--tools--packer"></a>
+### `slots/tools/packer.py`
+
+Map Packer UI — slot file for ``packer.ui``: channel-pack/unpack texture maps.
+
+- **[`class PackerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/packer.py#L18)** — Switchboard slots for ``packer.ui`` — RGBA channel packing and unpacking.
+  - `PackerSlots.cmbPreset_init(self, widget)` — Preset selector -- its pick persists via the store's ``.active`` pointer
+  - `PackerSlots.cmbR_init(self, widget)`
+  - `PackerSlots.cmbG_init(self, widget)`
+  - `PackerSlots.cmbB_init(self, widget)`
+  - `PackerSlots.cmbA_init(self, widget)`
+  - `PackerSlots.txtSuffix_init(self, widget)` — Output-affix field — clearable back to the convention's default.
+  - `PackerSlots.cmbFormat_init(self, widget)` — Populate the output-format combo and react to format changes.
+  - `PackerSlots.cmbMode_init(self, widget)` — The Pack/Unpack direction -- first in the window, since it decides
+  - `PackerSlots.cmbMissing_init(self, widget)` — What an incomplete texture set does when packing (see :meth:`_pack_set`).
+  - `PackerSlots.source_dir(self)` *(property)*
+  - `PackerSlots.b000(self)` — Run the configured channel operation: Pack (default) or Unpack.
+  - `PackerSlots.b001(self)` — Open the last output directory in the system file explorer.
+
+<a id="slots--tools--realityscan_workflow"></a>
+### `slots/tools/realityscan_workflow.py`
+
+Slots for the RealityCapture Workflow panel.
+
+- **[`class RealityscanWorkflowSlots(FramesSourceMixin, PhotogrammetryPanelSlots)`](tentacle/tentacle/slots/tools/realityscan_workflow.py#L36)** — Switchboard slots wired to ``realityscan_workflow.ui``.
+  - `RealityscanWorkflowSlots.params_module(self)` *(property)*
+  - `RealityscanWorkflowSlots.template_dir(self) -> Path` *(property)*
+  - `RealityscanWorkflowSlots.make_bridge(self) -> RealityScanRunner`
+  - `RealityscanWorkflowSlots.list_template_modes(self) -> List[Tuple[str, str]]`
+  - `RealityscanWorkflowSlots.default_output_dir(self) -> str`
+  - `RealityscanWorkflowSlots.help_spec(self) -> dict`
 
 <a id="slots--tools--reference_manager"></a>
 ### `slots/tools/reference_manager.py`
@@ -2238,7 +2361,7 @@ RizomUV Bridge: unwrap or pack the selection in RizomUV with a Lua preset and
 
 Scene Exporter: batch-export the scene through its task/check pipeline.
 
-- **[`class SceneExporterSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/scene_exporter.py#L28)**
+- **[`class SceneExporterSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/scene_exporter.py#L29)**
   - `SceneExporterSlots.confirm(self, question: str) -> bool` — The engine's consent seam as the panel's modal Yes/No.
   - `SceneExporterSlots.decide_check_failure(self, check: str, messages: List[str], remaining: List[str]) -> str` — The engine's check-failure seam as the panel's three-button dialog.
   - `SceneExporterSlots.workspace(self) -> str` *(property)* — The current workspace's root (the dialogs' start folder);
@@ -2372,7 +2495,7 @@ Shot Manifest: a shot sheet checked against the scene, and the shots built from 
 
 Shot Sequencer: the scene's shots on a timeline -- objects as tracks, keys as
 
-- **[`class ShotSequencerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/shot_sequencer.py#L34)** — Switchboard slots for the ``shot_sequencer.ui`` panel.
+- **[`class ShotSequencerSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/shot_sequencer.py#L37)** — Switchboard slots for the ``shot_sequencer.ui`` panel.
   - `ShotSequencerSlots.header_init(self, widget)` — Build the header menu.
   - `ShotSequencerSlots.cmb_shot(self, index)` — A shot (or, in Markers mode, a marker) picked in the dropdown.
   - `ShotSequencerSlots.spn_snap(self, value)` — Set the snap interval on the sequencer widget.
@@ -2453,6 +2576,32 @@ Substance Bridge: send the selection to Substance Painter through a template.
   - `SubstanceBridgeSlots.bridge_class(self)` *(property)*
   - `SubstanceBridgeSlots.select_initial_template_index(self, pairs)` — Default the panel to ``import (send_to)`` when it is available.
   - `SubstanceBridgeSlots.b000(self)` — Send the Scope's objects with the chosen template + mode.
+
+<a id="slots--tools--substance_workflow"></a>
+### `slots/tools/substance_workflow.py`
+
+Switchboard slots for the Substance Workflow UI.
+
+- [`MESH_EXTS`](tentacle/tentacle/slots/tools/substance_workflow.py#L31) — constant
+- [`PIPELINE_STAGES`](tentacle/tentacle/slots/tools/substance_workflow.py#L47) — constant
+- [`BLEND_MODES`](tentacle/tentacle/slots/tools/substance_workflow.py#L74) — constant
+- [`BAKE_RESOLUTIONS`](tentacle/tentacle/slots/tools/substance_workflow.py#L75) — constant
+- [`ADVANCED_PARAMS`](tentacle/tentacle/slots/tools/substance_workflow.py#L83) — constant
+- **[`class SubstanceWorkflowSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/substance_workflow.py#L234)** — Switchboard slots for the Substance Workflow UI.
+  - `SubstanceWorkflowSlots.header_init(self, widget) -> None`
+  - `SubstanceWorkflowSlots.txt000_init(self, widget) -> None` — Mesh File
+  - `SubstanceWorkflowSlots.txt001_init(self, widget) -> None` — Template (optional)
+  - `SubstanceWorkflowSlots.txt002_init(self, widget) -> None` — Project Save Path
+  - `SubstanceWorkflowSlots.cmb000_init(self, widget) -> None` — Painter install picker
+  - `SubstanceWorkflowSlots.btn_stages_init(self, widget) -> None` — Stages popup — QMenu of checkboxes attached to the button.
+  - `SubstanceWorkflowSlots.btn_advanced_init(self, widget) -> None` — Advanced-params popup — labeled form inside a QMenu via QWidgetAction.
+  - `SubstanceWorkflowSlots.cmb003(self, widget) -> None` — Log level changed
+  - `SubstanceWorkflowSlots.btn_launch(self, widget) -> None` — Toggle the Painter session.
+  - `SubstanceWorkflowSlots.b000(self) -> None` — Run Workflow -- while a run is in flight, the button is its Cancel.
+  - `SubstanceWorkflowSlots.set_mesh_path(self, path: str) -> None` — Pre-fill the mesh field (e.g.
+  - `SubstanceWorkflowSlots.btn_browse_mesh(self) -> None`
+  - `SubstanceWorkflowSlots.btn_browse_template(self) -> None`
+  - `SubstanceWorkflowSlots.btn_browse_project(self) -> None`
 
 <a id="slots--tools--telescope_rig"></a>
 ### `slots/tools/telescope_rig.py`
@@ -2576,6 +2725,43 @@ Unity Bridge: export the selection and copy the FBX into a Unity project's Asset
   - `UnityBridgeSlots.make_bridge(self)` — The engine, or ``None`` while the optional unitytk is absent.
   - `UnityBridgeSlots.b000(self)` — Run the selected template: export-and-copy, or script management.
 
+<a id="slots--tools--unity_workflow"></a>
+### `slots/tools/unity_workflow.py`
+
+Slots for the standalone Unity Workflow panel.
+
+- **[`class UnityWorkflowSlots(UnityPanelMixin, Slots.BridgeSlotsBase)`](tentacle/tentacle/slots/tools/unity_workflow.py#L56)** — Switchboard slots wired to ``unity_workflow.ui`` via :class:`BridgeSlotsBase`.
+  - `UnityWorkflowSlots.params_module(self)` *(property)*
+  - `UnityWorkflowSlots.make_bridge(self)` — unitytk's file-input engine, or ``None`` while the optional unitytk is
+  - `UnityWorkflowSlots.resolved_model_path(self) -> str`
+  - `UnityWorkflowSlots.set_model_path(self, path: str) -> None` — Pre-fill the Model File field (public hand-off point for hosts).
+  - `UnityWorkflowSlots.b000(self) -> None` — Run the selected template: copy the model, or script management.
+
+<a id="slots--tools--webxr_preview"></a>
+### `slots/tools/webxr_preview.py`
+
+Slots for the WebXR Preview panel — the single UI for the live preview.
+
+- [`FILE_SOURCE`](tentacle/tentacle/slots/tools/webxr_preview.py#L47) — constant
+- **[`class WebXrPreviewSlots(Slots.BridgeSlotsBase)`](tentacle/tentacle/slots/tools/webxr_preview.py#L117)** — Switchboard slots wired to ``webxr_preview.ui``.
+  - `WebXrPreviewSlots.params_module(self)` *(property)*
+  - `WebXrPreviewSlots.template_dir(self) -> Path` *(property)*
+  - `WebXrPreviewSlots.make_bridge(self)` — The panel's own, host-free engine.
+  - `WebXrPreviewSlots.engine(self)` *(property)* — The host bridge class this panel pushes scopes through, or ``None``.
+  - `WebXrPreviewSlots.list_template_modes(self) -> List[Tuple[str, str]]` — Sources, in the ``(template, mode)`` shape the base's combo reads.
+  - `WebXrPreviewSlots.open_preview_page(self) -> None` — Open the live page in a browser, without paying for a push.
+  - `WebXrPreviewSlots.stop_server(self) -> None` — Stop serving and release the port -- every scene's -- ending any share.
+  - `WebXrPreviewSlots.add_scene(self, paths: Optional[List[str]] = None) -> _Scene` — Another scene: a Source Files row of its own under the last one,
+  - `WebXrPreviewSlots.remove_scene(self, scene: _Scene) -> None` — Take an added scene away: its server stops, and its link with it.
+  - `WebXrPreviewSlots.share_link(self) -> None` — Share Now: bring the link up without a push, or retry a failed one.
+  - `WebXrPreviewSlots.copy_share_link(self) -> None` — Copy Link: the live links to the clipboard -- one per line, scene
+  - `WebXrPreviewSlots.copy_scene_link(self) -> None` — Copy Scene Link: where the published scene is described as data.
+  - `WebXrPreviewSlots.check_share_link(self) -> None` — Test Link: whether a guest can reach each share now.
+  - `WebXrPreviewSlots.stop_sharing(self) -> None` — Stop Sharing: the row to Off, which takes every link down.
+  - `WebXrPreviewSlots.set_source_file(self, path: str) -> None` — Pre-fill Source Files with *path* and select the file source.
+  - `WebXrPreviewSlots.set_source_files(self, paths: List[str]) -> None` — Pre-fill Source Files with *paths* -- the parts of one scene, shown
+  - `WebXrPreviewSlots.b000(self) -> None` — Build the deliverable for the active source and publish it -- for
+
 <a id="slots--tools--wheel_rig"></a>
 ### `slots/tools/wheel_rig.py`
 
@@ -2592,49 +2778,34 @@ Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
   - `WheelRigSlots.update_rig_name_placeholder(self)` — Show, as the Rig Name placeholder, the name a rig on the selection's
   - `WheelRigSlots.b000(self)` — Rig Rotation: rig the selected wheels to the selected driver, or
 
-<a id="slots--tools--workspace_editor"></a>
-### `slots/tools/workspace_editor.py`
+<a id="slots--tools--workspaces"></a>
+### `slots/tools/workspaces.py`
 
-Workspace Editor: the minimal take on Maya's File ▸ Project Window -- one
+Workspaces: a host's project workspaces in one panel -- the Workspace Map
 
-- **[`class WorkspaceEditorSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/workspace_editor.py#L41)**
-  - `WorkspaceEditorSlots.header_init(self, widget)` — Rule add, view toggle, reset/clear, template combo, help text.
-  - `WorkspaceEditorSlots.txt000_init(self, widget)` — Project Root: one full path (browse + open-folder option-box actions).
-  - `WorkspaceEditorSlots.tbl000_init(self, widget)`
-  - `WorkspaceEditorSlots.add_rule(self)` — Append an empty, editable rule row (saves once both cells are filled).
-  - `WorkspaceEditorSlots.reset_row(self, row)` — Reset *row*'s location to the active template's default for its rule.
-  - `WorkspaceEditorSlots.remove_row(self, row)` — Remove *row* and delete its rule from workspace.mel.
-  - `WorkspaceEditorSlots.reset_rules(self)` — Restore the default file rules (the active template's) and save.
-  - `WorkspaceEditorSlots.clear_rules(self)` — Remove every file rule and save (hand-written marker lines survive).
-  - `WorkspaceEditorSlots.create_project(self)` — Build the project at the current root: marker + the active template's rule
-  - `WorkspaceEditorSlots.open_folder(self)` — Open the project root in the system file browser.
-
-<a id="slots--tools--workspace_map"></a>
-### `slots/tools/workspace_map.py`
-
-Workspace Map: browse a folder tree of project workspaces and switch the
-
-- **[`class WorkspaceMapSlots(Slots, pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/workspace_map.py#L27)**
-  - `WorkspaceMapSlots.header_init(self, widget)` — Project creation actions + help text.
-  - `WorkspaceMapSlots.txt000_init(self, widget)` — The root directory field: browse, Set To Workspace, Recursive Search.
-  - `WorkspaceMapSlots.txt001_init(self, widget)` — The workspace-name filter.
-  - `WorkspaceMapSlots.tree000_init(self, widget)` — The workspace tree, its double-click and its right-click menu.
-  - `WorkspaceMapSlots.update_current_dir(self, text: Optional[str] = None) -> None` — Retarget the scan at the root field's directory (rescans only when it
-  - `WorkspaceMapSlots.update_tree(self, filter_text: Optional[str] = None) -> None` — Rebuild the tree from the last scan, narrowed to *filter_text*.
-  - `WorkspaceMapSlots.populate_tree(self, tree_data: Dict) -> None` — Clear and refill the tree: a row per parent folder, its workspaces
-  - `WorkspaceMapSlots.refresh_tree(self, invalidate: bool = False) -> None` — Refill the tree;
-  - `WorkspaceMapSlots.selected_workspace(self) -> Optional[Dict]` — The workspace row under the tree cursor, or None (a folder row is none).
-  - `WorkspaceMapSlots.filter_workspaces(self, text) -> None`
-  - `WorkspaceMapSlots.b000(self) -> None` — Browse for the root directory.
-  - `WorkspaceMapSlots.b001(self) -> None` — Set to Workspace.
-  - `WorkspaceMapSlots.b002(self) -> None` — Refresh: rescan the root.
-  - `WorkspaceMapSlots.set_to_workspace(self) -> None` — Set the root to the current workspace's folder.
-  - `WorkspaceMapSlots.chk000(self, checked) -> None` — Recursive Search: rescan when it changes.
-  - `WorkspaceMapSlots.btn_open_workspace(self) -> None` — Make the selected workspace the current project.
-  - `WorkspaceMapSlots.btn_explore_folder(self) -> None` — Open the selected workspace's folder in the file browser.
-  - `WorkspaceMapSlots.new_project(self) -> None` — Create a project under the root from the ACTIVE template.
-  - `WorkspaceMapSlots.mark_root(self) -> None` — Mark the ROOT directory as a shared Maya/Blender project.
-  - `WorkspaceMapSlots.save_template(self) -> None` — Publish the ACTIVE project's file rules as a named workspace template.
+- **[`class WorkspacesSlots(Slots)`](tentacle/tentacle/slots/tools/workspaces.py#L29)** — Switchboard slots for the ``workspaces.ui`` panel.
+  - `WorkspacesSlots.parts(self) -> list` *(property)* — The parts this host serves, in the panel's order.
+  - `WorkspacesSlots.header_init(self, widget)` — Each served part's header rows and chrome, and one help card: a part's
+  - `WorkspacesSlots.txt000_init(self, widget)` — The map's Root Directory field.
+  - `WorkspacesSlots.txt001_init(self, widget)` — The map's workspace-name filter.
+  - `WorkspacesSlots.tree000_init(self, widget)` — The map's workspace tree.
+  - `WorkspacesSlots.b000(self)` — The map's Browse.
+  - `WorkspacesSlots.b001(self)` — The map's Set to Workspace.
+  - `WorkspacesSlots.b002(self)` — The map's Refresh.
+  - `WorkspacesSlots.chk000(self, checked)` — The map's Recursive Search (its root field's option box).
+  - `WorkspacesSlots.set_to_workspace(self)` — The map's Set To Workspace (its root field's option box).
+  - `WorkspacesSlots.btn_open_workspace(self)` — The map's Open Workspace (its tree's menu).
+  - `WorkspacesSlots.btn_explore_folder(self)` — The map's Explore Folder (its tree's menu).
+  - `WorkspacesSlots.new_project(self)` — The map's New Project (the header menu).
+  - `WorkspacesSlots.mark_root(self)` — The map's Mark Root As Shared Project (the header menu).
+  - `WorkspacesSlots.save_template(self)` — The map's Save Rules As Template (the header menu).
+  - `WorkspacesSlots.btn_create(self)` — The editor's Create Project (the header menu).
+  - `WorkspacesSlots.btn_add_rule(self)` — The editor's Add New File Rule (the header menu).
+  - `WorkspacesSlots.chk_raw_names(self, checked)` — The editor's View File Rules (the header menu).
+  - `WorkspacesSlots.btn_reset(self)` — The editor's Reset Settings (the header menu).
+  - `WorkspacesSlots.btn_clear(self)` — The editor's Clear Settings (the header menu).
+  - `WorkspacesSlots.txt002_init(self, widget)` — The editor's Project Root field.
+  - `WorkspacesSlots.tbl000_init(self, widget)` — The editor's file-rules table.
 
 <a id="slots--transform"></a>
 ### `slots/transform.py`
@@ -2744,10 +2915,11 @@ The host-agnostic entry point — one launcher snippet for every DCC.
   - `Tcl.dispose_retired(instances)` *(static)* — Schedule deletion of the pre-reload marking menus in *instances*.
   - `Tcl.qt_key_name(cls, key_show=None)` *(class)* — Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.
   - `Tcl.resolve_key(cls, key_show=None, context_tags=None)` *(class)* — The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.
-  - `Tcl.unserved_tools(context_tags=None)` *(static)* — The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):
+  - `Tcl.unserved_tools(context_tags=None)` *(static)* — The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``),
   - `Tcl.register_shared(switchboard)` *(static)* — Register on *switchboard* what every host shares (CODE_STANDARD section 3).
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
-  - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.
+  - `Tcl.greeting(string, outputToConsole=True)` *(static)* — Format a string using preset variables.
+  - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :meth:`greeting`.
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
   - `Tcl.reload(cls)` *(class)* — Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
   - `Tcl.engine_dists(cls, host)` *(class)* — Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
@@ -2758,26 +2930,26 @@ The host-agnostic entry point — one launcher snippet for every DCC.
 
 Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2262) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2267) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2272) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2277) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2282) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2287) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2292) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2297) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2302) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2307) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2312) — Remove the click tracer.
+- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2255) — Return the process QApplication, creating one if Blender has none.
+- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2260) — Establish ``app.blender_widget`` — the parent for the marking menu.
+- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2265) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
+- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2270) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2275) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2280) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2285) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L2290) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2295) — Return (and print) the live activation state.
+- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2300) — Turn on the opt-in click tracer.
+- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2305) — Remove the click tracer.
 - **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1503)** — Marking Menu class overridden for use with Blender.
   - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
   - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
   - `TclBlender.showEvent(self, event)`
   - `TclBlender.keyPressEvent(self, event)`
   - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L2027)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
+- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L2020)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
   - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2140)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2133)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
   - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.
@@ -2794,7 +2966,26 @@ Blender entry point for tentacle's Qt marking menu — host + keymap bridge + la
 <a id="tcl_maya"></a>
 ### `tcl_maya.py`
 
-- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L11)** — Marking Menu class overridden for use with Autodesk Maya.
+- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L9)** — Marking Menu class overridden for use with Autodesk Maya.
+
+<a id="tcl_standalone"></a>
+### `tcl_standalone.py`
+
+The standalone panels: each a window of its own, in a switchboard of its own.
+
+- **[`class PanelLauncher(_PanelLauncherInternal)`](tentacle/tentacle/tcl_standalone.py#L74)** — Base of every standalone panel's ``<Tool>UI``: calling it returns the built panel.
+- **[`class CompositorUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L138)**
+- **[`class ConverterUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L142)**
+- **[`class PackerUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L146)**
+- **[`class MeshConvertUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L150)**
+- **[`class MetashapeWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L154)**
+- **[`class RealityScanWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L158)**
+- **[`class GaussianSplatWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L162)**
+- **[`class SubstanceWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L166)**
+- **[`class MarmosetWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L170)**
+- **[`class UnityWorkflowUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L174)**
+- **[`class WebXrPreviewUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L178)**
+- **[`class LookMatchUI(PanelLauncher)`](tentacle/tentacle/tcl_standalone.py#L182)**
 
 <a id="tentacle_installer"></a>
 ### `tentacle_installer.py`
