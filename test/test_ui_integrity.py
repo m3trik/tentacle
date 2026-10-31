@@ -304,6 +304,34 @@ class TestNoShadowedObjectNames(unittest.TestCase):
         )
 
 
+class TestCustomWidgetsAreDeclared(unittest.TestCase):
+    """A widget class a ``.ui`` uses is Qt's own or declared in that file's
+    ``<customwidgets>``. uitk's runtime loader silently drops an undeclared
+    class -- the widget never exists -- while the compiled path tolerates it, so
+    the panel works in one launch and not the other (2026-10-31: the Naming
+    panel's new Scope combo, a ``ComboBox`` the file never declared)."""
+
+    def test_every_widget_class_is_qt_or_declared(self):
+        try:
+            from qtpy import QtWidgets
+        except Exception as e:  # Qt absent: nothing to resolve the Qt classes
+            self.skipTest(f"Qt unavailable: {e}")
+        offenders, checked = [], 0
+        for path in sorted(UI_DIR.rglob("*.ui")):
+            root = ET.parse(path).getroot()
+            declared = {c.findtext("class") for c in root.iter("customwidget")}
+            for widget in root.iter("widget"):
+                cls = widget.get("class")
+                checked += 1
+                if cls in declared or hasattr(QtWidgets, cls):
+                    continue
+                offenders.append(f"{path.relative_to(UI_DIR)}:{widget.get('name')} ({cls})")
+        self.assertGreater(checked, 0, "no widget parsed")
+        self.assertEqual(
+            offenders, [], f"undeclared custom widget class(es): {offenders}"
+        )
+
+
 class TestFixedSpacersAreGapsNotDeadSpace(unittest.TestCase):
     """A `Fixed` vertical spacer's sizeHint is its EXACT height — it can
     neither grow nor shrink. Qt Designer stamps 20x40 on every new spacer,

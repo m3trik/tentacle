@@ -17,6 +17,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 from unittest import mock
 
 import pythontk as ptk
@@ -26,6 +27,7 @@ from tentacle.slots._slots import Slots
 from tentacle.slots.tools.naming import NamingSlots
 
 _ENGINES = itertools.count()
+ROOT = Path(__file__).resolve().parents[1]
 
 #: The editor methods once copied into each host's panel; uitk owns them now.
 _RETIRED_COPIES = (
@@ -64,7 +66,7 @@ def _report(ui):
 
 def _set_scope(ui, scope="Selection", dry_run=False, base_names=False):
     menu = ui.header.menu
-    menu.cmb_scope.currentText.return_value = scope
+    ui.cmb_scope.currentText.return_value = scope
     menu.chk_dry_run.isChecked.return_value = dry_run
     menu.chk_base_names.isChecked.return_value = base_names
 
@@ -138,7 +140,7 @@ class TestNamingPanelSetup(_PanelCase):
         )
         slots._apply_btn.setVisible.assert_called_once_with(False)
 
-    def test_the_header_builds_scope_base_names_and_dry_run(self):
+    def test_the_header_builds_base_names_and_dry_run(self):
         slots, sb = _panel()
         header = mock.MagicMock()
         slots.header_init(header)
@@ -146,18 +148,47 @@ class TestNamingPanelSetup(_PanelCase):
         added = {
             c.kwargs.get("setObjectName"): c for c in header.menu.add.call_args_list
         }
-        self.assertEqual(
-            added["cmb_scope"].kwargs["addItems"], list(NamingSlots.SCOPES)
-        )
+        self.assertNotIn("cmb_scope", added, "the Scope combo is the window's")
+        self.assertIn("chk_base_names", added)
+        self.assertIn("chk_dry_run", added)
+        header.set_help_text.assert_called_once()
+
+    def test_the_scope_combo_tops_the_window_with_every_scope(self):
+        """Scope moved from the header menu to the top of the window
+        (2026-10-31): the one control every operation reads, in sight."""
+        slots, sb = _panel()
+        combo = mock.MagicMock()
+        slots.cmb_scope_init(combo)
+        combo.addItems.assert_called_once_with(list(NamingSlots.SCOPES))
         self.assertEqual(
             NamingSlots.SCOPES, ("Selection", "Scene", "Directory", "Files")
         )
-        self.assertIn("chk_base_names", added)
-        self.assertIn("chk_dry_run", added)
-        header.menu.cmb_scope.currentTextChanged.connect.assert_called_once_with(
+        combo.currentTextChanged.connect.assert_called_once_with(
             slots._on_scope_changed
         )
-        header.set_help_text.assert_called_once()
+        # Base Names sits in the header menu, which may build after the combo.
+        sb.loaded_ui.naming.run_when_ready.assert_called_with(
+            slots._sync_scope_options
+        )
+        import xml.etree.ElementTree as ET
+
+        ui_file = ROOT / "tentacle" / "ui" / "tools" / "naming.ui"
+        names = [w.get("name") for w in ET.parse(ui_file).iter("widget")]
+        self.assertLess(names.index("header"), names.index("cmb_scope"))
+        self.assertLess(names.index("cmb_scope"), names.index("txt000"))
+
+    def test_find_and_rename_run_buttons_show_with_text_at_the_far_right(self):
+        """Each field's run button is hidden until the field has text and sits
+        after every other button (2026-10-31)."""
+        slots, sb = _panel()
+        for init in (slots.txt000_init, slots.txt001_init):
+            with self.subTest(init=init.__name__):
+                widget = mock.MagicMock()
+                widget.option_box.option_order = ["clear", "action", "menu"]
+                init(widget)
+                kwargs = widget.option_box.set_action.call_args.kwargs
+                self.assertIs(kwargs["hide_when_empty"], True)
+                self.assertEqual(widget.option_box.option_order[-1], "action")
 
     def test_base_names_is_gated_on_a_file_scope(self):
         slots, sb = _panel()
@@ -170,7 +201,7 @@ class TestNamingPanelSetup(_PanelCase):
             ("Files", True),
         ):
             with self.subTest(scope=scope):
-                ui.header.menu.cmb_scope.currentText.return_value = scope
+                ui.cmb_scope.currentText.return_value = scope
                 slots._on_scope_changed()
                 ui.header.menu.chk_base_names.setEnabled.assert_called_with(enabled)
                 # Ticked but out of scope: the property, not the widget, is the gate.

@@ -73,6 +73,22 @@
        </widget>
       </item>
       <item>
+       <widget class="ComboBox" name="cmb_scope">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>19</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>19</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="CollapsableGroup" name="groupBox_5">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -437,6 +453,11 @@ Options include stripping trailing integers and underscores.</string>
    <class>Footer</class>
    <extends>QWidget</extends>
    <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>uitk.widgets.comboBox.ComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>Header</class>

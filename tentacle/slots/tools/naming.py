@@ -103,7 +103,7 @@ class NamingSlots(Slots):
     )
 
     msg_intro = (
-        "<u>Naming</u><br>• Pick a <b>Scope</b> in the header menu: the current "
+        "<u>Naming</u><br>• Pick a <b>Scope</b> at the top: the current "
         "selection, the whole scene, or files on disk.<br>• <b>Find</b> lists matches "
         "(and selects them, or browses for files); the other operations report "
         "every <code>old → new</code> change here.<br>• Tick <b>Dry Run</b> to "
@@ -148,16 +148,11 @@ class NamingSlots(Slots):
     # Header
     # ------------------------------------------------------------------
 
-    def header_init(self, widget):
-        """Configure header menu with tool description and workflow instructions."""
-        # Gesture-scoped window: pin button + auto-hide on key_show release.
-        widget.config_buttons("menu", "collapse", "pin")
-        widget.menu.add("Separator", setTitle="Scope")
-        widget.menu.add(
-            "QComboBox",
-            addItems=list(self.SCOPES),
-            setObjectName="cmb_scope",
-            setToolTip=self.sb.tooltip.fmt(
+    def cmb_scope_init(self, widget):
+        """The Scope combo, at the top of the window: what every operation acts on."""
+        widget.addItems(list(self.SCOPES))
+        widget.setToolTip(
+            self.sb.tooltip.fmt(
                 title="Scope",
                 body="What every operation acts on.",
                 bullets=[
@@ -175,8 +170,18 @@ class NamingSlots(Slots):
                     "Case and Strip Chars. Only the file name is changed — never "
                     "the extension. Suffix By Type / Location are scene-only.",
                 ],
-            ),
+            )
         )
+        # Base Names is meaningless outside a file scope; keep the control's
+        # state honest rather than silently ignoring a ticked box. It lives in
+        # the header menu, which may build after this combo.
+        widget.currentTextChanged.connect(self._on_scope_changed)
+        self.ui.run_when_ready(self._sync_scope_options)
+
+    def header_init(self, widget):
+        """Configure header menu with tool description and workflow instructions."""
+        # Gesture-scoped window: pin button + auto-hide on key_show release.
+        widget.config_buttons("menu", "collapse", "pin")
         widget.menu.add(
             "QCheckBox",
             setText="Base Names",
@@ -211,11 +216,6 @@ class NamingSlots(Slots):
                 ],
             ),
         )
-        # Base Names is meaningless outside a file scope; keep the control's
-        # state honest rather than silently ignoring a ticked box.
-        widget.menu.cmb_scope.currentTextChanged.connect(self._on_scope_changed)
-        self._sync_scope_options()
-
         widget.set_help_text(
             self.sb.tooltip.fmt(
                 title="Naming",
@@ -275,7 +275,7 @@ class NamingSlots(Slots):
 
     @property
     def scope(self) -> str:
-        return self.ui.header.menu.cmb_scope.currentText()
+        return self.ui.cmb_scope.currentText()
 
     @property
     def dry_run(self) -> bool:
@@ -404,7 +404,7 @@ class NamingSlots(Slots):
                 "The scene has no renameable objects."
                 if scene
                 else "Nothing selected. Select objects, or set Scope to 'Scene' "
-                "in the header menu to operate on the whole scene."
+                "to operate on the whole scene."
             )
         return objects
 
@@ -479,7 +479,7 @@ class NamingSlots(Slots):
         if self.file_scope:
             self.logger.notice(
                 f"{operation} applies to scene objects only — set Scope to "
-                "'Selection' or 'Scene' in the header menu."
+                "'Selection' or 'Scene'."
             )
             return True
         return False
@@ -498,6 +498,20 @@ class NamingSlots(Slots):
     # ------------------------------------------------------------------
     # Find
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _set_field_action(widget, icon: str, tooltip: str) -> None:
+        """A field's run button (the same as Enter): shown only while the field
+        holds text, at the far right of its buttons. An empty Rename still
+        strips Find's match on Enter."""
+        widget.option_box.set_action(
+            callback=widget.returnPressed.emit,
+            icon=icon,
+            tooltip=tooltip,
+            hide_when_empty=True,
+        )
+        order = [key for key in widget.option_box.option_order if key != "action"]
+        widget.option_box.option_order = order + ["action"]
 
     def txt000_init(self, widget):
         """Initialize Find"""
@@ -548,10 +562,8 @@ class NamingSlots(Slots):
             setToolTip="Limit the search to locators (in Blender: Empties); "
             "scene scopes only.",
         )
-        widget.option_box.set_action(
-            callback=widget.returnPressed.emit,
-            icon="search",
-            tooltip="Find matching objects (same as pressing Enter).",
+        self._set_field_action(
+            widget, "search", "Find matching objects (same as pressing Enter)."
         )
 
     @Slots.Signals("returnPressed")
@@ -670,10 +682,8 @@ class NamingSlots(Slots):
             setObjectName="chk008",
             setToolTip="Ignore the find field and rename all matched objects.",
         )
-        widget.option_box.set_action(
-            callback=widget.returnPressed.emit,
-            icon="edit",
-            tooltip="Rename matched objects (same as pressing Enter).",
+        self._set_field_action(
+            widget, "edit", "Rename matched objects (same as pressing Enter)."
         )
 
     # The LineEdit text parameter is not emitted on `returnPressed`
