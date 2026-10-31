@@ -1367,7 +1367,7 @@ class TestItemsHoldTheGeometryTheSceneIndexed(_LayerCase):
             "layer = ShotLayer.of(w, Sb())\n"
             "w.clear(); tid = w.add_track('ctlB')\n"
             "w.add_clip(track_id=tid, start=60.0, duration=40.0)\n"
-            "w.set_playhead(1.0); w.set_active_range(1.0, 120.0); w.frame_shot()\n"
+            "w.set_playhead(1.0); w.set_active_range(1.0, 120.0); w.frame_range()\n"
             "app.processEvents()\n"
             "with w.bulk_updates():\n"
             "    w.clear(keep_range_highlight=True); tid = w.add_track('ctlB')\n"

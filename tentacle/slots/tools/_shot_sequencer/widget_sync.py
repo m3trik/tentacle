@@ -388,7 +388,7 @@ class WidgetSyncMixin:
         self._viewport_framed = True
         if frame:
             widget.refresh()
-            widget.frame_shot()
+            widget.frame_range()
         else:
             widget.restore_viewport_state({"zoom": zoom, "h_scroll": h_scroll})
 
