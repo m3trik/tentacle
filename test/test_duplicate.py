@@ -231,6 +231,19 @@ class TestUninstanceAndPanels(_SlotsCase):
             shown, ["mirror", "duplicate_linear", "duplicate_radial", "duplicate_grid"]
         )
 
+    def test_the_panel_has_no_button_clashing_with_the_mirror_launcher(self):
+        """Regression: the panel's "Instance Selected" button shared ``b000`` with
+        the Mirror launcher, so clicking it opened Mirror (since 2023). Decided:
+        the button goes; Convert to Instances (``tb000``) instances. Fixed:
+        2026-10-31."""
+        import xml.etree.ElementTree as ET
+        from pathlib import Path
+
+        ui = Path(__file__).resolve().parents[1] / "tentacle" / "ui" / "duplicate.ui"
+        names = [w.get("name") for w in ET.parse(ui).iter("widget")]
+        self.assertIn("tb000", names)
+        self.assertNotIn("b000", names)
+
     def test_the_header_lists_the_launchers(self):
         widget = mock.MagicMock()
         self.slots.header_init(widget)
