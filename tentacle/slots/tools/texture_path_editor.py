@@ -108,6 +108,8 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
         self._find_copy_mode = "copy"
         self._find_copy_scope_label = ""
         self._find_copy_lightmaps = []
+        #: The panel's plan table (:meth:`_collect_plan`), built with the panel.
+        self._plan_table = None
         self._footer_controller = self._create_footer_controller()
 
     @property
@@ -1995,7 +1997,7 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
         if panel is None:
             panel = self.sb.form_panel(
                 self._find_and_copy_scope_fields(),
-                title="Find & Copy Textures",
+                title="Collect Textures",
                 parent=getattr(self, "ui", None),
                 # Callable: the mode lives ON the form, so a fixed verb here
                 # would contradict the combo the moment it is changed.
@@ -2009,12 +2011,45 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
             self._find_copy_panel = panel
         else:
             panel.set_fields(self._find_and_copy_scope_fields())
+        # A plan is the scope's it was previewed over: a re-seed retires it.
+        self._collect_plan(panel).clear()
 
         panel.footer.setDefaultStatusText(
             f"Scope: {scope_label}" if scope_label else ""
         )
         panel.present()
         return panel
+
+    def collect_scene_textures(self):
+        """Open the Find & Copy panel over EVERY texture in the scene -- the
+        Materials menu's *Collect Textures…*: no row selection narrows it, and
+        the lightmap rows shown come along. Returns the panel, or None."""
+        nodes = list(self.engine.file_nodes(exclude_arnold=self._exclude_arnold()))
+        lightmaps = self._lightmap_dependencies()
+        if not nodes and not lightmaps:
+            self.sb.message_box("No textures to collect.")
+            return None
+        label = f"all {len(nodes)} texture(s)" + (
+            f" + {len(lightmaps)} lightmap(s)" if lightmaps else ""
+        )
+        return self._find_and_copy_workflow(
+            nodes, scope_label=label, lightmaps=lightmaps
+        )
+
+    def _collect_plan(self, panel):
+        """The panel's plan table (``_texture_path_editor.collect_plan_table``),
+        built once, between its rows and its log: a dry run fills it, the
+        picks are made in it, and Apply commits it."""
+        plan = self._plan_table
+        if plan is None:
+            from ._texture_path_editor.collect_plan_table import CollectPlanTable
+
+            table = self.sb.registered_widgets.TableWidget(panel)
+            table.setObjectName("tbl_collect_plan")
+            layout = panel.body_layout  # the rows, then the log: in between
+            layout.insertWidget(layout.count() - 1, table, 1)
+            plan = self._plan_table = CollectPlanTable(table)
+        return plan
 
     def _find_copy_settings(self):
         """The Find & Copy panel's geometry store, or None when the switchboard
@@ -2118,12 +2153,14 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                         "kind": "check",
                         "label": "Dry run (preview only)",
                         "hint": (
-                            "Report exactly what would be relocated and "
-                            "repathed without touching a file or a path, then "
-                            "arm <b>Apply</b> to commit the report on screen. "
-                            "The preview and the commit derive every "
-                            "destination through the same call, so what Apply "
-                            "writes is what was previewed."
+                            "Show the plan -- each texture's source, where it "
+                            "lands and what happens to it -- without touching "
+                            "a file or a path, then arm <b>Apply</b> to commit "
+                            "the plan on screen. A name several different "
+                            "files carry gets a picker in its row. The preview "
+                            "and the commit derive every destination through "
+                            "the same call, so what Apply writes is what the "
+                            "table shows."
                         ),
                     }
                 ],
@@ -2169,9 +2206,10 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
     def _find_and_copy_help_text(self) -> str:
         """Rich text behind the Find & Copy panel's ``?``."""
         return self.sb.tooltip.fmt(
-            title="Find &amp; Copy Textures",
-            body="Gather the files behind the scoped textures, relocate them into "
-            "one destination, and repoint the textures at them.",
+            title="Collect Textures",
+            body="Gather the files behind the scoped textures into one "
+            "destination and repoint the textures at them -- finding the "
+            "missing ones first when a search folder is given (Find &amp; Copy).",
             sections=[
                 (
                     "The rows",
@@ -2199,10 +2237,14 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                 "and the FBX manifest republished.",
                 "Source and destination may not be the same folder — nothing "
                 "would move, and the run would report success.",
-                "What the search did not find is named at the end of the "
-                "report; those textures keep their current path.",
-                "Collision policy: same-name + same-size files rebind without "
-                "overwriting; different-size hits skip with a warning.",
+                "What the search did not find is named in the report; those "
+                "textures keep their current path. A name several DIFFERENT "
+                "files carry is never guessed at: pick its file in the plan "
+                "(Dry run).",
+                "Names never change. Two different files of one name each land "
+                "under their own parent folder (<i>wood/diffuse.png</i>, "
+                "<i>metal/diffuse.png</i>); identical files share one copy; "
+                "nothing is ever overwritten.",
             ],
         )
 
@@ -2215,36 +2257,71 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
     def _run_find_and_copy_over(self, node_names, values, lightmaps=None):
         """Preview or commit *node_names* (+ *lightmaps*), reporting into the panel.
 
-        Returns the call that WOULD commit when this pass was a preview -- the
-        panel's contract for arming its Apply button: this same method with the
-        preview off, over the scope and answers AS THEY WERE PREVIEWED, so Apply
-        commits the report on screen even if the selection or the form has moved
-        on since.
+        A preview fills the plan table (the engine's ``plan_find_and_copy``:
+        node, source, destination, status; a file several different files of
+        its name could be gets a picker) and reports it, and returns the call
+        that commits it -- the panel's contract for arming its Apply button:
+        :meth:`_commit_plan`, over the scope and answers AS THEY WERE
+        PREVIEWED and the rows on screen, picks included, so Apply commits the
+        plan shown even if the selection or the form has moved on since. A
+        live run plans and commits in one go.
         """
         panel = self._find_copy_panel
         dry_run = bool(values.get("dry_run"))
         lightmaps = list(self._find_copy_lightmaps if lightmaps is None else lightmaps)
+        plan = self._collect_plan(panel)
+        progress = partial(self._progress, panel)
+        planned = False
         # The engine reports into the pane being watched for the duration.
         self.engine.active_logger = getattr(panel, "logger", None)
         try:
-            planned = self.engine.find_and_copy_textures(
-                node_names,
-                values,
-                lightmaps=lightmaps,
-                dry_run=dry_run,
-                progress=partial(self._progress, panel),
-            )
+            if not dry_run:
+                plan.clear()
+                self.engine.find_and_copy_textures(
+                    node_names, values, lightmaps=lightmaps, progress=progress
+                )
+            else:
+                rows = self.engine.plan_find_and_copy(
+                    node_names, values, lightmaps=lightmaps, progress=progress
+                )
+                planned = self.engine.find_and_copy_textures(
+                    node_names, values, lightmaps=lightmaps, dry_run=True, plan=rows
+                )
+                plan.show(rows, values.get("dest_dir") or "", self._find_mode(values))
         finally:
             self.engine.active_logger = None
         self.refresh_texture_table()
-        if not (dry_run and planned):
+        if not (dry_run and (planned or plan.pending)):
             return None
         return partial(
-            self._run_find_and_copy_over,
-            node_names,
-            dict(values, dry_run=False),
-            lightmaps,
+            self._commit_plan, node_names, dict(values, dry_run=False), lightmaps
         )
+
+    def _commit_plan(self, node_names, values, lightmaps):
+        """Apply: commit exactly the plan on screen -- the previewed rows, the
+        picks made in the table since applied (``plan=``)."""
+        panel = self._find_copy_panel
+        plan = self._collect_plan(panel)
+        rows = list(plan.rows)
+        self.engine.active_logger = getattr(panel, "logger", None)
+        try:
+            self.engine.find_and_copy_textures(
+                node_names,
+                values,
+                lightmaps=lightmaps,
+                progress=partial(self._progress, panel),
+                plan=rows,
+            )
+        finally:
+            self.engine.active_logger = None
+        plan.clear()
+        self.refresh_texture_table()
+        return None
+
+    def _find_mode(self, values) -> str:
+        """The mode key (``"copy"`` / ``"move"``) the form's Operation names."""
+        labels = {label: key for label, key in self._FIND_MODE_ITEMS}
+        return labels.get(values.get("mode"), self._FIND_MODE_ITEMS[0][1])
 
     @contextlib.contextmanager
     def _progress(self, host, text):

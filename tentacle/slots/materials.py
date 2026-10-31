@@ -189,6 +189,15 @@ class MaterialsSlots(Slots):
                 "viewport.",
             ),
             (
+                "Collect Textures…",
+                "b034",
+                "Gather every scene texture (and baked lightmap) into one "
+                "folder and repoint the scene at it -- the Texture Path "
+                "Editor's Find & Copy over the whole scene. Names are kept; "
+                "two different files of one name each keep their own parent "
+                "folder; a Dry Run shows the plan first.",
+            ),
+            (
                 "Get Material Info",
                 "tb001",
                 "Show a formatted report of textures, sizes, bit depth, "
@@ -1315,6 +1324,14 @@ class MaterialsSlots(Slots):
         """Reload Scene Textures, then reset the viewport."""
         self.tk.MatUtils.reload_textures(reset_viewport=True)
         self.sb.message_box("<hl>Textures reloaded</hl> and the viewport reset.")
+
+    def b034(self, widget=None):
+        """Collect Textures: the Texture Path Editor's Find & Copy over every
+        texture in the scene (``TexturePathEditorSlots.collect_scene_textures``)."""
+        ui = self.sb.handlers.marking_menu.show("texture_path_editor")
+        slots = self.sb.get_slots_instance(ui)
+        if slots is not None:
+            slots.collect_scene_textures()
 
     _TB001_SCOPES = (
         ("Textures", "textures"),

@@ -1165,8 +1165,35 @@ class TestFindAndCopyForm(_PanelCase):
         self.assertEqual(validate({"source_dir": "", "dest_dir": "C:/y"}), "")
 
 
+#: A previewed plan row as the engine's ``plan_find_and_copy`` returns one.
+_PLANNED_ROW = {
+    "owner": "tex_a",
+    "kind": "texture",
+    "path": "C:/ext/tex_a.png",
+    "source": "C:/ext/tex_a.png",
+    "candidates": [],
+    "destination": "C:/d/tex_a.png",
+    "folder": "",
+    "status": ptk.FileCollect.RELOCATE,
+}
+
+
+def _real_plan_table(slots):
+    """Give *slots* a plan table over a real uitk ``TableWidget`` (offscreen Qt)
+    -- the mock switchboard's would be a mock -- and return it."""
+    from qtpy import QtWidgets
+    from tentacle.slots.tools._texture_path_editor.collect_plan_table import (
+        CollectPlanTable,
+    )
+    from uitk.widgets.tableWidget import TableWidget
+
+    _real_plan_table.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+    slots._plan_table = CollectPlanTable(TableWidget())
+    return slots._plan_table
+
+
 class TestFindAndCopyRun(_PanelCase):
-    def _run(self, planned, dry_run):
+    def _run(self, planned, dry_run, rows=(_PLANNED_ROW,)):
         slots, sb = _panel()
         engine = sb.tk.TexturePathEditor.return_value
         lent = []
@@ -1176,7 +1203,9 @@ class TestFindAndCopyRun(_PanelCase):
             return planned
 
         engine.find_and_copy_textures.side_effect = _find
+        engine.plan_find_and_copy.return_value = [dict(r) for r in rows]
         slots._find_and_copy_workflow(["tex_a"], lightmaps=[{"map": "m.exr"}])
+        _real_plan_table(slots)
         commit = slots._run_find_and_copy(
             {"source_dir": "", "dest_dir": "C:/d", "mode": "Copy", "dry_run": dry_run}
         )
@@ -1189,20 +1218,146 @@ class TestFindAndCopyRun(_PanelCase):
         call = engine.find_and_copy_textures.call_args
         self.assertEqual(call.args[0], ["tex_a"])
         self.assertEqual(call.kwargs["lightmaps"], [{"map": "m.exr"}])
-        self.assertFalse(call.kwargs["dry_run"])
+        self.assertFalse(call.kwargs.get("dry_run", False))
+        engine.plan_find_and_copy.assert_not_called()
 
-    def test_a_dry_run_arms_apply_with_the_call_that_commits_it(self):
+    def test_a_dry_run_plans_reports_and_arms_apply_with_the_plan_shown(self):
         slots, _sb, engine, commit, _lent = self._run(True, True)
+        preview = engine.find_and_copy_textures.call_args
+        self.assertTrue(preview.kwargs["dry_run"])
+        self.assertEqual(
+            preview.kwargs["plan"], engine.plan_find_and_copy.return_value,
+            "the report is of the plan the table shows",
+        )
         self.assertTrue(callable(commit))
         slots._find_copy_lightmaps = []  # the scope moved on behind the window
         self.assertIsNone(commit(), "the plan is spent: nothing re-arms")
         call = engine.find_and_copy_textures.call_args
-        self.assertFalse(call.kwargs["dry_run"])
+        self.assertFalse(call.kwargs.get("dry_run", False))
         self.assertEqual(call.kwargs["lightmaps"], [{"map": "m.exr"}], "as previewed")
+        self.assertEqual([r["owner"] for r in call.kwargs["plan"]], ["tex_a"])
 
     def test_a_live_run_or_an_empty_preview_arms_nothing(self):
         self.assertIsNone(self._run(True, False)[3])
         self.assertIsNone(self._run(False, True)[3])
+
+    def test_a_preview_waiting_for_a_pick_arms_apply(self):
+        """Nothing to do YET is not nothing to do: the pick makes the work."""
+        waiting = dict(
+            _PLANNED_ROW,
+            source=None,
+            candidates=["C:/a/tex_a.png", "C:/b/tex_a.png"],
+            destination=None,
+            status=ptk.FileCollect.AMBIGUOUS,
+        )
+        self.assertTrue(callable(self._run(False, True, rows=[waiting])[3]))
+
+    def test_the_materials_collect_opens_the_panel_over_the_whole_scene(self):
+        slots, sb = _panel(selection=[_row(file_node="file1", path="x")])
+        engine = sb.tk.TexturePathEditor.return_value
+        engine.lightmap_dependencies.return_value = [{"map": "a.exr", "path": "p"}]
+        _header(slots, chk_show_lightmaps=_check(True), chk_exclude_arnold=_check(True))
+
+        slots.collect_scene_textures()
+
+        engine.file_nodes.assert_called_with(exclude_arnold=True)
+        self.assertEqual(slots._find_copy_nodes, ["file1", "file2"], "not the selection")
+        self.assertEqual(slots._find_copy_lightmaps, [{"map": "a.exr", "path": "p"}])
+        self.assertIn("all 2 texture(s) + 1 lightmap(s)", slots._find_copy_scope_label)
+
+
+class TestCollectPlanTable(_PanelCase):
+    """The plan table, on a real uitk ``TableWidget`` (offscreen Qt): an
+    ambiguous row offers its candidates, a pick re-derives the plan, and
+    Apply commits the plan on screen."""
+
+    @classmethod
+    def setUpClass(cls):
+        from qtpy import QtWidgets
+
+        cls.QtWidgets = QtWidgets
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        super().setUp()
+        from tentacle.slots.tools._texture_path_editor.collect_plan_table import (
+            CollectPlanTable,
+        )
+        from uitk.widgets.tableWidget import TableWidget
+
+        self.store = ptk.TempArtifacts("tentacle_collect_plan")
+        self.addCleanup(self.store.cleanup)
+        root = self.store.dir_path()
+        self.dest = os.path.join(root, "dest").replace("\\", "/")
+        self.candidates = []
+        for folder, data in (("wood", b"wood"), ("metal", b"metal")):
+            path = os.path.join(root, "pool", folder, "diffuse.png")
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "wb") as fh:
+                fh.write(data)
+            self.candidates.append(path)
+        host = ptk.PureCollectHost({"file1": os.path.join(root, "gone", "diffuse.png")})
+        entries = ptk.FileCollect(host).entries(
+            ["file1"], search_dir=os.path.join(root, "pool")
+        )
+        self.rows = ptk.FileCollect.plan(
+            [dict(e, kind="texture") for e in entries], self.dest
+        )
+        self.table = TableWidget()
+        self.addCleanup(self.table.deleteLater)
+        self.plan = CollectPlanTable(self.table)
+
+    def _picker(self):
+        return self.table.cellWidget(0, self.plan.SOURCE_COLUMN)
+
+    def test_an_ambiguous_row_offers_its_candidates(self):
+        self.plan.show(self.rows, self.dest)
+
+        self.assertEqual(self.table.rowCount(), 1)
+        self.assertEqual(self.table.item(0, 0).text(), "file1")
+        self.assertIn("Pick one of 2", self.table.item(0, 3).text())
+        picker = self._picker()
+        self.assertIsInstance(picker, self.QtWidgets.QComboBox)
+        offered = [picker.itemText(i) for i in range(1, picker.count())]
+        self.assertEqual(
+            sorted(os.path.basename(os.path.dirname(p)) for p in offered),
+            ["metal", "wood"],
+        )
+        self.assertTrue(self.plan.pending)
+
+    def test_a_pick_re_derives_the_plan_and_apply_commits_it(self):
+        slots, sb = _panel()
+        engine = sb.tk.TexturePathEditor.return_value
+        engine.plan_find_and_copy.return_value = self.rows
+        engine.find_and_copy_textures.return_value = False
+        slots._find_and_copy_workflow(["file1"])
+        slots._plan_table = self.plan
+        values = {"source_dir": "x", "dest_dir": self.dest, "mode": "Copy", "dry_run": True}
+
+        commit = slots._run_find_and_copy(values)
+
+        self.assertTrue(callable(commit), "a row waits for its pick")
+        picker = self._picker()
+        metal = next(
+            i
+            for i in range(1, picker.count())
+            if os.path.basename(os.path.dirname(picker.itemText(i))) == "metal"
+        )
+        picker.setCurrentIndex(metal)
+        self.app.processEvents()
+        self.assertFalse(self.plan.pending)
+        self.assertIn("Copy", self.table.item(0, 3).text())
+        self.assertEqual(self.table.item(0, 2).text(), "diffuse.png")
+
+        commit()
+
+        call = engine.find_and_copy_textures.call_args
+        (row,) = call.kwargs["plan"]
+        self.assertEqual(row["status"], ptk.FileCollect.RELOCATE)
+        self.assertEqual(os.path.basename(os.path.dirname(row["source"])), "metal")
+        self.assertFalse(call.kwargs.get("dry_run", False))
+        self.assertEqual(self.plan.rows, [], "the plan is spent")
+
 
 
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")
