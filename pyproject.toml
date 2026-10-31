@@ -50,6 +50,10 @@ dependencies = [
 # mayatk 0.13.54 / blendertk 0.5.74 -- the engines published beside this one.
 maya = ["mayatk>=0.29.2"]
 blender = ["blendertk>=0.22.0"]
+# The standalone-apps product the menus open by name (Tcl.register_apps): the
+# floor is the first extapps shipping the apps, the cap the next minor, and
+# push.ps1 ratchets both on each release ($STANDALONE_RANGES).
+apps = ["extapps>=0.8.0,<0.9"]
 
 [project.urls]
 Homepage = "https://github.com/m3trik/tentacle"

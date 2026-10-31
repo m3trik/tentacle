@@ -222,6 +222,24 @@ class Slots(QtCore.QObject):
         self.sb.message_box(f"<hl>{tool}</hl> tool active.")
         return True
 
+    def launch_app(self, app, show=True):
+        """Open the standalone app *app* (an extapps app, by name) through the
+        external-app handler, which installs a missing extapps within the range
+        tentacle declares (``Tcl.register_apps``); a failure -- an app that will
+        not install or import, or an install outside that range the user
+        declined -- is a message, never a traceback.
+
+        Returns:
+            The app's window, or None.
+        """
+        try:
+            return self.sb.handlers.external_app.launch(app, show=show)
+        except Exception as error:  # noqa: BLE001 -- said, for the user to act on
+            self.sb.message_box(
+                f"<hl>Couldn't open {app.replace('_', ' ').title()}</hl><br>{error}"
+            )
+            return None
+
     def run_operation(self, call, *args, empty=None, **kwargs):
         """Call a host operation and report it: a refusal (``ValueError`` for a
         state the user can fix, ``RuntimeError`` for the host's own) as the host

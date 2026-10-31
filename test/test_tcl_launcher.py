@@ -1231,6 +1231,43 @@ class TestEngineExtras(unittest.TestCase):
             self.assertEqual(Tcl._requires(), ("pythontk",))
 
 
+class TestRegisterApps(unittest.TestCase):
+    """``Tcl.register_apps``: extapps' apps are opened by name through the
+    external-app handler, within the range ``tentacletk[apps]`` declares, so an
+    installed extapps never falls out of step with this tentacle (2026-10-31)."""
+
+    def _switchboard(self):
+        sb = mock.MagicMock()
+        return sb, sb.handlers.external_app
+
+    def test_the_declared_range_rides_the_provider(self):
+        sb, handler = self._switchboard()
+        requirement = mock.MagicMock()
+        requirement.__str__ = lambda _self: "extapps>=0.8.0,<0.9"
+        with mock.patch("pythontk.PackageRequirement.declared_by", return_value=requirement) as declared:
+            Tcl.register_apps(sb)
+        declared.assert_called_once_with(Tcl.DIST, "extapps", extra=Tcl.APPS_EXTRA)
+        handler.add_provider.assert_called_once_with(
+            "extapps>=0.8.0,<0.9", probe_module="extapps"
+        )
+        handler.discover.assert_called_once_with()
+
+    def test_a_source_checkout_registers_it_unranged(self):
+        """No tentacletk metadata (a checkout on the path): the apps are still
+        found by name, the regression the move left (no provider at all)."""
+        sb, handler = self._switchboard()
+        with mock.patch("pythontk.PackageRequirement.declared_by", return_value=None):
+            Tcl.register_apps(sb)
+        handler.add_provider.assert_called_once_with("extapps", probe_module="extapps")
+
+    def test_the_extra_states_a_floor_and_a_cap(self):
+        pyproject = ROOT / "pyproject.toml"
+        if not pyproject.is_file():
+            self.skipTest("no pyproject.toml (installed, not a source checkout)")
+        text = pyproject.read_text(encoding="utf-8")
+        self.assertRegex(text, r'apps = \["extapps>=\d+\.\d+\.\d+,<\d+\.\d+"\]')
+
+
 class TestEngineExtrasContract(unittest.TestCase):
     """``pyproject.toml``'s extras keys ARE ``Tcl.HOSTS`` keys — the identity the design rests on.
 
@@ -1253,7 +1290,11 @@ class TestEngineExtrasContract(unittest.TestCase):
             return tomllib.load(handle).get("project", {})
 
     def test_every_extra_is_named_after_a_host(self):
+        """The one exception is ``Tcl.APPS_EXTRA``: the standalone-apps product,
+        not an engine, whose range ``Tcl.register_apps`` installs within."""
         for extra in self._pyproject().get("optional-dependencies", {}):
+            if extra == Tcl.APPS_EXTRA:
+                continue
             with self.subTest(extra=extra):
                 self.assertIn(
                     extra,

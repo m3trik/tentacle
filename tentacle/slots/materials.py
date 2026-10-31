@@ -1576,27 +1576,11 @@ class MaterialsSlots(Slots):
         """Emissive Groups."""
         self.sb.handlers.marking_menu.show("emissive_groups")
 
-    # ------------------------------------------------------------------ standalone panels
-    def _launch_extapp(self, app, show=True):
-        """Launch extapps' standalone app *app* in-process, by name, through the
-        external-app handler; a failure (a package that will not install or
-        import) is a message, never a traceback.
-
-        Returns:
-            The panel's window, or None.
-        """
-        try:
-            return self.sb.handlers.external_app.launch(app, show=show)
-        except Exception as error:  # noqa: BLE001 -- said, for the user to act on
-            self.sb.message_box(
-                f"<hl>Couldn't open {app.replace('_', ' ').title()}</hl><br>{error}"
-            )
-            return None
-
+    # ------------------------------------------------------------------ standalone apps
     def _open_texture_app(self, app, scopes=False):
         """Open a texture-file panel (Map Packer, Map Converter) on the project's
         texture folder, with the host's selection scopes when *scopes*."""
-        ui = self._launch_extapp(app, show=False)
+        ui = self.launch_app(app, show=False)
         if ui is None:
             return
         slots = getattr(ui, "slots", None)
@@ -1647,19 +1631,19 @@ class MaterialsSlots(Slots):
 
     def b022(self, widget=None):
         """Map Compositor."""
-        self._launch_extapp("compositor")
+        self.launch_app("compositor")
 
     def b023(self, widget=None):
         """Metashape Workflow."""
-        self._launch_extapp("metashape_workflow")
+        self.launch_app("metashape_workflow")
 
     def b024(self, widget=None):
         """RealityCapture Workflow."""
-        self._launch_extapp("realityscan_workflow")
+        self.launch_app("realityscan_workflow")
 
     def b025(self, widget=None):
         """Brush Splat Workflow."""
-        self._launch_extapp("gaussian_splat_workflow")
+        self.launch_app("gaussian_splat_workflow")
 
 
 # --------------------------------------------------------------------------------------------

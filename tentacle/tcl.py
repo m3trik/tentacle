@@ -718,6 +718,38 @@ class Tcl(_TclInternal):
             # "<tool>.*": its .ui from ui/tools and its Slots module from slots/tools.
             exclude=[f"{tool}.*" for tool in unserved] or None,
         )
+        Tcl.register_apps(switchboard)
+
+    #: The standalone-apps product tentacle's menus open by name, and the extra
+    #: (``tentacletk[apps]``) whose range keeps an installed one in step with
+    #: this tentacle (``push.ps1`` ratchets it on each release).
+    APPS_DIST = "extapps"
+    APPS_EXTRA = "apps"
+
+    @classmethod
+    def register_apps(cls, switchboard) -> None:
+        """Let *switchboard*'s external-app handler open extapps' apps by name.
+
+        extapps is a product beside tentacle, never its dependency: an installed
+        one is found by its entry points, a missing one is offered for install
+        on first use, and either way within the range ``tentacletk[apps]``
+        declares, so the pair never falls out of step. A source checkout (no
+        tentacletk metadata) registers it unranged, so a checkout of extapps on
+        the path is still found.
+        """
+        handler = getattr(getattr(switchboard, "handlers", None), "external_app", None)
+        if handler is None:
+            return
+        import pythontk as ptk
+
+        requirement = ptk.PackageRequirement.declared_by(
+            cls.DIST, cls.APPS_DIST, extra=cls.APPS_EXTRA
+        )
+        handler.add_provider(
+            str(requirement) if requirement else cls.APPS_DIST,
+            probe_module=cls.APPS_DIST,
+        )
+        handler.discover()
 
     @classmethod
     def chord_bindings(cls, key_show=None, chord_target=None):

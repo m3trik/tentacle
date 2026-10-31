@@ -123,9 +123,9 @@ class TestExternalAppRegistration(unittest.TestCase):
     slot launches is one of extapps' entry points.
     """
 
-    #: The calls that open an external app by name: the handler's own, and
-    #: the materials slots' wrappers around it.
-    LAUNCHERS = {"launch", "_launch_extapp", "_open_texture_app"}
+    #: The calls that open an external app by name: the handler's own,
+    #: ``Slots.launch_app`` and the materials slots' texture-app wrapper.
+    LAUNCHERS = {"launch", "launch_app", "_open_texture_app"}
 
     @staticmethod
     def _registered_modules(filename):
@@ -226,7 +226,8 @@ class TestExternalAppRegistration(unittest.TestCase):
     def test_tentacle_declares_no_app_and_no_extapps_dependency(self):
         """Read from the source pyproject, not metadata an editable install
         wrote before the last edit: no external-app table, no provider row and
-        no extapps requirement (the apps' installs are the handler's)."""
+        no extapps requirement among the base dependencies (the apps' installs
+        are the handler's, within the range the ``apps`` extra states)."""
         try:
             import tomllib
         except ModuleNotFoundError:  # < 3.11

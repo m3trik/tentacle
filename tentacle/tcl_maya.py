@@ -92,11 +92,11 @@ class TclMaya(MarkingMenu):
             print(f"# Warning: tentacle: apply_saved_macros failed: {error} #")
 
         # The standalone apps (compositor, photogrammetry, texture/mesh tools) are
-        # extapps', a separate product: they self-describe via extapps'
-        # ``uitk.external_apps.in_process`` entry points and are auto-registered
-        # by ExternalAppHandler on construction -- no per-app list here; the
-        # category slots open each BY NAME (``external_app.launch``), in a
-        # switchboard of its own. ``context_tags={"maya"}`` (above) hides apps
+        # extapps', a separate product: Tcl.register_apps (from register_shared,
+        # above) names it as the handler's provider within tentacletk[apps]'s
+        # range, and the apps self-describe via its entry points -- no per-app
+        # list here; the category slots open each BY NAME (Slots.launch_app), in
+        # a switchboard of its own. ``context_tags={"maya"}`` (above) hides apps
         # gated ``hide_maya`` (Substance/Marmoset, which Maya serves through its
         # own bridges).
 

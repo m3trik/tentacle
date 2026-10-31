@@ -741,7 +741,9 @@ class RenderingSlots(Slots):
     # (Renamed tb002 -> b000: ``tb`` means a button carrying an option box.)
     def b000(self, widget):
         """WebXR Preview: open the live preview panel, wired to this scene."""
-        ui = self.sb.handlers.external_app.launch("webxr_preview", show=False)
+        ui = self.launch_app("webxr_preview", show=False)
+        if ui is None:
+            return
         # The CLASS, not an instance: the panel builds it lazily and keeps it,
         # and its deliverer is a class attribute, so the port and any page
         # already open survive both the panel and this slot being rebuilt.

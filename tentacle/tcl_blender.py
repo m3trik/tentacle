@@ -1565,10 +1565,10 @@ class TclBlender(MarkingMenu):
         Tcl.register_shared(self.sb)
 
         # The standalone apps -- the same ones Maya opens -- are extapps', a
-        # separate product: they self-describe via extapps'
-        # ``uitk.external_apps.in_process`` entry points and are auto-registered
-        # by ExternalAppHandler on construction, so the category slots open each
-        # BY NAME (``external_app.launch``), in a switchboard of its own.
+        # separate product: Tcl.register_apps (from register_shared, above)
+        # names it as the handler's provider within tentacletk[apps]'s range, and
+        # the apps self-describe via its entry points, so the category slots open
+        # each BY NAME (Slots.launch_app), in a switchboard of its own.
         # ``context_tags={"blender"}`` (above) surfaces the Substance/Marmoset
         # apps here (they're gated out of Maya only).
 

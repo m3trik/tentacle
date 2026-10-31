@@ -1162,7 +1162,9 @@ class SceneSlots(Slots):
         dialog starting beside the open scene, and its "From FBX references" toggle
         reading the FBX files behind the selected references
         (``ReferenceManager.selected_reference_paths``)."""
-        ui = self.sb.handlers.external_app.launch("mesh_convert", show=False)
+        ui = self.launch_app("mesh_convert", show=False)
+        if ui is None:
+            return
         scene = self._scene_path()
         if scene:
             ui.slots.source_dir = os.path.dirname(scene)
