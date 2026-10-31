@@ -9,11 +9,11 @@
 | Layer | What it measures | Result |
 |:--|:--|:--|
 | **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 10 *(presence)*; 0 hollow handlers |
-| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 375 chains at 463 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
-| **3. Tool panels** | the shared tools, per host | 63 tools: 49 both, 2 maya, 12 standalone; 779 chains at 1126 sites; 41 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **62%** (1467/2359 names); 0 modules absent |
+| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 465 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
+| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 779 chains at 1132 sites; 41 one-host operations; **0 gap sites** |
+| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1490/2373 names); 0 modules absent |
 
-**Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 62% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
+**Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 63% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
 ---
 
@@ -24,15 +24,15 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | module | mayatk | blendertk | shared | coverage |
 |:--|--:|--:|--:|--:|
 | __init__.py | 0 | 0 | 0 | — |
-| anim_utils | 315 | 289 | 235 | 75% |
+| anim_utils | 333 | 297 | 247 | 74% |
 | audio_utils | 81 | 36 | 21 | 26% |
 | cam_utils | 21 | 21 | 16 | 76% |
-| core_utils | 204 | 97 | 72 | 35% |
+| core_utils | 198 | 102 | 80 | 40% |
 | display_utils | 61 | 63 | 40 | 66% |
-| edit_utils | 170 | 203 | 136 | 80% |
-| env_utils | 429 | 302 | 240 | 56% |
-| light_utils | 122 | 100 | 77 | 63% |
-| mat_utils | 359 | 285 | 253 | 70% |
+| edit_utils | 168 | 200 | 134 | 80% |
+| env_utils | 420 | 301 | 239 | 57% |
+| light_utils | 133 | 111 | 88 | 66% |
+| mat_utils | 365 | 290 | 259 | 71% |
 | node_utils | 170 | 87 | 78 | 46% |
 | nurbs_utils | 20 | 31 | 9 | 45% |
 | render_utils | 14 | 11 | 11 | 79% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 76 | 88 | 34 | 45% |
 | uv_utils | 127 | 110 | 99 | 78% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2359** | **1861** | **1467** | **62%** |
+| **TOTAL (unique)** | **2373** | **1882** | **1490** | **63%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
@@ -48,12 +48,11 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 
 ## Layer 3 — Tool panels
 
-Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`). *hosts*: the hosts it serves (`slots.tools.HOSTS`; `standalone` = its own switchboard, no host). *one-host*: distinct chains one library lacks, hidden or guarded there.
+Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`). *hosts*: the hosts it serves (`slots.tools.HOSTS`). *one-host*: distinct chains one library lacks, hidden or guarded there.
 
 | tool | hosts | chains | sites | one-host | gap sites |
 |:--|:--|--:|--:|--:|--:|
 | _app_bridge | shared helpers | 12 | 14 | 0 | 0 |
-| _photogrammetry | shared helpers | 0 | 0 | 0 | 0 |
 | arnold_bridge | maya | 5 | 5 | 0 | 0 |
 | articulated_rig | both | 27 | 48 | 0 | 0 |
 | audio_clips | both | 37 | 80 | 19 | 0 |
@@ -63,8 +62,6 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | calculator | both | 7 | 8 | 0 | 0 |
 | channels | both | 58 | 83 | 13 | 0 |
 | color_id | both | 9 | 10 | 0 | 0 |
-| compositor | standalone | 0 | 0 | 0 | 0 |
-| converter | standalone | 0 | 0 | 0 | 0 |
 | curtain | both | 13 | 22 | 0 | 0 |
 | curve_to_tube | both | 6 | 11 | 0 | 0 |
 | cut_on_axis | both | 5 | 9 | 1 | 0 |
@@ -76,7 +73,6 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | emissive_groups | both | 16 | 22 | 0 | 0 |
 | exploded_view | both | 5 | 5 | 0 | 0 |
 | game_shader | both | 10 | 11 | 0 | 0 |
-| gaussian_splat_workflow | standalone | 0 | 0 | 0 | 0 |
 | hdr_manager | both | 15 | 25 | 2 | 0 |
 | hierarchy_sync | both | 13 | 19 | 0 | 0 |
 | image_to_plane | both | 4 | 4 | 0 | 0 |
@@ -84,16 +80,10 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | key_stash | both | 6 | 6 | 0 | 0 |
 | light_rig | maya | 26 | 37 | 0 | 0 |
 | lightmap_baker | both | 38 | 51 | 0 | 0 |
-| look_match | standalone | 0 | 0 | 0 | 0 |
 | marmoset_bridge | both | 2 | 2 | 0 | 0 |
-| marmoset_workflow | standalone | 0 | 0 | 0 | 0 |
 | mat_updater | both | 13 | 17 | 0 | 0 |
-| mesh_convert | standalone | 0 | 0 | 0 | 0 |
-| metashape_workflow | standalone | 0 | 0 | 0 | 0 |
 | mirror | both | 10 | 13 | 1 | 0 |
 | naming | both | 23 | 29 | 0 | 0 |
-| packer | standalone | 0 | 0 | 0 | 0 |
-| realityscan_workflow | standalone | 0 | 0 | 0 | 0 |
 | reference_manager | both | 30 | 39 | 1 | 0 |
 | render_effects | both | 22 | 28 | 0 | 0 |
 | rizom_bridge | both | 3 | 3 | 0 | 0 |
@@ -107,14 +97,10 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | smart_bake | both | 10 | 11 | 0 | 0 |
 | snap | both | 4 | 5 | 0 | 0 |
 | substance_bridge | both | 3 | 3 | 0 | 0 |
-| substance_workflow | standalone | 0 | 0 | 0 | 0 |
 | telescope_rig | both | 7 | 8 | 0 | 0 |
 | texture_combine | both | 53 | 87 | 0 | 0 |
-| texture_path_editor | both | 46 | 75 | 0 | 0 |
+| texture_path_editor | both | 47 | 82 | 0 | 0 |
 | tube_rig | both | 14 | 18 | 2 | 0 |
-| unity_bridge | both | 1 | 1 | 0 | 0 |
-| unity_workflow | standalone | 0 | 0 | 0 | 0 |
-| webxr_preview | standalone | 0 | 0 | 0 | 0 |
 | wheel_rig | both | 6 | 6 | 0 | 0 |
 | workspaces | both | 18 | 27 | 0 | 0 |
 
@@ -145,7 +131,7 @@ Each marking-menu category's one Slots class (`slots/<category>.py`) over its `u
 | preferences | 13 | 0 / 0 | 7 | 0 | 18 | 26 | 0 | 0 |  |
 | rendering | 6 | 0 / 0 | 19 | 4 | 30 | 41 | 2 | 0 |  |
 | rigging | 8 | 0 / 1 | 24 | 12 | 23 | 34 | 2 | 0 |  |
-| scene | 7 | 0 / 0 | 24 | 7 | 48 | 62 | 9 | 0 |  |
+| scene | 7 | 0 / 0 | 24 | 7 | 50 | 64 | 9 | 0 |  |
 | selection | 19 | 0 / 1 | 21 | 10 | 18 | 18 | 0 | 0 |  |
 | settings | 5 | 0 / 0 | 4 | 0 | 1 | 1 | 0 | 0 |  |
 | subdivision | 9 | 0 / 0 | 8 | 2 | 9 | 11 | 0 | 0 |  |

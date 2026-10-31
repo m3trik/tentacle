@@ -7,7 +7,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/_slots.py`
 - `class Slots(QtCore.QObject)`
-  - methods: tk, mirror_app_state, requires, hide_unless, host_key, require_selection, activate_tool, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
+  - methods: tk, mirror_app_state, requires, hide_unless, host_key, require_selection, activate_tool, launch_app, run_operation, add_slot_widget, gate_on_app, recheck_app_gates, toggle_camera_view, register_camera_view_toggle
 
 ### `slots/animation.py` — Animation: one Slots class for both hosts.
 - `class AnimationSlots(Slots)`
@@ -55,7 +55,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/materials.py` — Materials: one Slots class for both hosts.
 - `class MaterialsSlots(Slots)`
-  - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, lbl004, lbl006, txt000_init, b006_init, b006, b004, b033, b014, b015, header_init, list000_init, list000, select_by_mat, b003, list001_init, list001, b007, b013, tb001_init, tb001, tb002_init, tb002, b009, b010, b011, b018, b019, b020, b021, b026, b027, b008, b016, b022, b023, b024, b025
+  - methods: tbl000_init, b028, b029, b030, b031, b032, lbl002, lbl004, lbl006, txt000_init, b006_init, b006, b004, b033, b014, b015, header_init, list000_init, list000, select_by_mat, b003, list001_init, list001, b007, b013, b034, tb001_init, tb001, tb002_init, tb002, b009, b010, b011, b018, b019, b020, b021, b026, b027, b008, b016, b022, b023, b024, b025
 
 ### `slots/normals.py` — Normals: one Slots class for both hosts.
 - `class NormalsSlots(Slots)`
@@ -106,10 +106,10 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
   - methods: chk000_init, chk001_init, chk002_init, chk000, chk001, chk002, chk004_init, chk004, chk005_init, chk005
 
 ### `slots/tools/__init__.py` — Each shared tool's one Slots class, paired by name with its ``ui/tools/<tool>.ui``
-- constants: STANDALONE, HOSTS, RENAMED_FROM, RENAMED_HOSTS
+- constants: HOSTS, RENAMED_FROM, RENAMED_HOSTS
 
 ### `slots/tools/_app_bridge/host_bridge.py` — The app-bridge panels' one base, shared by both hosts.
-- `class HostBridge(Slots.BridgeSlotsBase)`
+- `class HostBridge(Slots.ParamPanelSlots)`
   - methods: bridge_class, make_bridge, params_module, template_dir, list_template_modes, PRESETS_ROOT, resolve_scope_objects, scoped_objects, live_param_tooltip_blocks, set_bake_source_from_selection, select_bake_source, clear_bake_source
 
 ### `slots/tools/_blendshape_animator/sort_item.py` — A tween-tree row that sorts its numeric columns by number.
@@ -143,36 +143,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - constants: ORIG_TOOLTIP_ROLE, BROWSE_PLACEHOLDER, OPEN_SCENE_PLACEHOLDER
 - `class HierarchyTreeRenderer(pythontk.LoggingMixin)`
   - methods: session, matcher, populate_current_scene_tree, populate_reference_tree, show_reference_placeholder, show_reference_error, populate_tree_with_hierarchy, apply_difference_formatting, clear_tree_colors, format_tree_differences, apply_ignore_styling, build_item_path, selected_item_keys, get_selected_tree_items, count_tree_items, store_tree_selection, restore_tree_selection, get_tree_structure, condense_to_roots, filter_to_leaves, apply_diff_options
-
-### `slots/tools/_marmoset_workflow/parameters.py` — Tunable parameters surfaced in the Marmoset Workflow panel.
-- constants: PARAMS
-- `class Parameters(ParamRegistry)`
-
-### `slots/tools/_photogrammetry/gaussian_splat_parameters.py` — Tunable parameters surfaced in the Brush (gaussian-splat) Workflow panel.
-- constants: PARAMS
-- `class Parameters(ParamRegistry)`
-  - methods: to_argv, referenced_keys
-
-### `slots/tools/_photogrammetry/metashape_parameters.py` — Tunable parameters surfaced in the Metashape Workflow panel.
-- constants: PARAMS
-- `class Parameters(ParamRegistry)`
-  - methods: to_argv, referenced_keys
-
-### `slots/tools/_photogrammetry/panel_slots.py` — Shared scaffolding for the photogrammetry workflow panels.
-- `class PhotogrammetryPanelSlots(Slots.BridgeSlotsBase)`
-  - methods: header_menu_items, make_preset_store, resolved_project_name, cancel_run, open_output_folder, b000
-- `class FramesSourceMixin`
-  - methods: resolved_frames_dir
-
-### `slots/tools/_photogrammetry/realityscan_parameters.py` — Tunable parameters surfaced in the RealityCapture Workflow panel.
-- constants: PARAMS
-- `class Parameters(ParamRegistry)`
-  - methods: to_argv, referenced_keys
-
-### `slots/tools/_photogrammetry/shared_parameters.py` — Input pre-processing parameter specs shared by the image-in engines.
-- constants: PREPROCESS_MASTER_KEY, PREPROCESSING_PARAMS, PREPROCESSING_VALUE_FLAGS, PREPROCESSING_STORE_TRUE_FLAGS, PREPROCESSING_KEYS, PREPROCESSING_KNOB_KEYS
-- `class SharedParams`
-  - methods: render_flag_argv, preprocessing_argv
 
 ### `slots/tools/_reference_manager/controller.py` — The Reference Manager panel's controller: the browsed workspace, the table
 - `class ReferenceManagerController(pythontk.LoggingMixin)`
@@ -306,17 +276,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class TransferMode`
   - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, passes, resolve_auto, source_note, auto_note, pair, gate, lightmap_probe, sync, run, derived_name, texture_pass, read_files, overwrite_note, lightmap_pass
 
-### `slots/tools/_unity_bridge/_unity_panel.py` — What every Unity panel shares: the 'Unity Project' row, the Editor combo, script management.
-- `class UnityPanelMixin`
-  - methods: template_dir, list_template_modes, default_output_dir
-
-### `slots/tools/_unity_workflow/parameters.py` — User-tunable parameters for the standalone Unity Workflow panel.
-- constants: PARAMS
-- `class Parameters(ParamRegistry)`
-
-### `slots/tools/_webxr_preview/parameters.py` — Tunable parameters surfaced in the WebXR Preview panel.
-- constants: SOURCE_FILE_TYPES, AUTHORED_EXTENSION, EXPORT_KEYS, FILE_KEYS, GLB_KEYS, TEXTURE_KEYS, KTX2_KEYS, PARAMS
-- `class Parameters(ParamRegistry)`
+### `slots/tools/_texture_path_editor/collect_plan_table.py` — The Find & Copy panel's plan table: what a Collect would do, row by row.
+- `class CollectPlanTable`
+  - methods: pending, show, pick, clear, status_text, destination_text
 
 ### `slots/tools/_workspaces/editor.py` — The Workspaces panel's editor: the minimal take on Maya's File ▸ Project
 - `class WorkspaceEditorPart(pythontk.LoggingMixin)`
@@ -363,14 +325,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class ColorIdSlots(Slots)`
   - methods: header_init, selected_button, target_color, b000, b001, b002, b003
 
-### `slots/tools/compositor.py` — UI slot bindings for the Map Compositor: several texture maps of each type
-- `class CompositorSlots(Slots, _CompositorSlotsInternal)`
-  - methods: output_dir, map_name, header_init, txt000_init, txt001_init, txt002_init, b002, process
-
-### `slots/tools/converter.py` — Map Converter UI — slot file for ``converter.ui``.
-- `class ConverterSlots(Slots, pythontk.LoggingMixin)`
-  - methods: source_dir, scopes, register_scope, unregister_scope, texture_provider, header_init, optimize_formats, tb000_init, tb000, tb001_init, tb001, tb003_init, tb003, tb002_init, tb002, b000, b001, b004, b007, b010, b011, b012
-
 ### `slots/tools/curtain.py` — Curtain: drape a pleated, gravity-sagged cloth curtain from a rail, with a
 - `class CurtainSlots(Slots)`
   - methods: header_init, cmb000_init, b001_init, b002, perform_operation
@@ -416,10 +370,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class GameShaderSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, lbl_graph_material, mat_name, mat_prefix, mat_suffix, normal_map_type, output_extension, shader_type, opacity_mode, cmb002_init, cmb003_init, cmb004_init, txt000_init, txt002_init, b000
 
-### `slots/tools/gaussian_splat_workflow.py` — Slots for the Brush (gaussian-splat) Workflow panel.
-- `class GaussianSplatWorkflowSlots(PhotogrammetryPanelSlots)`
-  - methods: resolved_colmap_dir, params_module, template_dir, make_bridge, header_init, open_brush_viewer, open_result_in_brush, install_brush, cancel_run, list_template_modes, default_output_dir, help_spec
-
 ### `slots/tools/hdr_manager.py` — HDR Manager: light the scene from an HDR environment map, spin it and adjust
 - `class HdrManagerSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb000_init, hdr_map, hdr_map_visibility, hdr_map_preview, cmb000, slider000, spn_intensity, spn_exposure, spn_resolution, spn_samples, spn_diffuse, spn_specular, add_hdr, open_sourceimages, clear_network, ctx_select_skydome, ctx_select_transform, ctx_select_file_node, ctx_reveal_in_explorer
@@ -448,30 +398,13 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class LightmapBakerSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, cmb000_init, btn_reset_defaults_init, cmb002_init, cmb_scope_init, set_exclusions_init, set_exclusions, select_exclusions, clear_exclusions, set_isolation_init, set_isolation, select_isolation, clear_isolation, cmb_resolution_init, spn_samples_init, spn_gi_samples_init, spn_bounces_init, cmb_device_init, txt_output_dir_init, txt000_init, b000, cmb_page_init, cmb_page, tbl_maps_init, select_by_state, open_map_folder, combine_selected, fix_all, track_selected, revert_selected, rebake_selected, show_bake_state, open_output
 
-### `slots/tools/look_match.py` — Slots for the Look Match panel: light a baked scene to match a reference image.
-- constants: DOCS_URL
-- `class LookMatchSlots(Slots, _LookMatchSlotsInternal)`
-  - methods: header_init, cmb_session_init, cmb_mix_init, b_undo_init, b_redo_init, b_undo, b_redo, b_fit_init, tbl_mix_init, chk_all_init, tbl_regions_init, cmb_mode_init, cmb_a_init, cmb_b_init, cmb_solve_init, cmp_view_init, browse_session, open_session, save_mix, save_mix_as, delete_mix, b_solve, b_fit, b_accept, b_discard, b_render, stop_service, b_edit_regions, b_draw_rect, b_draw_ellipse, b_draw_poly, b_draw_line, b_region_delete, b_paint, b_reload, b_update, stop_worker, b_save_rig, mix_key, status_glyph, brightness_text
-
 ### `slots/tools/marmoset_bridge.py` — Marmoset Bridge: send the selection to Marmoset Toolbag through a template.
 - `class MarmosetBridgeSlots(HostBridge)`
   - methods: bridge_class, select_initial_template_index, b000
 
-### `slots/tools/marmoset_workflow.py` — Slots for the standalone Marmoset Workflow panel.
-- `class MarmosetWorkflowSlots(Slots.BridgeSlotsBase)`
-  - methods: params_module, template_dir, make_bridge, list_template_modes, select_initial_template_index, resolved_model_path, set_model_path, b000
-
 ### `slots/tools/mat_updater.py` — Material Updater: rework scene materials for a target workflow preset,
 - `class MatUpdaterSlots(Slots)`
   - methods: logger, header_init, selection_mode, move_to_folder, shader_type, cmb001_init, b001
-
-### `slots/tools/mesh_convert.py` — Mesh Converter: batch-convert FBX files to binary glTF (GLB) with FBX2glTF.
-- `class MeshConvertSlots(Slots, pythontk.LoggingMixin)`
-  - methods: source_dir, fbx_provider, header_init, tb000_init, tb000
-
-### `slots/tools/metashape_workflow.py` — Slots for the Metashape Workflow panel.
-- `class MetashapeWorkflowSlots(FramesSourceMixin, PhotogrammetryPanelSlots)`
-  - methods: params_module, template_dir, make_bridge, list_template_modes, default_output_dir, help_spec
 
 ### `slots/tools/mirror.py` — Mirror: mirror the selected meshes across an axis, with a live preview.
 - `class MirrorSlots(Slots)`
@@ -479,15 +412,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/tools/naming.py` — Naming: batch find / rename / convert-case / strip-chars / suffix-by-location /
 - `class NamingSlots(Slots)`
-  - methods: logger, header_init, scope, dry_run, file_scope, base_names, valid_suffixes, txt000_init, txt000, txt001_init, txt001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003
-
-### `slots/tools/packer.py` — Map Packer UI — slot file for ``packer.ui``: channel-pack/unpack texture maps.
-- `class PackerSlots(Slots, pythontk.LoggingMixin)`
-  - methods: cmbPreset_init, cmbR_init, cmbG_init, cmbB_init, cmbA_init, txtSuffix_init, cmbFormat_init, cmbMode_init, cmbMissing_init, source_dir, b000, b001
-
-### `slots/tools/realityscan_workflow.py` — Slots for the RealityCapture Workflow panel.
-- `class RealityscanWorkflowSlots(FramesSourceMixin, PhotogrammetryPanelSlots)`
-  - methods: params_module, template_dir, make_bridge, list_template_modes, default_output_dir, help_spec
+  - methods: logger, cmb_scope_init, header_init, scope, dry_run, file_scope, base_names, valid_suffixes, txt000_init, txt000, txt001_init, txt001, tb000_init, tb000, tb001_init, tb001, tb002_init, tb002, tb003_init, tb003
 
 ### `slots/tools/reference_manager.py` — Reference Manager: a workspace scene-file manager -- browse a project's scene
 - `class ReferenceManagerSlots(Slots)`
@@ -541,11 +466,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class SubstanceBridgeSlots(HostBridge)`
   - methods: bridge_class, select_initial_template_index, b000
 
-### `slots/tools/substance_workflow.py` — Switchboard slots for the Substance Workflow UI.
-- constants: MESH_EXTS, PIPELINE_STAGES, BLEND_MODES, BAKE_RESOLUTIONS, ADVANCED_PARAMS
-- `class SubstanceWorkflowSlots(Slots, pythontk.LoggingMixin)`
-  - methods: header_init, txt000_init, txt001_init, txt002_init, cmb000_init, btn_stages_init, btn_advanced_init, cmb003, btn_launch, b000, set_mesh_path, btn_browse_mesh, btn_browse_template, btn_browse_project
-
 ### `slots/tools/telescope_rig.py` — Telescope Rig: nested segments that extend and retract between a base and an
 - `class TelescopeRigSlots(Slots, pythontk.LoggingMixin)`
   - methods: header_init, build_rig, remove_rig
@@ -556,24 +476,11 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/tools/texture_path_editor.py` — Texture Path Editor: inspect and fix the scene's texture paths.
 - `class TexturePathEditorSlots(Slots, pythontk.LoggingMixin)`
-  - methods: labels, header_init, tb_set_texture_directory_init, tb_normalize_paths_init, tb_resolve_missing_textures_init, tbl000_init, refresh_texture_table, setup_formatting, open_source_images, reload_scene_textures, tb_set_texture_directory, tb_find_and_copy_textures, tb_normalize_paths, make_paths_absolute, tb_resolve_missing_textures, select_textures_for_objects, select_broken_paths, select_absolute_paths, row_browse_for_file, row_rename_file, handle_cell_edit, select_material, select_file_node, row_show_in_hypershade, delete_file_node, cleanup_scene_callbacks
+  - methods: labels, header_init, tb_set_texture_directory_init, tb_normalize_paths_init, tb_resolve_missing_textures_init, tbl000_init, refresh_texture_table, setup_formatting, open_source_images, reload_scene_textures, tb_set_texture_directory, tb_find_and_copy_textures, tb_normalize_paths, make_paths_absolute, tb_resolve_missing_textures, select_textures_for_objects, select_broken_paths, select_absolute_paths, row_browse_for_file, row_rename_file, handle_cell_edit, select_material, select_file_node, row_show_in_hypershade, delete_file_node, collect_scene_textures, cleanup_scene_callbacks
 
 ### `slots/tools/tube_rig.py` — Tube Rig: rig a tube-shaped mesh (hose, cable, piston, tail) with joints,
 - `class TubeRigSlots(Slots)`
   - methods: txt000_init, header_init, apply_mode, get_mode, get_strategy, b000, b001, b002, b003, b004, b005, b006, b007
-
-### `slots/tools/unity_bridge.py` — Unity Bridge: export the selection and copy the FBX into a Unity project's Assets/.
-- `class UnityBridgeSlots(UnityPanelMixin, HostBridge)`
-  - methods: bridge_class, make_bridge, b000
-
-### `slots/tools/unity_workflow.py` — Slots for the standalone Unity Workflow panel.
-- `class UnityWorkflowSlots(UnityPanelMixin, Slots.BridgeSlotsBase)`
-  - methods: params_module, make_bridge, resolved_model_path, set_model_path, b000
-
-### `slots/tools/webxr_preview.py` — Slots for the WebXR Preview panel — the single UI for the live preview.
-- constants: FILE_SOURCE
-- `class WebXrPreviewSlots(Slots.BridgeSlotsBase)`
-  - methods: params_module, template_dir, make_bridge, engine, list_template_modes, open_preview_page, stop_server, add_scene, remove_scene, share_link, copy_share_link, copy_scene_link, check_share_link, stop_sharing, set_source_file, set_source_files, b000
 
 ### `slots/tools/wheel_rig.py` — Wheel Rig: wheels that roll as their driver (control) moves, sized by wheel
 - `class WheelRigSlots(Slots)`
@@ -598,7 +505,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 ### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
 - `class QtPlatformUnavailable(RuntimeError)`
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, chord_bindings, greeting, banner, launch, reload, engine_dists, engine_install_hint
+  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, register_apps, chord_bindings, greeting, banner, launch, reload, engine_dists, engine_install_hint
 
 ### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
 - `ensure_qapp()`
@@ -625,21 +532,6 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `tcl_maya.py`
 - `class TclMaya(MarkingMenu)`
-
-### `tcl_standalone.py` — The standalone panels: each a window of its own, in a switchboard of its own.
-- `class PanelLauncher(_PanelLauncherInternal)`
-- `class CompositorUI(PanelLauncher)`
-- `class ConverterUI(PanelLauncher)`
-- `class PackerUI(PanelLauncher)`
-- `class MeshConvertUI(PanelLauncher)`
-- `class MetashapeWorkflowUI(PanelLauncher)`
-- `class RealityScanWorkflowUI(PanelLauncher)`
-- `class GaussianSplatWorkflowUI(PanelLauncher)`
-- `class SubstanceWorkflowUI(PanelLauncher)`
-- `class MarmosetWorkflowUI(PanelLauncher)`
-- `class UnityWorkflowUI(PanelLauncher)`
-- `class WebXrPreviewUI(PanelLauncher)`
-- `class LookMatchUI(PanelLauncher)`
 
 ### `tentacle_installer.py` — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 - `register()`
