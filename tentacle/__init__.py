@@ -85,6 +85,63 @@ MOVED_NAMES = {
     "ToonSlots": ("mayatk.MayaUiHandler", "0.17.0"),
     "VisualizeSlots": ("mayatk.MayaUiHandler", "0.17.0"),
     "WindowsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    # The per-host Slots classes' handlers (slots/maya, slots/blender) composed
+    # into one Slots class per category (2026-10-28): each now serves both hosts
+    # from slots/<category>.py, or its widget left the panel.
+    "EditorsSlots.b006_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b007_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b008_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b012_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "EditorsSlots.b013_init": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "HudSelectionMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "StatusMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "WarningsMixin": ("tentacle.slots.hud.HudSlots", "0.17.0"),
+    "LightingSlots.b002_init": ("tentacle.slots.lighting.LightingSlots", "0.17.0"),
+    "MaterialsSlots.b_shader_editor": (
+        "tentacle.slots.materials.MaterialsSlots",
+        "0.17.0",
+    ),
+    "PolygonsSlots.b038_init": ("tentacle.slots.polygons.PolygonsSlots", "0.17.0"),
+    "SceneSlots.b008": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
+    "TransformSlots.tb004": ("tentacle.slots.transform.TransformSlots", "0.17.0"),
+    "DisplaySlots.b000": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b001": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b002": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b003": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b004": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b005": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b006": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b007": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b009": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b011": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b012": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b021": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b022": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b023": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "DisplaySlots.b024": ("tentacle.slots.display.DisplaySlots", "0.17.0"),
+    "EditorsSlots.getEditorWidget": ("tentacle.slots.editors.EditorsSlots", "0.17.0"),
+    "NurbsSlots.b016": ("tentacle.slots.nurbs.NurbsSlots", "0.17.0"),
+    "RiggingSlots.chk000": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.chk001": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.chk002": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "RiggingSlots.s000": ("tentacle.slots.rigging.RiggingSlots", "0.17.0"),
+    "SelectionSlots.chkxxx": ("tentacle.slots.selection.SelectionSlots", "0.17.0"),
+    "SelectionSlots.get_selection_tool": (
+        "tentacle.slots.selection.SelectionSlots",
+        "0.17.0",
+    ),
+    "SelectionSlots.set_selection_tool": (
+        "tentacle.slots.selection.SelectionSlots",
+        "0.17.0",
+    ),
+    "SubdivisionSlots.smoothProxy": (
+        "tentacle.slots.subdivision.SubdivisionSlots",
+        "0.17.0",
+    ),
+    "TransformSlots.setTransformSnap": (
+        "tentacle.slots.transform.TransformSlots",
+        "0.17.0",
+    ),
 }
 
 
