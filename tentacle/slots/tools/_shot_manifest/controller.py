@@ -350,14 +350,7 @@ class ShotManifestController(
 
     def _set_footer(self, text: str, *, color: str = "") -> None:
         """Set footer text with an optional foreground color."""
-        label = self.ui.footer._status_label
-        if color:
-            label.setStyleSheet(
-                f"background: transparent; border: none; color: {color};"
-            )
-        else:
-            label.setStyleSheet("background: transparent; border: none;")
-        self.ui.footer.setText(text)
+        self.ui.footer.setText(text, color=color or None)
 
     @property
     def _initial_shot_length(self) -> float:
@@ -734,18 +727,26 @@ class ShotManifestController(
         self._sync_detection_widgets()
 
     def _sync_detection_widgets(self) -> None:
-        """Refresh the Shots UI widget states via its centralized method."""
-        instances = getattr(self.sb, "slot_instances", None) or {}
-        shots_slots = instances.get("shots") if isinstance(instances, dict) else None
+        """Refresh an open Shots panel's widget states (its ``refresh_state``).
+
+        Peeks, never builds: reading ``loaded_ui.shots`` built a hidden Shots
+        panel -- a window and a controller following the store -- on every
+        Build. A panel not loaded syncs itself when it opens.
+        """
+        instances = getattr(self.sb, "slot_instances", None)
+        peek = getattr(instances, "peek", None) or getattr(instances, "get", None)
+        shots_slots = peek("shots") if peek is not None else None
         if shots_slots is not None:
             ctrl = getattr(shots_slots, "controller", None)
             if ctrl is not None and hasattr(ctrl, "refresh_state"):
                 ctrl.refresh_state()
                 return
-        # Fallback: direct widget manipulation if controller not available
+        # Fallback: the loaded panel's widgets, when it has no controller yet.
         try:
-            shots_ui = self.sb.loaded_ui.shots
+            shots_ui = self.sb.loaded_ui.peek("shots")
         except Exception:
+            return
+        if shots_ui is None:
             return
         store = self._active_store()
         enabled = store.is_detection_relevant if store is not None else True

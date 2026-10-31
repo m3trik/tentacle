@@ -50,6 +50,7 @@ Other flags:
     -q / --quiet        Minimal output
     --no-badge          Skip README badge update
     --keep-maya         Keep Maya open after tests (only with --in-maya)
+    --timeout N         Seconds to wait for an --in-maya run (default 2400)
 """
 import argparse
 import datetime
@@ -498,7 +499,7 @@ def _build_in_maya_dispatcher(test_dir: Path, monorepo: Path,
 
 def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
                      no_badge: bool, keep_maya: bool, root_dir: Path,
-                     modules=(), patterns=()) -> int:
+                     modules=(), patterns=(), timeout: int = 2400) -> int:
     """Launch a FRESH Maya GUI and dispatch the full suite over command port.
 
     This is the canonical "100% verified" path — every test runs against
@@ -576,8 +577,9 @@ def _run_in_maya_gui(test_dir: Path, monorepo: Path, verbosity: int,
         print("\n[INFO] Dispatching test suite to Maya...\n")
         conn.execute(bootstrap, wait_for_response=False)
 
-        # Poll for completion via socket sentinel.
-        timeout = 600
+        # Poll for completion via socket sentinel. Maya refuses the port while
+        # its main thread runs the suite, so a refusal is "still running" until
+        # *timeout*: the whole suite takes ~25 min in one Maya, a module list less.
         poll = 2.0
         start = time.monotonic()
         last_size = 0
@@ -775,6 +777,12 @@ def main():
         help="Keep the launched Maya open after tests (only with --in-maya).",
     )
     parser.add_argument(
+        "--timeout",
+        type=int,
+        default=2400,
+        help="Seconds to wait for the --in-maya run to finish (default 2400).",
+    )
+    parser.add_argument(
         "--in-blender",
         action="store_true",
         help="Run the headless Blender checks (test/blender, each in its own "
@@ -825,6 +833,7 @@ def main():
             root_dir=root_dir,
             modules=stems,
             patterns=args.patterns,
+            timeout=args.timeout,
         ))
 
     # Headless unless a GUI is the point (CODE_STANDARD section 9): the plain and

@@ -48,7 +48,7 @@ class EnumCell:
         try:
             for action, (_label, icon) in zip(actions, cls.ACTIONS):
                 action.setIcon(sb.IconManager.get(icon, size=(14, 14)))
-            combo._rebuild_actions_section()
+            combo.actions.refresh()  # the buttons show the icons set after add
         except Exception:  # noqa: BLE001 -- icons are cosmetic
             pass
         indices = list(indices)

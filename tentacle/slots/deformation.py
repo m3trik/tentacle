@@ -4,8 +4,8 @@
 
 The category's one control opens the shared Curtain tool
 (``slots/tools/curtain.py``), which reaches its host through ``self.tk``
-itself. Distinct from Maya's native *Deform* menu
-(``slots/maya/deform.py``).
+itself. Distinct from Maya's native *Deform* menu (the chord menu's
+``ui/maya_menus/deform#submenu.ui``, built by ``mtk.MayaUiHandler``).
 """
 
 from tentacle import Slots

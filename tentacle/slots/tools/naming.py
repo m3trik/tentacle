@@ -771,7 +771,7 @@ class NamingSlots(Slots):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Strip Trailing Integers",
-            setObjectName="chk002",
+            setObjectName="tb001_chk002",
             setChecked=True,
             setToolTip="Strip any trailing integers. ie. '123' of 'cube123'",
         )
@@ -785,7 +785,7 @@ class NamingSlots(Slots):
         widget.option_box.menu.add(
             "QCheckBox",
             setText="Independent Groups",
-            setObjectName="chk007",
+            setObjectName="tb001_chk007",
             setToolTip="Group objects by name type and suffix them independently.",
         )
         widget.option_box.menu.add(
@@ -802,10 +802,10 @@ class NamingSlots(Slots):
         menu = widget.option_box.menu
         first_obj_as_ref = menu.cmb_reference.currentText() == "First Object"
         alphabetical = menu.chk005.isChecked()
-        strip_trailing_ints = menu.chk002.isChecked()
+        strip_trailing_ints = menu.tb001_chk002.isChecked()
         strip_defined_suffixes = menu.chk003.isChecked()
         reverse = menu.chk004.isChecked()
-        independent_groups = menu.chk007.isChecked()
+        independent_groups = menu.tb001_chk007.isChecked()
 
         self._begin()
         if self._scene_only("Suffix By Location"):

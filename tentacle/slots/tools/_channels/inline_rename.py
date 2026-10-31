@@ -3,15 +3,16 @@
 """Rename the panel's target in place: the target field, and the footer in
 compact view."""
 
-from qtpy import QtCore, QtWidgets
+from qtpy import QtCore
 
 
-class InlineRename:
+class InlineRename(QtCore.QObject):
     """Double-click-to-rename on a read-only line edit.
 
     The field shows the target's name read-only. A double-click (when there is
     a target) makes it editable; Enter commits through *on_rename*, Escape puts
-    the name back. Committing an unchanged name renames nothing.
+    the name back. Committing an unchanged name renames nothing. Watches the
+    field as an event filter, so the field's own handlers stay its own.
 
     Parameters:
         line_edit (QLineEdit): The field (the panel's ``txt001``).
@@ -23,6 +24,7 @@ class InlineRename:
     IDLE_TIP = "Double-click to rename."
 
     def __init__(self, line_edit, target_name, on_rename):
+        super().__init__()
         self.field = line_edit
         self._target_name = target_name
         self._on_rename = on_rename
@@ -30,34 +32,44 @@ class InlineRename:
         line_edit.setToolTip(self.IDLE_TIP)
         line_edit.setReadOnly(True)
         line_edit.editingFinished.connect(self._finished)
-        self._orig_double_click = line_edit.mouseDoubleClickEvent
-        self._orig_key_press = line_edit.keyPressEvent
-        line_edit.mouseDoubleClickEvent = self._double_click
-        line_edit.keyPressEvent = self._key_press
+        line_edit.installEventFilter(self)
 
-    def _double_click(self, event):
+    def eventFilter(self, watched, event) -> bool:
+        """The field's double-click (start an edit) and Escape (end one)."""
+        if watched is self.field:
+            etype = event.type()
+            if etype == QtCore.QEvent.MouseButtonDblClick:
+                return self._double_click()
+            if etype == QtCore.QEvent.KeyPress and event.key() == QtCore.Qt.Key_Escape:
+                return self._escape()
+        return super().eventFilter(watched, event)
+
+    def _double_click(self) -> bool:
+        """Make the field editable when there is a target; True when it did
+        (the field's own double-click is then skipped)."""
         field = self.field
         full = self._target_name(full=True)
-        if field.isReadOnly() and full is not None:
-            field.setReadOnly(False)
-            field.setToolTip(f"{full}\n\n(Type a new name and press Enter to rename.)")
-            field.selectAll()
-            field.setFocus()
-            return
-        self._orig_double_click(event)
+        if not field.isReadOnly() or full is None:
+            return False
+        field.setReadOnly(False)
+        field.setToolTip(f"{full}\n\n(Type a new name and press Enter to rename.)")
+        field.selectAll()
+        field.setFocus()
+        return True
 
-    def _key_press(self, event):
+    def _escape(self) -> bool:
+        """Put the name back and leave editing; True when an edit was under way."""
         field = self.field
-        if event.key() == QtCore.Qt.Key_Escape and not field.isReadOnly():
-            name = self._target_name()
-            if name is not None:
-                was_blocked = field.blockSignals(True)
-                field.setText(name)
-                field.blockSignals(was_blocked)
-            field.setReadOnly(True)
-            field.setToolTip(self.IDLE_TIP)
-            return
-        self._orig_key_press(event)
+        if field.isReadOnly():
+            return False
+        name = self._target_name()
+        if name is not None:
+            was_blocked = field.blockSignals(True)
+            field.setText(name)
+            field.blockSignals(was_blocked)
+        field.setReadOnly(True)
+        field.setToolTip(self.IDLE_TIP)
+        return True
 
     def _finished(self):
         field = self.field
@@ -76,13 +88,13 @@ class InlineRename:
 
 
 class FooterRename:
-    """An inline rename page on a uitk ``Footer``.
+    """An inline rename on a uitk ``Footer``, through its public in-place edit.
 
     Compact view hides the target field and shows the name in the footer; a
-    double-click on the footer's label (when *can_edit*) swaps in a line edit,
-    Enter renames through *on_rename*, Escape (or an unchanged name) goes back
-    to the label. Touches the footer's private stack and label, so a uitk
-    change there degrades to no footer rename rather than an error.
+    double-click on the footer's text (``Footer.status_double_clicked``, when
+    *can_edit*) edits the name there (``Footer.edit_status``): Enter renames
+    through *on_rename*, an unchanged name calls *on_unchanged*, Escape puts the
+    footer's text back.
 
     Parameters:
         footer: The panel's footer.
@@ -99,61 +111,23 @@ class FooterRename:
         self._target_name = target_name
         self._on_rename = on_rename
         self._on_unchanged = on_unchanged
-        self.line_edit = QtWidgets.QLineEdit()
-        self.line_edit.setFrame(False)
-        self.line_edit.setStyleSheet(
-            "QLineEdit { background: transparent; border: none; }"
-        )
-        stack = footer._stacked_widget
-        stack.addWidget(self.line_edit)
-        self.page = stack.indexOf(self.line_edit)
-        self.line_edit.editingFinished.connect(self._finished)
-        self._orig_key_press = self.line_edit.keyPressEvent
-        self.line_edit.keyPressEvent = self._key_press
-        label = footer._status_label
-        self._orig_double_click = label.mouseDoubleClickEvent
-        label.mouseDoubleClickEvent = self._double_click
+        footer.status_double_clicked.connect(self._double_clicked)
 
-    def _show_label(self):
-        try:
-            self.footer._stacked_widget.setCurrentIndex(0)
-        except Exception:  # noqa: BLE001 -- the footer is going away
-            pass
-
-    def _double_click(self, event):
+    def _double_clicked(self):
         if self._can_edit():
             self.edit()
-            return
-        self._orig_double_click(event)
 
     def edit(self):
-        """Swap the footer's label for the line edit, holding the name."""
-        le = self.line_edit
-        was_blocked = le.blockSignals(True)
-        le.setText(self._target_name() or "")
-        le.blockSignals(was_blocked)
-        self.footer._stacked_widget.setCurrentIndex(self.page)
-        le.selectAll()
-        le.setFocus()
+        """Edit the target's name in the footer; returns the footer's field."""
+        return self.footer.edit_status(
+            self._target_name() or "", on_commit=self._finished
+        )
 
-    def _key_press(self, event):
-        le = self.line_edit
-        if event.key() == QtCore.Qt.Key_Escape:
-            # Blocked, so the focus loss does not emit editingFinished and
-            # commit the very rename Escape cancels.
-            le.blockSignals(True)
-            self._show_label()
-            le.clearFocus()
-            le.blockSignals(False)
-            return
-        self._orig_key_press(event)
-
-    def _finished(self):
-        self._show_label()
+    def _finished(self, text):
         old = self._target_name()
         if old is None:
             return
-        new = self.line_edit.text().strip()
+        new = text.strip()
         if not new or new == old:
             self._on_unchanged()
             return

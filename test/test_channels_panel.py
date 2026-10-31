@@ -825,6 +825,30 @@ class TestChannelsPanelTarget(_PanelCase):
         renamed.assert_called_once_with("box")
         field.setReadOnly.assert_called_with(True)
 
+    def test_the_inline_rename_watches_the_field_without_patching_it(self):
+        """A double-click opens the field, Escape puts the name back -- through
+        an event filter: the field's own handlers stay the class's."""
+        QtWidgets = _qt_widgets()
+        if QtWidgets is None:
+            self.skipTest("Qt unavailable")
+        from qtpy import QtTest
+
+        app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+        field = QtWidgets.QLineEdit()
+        self.addCleanup(field.deleteLater)
+        rename = InlineRename(field, lambda full=False: "cube", mock.Mock())
+        self.assertNotIn("mouseDoubleClickEvent", vars(field))
+        self.assertNotIn("keyPressEvent", vars(field))
+        field.setText("cube")
+        QtTest.QTest.mouseDClick(field, QtCore.Qt.LeftButton)
+        self.assertFalse(field.isReadOnly())
+        field.setText("box")
+        QtTest.QTest.keyClick(field, QtCore.Qt.Key_Escape)
+        app.processEvents()
+        self.assertTrue(field.isReadOnly())
+        self.assertEqual(field.text(), "cube")
+        self.assertEqual(field.toolTip(), rename.IDLE_TIP)
+
     def test_create_attribute_validates_then_reaches_the_engine(self):
         slots, sb = _panel()
         self.assertFalse(slots._create_attribute("", "float"))
@@ -1152,8 +1176,13 @@ class TestChannelsPanelLoads(unittest.TestCase):
         self.assertIsNotNone(chk)
         self.assertEqual(chk.objectName(), "chk_compact_view")
         self.assertIsNotNone(self.slots._footer_compact_btn)
-        self.assertIsNotNone(self.slots._footer_rename)
-        self.assertGreater(self.slots._footer_rename.page, 0)
+        from qtpy import QtCore, QtTest
+
+        footer = self.ui.footer
+        editor = self.slots._footer_rename.edit()
+        self.assertTrue(footer.is_editing_status)
+        QtTest.QTest.keyClick(editor, QtCore.Qt.Key_Escape)
+        self.assertFalse(footer.is_editing_status)
 
     def test_no_maya_only_control_is_built(self):
         names = {

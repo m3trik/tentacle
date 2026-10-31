@@ -22,6 +22,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from unittest import mock
 
+import pythontk as ptk
 import tentacle
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots._slots import Slots
@@ -63,8 +64,9 @@ NONE = HdrManagerSlots.NONE_TOKEN
 class _FakeManager:
     """The ``HdrManager`` contract the panel reads: ``KNOBS``, a property per
     knob (only the listed ones exist), ``hdr_env`` None until an environment is
-    live, and the writes recorded. *selectable* / *arnold* add mayatk's
-    Maya-only ``select`` / ``arnold_loaded``."""
+    live, the writes recorded, and ``import_hdrs`` as both libraries run it
+    (pythontk's ``FileUtils.import_files``). *selectable* / *arnold* add
+    mayatk's Maya-only ``select`` / ``arnold_loaded``."""
 
     def __init__(self, env=None, knobs=MAYA_KNOBS, selectable=False, arnold=None):
         self.KNOBS = knobs
@@ -77,6 +79,7 @@ class _FakeManager:
         self.parts = {}
         self.build_result = "aiSkyDomeLight_"
         self.hdr_file_path = None
+        self.imports = []
         for knob in knobs:
             setattr(self, knob, DEFAULTS[knob])
         if selectable:
@@ -108,6 +111,26 @@ class _FakeManager:
     def _select(self, part):
         self.selected.append(part)
         return self.parts.get(part)
+
+    def import_hdrs(
+        self, paths, folder, mode="copy", on_conflict="reuse", strict=False
+    ):
+        self.imports.append(
+            {
+                "folder": folder,
+                "mode": mode,
+                "on_conflict": on_conflict,
+                "strict": strict,
+            }
+        )
+        return ptk.FileUtils.import_files(
+            paths,
+            folder,
+            mode=mode,
+            on_conflict=on_conflict,
+            validate=ptk.ImgUtils.validate_image_integrity,
+            strict=strict,
+        )
 
 
 class _StubFooter:
@@ -313,10 +336,9 @@ class TestHdrManagerPanelSetup(_PanelCase):
         ui = sb.loaded_ui.hdr_manager
         slots._initialize_ui()
         sb.add_reset_buttons.assert_called_once_with(ui, skip=())
-        ui.spn_samples.setEnabled.assert_not_called()
+        sb.FieldVisibility.set_widget_visible.assert_not_called()
         icons = [c.kwargs["icon"] for c in sb.ToggleOption.call_args_list]
         self.assertEqual(icons, ["screen", "camera"])
-        slots._viewport_toggle.widget.setEnabled.assert_not_called()
         slots._viewport_toggle.toggled.connect.assert_called_once_with(
             slots._on_viewport_visible
         )
@@ -331,21 +353,23 @@ class TestHdrManagerPanelSetup(_PanelCase):
         )
         option_box.find_option.assert_called_once_with(sb.ValueOption)
 
-    def test_a_knob_the_host_lacks_disables_its_control(self):
+    def test_a_knob_the_host_lacks_hides_its_control(self):
         """Blender's world has no per-light samples and no viewport-only
-        backdrop: those controls stay, disabled, with no reset button."""
+        backdrop: those controls are hidden there (CODE_STANDARD section 15:
+        hidden, never a stub), with no reset button."""
         manager = _FakeManager(knobs=BLENDER_KNOBS)
         slots, sb = _panel(manager)
         ui = sb.loaded_ui.hdr_manager
         slots._initialize_ui()
-        ui.spn_samples.setEnabled.assert_called_once_with(False)
-        ui.spn_samples.setToolTip.assert_called_once_with(HdrManagerSlots._UNAVAILABLE)
+        hidden = [c.args for c in sb.FieldVisibility.set_widget_visible.call_args_list]
+        self.assertEqual(
+            hidden, [(ui.spn_samples, False), (slots._viewport_toggle.widget, False)]
+        )
+        self.assertEqual(ui.spn_samples.hidden_by_policy, "requires")
+        ui.spn_samples.setEnabled.assert_not_called()
         sb.add_reset_buttons.assert_called_once_with(ui, skip=(ui.spn_samples,))
-        for name in ("spn_intensity", "spn_resolution", "spn_diffuse"):
-            getattr(ui, name).setEnabled.assert_not_called()
-        slots._viewport_toggle.widget.setEnabled.assert_called_once_with(False)
         viewport = sb.ToggleOption.call_args_list[0].kwargs
-        self.assertEqual(viewport["tooltip_on"], HdrManagerSlots._UNAVAILABLE)
+        self.assertIn("viewport", viewport["tooltip_on"])
         # The sync never reads a knob the manager lacks (it has no attribute).
         self.assertFalse(hasattr(manager, "samples"))
 
@@ -388,7 +412,7 @@ class TestHdrManagerPanelSetup(_PanelCase):
                 "ctx_reveal_in_explorer",
             ],
         )
-        combo.menu.add.return_value.setEnabled.assert_not_called()
+        sb.FieldVisibility.set_widget_visible.assert_not_called()
         menu = combo.option_box.menu
         add_mode = next(
             c.kwargs
@@ -403,13 +427,31 @@ class TestHdrManagerPanelSetup(_PanelCase):
             [token for _, token in HdrManagerSlots._ADD_MODES], ["copy", "move", "link"]
         )
 
-    def test_the_select_items_are_disabled_where_the_host_cant_select(self):
+    def test_the_select_items_are_hidden_where_the_host_cant_select(self):
         """A Blender world is not a selectable object: its manager has no
-        ``select``."""
+        ``select``, so the three Select items and the separator under them are
+        hidden there; Reveal in Explorer stays."""
         slots, sb = _panel(_FakeManager(knobs=BLENDER_KNOBS))
         combo = mock.MagicMock()
+        combo.menu.add.side_effect = lambda kind, **kw: mock.MagicMock(
+            name=kw.get("setObjectName", kind)
+        )
         slots.cmb000_init(combo)
-        self.assertEqual(combo.menu.add.return_value.setEnabled.call_count, 3)
+        hidden = [
+            c.args[0]._extract_mock_name()
+            for c in sb.FieldVisibility.set_widget_visible.call_args_list
+        ]
+        self.assertEqual(
+            hidden,
+            [
+                "ctx_select_skydome",
+                "ctx_select_transform",
+                "ctx_select_file_node",
+                "Separator",
+            ],
+        )
+        names = [c.kwargs.get("setObjectName") for c in combo.menu.add.call_args_list]
+        self.assertIn("ctx_reveal_in_explorer", names)
 
 
 class TestHdrManagerPanelSync(_PanelCase):
@@ -737,6 +779,50 @@ class TestHdrManagerPanelAdd(_PanelCase):
         self.assertIn("already exists", slots.sb.message_box.call_args.args[0])
         self.assertEqual(slots.manager.set_paths, [])
         self.assertIn("cancelled", ui.footer.text)
+
+    def test_the_import_is_the_managers(self):
+        """One careful file imports strictly and asks before an overwrite; a
+        bulk add reuses and skips."""
+        folder, src = self.tmpdir(), self.tmpdir()
+        good = os.path.join(folder, "good.hdr")
+        _write_complete_hdr(good)
+        slots, ui = self._slots("copy", src=src)
+        slots._add_hdrs([good], where="selection", careful=True)
+        slots._add_hdrs([good], where="folder", careful=False)
+        self.assertEqual(
+            slots.manager.imports,
+            [
+                {
+                    "folder": src,
+                    "mode": "copy",
+                    "on_conflict": slots._confirm_overwrite,
+                    "strict": True,
+                },
+                {"folder": src, "mode": "copy", "on_conflict": "reuse", "strict": False},
+            ],
+        )
+
+    def test_a_careful_copy_that_fails_says_why(self):
+        folder, src = self.tmpdir(), self.tmpdir()
+        good = os.path.join(folder, "good.hdr")
+        _write_complete_hdr(good)
+        slots, ui = self._slots("copy", src=src)
+        with mock.patch.object(
+            ptk.FileUtils, "copy_file", side_effect=OSError("disk full")
+        ):
+            slots._add_hdrs([good], where="selection", careful=True)
+        self.assertIn("Copy failed: disk full", slots.sb.message_box.call_args.args[0])
+        self.assertEqual(ui.footer.level, "error")
+        self.assertEqual(slots.manager.set_paths, [])
+
+    def test_a_bulk_add_logs_each_skipped_file(self):
+        folder = self.tmpdir()
+        bad = _write_truncated_hdr(os.path.join(folder, "bad.hdr"))
+        slots, ui = self._slots("link")
+        # The import says it (pythontk's logger), for a script as for the panel.
+        with self.assertLogs("pythontk.file_utils._file_utils", level="WARNING") as logged:
+            slots._add_hdrs([bad], where="folder", careful=False)
+        self.assertTrue(any(bad in line for line in logged.output))
 
     def test_the_dialog_dispatch(self):
         """One loose file is careful (a modal on a bad one); a folder or several

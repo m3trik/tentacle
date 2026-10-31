@@ -96,19 +96,3 @@ PANELS = {
     # (tangent snapshot/restore, DAG-path reconciliation, DG audio node binding, OpenMaya callbacks).
     # The slot-class entries are dropped by the sweep now that the classes exist — no ledger rows needed.
 }
-
-# --------------------------------------------------------------------------- file counterpart sets
-# Whole-file groups where the Blender counterpart is a different-shaped equivalent, not a
-# same-name mirror. Native-menu stubs are ALSO derived mechanically from
-# mayatk MayaNativeMenus.MENU_MAPPING — entries here add the explanation + any extras.
-FILE_COUNTERPARTS = {
-    "maya_native_menus": {
-        "detect": "MENU_MAPPING",  # auto: maya-only slot stems that are MENU_MAPPING keys
-        "blender_counterpart": "blender.py (blender#startmenu -> BlenderNativeMenus.get_menu)",
-        "reason": "Maya-native-menu Qt clones (QAction harvest); Blender menus are Python "
-                  "classes, so blendertk harvests each menu's draw() into an equivalent QMenu "
-                  "(menu_harvest) hosted in the same wrapped MainWindow — full pin-header / "
-                  "hide-on-key_show parity (shipped 2026-07-16; superseded the wm.call_menu "
-                  "popup wrap from 2026-06-12)",
-    },
-}

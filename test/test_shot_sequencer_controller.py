@@ -1253,7 +1253,7 @@ class TestBoundHandleGrammar(unittest.TestCase):
         self.ctl.on_range_highlight_changed(0, 58)
         self.assertEqual(self._bounds()[0], (0.0, 58.0))
         self.assertEqual(
-            self.seq._source_shot_id_for({"start": 55.0, "end": 55.0}),
+            self.seq.source_shot_id({"start": 55.0, "end": 55.0}),
             0,
             "the covered key is this shot's now",
         )
@@ -2877,7 +2877,7 @@ class TestGroupClipScaleIsOneEdit(unittest.TestCase):
         self.assertEqual(cmds.keyframe(b, q=True, timeChange=True), [10.0, 15.0])
         paired, marker = store.peek_boundary_tag()
         self.assertTrue(paired)
-        self.assertEqual(marker, store.undo_queue_top())
+        self.assertEqual(marker, store.host.undo_queue_top())
         cmds.undo()
         self.assertEqual(cmds.keyframe(a, q=True, timeChange=True), [0.0, 10.0])
         self.assertEqual(cmds.keyframe(b, q=True, timeChange=True), [20.0, 30.0])

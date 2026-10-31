@@ -74,7 +74,38 @@ BUTTONS = (
 
 
 class _Store(ptk.ShotStore):
-    """The pure model as a host's store class: no scene, no persistence."""
+    """The pure model as a host's store class: no scene, no persistence --
+    on the pure host a case puts it on (:func:`_pure_host`)."""
+
+
+def _pure_host(add_cleanup):
+    """Put the store on the pure host, whatever host runs the suite (an
+    ``--in-maya`` run resolves Maya's, which would write that scene's record
+    and open its undo chunks), and have *add_cleanup* put the host, its
+    source and the prefs folder back."""
+    saved = (
+        ptk.ShotStore._host,
+        ptk.ShotStore._host_source,
+        ptk.ShotStore._prefs_dir_override,
+    )
+    ptk.ShotStore.set_host(ptk.PureShotsHost())
+
+    def restore():
+        (
+            ptk.ShotStore._host,
+            ptk.ShotStore._host_source,
+            ptk.ShotStore._prefs_dir_override,
+        ) = saved
+
+    add_cleanup(restore)
+
+
+class _PureHostCase(unittest.TestCase):
+    """A case whose stores run on the pure host (:func:`_pure_host`)."""
+
+    def setUp(self):
+        super().setUp()
+        _pure_host(self.addCleanup)
 
 
 def _fake_tk(store_cls=_Store):
@@ -136,8 +167,9 @@ def _answer(button, asked=None):
         yield
 
 
-class _PanelCase(unittest.TestCase):
+class _PanelCase(_PureHostCase):
     def setUp(self):
+        super().setUp()
         migrated = Slots._legacy_repeat_last_migrated
         Slots._legacy_repeat_last_migrated = True  # no migration under test
         self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
@@ -339,7 +371,7 @@ class TestShotsSlotsRouting(_PanelCase):
 # ---------------------------------------------------------------------- the host seams
 
 
-class TestTheHostSeams(unittest.TestCase):
+class TestTheHostSeams(_PureHostCase):
     """The store and the engine are the host's, reached through ``self.tk``."""
 
     def test_the_engine_is_the_hosts_sequencer_and_the_store_its_store_class(self):
@@ -380,7 +412,7 @@ class TestTheHostSeams(unittest.TestCase):
                         self.assertNotIn(name.split(".")[0], banned)
 
 
-class TestTheLabels(unittest.TestCase):
+class TestTheLabels(_PureHostCase):
     def test_a_shots_row_names_it_and_its_range(self):
         shot = ShotBlock(1, "Intro", 1, 100)
         self.assertEqual(ShotsController.shot_label(shot), "Intro  [1–100]")
@@ -406,11 +438,12 @@ class TestTheLabels(unittest.TestCase):
 # ---------------------------------------------------------------------- the edits
 
 
-class TestEditsAskTheEngine(unittest.TestCase):
+class TestEditsAskTheEngine(_PureHostCase):
     """Each edit asks the host's ``ShotSequencer``, built over the active
     store, for one engine call inside one ``scene_edit``."""
 
     def setUp(self):
+        super().setUp()
         self.store = _store(("A", 0, 20), ("B", 30, 50), ("C", 60, 80))
         self.a, self.b, self.c = self.store.sorted_shots()
         self.tk = _fake_tk()
@@ -611,7 +644,7 @@ def _refuse():
     raise ShotBoundaryConflict([])
 
 
-class TestBoundaryEditRefusesInsteadOfCrashing(unittest.TestCase):
+class TestBoundaryEditRefusesInsteadOfCrashing(_PureHostCase):
     """A refused boundary edit is an answer, not a crash.
 
     ``_reconcile_boundaries`` raises :class:`ShotBoundaryConflict` when two
@@ -739,7 +772,7 @@ class TestEveryRefusableEditUsesTheGuard(unittest.TestCase):
 # ---------------------------------------------------------------------- following the store
 
 
-class TestStoreEvents(unittest.TestCase):
+class TestStoreEvents(_PureHostCase):
     """The panel follows the store.
 
     Bug: ShotRemoved only called _populate_shot_combobox + _sync_footer, never
@@ -749,6 +782,7 @@ class TestStoreEvents(unittest.TestCase):
     """
 
     def setUp(self):
+        super().setUp()
         self.ctrl = _bare(store=_store())
         for name in (
             "_sync_from_store",
@@ -788,7 +822,7 @@ class TestStoreEvents(unittest.TestCase):
         self.ctrl._sync_shot_editor.assert_called_once_with()
 
 
-class TestRefreshState(unittest.TestCase):
+class TestRefreshState(_PureHostCase):
     """``refresh_state`` decides every widget's enabled state in one place
     (the Shot Manifest calls it after a Build)."""
 
@@ -1133,6 +1167,7 @@ class TestShotsPanelLoadsOverBtk(_LoadedPanelCases, unittest.TestCase):
         TestSandbox.activate()  # the panel's settings stay off the live stores
         cls.btk = blendertk
         cls.store_cls = blendertk.ShotSequencer.STORE_CLASS
+        _pure_host(cls.addClassCleanup)
         # The cross-scene prefs and the class singleton: off the real config.
         cls._prefs = tempfile.TemporaryDirectory(prefix="tcl_shots_panel_")
         cls.store_cls._prefs_dir_override = cls._prefs.name
@@ -1152,7 +1187,6 @@ class TestShotsPanelLoadsOverBtk(_LoadedPanelCases, unittest.TestCase):
     def tearDownClass(cls):
         cls.slots.controller.remove_callbacks()
         cls.store_cls.clear_active()
-        cls.store_cls._prefs_dir_override = None
         cls._prefs.cleanup()
 
     def _store(self):

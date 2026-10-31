@@ -44,12 +44,11 @@ class BridgeSlots(Slots):
             self.ui.chk000,
             self.ui.b000,
             message_func=self.sb.message_box,
+            # The preview turns on as the panel opens, so the selected loops
+            # bridge at once.
+            enable_on_show=True,
             undo_message="Bridge",
         )
-        # The preview turns on as the panel opens, so the selected loops bridge
-        # at once. Maya's Preview reads this flag at each show; Blender's has no
-        # show hook yet, so there it is inert and the preview starts off.
-        self.preview.enable_on_show = True
 
         self.sb.connect_multi(
             self.ui, "cmb000", "currentIndexChanged", self.preview.refresh

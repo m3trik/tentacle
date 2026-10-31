@@ -3,7 +3,7 @@
 import inspect
 
 from qtpy import QtCore
-from uitk import BridgeSlotsBase, Cancelable, Signals
+from uitk import AttributeSpec, BridgeSlotsBase, Cancelable, ParamRegistry, Signals
 
 
 class Slots(QtCore.QObject):
@@ -29,16 +29,21 @@ class Slots(QtCore.QObject):
     #: (``self.sb.registered_widgets.X``, ``self.sb.style``), and its children carry
     #: their own APIs (``self.ui.footer.status_controller(...)``).
     #:
-    #: These three are the sole outliers: two class-body decorators and one base
-    #: class, all evaluated while a slot class is still being built, so no instance
-    #: — and therefore no ``self.sb`` — exists yet. Hanging them off the base the
-    #: module already imports is the only way to keep the gateway rule without a
-    #: bare ``from uitk import`` in every slot file. The import is eager for that
-    #: reason (a base class is needed at definition time): it loads
-    #: ``uitk.bridge.slots`` with the first Slots module.
+    #: These are the sole outliers: two class-body decorators, one base class and
+    #: the two parameter-declaration types a standalone panel's registry is built
+    #: from at import (``slots/tools/_<tool>/parameters.py``: ``Slots.AttributeSpec``
+    #: rows in a ``Slots.ParamRegistry`` subclass), all evaluated while a module or
+    #: a slot class is still being built, so no instance — and therefore no
+    #: ``self.sb`` — exists yet. Hanging them off the base the module already
+    #: imports is the only way to keep the gateway rule without a bare
+    #: ``from uitk import`` in every slot file. The import is eager for that reason
+    #: (a base class is needed at definition time): it loads ``uitk.bridge.slots``
+    #: with the first Slots module.
     Signals = Signals
     Cancelable = Cancelable
     BridgeSlotsBase = BridgeSlotsBase
+    AttributeSpec = AttributeSpec
+    ParamRegistry = ParamRegistry
 
     #: One-shot guard so the legacy repeat-last migration runs once per process,
     #: not on every slot instantiation (the base ``__init__`` runs for every
@@ -117,6 +122,60 @@ class Slots(QtCore.QObject):
         # ``ComboBox.add`` ends with ``restore_state = not self.has_header``, so a headerless
         # combo seeded by its own ``add`` would silently opt itself back IN to persistence.
         widget.restore_state = False
+
+    def requires(self, widget, host) -> bool:
+        """Tag a code-built *widget* as served only by *host* -- the ``requires``
+        property a ``.ui`` widget carries -- and apply uitk's visibility policy,
+        which hides it on any other host (CODE_STANDARD section 15: hidden, never
+        a stub) and records why on ``widget.hidden_by_policy``.
+
+        Parameters:
+            widget (QWidget): The widget (a menu item, an option, a list row).
+            host (str): The host tag(s) that serve it (``"maya"``,
+                ``"maya|blender"``). Empty or None tags nothing: every host
+                serves it.
+
+        Returns:
+            bool: True when this host serves it.
+        """
+        if not host:
+            return True
+        widget.setProperty("requires", host)
+        return not self.sb.apply_visibility_policy(widget)
+
+    def hide_unless(self, widget, available) -> bool:
+        """Hide *widget* when this host cannot serve it: its engine lacks the
+        operation the widget runs (CODE_STANDARD section 15: hidden, never a
+        stub). The capability twin of :meth:`requires`, for a control both hosts
+        build but only one host's engine backs.
+
+        Hidden as a ``requires`` exclusion is (``hidden_by_policy``), so an app
+        gate never shows it again, and as a field
+        (``FieldVisibility.set_widget_visible``), so a ``CollapsableGroup`` that
+        re-shows its contents on expand leaves it hidden. The gap itself is the
+        engine's to close (BACKLOG); the panel never says "not available".
+
+        Parameters:
+            widget (QWidget): The control.
+            available (bool): Whether this host's engine backs it.
+
+        Returns:
+            bool: *available*, so a caller can skip wiring a hidden control.
+        """
+        if available:
+            return True
+        self.sb.FieldVisibility.set_widget_visible(widget, False)
+        widget.hidden_by_policy = "requires"
+        return False
+
+    def host_key(self, base: str) -> str:
+        """*base* namespaced by host (uitk's ``host_namespace_suffix`` of the
+        switchboard's ``context_tags``): a settings key each host keeps its own
+        value under, as Maya and Blender share one settings store."""
+        suffix = self.sb.ShortcutManager.host_namespace_suffix(
+            getattr(self.sb, "context_tags", None)
+        )
+        return base + suffix
 
     def require_selection(self, message=None):
         """The selection, or ``None`` -- after a message box -- when it is empty.

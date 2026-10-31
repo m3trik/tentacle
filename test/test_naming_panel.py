@@ -330,9 +330,9 @@ class TestNamingPanelScene(_PanelCase):
 
         menu = ui.tb001.option_box.menu
         menu.cmb_reference.currentText.return_value = "First Object"
-        for box, on in (("chk005", True), ("chk002", False), ("chk003", True)):
+        for box, on in (("chk005", True), ("tb001_chk002", False), ("chk003", True)):
             getattr(menu, box).isChecked.return_value = on
-        for box in ("chk004", "chk007"):
+        for box in ("chk004", "tb001_chk007"):
             getattr(menu, box).isChecked.return_value = False
         slots.tb001(ui.tb001)
         args, kwargs = sb.tk.Naming.append_location_based_suffix.call_args
@@ -644,9 +644,9 @@ class TestNamingPanelInMaya(_PanelCase):
             getattr(fields, name).text.return_value = ""  # no defined suffixes
         menu = ui.tb001.option_box.menu
         menu.cmb_reference.currentText.return_value = "Scene Origin"
-        for box in ("chk005", "chk003", "chk004", "chk007"):
+        for box in ("chk005", "chk003", "chk004", "tb001_chk007"):
             getattr(menu, box).isChecked.return_value = False
-        menu.chk002.isChecked.return_value = True  # Strip Trailing Integers
+        menu.tb001_chk002.isChecked.return_value = True  # Strip Trailing Integers
         slots.tb001(ui.tb001)
         self.assertTrue(cmds.objExists("nmRow_01") and cmds.objExists("nmRow_02"))
         self.assertTrue(cmds.objExists("nmRowMat"), "a material has no location")

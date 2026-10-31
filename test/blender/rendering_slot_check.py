@@ -17,7 +17,7 @@ downstream is live ``bpy`` state:
 * chk057 (Show Ornaments) -- ``tb000`` drives ``btk.PlayblastExporter``, which toggles the 3D
   viewport's ``space.overlay.show_overlays`` around the capture and restores it, both ways.
   ``bpy.ops.render.opengl`` always raises under ``--background`` (no OpenGL context), so the
-  exporter's one call to it (``PlayblastExporter._opengl``) is substituted by a recorder that
+  exporter's one call to it (``BlenderPlayblastHost._opengl``) is substituted by a recorder that
   writes what Blender would; the viewport space, the scene and the overlay are live.
 * the Maya-only controls (IPR, Smart Redo, Arnold, Offscreen Capture) are tagged ``requires``.
 """
@@ -219,7 +219,7 @@ try:
     import bpy
     from tentacle import tcl_blender  # noqa: F401 -- provisions Qt (qtpy/PySide6) for the slot imports
     import blendertk as btk
-    from blendertk.anim_utils.playblast_exporter import PlayblastExporter
+    from blendertk.anim_utils.playblast_exporter import BlenderPlayblastHost
     from tentacle.slots.rendering import RenderingSlots  # composed: both hosts, over sb.tk
 
     messages = []
@@ -316,7 +316,7 @@ try:
         space = view3d_ctx["area"].spaces.active
         out_tmp = ptk.TempArtifacts.scoped("tentacle_rendering_capture")
         scratch = ptk.format_path(out_tmp.dir_path())
-        real_opengl = PlayblastExporter.__dict__["_opengl"]
+        real_opengl = BlenderPlayblastHost.__dict__["_opengl"]
 
         def _run_capture(chk057_checked, baseline, path_text=None):
             """Run tb000 (MP4, frames 1-2) with chk057 set to ``chk057_checked`` and the
@@ -346,11 +346,11 @@ try:
                         f.write(b"movie")
                 return {"FINISHED"}
 
-            PlayblastExporter._opengl = staticmethod(_record)
+            BlenderPlayblastHost._opengl = staticmethod(_record)
             try:
                 slot.tb000(widget)
             finally:
-                PlayblastExporter._opengl = real_opengl
+                BlenderPlayblastHost._opengl = real_opengl
             return observed, space.overlay.show_overlays
 
         try:

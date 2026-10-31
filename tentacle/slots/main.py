@@ -32,6 +32,10 @@ class MainSlots(Slots):
     #: Blender one).
     RECENT_KEY = "workspace_recent_projects"
 
+    #: The host's own project editor (``UiUtils.get_editor_types`` name), which
+    #: Edit Workspace opens where the host has one.
+    PROJECT_WINDOW = "Project Window"
+
     def __init__(self, switchboard):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.main
@@ -55,7 +59,7 @@ class MainSlots(Slots):
             widget.refresh_on_show = True
             # Built once, off __init__ so a settings read can't break construction.
             self._workspace_store = self.sb.RecentValuesStore(
-                settings_key=self._recent_key(),
+                settings_key=self.host_key(self.RECENT_KEY),
                 max_recent=10,
                 display_format="auto",
                 validator=self.tk.EnvUtils.is_workspace,
@@ -102,15 +106,6 @@ class MainSlots(Slots):
         self._add_scene_dir_row(widget)
 
         widget.setVisible(True)
-
-    def _recent_key(self):
-        """``workspace_recent_projects_<host>``, by uitk's host-namespacing rule
-        (``ShortcutManager.host_namespace_suffix`` of the switchboard's
-        ``context_tags``): the suffix every other per-host store uses."""
-        suffix = self.sb.ShortcutManager.host_namespace_suffix(
-            getattr(self.sb, "context_tags", None)
-        )
-        return self.RECENT_KEY + suffix
 
     def _populate_dir_sublist(self, sublist, path, max_depth=2):
         """Fill *sublist* with *path*'s visible sub-folders, recursing to
@@ -256,13 +251,13 @@ class MainSlots(Slots):
         self.sb.handlers.marking_menu.hide()
 
     def _open_workspace_editor(self):
-        """Edit Workspace: tentacle's Workspace Editor where it is served
-        (``slots.tools.HOSTS``: Blender, which has no project editor of its own),
-        else the host's own Project Window."""
-        if self.sb.ui_name_resolves("workspace_editor"):
-            self.sb.handlers.marking_menu.show("workspace_editor")
+        """Edit Workspace: the host's own Project Window where it has one (an
+        editor ``UiUtils`` opens: Maya's), else the Workspaces tool, whose editor
+        part serves the host with no project editor of its own (Blender)."""
+        if self.PROJECT_WINDOW not in self.tk.UiUtils.get_editor_types():
+            self.sb.handlers.marking_menu.show("workspaces")
             return
-        if self.tk.UiUtils.open_editor("Project Window") is None:
+        if self.tk.UiUtils.open_editor(self.PROJECT_WINDOW) is None:
             self.sb.message_box("Could not open the <strong>Project Window</strong>.")
         self.sb.handlers.marking_menu.hide()
 

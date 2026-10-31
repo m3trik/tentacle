@@ -61,7 +61,7 @@ try:
     from tentacle import tcl_blender  # noqa: F401 — provisions Qt for the panel imports
     from qtpy import QtWidgets, QtCore
 
-    from blendertk import BlenderShotStore
+    from blendertk import ShotStore
     from blendertk.anim_utils._anim_utils import AnimUtils
     from blendertk.audio_utils._audio_utils import AudioUtils
     from blendertk.ui_utils.blender_ui_handler import BlenderUiHandler
@@ -146,8 +146,8 @@ try:
     # session always has the file-load step).
     bpy.ops.ed.undo_push(message="baseline")
 
-    BlenderShotStore.clear_active()
-    store = BlenderShotStore.active()
+    ShotStore.clear_active()
+    store = ShotStore.active()
     store.define_shot("A", 0, 10, objects=["A", "Holder"])
     store.define_shot("B", 20, 30, objects=["B"])
     store.define_shot("C", 40, 50, objects=["C"])
@@ -321,7 +321,7 @@ try:
     )
     check(
         "on_undo: controller still bound to a live store (undo swapped bpy.data)",
-        ctl.sequencer.store is BlenderShotStore.active(),
+        ctl.sequencer.store is ShotStore.active(),
     )
 
     # ---- audio clip drag ------------------------------------------------------------------
@@ -653,12 +653,12 @@ try:
     pump()
 
     # ---- store invalidation (scene swap) rebinds cleanly -----------------------------------
-    BlenderShotStore.clear_active()
-    BlenderShotStore._notify_invalidated()
+    ShotStore.clear_active()
+    ShotStore._notify_invalidated()
     pump()
     check(
         "invalidation: controller rebound to the new active store",
-        ctl.sequencer.store is BlenderShotStore.active(),
+        ctl.sequencer.store is ShotStore.active(),
     )
     # The host's scene watcher holds the handlers (``btk.SequencerHost.watch_scene``).
     watch = ctl._scene_watch

@@ -301,15 +301,14 @@ class TestSwitching(_MainCase):
         self.slots._auto_set_workspace()
         self.assertEqual(self._messages()[-1], "No workspace found.")
 
-    def test_edit_workspace_opens_the_project_window_where_no_tool_serves(self):
-        """Maya: tentacle's Workspace Editor is not served (``slots.tools.HOSTS``),
-        so the row opens the host's own Project Window."""
-        self.sb.ui_name_resolves.return_value = False
+    def test_edit_workspace_opens_the_hosts_own_project_window(self):
+        """Maya: the host has a Project Window (an editor ``UiUtils`` opens), so the
+        row opens it, never the Workspaces tool (whose editor part is Blender's)."""
+        self.ui_utils.get_editor_types.return_value = {"Project Window": "ProjectWindow"}
         self.ui_utils.open_editor.return_value = "ProjectWindow"
         self.slots._open_workspace_editor()
         self.ui_utils.open_editor.assert_called_once_with("Project Window")
         self.sb.handlers.marking_menu.show.assert_not_called()
-        self.sb.ui_name_resolves.assert_called_once_with("workspace_editor")
         self.ui_utils.open_editor.return_value = None
         self.slots._open_workspace_editor()
         self.assertIn("Project Window", self._messages()[-1])

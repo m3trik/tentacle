@@ -1390,8 +1390,13 @@ class TestItemsHoldTheGeometryTheSceneIndexed(_LayerCase):
         env["PYTHONPATH"] = os.pathsep.join(
             dict.fromkeys(roots + [env.get("PYTHONPATH", "")]).keys()
         ).strip(os.pathsep)
+        from _host import standalone_interpreter
+
+        exe, why = standalone_interpreter()
+        if exe is None:
+            self.skipTest(why)
         proc = subprocess.run(
-            [sys.executable, "-c", script],
+            [str(exe), "-c", script],
             env=env,
             capture_output=True,
             text=True,

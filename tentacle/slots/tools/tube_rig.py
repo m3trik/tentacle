@@ -17,7 +17,7 @@ class TubeRigSlots(Slots):
     #: Utility buttons -> the ``TubeRig`` method each one needs. Blender's
     #: ``TubeRig`` keeps no rig registry or scene record yet, so it has no
     #: teardown, rename or rebind to find a built rig by; those buttons are
-    #: disabled there (``getattr`` gate in ``__init__``) until it does.
+    #: hidden there (``Slots.hide_unless`` in ``__init__``) until it does.
     HOST_ONLY = {"b005": "teardown", "b006": "rename", "b007": "rebind_skin"}
 
     def __init__(self, switchboard):
@@ -47,9 +47,11 @@ class TubeRigSlots(Slots):
         # as the control count changes (apply_mode syncs it per mode).
         self.ui.s001.valueChanged.connect(self._sync_auto_bend_gate)
 
+        # Blender, for now: its TubeRig has no rig registry to tear down,
+        # rename or rebind (CODE_STANDARD section 15: hidden, never a stub).
         for button, method in self.HOST_ONLY.items():
-            if getattr(self.tk.TubeRig, method, None) is None:  # Blender, for now
-                getattr(self.ui, button).setEnabled(False)
+            served = getattr(self.tk.TubeRig, method, None) is not None
+            self.hide_unless(getattr(self.ui, button), served)
 
         self._init_tooltips()
 
@@ -601,14 +603,6 @@ class TubeRigSlots(Slots):
                         )
         return done, failed, skipped
 
-    def _unsupported(self, button: str) -> bool:
-        """True (and says so) when this host's ``TubeRig`` lacks *button*'s
-        operation: its widget is disabled, but a repeat-last can still call it."""
-        if getattr(self.tk.TubeRig, self.HOST_ONLY[button], None) is not None:
-            return False
-        self.sb.message_box("Not available in this application yet.")
-        return True
-
     # ------------------------------------------------------------------ steps
     def b000(self):
         """One-Click Rig — runs Steps 1 → 2 → 3 with the step parameters,
@@ -736,8 +730,6 @@ class TubeRigSlots(Slots):
 
     def b005(self):
         """Utility: Remove Rig — tear down every rig the selection touches."""
-        if self._unsupported("b005"):
-            return
         rigs = self.tk.TubeRig.selected_rigs()
         if not rigs:
             self.sb.message_box(
@@ -758,8 +750,6 @@ class TubeRigSlots(Slots):
 
     def b006(self):
         """Utility: Rename Rig — to the Rig Name field, every node included."""
-        if self._unsupported("b006"):
-            return
         new_name = self._rig_name()
         if not new_name:
             self.sb.message_box("Type the new name in the Rig Name field first.")
@@ -790,8 +780,6 @@ class TubeRigSlots(Slots):
     def b007(self):
         """Utility: Rebind Skin — re-solve the bind for every rig the selection
         touches (a lone unlinked mesh pairs with a lone rig)."""
-        if self._unsupported("b007"):
-            return
         try:
             rigs, mesh = self.tk.TubeRig.selected_rebind_targets()
         except ValueError as error:

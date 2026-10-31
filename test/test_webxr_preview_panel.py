@@ -1057,8 +1057,11 @@ class TestShareLink(_PanelTestCase):
         self.step_taken = self.temp.path(extension=".step")
         # The fake tunnel is a real child Python; under --in-maya ``sys.executable``
         # is maya.exe, whose ``-u -c`` would start GUI Mayas instead.
-        from _host import standalone_interpreter
+        from _host import standalone_interpreter, use_memory_clipboard
 
+        # Copy Link writes the clipboard: in a GUI Maya the real one is the
+        # desktop's, shared with every program, and read back empty.
+        use_memory_clipboard(self)
         python, why = standalone_interpreter()
         if python is None:
             self.skipTest(why)

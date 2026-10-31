@@ -54,7 +54,7 @@ def run():
     from qtpy import QtWidgets
 
     import blendertk as btk
-    from blendertk import BlenderShotStore
+    from blendertk import ShotStore
     from blendertk.anim_utils._anim_utils import AnimUtils
     from tentacle.slots.tools._shot_sequencer.controller import (
         ShotSequencerController,
@@ -77,8 +77,8 @@ def run():
 
     app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
     tmp = ptk.TempArtifacts("btk_graph_sync", policy="scoped")
-    BlenderShotStore._prefs_dir_override = tmp.dir_path()
-    BlenderShotStore.clear_active()
+    ShotStore._prefs_dir_override = tmp.dir_path()
+    ShotStore.clear_active()
 
     def pump():
         for _ in range(3):
@@ -114,8 +114,8 @@ def run():
             bpy.ops.object.delete()
             self.a = keyed("ctlA", ((0, 0.0), (40, 5.0)))
             self.b = keyed("ctlB", ((60, 0.0), (100, 5.0)))
-            BlenderShotStore.clear_active()
-            self.store = BlenderShotStore()
+            ShotStore.clear_active()
+            self.store = ShotStore()
             self.store.define_shot("S0", 0, 50, objects=["ctlA"])
             self.store.define_shot("S1", 60, 120, objects=["ctlB"])
             self.widget = SequencerWidget()
@@ -453,7 +453,7 @@ def run():
     resubscribed = []
     subscribe = c.sync._subscribe
     c.sync._subscribe = lambda: (resubscribed.append(1), subscribe())
-    BlenderShotStore.invalidate()  # what a scene open runs
+    ShotStore.invalidate()  # what a scene open runs
     check(
         "a scene swap subscribes the selection follow again",
         resubscribed == [1],
@@ -464,12 +464,12 @@ def run():
     c.widget.destroyed.emit()
     check(
         "a destroyed widget lets go of the store's invalidation",
-        c.sync._on_scene_swap not in BlenderShotStore._invalidation_listeners,
+        c.sync._on_scene_swap not in ShotStore._invalidation_listeners,
     )
     c.close()
 
-    BlenderShotStore.clear_active()
-    BlenderShotStore._prefs_dir_override = None
+    ShotStore.clear_active()
+    ShotStore._prefs_dir_override = None
     tmp.cleanup()
 
 

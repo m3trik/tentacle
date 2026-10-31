@@ -59,7 +59,7 @@ def _run_panel_checks():
     from qtpy import QtWidgets
 
     import blendertk as btk
-    from blendertk import BlenderShotStore
+    from blendertk import BlenderShotsHost, ShotStore
     from blendertk.anim_utils._anim_utils import AnimUtils
     from blendertk.anim_utils.shots.shot_sequencer._shot_sequencer import (
         _ShotSequencerInternal as _SSI,
@@ -70,8 +70,8 @@ def _run_panel_checks():
 
     QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
     ShotSequencer = btk.ShotSequencer
-    BlenderShotStore._prefs_dir_override = tempfile.mkdtemp(prefix="tcl_seq_panel_")
-    BlenderShotStore.clear_active()
+    ShotStore._prefs_dir_override = tempfile.mkdtemp(prefix="tcl_seq_panel_")
+    ShotStore.clear_active()
 
     def _init_state(ctl):
         """What the panel's ``__init__`` sets, minus its widgets and hooks."""
@@ -121,9 +121,9 @@ def _run_panel_checks():
     def fresh(name_keys):
         """A store + sequencer over freshly keyed cubes.  ``{obj: {frame: x}}``."""
         bpy.ops.wm.read_factory_settings(use_empty=True)
-        BlenderShotStore.clear_active()
-        st = BlenderShotStore()
-        BlenderShotStore.set_active(st)
+        ShotStore.clear_active()
+        st = ShotStore()
+        ShotStore.set_active(st)
         made = {}
         for obj_name, keys in name_keys.items():
             bpy.ops.mesh.primitive_cube_add()
@@ -182,9 +182,6 @@ def _run_panel_checks():
 
         def _get_sequencer_widget(self):
             return self._widget
-
-        def _save_shot_state(self):
-            pass
 
         def _sync_to_widget(self, **kw):
             pass
@@ -285,7 +282,7 @@ def _run_panel_checks():
         The previous seam scene's cube goes first: the sequencer moves (and
         checks for collisions on) the scene's whole keyed content, so a cube
         left keyed from the case before is part of the next one."""
-        BlenderShotStore.clear_active()
+        ShotStore.clear_active()
         while _seam_objects:
             _old = bpy.data.objects.get(_seam_objects.pop())
             if _old is not None:
@@ -297,7 +294,7 @@ def _run_panel_checks():
         for f, v in keys:
             o.location = (float(v), 0.0, 0.0)
             o.keyframe_insert(data_path="location", index=0, frame=f)
-        st = BlenderShotStore()
+        st = ShotStore()
         for sname, s, e in shots:
             st.define_shot(sname, s, e, objects=[o.name])
         return o, st, ShotSequencer(st)
@@ -1451,7 +1448,7 @@ def _run_panel_checks():
     ):
         for _left in list(bpy.data.objects):
             bpy.data.objects.remove(_left, do_unlink=True)
-        BlenderShotStore.clear_active()
+        ShotStore.clear_active()
         _mover = bpy.data.objects.new("GapMover", None)
         bpy.context.scene.collection.objects.link(_mover)
         for _f, _v in ((62, 0), (90, 5)):
@@ -1462,7 +1459,7 @@ def _run_panel_checks():
         for _f, _v in ((5, 0), (200, 10)):
             _ramp.location = (float(_v), 0.0, 0.0)
             _ramp.keyframe_insert(data_path="location", index=0, frame=_f)
-        _st = BlenderShotStore()
+        _st = ShotStore()
         _st.gap = 10.0
         for _n, _s, _e, _objs in (
             ("P", 0, 50, ["GapRamp"]),
@@ -1565,8 +1562,8 @@ def _run_panel_checks():
             wf.setsampwidth(2)
             wf.setframerate(8000)
             wf.writeframes(b"\x00\x00" * 4000)  # 0.5 s of silence
-        BlenderShotStore.clear_active()
-        vst = BlenderShotStore()
+        ShotStore.clear_active()
+        vst = ShotStore()
         vst.define_shot("A", 0, 50, objects=[])
         b_shot = vst.define_shot("B", 60, 100, objects=[])
         strip = _Audio.add_clip(vwav, frame_start=55, scene=bpy.context.scene)
@@ -1667,7 +1664,7 @@ def _run_panel_checks():
         _FakeWidget(
             _FakeClip({"obj": "DelScope", "orig_start": 0.0, "orig_end": 10.0})
         ),
-        sequencer=ShotSequencer(BlenderShotStore()),
+        sequencer=ShotSequencer(ShotStore()),
     )
     ShotSequencerController._delete_clip_keys(del_host, [1])
     remaining = {
@@ -1687,7 +1684,7 @@ def _run_panel_checks():
     for f, v in ((5, 1.0), (10, 2.0), (60, 3.0)):
         dc_obj.location = (v, 0.0, 0.0)
         dc_obj.keyframe_insert(data_path="location", index=0, frame=f)
-    dc_store = BlenderShotStore()
+    dc_store = ShotStore()
     dc_store.define_shot("A", 0, 50, objects=["DelClaims"])
     dc_seq = ShotSequencer(dc_store)
     dc_fc = next(
@@ -1722,7 +1719,7 @@ def _run_panel_checks():
     for f, v in ((10, 0.0), (30, 5.0), (50, 3.0)):
         db_obj.location = (v, 0.0, 0.0)
         db_obj.keyframe_insert(data_path="location", index=0, frame=f)
-    db_store = BlenderShotStore()
+    db_store = ShotStore()
     db_shot = db_store.define_shot("A", 0, 50, objects=["DelOnBound"])
     db_seq = ShotSequencer(db_store)
     db_fc = next(
@@ -1759,7 +1756,7 @@ def _run_panel_checks():
     for f, v in ((10, 0.0), (30, 5.0), (40, 6.0), (60, 3.0)):
         da_obj.location = (v, 0.0, 0.0)
         da_obj.keyframe_insert(data_path="location", index=0, frame=f)
-    da_store = BlenderShotStore()
+    da_store = ShotStore()
     da_store.define_shot("A", 0, 50, objects=["DelAuthored"])
     da_seq = ShotSequencer(da_store)
     da_key = _ShotSequencerInternal._fc_key("DelAuthored", _loc_x(da_obj))
@@ -1811,7 +1808,7 @@ def _run_panel_checks():
     for f, v in ((10, 0.0), (30, 5.0), (50, 3.0)):
         du_obj.location = (v, 0.0, 0.0)
         du_obj.keyframe_insert(data_path="location", index=0, frame=f)
-    du_store = BlenderShotStore()
+    du_store = ShotStore()
     du_shot = du_store.define_shot("A", 0, 50, objects=["DelUndo"])
     du_seq = ShotSequencer(du_store)
     du_key = _ShotSequencerInternal._fc_key("DelUndo", _loc_x(du_obj))
@@ -1914,9 +1911,6 @@ def _run_panel_checks():
 
         def _drag_modifiers(self):
             return True, False  # Ctrl held at the press
-
-        def _save_shot_state(self):
-            pass
 
         def _gap_edit_epilogue(self):
             pass
@@ -2250,9 +2244,6 @@ def _run_panel_checks():
 
         def _get_sequencer_widget(self):
             return _KmWidget()
-
-        def _save_shot_state(self):
-            pass
 
         def _set_footer(self, text, **kw):
             km_footers.append(text)
@@ -2813,7 +2804,7 @@ def _run_panel_checks():
     uh._register_scene_callbacks()
     try:
         bpy.ops.ed.undo_push(message="baseline")
-        serial0 = BlenderShotStore.edit_serial()
+        serial0 = BlenderShotsHost.edit_serial()
         with st.scene_edit("Probe Edit"):
             st.update_shot(un_shot.shot_id, end=20.0)
         tag = st.peek_boundary_tag()
@@ -2821,9 +2812,9 @@ def _run_panel_checks():
             "scene_edit: stamps a fresh serial inside its step and tags the point with it",
             isinstance(tag, tuple)
             and tag[0] is True
-            and tag[1] == BlenderShotStore.edit_serial()
+            and tag[1] == BlenderShotsHost.edit_serial()
             and tag[1] != serial0,
-            f"tag={tag} serial={BlenderShotStore.edit_serial()} before={serial0}",
+            f"tag={tag} serial={BlenderShotsHost.edit_serial()} before={serial0}",
         )
         depth = len(st._boundary_undo)
         with st.scene_edit("No-op") as edit:
@@ -2831,7 +2822,7 @@ def _run_panel_checks():
         check(
             "scene_edit: a cancelled edit leaves no restore point and no serial stamp",
             len(st._boundary_undo) == depth
-            and BlenderShotStore.edit_serial() == tag[1],
+            and BlenderShotsHost.edit_serial() == tag[1],
             f"depth {depth}->{len(st._boundary_undo)}",
         )
 
@@ -3138,8 +3129,8 @@ def _run_panel_checks():
         f"{ld_played(sq)[0]}",
     )
 
-    BlenderShotStore.clear_active()
-    BlenderShotStore._prefs_dir_override = None
+    ShotStore.clear_active()
+    ShotStore._prefs_dir_override = None
     return lines
 
 

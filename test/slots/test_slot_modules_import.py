@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Each slot module under tentacle.slots.maya.* imports cleanly inside Maya.
+"""Each slot module under tentacle.slots.* imports cleanly inside Maya.
 
 Catches: dead imports, syntax errors that AST parse missed (rare), broken
 module-level code, missing dependencies.
@@ -11,7 +11,7 @@ tentacle test suite isn't affected.
 import importlib
 import unittest
 
-from _helpers import slot_files
+from _helpers import slot_files, slot_module_name
 from _host import MAYA_AVAILABLE
 
 
@@ -21,12 +21,11 @@ class TestSlotModulesImport(unittest.TestCase):
 
     def test_all_slots_import(self):
         for f in slot_files():
-            module_name = f"tentacle.slots.maya.{f.stem}"
+            module_name = slot_module_name(f)
             with self.subTest(module=module_name):
-                # Force a fresh import so any module-level errors surface.
-                if module_name in importlib.sys.modules:
-                    importlib.reload(importlib.sys.modules[module_name])
-                else:
+                # One the run already imported has imported cleanly; a reload
+                # would fork its classes from the ones the run's switchboards hold.
+                if module_name not in importlib.sys.modules:
                     importlib.import_module(module_name)
 
 

@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-import sys
-
 from pythontk.core_utils.module_resolver import bootstrap_package
 
 __package__ = "tentacle"
@@ -41,6 +39,8 @@ MOVED_NAMES = {
     "SceneMixin": ("tentacle.slots.scene.SceneSlots", "0.17.0"),
     "UvMixin": ("tentacle.slots.uv.UvSlots", "0.17.0"),
     "AnimationMixin": ("tentacle.slots.animation.AnimationSlots", "0.17.0"),
+    # The startup banner's formatter is the launcher's (``Tcl.banner``).
+    "greeting": ("tentacle.Tcl.greeting", "0.17.0"),
     # Panels merged into one tool (``slots.tools.RENAMED_FROM``).
     "BlenderBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
     "MayaBridgeSlots": ("tentacle.slots.tools.dcc_bridge.DccBridgeSlots", "0.17.0"),
@@ -49,6 +49,42 @@ MOVED_NAMES = {
         "tentacle.slots.tools.workspaces.WorkspacesSlots",
         "0.17.0",
     ),
+    # The native-menu wrappers (slots/maya, slots/blender): the chord menu's pages
+    # need no Slots class; each host's UI handler builds its own menus.
+    "BlenderSlots": ("blendertk.BlenderUiHandler", "0.17.0"),
+    "ArnoldSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "CacheSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ConstrainSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ControlSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "CurvesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "DeformSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "EditMeshSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "EffectsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "FieldsSolversSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "FluidsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "GenerateSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "HelpSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "KeySlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "LightingShadingSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MashSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshDisplaySlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "MeshToolsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NClothSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NConstraintSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NHairSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "NParticlesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "PlaybackSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "RenderSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SelectSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SkeletonSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SkinSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "StereoSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "SurfacesSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "TexturingSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "ToonSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "VisualizeSlots": ("mayatk.MayaUiHandler", "0.17.0"),
+    "WindowsSlots": ("mayatk.MayaUiHandler", "0.17.0"),
 }
 
 
@@ -57,40 +93,6 @@ bootstrap_package(
     include=DEFAULT_INCLUDE,
     moved=MOVED_NAMES,
 )
-
-
-def greeting(string, outputToConsole=True):
-    """Format a string using preset variables.
-
-    Parameters:
-        string (str): The greeting to format as a string with placeholders using the below keywords.
-                ex. 'Good {hr}! You are using {modver} with {pyver}.'
-                {hr} - Gives the current time of day (morning, afternoon, evening)
-                {pyver} - The python interpreter version.
-                {modver} - This modules version.
-        outputToConsole = Print the greeting.
-
-    Returns:
-        (str)
-
-    Example: greeting('Good {hr}! You are using {modver} with {pyver}.')
-    """
-    import datetime
-
-    h = datetime.datetime.now().hour
-    hr = "morning" if 5 <= h < 12 else "afternoon" if h < 18 else "evening"
-
-    pyver = "python v{}.{}.{}".format(
-        sys.version_info[0], sys.version_info[1], sys.version_info[2]
-    )
-
-    modver = "tentacle v{}".format(__version__)
-
-    result = string.format(hr=hr, pyver=pyver, modver=modver)
-
-    if outputToConsole:
-        print(result)  # noqa: T201 -- greeting() prints only when asked to
-    return result
 
 
 # --------------------------------------------------------------------------------------------
@@ -104,4 +106,3 @@ def greeting(string, outputToConsole=True):
 # --------------------------------------------------------------------------------------------
 # Notes
 # --------------------------------------------------------------------------------------------
-# Test: 222117

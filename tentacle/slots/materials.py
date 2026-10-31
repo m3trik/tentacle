@@ -224,8 +224,9 @@ class MaterialsSlots(Slots):
     #: failure, so a broken engine costs its own entry a gate, not the whole list.
     #:
     #: ``b022``-``b025`` (Map Compositor and the photogrammetry workflows) are
-    #: deliberately absent: those are ``extapps`` panels the ExternalAppHandler
-    #: installs ON DEMAND, so gating them would contradict install-on-first-launch.
+    #: deliberately absent: those are standalone panels (``tcl_standalone.py``)
+    #: that open without their app and say what is missing (Brush offers its
+    #: download), so a gate would hide the very panel that explains it.
     _EXTERNAL_APP_GATES = {
         "b019": lambda tk: tk.MarmosetBridge.APP,
         "b020": lambda tk: tk.SubstanceBridge.APP,
@@ -488,6 +489,20 @@ class MaterialsSlots(Slots):
         names = self.tk.MatUtils.get_scene_mat_names(**self._list_filter_options())
         return [{"name": name, "label": name} for name in names]
 
+    #: A name cell's swatch, in pixels.
+    _SWATCH_SIZE = 20
+
+    def _swatch_icon(self, color):
+        """The name cell's swatch: *color* (``(r, g, b)`` in 0..1, the host's
+        ``MatUtils.get_mat_swatch_color``) filled, or blank for ``None`` so every
+        name keeps the same indent."""
+        QtGui = self.sb.QtGui
+        pixmap = QtGui.QPixmap(self._SWATCH_SIZE, self._SWATCH_SIZE)
+        pixmap.fill(
+            QtGui.QColor.fromRgbF(*color) if color else QtGui.QColor(255, 255, 255, 0)
+        )
+        return QtGui.QIcon(pixmap)
+
     def _fill_materials(self, widget=None, note=None):
         """Refill the table from :meth:`_material_rows`: names and swatches now,
         the details pass (:meth:`_fill_details`) right after. *note* (what an
@@ -518,9 +533,9 @@ class MaterialsSlots(Slots):
                 name.setFlags(editable)
                 name.setToolTip(row["name"])
                 name.setData(self._LABEL_ROLE, row["label"])
-                icon = self.tk.MatUtils.get_mat_swatch_icon(row["name"])
-                if icon is not None:
-                    name.setIcon(icon)
+                name.setIcon(
+                    self._swatch_icon(self.tk.MatUtils.get_mat_swatch_color(row["name"]))
+                )
                 for col in self._OPTIONAL_COLUMNS:
                     table.item(r, col).setFlags(fixed)
                     table.item(r, col).setTextAlignment(Qt.AlignCenter)
@@ -906,8 +921,7 @@ class MaterialsSlots(Slots):
         menu = None
         for name, text, tip, _options, requires in self._LIST_FILTERS:
             chk = self.sb.QtWidgets.QCheckBox(text)
-            chk.setProperty("requires", requires)
-            if self.sb.apply_visibility_policy(chk):  # a filter this host lacks
+            if not self.requires(chk, requires):  # a filter this host lacks
                 chk.deleteLater()
                 continue
             if menu is None:
@@ -1280,9 +1294,7 @@ class MaterialsSlots(Slots):
                     )
                 else:
                     item = cat.sublist.add(label, setToolTip=tooltip)
-                if requires:
-                    item.setProperty("requires", requires)
-                    self.sb.apply_visibility_policy(item)
+                self.requires(item, requires)
                 gate = self._EXTERNAL_APP_GATES.get(slot_name)
                 if gate is not None:
                     self.gate_on_app(item, lambda gate=gate: gate(self.tk))
@@ -1339,8 +1351,7 @@ class MaterialsSlots(Slots):
                 "from the report. Has no effect on the Current Material scope."
             ),
         )
-        defaults.setProperty("requires", "maya")  # Blender has no built-in defaults
-        self.sb.apply_visibility_policy(defaults)
+        self.requires(defaults, "maya")  # Blender has no built-in defaults
         menu.add(
             "QCheckBox",
             setText="Exclude Unassigned Materials",
@@ -1565,11 +1576,11 @@ class MaterialsSlots(Slots):
         """Emissive Groups."""
         self.sb.handlers.marking_menu.show("emissive_groups")
 
-    # ------------------------------------------------------------------ extapps panels
+    # ------------------------------------------------------------------ standalone panels
     def _launch_extapp(self, app, show=True):
-        """Launch the registered ``extapps`` panel *app* in-process; a failure
-        (a package that will not install or import) is a message, never a
-        traceback.
+        """Launch the standalone panel *app* (``tcl_standalone.py``) in-process
+        through the external-app handler; a failure (a package that will not
+        install or import) is a message, never a traceback.
 
         Returns:
             The panel's window, or None.

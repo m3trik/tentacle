@@ -371,11 +371,13 @@ class TestToolsLaunchers(_SlotsCase):
             ],
         )
 
-    def test_the_other_dcc_s_bridge_is_named_after_its_target(self):
-        self.assertEqual(self._shown("b010"), ["blender_bridge"])
+    def test_the_other_dcc_s_bridge_is_the_one_dcc_bridge(self):
+        """One tool in both hosts: its engine, the host's bridge to the other app,
+        names the target (``test_dcc_bridge_panel.py``)."""
+        self.assertEqual(self._shown("b010"), ["dcc_bridge"])
         self.sb.tk = _toolkit("blender")
         self.sb.handlers.marking_menu.show.reset_mock()
-        self.assertEqual(self._shown("b010"), ["maya_bridge"])
+        self.assertEqual(self._shown("b010"), ["dcc_bridge"])
 
     def test_the_mesh_converter_starts_beside_the_scene_and_reads_fbx_references(self):
         self.tk.EnvUtils.saved_scene_path.return_value = "P:/proj/scenes/a.ma"
@@ -441,11 +443,14 @@ class TestToolsFixes(_SlotsCase):
         self.slots.b006()
         self.assertIn("nothing to remove", self._message())
 
-    def test_scene_cleanup_counts_the_orphans(self):
-        self.tk.CoreUtils.cleanup_scene.return_value = {"meshes": 2, "images": 1}
+    def test_scene_cleanup_is_blenders_one_purge(self):
+        """Scene Cleanup runs the purge Optimize runs (``purge_unused_data``,
+        Blender's own), not a second hand-rolled one."""
+        self.tk.CoreUtils.purge_unused_data.return_value = 3
         self.slots.b_cleanup()
-        self.assertIn("purged <hl>3</hl> orphan(s)", self._message())
-        self.tk.CoreUtils.cleanup_scene.return_value = {}
+        self.tk.CoreUtils.purge_unused_data.assert_called_once_with()
+        self.assertIn("purged <hl>3</hl> unused data-block(s)", self._message())
+        self.tk.CoreUtils.purge_unused_data.return_value = 0
         self.slots.b_cleanup()
         self.assertIn("nothing to purge", self._message())
 

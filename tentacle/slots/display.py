@@ -82,9 +82,7 @@ class DisplaySlots(Slots):
             cat = root.sublist.add(category)
             items = cat.sublist.add([label for label, _handler, _requires in rows])
             for item, (_label, _handler, requires) in zip(items, rows):
-                if requires:
-                    item.setProperty("requires", requires)
-                    self.sb.apply_visibility_policy(item)
+                self.requires(item, requires)
 
     @Slots.Signals("on_item_interacted")
     def list000(self, item):

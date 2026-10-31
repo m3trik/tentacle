@@ -11,51 +11,57 @@
 
 The port is tracked per **UI element**, not per file. Three relationship classes:
 
-1. **Shared marking-menu slots** — `tentacle/slots/maya/<d>.py` ↔ `slots/blender/<d>.py` over
-   ONE shared `ui/<d>*.ui`. Parity = every Maya-handled widget is handled (or consciously
-   hidden) on Blender, and the runtime-built option-box/menu controls match.
-2. **Co-located tool panels** — mayatk `<tool>.py`+`.ui` ↔ blendertk twins. Parity = twin `.ui`
-   widget inventories match AND the code-built control surface matches.
-3. **Counterpart sets** — different-shaped equivalents, not same-name mirrors: the 33
-   Maya-native-menu stubs ↔ `slots/blender/blender.py` (`btk.call_native_menu`), and
-   `BlenderBridge` ↔ `MayaBridge`. Never port these as-is.
+1. **Shared panels and marking-menu categories** — one tentacle `.ui` and one Slots class for
+   both hosts (a tool: `ui/tools/<tool>.ui` + `slots/tools/<tool>.py`; a category:
+   `ui/<category>.ui` + `slots/<category>.py`), reaching each host through `self.tk` or the
+   tool's API. Parity = every control works in both hosts, or carries a `requires` tag that
+   hides it where its host cannot serve it (never a stub).
+2. **The API halves** — mayatk ↔ blendertk, by name and behavior, and by signature where a
+   shared panel calls the operation (CODE_STANDARD §5). Parity = every library call a shared
+   panel makes resolves, and behaves alike, on both toolkits.
+3. **Counterpart sets** — different-shaped equivalents, not same-name mirrors: Maya's
+   native-menu wrappers ↔ Blender's (`btk.call_native_menu`), and `BlenderBridge` ↔
+   `MayaBridge`. Never port these as-is.
 
-Four artifacts drive it:
+Three artifacts drive it:
 
 | Artifact | Role |
 |:--|:--|
-| [`parity_map.py`](parity_map.py) | **The triage ledger** — every conscious divergence, per element, with status (`na` / `renamed` / `relocated` / `replaced` / `divergent` / `done-elsewhere` / `pending`) + reason. Hand-maintained; the SSoT for "why is this different". |
-| [`PARITY_SURFACE.md`](PARITY_SURFACE.md) | Auto-gen per-element matrix (`compare_panel_surface.py --all --write`). Unrolls loop-built controls, resolves menu aliases + f-string names, skips `__main__` blocks, diffs twin `.ui` XML, diffs defaults/ranges/combo-items, classifies through the ledger. **UNTRIAGED rows fail the sweep (exit 1).** |
-| [`PARITY_AUDIT.md`](PARITY_AUDIT.md) | Auto-gen coarse depth scoreboard (`generate_parity_audit.py`). Refuses stale registry inputs; its per-panel `surface` column comes from the classified diff — trust that over the line ratios. |
-| [`DCC_COVERAGE.md`](DCC_COVERAGE.md) | Auto-gen presence floor (handled/hidden contract, backed by `test_blender_slots.py`). |
+| [`PARITY_SURFACE.md`](PARITY_SURFACE.md) | Auto-gen parity gate (`compare_panel_surface.py --all --write`): every `self.tk` chain a shared Slots class calls (an engine instance's members included), resolved statically on mayatk and blendertk — name and signature. Its **Gaps** fail the gate (exit 1); its **One-host operations** list each chain one library lacks with what hides it there. Also lints every `.ui`'s `<customwidgets>`. |
+| [`PARITY_AUDIT.md`](PARITY_AUDIT.md) | Auto-gen scoreboard (`generate_parity_audit.py`): the gate per category and per tool, the `requires`-hidden buttons per host, and the libraries' helper coverage. Refuses stale registry inputs. |
+| [`parity_map.py`](parity_map.py) | The twin-panel era's triage ledger, read by no tool now: a live divergence is stated where the code hides it (`requires`, `slots.tools.HOSTS`, a guard and its comment). |
 
-**The contract:** every Maya→Blender delta is either *fixed*, or *ledgered with a reason*.
-`pending` = acknowledged open work (sweep still passes); an unledgered delta fails CI. When
-mayatk gains a feature after a panel was ported (**drift** — it has happened: HdrManager grew
-4 controls three days after its port), the next sweep flags it untriaged automatically.
+**The contract:** every call a shared panel makes resolves on both hosts, or is hidden or
+guarded on the one that lacks it (a widget's `requires` tag, `slots.tools.HOSTS`, a
+`hasattr` / `getattr` test). A library rename or signature change that leaves a caller behind
+fails the gate the same day, on whichever host it breaks.
 
-**Workflow per port:** implement → run `compare_panel_surface.py --panel <name>` → fix or
-ledger every delta → `--all --write` (must exit 0) → `generate_parity_audit.py` → update
+**Workflow per port:** implement → run `compare_panel_surface.py --panel <name>` → close
+every gap (the operation in the host's library, or the call hidden there) → `--all --write`
+(must exit 0) → `generate_parity_audit.py` → update
 `CHANGELOG.md`. The status claim for a panel is its **surface column**, not prose.
 
-## How to port a panel (the established pattern)
+## How to port a tool (the established pattern)
 
-Proven end-to-end on `telescope_rig` / `wheel_rig` (use those files as the template):
+A tool is one shared tentacle panel over two API halves (CODE_STANDARD §3, §14); the template is
+`telescope_rig` / `wheel_rig` (blendertk `rig_utils/`, tentacle `slots/tools/` + `ui/tools/`):
 
-1. **Engine + Slots co-located** in `blendertk/blendertk/<module>/<tool>.py` (or `<tool>/`
-   package when mayatk splits one). Engine `Foo(ptk.LoggingMixin)` — no Qt at module top,
-   `import bpy` deferred into bodies; logic unit-testable headless. Slots `FooSlots` with
-   widget-named methods; defer `uitk` imports into `header_init`.
-2. **`.ui`** — copy mayatk's verbatim when DCC-neutral; hide vestigial widgets via
-   `setVisible(False)` in `__init__` (don't `deleteLater`). The `.ui` is the contract; any
-   promoted uitk class MUST be in `<customwidgets>` (else it silently loads as a plain QWidget
-   — the sweep's lint catches this).
-3. **Register** the engine in `DEFAULT_INCLUDE` (Slots are discovered by `BlenderUiHandler`).
-4. **Menu wiring** — mirror the Maya slot's button/combo (`marking_menu.show("<tool>")`).
-5. **Test** — headless `blendertk/test/test_<tool>.py` via fresh
-   `blender --background --factory-startup` (session safety: NEVER attach to a running DCC).
-   Add the panel to `test_blender_ui_handler.py`'s `PANELS` list.
-6. **Triage** — `compare_panel_surface.py --panel <tool>`: fix or ledger every delta.
+1. **API half** in `blendertk/blendertk/<sub>/<tool>.py` (or a `<tool>/` subpackage when mayatk
+   splits one), mirroring mayatk's names and behavior, and the signatures the panel calls.
+   Engine `Foo(ptk.LoggingMixin)`: no Qt, `import bpy` deferred into bodies, logic testable
+   headless. Host-free logic both hosts share goes to pythontk behind an adapter (CODE_STANDARD
+   §0, Adapters). Register it in `DEFAULT_INCLUDE`.
+2. **Panel** — the shared `ui/tools/<tool>.ui` + `slots/tools/<tool>.py` serves both hosts: it
+   calls the API through `self.tk` and never a host module. A control Blender cannot serve
+   carries a `requires` tag (hidden, never a stub). Any promoted uitk class MUST be in the
+   `.ui`'s `<customwidgets>` (else it silently loads as a plain QWidget — the sweep's lint
+   catches this).
+3. **Menu wiring** — the shared category Slots open it (`marking_menu.show("<tool>")`).
+4. **Test** — headless `blendertk/test/test_<tool>.py` via fresh
+   `blender --background --factory-startup` (session safety: NEVER attach to a running DCC);
+   the panel's own `tentacle/test/test_<tool>_panel.py`.
+5. **Gate** — `compare_panel_surface.py --panel <tool>`: close every gap (the operation in
+   the host's library, or the call hidden or guarded where it is missing).
 
 **Driver gotcha (rigs):** build ALL driver variables before the expression, call
 `RigUtils.refresh_drivers(objs)` LAST, decorate with `@undo_checkpoint`, keep expressions
@@ -69,9 +75,9 @@ branchless (fast parser).
 |:--|:--|:--|:--|
 | **SceneExporter** | Shipped | Same task-graph architecture over `bpy.ops.export_scene.fbx`; reuses `env_utils/fbx_utils`. RenderOpacity dual-key hook runs as a pre-export task. | **Done** — the FBX export-option preset combo (`cmb000`) + its option-box `b003`/`b004`/`b007`/`b008` are built 1:1 against a `pythontk.PresetStore`-backed named-JSON preset engine (sweep: clean, 0 triaged). |
 | **Shots + ShotManifest + ShotSequencer** | Shipped 2026-07-11 | `ShotBlock`/`ShotStore` data model extracted to pythontk; apply layer → timeline **markers** + `marker.camera` / Scenes / VSE. | **Done** — all three panels ship 1:1 (sweep: 0 element deltas each). |
-| **WorkspaceMap** | N/A (ledgered) | Maya-workspace tool; no Blender project concept. Reframe as a `.blend`/asset browser only if wanted. | The one remaining Maya panel with no Blender twin, by design. |
+| **WorkspaceMap** | Shipped 2026-10-28 | The scan, measure and tree are pythontk's `WorkspaceMapBase`; each host binds its adapter (`MayaWorkspaceMapHost` / `BlenderWorkspaceMapHost`: what a workspace and its scenes are). | **Done** — the map part of tentacle's shared Workspaces tool serves both hosts. |
 
-> **No big-ticket ports remain open.** Every mayatk `*Slots` panel is paired (45/45) or ledgered N/A (WorkspaceMap / counterpart bridges).
+> **No big-ticket ports remain open.** Every tool is one shared tentacle panel over both API halves, or ledgered N/A (counterpart bridges).
 
 **Closed 2026-07-08**: `duplicate.py` `tb002` Auto Instance — blendertk `core_utils/auto_instancer/`
 (`btk.auto_instance`), with the matching math + assembly clustering extracted to pythontk
@@ -81,7 +87,7 @@ implementation; slot + option box mirror Maya's 1:1. **SmartBake** also shows cl
 
 **Closed 2026-07-03/04**: BlendshapeAnimator (shape-key authoring, `anim_utils/blendshape_animator/`), HierarchyManager, AudioClips (VSE sound-strip CRUD, `audio_utils/`), MacroManager (`edit_utils/macro_manager/`, wraps the pre-existing `Macros` engine), and UnityBridge (native co-located bridge, `env_utils/unity_bridge/` — the "evaluate" question resolved in favor of building it: Unity's own asset pipeline ingests anything dropped into `Assets/` on focus, so, like Maya's, it needs no live-RPC relay). All five verified clean via `compare_panel_surface.py --panel <name>`; see `parity_map.py`'s `PANELS` dict for the per-panel verification notes.
 
-### Element-level pendings (SSoT = `parity_map.py` `pending` entries; rollup in PARITY_SURFACE)
+### Element-level pendings (twin-panel era, closed; `parity_map.py`)
 
 **Closed 2026-09-05 — Render Effects (was RenderOpacity; `render_effects_slots` in `parity_map.py`)**: the panel was redesigned and renamed on both sides the same day — the Create / Manage sections are gone, **Key Opacity Fade** and **Key Highlight Pulse** create their channel on demand, each option box carries a remove action, and the header gained *Viewport Preview*. blendertk's panel was rebuilt 1:1 by objectName (`tb001` + `b_pulse_color` / `chk001` / `s001`–`s003`, header `chk_preview`), so the eight pending rows (and the never-ported `cmb_channel` / `chk_auto_create_hl`, which no longer exist on the Maya side) are closed; the ledger block is empty.
 
@@ -94,7 +100,7 @@ area leaves); **LightmapBaker `cmb002`** Atlas-by-Material packing (new `Lightma
 EXR assembly/UV-repack, revert-restorable); and the stale `color_id` preset-combo /
 `shader_templates` "Open Template File" rows (both already built). All engine work verified in
 fresh headless Blender 5.1 (`test_selection.py`, `test_lightmap_baker.py`). Remaining differences
-are all by-design (`na`/`replaced`/`counterpart`) — WorkspaceMap, ArnoldBridge, the native-menu
+are all by-design (`na`/`replaced`/`counterpart`) — ArnoldBridge, the native-menu
 stub set, per-camera visibility, NURBS-parametric / Channel-Box / node-locking families, etc.
 
 **Closed 2026-07-11**: **TubeRig** granular step-workflow (b001–b004 + reverse-chain chk000) +
@@ -109,29 +115,22 @@ value-relative-paste gap); `edit.py` `cmb000` Transfer menu (UV / vertex-color /
 custom-normal via `bpy.ops.object.data_transfer` + the Data Transfer modifier); `rendering.py`
 `chk057` Show Ornaments + `cmb003` renderer picker; `uv.py` Straighten Shell, Stack Similar
 (+ `s000` tolerance), Include Auto Seams, Mirror Per Shell, Preserve Footprint, target-UDIM
-pack tile (`s004`). Run `compare_panel_surface.py --all` for the live list.
+pack tile (`s004`).
 
-### Default-flip review (report-only channel of the sweep)
+### Default-flip review (twin-panel era, closed)
 
 Same-named controls shipping different defaults silently change first-use behavior. The
 **slot default-flip channel was resolved 2026-07-03**: 13 genuine drift flips fixed in the
 Blender slots (transform chk014/chk016, selection chk018, edit chk002/004/013/017/024 +
 s006–s008 tolerances, animation chk031/d001/s000/s004/s013, subdivision chk012, nurbs, polygons,
 uv s016/s017), the rest ledgered as `accepted-delta` in `DEFAULT_DELTAS` with evidence
-(renderer/unit/paradigm differences). **Still open**: the co-located-panel `.ui` twin diffs
-(class-promotion + DCC-appropriate label differences like Locators/Empties, and combo-item
-deltas — selection cmb003 Convert-To 20→7, cameras list000 11→5, normals cmb000 5→3) — a
-separate review channel; triage per panel as those panels are deepened.
+(renderer/unit/paradigm differences). One class per category and per tool now builds every
+control for both hosts, so a same-named control can no longer ship two defaults; the `.ui`-diff
+channel went with the twin `.ui` files.
 
 ### Modules (Layer-4)
 
 - `render_utils` — new mayatk module (2026-06-21, 7 names); mirror when a Blender slot needs it.
-- `anim_utils/segment_keys.py` — deferred (YAGNI) until a Blender anim slot needs it.
-
-### Maya-side cleanup
-
-The sweep's **stale** list (`no widget anywhere, no reference`) is dead Maya code to delete —
-deleting it is Maya housekeeping, not Blender porting. Current list in PARITY_SURFACE.
 
 ## Phase 2 — runtime UI fingerprint (planned)
 
@@ -151,15 +150,17 @@ under `mayapy` (standalone + offscreen Qt). Session safety applies: fresh instan
 ```powershell
 # after ANY public-API change:
 python m3trik/scripts/generate_api_registry.py mayatk blendertk
-# after ANY slot/panel/.ui change (must exit 0 — fix or ledger every delta):
+# after ANY slot/.ui change, or a library rename / signature change (must exit 0):
 python m3trik/scripts/compare_panel_surface.py --all --write
-# refresh the depth scoreboard (refuses stale registries):
+# refresh the scoreboard (refuses stale registries):
 python m3trik/scripts/generate_parity_audit.py
 ```
 
-- Divergence decisions go in `parity_map.py` **when made**, so they aren't re-litigated.
+- A divergence is stated where the code hides it, **when made**: the `requires` tag's or the
+  guard's comment says which host lacks the operation and why, so it isn't re-litigated.
 - **CI gate**: the `parity` job in `tentacle/.github/workflows/tests.yml` checks out the
-  sibling repos at `dev` beside this one, runs the sweep (`--all --write` + git-diff on
-  PARITY_SURFACE.md — untriaged deltas AND a stale committed doc both fail), then
+  sibling repos at `dev` beside this one (pythontk, uitk, mayatk, blendertk), runs the gate
+  (`--all --write` + git-diff on PARITY_SURFACE.md — a gap AND a stale committed doc both
+  fail), then
   `generate_parity_audit.py --check --allow-stale` (mtimes are meaningless in a fresh
   checkout; `--check` is content-based).

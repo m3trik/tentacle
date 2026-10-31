@@ -6,11 +6,11 @@ One Slots class for both hosts, on the bridge panels' shared base
 (:class:`HostBridge`: parameter rows, presets, log pane, Scope). The engine is the
 host toolkit's ``UnityBridge`` (``self.tk.UnityBridge``: export through the host,
 copy into ``Assets/`` through ``unitytk.CopyToAssetsDeliverer``), and its parameter
-registry is the engine's. The Unity panel behavior shared with extapps' standalone
-Unity Workflow panel -- the 'Unity Project' row and its project actions, the mode
-combo, the Editor combo, Manage Unity Scripts -- is :class:`UnityPanelMixin`,
-vendored in ``_unity_bridge/``. This module owns the engine pick, the help text
-and the ``b000`` send.
+registry is the engine's. The Unity panel behavior shared with the standalone
+Unity Workflow panel (``unity_workflow.py``) -- the 'Unity Project' row and its
+project actions, the mode combo, the Editor combo, Manage Unity Scripts -- is
+:class:`UnityPanelMixin`, in ``_unity_bridge/``. This module owns the engine pick,
+the help text and the ``b000`` send.
 
 The required 'Output Dir' row is the **Unity Project** path (the folder holding
 ``Assets/``), with no scene-folder fallback: a scene's folder is not a Unity

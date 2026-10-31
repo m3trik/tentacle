@@ -1,14 +1,15 @@
 #!/usr/bin/python
 # coding=utf-8
-"""The Workspace Editor panel's Slots class (``slots/tools/workspace_editor.py``).
+"""The Workspaces panel's editor part (``slots/tools/_workspaces/editor.py``),
+the former Workspace Editor; which host builds it is ``test_workspaces_panel.py``.
 
 It reaches its host only through ``self.tk`` (``EnvUtils``: the current
 workspace, the template rules, building a project); the workspace model is
-pythontk's. So a fake toolkit stands in for ``btk`` and records what the panel
+pythontk's. So a fake toolkit stands in for ``btk`` and records what the part
 asks of it: plain unittest, no DCC. Then the panel loads for real through
 Blender's handler (Qt, no bpy) over ``btk`` and runs its write-through loop on a
 scratch project (what blendertk's handler suite drove before the panel moved).
-A Blender tool (``tentacle.slots.tools.HOSTS``): Maya's own Project Window is
+Blender's part (its group ``requires="blender"``): Maya's own Project Window is
 Maya's, so there is no Maya-run case.
 """
 
@@ -25,17 +26,21 @@ import tentacle
 from _host import MAYA_AVAILABLE
 from tentacle.slots._slots import Slots
 from tentacle.slots.tools import HOSTS
-from tentacle.slots.tools.workspace_editor import WorkspaceEditorSlots
+from tentacle.slots.tools._workspaces.editor import WorkspaceEditorPart
+from tentacle.slots.tools.workspaces import WorkspacesSlots
 
 MONO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(tentacle.__file__))))
 
 
 def _panel(tk=None):
-    """A ``WorkspaceEditorSlots`` over a mock ui and *tk* (a fake by default),
-    handed over before the panel is built, as ``Slots.tk`` is."""
+    """The editor part of a ``WorkspacesSlots`` built as Blender builds it (the
+    map's group hidden) over a mock ui and *tk* (a fake by default), handed over
+    before the panel is built, as ``Slots.tk`` is."""
     sb = mock.MagicMock()
     sb.tk = tk if tk is not None else mock.MagicMock()
-    return WorkspaceEditorSlots(sb), sb
+    hidden = sb.loaded_ui.workspaces.grp_map
+    sb.apply_visibility_policy.side_effect = lambda group: group is hidden
+    return WorkspacesSlots(sb).editor, sb
 
 
 class _PanelCase(unittest.TestCase):
@@ -46,15 +51,18 @@ class _PanelCase(unittest.TestCase):
 
 
 class TestWorkspaceEditorPanel(_PanelCase):
-    def test_a_blender_tool(self):
-        """Maya's own Project Window is Maya's editor: Maya never offers this one."""
-        self.assertEqual(HOSTS["workspace_editor"], ("blender",))
+    def test_the_panel_serves_both_hosts_and_the_editor_is_blenders(self):
+        """The Workspaces tool registers everywhere; Maya's own Project Window is
+        Maya's editor, so the part is Blender's (the map's host is Maya)."""
+        self.assertNotIn("workspaces", HOSTS)
+        editor, _sb = _panel()
+        self.assertIsInstance(editor, WorkspaceEditorPart)
 
     def test_a_typed_nice_name_resolves_to_its_rule_key(self):
         """A row added in Nice Names view has no stored key, so its typed text is
         the key candidate; without the reverse lookup the label went into
         workspace.mel verbatim (``workspace -fr "Render Data" ...``)."""
-        key = WorkspaceEditorSlots._key_for_label
+        key = WorkspaceEditorPart._key_for_label
         self.assertEqual(key("Render Data"), "renderData")
         self.assertEqual(key("  source images "), "sourceImages")  # case-insensitive
         self.assertEqual(key("myCustomRule"), "myCustomRule")  # a custom rule
@@ -87,7 +95,7 @@ class TestWorkspaceEditorPanel(_PanelCase):
         def second():
             pass
 
-        rewire = WorkspaceEditorSlots._rewire
+        rewire = WorkspaceEditorPart._rewire
         rewire(widget, "itemChanged", first)
         self.assertEqual(widget.itemChanged.handlers, [first])
         rewire(widget, "itemChanged", second)  # the rebuilt instance
@@ -98,19 +106,19 @@ class TestWorkspaceEditorPanel(_PanelCase):
     def test_the_root_field_opens_on_the_current_workspace(self):
         slots, sb = _panel()
         sb.tk.EnvUtils.current_workspace.return_value = mock.MagicMock(root="/proj")
-        sb.loaded_ui.workspace_editor.settings.value.return_value = "/last"
+        sb.loaded_ui.workspaces.settings.value.return_value = "/last"
         field = mock.MagicMock(is_initialized=True)
         field.text.return_value = ""
-        slots.txt000_init(field)
+        slots.txt002_init(field)
         field.setText.assert_called_once_with("/proj")
 
     def test_the_root_field_falls_back_to_the_last_root(self):
         slots, sb = _panel()
         sb.tk.EnvUtils.current_workspace.return_value = None
-        sb.loaded_ui.workspace_editor.settings.value.return_value = "/last"
+        sb.loaded_ui.workspaces.settings.value.return_value = "/last"
         field = mock.MagicMock(is_initialized=True)
         field.text.return_value = ""
-        slots.txt000_init(field)
+        slots.txt002_init(field)
         field.setText.assert_called_once_with("/last")
 
     def test_the_templates_combo_reads_the_shared_store(self):
@@ -141,8 +149,8 @@ class TestWorkspaceEditorPanel(_PanelCase):
         root = tempfile.mkdtemp(prefix="ws_editor_")
         self.addCleanup(shutil.rmtree, root, ignore_errors=True)
         slots, sb = _panel()
-        ui = sb.loaded_ui.workspace_editor
-        ui.txt000.text.return_value = root
+        ui = sb.loaded_ui.workspaces
+        ui.txt002.text.return_value = root
         ui.tbl000 = None  # no table to reload: the build is the point
         slots.create_project()
         sb.tk.EnvUtils.create_workspace.assert_called_once_with(root)
@@ -151,8 +159,8 @@ class TestWorkspaceEditorPanel(_PanelCase):
 
     def test_create_project_needs_a_root(self):
         slots, sb = _panel()
-        ui = sb.loaded_ui.workspace_editor
-        ui.txt000.text.return_value = "  "
+        ui = sb.loaded_ui.workspaces
+        ui.txt002.text.return_value = "  "
         slots.create_project()
         sb.tk.EnvUtils.create_workspace.assert_not_called()
         ui.footer.setStatusText.assert_called_with("Set a project root first.")
@@ -200,15 +208,16 @@ class TestWorkspaceEditorPanelLoads(unittest.TestCase):
         handler = BlenderUiHandler(switchboard=Switchboard())
         cls.sb = handler.sb
         Tcl.register_shared(cls.sb)
-        cls.ui = handler.get("workspace_editor")
+        cls.ui = handler.get("workspaces")
         for _ in range(3):
             cls.app.processEvents()
         cls.slots = cls.sb.get_slots_instance(cls.ui)
+        cls.editor = cls.slots.editor
         # Offscreen loading may skip the *_init entry points: drive them. The two
         # field inits re-run safely (they re-fire on every show); the header's once.
-        if cls.slots._preset_mgr is None:
+        if cls.editor._preset_mgr is None:
             cls.slots.header_init(cls.ui.header)
-        cls.slots.txt000_init(cls.ui.txt000)
+        cls.slots.txt002_init(cls.ui.txt002)
         cls.slots.tbl000_init(cls.ui.tbl000)
 
     def setUp(self):
@@ -222,31 +231,33 @@ class TestWorkspaceEditorPanelLoads(unittest.TestCase):
 
     def _set_root(self, path):
         """Point the panel at *path* and reload, with no debounce left pending."""
-        field = self.ui.txt000
+        field = self.ui.txt002
         blocked = field.blockSignals(True)
         try:
             field.setText(path)
         finally:
             field.blockSignals(blocked)
-        self.slots._load()
+        self.editor._load()
 
     def _rules(self):
         return ptk.Workspace.parse_workspace_mel(self.marker) if os.path.isfile(self.marker) else {}
 
     def _row(self, key):
         table = self.ui.tbl000
-        return next(r for r in range(table.rowCount()) if self.slots._key_at(r) == key)
+        return next(r for r in range(table.rowCount()) if self.editor._key_at(r) == key)
 
     def test_binds_tentacles_slots_over_btk(self):
-        self.assertIsInstance(self.slots, WorkspaceEditorSlots)
+        self.assertIsInstance(self.slots, WorkspacesSlots)
         self.assertIs(self.slots.tk, self.btk)
+        self.assertIsInstance(self.editor, WorkspaceEditorPart)
+        self.assertIsNotNone(self.slots.map)  # the map serves Blender too
 
     def test_the_header_holds_the_editing_verbs_and_the_templates(self):
         menu = self.ui.header.menu
         self.assertTrue(hasattr(menu, "btn_add_rule"))
         for retired in ("btn_set_current", "btn_remove_rule", "btn_save_template"):
             self.assertFalse(hasattr(menu, retired), retired)
-        self.assertIsNotNone(self.slots._preset_mgr)
+        self.assertIsNotNone(self.editor._preset_mgr)
         self.assertIsNotNone(getattr(menu, "cmb_template", None))
         buttons = set(getattr(self.ui.header, "buttons", {}))
         self.assertIn("hide", buttons)
@@ -277,26 +288,26 @@ class TestWorkspaceEditorPanelLoads(unittest.TestCase):
     def test_row_reset_and_remove_write_through(self):
         defaults = self.btk.EnvUtils.workspace_template_rules()
         self.ui.tbl000.item(self._row("scene"), 1).setText("shots")
-        self.slots.reset_row(self._row("scene"))
+        self.editor.reset_row(self._row("scene"))
         self.assertEqual(self._rules().get("scene"), defaults["scene"])
-        self.slots.remove_row(self._row("images"))
+        self.editor.remove_row(self._row("images"))
         self.assertNotIn("images", self._rules())
 
     def test_clear_and_reset_settings_write_through(self):
         self.ui.tbl000.item(self._row("scene"), 1).setText("shots")
-        self.slots.clear_rules()
+        self.editor.clear_rules()
         self.assertTrue(os.path.isfile(self.marker))  # the marker survives
         self.assertEqual(self._rules(), {})
-        self.slots.reset_rules()
+        self.editor.reset_rules()
         self.assertEqual(self._rules(), self.btk.EnvUtils.workspace_template_rules())
 
     def test_a_combo_saved_template_round_trips_through_the_host(self):
         """The combo (PresetManager) wraps the rules with a ``_meta`` block; the
         host's template reader strips it."""
-        self.slots._preset_mgr.save("suite_tpl")
+        self.editor._preset_mgr.save("suite_tpl")
         self.addCleanup(self.btk.EnvUtils.delete_workspace_template, "suite_tpl")
         self.assertEqual(
-            self.btk.EnvUtils.workspace_template_rules("suite_tpl"), self.slots._gather()
+            self.btk.EnvUtils.workspace_template_rules("suite_tpl"), self.editor._gather()
         )
 
 

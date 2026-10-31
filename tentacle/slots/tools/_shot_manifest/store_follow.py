@@ -81,8 +81,19 @@ class StoreFollowMixin:
         self._unbind_store_listener()
         self._store_cls().remove_invalidation_listener(self._on_store_invalidated)
         self._store_cls().remove_native_step_listener(self._on_native_step_followed)
-        if self._reassess_timer is not None:
-            self._reassess_timer.stop()
+        self._stop_reassess_timer()
+
+    def _stop_reassess_timer(self) -> None:
+        """Stop a pending re-assessment. A timer whose C++ object is gone (the
+        panel's teardown runs from ``ui.destroyed``, and an application exit
+        can take the timer first) is dropped, and the next edit makes one."""
+        timer = self._reassess_timer
+        if timer is None:
+            return
+        try:
+            timer.stop()
+        except RuntimeError:  # already deleted
+            self._reassess_timer = None
 
     def _on_native_step_followed(self, event) -> None:
         """The DCC's own undo or redo ran (``NativeStepFollowed``): when it
@@ -124,8 +135,7 @@ class StoreFollowMixin:
         self._last_results = []
         self._reassess_on_show = False
         self._reassess_note = ""
-        if self._reassess_timer is not None:
-            self._reassess_timer.stop()
+        self._stop_reassess_timer()
 
         if not self._first_shown:
             return

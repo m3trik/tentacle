@@ -427,8 +427,7 @@ class PolygonsSlots(Slots):
         # Maya's: Blender's subdivide has no one-direction face split, so a
         # face always divides both ways there.
         for one_way in (split_u, split_v):
-            one_way.setProperty("requires", "maya")
-            self.sb.apply_visibility_policy(one_way)
+            self.requires(one_way, "maya")
         menu.add(
             "QCheckBox",
             setText="Tris",
@@ -519,8 +518,7 @@ class PolygonsSlots(Slots):
         # Maya's: it works around a world-space query cmds needs. Blender's
         # world math is exact under any transform, so freezing there would only
         # zero the channels.
-        chk_freeze.setProperty("requires", "maya")
-        self.sb.apply_visibility_policy(chk_freeze)
+        self.requires(chk_freeze, "maya")
 
     def tb009(self, widget):
         """Snap Closest Verts: the first selected mesh's vertices onto the last

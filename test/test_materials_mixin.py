@@ -34,7 +34,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from qtpy import QtCore, QtTest, QtWidgets  # noqa: E402
+from qtpy import QtCore, QtGui, QtTest, QtWidgets  # noqa: E402
 
 QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
 from uitk.managers.icon_manager import IconManager  # noqa: E402
@@ -416,8 +416,8 @@ class _FakeMatUtils:
         rows = list(self.host.rows)
         return [n for n in rows if n != "Old"] if exclude_defaults else rows
 
-    def get_mat_swatch_icon(self, name):
-        return None
+    def get_mat_swatch_color(self, name):
+        return {"Crate": (1.0, 0.0, 0.0)}.get(name)  # the rest: no colour to read
 
     def get_mat_facts(self, names):
         return {
@@ -527,7 +527,8 @@ class _PanelHost(MaterialsSlots):
             return hidden
 
         sb = type("_SB", (), {})()
-        sb.QtWidgets, sb.QtCore, sb.IconManager = QtWidgets, QtCore, IconManager
+        sb.QtWidgets, sb.QtCore, sb.QtGui = QtWidgets, QtCore, QtGui
+        sb.IconManager = IconManager
         sb.registered_widgets = type("_W", (), {"ExpandableList": ExpandableList})
         sb.message_box = messages.append
         sb.loaded_ui = type("_L", (), {"materials": window, "materials_submenu": None})
@@ -605,6 +606,18 @@ class TestMaterialTable(_TableCase):
             {c: self.table.horizontalHeaderItem(c).toolTip() for c in (4, 5, 6)},
             "an icon column is named by its header tooltip in the column menu",
         )
+
+    def test_the_swatch_is_the_hosts_colour_painted_by_the_panel(self):
+        """The library answers a colour (``MatUtils.get_mat_swatch_color``); the
+        icon is the panel's, blank where the host has no colour to read."""
+
+        def pixel(name):
+            icon = self.table.item(self._row(name), self.host.COL_NAME).icon()
+            return icon.pixmap(8, 8).toImage().pixelColor(4, 4)
+
+        crate = pixel("Crate")
+        self.assertEqual((crate.red(), crate.green(), crate.blue()), (255, 0, 0))
+        self.assertEqual(pixel("Wood").alpha(), 0)
 
     def test_the_status_column_flags_only_what_needs_attention(self):
         states = {

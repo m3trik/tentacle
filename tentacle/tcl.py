@@ -514,7 +514,7 @@ class Tcl(_TclInternal):
         """Release the host resources an in-place reload would ORPHAN.
 
         ``Settings > Reload Scripts`` re-executes the ecosystem packages through
-        ``ptk.reload_package``. That rebinds module globals, but everything the
+        ``ptk.ModuleReloader``. That rebinds module globals, but everything the
         DCC itself is still holding — a registered ``scriptJob``, an OpenMaya
         callback, an armed activation shortcut — keeps pointing at the code from
         before the reload, while the handle needed to cancel it is dropped on the
@@ -583,7 +583,7 @@ class Tcl(_TclInternal):
         actually loaded: discovery-importing the rest would pull in the OTHER
         DCC's slot package, which imports a host that is not running.
 
-        ``ptk.reload_package`` does not abort on a module that raises — it
+        ``ptk.ModuleReloader`` does not abort on a module that raises — it
         records the failure and carries on — so failures are printed here.
         Leaving part of the ecosystem on the old code IS the "reload did
         nothing" report, one module at a time.
@@ -600,7 +600,7 @@ class Tcl(_TclInternal):
 
         host = cls.host() if host is None else host
         engine = cls.ENGINES.get(host)
-        report = ptk.reload_package(
+        report = ptk.ModuleReloader().reload(
             "tentacle",
             dependencies_first=tuple(d for d in ("pythontk", engine, "uitk") if d),
             import_missing=False,
@@ -667,9 +667,11 @@ class Tcl(_TclInternal):
 
     @staticmethod
     def unserved_tools(context_tags=None):
-        """The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):
-        what :meth:`register_shared` leaves out. An empty context (a bare test or dev
-        switchboard) serves every tool, uitk's rule for ``requires``.
+        """The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``),
+        and the standalone panels, which open in a switchboard of their own
+        (``slots.tools.STANDALONE``): what :meth:`register_shared` leaves out. An
+        empty context (a bare test or dev switchboard) serves every tool, uitk's
+        rule for ``requires``.
 
         Parameters:
             context_tags (iterable): The host's tags (``{"maya"}``), as its entry
@@ -680,13 +682,15 @@ class Tcl(_TclInternal):
         """
         # The tools' table, not this class's HOSTS (host -> its probe module).
         from tentacle.slots.tools import HOSTS as TOOL_HOSTS
+        from tentacle.slots.tools import STANDALONE
 
         context = set(context_tags or ())
         if not context:
             return []
-        return sorted(
+        unserved = {
             tool for tool, hosts in TOOL_HOSTS.items() if not context & set(hosts)
-        )
+        }
+        return sorted(unserved | set(STANDALONE))
 
     @staticmethod
     def register_shared(switchboard):
@@ -697,11 +701,16 @@ class Tcl(_TclInternal):
         one Slots class, flat, paired by name, and tagged ``UiHandler.PANEL_TAG`` so a tool
         opens sticky in any host (the hosts' handlers defer to that rule). A tool one host
         serves (``slots.tools.HOSTS``) is left out of the other (:meth:`unserved_tools` of
-        the switchboard's ``context_tags``), so nothing there offers it. Both entry
-        points call this, so the shared roots are written once.
+        the switchboard's ``context_tags``), so nothing there offers it. A tool that took
+        over other panels' names (``slots.tools.RENAMED_FROM``) first receives their saved
+        values (uitk's ``PanelRenames.carry``, once per host). Both entry points call this,
+        so the shared roots are written once.
         """
-        from uitk import UiHandler
+        from uitk import PanelRenames, UiHandler
 
+        from tentacle.slots.tools import RENAMED_FROM
+
+        PanelRenames.carry(switchboard, RENAMED_FROM)
         root = os.path.dirname(os.path.abspath(__file__))
         slots = os.path.join(root, "slots")
         switchboard.register(slot_location=slots)
@@ -734,9 +743,46 @@ class Tcl(_TclInternal):
             bindings[f"{key}|LeftButton|RightButton"] = chord_target
         return bindings
 
+    @staticmethod
+    def greeting(string, outputToConsole=True):
+        """Format a string using preset variables.
+
+        Parameters:
+            string (str): The greeting to format as a string with placeholders using the below keywords.
+                    ex. 'Good {hr}! You are using {modver} with {pyver}.'
+                    {hr} - Gives the current time of day (morning, afternoon, evening)
+                    {pyver} - The python interpreter version.
+                    {modver} - This modules version.
+            outputToConsole = Print the greeting.
+
+        Returns:
+            (str)
+
+        Example: Tcl.greeting('Good {hr}! You are using {modver} with {pyver}.')
+        """
+        import datetime
+
+        from tentacle import __version__  # tcl.py is bootstrapped BY the package
+
+        h = datetime.datetime.now().hour
+        # Before 5 is still the evening, not the afternoon.
+        hr = "morning" if 5 <= h < 12 else "afternoon" if 12 <= h < 18 else "evening"
+
+        pyver = "python v{}.{}.{}".format(
+            sys.version_info[0], sys.version_info[1], sys.version_info[2]
+        )
+
+        modver = "tentacle v{}".format(__version__)
+
+        result = string.format(hr=hr, pyver=pyver, modver=modver)
+
+        if outputToConsole:
+            print(result)  # noqa: T201 -- greeting() prints only when asked to
+        return result
+
     @classmethod
     def banner(cls, template=None, force=False):
-        """Print the startup banner — the one sanctioned emitter of :func:`tentacle.greeting`.
+        """Print the startup banner — the one sanctioned emitter of :meth:`greeting`.
 
         Lives on the launch path, not at package import: ``import tentacle`` must stay
         side-effect free (root CLAUDE.md), while an actual DCC launch is exactly the moment
@@ -750,7 +796,7 @@ class Tcl(_TclInternal):
 
         Parameters:
             template (str): Greeting format string. Defaults to the shipped banner. See
-                    :func:`tentacle.greeting` for the available placeholders.
+                    :meth:`greeting` for the available placeholders.
             force (bool): Re-emit even if this process already bannered.
 
         Returns:
@@ -758,10 +804,8 @@ class Tcl(_TclInternal):
         """
         if cls._BANNERED and not force:
             return None
-        try:  # imported here: tcl.py is bootstrapped BY the package __init__
-            from tentacle import greeting
-
-            text = greeting(template or cls.BANNER)
+        try:
+            text = cls.greeting(template or cls.BANNER)
         except Exception:  # a banner must never block a launch
             return None
         _TclInternal._BANNERED = (

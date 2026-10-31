@@ -8,8 +8,9 @@ dialogs (:meth:`SceneExporterSlots.confirm`,
 :meth:`SceneExporterSlots.decide_check_failure`), so everything the run says
 lands in the panel's log. The Settings / Tasks / Checks rows are registry
 driven: each is a widget the host's task and check definitions describe
-(``task_manager.task_definitions`` / ``check_definitions``), read back into
-the run's configuration by ``pythontk.ExportProfile``. What a host does its own
+(``task_manager.task_definitions`` / ``check_definitions``), read back here
+(:meth:`SceneExporterSlots._row_values`, through uitk) and turned into the run's
+configuration by ``pythontk.ExportProfile``. What a host does its own
 way is its engine's: the object scope (``objects_to_export``), the FBX presets
 (``presets``, ``fbx_preset_dir``, ``edit_fbx_preset``, their embedding in an
 export preset) and the store export presets are saved in
@@ -18,7 +19,7 @@ export preset) and the store export presets are saved in
 
 import html
 import os
-from typing import Dict, List
+from typing import Any, Dict, List, Mapping
 
 import pythontk as ptk
 
@@ -558,7 +559,7 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
     def _make_definition_widget(self, name, params, object_name=None):
         """Instantiate the widget a task/check/settings definition describes."""
         params = dict(params)
-        widget_type = params.get("widget_type", "QCheckBox")
+        widget_type = params.get("widget_type", self._CHECKBOX)
         object_name = object_name or params.get(
             "object_name", self.sb.convert_to_legal_name(name)
         )
@@ -824,18 +825,54 @@ class SceneExporterSlots(Slots, ptk.LoggingMixin):
             if description:
                 widget.setItemData(index, description, self.sb.QtCore.Qt.ToolTipRole)
 
+    #: A row's reading when its definition names none (``value_method``): a
+    #: checkbox's state, else -- a combo -- the current item's data.
+    _CHECKBOX = "QCheckBox"
+
+    def _row_values(self, *tables: Mapping[str, Mapping[str, Any]]) -> Dict[str, Any]:
+        """The panel's rows as ``{objectName: value}``, for the engine's
+        ``run_config_from_values``.
+
+        Each definition's widget (found by its objectName,
+        ``ptk.ExportProfile.widget_key``) is read the way its row declares: its
+        ``value_method`` when it names one, else a checkbox's ``isChecked``,
+        else the combo's item data (uitk's ``ValueManager.combo_value``, off
+        the switchboard). A row
+        that is not built, or whose widget has no such reading, is not sent.
+
+        Parameters:
+            *tables: ``{name: definition}`` tables -- the task and check rows
+                and the engine's ``SETTINGS_DEFINITIONS``.
+        """
+        values: Dict[str, Any] = {}
+        for table in tables:
+            for name, spec in table.items():
+                key = ptk.ExportProfile.widget_key(name, spec)
+                widget = getattr(self.ui, key, None)
+                method = spec.get("value_method") or (
+                    "isChecked"
+                    if spec.get("widget_type", self._CHECKBOX) == self._CHECKBOX
+                    else "currentData"
+                )
+                if widget is None or not hasattr(widget, method):
+                    continue
+                if method == "currentData":
+                    values[key] = self.sb.ValueManager.combo_value(widget, "data")
+                else:
+                    values[key] = getattr(widget, method)()
+        return values
+
     def b000(self) -> None:
         """Export: run the scene export with the configured tasks and settings.
 
-        The panel's widgets are read into values and turned into the run
-        configuration by the engine's ``run_config_from_values`` -- the
-        button's contract written once (:class:`pythontk.ExportProfile`).
+        The panel's rows are read into values (:meth:`_row_values`) and turned
+        into the run configuration by the engine's ``run_config_from_values`` --
+        the button's contract written once (:class:`pythontk.ExportProfile`).
         """
         exporter = self.exporter
         self.ui.txt003.clear()
         tasks_def, checks_def = exporter.definition_tables()
-        values = ptk.ExportProfile.read_values(self.ui, tasks_def, checks_def)
-        values["cmb004"] = self.ui.cmb004.currentData()
+        values = self._row_values(tasks_def, checks_def, exporter.SETTINGS_DEFINITIONS)
         config = exporter.run_config_from_values(
             values,
             override_checks=self.ui.b009.isChecked(),

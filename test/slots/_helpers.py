@@ -22,19 +22,27 @@ if _TEST_DIR not in sys.path:
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 PKG = ROOT / "tentacle"
-SLOTS_DIR = PKG / "slots" / "maya"
+SLOTS_DIR = PKG / "slots"
 
-# Files that aren't concrete slots (base class, package marker)
+# Files that aren't slot modules (package markers)
 _SKIP = {"__init__.py"}
 
 
 def slot_files() -> List[Path]:
-    """Every concrete slot module under tentacle/slots/maya/."""
+    """Every module of the slots layer under tentacle/slots/: the composed
+    categories every host shares, the shared tools and their helpers."""
     return sorted(
         f
-        for f in SLOTS_DIR.glob("*.py")
-        if f.name not in _SKIP and not f.name.startswith("__")
+        for f in SLOTS_DIR.rglob("*.py")
+        if f.name not in _SKIP
+        and not f.name.startswith("__")
+        and "__pycache__" not in f.parts
     )
+
+
+def slot_module_name(path: Path) -> str:
+    """The dotted import name of a slot module (``tentacle.slots.tools.mirror``)."""
+    return ".".join(path.relative_to(ROOT).with_suffix("").parts)
 
 
 def iter_calls(tree: ast.AST) -> Iterator[ast.Call]:

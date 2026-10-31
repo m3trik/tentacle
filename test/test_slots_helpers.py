@@ -23,6 +23,72 @@ class _SlotsCase(unittest.TestCase):
         self.tk = self.sb.tk
 
 
+class TestHostVisibilityOnRealWidgets(unittest.TestCase):
+    """``Slots.requires`` and ``Slots.hide_unless`` over a real (offscreen)
+    switchboard and widgets: what stays hidden, and what a gate or a group
+    can no longer bring back."""
+
+    @classmethod
+    def setUpClass(cls):
+        from qtpy import QtWidgets
+        from uitk import Switchboard
+
+        cls.QtWidgets = QtWidgets
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+        cls.sb = Switchboard(context_tags={"blender"})
+
+    def setUp(self):
+        migrated = Slots._legacy_repeat_last_migrated
+        Slots._legacy_repeat_last_migrated = True
+        self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
+        self.slots = Slots(self.sb)
+        self.window = self.QtWidgets.QWidget()
+        self.addCleanup(self.window.deleteLater)
+
+    def _in_group(self):
+        from uitk.widgets.collapsableGroup import CollapsableGroup
+
+        group = CollapsableGroup("Advanced", self.window)
+        group.setLayout(self.QtWidgets.QVBoxLayout())
+        widget = self.QtWidgets.QPushButton()
+        group.layout().addWidget(widget)
+        self.window.show()
+        return group, widget
+
+    def test_a_capability_hide_survives_a_group_expand_and_a_gate(self):
+        group, widget = self._in_group()
+        self.assertFalse(self.slots.hide_unless(widget, False))
+        group.setChecked(False)
+        group.setChecked(True)
+        self.assertTrue(widget.isHidden(), "the expand re-showed it")
+        self.assertTrue(self.sb.gate(widget, True))  # the app is there...
+        self.assertTrue(widget.isHidden(), "...but the host still cannot serve it")
+        self.assertFalse(self.sb.gate(widget, False))
+        self.assertTrue(widget.isHidden())
+
+    def test_a_served_control_is_left_alone(self):
+        _group, widget = self._in_group()
+        self.assertTrue(self.slots.hide_unless(widget, True))
+        self.assertFalse(widget.isHidden())
+        self.assertIsNone(getattr(widget, "hidden_by_policy", None))
+
+    def test_requires_hides_the_other_hosts_widget_for_good(self):
+        group, widget = self._in_group()
+        self.assertFalse(self.slots.requires(widget, "maya"))
+        group.setChecked(False)
+        group.setChecked(True)
+        self.assertTrue(widget.isHidden())
+        self.assertEqual(widget.hidden_by_policy, "requires")
+
+    def test_requires_with_no_host_tags_nothing(self):
+        _group, widget = self._in_group()
+        self.assertTrue(self.slots.requires(widget, None))
+        self.assertIsNone(widget.property("requires"))
+        self.assertFalse(widget.isHidden())
+        self.assertTrue(self.slots.requires(widget, "blender"))
+        self.assertFalse(widget.isHidden())
+
+
 class TestRequireSelection(_SlotsCase):
     """The selection through the toolkit, or None after the message."""
 

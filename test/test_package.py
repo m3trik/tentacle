@@ -10,31 +10,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-
-def _standalone_interpreter():
-    """``(path, "")`` of a Python interpreter to spawn, or ``(None, reason)``.
-
-    Under the --in-maya dispatcher ``sys.executable`` is the HOST binary
-    (maya.exe), not an interpreter: ``maya.exe -c ...`` is not a valid
-    invocation and dies in native code -- rc 1 with an unsymbolized stack
-    trace and no Python traceback, which reads as the test's assertion failing
-    rather than as the spawn being nonsense. mayapy ships beside maya.exe, so
-    a spawning check keeps its coverage under every entry point instead of
-    skipping the one where a stray side effect is most likely.
-    """
-    import os
-
-    if not sys.executable:
-        # Embedded interpreters can leave this empty, and Path("") has no
-        # name to substitute -- with_name() would raise ValueError.
-        return None, "sys.executable is empty; nothing to spawn"
-    exe = Path(sys.executable)
-    if exe.stem.lower().startswith("python"):
-        return exe, ""
-    mayapy = exe.with_name("mayapy.exe" if os.name == "nt" else "mayapy")
-    if mayapy.exists():
-        return mayapy, ""
-    return None, f"no standalone interpreter beside {exe.name}"
+from _host import standalone_interpreter  # noqa: E402
 
 
 class TestSuiteIsolation(unittest.TestCase):
@@ -123,7 +99,7 @@ class TestPackageMetadata(unittest.TestCase):
 
         from pythontk.core_utils.module_resolver import import_footprint
 
-        exe, why = _standalone_interpreter()
+        exe, why = standalone_interpreter()
         if exe is None:
             self.skipTest(why)
         # import_footprint spawns sys.executable, the host binary in Maya.
@@ -132,18 +108,19 @@ class TestPackageMetadata(unittest.TestCase):
         self.assertEqual(footprint, {"modules": [], "third_party": []})
 
 
-class TestExtappsRegistration(unittest.TestCase):
-    """External apps are auto-discovered from extapps' entry points — the
-    hosts must carry NO hand-maintained registration table.
+class TestExternalAppRegistration(unittest.TestCase):
+    """The standalone panels are auto-discovered from tentacle's own entry
+    points -- the hosts must carry NO hand-maintained registration table.
 
     The old per-app ``(name, module, entry)`` loop in tcl_maya / tcl_blender
-    drifted from extapps' entry points (and from each other) every time an
-    app was added or moved. The refactor deleted it in favour of
+    drifted from the entry points (and from each other) every time an app was
+    added or moved. The refactor deleted it in favour of
     ``ExternalAppHandler.discover()`` reading the entry points directly, with
     ``install_spec`` derived from the distribution. These tests guard that
     contract: (1) no host reintroduces a manual table, and (2) the entry
     points (the single source of truth) declare the expected apps and the
-    per-host visibility gates the hosts rely on.
+    per-host visibility gates the hosts rely on. ``test_tcl_standalone.py``
+    holds the whole roster to ``slots.tools.STANDALONE``.
     """
 
     @staticmethod
@@ -185,32 +162,42 @@ class TestExtappsRegistration(unittest.TestCase):
         return {}
 
     def test_hosts_have_no_manual_registration_table(self):
-        """Regression guard: neither host may hand-enumerate extapps apps."""
+        """Regression guard: neither host may hand-enumerate the standalone apps."""
         for filename in ("tcl_maya.py", "tcl_blender.py"):
             self.assertEqual(
                 self._registered_modules(filename),
                 {},
                 f"{filename} reintroduced a hardcoded external-app register() "
-                f"table — apps must self-describe via extapps entry points and "
+                f"table — apps must self-describe via tentacle's entry points and "
                 f"be picked up by ExternalAppHandler.discover() instead.",
             )
 
     def test_entry_points_declare_apps_and_maya_gates(self):
-        """extapps' entry points are the SSoT — they must carry the core apps
-        and gate Substance/Marmoset out of Maya (native bridges supersede)."""
-        try:
-            from importlib.metadata import entry_points
+        """tentacle's entry points are the SSoT — they must carry the core apps
+        and gate Substance/Marmoset out of Maya (native bridges supersede).
+        Read from the source pyproject, not metadata an editable install wrote
+        before the last edit."""
+        from importlib.metadata import EntryPoint
 
-            eps = list(entry_points(group="uitk.external_apps.in_process"))
-        except Exception:
-            eps = []
-        if not eps:
-            self.skipTest("extapps entry points not available in this environment")
+        try:
+            import tomllib
+        except ModuleNotFoundError:  # < 3.11
+            try:
+                import tomli as tomllib
+            except ModuleNotFoundError:
+                self.skipTest("no TOML parser available")
+        toml = ROOT / "pyproject.toml"
+        if not toml.is_file():
+            self.skipTest("no pyproject.toml (installed, not a source checkout)")
+        with open(toml, "rb") as handle:
+            table = tomllib.load(handle)["project"]["entry-points"]
+        group = "uitk.external_apps.in_process"
+        eps = [EntryPoint(n, v, group) for n, v in table[group].items()]
 
         names = {ep.name for ep in eps}
         for expected in ("compositor", "metashape_workflow", "mesh_convert",
                          "substance_workflow", "marmoset_workflow"):
-            self.assertIn(expected, names, f"extapps no longer declares {expected!r}")
+            self.assertIn(expected, names, f"tentacle no longer declares {expected!r}")
 
         extras = {ep.name: set(ep.extras or ()) for ep in eps}
         for gated in ("substance_workflow", "marmoset_workflow"):
@@ -222,19 +209,44 @@ class TestExtappsRegistration(unittest.TestCase):
 
 
 class TestGreeting(unittest.TestCase):
-    """Verify the greeting() helper."""
+    """Verify the launcher's greeting helper (``Tcl.greeting``)."""
 
     def test_greeting_contains_version(self):
         import tentacle
 
-        result = tentacle.greeting("Running {modver} on {pyver}", outputToConsole=False)
+        result = tentacle.Tcl.greeting(
+            "Running {modver} on {pyver}", outputToConsole=False
+        )
         self.assertIn(tentacle.__version__, result)
 
     def test_greeting_time_of_day(self):
         import tentacle
 
-        result = tentacle.greeting("Good {hr}!", outputToConsole=False)
+        result = tentacle.Tcl.greeting("Good {hr}!", outputToConsole=False)
         self.assertIn(result, ["Good morning!", "Good afternoon!", "Good evening!"])
+
+    def test_the_small_hours_are_the_evening(self):
+        """Bug: before 5 the greeting said "Good afternoon" (any hour under 18
+        that was not the morning). Fixed: 2026-10-29"""
+        import datetime
+        from unittest import mock
+
+        import tentacle
+
+        for hour, expected in ((2, "evening"), (9, "morning"), (14, "afternoon")):
+            with self.subTest(hour=hour), mock.patch.object(
+                datetime, "datetime"
+            ) as clock:
+                clock.now.return_value.hour = hour
+                result = tentacle.Tcl.greeting("{hr}", outputToConsole=False)
+            self.assertEqual(result, expected)
+
+    def test_the_flat_name_says_where_it_went(self):
+        import tentacle
+
+        with self.assertRaises(AttributeError) as caught:
+            tentacle.greeting  # noqa: B018 -- the read is the test
+        self.assertIn("tentacle.Tcl.greeting", str(caught.exception))
 
     def test_plain_import_prints_nothing(self):
         """``import tentacle`` must be silent — root CLAUDE.md: "Imports: no side effects."
@@ -245,7 +257,7 @@ class TestGreeting(unittest.TestCase):
         import os
         import subprocess
 
-        exe, why = _standalone_interpreter()
+        exe, why = standalone_interpreter()
         if exe is None:
             self.skipTest(why)
 
@@ -268,7 +280,7 @@ class TestGreeting(unittest.TestCase):
     def test_greeting_python_version(self):
         import tentacle
 
-        result = tentacle.greeting("{pyver}", outputToConsole=False)
+        result = tentacle.Tcl.greeting("{pyver}", outputToConsole=False)
         expected = (
             f"python v{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
         )

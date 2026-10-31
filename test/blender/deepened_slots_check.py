@@ -317,13 +317,13 @@ try:
     # carries them along -- left behind, a fade's claim passed to whatever key
     # arrived on its frame, and the next Build deleted that animator key. Twin
     # of tentacle/test/test_animation.py::TestAlignInvertReleaseShotClaims.
-    claims = btk.BlenderShotStore()
-    btk.BlenderShotStore.set_active(claims)
+    claims = btk.ShotStore()
+    btk.ShotStore.set_active(claims)
     try:
         def claimed(name, frames=(10, 20, 30), at=20.0, path="location"):
             o = add_cube(name, (6, 0, 0))
             key_obj(o, frames)
-            key = btk.BlenderShotStore.curve_key(o.name, path, 0)
+            key = btk.BlenderShotsHost.curve_key(o.name, path, 0)
             if at is not None:
                 claims.edit_ledger.record_authored(key, at, 0, "fade_in", o.name)
             bpy.ops.object.select_all(action="DESELECT")
@@ -410,7 +410,7 @@ try:
         for vis_path in ("hide_viewport", "hide_render"):
             setattr(h, vis_path, False)
             h.keyframe_insert(vis_path, frame=1)
-        h_key = btk.BlenderShotStore.curve_key(h.name, "hide_viewport", 0)
+        h_key = btk.BlenderShotsHost.curve_key(h.name, "hide_viewport", 0)
         claims.edit_ledger.record_authored(h_key, 1.0, 0, "fade_in", h.name)
         bpy.context.scene.frame_set(1)
         slot.tb008(option_box(cmb_visibility=NS(currentText=lambda: "Hidden"),
@@ -498,7 +498,7 @@ try:
         r_obj.location.y = 3.0
         for f in (0, 10):
             r_obj.keyframe_insert(data_path="location", index=1, frame=f)  # static
-        ry_key = btk.BlenderShotStore.curve_key(r_obj.name, "location", 1)
+        ry_key = btk.BlenderShotsHost.curve_key(r_obj.name, "location", 1)
         claims.edit_ledger.record_authored(ry_key, 0.0, 0, "fade_in", r_obj.name)
         slot.tb019(option_box(chk000=chk(True), chk030=chk(True), chk032=chk(False),
                               chk040=chk(False), d017=spin(0.001)))
@@ -530,14 +530,14 @@ try:
         released = not claims.edit_ledger.owns_any(u_key, 20.0)
         bpy.ops.ed.undo()
         u = bpy.data.objects["ClaimUndo"]  # memfile undo replaced the object
-        serial_back = btk.BlenderShotStore.edit_serial() != (tag or (None, None))[1]
+        serial_back = btk.BlenderShotsHost.edit_serial() != (tag or (None, None))[1]
         check("animation tb007 with claims: Blender's undo alone brings the released "
               "claim back",
               released and len(claims._boundary_undo) == depth
               and isinstance(tag, tuple) and tag[0] is True and serial_back
               and key_times(u) == [10.0, 20.0, 30.0]
               and claims.edit_ledger.owns_any(u_key, 20.0),
-              f"tag={tag} serial={btk.BlenderShotStore.edit_serial()} "
+              f"tag={tag} serial={btk.BlenderShotsHost.edit_serial()} "
               f"{key_times(u)} {claims.edit_ledger.to_dict()}")
 
         # A no-op Snap between pushes a step of its own in Blender (it cannot
@@ -580,8 +580,8 @@ try:
               not claims.edit_ledger.owns_any(tgt_cp_key, 10.0),
               f"{key_times(tgt_cp)} {claims.edit_ledger.to_dict()}")
 
-        bare = btk.BlenderShotStore()
-        btk.BlenderShotStore.set_active(bare)
+        bare = btk.ShotStore()
+        btk.ShotStore.set_active(bare)
         v, _v_key = claimed("NoClaims", at=None)
         select_keys(v, 10)
         slot.tb007(option_box(chk013=chk(True), spn000=spin(20)))
@@ -589,7 +589,7 @@ try:
               key_times(v) == [20.0, 30.0] and not bare.has_boundary_snapshot(),
               f"{key_times(v)}")
     finally:
-        btk.BlenderShotStore.clear_active()
+        btk.ShotStore.clear_active()
         bpy.ops.object.select_all(action="DESELECT")  # A and B, as tb008 expects
         a = bpy.data.objects["A"]  # an undo above may have replaced them
         b = bpy.data.objects["B"]
@@ -1255,8 +1255,8 @@ try:
     slot.b010()
     slot.b003()
     slot.b015()
-    check("scene b010 / b003 / b015 open the Maya Bridge, Audio Clips, Blendshape Animator",
-          shown == ["maya_bridge", "audio_clips", "blendshape_animator"], f"{shown}")
+    check("scene b010 / b003 / b015 open the DCC Bridge, Audio Clips, Blendshape Animator",
+          shown == ["dcc_bridge", "audio_clips", "blendshape_animator"], f"{shown}")
 
     # ---- deformation tb001: routes to the curtain panel -------------------------------------
     from tentacle.slots.deformation import DeformationSlots

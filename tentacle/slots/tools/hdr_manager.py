@@ -8,13 +8,13 @@ One Slots class for both hosts over the host toolkit's ``HdrManager``
 network, Blender's the world shader's Environment Texture. The dropdown lists
 the environment maps in the project's texture folder (``sourceimages``) and is
 a live mirror of the scene: it shows the map that lights it, or **None**. Each
-control drives one of the manager's knobs, live; a knob the host's environment
-lacks (``HdrManager.KNOBS``) leaves its control disabled. Picking a map, adding
-one and Clear Network are one undo step each (the manager's).
+control drives one of the manager's knobs, live; a control whose knob the
+host's environment lacks (``HdrManager.KNOBS``) is hidden there. Picking a map,
+adding one and Clear Network are one undo step each (the manager's); what an
+add does with the files is the manager's too (``HdrManager.import_hdrs``).
 """
 
 import os
-import shutil
 from typing import Optional
 
 import pythontk as ptk
@@ -44,9 +44,6 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         ("Link to original location", "link"),
     )
 
-    # Filesystem op per import mode.
-    _IO_OPS = {"copy": shutil.copy2, "move": shutil.move}
-
     #: Spin box -> the ``HdrManager`` knob it drives. The rotation slider drives
     #: ``rotation``; its option box's two toggles ``preview`` and ``visibility``.
     _SPINBOX_KNOBS = {
@@ -57,11 +54,6 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         "spn_diffuse": "diffuse",
         "spn_specular": "specular",
     }
-
-    #: The tooltip of a control whose knob the host's environment lacks.
-    _UNAVAILABLE = (
-        "Not available here: this application's HDR environment has no such setting."
-    )
 
     #: Right-click "Select ..." items: (label, objectName, tooltip).
     _SELECT_ITEMS = (
@@ -130,20 +122,17 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         self.sb.QtCore.QTimer.singleShot(0, self._initialize_ui)
 
     def _initialize_ui(self) -> None:
-        """Gate the controls on the host's knobs, populate the dropdown and
+        """Hide the controls the host's knobs lack, populate the dropdown and
         sync the controls from the scene (deferred from ``__init__``)."""
         knobs = self.manager.KNOBS
-        absent = [
-            getattr(self.ui, name)
-            for name, knob in self._SPINBOX_KNOBS.items()
-            if knob not in knobs
-        ]
-        for widget in absent:
-            widget.setEnabled(False)
-            widget.setToolTip(self._UNAVAILABLE)
+        absent = []
+        for name, knob in self._SPINBOX_KNOBS.items():
+            widget = getattr(self.ui, name)
+            if not self.hide_unless(widget, knob in knobs):
+                absent.append(widget)
         # Per-field reset buttons (click: reset to default; Alt/Ctrl+click:
-        # bypass) on every live spin box -- a disabled one's would be dead
-        # chrome. Before the reads below: wrapping reparents the widgets.
+        # bypass) on every shown spin box. Before the reads below: wrapping
+        # reparents the widgets.
         self.sb.add_reset_buttons(self.ui, skip=tuple(absent))
         self._setup_rotation_slider()
 
@@ -168,26 +157,17 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         (``settings_key=False``): they mirror scene state, never a stored pref.
         Built directly rather than via ``add_toggle`` so both instances are
         held (``find_option`` returns only the first of a type). A host without
-        a ``preview`` knob keeps the toggle, disabled.
+        a ``preview`` knob hides the viewport toggle.
         """
         ob = self.ui.slider000.option_box
         # ValueOption sorts ahead of the buttons, so the exact-angle field sits
         # flush against the slider; the viewport toggle, added first, is left.
         ob.add_value(width=46, suffix="°")
-        preview = "preview" in self.manager.KNOBS
         self._viewport_toggle = self.sb.ToggleOption(
             wrapped_widget=self.ui.slider000,
             icon="screen",
-            tooltip_on=(
-                "HDR shown as a backdrop in the viewport. Click to hide."
-                if preview
-                else self._UNAVAILABLE
-            ),
-            tooltip_off=(
-                "HDR hidden in the viewport. Click to show."
-                if preview
-                else self._UNAVAILABLE
-            ),
+            tooltip_on="HDR shown as a backdrop in the viewport. Click to hide.",
+            tooltip_off="HDR hidden in the viewport. Click to show.",
             initial=False,
             settings_key=False,
         )
@@ -204,8 +184,7 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         ob.add_option(self._viewport_toggle)
         ob.add_option(self._render_toggle)
         _ = ob.container  # force the lazy wrap so the field + toggles show
-        if not preview:
-            self._viewport_toggle.widget.setEnabled(False)
+        self.hide_unless(self._viewport_toggle.widget, "preview" in self.manager.KNOBS)
         self._rotation_value = ob.find_option(self.sb.ValueOption)
 
     # ------------------------------------------------------------------
@@ -369,22 +348,15 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         # Right-click context menu (a separate Menu from the option box's).
         # Selecting the environment's nodes is Maya's: a Blender world is not a
         # selectable scene object, so its manager has no ``select`` and the
-        # items stay, disabled.
+        # items are hidden there, with the separator under them.
         selectable = getattr(self.manager, "select", None) is not None
         widget.configure_menu(trigger_button="right")
         for text, name, tip in self._SELECT_ITEMS:
             item = widget.menu.add(
-                "QPushButton",
-                setText=text,
-                setObjectName=name,
-                setToolTip=tip
-                if selectable
-                else "Not available here: this application's HDR environment "
-                "is not a selectable scene object.",
+                "QPushButton", setText=text, setObjectName=name, setToolTip=tip
             )
-            if not selectable:
-                item.setEnabled(False)
-        widget.menu.add("Separator")
+            self.hide_unless(item, selectable)
+        self.hide_unless(widget.menu.add("Separator"), selectable)
         widget.menu.add(
             "QPushButton",
             setText="Reveal in Explorer",
@@ -772,6 +744,12 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         ok, reason = ptk.ImgUtils.validate_image_integrity(path)
         if ok:
             return True
+        self._warn_incomplete(path, reason, dialog=dialog)
+        return False
+
+    def _warn_incomplete(self, path: str, reason: str, *, dialog: bool = True) -> None:
+        """Say *path* is only partly on disk (*reason*): the footer and the
+        console, and a modal when *dialog* is True."""
         name = os.path.basename(path)
         self._notify(
             f"{name} is incomplete on disk ({reason})",
@@ -797,7 +775,6 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
                 "re-download it, then retry.\n\n(Full path in the console.)"
             ),
         )
-        return False
 
     def _clear_environment(self, absent_msg: str, *, absent_level: str = "info") -> bool:
         """Remove the environment, resync and report; with none, report
@@ -902,72 +879,41 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         """Import HDR/EXR *paths* per the mode, then light the scene from the
         last good one.
 
-        *careful* (one explicit file): a bad file raises the modal, a same-named
-        file in sourceimages prompts before overwrite. Otherwise (a bulk add):
-        incomplete files are skipped into a count and an existing usable file
-        is reused, never clobbered. Copy / Move bring each into sourceimages
-        (so it lists); a file already anywhere under it is used in place; Link
-        wires it where it is. *where* labels the summary.
+        The import is the manager's (``HdrManager.import_hdrs``, into the
+        texture folder the dropdown lists): Copy / Move bring each file into
+        sourceimages (so it lists), a file already anywhere under it is used in
+        place, Link wires it where it is.
+        *careful* (one explicit file) makes it strict -- a bad file or a failed
+        copy raises the modal -- and asks before a same-named file in
+        sourceimages is overwritten. Otherwise (a bulk add) a refused file is
+        skipped into a count and an existing usable file is reused, never
+        clobbered. *where* labels the summary.
         """
         if not paths:
             self._notify(f"No HDR environment maps in {where}.", level="warning")
             return
 
         mode = self._add_mode()
-        src = self._texture_dir() if mode != "link" else None
-        if mode != "link" and (not src or not os.path.isdir(src)):
-            self._notify(
-                "No sourceimages folder: set a project first.",
-                level="error",
-                dialog=True,
+        try:
+            result = self.manager.import_hdrs(
+                paths,
+                self._texture_dir(),
+                mode=mode,
+                on_conflict=self._confirm_overwrite if careful else "reuse",
+                strict=careful,
             )
+        except ValueError as error:  # Copy / Move with no project
+            self._notify(str(error), level="error", dialog=True)
+            return
+        if result["failed"]:
+            self._report_failed_add(result["failed"], mode)
+            return
+        if result["cancelled"]:
+            self._notify(f"{mode.capitalize()} cancelled.", level="info")
             return
 
-        added, skipped, last, did_io = 0, 0, None, False
-        for path in paths:
-            if careful:
-                if not self._validate_or_warn(path):
-                    return
-            elif not ptk.ImgUtils.validate_image_integrity(path)[0]:
-                skipped += 1
-                continue
-
-            if mode == "link":
-                last, added = path, added + 1
-                continue
-
-            if self._is_under_dir(path, src):
-                last, added = os.path.normpath(path), added + 1
-                continue
-
-            final = os.path.normpath(os.path.join(src, os.path.basename(path)))
-            if os.path.exists(final):
-                if careful:
-                    if not self._confirm_overwrite(final):
-                        self._notify(f"{mode.capitalize()} cancelled.", level="info")
-                        return
-                elif ptk.ImgUtils.validate_image_integrity(final)[0]:
-                    last, added = final, added + 1  # reuse a usable existing file
-                    continue
-                else:
-                    skipped += 1  # the existing one is corrupt: never clobber in bulk
-                    continue
-            try:
-                self._IO_OPS[mode](path, final)
-            except OSError as e:
-                self.logger.error("Add — %s of %s failed: %s", mode, path, e)
-                if careful:
-                    self._notify(
-                        f"{mode.capitalize()} failed: {e}",
-                        level="error",
-                        detail=f"{mode} of {path} → {final} failed: {e}",
-                        dialog=True,
-                    )
-                    return
-                skipped += 1
-                continue
-            last, added, did_io = final, added + 1, True
-
+        added = result["added"]
+        last = added[-1] if added else None
         self._refresh_combo()
         if last:
             self._select_combo_path(last)
@@ -981,8 +927,35 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
             self._sync_ui_to_scene()
 
         self._notify_add_result(
-            added, skipped, last, where=where, careful=careful, mode=mode, did_io=did_io
+            len(added),
+            len(result["skipped"]),
+            last,
+            where=where,
+            careful=careful,
+            mode=mode,
+            did_io=result["io"],
         )
+
+    def _report_failed_add(self, failed: dict, mode: str) -> None:
+        """The modal for a careful add the import stopped (``import_hdrs``'
+        ``failed``): the file refused, or its copy / move."""
+        path, reason, destination = (
+            failed["path"],
+            failed["reason"],
+            failed["destination"],
+        )
+        if destination is None and not os.path.isfile(path):
+            name = os.path.basename(path)
+            self._notify(f"{name} not found.", level="error", dialog=True)
+        elif destination is None:
+            self._warn_incomplete(path, reason)
+        else:
+            self._notify(
+                f"{mode.capitalize()} failed: {reason}",
+                level="error",
+                detail=f"{mode} of {path} → {destination} failed: {reason}",
+                dialog=True,
+            )
 
     def _notify_add_result(self, added, skipped, last, *, where, careful, mode, did_io) -> None:
         """The footer summary of an add: one rich line, or a bulk count."""
@@ -1029,7 +1002,7 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
     def _select_part(self, part: str) -> None:
         """Select the environment's *part* through the manager (Maya)."""
         select = getattr(self.manager, "select", None)
-        if select is None:  # the items are disabled (Blender)
+        if select is None:  # no Select items here (Blender: hidden)
             return
         node = select(part)
         if not node:
@@ -1075,14 +1048,6 @@ class HdrManagerSlots(Slots, ptk.LoggingMixin):
         """Case-folded, separator-normalized *path*, for comparison: the combo
         holds raw listings that can mix slash styles."""
         return os.path.normcase(os.path.normpath(str(path)))
-
-    @staticmethod
-    def _is_under_dir(path: str, directory: str) -> bool:
-        """True if *path* lies inside *directory*, at any depth
-        (``ptk.FileUtils.is_under`` over :meth:`_norm_path`)."""
-        return ptk.FileUtils.is_under(
-            HdrManagerSlots._norm_path(path), HdrManagerSlots._norm_path(directory)
-        )
 
     def _add_mode(self) -> str:
         """The Add-HDR mode token (``copy`` / ``move`` / ``link``); ``copy``

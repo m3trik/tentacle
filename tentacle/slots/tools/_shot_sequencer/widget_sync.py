@@ -147,7 +147,7 @@ class WidgetSyncMixin:
             self._set_footer("No valid playback range.")
             return
 
-        discovered = self.sequencer._find_keyed_transforms(start, end)
+        discovered = self.sequencer.keyed_transforms(start, end)
         if not discovered:
             self._restore_viewport(widget, frame, h_scroll, zoom, expanded_names)
             self._set_footer("No animated objects in scene.")
@@ -773,7 +773,7 @@ class WidgetSyncMixin:
         self.sequencer.store.mark_dirty()
         # A cross-scene preference: saved by the panel that changes it (a
         # store save no longer writes the prefs file).
-        self.sequencer.store._save_user_prefs()
+        self.sequencer.store.save_user_prefs()
 
     def _set_show_internal_holds(self, enabled: bool) -> None:
         """Toggle flat-key span visibility in attribute sub-rows."""

@@ -66,14 +66,15 @@ class TestBridgePanel(_PanelCase):
             ui.chk000,
             ui.b000,
             message_func=sb.message_box,
+            enable_on_show=True,
             undo_message="Bridge",
         )
 
     def test_the_preview_turns_on_as_the_panel_opens(self):
-        """Maya's Preview reads the flag at each show (it was its
-        ``enable_on_show=True``); Blender's has no show hook to read it."""
-        slots, sb = _panel()
-        self.assertIs(slots.preview.enable_on_show, True)
+        """Asked of the Preview itself, which hooks the panel window's show in
+        both hosts (one uitk controller), never patched on after it is built."""
+        _slots, sb = _panel()
+        self.assertIs(sb.tk.Preview.call_args.kwargs["enable_on_show"], True)
 
     def test_the_operation_reads_the_panel_into_the_host_engine(self):
         values = {

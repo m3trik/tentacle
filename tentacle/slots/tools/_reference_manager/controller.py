@@ -19,7 +19,6 @@ from typing import List
 
 import pythontk as ptk
 
-from .listing import SceneListing
 from .references import ReferenceActions
 from .scene_files import SceneFiles
 from .workspaces import WorkspaceBrowser
@@ -334,12 +333,12 @@ class ReferenceManagerController(ptk.LoggingMixin):
         if self._checked("chk_filter_folder_structure", menu=menu):
             pattern = self.files.normalize_structure_pattern(structure)
             if pattern:
-                file_list = SceneListing.filter_by_folder_structure(
+                file_list = ptk.SceneListing.filter_by_folder_structure(
                     file_list,
                     workspace_path,
                     pattern,
                     suffix,
-                    SceneListing.scenes_folder(workspace_path),
+                    ptk.SceneListing.scenes_folder(workspace_path),
                 )
         self._prefiltered = unfiltered - len(file_list)
 
@@ -394,7 +393,7 @@ class ReferenceManagerController(ptk.LoggingMixin):
         hide_extension = self._checked("chk_hide_extension", menu=menu)
         file_names = []
         for f in file_list:
-            name = SceneListing.display_name(f, hide_extension, hide_suffix)
+            name = ptk.SceneListing.display_name(f, hide_extension, hide_suffix)
             if f in external:
                 home = ptk.Workspace.find_containing(f)
                 name = (
@@ -485,7 +484,7 @@ class ReferenceManagerController(ptk.LoggingMixin):
     def _apply_text_filter(self, table):
         """Hide the rows whose file name and note both miss the filter text."""
         text, ignore_case, include_files, include_notes = self._active_filter
-        patterns = SceneListing.split_patterns(text) if text else []
+        patterns = ptk.SceneListing.split_patterns(text) if text else []
         for row in range(table.rowCount()):
             if not text:
                 table.setRowHidden(row, False)
@@ -493,10 +492,10 @@ class ReferenceManagerController(ptk.LoggingMixin):
             item = table.item(row, self.COL_NAME)
             notes_item = table.item(row, self.COL_NOTES)
             path = item.data(self.role(self.ROLE_PATH)) if item else ""
-            name_match = include_files and SceneListing.text_matches_filter(
+            name_match = include_files and ptk.SceneListing.text_matches_filter(
                 os.path.basename(path or ""), patterns, ignore_case
             )
-            notes_match = include_notes and SceneListing.matches_notes_filter(
+            notes_match = include_notes and ptk.SceneListing.matches_notes_filter(
                 notes_item.text() if notes_item else "", text, ignore_case
             )
             table.setRowHidden(row, not (name_match or notes_match))

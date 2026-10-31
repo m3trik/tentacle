@@ -179,7 +179,7 @@ class ShotSequencerController(
 
     def _store_cls(self):
         """The host's store class: the ``STORE_CLASS`` of its ``ShotSequencer``
-        (Maya's ``ShotStore``, Blender's ``BlenderShotStore``)."""
+        (pythontk's one ``ShotStore``, on the host's ``ShotsHost``)."""
         return self._sequencer_cls().STORE_CLASS
 
     # ---- footer helpers --------------------------------------------------
@@ -189,14 +189,7 @@ class ShotSequencerController(
         footer = getattr(self.ui, "footer", None)
         if footer is None:
             return
-        label = footer._status_label
-        if color:
-            label.setStyleSheet(
-                f"background: transparent; border: none; color: {color};"
-            )
-        else:
-            label.setStyleSheet("background: transparent; border: none;")
-        footer.setText(text)
+        footer.setText(text, color=color or None)
 
     def _update_footer_shot_summary(self) -> None:
         """Update the footer with a summary of the active shot."""

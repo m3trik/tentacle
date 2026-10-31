@@ -777,18 +777,13 @@ class ChannelsSlots(Slots):
         footer = getattr(self.ui, "footer", None)
         if not footer:
             return
-        try:
-            self._footer_rename = FooterRename(
-                footer,
-                can_edit=lambda: (
-                    self._compact_view and self._target_label() is not None
-                ),
-                target_name=self._target_label,
-                on_rename=self._rename_target,
-                on_unchanged=self._update_footer,
-            )
-        except Exception:  # noqa: BLE001 -- the footer's private stack changed
-            self._footer_rename = None
+        self._footer_rename = FooterRename(
+            footer,
+            can_edit=lambda: self._compact_view and self._target_label() is not None,
+            target_name=self._target_label,
+            on_rename=self._rename_target,
+            on_unchanged=self._update_footer,
+        )
         try:
             # Shape / History selection: Maya's DAG split. A Blender object
             # owns its data directly and modifiers are no scene nodes, so

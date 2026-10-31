@@ -37,12 +37,6 @@ class TransformSlots(Slots):
         self.ui = self.sb.loaded_ui.transform
         self.submenu = self.sb.loaded_ui.transform_submenu
 
-    def _maya_only(self, widget):
-        """Tag an option only Maya serves; uitk hides it in Blender."""
-        widget.setProperty("requires", "maya")
-        self.sb.apply_visibility_policy(widget)
-        return widget
-
     def header_init(self, widget):
         """Header: Fix Non-Orthogonal Axes and the Snap panel."""
         # Every entry is a one-shot action — dismiss the menu once one is triggered.
@@ -188,7 +182,7 @@ class TransformSlots(Slots):
             setChecked=True,
             setToolTip="The scale factor will be changed to 1, 1, 1.",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="From Channel Box",
@@ -196,7 +190,8 @@ class TransformSlots(Slots):
                 setChecked=False,
                 setToolTip="Use the selected attributes in the channel box to determine "
                 "what to freeze.",
-            )
+            ),
+            "maya",
         )
         # Store Transforms is deliberately NOT an option: the bake history the
         # freeze stamps is what Un-Freeze Transforms reads, so turning it off only
@@ -216,7 +211,7 @@ class TransformSlots(Slots):
             setObjectName="chk039",
             setToolTip="Also freeze every descendant of the selected objects.",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Restore Rig Anchors",
@@ -230,9 +225,10 @@ class TransformSlots(Slots):
                     "hierarchy. Skips rigs whose LOC has incoming animation curves\n"
                     "(those weren't disturbed by the freeze)."
                 ),
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QComboBox",
                 setObjectName="cmb_connection_strategy",
@@ -248,7 +244,8 @@ class TransformSlots(Slots):
                     "• Disconnect: break incoming plugs\n"
                     "• Delete: break plugs and delete their driver nodes"
                 ),
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QComboBox",
@@ -269,14 +266,15 @@ class TransformSlots(Slots):
                 "• Uninstance: break the instance links, then freeze each"
             ),
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Delete History",
                 setObjectName="chk038",
                 setChecked=True,
                 setToolTip="Delete the objects' construction history.",
-            )
+            ),
+            "maya",
         )
 
         self.sb.enable_when(menu, "chk032-34", "chk040", invert=True)
@@ -556,7 +554,7 @@ class TransformSlots(Slots):
             )
             if kind != "rotate":
                 # Blender snaps translation to the grid and has no scale increment.
-                self._maya_only(spinbox)
+                self.requires(spinbox, "maya")
         self.sb.text_from(
             menu,
             widget,

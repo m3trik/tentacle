@@ -20,14 +20,6 @@ class PivotSlots(Slots):
         self.ui = self.sb.loaded_ui.pivot
         self.submenu = self.sb.loaded_ui.pivot_submenu
 
-    @staticmethod
-    def _maya_only(widget):
-        """Tag an option only Maya's pivots serve; uitk hides it in Blender
-        (``Switchboard.apply_visibility_policy`` reads the tag at registration,
-        which ``Menu.add`` defers past this call)."""
-        widget.setProperty("requires", "maya")
-        return widget
-
     # ------------------------------------------------------------------ tb000  Reset Pivot
     def tb000_init(self, widget):
         """Initialize Reset Pivot."""
@@ -48,7 +40,7 @@ class PivotSlots(Slots):
                 ],
             ),
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Reset Pivot Orientation",
@@ -60,7 +52,8 @@ class PivotSlots(Slots):
                     "discarding any temporary re-orientation "
                     "(<code>manipPivotReset</code>).",
                 ),
-            )
+            ),
+            "maya",
         )
 
     def tb000(self, widget):
@@ -139,16 +132,17 @@ class PivotSlots(Slots):
         translate channel."""
         menu = widget.option_box.menu
         menu.setTitle("Transfer Pivot")
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Translate",
                 setObjectName="chk005",
                 setChecked=True,
                 setToolTip="Transfer the translation pivot.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Rotate",
@@ -163,18 +157,20 @@ class PivotSlots(Slots):
                         "pivot re-frames.",
                     ],
                 ),
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Scale",
                 setObjectName="chk007",
                 setChecked=True,
                 setToolTip="Transfer the scale pivot.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Bake",
@@ -191,16 +187,18 @@ class PivotSlots(Slots):
                         "shared by all targets, and cleared by Reset Pivot.",
                     ],
                 ),
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="World Space",
                 setObjectName="chk009",
                 setChecked=True,
                 setToolTip="Whether to use world space for transformations.",
-            )
+            ),
+            "maya",
         )
         cmb000 = menu.add(
             "QComboBox",

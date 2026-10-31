@@ -12,7 +12,7 @@ from tentacle.tcl import Tcl
 class TclMax(MarkingMenu):
     """Marking Menu class overridden for use with Autodesk 3ds Max."""
 
-    def __init__(self, parent=None, slot_source="slots/max", **kwargs):
+    def __init__(self, parent=None, slot_source=None, **kwargs):
         if not parent:
             try:
                 parent = self.get_main_window()

@@ -88,13 +88,6 @@ class RenderingSlots(Slots):
         self._last_render_key = None
 
     # ------------------------------------------------------------------ helpers
-    def _host_only(self, widget, host):
-        """Tag a code-built *widget* only *host* serves (uitk hides it on the
-        other host, CODE_STANDARD section 15). Returns True when this host
-        serves it."""
-        widget.setProperty("requires", host)
-        return not self.sb.apply_visibility_policy(widget)
-
     def _open(self, editor):
         """Open the host's *editor* (a mayatk editor name); say so when it could
         not open."""
@@ -324,7 +317,7 @@ class RenderingSlots(Slots):
             setToolTip="Capture offscreen, avoiding viewport redraw issues.",
         )
         # Maya's playblast flag; Blender's OpenGL render always draws offscreen.
-        self._host_only(offscreen, "maya")
+        self.requires(offscreen, "maya")
         menu.add(
             "QCheckBox",
             setText="Show Ornaments",
@@ -543,16 +536,16 @@ class RenderingSlots(Slots):
         )
         # Maya's Render View: Blender's interactive render is the viewport's
         # Rendered shading, and its Render Result slots make a redo moot.
-        self._host_only(ipr, "maya")
-        self._host_only(smart_redo, "maya")
+        self.requires(ipr, "maya")
+        self.requires(smart_redo, "maya")
 
         for title, fields, host in (
             ("Resolution", self._RESOLUTION_FIELDS, None),
             ("Arnold Sampling", self._ARNOLD_FIELDS, "maya"),
         ):
             separator = menu.add("Separator", setTitle=title)
-            if host and separator is not None:
-                self._host_only(separator, host)
+            if separator is not None:
+                self.requires(separator, host)
             for name, key, label, minimum, maximum in fields:
                 field = menu.add(
                     "QSpinBox",
@@ -569,8 +562,7 @@ class RenderingSlots(Slots):
                 # overwrite the open scene's settings. (Also keeps them out of
                 # Restore Defaults: no default is captured without it.)
                 field.restore_state = False
-                if host:
-                    self._host_only(field, host)
+                self.requires(field, host)
                 field.valueChanged.connect(
                     lambda value, k=key: self._write_render_setting(menu, k, value)
                 )
@@ -643,7 +635,11 @@ class RenderingSlots(Slots):
         show and edit the scene's real values. Only this user-driven pick (and
         a write) creates them; see :meth:`_sync_render_options`.
         """
-        if menu.cmb003.currentData() != "arnold":
+        # Arnold is Maya's alone: Blender lists no Arnold renderer, and its
+        # RenderUtils has no Arnold options to create.
+        if menu.cmb003.currentData() != "arnold" or not hasattr(
+            self.tk.RenderUtils, "ensure_arnold_options"
+        ):
             return
         try:
             self.tk.RenderUtils.ensure_arnold_options()
@@ -712,8 +708,9 @@ class RenderingSlots(Slots):
             # Arnold reads neither the game shaders (error magenta) nor viewport
             # backface culling (a cutaway room renders as a black box), so ready
             # the scene first. The setup stays: IPR and every other Arnold render
-            # read the same scene, and none of it touches what exports.
-            if renderer == "arnold":
+            # read the same scene, and none of it touches what exports. Maya's
+            # alone: Blender lists no Arnold renderer.
+            if renderer == "arnold" and hasattr(render_utils, "prepare_arnold_preview"):
                 render_utils.prepare_arnold_preview()
 
             # IPR supersedes a single frame. The checkbox is disabled for
@@ -735,7 +732,7 @@ class RenderingSlots(Slots):
 
     # ------------------------------------------------------------------ b000  WebXR Preview
     # A LAUNCH, not a slot with an option box: the preview's settings, its push
-    # and its live status are one panel (``extapps``'s ``webxr_preview``). This
+    # and its live status are one panel (the standalone ``webxr_preview``). This
     # supplies only what is the host's: its bridge class. ``show=False`` then
     # ``marking_menu.show`` is the house pattern for a host-fed external app: the
     # handler returns the widget after import and reparenting so context can be

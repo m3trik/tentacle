@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding=utf-8
-from pathlib import Path
-
 import mayatk as mtk
 from uitk import MarkingMenu, ExternalAppHandler, ShortcutManager
 
@@ -17,13 +15,12 @@ class TclMaya(MarkingMenu):
     #: menu there and faulted Maya.
     PRELOAD_ONLY_FROM_HOST_LOOP = True
 
-    #: The native-menu pages: each wraps one of Maya's own menus, which its
-    #: slots class builds through ``mtk.MayaNativeMenus`` on first show.
+    #: The native-menu pages: pure navigation (no Slots class). A release opens
+    #: one of Maya's own menus, which ``mtk.MayaUiHandler`` builds
+    #: (``MayaNativeMenus``) the first time the switchboard resolves its name.
     NATIVE_MENU_UI = "ui/maya_menus"
 
-    def __init__(
-        self, parent=None, slot_source="slots/maya", log_level="WARNING", **kwargs
-    ):
+    def __init__(self, parent=None, slot_source=None, log_level="WARNING", **kwargs):
         if not parent:
             try:
                 parent = mtk.get_main_window()
@@ -53,39 +50,29 @@ class TclMaya(MarkingMenu):
             suppress_default_on_reentry=True,
             precompile=True,
             # Scoped preloading: once Maya's event loop is idle, warm the
-            # binding-target startmenus, then the submenus they open (minus
-            # PRELOAD_EXCLUDE), so the FIRST key_show press and the first
-            # hover into each submenu behave like every later one.
+            # binding-target startmenus, then the submenus they open, so the
+            # FIRST key_show press and the first hover into each submenu behave
+            # like every later one. A native-menu page warms like any other:
+            # Maya's own menu builds on its first release, never on a page load.
             preload=True,
             context_tags={"maya"},  # `requires` widget filtering (Phase-5 visibility)
             **kwargs,
         )
         # The toolkit a Slots class shared by both hosts calls (Slots.tk).
         self.sb.tk = mtk
+        # The shot store's host half, injected here; a script that skips this
+        # entry point gets it from the store, resolved on first call.
+        mtk.ShotStore.set_host(mtk.MayaShotsHost.resolve())
         # The composed Slots classes and the tool panels both hosts share.
         Tcl.register_shared(self.sb)
-        # The preload leaves Maya's own menus cold. Building one runs Maya's
-        # MEL menu builder: the main window's menu set switches mid-build,
-        # Arnold and MASH load their plugins (mtoa's deferred init froze the
-        # first key_show press for 5.4 s), and a mapping Maya had renamed
-        # printed its MEL error at every startup (the nCache menu). Their first
-        # hover pays the build, as it always has. Read off the page files, so
-        # a new native menu is covered too (tentacle's own uv/display/edit
-        # pages share native-menu keys); set ahead of the warm-up's first tick.
-        self.PRELOAD_EXCLUDE = tuple(
-            page.stem
-            for page in (Path(__file__).parent / self.NATIVE_MENU_UI).glob(
-                "*#submenu.ui"
-            )
-        )
 
-        # ``extapps`` ships the content-pipeline panels but is deliberately NOT
-        # a pip dependency (optional, runtime-discovered). Registering it as a
-        # provider means launching one of its panels installs it on demand --
-        # through mayapy, which shares Maya's site-packages -- instead of
-        # failing with "module not available".
+        # tentacle provides the standalone panels (tcl_standalone.py) as external
+        # apps. Named as their provider, a tentacle that reaches Maya as a source
+        # checkout on PYTHONPATH (no installed metadata) has its entry-point
+        # table read from its pyproject.toml instead.
         try:
-            self.sb.handlers.external_app.add_provider("extapps")
+            self.sb.handlers.external_app.add_provider(Tcl.DIST, probe_module="tentacle")
+            self.sb.handlers.external_app.discover()  # now: the checkout's table wins
         except Exception:  # never let provisioning wiring block startup
             pass
 
@@ -114,16 +101,13 @@ class TclMaya(MarkingMenu):
         except Exception as error:  # never let a preset issue block launch
             print(f"# Warning: tentacle: apply_saved_macros failed: {error} #")
 
-        # External apps (compositor, photogrammetry, texture/mesh tools)
-        # self-describe via ``extapps``'s ``uitk.external_apps.in_process``
-        # entry points and are auto-registered by ExternalAppHandler on
-        # construction — no per-app list here. ``context_tags={"maya"}``
-        # (above) hides apps gated ``hide_maya`` (Substance/Marmoset, which
-        # Maya serves through native mayatk bridges). ``extapps`` is an
-        # optional, discovered provider (not a hard dep — it's off the
-        # ecosystem release chain); its panels appear whenever it's installed
-        # in the host env, and the provider entry in tentacle's pyproject lets
-        # the handler install it on first launch where the interpreter allows.
+        # The standalone panels (compositor, photogrammetry, texture/mesh tools)
+        # self-describe via tentacle's ``uitk.external_apps.in_process`` entry
+        # points and are auto-registered by ExternalAppHandler on construction
+        # -- no per-app list here; each opens in a switchboard of its own
+        # (``slots.tools.STANDALONE``). ``context_tags={"maya"}`` (above) hides
+        # apps gated ``hide_maya`` (Substance/Marmoset, which Maya serves through
+        # its own bridges). Their engines are extapps', a tentacle dependency.
 
 
 # --------------------------------------------------------------------------------------------

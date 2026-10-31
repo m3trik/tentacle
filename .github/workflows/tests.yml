@@ -94,17 +94,33 @@ jobs:
         run: exit 1
 
   parity:
-    # Static Maya<->Blender parity gate. Every UI delta must be fixed or
-    # ledgered in docs/parity_map.py — an UNTRIAGED delta exits 1. The
-    # comparer lives in the m3trik repo and expects the monorepo layout
-    # (tentacle/, mayatk/, blendertk/ as siblings of m3trik/), so the
-    # sibling repos are checked out at dev alongside this one.
+    # Static Maya<->Blender parity gate: every toolkit call a shared Slots
+    # class makes must resolve on both mayatk and blendertk, or be hidden
+    # (requires / slots.tools.HOSTS) or guarded where it does not -- a gap
+    # exits 1. The gate lives in the m3trik repo and reads the libraries'
+    # sources in the monorepo layout (siblings of m3trik/), so the sibling
+    # repos are checked out at dev alongside this one: the two hosts, and
+    # pythontk + uitk for the base classes their classes inherit from.
     # See docs/PARITY_PORTING_PLAN.md for the system overview.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           path: tentacle
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/pythontk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: pythontk
+
+      - uses: actions/checkout@v4
+        with:
+          repository: m3trik/uitk
+          ref: dev
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          path: uitk
 
       - uses: actions/checkout@v4
         with:
@@ -132,7 +148,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Parity sweep (fix-or-ledger gate)
+      - name: Parity gate (every toolkit call resolves on both hosts)
         # --write regenerates PARITY_SURFACE.md; the git diff then also
         # fails the job if the committed doc is stale.
         run: |

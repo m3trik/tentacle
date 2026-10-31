@@ -70,12 +70,6 @@ class NurbsSlots(Slots):
         self.ui = self.sb.loaded_ui.nurbs
         self.submenu = self.sb.loaded_ui.nurbs_submenu
 
-    def _maya_only(self, widget):
-        """Tag an option only Maya's NURBS surfaces carry; uitk hides it in Blender."""
-        widget.setProperty("requires", "maya")
-        self.sb.apply_visibility_policy(widget)
-        return widget
-
     def _curve_action(self, label, action):
         """Run the curve action *action* on the selection; a refusal (the wrong
         selection, the host's own error) reaches the user as the host words it."""
@@ -96,9 +90,7 @@ class NurbsSlots(Slots):
             cat = root.sublist.add(category)
             items = cat.sublist.add([label for label, _action, _requires in rows])
             for item, (_label, _action, requires) in zip(items, rows):
-                if requires:
-                    item.setProperty("requires", requires)
-                    self.sb.apply_visibility_policy(item)
+                self.requires(item, requires)
 
     @Slots.Signals("on_item_interacted")
     def list000(self, item):
@@ -135,7 +127,7 @@ class NurbsSlots(Slots):
         """Initialize Revolve."""
         menu = widget.option_box.menu
         menu.setTitle("Revolve")
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QSpinBox",
                 setPrefix="Degree:",
@@ -143,7 +135,8 @@ class NurbsSlots(Slots):
                 setValue=3,
                 set_limits=[0],
                 setToolTip="The degree of the resulting surface.",
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QSpinBox",
@@ -176,23 +169,25 @@ class NurbsSlots(Slots):
             setToolTip="The axis to revolve about, through the profile's own pivot "
             "(Blender: its origin).",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Range",
                 setObjectName="chk006",
                 setChecked=False,
                 setToolTip="Force a curve range on the complete input curve.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Polygon",
                 setObjectName="chk007",
                 setChecked=True,
                 setToolTip="Output a polygon mesh rather than a NURBS surface.",
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QCheckBox",
@@ -202,16 +197,17 @@ class NurbsSlots(Slots):
             setToolTip="Reverse the surface direction where needed so its normals point "
             "outward (Blender: the Screw modifier's Calculate Order).",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Use Tolerance",
                 setObjectName="chk009",
                 setChecked=False,
                 setToolTip="Build to the tolerance rather than the number of sections.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QDoubleSpinBox",
                 setPrefix="Tolerance:",
@@ -219,7 +215,8 @@ class NurbsSlots(Slots):
                 setValue=0.001,
                 set_limits=[0],
                 setToolTip="The tolerance to build to (when Use Tolerance is on).",
-            )
+            ),
+            "maya",
         )
 
     def tb000(self, widget):
@@ -253,7 +250,7 @@ class NurbsSlots(Slots):
         """Initialize Loft."""
         menu = widget.option_box.menu
         menu.setTitle("Loft")
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Uniform",
@@ -261,7 +258,8 @@ class NurbsSlots(Slots):
                 setChecked=True,
                 setToolTip="Uniform parameterization in the loft direction; off, chord "
                 "length.",
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QCheckBox",
@@ -270,7 +268,7 @@ class NurbsSlots(Slots):
             setChecked=False,
             setToolTip="Close the surface: the last profile bridges back to the first.",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QSpinBox",
                 setPrefix="Degree:",
@@ -278,16 +276,18 @@ class NurbsSlots(Slots):
                 setValue=3,
                 set_limits=[0],
                 setToolTip="The degree of the resulting surface.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Auto Reverse",
                 setObjectName="chk002",
                 setChecked=False,
                 setToolTip="Compute the direction of the profiles automatically.",
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QSpinBox",
@@ -297,23 +297,25 @@ class NurbsSlots(Slots):
             set_limits=[0],
             setToolTip="The number of spans between consecutive profiles.",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Range",
                 setObjectName="chk003",
                 setChecked=False,
                 setToolTip="Force a curve range on the complete input curve.",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Polygon",
                 setObjectName="chk004",
                 setChecked=True,
                 setToolTip="Output a polygon mesh rather than a NURBS surface.",
-            )
+            ),
+            "maya",
         )
         menu.add(
             "QCheckBox",
@@ -323,7 +325,7 @@ class NurbsSlots(Slots):
             setToolTip="Reverse the surface normals (Maya swaps the U and V directions; "
             "Blender flips the winding).",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Angle Loft Between Two Curves",
@@ -331,9 +333,10 @@ class NurbsSlots(Slots):
                 setChecked=False,
                 setToolTip="Loft at an angle between two selected curves or polygon edge "
                 "sets (edges are extracted as curves).",
-            )
+            ),
+            "maya",
         )
-        self._maya_only(
+        self.requires(
             menu.add(
                 "QSpinBox",
                 setPrefix="Angle Loft: Spans:",
@@ -341,7 +344,8 @@ class NurbsSlots(Slots):
                 setValue=6,
                 set_limits=[2],
                 setToolTip="Angle loft: the number of spans.",
-            )
+            ),
+            "maya",
         )
 
     def tb001(self, widget):

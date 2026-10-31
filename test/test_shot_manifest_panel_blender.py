@@ -6,7 +6,7 @@ Needs **Qt, not bpy**: loads ``ui/tools/shot_manifest.ui`` and wires
 ``ShotManifestSlots`` through a real (offscreen) Qt / Switchboard /
 BlenderUiHandler stack with tentacle's shared roots registered, so the panel
 reaches Blender through blendertk as its ``tk``. None of the controller's build
-path touches Blender -- ``BlenderShotStore.active()`` falls back to an
+path touches Blender -- ``ShotStore.active()`` falls back to an
 in-memory store, detection degrades to no-regions (``_active_scene`` returns
 ``None`` headless), and the mapping combo reads the shipped built-in templates.
 Proves the ``.ui`` compiles, the controller builds (CSV widgets, header/mapping
@@ -51,12 +51,22 @@ class TestShotManifestPanelLoads(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from blendertk import BlenderShotStore
+        import pythontk as ptk
+        from blendertk import ShotStore
 
+        # The panel's store is pure here, whatever host runs the suite (an
+        # --in-maya run resolves Maya's, which would write that scene and open
+        # its undo chunks); the host, its source and the prefs folder go back.
+        cls._store_state = (
+            ShotStore._host,
+            ShotStore._host_source,
+            ShotStore._prefs_dir_override,
+        )
+        ShotStore.set_host(ptk.PureShotsHost())
         # Isolate cross-scene prefs + class singleton so the load can't touch real config.
         cls._prefs_tmp = tempfile.mkdtemp(prefix="btk_manifest_panel_")
-        BlenderShotStore._prefs_dir_override = cls._prefs_tmp
-        BlenderShotStore.clear_active()
+        ShotStore._prefs_dir_override = cls._prefs_tmp
+        ShotStore.clear_active()
 
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
         from uitk import Switchboard
@@ -76,13 +86,74 @@ class TestShotManifestPanelLoads(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
-        BlenderShotStore.clear_active()
-        BlenderShotStore._prefs_dir_override = None
+        # The panel lives on in the process's one handler: its store and
+        # invalidation followers must not reach the next module's stores.
+        ctrl = getattr(getattr(cls.ui, "slots", None), "controller", None)
+        if ctrl is not None:
+            ctrl.remove_callbacks()
+        ShotStore.clear_active()
+        (
+            ShotStore._host,
+            ShotStore._host_source,
+            ShotStore._prefs_dir_override,
+        ) = cls._store_state
 
     def test_ui_loads(self):
         self.assertIsNotNone(self.ui, "shot_manifest UI failed to load")
+
+    def test_a_build_never_builds_a_closed_shots_panel(self):
+        """Bug: every Build / Assess read ``loaded_ui.shots``, which BUILDS the
+        Shots panel -- a hidden window and a controller following the store
+        (the test_shots_panel failures after this module: its controller was
+        that one, left on a store the next module dropped) -- and
+        ``slot_instances`` (a NamespaceHandler, not a dict) never answered, so
+        an open panel was never asked to refresh. Fixed: 2026-10-31"""
+        from unittest import mock
+
+        class _Loaded:
+            def peek(self, name):
+                return None
+
+            def __getattr__(self, name):
+                raise AssertionError(f"built the {name} panel")
+
+        class _Registry:  # slot_instances: peek, never a resolve
+            def __init__(self, items):
+                self._items = items
+
+            def peek(self, name, default=None):
+                return self._items.get(name, default)
+
+        ctrl = self.ui.slots.controller
+        shots = mock.MagicMock()
+        with mock.patch.object(ctrl, "sb") as sb:
+            sb.loaded_ui = _Loaded()
+            sb.slot_instances = _Registry({})
+            ctrl._sync_detection_widgets()  # nothing open: nothing to do
+            sb.slot_instances = _Registry({"shots": shots})
+            ctrl._sync_detection_widgets()
+        shots.controller.refresh_state.assert_called_once_with()
+
+    def test_teardown_survives_a_timer_already_deleted(self):
+        """Bug: the panel's ``ui.destroyed`` teardown (``remove_callbacks``)
+        stopped a re-assess timer whose C++ object was gone -- "Internal C++
+        object (PySide6.QtCore.QTimer) already deleted" at the end of a run.
+        Fixed: 2026-10-31"""
+        from qtpy import QtCore
+
+        ctrl = self.ui.slots.controller
+        self.addCleanup(setattr, ctrl, "_reassess_timer", ctrl._reassess_timer)
+        ctrl._reassess_soon()
+        timer = ctrl._reassess_timer
+        timer.deleteLater()
+        QtCore.QCoreApplication.sendPostedEvents(timer, QtCore.QEvent.DeferredDelete)
+        ctrl._stop_reassess_timer()  # remove_callbacks' stop: no RuntimeError
+        self.assertIsNone(ctrl._reassess_timer)
+        ctrl._reassess_soon()  # a later edit builds a fresh one
+        self.assertTrue(ctrl._reassess_timer.isActive())
+        ctrl._reassess_timer.stop()
 
     def test_resolves_to_slots_class(self):
         self.assertEqual(type(self.ui.slots).__name__, "ShotManifestSlots")
@@ -218,12 +289,12 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         own only seed a sheet the scene never read (mirror of mayatk's
         ``TestTheSheetsOptionsLiveOnTheScene``)."""
         import pythontk as ptk
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         ctrl = self.ui.slots.controller
-        BlenderShotStore.clear_active()
-        store = BlenderShotStore.active()
-        self.addCleanup(BlenderShotStore.clear_active)
+        ShotStore.clear_active()
+        store = ShotStore.active()
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
         ctrl._store = store
         ctrl._apply_mapping("default", persist=False)
@@ -263,12 +334,12 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         options of the user's, a sheet beside a scratch folder: ``(ctrl,
         store, sheet, folder)``.  What the cases below change is put back."""
         import pythontk as ptk
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         ctrl = self.ui.slots.controller
-        BlenderShotStore.clear_active()
-        store = BlenderShotStore.active()
-        self.addCleanup(BlenderShotStore.clear_active)
+        ShotStore.clear_active()
+        store = ShotStore.active()
+        self.addCleanup(ShotStore.clear_active)
         for attr in ("_store", "_csv_path", "_source", "_sheet_values"):
             self.addCleanup(setattr, ctrl, attr, getattr(ctrl, attr))
         ctrl._store = store
@@ -430,16 +501,16 @@ class TestShotManifestPanelLoads(unittest.TestCase):
     def test_empty_source_shows_the_scenes_shots_with_descriptions(self):
         """No build sheet: the table lists the store's own shots, descriptions
         included, instead of re-detecting blank steps from animation."""
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
         from tentacle.slots.tools._shot_manifest.manifest_data import COL_DESC
 
         ctrl = self.ui.slots.controller
-        BlenderShotStore.clear_active()
-        store = BlenderShotStore.active()
+        ShotStore.clear_active()
+        store = ShotStore.active()
         store.define_shot(
             "intro", 1, 40, objects=["Arm"], description="Arm reaches out"
         )
-        self.addCleanup(BlenderShotStore.clear_active)
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
         ctrl._store = store
         self.ui.txt_csv_path.setText("")
@@ -537,11 +608,11 @@ class TestShotManifestPanelLoads(unittest.TestCase):
     def _fresh_store(self, ctrl, listen: bool = False):
         """A fresh active store for *ctrl* (``listen``: bound to it, as the
         panel is to the scene's), restored to a fresh one afterwards."""
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         def restore(first_shown=ctrl._first_shown, steps=list(ctrl._steps)):
             ctrl._unbind_store_listener()
-            BlenderShotStore.clear_active()
+            ShotStore.clear_active()
             ctrl._store = None
             ctrl._bind_store_listener()
             ctrl._first_shown = first_shown
@@ -549,12 +620,12 @@ class TestShotManifestPanelLoads(unittest.TestCase):
 
         self.addCleanup(restore)
         ctrl._unbind_store_listener()
-        BlenderShotStore.clear_active()
+        ShotStore.clear_active()
         # Built, not ``active()``: under Blender ``active()`` re-attaches the
         # scene record, so one test's shots persisted into the next (a
         # second ``define_shot('intro')`` refused, a table one row long).
-        store = BlenderShotStore()
-        BlenderShotStore.set_active(store)
+        store = ShotStore()
+        ShotStore.set_active(store)
         ctrl._store = store
         if listen:
             ctrl._bind_store_listener()
@@ -787,7 +858,10 @@ class TestShotManifestPanelLoads(unittest.TestCase):
             BuilderStep(step_id="A01", section="A", section_title="", description="")
         ]
         scene = types.SimpleNamespace(frame_current=12, frame_current_final=12.5)
-        bpy = types.SimpleNamespace(context=types.SimpleNamespace(scene=scene))
+        # A real module, not a namespace: an import hook reads its __name__
+        # (shiboken's does inside Maya, at the host's ``import bpy``).
+        bpy = types.ModuleType("bpy")
+        bpy.context = types.SimpleNamespace(scene=scene)
         with (
             mock.patch.dict(sys.modules, {"bpy": bpy}),
             mock.patch.object(ctrl, "_refresh_ranges"),
@@ -831,15 +905,15 @@ class TestShotManifestLocalEdits(unittest.TestCase):
         ]
 
     def setUp(self):
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         self.ctrl = ctrl = self.ui.slots.controller
         self.tree = self.ui.tbl_steps
-        self.addCleanup(BlenderShotStore.clear_active)
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
-        BlenderShotStore.clear_active()
-        self.store = BlenderShotStore()
-        BlenderShotStore.set_active(self.store)
+        ShotStore.clear_active()
+        self.store = ShotStore()
+        ShotStore.set_active(self.store)
         ctrl._store = self.store
         self.addCleanup(self._mode, "keep")
         self.footers = []
@@ -968,6 +1042,11 @@ class TestShotManifestLocalEdits(unittest.TestCase):
         door, bolt = self._child("A01", "door"), self._child("A01", "bolt01")
         latch = self._child("A02", "latch")
         revealed = []
+        # What the panel puts on the clipboard, read back in this process: the
+        # OS one is shared with the desktop (and reads '' inside a GUI Maya).
+        from _host import use_memory_clipboard
+
+        use_memory_clipboard(self)
         with mock.patch.object(self.ctrl, "_show_in_outliner", revealed.append):
             self.tree.clearSelection()
             for item in (door, bolt, latch):
@@ -1380,17 +1459,17 @@ class TestShotManifestRowTags(unittest.TestCase):
         TestShotManifestPanelLoads.tearDownClass.__func__(cls)
 
     def setUp(self):
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         self.ctrl = ctrl = self.ui.slots.controller
         self.tree = self.ui.tbl_steps
         self.tags = ctrl._row_tags
-        self.addCleanup(BlenderShotStore.clear_active)
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
         self.addCleanup(setattr, ctrl, "_active_mapping", ctrl._active_mapping)
-        BlenderShotStore.clear_active()
-        self.store = BlenderShotStore()
-        BlenderShotStore.set_active(self.store)
+        ShotStore.clear_active()
+        self.store = ShotStore()
+        ShotStore.set_active(self.store)
         ctrl._store = self.store
 
     def _load(self):
@@ -1483,11 +1562,11 @@ class TestShotManifestUnlistedShots(unittest.TestCase):
         TestShotManifestPanelLoads.tearDownClass.__func__(cls)
 
     def setUp(self):
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         self.ctrl = ctrl = self.ui.slots.controller
         self.tree = self.ui.tbl_steps
-        self.addCleanup(BlenderShotStore.clear_active)
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
         self.addCleanup(setattr, ctrl, "_active_mapping", ctrl._active_mapping)
         self.addCleanup(
@@ -1495,9 +1574,9 @@ class TestShotManifestUnlistedShots(unittest.TestCase):
             "hide_missing",
             ctrl._settings.value("hide_missing"),
         )
-        BlenderShotStore.clear_active()
-        self.store = BlenderShotStore()
-        BlenderShotStore.set_active(self.store)
+        ShotStore.clear_active()
+        self.store = ShotStore()
+        ShotStore.set_active(self.store)
         ctrl._store = self.store
         ctrl._active_mapping = None
         self.store.define_shot(
@@ -1634,14 +1713,14 @@ class TestShotManifestIncrementalPlacement(unittest.TestCase):
     def setUp(self):
         from unittest import mock
 
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
         from blendertk.anim_utils.shots.shot_manifest.manifest_host import (
             ManifestHost,
         )
 
         self.ctrl = ctrl = self.ui.slots.controller
         self.tree = self.ui.tbl_steps
-        self.addCleanup(BlenderShotStore.clear_active)
+        self.addCleanup(ShotStore.clear_active)
         self.addCleanup(setattr, ctrl, "_store", ctrl._store)
         self.addCleanup(setattr, ctrl, "_active_mapping", ctrl._active_mapping)
         self.addCleanup(setattr, ctrl, "_first_shown", ctrl._first_shown)
@@ -1651,9 +1730,9 @@ class TestShotManifestIncrementalPlacement(unittest.TestCase):
             ctrl._settings.value("hide_missing"),
         )
         ctrl._settings.setValue("hide_missing", False)
-        BlenderShotStore.clear_active()
-        self.store = BlenderShotStore()
-        BlenderShotStore.set_active(self.store)
+        ShotStore.clear_active()
+        self.store = ShotStore()
+        ShotStore.set_active(self.store)
         ctrl._store = self.store
         ctrl._active_mapping = None
         self.store.gap = 0.0

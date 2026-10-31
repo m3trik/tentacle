@@ -1,13 +1,11 @@
 #!/usr/bin/python
 # coding=utf-8
-"""DCC-agnostic structural invariants, parametrized over every slot package (plan M1).
+"""Host-agnostic structural invariants of the slots layer.
 
-One source of truth for the checks every DCC slot layer must hold — package/base wiring,
-exactly one base-subclass per slot file, unique widget objectNames per slot. The per-DCC
-files keep only what is genuinely DCC-specific (``test_slot_integrity``: pymel ban + cmds
-perf; ``test_blender_slots``: launcher/add-on surface, cross-DCC objectName semantics, the
-M2 shared-UI contract). AST-based: no DCC runtime needed. A new DCC slot package is covered
-by adding one entry to ``DCCS``.
+One Slots class per category, shared by every host (``slots/<category>.py``), and no
+per-host slot package beside them: the chord menus' native-menu pages need no Slots
+class (each host's UI handler builds its own menus). Plus the layer's import
+discipline. AST-based: no DCC runtime needed.
 """
 
 import ast
@@ -18,22 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 
-# dcc package dir -> required base class. Maya is the established baseline and is
-# ALWAYS enforced (a missing slots/maya/ is a real regression these invariants must
-# catch). The Blender slot layer is built on dev but deliberately held off main
-# while under construction, so it is covered only on checkouts where its slot dir
-# is present — keeping main green without weakening the Maya guarantee. Add a
-# stable DCC to DCCS directly; gate an under-construction one on its dir.
-DCCS = {"maya": "Slots", "blender": "Slots"}
-
-
-def _slot_files(dcc):
-    """Concrete slot modules for a DCC (excludes the package marker + base)."""
-    d = SLOTS_ROOT / dcc
-    skip = {"__init__.py"}
-    return sorted(
-        f for f in d.glob("*.py") if f.name not in skip and not f.name.startswith("__")
-    )
+#: The hosts, none of which keeps a slot package of its own (``slots/<host>/``).
+HOSTS = ("maya", "blender", "max")
 
 
 def _parse_classes(source):
@@ -63,76 +47,20 @@ def _set_object_names(source):
     ]
 
 
-class TestDccSlotInvariants(unittest.TestCase):
-    """The invariants shared by every DCC slot package."""
+class TestNoPerHostSlotPackage(unittest.TestCase):
+    """No host keeps a slot package: a category is one composed class every host
+    shares (``TestComposedSlots``), a tool's Slots class lives in ``slots/tools/``,
+    and the chord menus' native-menu pages (``ui/maya_menus``, ``ui/blender_menus``)
+    carry no Slots class at all -- the switchboard resolves each page's target
+    through the host's UI handler, which builds the host's own menu."""
 
-    def test_package_and_base_wiring(self):
-        """Each host's slot dir (its native-menu wrappers) exists as a package; no
-        per-host base is left (every forked category is one composed class)."""
-        for dcc in DCCS:
-            with self.subTest(dcc=dcc):
-                d = SLOTS_ROOT / dcc
-                self.assertTrue(d.is_dir(), f"Missing directory: {d}")
-                self.assertTrue((d / "__init__.py").exists(), "Missing __init__.py")
-                self.assertFalse((d / f"_slots_{dcc}.py").exists(), "a per-host base is back")
-
-    def test_exactly_one_base_subclass_per_file(self):
-        """Every slot module defines exactly one <SlotsDcc> subclass."""
-        offenders = {}
-        for dcc, base in DCCS.items():
-            for f in _slot_files(dcc):
-                found = [
-                    name
-                    for name, bases in _parse_classes(f.read_text(encoding="utf-8"))
-                    if base in bases
-                ]
-                if len(found) != 1:
-                    offenders[f"{dcc}/{f.name}"] = found
-        self.assertEqual(
-            offenders, {}, f"Slot files without exactly one base subclass: {offenders}"
-        )
-
-    def test_slot_class_is_named_base_slots(self):
-        """Every slot module's <SlotsDcc> subclass is ``<Base>Slots`` (``edit.py`` ->
-        ``EditSlots``; case-insensitive, so ``ncloth.py`` -> ``NClothSlots`` passes).
-
-        Switchboard binds ``<Base>Slots`` first, and the class name keys every
-        user shortcut override (``shortcuts_<host>.<Class>.<method>``), so the
-        name is persistent state: settling it on one convention keeps a later
-        rename from being needed at all. uitk carries overrides saved under a
-        bare ``<Base>`` forward (``_slot_shortcut_key``)."""
-        offenders = {}
-        for dcc, base in DCCS.items():
-            for f in _slot_files(dcc):
-                expected = f.stem.replace("_", "") + "slots"
-                for name, bases in _parse_classes(f.read_text(encoding="utf-8")):
-                    if base in bases and name.lower() != expected:
-                        offenders[f"{dcc}/{f.name}"] = name
-        self.assertEqual(
-            offenders, {}, f"Slot classes not named <Base>Slots: {offenders}"
-        )
-
-    def test_unique_object_names_per_slot(self):
-        """Widget objectNames a slot adds must be unique within that slot — duplicates
-        collide the StateManager/QSettings key ``<name>/<signal>`` and the cross-UI sync
-        lookup ("edit one field, another field changes")."""
-        offenders = {}
-        for dcc in DCCS:
-            for f in _slot_files(dcc):
-                names = _set_object_names(f.read_text(encoding="utf-8"))
-                dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
-                if dupes:
-                    offenders[f"{dcc}/{f.name}"] = dupes
-        self.assertEqual(
-            offenders,
-            {},
-            "Slot files add duplicate widget objectNames (each collides its StateManager "
-            f"key + cross-UI sync — give the later one a free name): {offenders}",
-        )
+    def test_no_host_keeps_a_slot_package(self):
+        present = [host for host in HOSTS if (SLOTS_ROOT / host).exists()]
+        self.assertEqual(present, [], f"a per-host slot package is back: {present}")
 
 
-# Every module in the slots layer: the concrete per-DCC panels plus the shared
-# ``slots/_<panel>.py`` mixins (the import rules below apply to both).
+# Every module in the slots layer: the composed categories, the shared tools and
+# their helpers (the import rules below apply to all of them).
 def _all_slot_modules():
     return sorted(
         f
@@ -158,9 +86,10 @@ def _composed_files():
 
 
 class TestComposedSlots(unittest.TestCase):
-    """A composed ``slots/<category>.py`` replaces that category's per-host forks: one
-    ``<Base>Slots(Slots)`` (the name uitk binds and shortcut overrides key on), and no
-    fork left beside it (two classes of one name break the Slots lookup)."""
+    """A composed ``slots/<category>.py`` is that category's one Slots class: one
+    ``<Base>Slots(Slots)`` (the name uitk binds and shortcut overrides key on); no
+    per-host fork is left beside it (``TestNoPerHostSlotPackage``: two classes of one
+    name break the Slots lookup)."""
 
     def test_each_defines_one_slots_subclass_named_base_slots(self):
         offenders = {}
@@ -174,18 +103,22 @@ class TestComposedSlots(unittest.TestCase):
                 offenders[f.name] = found
         self.assertEqual(offenders, {}, f"Composed modules off the rule: {offenders}")
 
-    def test_no_host_fork_is_left_beside_one(self):
-        forks = [
-            f"{dcc}/{f.name}"
-            for f in _composed_files()
-            for dcc in DCCS
-            if (SLOTS_ROOT / dcc / f.name).exists()
-        ]
-        self.assertEqual(forks, [], "per-host forks of a composed category remain")
-
     def test_unique_object_names(self):
         offenders = {}
         for f in _composed_files():
+            names = _set_object_names(f.read_text(encoding="utf-8"))
+            dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
+            if dupes:
+                offenders[f.name] = dupes
+        self.assertEqual(offenders, {}, f"duplicate widget objectNames: {offenders}")
+
+    def test_a_tool_panel_names_each_widget_once(self):
+        """An option-box item registers with its window, whose saved state is keyed
+        ``<objectName>/<signal>``: two boxes each building a ``chk002`` share one
+        saved value. Naming's Rename and Suffix By Location boxes did (``chk002``,
+        ``chk007``), so a toggle in one came back in the other."""
+        offenders = {}
+        for f in sorted((SLOTS_ROOT / "tools").glob("*.py")):
             names = _set_object_names(f.read_text(encoding="utf-8"))
             dupes = {n: c for n, c in collections.Counter(names).items() if c > 1}
             if dupes:

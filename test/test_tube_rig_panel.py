@@ -425,20 +425,29 @@ class TestTubeRigUtility(_PanelCase):
             delattr(tk.TubeRig, name)
         return tk
 
-    def test_a_host_without_the_operation_disables_its_button(self):
-        slots, sb = _panel(tk=self._blender_like())
+    @staticmethod
+    def _hidden(sb, widget) -> bool:
+        """Whether the panel hid *widget* as one this host cannot serve
+        (``Slots.hide_unless``), never leaving it showing disabled."""
+        hidden = mock.call(widget, False) in (
+            sb.FieldVisibility.set_widget_visible.call_args_list
+        )
+        if hidden:
+            assert widget.hidden_by_policy == "requires", widget
+            widget.setEnabled.assert_not_called()
+        return hidden
+
+    def test_a_host_without_the_operation_hides_its_button(self):
+        _, sb = _panel(tk=self._blender_like())
         ui = sb.loaded_ui.tube_rig
         for button in ("b005", "b006", "b007"):
-            getattr(ui, button).setEnabled.assert_called_once_with(False)
-        slots.b005()  # a repeat-last still reaches it
-        sb.tk.TubeRig.selected_rigs.assert_not_called()
-        self.assertIn("Not available", self.message(sb))
+            self.assertTrue(self._hidden(sb, getattr(ui, button)), button)
 
-    def test_a_host_with_them_keeps_them_enabled(self):
+    def test_a_host_with_them_keeps_them_shown(self):
         _, sb = _panel()
         ui = sb.loaded_ui.tube_rig
         for button in ("b005", "b006", "b007"):
-            getattr(ui, button).setEnabled.assert_not_called()
+            self.assertFalse(self._hidden(sb, getattr(ui, button)), button)
 
     def test_remove_tears_down_each_selected_rig_in_one_undo_step(self):
         slots, sb = _panel()

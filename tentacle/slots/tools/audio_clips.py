@@ -7,8 +7,8 @@ One Slots class for both hosts over the host library's ``AudioClips``
 carrier node and mixes them into one composite WAV for the Time Slider;
 Blender's are Sequencer sound strips that play on their own. The panel words
 its controls from the engine (``ITEM_NOUN``, ``PLACE_LABEL``,
-``REVEAL_LABEL``) and disables a control whose operation its host's engine
-does not have -- each gate names the host and why
+``REVEAL_LABEL``) and hides a control whose operation its host's engine does
+not have (``Slots.hide_unless``) -- each one names the host and why
 (``tentacle/docs/parity_map.py``'s ``audio_clips_slots`` row has the full
 reasons).
 """
@@ -78,15 +78,11 @@ class AudioClipsSlots(Slots):
         """One entry, capitalized: ``"Track"`` (Maya) or ``"Clip"`` (Blender)."""
         return self.engine.ITEM_NOUN
 
-    def _has(self, operation: str) -> bool:
-        """Whether this host's engine has *operation*. Every caller says which
-        host lacks it and why."""
-        return getattr(self.engine, operation, None) is not None
-
-    def _gate(self, widget, operation: str):
-        """Disable *widget* when the engine lacks *operation*; returns it."""
-        widget.setEnabled(self._has(operation))
-        return widget
+    def _has(self, *operations: str) -> bool:
+        """Whether this host's engine has every one of *operations*. Every caller
+        says which host lacks them and why, and hides the control that runs them
+        where it does not (``Slots.hide_unless``)."""
+        return all(getattr(self.engine, op, None) is not None for op in operations)
 
     # ------------------------------------------------------------------
     # Header
@@ -95,7 +91,7 @@ class AudioClipsSlots(Slots):
     def header_init(self, widget) -> None:
         """The header menu: import, export and inspect options; help."""
         menu = widget.menu
-        menu.add("Separator", setTitle="Import")
+        import_title = menu.add("Separator", setTitle="Import")
         convert = menu.add(
             "QCheckBox",
             setText="Auto Convert",
@@ -113,9 +109,11 @@ class AudioClipsSlots(Slots):
         )
         # Blender: its media backend decodes every format the dialog offers,
         # so nothing is ever converted (parity_map: chk_auto_convert).
-        convert.setEnabled(bool(self._convertible()))
+        convertible = bool(self._convertible())
+        for item in (import_title, convert):
+            self.hide_unless(item, convertible)
 
-        menu.add("Separator", setTitle="Export")
+        export_title = menu.add("Separator", setTitle="Export")
         export = [
             menu.add(
                 "QComboBox",
@@ -158,13 +156,15 @@ class AudioClipsSlots(Slots):
         ]
         # Blender: a strip already IS the audio file, in the .blend and on
         # disk; there is no composite or keyed export (parity_map: cmb_export_mode).
-        for item in export:
-            self._gate(item, "export_composite")
+        exports = self._has("export_composite", "export_tracks")
+        for item in (export_title, *export):
+            self.hide_unless(item, exports)
 
-        menu.add("Separator", setTitle="Inspect")
         # Blender: a strip has no carrier node or hidden attributes to pin; its
         # properties show in the Sequencer's sidebar (parity_map: btn_channels).
-        self._gate(
+        inspects = self._has("channels_config")
+        self.hide_unless(menu.add("Separator", setTitle="Inspect"), inspects)
+        self.hide_unless(
             menu.add(
                 "QPushButton",
                 setText="Channels",
@@ -172,7 +172,7 @@ class AudioClipsSlots(Slots):
                 setToolTip="Open the Channels panel pinned to the audio carrier "
                 "node, filtered to its track attributes.",
             ),
-            "channels_config",
+            inspects,
         )
 
         widget.set_help_text(
@@ -217,7 +217,7 @@ class AudioClipsSlots(Slots):
                     ),
                 ],
                 notes=[
-                    "A control the host has no use for is disabled there: "
+                    "A control the host has no use for is hidden there: "
                     "Blender's Sequencer plays and decodes every clip itself, "
                     "and a Maya track has no trim.",
                 ],
@@ -340,7 +340,7 @@ class AudioClipsSlots(Slots):
                 if name == "btn_cleanup_unused":
                     # Blender: a strip is placed the moment it is added, so
                     # none is ever unkeyed (parity_map: btn_cleanup_unused).
-                    self._gate(item, "cleanup_unused")
+                    self.hide_unless(item, self._has("cleanup_unused"))
         self._rebind(widget, "before_popup_shown", self._refresh_combo)
         self._refresh_combo()
 
@@ -626,7 +626,7 @@ class AudioClipsSlots(Slots):
         )
         # Blender: no composite to rebuild; the Sequencer plays the strips as
         # they are (Sync Scene Range, its old pair, is a different action).
-        self._gate(
+        self.hide_unless(
             menu.add(
                 "QPushButton",
                 setText="Sync Audio to Timeline",
@@ -635,7 +635,7 @@ class AudioClipsSlots(Slots):
                 "WAV from the tracks and their keys -- after keys are edited "
                 "elsewhere.",
             ),
-            "sync",
+            self._has("sync"),
         )
         auto_end = menu.add(
             "QCheckBox",
@@ -647,7 +647,7 @@ class AudioClipsSlots(Slots):
         )
         # Blender: a strip's end is intrinsic; there is no end key to write
         # (parity_map: chk_auto_end_none).
-        auto_end.setEnabled(bool(self.engine.END_KEYS))
+        self.hide_unless(auto_end, bool(self.engine.END_KEYS))
         snap = menu.add(
             "QCheckBox",
             setText="Snap To Frame",
@@ -657,39 +657,31 @@ class AudioClipsSlots(Slots):
         )
         # Blender: a strip's start and handles are whole frames already
         # (parity_map: chk_snap_frames).
-        self._gate(snap, "set_snap_frames")
-        if self._has("set_snap_frames"):
+        if self.hide_unless(snap, self._has("set_snap_frames")):
             self._bind_snap(snap)
-        next_event = self._gate(
-            menu.add(
-                "QCheckBox",
-                setText="Next Event",
-                setObjectName="chk_next_event",
-                setToolTip=self.sb.tooltip.fmt(
-                    title="Next Event",
-                    body="Key the next track instead of the selected one; the "
-                    "list follows.",
-                    bullets=[
-                        "The track after the most recently started one, wrapping.",
-                        "The first track when nothing is keyed yet.",
-                    ],
-                ),
+        next_event = menu.add(
+            "QCheckBox",
+            setText="Next Event",
+            setObjectName="chk_next_event",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Next Event",
+                body="Key the next track instead of the selected one; the "
+                "list follows.",
+                bullets=[
+                    "The track after the most recently started one, wrapping.",
+                    "The first track when nothing is keyed yet.",
+                ],
             ),
-            # Blender: a clip is placed when added; there is no queue of
-            # unplaced ones to advance through (parity_map: chk_next_event).
-            "next_track",
         )
-        key_all = self._gate(
-            menu.add(
-                "QCheckBox",
-                setText="Key All",
-                setObjectName="chk_key_all",
-                setToolTip="Key every track once, end to end from the playhead: "
-                "each starts where the last one's file ended plus the stagger.",
-            ),
-            # Blender: the Sequencer plays strips side by side; nothing needs
-            # laying out (parity_map: chk_key_all, spn_stagger).
-            "key_all",
+        # Blender: a clip is placed when added; there is no queue of unplaced
+        # ones to advance through (parity_map: chk_next_event).
+        can_advance = self.hide_unless(next_event, self._has("next_track"))
+        key_all = menu.add(
+            "QCheckBox",
+            setText="Key All",
+            setObjectName="chk_key_all",
+            setToolTip="Key every track once, end to end from the playhead: "
+            "each starts where the last one's file ended plus the stagger.",
         )
         stagger = menu.add(
             "QSpinBox",
@@ -701,16 +693,22 @@ class AudioClipsSlots(Slots):
             setValue=0,
             setToolTip="Frames between tracks under Key All.",
         )
-        can_key_all, can_advance = self._has("key_all"), self._has("next_track")
+        # Blender: the Sequencer plays strips side by side; nothing needs laying
+        # out (parity_map: chk_key_all, spn_stagger).
+        can_key_all = self._has("key_all")
+        for item in (key_all, stagger):
+            self.hide_unless(item, can_key_all)
+        if not can_key_all:
+            return
 
         def key_all_toggled(checked):
-            stagger.setEnabled(can_key_all and checked)
+            stagger.setEnabled(checked)
             if checked:
                 next_event.setChecked(False)
             next_event.setEnabled(can_advance and not checked)
 
         key_all.toggled.connect(key_all_toggled)
-        key_all_toggled(can_key_all and key_all.isChecked())
+        key_all_toggled(key_all.isChecked())
 
     def _bind_snap(self, checkbox) -> None:
         """Show Snap To Frame from the scene's recipe (also after another panel
@@ -803,16 +801,13 @@ class AudioClipsSlots(Slots):
 
     def s000_init(self, widget) -> None:
         # The selected clip's live trim, never a saved value. Maya: a track
-        # plays its whole file from each ON key; there is no trim.
+        # plays its whole file from each ON key; there is no trim, so the
+        # Trim group goes whole.
         self.mirror_app_state(widget)
-        self._gate(widget, "trim_track")
+        self.hide_unless(self.ui.trim_group, self._has("trim_track"))
 
     def s001_init(self, widget) -> None:
         self.mirror_app_state(widget)
-        self._gate(widget, "trim_track")  # Maya: see s000_init
-
-    def b003_init(self, widget) -> None:
-        self._gate(widget, "trim_track")  # Maya: see s000_init
 
     def b003(self) -> None:
         """Apply Trim: the Start/End frames off the selected clip's ends."""
@@ -842,9 +837,9 @@ class AudioClipsSlots(Slots):
 
     def b004_init(self, widget) -> None:
         """Sync Scene Range: its fit mode in the option box."""
-        # Maya: not built yet (BACKLOG: fit the playback range to the keyed
-        # tracks); the Sequencer's strips carry their own spans.
-        self._gate(widget, "sync_scene_range")
+        # Maya: not built yet (FUTURE.md, Audio Clips parity: fit the playback
+        # range to the keyed tracks); the Sequencer's strips carry their own spans.
+        self.hide_unless(self.ui.range_group, self._has("sync_scene_range"))
         if getattr(widget, "is_initialized", False):
             return
         widget.is_initialized = True

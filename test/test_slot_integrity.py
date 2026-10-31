@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Maya-specific slot-file conventions.
+"""Slot-file conventions across the whole slots layer.
 
 - No pymel imports (the package is fully migrated to maya.cmds).
 - 30+ slot files sanity floor.
 
-The DCC-agnostic invariants (package/base wiring, one base-subclass per file, unique
-objectNames) moved to the parametrized ``test_dcc_invariants.py`` (plan M1).
+The layer's structural invariants (one composed class per category, no per-host
+slot package, unique objectNames, import discipline) live in ``test_dcc_invariants.py``.
 """
 
 import ast
@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PKG = ROOT / "tentacle"
-SLOTS_DIR = PKG / "slots" / "maya"
+SLOTS_DIR = PKG / "slots"
 
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -26,16 +26,19 @@ _SKIP = {"__init__.py"}
 
 
 def _slot_files():
-    """Return all concrete slot .py files."""
+    """Every module of the slots layer: the composed categories, the shared tools
+    and their helpers."""
     return sorted(
         f
-        for f in SLOTS_DIR.glob("*.py")
-        if f.name not in _SKIP and not f.name.startswith("__")
+        for f in SLOTS_DIR.rglob("*.py")
+        if f.name not in _SKIP
+        and not f.name.startswith("__")
+        and "__pycache__" not in f.parts
     )
 
 
 class TestSlotFilesExist(unittest.TestCase):
-    """Maya-specific sanity floor (wiring/uniqueness checks live in test_dcc_invariants)."""
+    """Sanity floor (wiring/uniqueness checks live in test_dcc_invariants)."""
 
     def test_has_slot_files(self):
         files = _slot_files()

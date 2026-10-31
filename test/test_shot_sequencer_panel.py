@@ -67,7 +67,30 @@ UI_WIDGETS = (
 
 
 class _Store(ptk.ShotStore):
-    """The pure model as a host's store class: no scene, no persistence."""
+    """The pure model as a host's store class: no scene, no persistence --
+    on the pure host a case puts it on (:func:`_pure_host`)."""
+
+
+def _pure_host(add_cleanup):
+    """Put the store on the pure host, whatever host runs the suite (an
+    ``--in-maya`` run resolves Maya's, which would write that scene's record
+    and open its undo chunks), and have *add_cleanup* put the host, its
+    source and the prefs folder back."""
+    saved = (
+        ptk.ShotStore._host,
+        ptk.ShotStore._host_source,
+        ptk.ShotStore._prefs_dir_override,
+    )
+    ptk.ShotStore.set_host(ptk.PureShotsHost())
+
+    def restore():
+        (
+            ptk.ShotStore._host,
+            ptk.ShotStore._host_source,
+            ptk.ShotStore._prefs_dir_override,
+        ) = saved
+
+    add_cleanup(restore)
 
 
 def _fake_tk(store_cls=_Store):
@@ -90,6 +113,7 @@ def _sb(tk=None):
 
 class _PanelCase(unittest.TestCase):
     def setUp(self):
+        _pure_host(self.addCleanup)
         migrated = Slots._legacy_repeat_last_migrated
         Slots._legacy_repeat_last_migrated = True  # no migration under test
         self.addCleanup(setattr, Slots, "_legacy_repeat_last_migrated", migrated)
@@ -279,13 +303,18 @@ class TestTheSlotsBuildThePanel(_PanelCase):
         widget = slots.controller._get_sequencer_widget.return_value
         graph_cls = sb.tk.SequencerHost.graph_sync_cls.return_value
         graph_cls.assert_called_once_with(slots.controller, widget)
-        self.assertIs(widget._graph_sync, slots.graph_sync)
+        # Kept on the panel's own window, as its controller is -- never written
+        # into uitk's widget.
+        self.assertIs(
+            getattr(sb.loaded_ui.shot_sequencer, slots_module._GRAPH_SYNC_ATTR),
+            slots.graph_sync,
+        )
 
     def test_a_reinit_detaches_the_previous_graph_half(self):
         sb = _sb()
         slots, _sb_, _cls = self._slots(sb)
         widget = slots.controller._get_sequencer_widget.return_value
-        old_graph = widget._graph_sync
+        old_graph = slots.graph_sync
         sb.loaded_ui.shot_sequencer._shot_seq_controller = None
         with mock.patch.object(slots_module, "ShotSequencerController") as ctl_cls:
             ctl_cls.return_value._get_sequencer_widget.return_value = widget
@@ -505,6 +534,9 @@ class TestGenerateNextShot(_PanelCase):
 class TestTheControllerReachesTheHostThroughTk(unittest.TestCase):
     """The controller's host is ``tk.SequencerHost``; its engine and store
     classes ``tk.ShotSequencer`` and its ``STORE_CLASS``."""
+
+    def setUp(self):
+        _pure_host(self.addCleanup)
 
     def _bare(self, tk):
         ctl = ShotSequencerController.__new__(ShotSequencerController)

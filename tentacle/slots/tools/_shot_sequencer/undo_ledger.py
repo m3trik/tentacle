@@ -11,47 +11,14 @@ the steps that were the panel's edits (``SequencerHost.step_undo``).
 
 
 class UndoLedgerMixin:
-    """Shot-boundary restore points, and the panel's Undo / Redo."""
+    """The panel's Undo / Redo over the shot-boundary restore points."""
 
-    # Boundary snapshots delegate to the STORE's ledger (pythontk
-    # ShotStore.push/restore/redo_boundary_snapshot): scene keyframes ride
-    # the host's undo queue but shot bounds live in the store, outside it, and
-    # more than one panel mutates them — per-controller stacks desynced
-    # from each other and from the queue.  One ledger per store = per
-    # scene, so a scene swap isolates it for free.
-
-    def _save_shot_state(self) -> None:
-        """Record the current shot boundaries as an UNTAGGED restore point.
-
-        No production path calls this: every shot edit brackets through the
-        store's ``scene_edit``, which pushes the restore point BEFORE the
-        mutation and tags it with the step it put on the host's undo queue.
-        An untagged point reads as "always ours" to the store's
-        ``_native_step_crossed`` (the pre-pairing behaviour), so a caller that
-        pushes one gives up the pairing.  Prefer ``scene_edit``.
-        """
-        if self.sequencer is not None:
-            self.sequencer.store.push_boundary_snapshot()
-
-    def _restore_shot_state(self) -> None:
-        """Apply the most recent restore point (the undo direction).
-
-        Membership is restored symmetrically: a shot ABSENT from the
-        snapshot is removed (undoing an insert leaves no phantom), and a
-        shot the snapshot names but the store lost is re-created from its
-        record (undoing a delete — the keys were never deleted with it).
-        """
-        if self.sequencer is not None:
-            self.sequencer.store.restore_boundary_snapshot()
-
-    def _redo_shot_state(self) -> None:
-        """Re-apply the state undo stepped back from (the redo direction).
-
-        Without this, a redo re-applies the scene keys while the bounds
-        stay restored — resurrecting the keys-outside-their-shot state.
-        """
-        if self.sequencer is not None:
-            self.sequencer.store.redo_boundary_snapshot()
+    # The restore points are the STORE's ledger (pythontk ShotStore): scene
+    # keyframes ride the host's undo queue but shot bounds live in the store,
+    # outside it, and more than one panel mutates them -- per-controller
+    # stacks desynced from each other and from the queue.  One ledger per
+    # store = per scene, so a scene swap isolates it for free; every shot edit
+    # records its point through the store's ``scene_edit``.
 
     # The host's own undo and redo (Ctrl+Z in a viewport, Edit > Undo) are the
     # STORE's to follow -- ``ShotStore.follow_native_step``, which tells an

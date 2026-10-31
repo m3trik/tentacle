@@ -156,7 +156,7 @@ class TestToolsInBlender(_BlenderCase):
     def test_the_bridge_leaf_is_the_maya_bridge(self):
         self.assertEqual(self.rows["b010"][0].format(app="Maya"), "Maya Bridge")
         self.slots.b010()
-        self.sb.handlers.marking_menu.show.assert_called_once_with("maya_bridge")
+        self.sb.handlers.marking_menu.show.assert_called_once_with("dcc_bridge")
 
     def test_audio_clips_and_blendshape_animator_stay_in_manage(self):
         self.assertEqual(self.rows["b003"], ("Audio Clips", None))

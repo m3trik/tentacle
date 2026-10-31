@@ -48,7 +48,7 @@ class _Signal:
 
 
 class _Tagged:
-    """``setProperty`` / ``property``, as ``_host_only`` tags a widget."""
+    """``setProperty`` / ``property``, as ``Slots.requires`` tags a widget."""
 
     def setProperty(self, name, value):
         self.__dict__.setdefault("_props", {})[name] = value
@@ -313,6 +313,18 @@ class _FakeRenderUtils:
 
     def render_preset_store(self):
         return NS(user_dir="user/render", builtin_dir=self.builtin_dir)
+
+
+class _NoArnoldRenderUtils(_FakeRenderUtils):
+    """A host whose ``RenderUtils`` has no Arnold (Blender's): neither its render
+    options nor the scene preparation exist there."""
+
+    _ABSENT = ("ensure_arnold_options", "prepare_arnold_preview")
+
+    def __getattribute__(self, name):
+        if name in type(self)._ABSENT:
+            raise AttributeError(name)
+        return super().__getattribute__(name)
 
 
 class _FakeExporter:
@@ -595,6 +607,17 @@ class TestRenderInit(unittest.TestCase):
         self.assertIn(("ensure_arnold",), self.ru.calls)
         self.assertEqual(self.menu.s022.value(), 3)
 
+    def test_an_arnold_pick_on_a_host_without_arnold_does_nothing(self):
+        # The checks are the parity gate's host limit: a toolkit lacking the
+        # Arnold steps never reaches them (and never raises out of the signal).
+        ru = _NoArnoldRenderUtils()
+        slots = _slots(_tk(render_utils=ru))
+        widget = _Widget()
+        slots.tb001_init(widget)
+        widget.option_box.menu.cmb003.pick("arnold")
+        self.assertFalse(any(c[0] == "ensure_arnold" for c in ru.calls))
+        self.assertFalse(slots.sb.messages)
+
     def test_an_unavailable_mtoa_disables_the_fields(self):
         self.ru._arnold_error = RuntimeError("mtoa failed to initialize")
         self.menu.cmb003.pick("arnold")  # must not raise out of the signal
@@ -671,6 +694,12 @@ class TestRenderAction(unittest.TestCase):
         calls.clear()
         self.slots.tb001(self._widget(renderer="mayaSoftware"))
         self.assertNotIn(("prepare_arnold",), calls)
+
+    def test_a_host_without_arnold_renders_without_preparing(self):
+        ru = _NoArnoldRenderUtils()
+        slots = _slots(_tk(render_utils=ru))
+        slots.tb001(self._widget(renderer="arnold"))
+        self.assertEqual(ru.calls, [("set_renderer", "arnold"), ("render_camera", "shotCam")])
 
     def test_ipr_supersedes_a_render_and_a_launch_race_falls_back(self):
         self.slots.tb001(self._widget(renderer="arnold", ipr=True))

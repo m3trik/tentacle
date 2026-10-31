@@ -161,12 +161,6 @@ class AnimationSlots(Slots):
         self._copied_frame = None
 
     # ------------------------------------------------------------------ helpers
-    def _requires(self, widget, host):
-        """Tag an option only *host* serves; uitk hides it on the other host."""
-        widget.setProperty("requires", host)
-        self.sb.apply_visibility_policy(widget)
-        return widget
-
     @classmethod
     def _count(cls, result):
         """How many things an operation's answer names: a number as it is, a
@@ -264,7 +258,7 @@ class AnimationSlots(Slots):
                 else:
                     item = cat.sublist.add(label, setToolTip=tooltip)
                 if requires:
-                    self._requires(item, requires)
+                    self.requires(item, requires)
 
     @Slots.Signals("on_item_interacted")
     def list000(self, item):
@@ -884,7 +878,7 @@ class AnimationSlots(Slots):
                 ],
             ),
         )
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Channel Box Attrs Only",
@@ -996,7 +990,7 @@ class AnimationSlots(Slots):
         )
         # Blender transfers an independent copy of the source's whole action,
         # whose handles travel with it: there is no tangent choice to make.
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Tangents",
@@ -1213,7 +1207,7 @@ class AnimationSlots(Slots):
                 ],
             ),
         )
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Channel Box Only",
@@ -1553,7 +1547,7 @@ class AnimationSlots(Slots):
             ("Current & After", "after|current"),
         ]:
             cmb.addItem(text, data)
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Channel Box Only",
@@ -1865,7 +1859,7 @@ class AnimationSlots(Slots):
             setValue=100,
             setToolTip="Last frame of the window, in Range mode.",
         )
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Channel Box Only",
@@ -2091,7 +2085,7 @@ class AnimationSlots(Slots):
                 ],
             ),
         )
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Channel Box Attrs Only",
@@ -2468,30 +2462,28 @@ class AnimationSlots(Slots):
             ("Scope: All Scene Objects", "all"),
         ]:
             cmb_scope.addItem(label, data)
-        cmb_traversal = self._requires(
-            menu.add(
-                "QComboBox",
-                setObjectName="cmb_traversal",
-                setToolTip=self.sb.tooltip.fmt(
-                    title="Traversal",
-                    body="Widen the report past the literal selection by walking "
-                    "the dependency graph, so animation that drives (or is driven "
-                    "by) the selection is included.",
-                    bullets=[
-                        "<b>None</b> — the selection exactly as picked.",
-                        "<b>Upstream</b> — also what feeds it (controls, "
-                        "constraints, drivers).",
-                        "<b>Downstream</b> — also what it feeds.",
-                        "<b>Both</b> — either direction.",
-                    ],
-                    notes=[
-                        "Greyed out under Scope = All Scene Objects, which "
-                        "already covers everything."
-                    ],
-                ),
+        cmb_traversal = menu.add(
+            "QComboBox",
+            setObjectName="cmb_traversal",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Traversal",
+                body="Widen the report past the literal selection by walking "
+                "the dependency graph, so animation that drives (or is driven "
+                "by) the selection is included.",
+                bullets=[
+                    "<b>None</b> — the selection exactly as picked.",
+                    "<b>Upstream</b> — also what feeds it (controls, "
+                    "constraints, drivers).",
+                    "<b>Downstream</b> — also what it feeds.",
+                    "<b>Both</b> — either direction.",
+                ],
+                notes=[
+                    "Greyed out under Scope = All Scene Objects, which "
+                    "already covers everything."
+                ],
             ),
-            "maya",
         )
+        self.requires(cmb_traversal, "maya")
         for label, data in [
             ("Traversal: None", None),
             ("Traversal: Upstream", "upstream"),
@@ -2629,24 +2621,22 @@ class AnimationSlots(Slots):
             cmb.addItem(text, data)
         # Blender's interpolation belongs to the segment LEAVING a key, Maya's
         # out side; it has no step-next to set on an in side.
-        cmb_tan = self._requires(
-            menu.add(
-                "QComboBox",
-                setObjectName="cmb040",
-                setToolTip=self.sb.tooltip.fmt(
-                    title="Tangent",
-                    body="Which side of the key gets the type.",
-                    bullets=[
-                        "<b>Out</b> (default) — the key holds its value forward "
-                        "until the next key, the usual blocking hold.",
-                        "<b>In</b> — the key snaps to its value at the last "
-                        "moment (<code>stepnext</code>).",
-                        "<b>Both</b> — either side.",
-                    ],
-                ),
+        cmb_tan = menu.add(
+            "QComboBox",
+            setObjectName="cmb040",
+            setToolTip=self.sb.tooltip.fmt(
+                title="Tangent",
+                body="Which side of the key gets the type.",
+                bullets=[
+                    "<b>Out</b> (default) — the key holds its value forward "
+                    "until the next key, the usual blocking hold.",
+                    "<b>In</b> — the key snaps to its value at the last "
+                    "moment (<code>stepnext</code>).",
+                    "<b>Both</b> — either side.",
+                ],
             ),
-            "maya",
         )
+        self.requires(cmb_tan, "maya")
         for text, data in [
             ("Tangent: Out", "out"),
             ("Tangent: In", "in"),

@@ -22,7 +22,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import mayatk
-from _host import MAYA_AVAILABLE, qt_widgets_available
+from _host import MAYA_AVAILABLE, qt_widgets_available, use_memory_clipboard
 
 
 def setUpModule():
@@ -148,7 +148,6 @@ class _ControllerHarness:
         slots_instance.sb = _UitkSwitchboard()
         slots_instance.ui.tbl_steps = self.tree
         slots_instance.ui.footer = MagicMock()
-        slots_instance.ui.footer._status_label = MagicMock()
         slots_instance.ui.btn_build = MagicMock()
         slots_instance.sb.get_setting.return_value = None
         # Wired as production wires it -- a field's ``ui`` is its panel, the
@@ -1677,7 +1676,10 @@ class TestSyncDetectionWidgets(unittest.TestCase, _ControllerHarness):
         self.mock_shots_ui = MagicMock()
         self.mock_shots_ui.cmb_detection_mode = MagicMock()
         self.mock_shots_ui.spn_detection = MagicMock()
-        self.sb.loaded_ui.shots = self.mock_shots_ui
+        # The panel is only ever peeked at, never built.
+        self.sb.loaded_ui.peek.side_effect = lambda name: (
+            self.mock_shots_ui if name == "shots" else None
+        )
 
     def test_delegates_to_refresh_state(self):
         """When slot_instances has a shots controller, delegates to it."""
@@ -1717,7 +1719,8 @@ class TestSyncDetectionWidgets(unittest.TestCase, _ControllerHarness):
     def test_tolerates_missing_shots_ui(self):
         """Should not raise if shots UI is not loaded."""
         self.sb.slot_instances = {}
-        del self.sb.loaded_ui.shots
+        self.sb.loaded_ui.peek.side_effect = None
+        self.sb.loaded_ui.peek.return_value = None
         _fresh_store()
         # Should not raise
         self.ctrl._sync_detection_widgets()
@@ -3719,49 +3722,6 @@ class TestSceneShotsSource(unittest.TestCase, _ControllerHarness):
         load.assert_called_once_with("X:/sheets/build_sheet.csv")
 
 
-class _MemoryClipboard:
-    """``QApplication.clipboard()`` for a test: the copy stays in this process.
-
-    In a GUI Maya the real one is the Windows clipboard, shared with every
-    program on the machine: one holding it made every read come back empty,
-    the test's own "before" text included (2026-10-12, 7 Export tests red
-    with nothing wrong).  Python owns the QMimeData here, so nothing is left
-    in Qt's global for libc exit to tear down either (exit 139 after a green
-    summary under the offscreen platform, the reason the real one was
-    cleared in teardown).
-    """
-
-    def __init__(self):
-        self._mime = QtCore.QMimeData()
-
-    def setText(self, text):
-        mime = QtCore.QMimeData()
-        mime.setText(text)
-        self._mime = mime
-
-    def setMimeData(self, mime):
-        self._mime = mime
-
-    def mimeData(self):
-        return self._mime
-
-    def text(self):
-        return self._mime.text()
-
-    def clear(self):
-        self._mime = QtCore.QMimeData()
-
-
-def _use_memory_clipboard(case):
-    """Give *case* a :class:`_MemoryClipboard` for every
-    ``QApplication.clipboard()`` call -- the panel's and the test's."""
-    board = _MemoryClipboard()
-    p = patch.object(QtWidgets.QApplication, "clipboard", return_value=board)
-    p.start()
-    case.addCleanup(p.stop)
-    return board
-
-
 class TestAutoFillAssetsController(unittest.TestCase, _ControllerHarness):
     """A sheet's asset-less steps take the scene's objects -- and Export
     hands them on with their steps (Copy Asset Names, which pasted them back
@@ -3811,7 +3771,7 @@ class TestAutoFillAssetsController(unittest.TestCase, _ControllerHarness):
             fh.write(self.CSV)
         self.ctrl._steps = []
         self.addCleanup(self.ctrl._settings.setValue, "export_options", "")
-        _use_memory_clipboard(self)
+        use_memory_clipboard(self)
 
     def _load(self, enabled):
         # The template's option, applied: what its Auto-fill row sets.
@@ -3890,7 +3850,7 @@ class TestExportButton(unittest.TestCase, _ControllerHarness):
         self.sheet = os.path.join(self.dir, "sheet.csv")
         with open(self.sheet, "w", encoding="utf-8", newline="") as fh:
             fh.write("Step,Step Contents,Asset Names\n")
-        _use_memory_clipboard(self)
+        use_memory_clipboard(self)
 
     def _load(self):
         self.ctrl._load_data(_make_steps("A01", "A02", "A03"), csv_path=self.sheet)
@@ -4733,8 +4693,8 @@ class TestRenderedRowColors(unittest.TestCase):
         p_locked = tree.create_item(["A06", "Sec", "Locked step", "", "151\u2013180"])
 
         # ---- apply base formatting (column tints + row tints) -----------
-        tree._child_row_color = QColor(0, 0, 0, 55)
-        tree._parent_row_color = QColor(255, 255, 255, 12)
+        tree.setChildRowColor(QColor(0, 0, 0, 55))
+        tree.setParentRowColor(QColor(255, 255, 255, 12))
 
         # Column tints - darken Step and Behaviors columns
         tree.set_column_tint(COL_STEP, QColor(0, 0, 0, 45))

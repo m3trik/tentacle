@@ -8,13 +8,12 @@ the regression class where a button is wired in the UI but its slot
 method was renamed, removed, or never added. Symptom: user clicks button,
 nothing happens; no error, no log.
 
-Scope: **every** DCC that ships concrete slot modules — ``tentacle/slots/maya/``
-and ``tentacle/slots/blender/`` — each paired with its companion .ui file in
-``tentacle/ui/`` (plus that DCC's marking-menu subdir, ``<dcc>_menus/``). The two
-forks share the toolbar .ui files, so a widget added for one DCC is a ghost in the
-other until its fork implements the slot too; checking only one DCC left exactly
-half of that class of regression uncovered. Every check runs under a ``subTest``
-keyed by DCC, so a failure names which fork is missing the handler.
+Scope: every composed category — ``tentacle/slots/<category>.py``, the one Slots class
+both hosts share — paired with its companion .ui files in ``tentacle/ui/``
+(``<category>.ui`` and its ``<category>#*.ui`` submenus). A widget a host cannot serve
+carries a ``requires`` tag and is hidden there, never left a ghost. The chord menus'
+native-menu pages (``ui/<host>_menus/``) hold only MenuButtons, which navigate and
+carry no slot. The shared tools (``ui/tools`` + ``slots/tools``) are checked below.
 
 Widget naming convention (enforced elsewhere):
   b###    button         — requires b###()
@@ -48,30 +47,10 @@ UI_DIR = ROOT / "tentacle" / "ui"
 TOOL_UI_DIR = UI_DIR / "tools"
 TOOL_SLOTS_DIR = SLOTS_ROOT / "tools"
 
-#: DCC -> the marking-menu subdir holding its submenu .ui files (e.g.
-#: ``select#submenu.ui``). Every DCC with a ``slots/<dcc>/`` package is checked;
-#: adding one here is all it takes to bring a new fork under the ghost-button guard.
-DCCS = ("maya", "blender")
-
-
-def _menus_dir(dcc: str) -> Path:
-    """Marking-menu .ui subdir for *dcc* (``tentacle/ui/<dcc>_menus``)."""
-    return UI_DIR / f"{dcc}_menus"
-
-
-def _skip_slots(dcc: str) -> set[str]:
-    """Non-panel modules in ``slots/<dcc>/`` — the package marker and the DCC base."""
-    return {"__init__.py", f"_slots_{dcc}.py"}
-
-
 # Widgets that require a matching slot method on the companion class.
 _ACTION_PREFIXES = ("b", "tb", "cmb", "list", "txt")
 
-# "<dcc>/<module>.py::<widget>" → reason. Use sparingly; document each exception.
-#
-# The key carries the DCC because the two forks share the toolbar .ui files: the
-# same widget name can be a genuine ghost in one fork and fully handled in the
-# other, so an un-scoped key would silently excuse both.
+# "<module>.py::<widget>" → reason. Use sparingly; document each exception.
 #
 # Entries are for widgets that are intentionally bare (purely decorative, or a
 # value-carrier read by another method rather than dispatched to a handler).
@@ -84,18 +63,6 @@ _ACTION_PREFIXES = ("b", "tb", "cmb", "list", "txt")
 # uv cmb003 now has a real ``def cmb003`` in both forks. A stale allowlist entry
 # is worse than none: it silently re-excuses the name if the widget ever comes back.
 ALLOWLIST: dict[str, str] = {}
-
-
-def _slot_files(dcc: str) -> list[Path]:
-    """Concrete slot modules for *dcc*: its own (excludes package marker + DCC base),
-    plus the composed ``slots/<category>.py`` classes every host shares."""
-    skip = _skip_slots(dcc)
-    own = [
-        f
-        for f in (SLOTS_ROOT / dcc).glob("*.py")
-        if f.name not in skip and not f.name.startswith("__")
-    ]
-    return sorted(own + _composed_files())
 
 
 def _composed_files() -> list[Path]:
@@ -189,19 +156,16 @@ def _slot_methods(py_path: Path, _seen: set[Path] = None) -> set[str]:
     return methods
 
 
-def _resolve_uis(slot_file: Path, dcc: str) -> list[Path]:
-    """Locate all .ui files paired with a slot module, for one DCC.
+def _resolve_uis(slot_file: Path) -> list[Path]:
+    """Locate all .ui files paired with a slot module.
 
     Strict matching: only same-stem files (``foo.ui``) and submenus of the
-    same stem (``foo#*.ui``), across both ``tentacle/ui/`` (main toolbars,
-    shared by every DCC) and ``tentacle/ui/<dcc>_menus/`` (that DCC's
-    marking-menu submenus). Cross-name pairings (``select.py`` ↔
-    ``selection.ui``) are intentionally NOT resolved here — that mismatch is
-    a separate concern.
+    same stem (``foo#*.ui``) in ``tentacle/ui/``. Cross-name pairings
+    (``select.py`` ↔ ``selection.ui``) are intentionally NOT resolved here —
+    that mismatch is a separate concern.
 
     Parameters:
-        slot_file (Path): The concrete slot module.
-        dcc (str): DCC key — selects the marking-menu subdir.
+        slot_file (Path): The composed slot module.
 
     Returns:
         (list): Paired .ui paths, main-UI first.
@@ -213,31 +177,19 @@ def _resolve_uis(slot_file: Path, dcc: str) -> list[Path]:
         results.append(direct)
     for p in sorted(UI_DIR.glob(f"{stem}#*.ui")):
         results.append(p)
-    # Marking-menu submenus
-    menus_dir = _menus_dir(dcc)
-    if menus_dir.is_dir():
-        for p in sorted(menus_dir.glob(f"{stem}#*.ui")):
-            results.append(p)
-        # Some menu-only slots have an exact match here, e.g. ``blender.ui``
-        # would live in blender_menus if there were one — keep the same rule.
-        direct_menu = menus_dir / f"{stem}.ui"
-        if direct_menu.exists():
-            results.append(direct_menu)
     return results
 
 
-def _ghost_widgets(dcc: str) -> list[str]:
-    """Every action widget in *dcc*'s .ui files with no backing slot method.
-
-    Parameters:
-        dcc (str): DCC key (``"maya"`` / ``"blender"``).
+def _ghost_widgets() -> list[str]:
+    """Every action widget in the composed categories' .ui files with no backing
+    slot method.
 
     Returns:
         (list): One human-readable line per ghost widget; empty when clean.
     """
     offenders: list[str] = []
-    for slot_file in _slot_files(dcc):
-        ui_paths = _resolve_uis(slot_file, dcc)
+    for slot_file in _composed_files():
+        ui_paths = _resolve_uis(slot_file)
         if not ui_paths:
             continue  # No paired UI — covered by test_ui_integrity
 
@@ -251,19 +203,19 @@ def _ghost_widgets(dcc: str) -> list[str]:
                 if widget in seen:
                     continue
                 seen.add(widget)
-                if f"{dcc}/{slot_file.name}::{widget}" in ALLOWLIST:
+                if f"{slot_file.name}::{widget}" in ALLOWLIST:
                     continue
                 if widget in methods or f"{widget}_init" in methods:
                     continue
                 offenders.append(
-                    f"  {dcc}/{slot_file.name}: widget '{widget}' "
+                    f"  {slot_file.name}: widget '{widget}' "
                     f"(declared in {ui_path.name}) has no slot method"
                 )
     return offenders
 
 
 class TestEveryInteractiveWidgetHasASlotMethod(unittest.TestCase):
-    """For each slot module of each DCC, every b###/tb###/cmb###/list###/txt###
+    """For each composed slot module, every b###/tb###/cmb###/list###/txt###
     widget in the paired .ui must resolve to a method on the slot class.
 
     A widget resolves if the class defines ``name`` OR ``name_init`` —
@@ -272,32 +224,21 @@ class TestEveryInteractiveWidgetHasASlotMethod(unittest.TestCase):
     """
 
     def test_no_ghost_buttons_anywhere(self):
-        for dcc in DCCS:
-            with self.subTest(dcc=dcc):
-                offenders = _ghost_widgets(dcc)
-                self.assertEqual(
-                    offenders,
-                    [],
-                    f"Ghost buttons found in the {dcc} slots — UI declares widgets "
-                    "with no slot handler:\n" + "\n".join(offenders),
-                )
+        offenders = _ghost_widgets()
+        self.assertEqual(
+            offenders,
+            [],
+            "Ghost buttons found in the composed slots — UI declares widgets "
+            "with no slot handler:\n" + "\n".join(offenders),
+        )
 
-    def test_every_dcc_is_actually_covered(self):
-        """Guard the guard: a typo'd DCC key or a moved slots dir would make the
-        check above pass vacuously (no modules → no offenders → green)."""
-        for dcc in DCCS:
-            with self.subTest(dcc=dcc):
-                files = _slot_files(dcc)
-                self.assertTrue(files, f"no slot modules found for {dcc!r}")
-                widgets = {
-                    w
-                    for f in files
-                    for ui in _resolve_uis(f, dcc)
-                    for w in _ui_widget_names(ui)
-                }
-                self.assertTrue(
-                    widgets, f"no action widgets resolved for any {dcc} slot module"
-                )
+    def test_the_check_is_actually_covered(self):
+        """Guard the guard: a moved slots dir would make the check above pass
+        vacuously (no modules → no offenders → green)."""
+        files = _composed_files()
+        self.assertTrue(files, f"no composed slot modules found in {SLOTS_ROOT}")
+        widgets = {w for f in files for ui in _resolve_uis(f) for w in _ui_widget_names(ui)}
+        self.assertTrue(widgets, "no action widgets resolved for any composed slot module")
 
     def test_allowlist_entries_are_still_real(self):
         """A stale allowlist entry silently re-excuses a name if the widget ever
@@ -305,13 +246,12 @@ class TestEveryInteractiveWidgetHasASlotMethod(unittest.TestCase):
         resolved .ui and (b) still has no backing slot method."""
         stale: list[str] = []
         for key in ALLOWLIST:
-            dcc, _, rest = key.partition("/")
-            module, _, widget = rest.partition("::")
-            slot_file = SLOTS_ROOT / dcc / module
+            module, _, widget = key.partition("::")
+            slot_file = SLOTS_ROOT / module
             if not slot_file.exists():
                 stale.append(f"{key}: no such slot module")
                 continue
-            uis = _resolve_uis(slot_file, dcc)
+            uis = _resolve_uis(slot_file)
             if not any(widget in _ui_widget_names(ui) for ui in uis):
                 stale.append(f"{key}: widget no longer declared in any paired .ui")
                 continue
@@ -323,7 +263,7 @@ class TestEveryInteractiveWidgetHasASlotMethod(unittest.TestCase):
 
 class TestEveryUiPairsToASlotFile(unittest.TestCase):
     """Symmetry check: every interactive .ui in tentacle/ui/ should pair to a
-    slot file in SOME DCC. Catches orphan UI files that may have been forgotten.
+    composed slot file. Catches orphan UI files that may have been forgotten.
 
     Submenu / startmenu / lower-submenu UIs aren't required to pair —
     they're embedded inside other UIs by name. The base file (without ``#``)
@@ -331,7 +271,7 @@ class TestEveryUiPairsToASlotFile(unittest.TestCase):
     """
 
     def test_no_orphan_base_ui_files(self):
-        slot_stems = {f.stem for dcc in DCCS for f in _slot_files(dcc)}
+        slot_stems = {f.stem for f in _composed_files()}
         orphans: list[str] = []
         for ui_path in UI_DIR.glob("*.ui"):
             if "#" in ui_path.stem:
@@ -440,9 +380,13 @@ class TestEveryToolIsOneUiAndOneSlotsClass(unittest.TestCase):
                 ui, py = TOOL_UI_DIR / f"{tool}.ui", TOOL_SLOTS_DIR / f"{tool}.py"
                 self.assertTrue(ui.is_file(), f"{tool}: no ui/tools/{ui.name}")
                 self.assertTrue(py.is_file(), f"{tool}: no slots/tools/{py.name}")
-                expected = "".join(p.title() for p in tool.split("_")) + "Slots"
+                # Case-blind, as test_dcc_invariants' rule: the class name keys
+                # users' shortcut overrides, so one published as
+                # ``WebXrPreviewSlots`` keeps its spelling (a standalone panel's
+                # launcher hands its switchboard the class itself, by this rule).
+                expected = tool.replace("_", "") + "slots"
                 classes = [
-                    n.name
+                    n.name.lower()
                     for n in ast.parse(py.read_text(encoding="utf-8")).body
                     if isinstance(n, ast.ClassDef) and n.name.endswith("Slots")
                 ]

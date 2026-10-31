@@ -118,8 +118,7 @@ class LightingSlots(Slots):
             cmb.addItem(text, data)
         # Face clustering is Maya's: Blender's lights come from whole meshes
         # (its engine takes the mode for parity only).
-        cmb.setProperty("requires", "maya")
-        self.sb.apply_visibility_policy(cmb)
+        self.requires(cmb, "maya")
 
     def tb000(self, widget):
         """Create real area lights from the selected fixture geometry."""

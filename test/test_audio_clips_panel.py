@@ -152,21 +152,37 @@ def _panel(engine=None, tk=None, current="kick"):
 
 
 class _ItemsMenu:
-    """A menu whose ``add`` returns one mock per item, by objectName."""
+    """A menu whose ``add`` returns one mock per item, by objectName (a
+    separator by its title)."""
 
     def __init__(self):
         self.items = {}
         self.titles = []
+        self.separators = {}
 
     def add(self, _kind, **kwargs):
         item = mock.MagicMock()
         name = kwargs.get("setObjectName")
         if name:
             self.items[name] = (item, kwargs)
+        elif _kind == "Separator":
+            self.separators[kwargs.get("setTitle")] = item
         return item
 
     def setTitle(self, title):
         self.titles.append(title)
+
+
+def _hidden(sb, widget) -> bool:
+    """Whether the panel hid *widget* as one this host cannot serve
+    (``Slots.hide_unless``): hidden as a field, marked a ``requires`` exclusion,
+    and never left showing disabled."""
+    calls = sb.FieldVisibility.set_widget_visible.call_args_list
+    hidden = mock.call(widget, False) in calls
+    if hidden:
+        assert widget.hidden_by_policy == "requires", widget
+        widget.setEnabled.assert_not_called()
+    return hidden
 
 
 def _footer(ui):
@@ -234,13 +250,13 @@ class TestAudioClipsPanelSetup(_PanelCase):
                 )
 
     def test_cleanup_unused_is_maya_only(self):
-        for api, enabled in ((MAYA_API, True), (BLENDER_API, False)):
-            slots, _, ui = _panel(_engine(api))
+        for api, served in ((MAYA_API, True), (BLENDER_API, False)):
+            slots, sb, ui = _panel(_engine(api))
             menu = _ItemsMenu()
             ui.cmb000.option_box.menu = menu
             slots.cmb000_init(ui.cmb000)
             item = menu.items["btn_cleanup_unused"][0]
-            item.setEnabled.assert_called_once_with(enabled)
+            self.assertEqual(_hidden(sb, item), not served)
 
     def test_the_list_fills_from_the_scene_and_keeps_the_pick(self):
         slots, sb, ui = _panel(current="snare")
@@ -253,9 +269,9 @@ class TestAudioClipsPanelSetup(_PanelCase):
         slots._refresh_combo()
         self.assertIn("No tracks", ui.footer.setDefaultStatusText.call_args.args[0])
 
-    def test_the_header_gates_what_blender_has_no_use_for(self):
-        for api, enabled in ((MAYA_API, True), (BLENDER_API, False)):
-            with self.subTest(maya=enabled):
+    def test_the_header_hides_what_blender_has_no_use_for(self):
+        for api, served in ((MAYA_API, True), (BLENDER_API, False)):
+            with self.subTest(maya=served):
                 slots, sb, _ = _panel(_engine(api))
                 header = mock.MagicMock()
                 header.menu = _ItemsMenu()
@@ -277,18 +293,22 @@ class TestAudioClipsPanelSetup(_PanelCase):
                     ["Composite", "Keyed Tracks", "All Tracks"],
                 )
                 for name, (item, _kwargs) in items.items():
-                    item.setEnabled.assert_called_once_with(enabled)
+                    self.assertEqual(_hidden(sb, item), not served, name)
+                # A section with nothing left in it goes with its rows.
+                for title, separator in header.menu.separators.items():
+                    self.assertEqual(_hidden(sb, separator), not served, title)
                 header.set_help_text.assert_called_once_with(
                     sb.tooltip.fmt.return_value
                 )
 
-    def test_the_place_option_box_is_named_and_gated_by_the_engine(self):
+    def test_the_place_option_box_is_named_and_hidden_by_the_engine(self):
         maya_only = (
             "btn_sync_audio",
             "chk_auto_end_none",
             "chk_snap_frames",
             "chk_next_event",
             "chk_key_all",
+            "spn_stagger",
         )
         for api, maya in ((MAYA_API, True), (BLENDER_API, False)):
             with self.subTest(maya=maya):
@@ -303,7 +323,8 @@ class TestAudioClipsPanelSetup(_PanelCase):
                     items["btn_select_carrier"][1]["setText"], engine.REVEAL_LABEL
                 )
                 for name in maya_only:
-                    items[name][0].setEnabled.assert_any_call(maya)
+                    self.assertEqual(_hidden(sb, items[name][0]), not maya, name)
+                self.assertFalse(_hidden(sb, items["btn_select_carrier"][0]))
                 # Snap To Frame is the scene's recipe, where the host has one.
                 self.assertEqual(sb.ModelBinding.called, maya)
                 if maya:
@@ -536,17 +557,20 @@ class TestAudioClipsPanelPlace(_PanelCase):
 
 
 class TestAudioClipsPanelBlenderOnly(_PanelCase):
-    def test_trim_and_range_are_gated_off_in_maya(self):
-        for api, enabled in ((MAYA_API, False), (BLENDER_API, True)):
-            slots, sb, _ = _panel(_engine(api))
-            for name in ("s000", "s001", "b003"):
+    def test_trim_and_range_are_hidden_in_maya(self):
+        for api, served in ((MAYA_API, False), (BLENDER_API, True)):
+            slots, sb, ui = _panel(_engine(api))
+            for name in ("s000", "s001"):
                 widget = mock.MagicMock()
                 getattr(slots, f"{name}_init")(widget)
-                widget.setEnabled.assert_called_once_with(enabled)
+                widget.setEnabled.assert_not_called()
             b004 = mock.MagicMock(is_initialized=False)
             b004.option_box.menu = _ItemsMenu()
             slots.b004_init(b004)
-            b004.setEnabled.assert_called_once_with(enabled)
+            b004.setEnabled.assert_not_called()
+            # Each group goes whole: no empty "Trim" / "Range" box is left.
+            self.assertEqual(_hidden(sb, ui.trim_group), not served)
+            self.assertEqual(_hidden(sb, ui.range_group), not served)
             self.assertEqual(
                 b004.option_box.menu.items["cmb_fit"][1]["addItems"],
                 ["Extend Only", "Exact Fit"],

@@ -152,7 +152,7 @@ def _enable_when_names(fn):
 
 def _find_add(fn, object_name):
     """The ``menu.add()`` Call that created *object_name*, plus the variable
-    it was bound to -- directly or through a wrapper (``self._requires(...)``).
+    it was bound to -- directly or through a wrapper (``self.requires(...)``).
 
     Returns ``(call, var_name_or_None)``.
     """
@@ -360,20 +360,36 @@ class TestAnimationOptionBoxTooltips(unittest.TestCase):
     def test_maya_only_options_are_tagged_requires_maya(self):
         """A Maya-only option is hidden in Blender, never a dead control there."""
         funcs = _functions(_parse())
+
+        def builds(arg, func, obj):
+            """Whether *arg* is (or names a local bound to) the add() of *obj*."""
+            if isinstance(arg, ast.Name):
+                arg = next(
+                    (
+                        n.value
+                        for n in ast.walk(func)
+                        if isinstance(n, ast.Assign)
+                        and any(
+                            isinstance(t, ast.Name) and t.id == arg.id
+                            for t in n.targets
+                        )
+                    ),
+                    arg,
+                )
+            return any(_is_add(c) and _object_name(c) == obj for c in ast.walk(arg))
+
         for init_name, obj in _MAYA_ONLY.items():
             with self.subTest(option=obj):
+                func = funcs[init_name]
                 tagged = any(
                     isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Attribute)
-                    and node.func.attr == "_requires"
-                    and node.args
-                    and any(
-                        _is_add(c) and _object_name(c) == obj
-                        for c in ast.walk(node.args[0])
-                    )
+                    and node.func.attr == "requires"  # Slots.requires
+                    and len(node.args) == 2
+                    and builds(node.args[0], func, obj)
                     and isinstance(node.args[1], ast.Constant)
                     and node.args[1].value == "maya"
-                    for node in ast.walk(funcs[init_name])
+                    for node in ast.walk(func)
                 )
                 self.assertTrue(tagged, f"{init_name}.{obj} is not requires='maya'")
 
@@ -1628,7 +1644,7 @@ class TestAlignInvertReleaseShotClaims(unittest.TestCase):
         paired, marker = self.store.peek_boundary_tag()
         self.assertTrue(paired, "the restore point is not paired with Maya's step")
         cmds.undo()
-        self.assertEqual(self.mtk.ShotStore.undo_queue_top(redo=True), marker)
+        self.assertEqual(self.mtk.MayaShotsHost.undo_queue_top(redo=True), marker)
         self.assertFalse(self.store.has_boundary_snapshot(), "the undo applied it")
         self.assertTrue(self.store.edit_ledger.owns_authored(crv, 20.0))
         self.assertEqual(

@@ -4,8 +4,8 @@
 
 :class:`UnityPanelMixin` is mixed into each Unity panel's Slots class, listed
 FIRST among its bases so its hooks override :class:`uitk.bridge.BridgeSlotsBase`'s
-defaults: tentacle's selection-driven ``UnityBridgeSlots`` (one class for Maya and
-Blender) and extapps' model-file-driven ``UnityWorkflowSlots``. The panels differ
+defaults: the selection-driven ``UnityBridgeSlots`` (one class for Maya and
+Blender) and the standalone, model-file-driven ``UnityWorkflowSlots``. The panels differ
 only in what they send (the engine from ``make_bridge``, the parameter registry,
 the ``b000`` send action, the help text); the two combo modes, the project
 actions, the Editor-version combo and the Manage Unity Scripts flow are this one
@@ -14,13 +14,6 @@ implementation.
 ``unitytk`` is optional in every host (installed on demand), so it is imported
 inside the methods that use it; so is ``qtpy``, which only the New Unity Project
 dialogs need.
-
-**Vendored copy -- keep byte-identical.** This file is duplicated at
-``tentacle/slots/tools/_unity_bridge/_unity_panel.py`` (the SSoT: edit it there)
-and ``extapps/unity_workflow/_unity_panel.py``. No single importable home exists:
-extapps runs standalone and never imports tentacle, ``unitytk`` is optional and
-Qt-free, and ``uitk`` carries no app vocabulary. Mirror every change into both
-copies; drift fails ``extapps/test/test_vendor_sync.py``.
 """
 
 import os
@@ -31,7 +24,7 @@ _PKG_DIR = Path(__file__).resolve().parent
 
 
 class UnityPanelMixin:
-    """Unity-panel behavior shared by the three Unity Slots classes.
+    """Unity-panel behavior shared by both Unity Slots classes.
 
     Per-host hooks the panel class provides: ``params_module``, ``make_bridge``,
     ``b000`` (calling :meth:`_run_manage_mode` first) and, where the install
@@ -101,6 +94,21 @@ class UnityPanelMixin:
     def default_output_dir(self) -> str:
         # No scene/workspace fallback -- a DCC scene dir isn't a Unity project.
         return ""
+
+    def _file_bridge(self):
+        """unitytk's file-input engine (``FileToUnityBridge``), or ``None`` while
+        unitytk is absent -- a reportable state, not an import error the panel
+        can't survive. SILENT, for a ``make_bridge`` that runs from ``__init__``
+        (a modal raised from a constructor strands itself); installing is the
+        explicit Manage Unity Scripts > Install. Here beside the mixin's other
+        unitytk reads, so the optional package is imported in one module.
+        """
+        if not self.optional_package_available("unitytk"):
+            return None
+
+        from unitytk import FileToUnityBridge
+
+        return FileToUnityBridge()
 
     def _selected_template(self) -> str:
         """The combo's mode stem; :attr:`MODE_COPY` before the combo populates."""

@@ -6,7 +6,7 @@ Needs **Qt, not bpy**: loads ``ui/tools/shot_sequencer.ui`` (which promotes the
 shared uitk ``SequencerWidget``) and wires ``ShotSequencerSlots`` through a real
 (offscreen) Qt / Switchboard / BlenderUiHandler stack with tentacle's shared
 roots registered, so the panel reaches Blender through blendertk as its ``tk``.
-The controller's build path is headless-safe -- ``BlenderShotStore.active()``
+The controller's build path is headless-safe -- ``ShotStore.active()``
 falls back to an in-memory store, the scene watcher attaches nothing without
 ``bpy`` (``btk.SequencerHost.watch_scene``), and ``_sync_to_widget`` degrades to
 the shotless/no-scene path.  Proves the ``.ui`` compiles, the controller builds
@@ -50,11 +50,21 @@ class TestShotSequencerPanelLoads(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from blendertk import BlenderShotStore
+        import pythontk as ptk
+        from blendertk import ShotStore
 
+        # The panel's store is pure here, whatever host runs the suite (an
+        # --in-maya run resolves Maya's, which would write that scene and open
+        # its undo chunks); the host, its source and the prefs folder go back.
+        cls._store_state = (
+            ShotStore._host,
+            ShotStore._host_source,
+            ShotStore._prefs_dir_override,
+        )
+        ShotStore.set_host(ptk.PureShotsHost())
         cls._prefs_tmp = tempfile.mkdtemp(prefix="btk_seq_panel_")
-        BlenderShotStore._prefs_dir_override = cls._prefs_tmp
-        BlenderShotStore.clear_active()
+        ShotStore._prefs_dir_override = cls._prefs_tmp
+        ShotStore.clear_active()
 
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
         from uitk import Switchboard
@@ -74,15 +84,19 @@ class TestShotSequencerPanelLoads(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        from blendertk import BlenderShotStore
+        from blendertk import ShotStore
 
         # Tear the controller's callbacks down explicitly (mirrors panel close).
         try:
             cls.ui.slots.controller.remove_callbacks()
         except Exception:
             pass
-        BlenderShotStore.clear_active()
-        BlenderShotStore._prefs_dir_override = None
+        ShotStore.clear_active()
+        (
+            ShotStore._host,
+            ShotStore._host_source,
+            ShotStore._prefs_dir_override,
+        ) = cls._store_state
 
     def assertPromoted(self, name, *probes):
         """Fail (never skip) when a ``.ui`` widget did not promote to its uitk class.
@@ -448,10 +462,10 @@ class TestShotSequencerPanelLoads(unittest.TestCase):
                 "re-init did not stash the new controller",
             )
             # the old controller's invalidation listener must be gone
-            from blendertk import BlenderShotStore
+            from blendertk import ShotStore
 
             self.assertNotIn(
-                first._on_store_invalidated, BlenderShotStore._invalidation_listeners
+                first._on_store_invalidated, ShotStore._invalidation_listeners
             )
         finally:
             second_slots.controller.remove_callbacks()

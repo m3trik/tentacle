@@ -30,7 +30,7 @@ import pythontk as ptk
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots._slots import Slots
 from tentacle.slots.tools import reference_manager as panel_module
-from tentacle.slots.tools._reference_manager.listing import SceneListing
+from tentacle.slots.tools._reference_manager.scene_files import SceneFiles
 from tentacle.slots.tools.reference_manager import ReferenceManagerSlots
 
 
@@ -955,6 +955,29 @@ class TestNaming(_PanelCase):
             rows[0][1],
         )
 
+    def test_the_folder_preview_shows_the_folder_save_writes(self):
+        """A padded Folder Structure field previewed ``proj\\ scenes/villain ``
+        while Save wrote ``proj\\scenes\\villain``: the preview is Save's own
+        target now."""
+        slots, sb = self._slots(
+            current=os.path.join(self.ws, "scenes", "villain_v01.ma"),
+            structure=" {scenes}/{name} ",
+        )
+        slots.controller.files.folder_structure_preview()
+        call = sb.tooltip.placeholder_preview.call_args
+        self.assertEqual(call.args[0], "{scenes}/{name}")
+        self.assertEqual(
+            call.kwargs["final"], os.path.normpath(os.path.join(self.ws, "scenes", "villain"))
+        )
+
+    def test_the_folder_preview_says_why_save_cannot_write(self):
+        slots, sb = self._slots()
+        slots.ui.cmb000.items = [("gone", os.path.join(self.root, "gone"))]
+        slots.controller.files.folder_structure_preview()
+        call = sb.tooltip.placeholder_preview.call_args
+        self.assertIsNone(call.kwargs["final"])
+        self.assertIn("Current workspace directory is invalid.", call.kwargs["notes"])
+
     def test_rename_prefills_without_the_suffix_and_moves_the_folder_without_it(self):
         old = os.path.join(self.ws, "scenes", "hero", "hero_v01.ma")
         os.makedirs(os.path.dirname(old))
@@ -1093,60 +1116,22 @@ class TestDelete(_PanelCase):
         notes.assert_not_called()
 
 
-class TestListingRules(unittest.TestCase):
-    def test_a_suffix_hides_only_at_the_end_of_the_stem(self):
-        self.assertEqual(
-            SceneListing.display_name("C:/p/ITA_LOCKHANDLE.ma", False, "_LOC"),
-            "ITA_LOCKHANDLE.ma",
-        )
-        self.assertEqual(
-            SceneListing.display_name("C:/p/hero_LOC.ma", False, "_LOC"), "hero.ma"
-        )
-        self.assertEqual(
-            SceneListing.display_name("C:/p/hero_LOC.ma", True, "_LOC"), "hero"
-        )
-        self.assertEqual(
-            SceneListing.display_name("C:/p/hero.ma", False, ""), "hero.ma"
-        )
-
-    def test_notes_match_whole_or_by_segment(self):
-        m = SceneListing.matches_notes_filter
-        self.assertTrue(m("Layout, Speedrun", "*Speed*"))
-        self.assertTrue(m("Layout, Speedrun", "Layout*"))
-        self.assertTrue(m("Layout; Speedrun", "Speedrun"))
-        self.assertTrue(m("layout", "LAYOUT"))
-        self.assertFalse(m("layout", "LAYOUT", ignore_case=False))
-        self.assertTrue(m("Layout", "nope, Layout"))
-        self.assertFalse(m("", "*"))
-        self.assertFalse(m("Layout", ""))
-
-    def test_the_folder_structure_resolves_scenes(self):
-        kept = SceneListing.filter_by_folder_structure(
-            ["C:/proj/scenes/hero/hero_v01.ma", "C:/proj/loose.ma"],
-            "C:/proj",
-            "{scenes}/{name}",
-            "_v01",
-            "scenes",
-        )
-        self.assertEqual(kept, ["C:/proj/scenes/hero/hero_v01.ma"])
+class TestDeletePrompt(unittest.TestCase):
+    """The delete confirmation (the listing and naming rules themselves are
+    ``ptk.SceneListing``'s, tested in pythontk's ``test_scene_listing``)."""
 
     def test_the_delete_prompt_names_and_caps(self):
         trash = ptk.FileUtils.trash_name()
-        self.assertIn("hero.ma", SceneListing.delete_prompt(["C:/p/hero.ma"]))
-        self.assertIn(trash, SceneListing.delete_prompt(["C:/p/hero.ma"]))
-        gone = SceneListing.delete_prompt(["C:/p/a.ma"], ["C:/p/a.ma"])
+        self.assertIn("hero.ma", SceneFiles.delete_prompt(["C:/p/hero.ma"]))
+        self.assertIn(trash, SceneFiles.delete_prompt(["C:/p/hero.ma"]))
+        gone = SceneFiles.delete_prompt(["C:/p/a.ma"], ["C:/p/a.ma"])
         self.assertIn("permanently", gone)
         self.assertIn("cannot be undone", gone)
-        mixed = SceneListing.delete_prompt(["C:/p/a.ma", "C:/p/b.ma"], ["C:/p/b.ma"])
+        mixed = SceneFiles.delete_prompt(["C:/p/a.ma", "C:/p/b.ma"], ["C:/p/b.ma"])
         self.assertIn("b.ma (permanently", mixed)
         self.assertNotIn("a.ma (permanently", mixed)
-        many = [f"C:/p/{i}.ma" for i in range(SceneListing.DELETE_PROMPT_MAX_NAMES + 3)]
-        self.assertIn("...and 3 more", SceneListing.delete_prompt(many))
-
-    def test_format_name_keeps_the_suffix_out_of_the_case(self):
-        self.assertEqual(SceneListing.format_name("hero", "upper", "_v01"), "HERO_v01")
-        self.assertEqual(SceneListing.format_name("hero", "Case: upper"), "HERO")
-        self.assertEqual(SceneListing.format_name("hero", "None", ""), "hero")
+        many = [f"C:/p/{i}.ma" for i in range(SceneFiles.DELETE_PROMPT_MAX_NAMES + 3)]
+        self.assertIn("...and 3 more", SceneFiles.delete_prompt(many))
 
 
 class TestWorkspaces(_PanelCase):

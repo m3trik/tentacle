@@ -21,6 +21,7 @@ import subprocess
 import sys
 import types
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from unittest import mock
 
@@ -169,12 +170,16 @@ class TestSharedRoots(unittest.TestCase):
 
     def test_a_host_registers_only_the_tools_it_serves(self):
         """A one-host tool's .ui and Slots module both stay out of the other host
-        (``"<tool>.*"``), so nothing there can offer it."""
-        from tentacle.slots.tools import HOSTS
+        (``"<tool>.*"``), so nothing there can offer it; a standalone panel stays
+        out of every host's switchboard (it opens in its own)."""
+        from tentacle.slots.tools import HOSTS, STANDALONE
 
         for host in ("maya", "blender"):
             with self.subTest(host=host):
-                left_out = sorted(t for t, hosts in HOSTS.items() if host not in hosts)
+                left_out = sorted(
+                    {t for t, hosts in HOSTS.items() if host not in hosts}
+                    | set(STANDALONE)
+                )
                 self.assertTrue(left_out, f"{host}: the check is vacuous")
                 self.assertEqual(
                     self._registered({host})["exclude"], [f"{t}.*" for t in left_out]
@@ -212,6 +217,88 @@ class TestSharedRoots(unittest.TestCase):
                 and ast.unparse(node.func) == "Tcl.register_shared"
             ]
             self.assertEqual(calls, ["Tcl.register_shared(self.sb)"], module)
+
+
+class TestRenamedPanels(unittest.TestCase):
+    """``register_shared`` hands the tools' ``slots.tools.RENAMED_FROM`` to uitk's
+    ``PanelRenames.carry`` (its own suite pins the carry): the DCC Bridge keeps
+    what users saved under the Blender and Maya Bridges, the Workspaces panel what
+    they saved under the Workspace Map and the Workspace Editor."""
+
+    #: The former panels' widget names as the saved-names baseline froze them
+    #: (their ``.ui`` files are gone). A root's name stores nothing: the window
+    #: takes the panel's.
+    FORMER_WIDGETS = {
+        "blender_bridge": ["QtUi", "b000", "central_widget", "cmb000", "footer",
+                           "grp_process", "header", "output_grp", "txt000"],
+        "maya_bridge": ["QtUi", "b000", "central_widget", "cmb000", "footer",
+                        "grp_process", "header", "output_grp", "txt000"],
+        "workspace_map": ["b000", "b001", "b002", "footer", "groupBox", "groupBox_2",
+                          "header", "label", "label_2", "tree000", "txt000", "txt001",
+                          "workspace_map"],
+        "workspace_editor": ["QtUi", "central_widget", "footer", "header", "tbl000",
+                             "txt000"],
+    }
+    ROOTS = {"QtUi", "workspace_map"}
+
+    @staticmethod
+    def _ui_names(tool):
+        root = ET.parse(PKG / "ui" / "tools" / f"{tool}.ui").getroot()
+        return {w.get("name") for w in root.iter("widget")}
+
+    def test_each_tool_is_a_tool_and_each_former_panel_is_gone(self):
+        from tentacle.slots.tools import RENAMED_FROM
+
+        tools = {p.stem for p in (PKG / "ui" / "tools").glob("*.ui")}
+        slots = {p.stem for p in (PKG / "slots" / "tools").glob("*.py")}
+        for tool, formers in RENAMED_FROM.items():
+            with self.subTest(tool=tool):
+                self.assertIn(tool, tools)
+                self.assertIn(tool, slots)
+                for former in formers:
+                    self.assertNotIn(former, tools | slots)
+
+    def test_the_former_panels_widget_names_live_on_in_their_tool(self):
+        """Saved names keep their spelling: every widget a former panel stored
+        values under is in its tool's ``.ui``, renamed only where declared."""
+        from tentacle.slots.tools import RENAMED_FROM
+
+        self.assertEqual(
+            set(self.FORMER_WIDGETS),
+            {former for formers in RENAMED_FROM.values() for former in formers},
+        )
+        for tool, formers in RENAMED_FROM.items():
+            names = self._ui_names(tool)
+            for former, renamed in formers.items():
+                for widget in set(self.FORMER_WIDGETS[former]) - self.ROOTS:
+                    with self.subTest(former=former, widget=widget):
+                        self.assertIn(renamed.get(widget, widget), names)
+
+    def test_each_former_panel_names_the_host_it_served(self):
+        """``RENAMED_HOSTS`` keeps two formers' kept names in separate stores
+        (``check_saved_names.py`` reads it): a row per former, real hosts."""
+        from tentacle.slots.tools import RENAMED_FROM, RENAMED_HOSTS
+
+        formers = {former for names in RENAMED_FROM.values() for former in names}
+        self.assertEqual(set(RENAMED_HOSTS), formers)
+        for former, hosts in RENAMED_HOSTS.items():
+            with self.subTest(former=former):
+                self.assertTrue(set(hosts) and set(hosts) <= set(Tcl.HOSTS), hosts)
+
+    def test_registration_carries_the_former_panels_first(self):
+        from uitk import PanelRenames
+
+        from tentacle.slots.tools import RENAMED_FROM
+
+        sb = mock.Mock(context_tags={"maya"})
+        order = []
+        sb.register.side_effect = lambda **kw: order.append("register")
+        with mock.patch.object(
+            PanelRenames, "carry", side_effect=lambda *a, **k: order.append("carry")
+        ) as carry:
+            Tcl.register_shared(sb)
+        carry.assert_called_once_with(sb, RENAMED_FROM)
+        self.assertEqual(order[0], "carry")
 
 
 class TestHostDetection(unittest.TestCase):
@@ -1318,7 +1405,7 @@ class TestEntryForksRouteThroughTheGuard(unittest.TestCase):
 class TestReloadTeardown(unittest.TestCase):
     """``Settings > Reload Scripts`` must release what the reload would ORPHAN.
 
-    ``ptk.reload_package`` rebinds module globals, but the DCC keeps holding what
+    ``ptk.ModuleReloader`` rebinds module globals, but the DCC keeps holding what
     the old code registered with it — an armed activation shortcut, a live
     ``scriptJob``, an OpenMaya callback — while the handle that could cancel any
     of them goes out with the old class object. That is both reported symptoms:
@@ -1459,11 +1546,12 @@ class TestReloadPackages(unittest.TestCase):
         calls = []
         module = types.ModuleType("pythontk")
 
-        def reload_package(package, **kwargs):
-            calls.append((package, kwargs))
-            return report
+        class ModuleReloader:
+            def reload(self, package, **kwargs):
+                calls.append((package, kwargs))
+                return report
 
-        module.reload_package = reload_package
+        module.ModuleReloader = ModuleReloader
         with mock.patch.dict(sys.modules, {"pythontk": module}):
             yield calls
 
@@ -1492,7 +1580,7 @@ class TestReloadPackages(unittest.TestCase):
         self.assertEqual(calls[0][1]["dependencies_first"], ("pythontk", "uitk"))
 
     def test_a_module_that_did_not_reload_is_named(self):
-        """reload_package records the failure and carries on, so a partial
+        """ModuleReloader.reload records the failure and carries on, so a partial
         reload is the "reload did nothing" report one module at a time."""
         report = self._Report(["a"], [("tentacle.slots.maya.uv", RuntimeError("boom"))])
         out = io.StringIO()

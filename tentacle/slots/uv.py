@@ -63,12 +63,6 @@ class UvSlots(Slots):
         self.ui = self.sb.loaded_ui.uv
         self.submenu = self.sb.loaded_ui.uv_submenu
 
-    def _host_only(self, host, *widgets):
-        """Tag option-box controls only *host* serves; uitk hides them on the other."""
-        for widget in widgets:
-            widget.setProperty("requires", host)
-            self.sb.apply_visibility_policy(widget)
-
     def get_map_size(self):
         """Get the map size from the combobox as an int. ie. 2048"""
         return int(self.ui.cmb003.currentText())
@@ -463,11 +457,11 @@ class UvSlots(Slots):
                 ],
             ),
         )
-        self._host_only(
-            "maya", cmb019, chk043, cmb010, s011, s012, s013, s014, cmb018, s019,
-            s020, chk016,
-        )
-        self._host_only("blender", s_pack_margin)
+        for option in (
+            cmb019, chk043, cmb010, s011, s012, s013, s014, cmb018, s019, s020, chk016
+        ):
+            self.requires(option, "maya")
+        self.requires(s_pack_margin, "blender")
 
         def _sync_gates():
             _engine, honored = self._pack_engine(menu)
@@ -685,8 +679,9 @@ class UvSlots(Slots):
                 notes=["<b>Standard</b> method only."],
             ),
         )
-        self._host_only("maya", cmb012)
-        self._host_only("blender", s_smart_angle, s_smart_margin)
+        self.requires(cmb012, "maya")
+        for option in (s_smart_angle, s_smart_margin):
+            self.requires(option, "blender")
 
         def _sync_options():
             standard = menu.cmb011.currentData() == "standard"
@@ -841,8 +836,9 @@ class UvSlots(Slots):
             setToolTip="Spacing between islands after unwrap.",
         )
         # Blender's unwrap never rejects a non-manifold mesh: no strategy to pick.
-        self._host_only("maya", cmb013)
-        self._host_only("blender", cmb_unfold_method, s_unfold_margin)
+        self.requires(cmb013, "maya")
+        for option in (cmb_unfold_method, s_unfold_margin):
+            self.requires(option, "blender")
 
     def tb004(self, widget):
         """Unfold: relax / unfold the selected meshes' UVs (``UvUtils.unfold_uvs``)."""
@@ -1120,7 +1116,8 @@ class UvSlots(Slots):
             setToolTip="Orient each shell to its nearest U/V axis when packing "
             "after the unfold.",
         )
-        self._host_only("maya", s021, s022, s023, chk045, chk040, chk046)
+        for option in (s021, s022, s023, chk045, chk040, chk046):
+            self.requires(option, "maya")
 
     def tb009(self, widget):
         """Cut Cylinder (``UvUtils.unwrap_cylinder``)."""

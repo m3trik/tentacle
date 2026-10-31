@@ -251,7 +251,7 @@ class EmissiveGroupsSlots(Slots):
         Idempotent (see :meth:`tbl000_init`), and deliberately NOT a blanket
         ``signal.disconnect()``: that would also tear out the widget's own
         internal connections — uitk's ``TableWidget`` wires ``cellChanged``
-        to its ``_on_cell_edited`` in its constructor — and PySide warns
+        to its cell formats' ``on_cell_edited`` in its constructor — and PySide warns
         ("Failed to disconnect (None) from signal ...") whenever a signal
         has nothing attached. The previous binding is tracked on the widget
         instead and disconnected by reference; holding that reference also

@@ -12,7 +12,7 @@ the shared ``webxr_preview`` panel and never grows its own copy of the preview
 again. That rule is checked against the source rather than by running it,
 because a re-grown push flow is exactly the drift that is invisible until the
 two hosts disagree. The preview's own behaviour is tested with it, in
-``extapps/test/test_webxr_preview.py``.
+``test_webxr_preview_panel.py``.
 """
 
 import ast
@@ -122,7 +122,7 @@ class TestThePreviewStaysALaunch(unittest.TestCase):
         slots = _slots()
         ui = slots.sb.handlers.external_app.launch.return_value
         slots.b000(None)
-        # The entry-point NAME is the contract between the host and extapps;
+        # The entry-point NAME is the contract between the host and the panel;
         # show=False hands the widget back before it is shown, so the bridge
         # can be set.
         slots.sb.handlers.external_app.launch.assert_called_once_with(

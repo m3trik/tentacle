@@ -6,8 +6,8 @@ Sibling of ``test_main_workspace.py``, which pins the flow; this pins what
 differs when the host is Blender. The class is the same: a fake toolkit stands
 in for ``btk``, answering as blendertk does (a folder of .blend files is a
 workspace, the session pin is what opens, Blender has no project window and
-tentacle's Workspace Editor tool serves it). blendertk's own operations are
-tested in blendertk (``test_env_utils.py``).
+the editor part of tentacle's Workspaces tool serves it). blendertk's own
+operations are tested in blendertk (``test_env_utils.py``).
 """
 
 import os
@@ -72,12 +72,12 @@ class TestWorkspaceTabInBlender(unittest.TestCase):
         self.slots.list000_init(_StubList())
         self.assertEqual(self.slots._workspace_store.values, [folder])
 
-    def test_edit_workspace_opens_the_workspace_editor_tool(self):
-        """Blender has no project window: tentacle's Workspace Editor serves it
-        (``slots.tools.HOSTS``)."""
-        self.sb.ui_name_resolves.return_value = True
+    def test_edit_workspace_opens_the_workspaces_tool(self):
+        """Blender has no project window (``UiUtils`` opens none): the Workspaces
+        tool's editor part serves it."""
+        self.sb.tk.UiUtils.get_editor_types.return_value = {"Outliner": "OUTLINER"}
         self.slots._open_workspace_editor()
-        self.sb.handlers.marking_menu.show.assert_called_once_with("workspace_editor")
+        self.sb.handlers.marking_menu.show.assert_called_once_with("workspaces")
         self.sb.tk.UiUtils.open_editor.assert_not_called()
 
 

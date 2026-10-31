@@ -266,8 +266,7 @@ class DuplicateSlots(Slots):
         )
         # Construction history is Maya's: Blender has none to delete, so the
         # option is hidden there (the engine takes the flag for parity only).
-        chk_history.setProperty("requires", "maya")
-        self.sb.apply_visibility_policy(chk_history)
+        self.requires(chk_history, "maya")
 
     def tb000(self, widget):
         """Convert to Instances: the other selected objects become instances of

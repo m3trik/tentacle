@@ -207,7 +207,7 @@ class ClipMenuMixin:
             seqs: Sequence dicts to send (clips or key selections).
             noun: What the footer counts afterwards -- ``"clip"`` or ``"key"``.
         """
-        source_ids = {self.sequencer._source_shot_id_for(sq) for sq in seqs}
+        source_ids = {self.sequencer.source_shot_id(sq) for sq in seqs}
         single = next(iter(source_ids)) if len(source_ids) == 1 else None
         anchor = single if single is not None else self.active_shot_id
         near = (
@@ -269,7 +269,7 @@ class ClipMenuMixin:
         movable = [
             sq
             for sq in sequences
-            if self.sequencer._source_shot_id_for(sq) != dest_shot_id
+            if self.sequencer.source_shot_id(sq) != dest_shot_id
         ]
         if not movable:
             self._set_footer(

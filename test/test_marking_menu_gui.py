@@ -500,24 +500,27 @@ class MarkingMenuGuiTest(unittest.TestCase):
         )
 
     def test_preload_leaves_mayas_own_menus_cold(self):
-        """The preload warms tentacle's submenus but never a native-menu page.
+        """Warming a native-menu page never builds one of Maya's own menus.
 
         Building one runs Maya's MEL menu builder: it switches the main
-        window's menu set mid-build, Arnold and MASH load their plugins
-        (warming arnold#submenu froze the first key_show press for 5.4 s), and
-        a stale mapping's error reached the Script Editor at every startup
-        (``NucleusCacheMenu.mel``: ``'MayaWindow|mainCacheMenu' not found``).
+        window's menu set mid-build, Arnold and MASH load their plugins (a
+        warm-up that built the Arnold menu froze the first key_show press for
+        5.4 s), and a stale mapping's error reached the Script Editor at every
+        startup (``NucleusCacheMenu.mel``: ``'MayaWindow|mainCacheMenu' not
+        found``). The pages are pure navigation with no Slots class, so they
+        warm like any other page; Maya's menu builds on its first release, when
+        the switchboard resolves the name through ``MayaUiHandler``.
         """
-        from fnmatch import fnmatchcase
-
-        def excluded(name):
-            return any(fnmatchcase(name, p) for p in self.mm.PRELOAD_EXCLUDE)
-
-        for name in ("cache#submenu", "arnold#submenu", "mash#submenu", "mesh#submenu"):
-            self.assertTrue(excluded(name), f"{name} builds a Maya menu at startup")
-        # Same names as native-menu keys, but tentacle's own pages.
-        for name in ("uv#submenu", "display#submenu", "edit#submenu"):
-            self.assertFalse(excluded(name), f"tentacle's {name} must still warm")
+        for name in ("cache", "arnold", "mash"):
+            self.mm._warm_menu(f"{name}#submenu")
+            page = self.mm.sb.loaded_ui.peek(f"{name}#submenu")
+            self.assertTrue(
+                page is not None and page.is_initialized, f"{name}#submenu did not warm"
+            )
+            self.assertIsNone(
+                self.mm.sb.loaded_ui.peek(name),
+                f"warming {name}#submenu built Maya's {name} menu",
+            )
 
     def test_preload_advances_only_from_mayas_own_loop(self):
         """A tick fired inside a script's processEvents (mayatk's
@@ -704,16 +707,19 @@ class BrowserPolicyGuiTest(unittest.TestCase):
                     self._process()
 
     def test_a_tool_maya_does_not_serve_is_never_offered(self):
-        """A Blender tool (``tentacle.slots.tools.HOSTS``) is left out of TclMaya's
-        registration: nothing resolves it, so no menu, UI Browser row or
-        ``marking_menu.show`` can open it (Maya's own Project Window is the
-        Workspace Editor's twin)."""
+        """A tool ``tentacle.slots.tools.HOSTS`` keeps out of Maya is left out of
+        TclMaya's registration, and a former panel name (``RENAMED_FROM``: the
+        tool that took it over registers instead) is no tool at all: nothing
+        resolves either, so no menu, UI Browser row or ``marking_menu.show`` can
+        open it."""
+        from tentacle.slots.tools import RENAMED_FROM
         from tentacle.tcl import Tcl
 
         unserved = Tcl.unserved_tools(self.mm.sb.context_tags)
-        self.assertIn("workspace_editor", unserved)
+        former = sorted(name for names in RENAMED_FROM.values() for name in names)
+        self.assertIn("workspace_editor", former)
         registered = set(self.mm.sb.registry.ui_registry.get("filename") or [])
-        for name in unserved:
+        for name in unserved + former:
             with self.subTest(tool=name):
                 self.assertNotIn(name, registered)
                 self.assertFalse(self.mm.sb.handlers.ui.can_resolve(name))

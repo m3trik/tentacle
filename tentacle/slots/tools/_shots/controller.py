@@ -7,7 +7,7 @@ One copy for both hosts. The store and the engine are the host library's,
 reached through ``self.tk``: :meth:`ShotsController._sequencer_cls` is the
 host's ``ShotSequencer`` and :meth:`ShotsController._store_cls` its
 ``STORE_CLASS`` (pythontk's ``ShotSequencer`` contract), so the panel names
-neither ``ShotStore`` nor ``BlenderShotStore``. What the panel says about the
+no host's store or host adapter. What the panel says about the
 store -- the footer's summary, a trim's outcome, the Delete Shots scopes and
 question -- is pythontk's ``ShotReport``, which the host's Shot Sequencer words
 its own menus with.
@@ -149,7 +149,7 @@ class ShotsController(ptk.LoggingMixin):
 
     def _store_cls(self):
         """The host's store class: the ``STORE_CLASS`` of its ``ShotSequencer``
-        (Maya's ``ShotStore``, Blender's ``BlenderShotStore``)."""
+        (pythontk's one ``ShotStore``, on the host's ``ShotsHost``)."""
         return self._sequencer_cls().STORE_CLASS
 
     def _sequencer_cls(self):
@@ -235,9 +235,7 @@ class ShotsController(ptk.LoggingMixin):
         footer = getattr(self.ui, "footer", None)
         if footer is None:
             return
-        label = footer._status_label
-        label.setStyleSheet("background: transparent; border: none;")
-        footer.setText(text)
+        footer.setText(text)  # no level, no colour: the theme's own
 
     def _sync_footer(self, store=None) -> None:
         """Update footer with aggregate shot statistics."""
@@ -672,7 +670,7 @@ class ShotsController(ptk.LoggingMixin):
         if store is not None:
             store.detection_threshold = float(value)
             store.mark_dirty()
-            store._save_user_prefs()
+            store.save_user_prefs()
             store.notify_settings_changed()
 
     def on_detection_mode_changed(self, index: int) -> None:
@@ -681,7 +679,7 @@ class ShotsController(ptk.LoggingMixin):
         if store is not None:
             store.detection_mode = mode
             store.mark_dirty()
-            store._save_user_prefs()
+            store.save_user_prefs()
             store.notify_settings_changed()
         self.refresh_state()
 
@@ -690,7 +688,7 @@ class ShotsController(ptk.LoggingMixin):
         if store is not None:
             store.initial_shot_length = float(value)
             store.mark_dirty()
-            store._save_user_prefs()
+            store.save_user_prefs()
             store.notify_settings_changed()
 
     def on_snap_whole_frames_changed(self, checked: bool) -> None:
@@ -699,7 +697,7 @@ class ShotsController(ptk.LoggingMixin):
             return
         store.snap_whole_frames = bool(checked)
         store.mark_dirty()
-        store._save_user_prefs()
+        store.save_user_prefs()
         self._apply_snap_to_spinboxes(bool(checked))
         # Re-snap existing shot bounds so the scene state reflects the
         # new policy.  No-op when turning snapping off.
@@ -740,7 +738,7 @@ class ShotsController(ptk.LoggingMixin):
         if 0 <= index < len(self._FIT_MODES):
             store.fit_mode = self._FIT_MODES[index]
             store.mark_dirty()
-            store._save_user_prefs()
+            store.save_user_prefs()
             store.notify_settings_changed()
 
     def _boundary_edit(self, store, label: str, fn, *args, **kwargs) -> bool:

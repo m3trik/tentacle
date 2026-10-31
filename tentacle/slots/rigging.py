@@ -58,21 +58,6 @@ class RiggingSlots(Slots):
         self.ui = self.sb.loaded_ui.rigging
 
     # ------------------------------------------------------------------ helpers
-    def _host_only(self, widget, host):
-        """Tag a code-built *widget* only *host* serves (uitk hides it on the
-        other host, CODE_STANDARD section 15). Returns True when this host
-        serves it."""
-        widget.setProperty("requires", host)
-        return not self.sb.apply_visibility_policy(widget)
-
-    def _settings_key(self, base):
-        """*base* namespaced by host (uitk's ``host_namespace_suffix``): Maya
-        and Blender share one settings store."""
-        suffix = self.sb.ShortcutManager.host_namespace_suffix(
-            getattr(self.sb, "context_tags", None)
-        )
-        return base + suffix
-
     @staticmethod
     def _affix_arg(field):
         """``(text, mode)`` for an affix field, as the operation wants them.
@@ -214,7 +199,7 @@ class RiggingSlots(Slots):
         controls = (scale, *radios.values())
         for control in controls:
             control.restore_state = False
-        served = [self._host_only(control, "maya") for control in controls]
+        served = [self.requires(control, "maya") for control in controls]
         if not all(served):
             return
 
@@ -424,7 +409,7 @@ class RiggingSlots(Slots):
         for text, data in (("None", "none"), ("Ring", "ring")):
             group_display.addItem(f"Group Display: {text}", data)
         # Blender's: a Maya group has no display to choose.
-        self._host_only(group_display, "blender")
+        self.requires(group_display, "blender")
         self._add_rotate_order_combo(menu)
         menu.add("Separator", setTitle="Naming")
         # Seeded from the shared naming convention, not from literals: the group
@@ -446,7 +431,7 @@ class RiggingSlots(Slots):
             default="convention",
             convention_key="group",
             # ``t002`` alone is far too generic to namespace on.
-            settings_key=self._settings_key("rigging_create_locator_grp_affix"),
+            settings_key=self.host_key("rigging_create_locator_grp_affix"),
         )
         loc_field = menu.add(
             "QLineEdit",
@@ -464,7 +449,7 @@ class RiggingSlots(Slots):
         loc_field.option_box.set_affix(
             default="convention",
             convention_key="locator",
-            settings_key=self._settings_key("rigging_create_locator_loc_affix"),
+            settings_key=self.host_key("rigging_create_locator_loc_affix"),
         )
         # Same picker as the two fields above, with one difference: the child is
         # whatever the user selected, so its Scene state is bound to the
@@ -487,7 +472,7 @@ class RiggingSlots(Slots):
         obj_field.option_box.set_affix(
             default="convention",
             convention_key=self._locator_child_type_key,
-            settings_key=self._settings_key("rigging_create_locator_obj_affix"),
+            settings_key=self.host_key("rigging_create_locator_obj_affix"),
         )
         menu.add(
             "QCheckBox",

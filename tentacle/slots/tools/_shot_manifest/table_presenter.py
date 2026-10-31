@@ -539,7 +539,7 @@ class ManifestTableMixin:
         content_col = COL_DESC
 
         # Row tints via delegate (fillRect bypasses the host's QSS stripping).
-        tree._child_row_color = QColor(0, 0, 0, 55)
+        tree.setChildRowColor(QColor(0, 0, 0, 55))
 
         # Column tints — darken Step and Behaviors columns
         tree.clear_column_tints()

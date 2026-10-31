@@ -814,8 +814,7 @@ class SelectionSlots(Slots):
                 setObjectName=name,
                 setToolTip=f"Also stop the island at {delimiter.lower()} boundaries.",
             )
-            chk.setProperty("requires", "blender")
-            self.sb.apply_visibility_policy(chk)
+            self.requires(chk, "blender")
 
     def tb002(self, widget):
         """Select Island: the contiguous faces, around the selected ones, whose

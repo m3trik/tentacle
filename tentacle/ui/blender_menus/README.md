@@ -79,8 +79,8 @@ hides on `key_show` release**, exactly like every other marking-menu window. The
   names; a per-name proxy is pre-registered so the release path (`get_ui`) resolves to it, and
   `show` swaps in the wrapped menu window (`_wrap_native_menu`).
 
-So — like `maya_menus` — **these `MenuButton`s carry no tentacle slots**; `slots/blender/blender.py`
-is just the base-name (`blender`) anchor the startmenu resolves to.
+So — like `maya_menus` — **these pages carry no Slots class at all** (the startmenu included): a
+`MenuButton` navigates, and a release resolves its target through `BlenderUiHandler`.
 
 ### Known deltas from Maya's wrap
 

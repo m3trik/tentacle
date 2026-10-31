@@ -1,8 +1,8 @@
 # !/usr/bin/python
 # coding=utf-8
-"""The Unity Bridge panel's Qt half: :class:`_unity_panel.UnityPanelMixin`.
+"""The Unity panels' shared Qt half: :class:`_unity_panel.UnityPanelMixin`.
 
-Private to :mod:`tentacle.slots.tools.unity_bridge`; vendored byte-identical with
-extapps' Unity Workflow panel (see the mixin's module docstring). The engine is
-each host library's ``UnityBridge``.
+Private to the two Unity panels, :mod:`tentacle.slots.tools.unity_bridge` and
+:mod:`tentacle.slots.tools.unity_workflow`. The Unity Bridge's engine is each host
+library's ``UnityBridge``; the Unity Workflow's is unitytk's ``FileToUnityBridge``.
 """

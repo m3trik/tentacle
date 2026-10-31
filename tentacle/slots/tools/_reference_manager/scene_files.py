@@ -13,74 +13,58 @@ panel's controller (:mod:`.controller`). The host's side is its engine's
 import contextlib
 import html
 import os
-from typing import Optional
+from typing import Optional, Sequence
 
 import pythontk as ptk
 from qtpy import QtCore
 
-from .listing import SceneListing
-
 
 class SceneFiles:
     """The scene-file actions (see the module docstring)."""
+
+    #: Max file names listed verbatim in a delete confirmation (the rest fold into
+    #: an "...and N more" line).
+    DELETE_PROMPT_MAX_NAMES = 10
 
     def __init__(self, controller):
         self.c = controller
         self._warned_scene_placeholder_typo = False
 
     def normalize_structure_pattern(self, pattern: str) -> str:
-        """The folder-structure pattern trimmed, with the common ``{scene}`` typo read
-        as ``{scenes}`` (warned once): left as typed, ``replace_placeholders`` keeps
-        the unknown placeholder verbatim and the save made a literal folder."""
-        pattern = (pattern or "").strip()
-        if "{scene}" in pattern:
-            if not self._warned_scene_placeholder_typo:
-                self._warned_scene_placeholder_typo = True
-                self.c.logger.warning(
-                    "Folder Structure: '{scene}' is not a supported placeholder. "
-                    "Did you mean '{scenes}'? Auto-correcting for this operation."
-                )
-            pattern = pattern.replace("{scene}", "{scenes}")
-        return pattern
+        """The folder-structure pattern as Save reads it
+        (``ptk.SceneListing.normalize_structure_pattern``: trimmed, the common
+        ``{scene}`` typo read as ``{scenes}``), the typo warned once."""
+        if "{scene}" in (pattern or "") and not self._warned_scene_placeholder_typo:
+            self._warned_scene_placeholder_typo = True
+            self.c.logger.warning(
+                "Folder Structure: '{scene}' is not a supported placeholder. "
+                "Did you mean '{scenes}'? Auto-correcting for this operation."
+            )
+        return ptk.SceneListing.normalize_structure_pattern(pattern)
 
     def default_save_name(self, case_style: str, suffix: str) -> str:
-        """The name Save would prepopulate: the open scene's base, less every trailing
-        *suffix* (so it isn't double-appended), case-formatted; '' with no scene. Only
-        the extension comes off (``hero.rig.ma`` prepopulates ``hero.rig``)."""
-        current = self.c.engine.current_scene()
-        if not current:
-            return ""
-        base = os.path.splitext(os.path.basename(current))[0]
-        base = SceneListing.strip_all_suffixes(base, suffix)
-        return SceneListing.format_name(base, case_style)
+        """The name Save would prepopulate for the open scene
+        (``ptk.SceneListing.default_save_name``); '' with no scene."""
+        return ptk.SceneListing.default_save_name(
+            self.c.engine.current_scene(), case_style, suffix
+        )
 
     def resolve_save_target(self, name, case_style, suffix, pattern) -> str:
         """The absolute path Save To Workspace writes for *name* under the browsed
-        workspace -- shared by Save and its button's live tooltip, so the preview
-        cannot drift from the save. *pattern* arrives normalized.
+        workspace (``ptk.SceneListing.save_target``, in the host's scene format) --
+        shared by Save and its button's live tooltip, so the preview cannot drift
+        from the save.
 
         Raises:
             ValueError: No valid workspace, or an invalid placeholder pattern.
         """
-        workspace = self.c.workspaces.workspace_dir()
-        if not workspace or not os.path.isdir(workspace):
-            raise ValueError("Current workspace directory is invalid.")
-        target_dir = workspace
-        if pattern:
-            try:
-                rel = ptk.StrUtils.replace_placeholders(
-                    pattern,
-                    scenes=SceneListing.scenes_folder(workspace),
-                    name=SceneListing.format_name(name, case_style),
-                    workspace=os.path.basename(os.path.normpath(workspace)),
-                    suffix=suffix,
-                )
-            except ValueError as e:
-                raise ValueError(f"Invalid folder structure pattern: {e}")
-            target_dir = os.path.join(workspace, rel)
-        file_name = SceneListing.format_name(name, case_style, suffix)
-        return os.path.normpath(
-            os.path.join(target_dir, file_name + self.c.engine.SCENE_SAVE_EXTENSION)
+        return ptk.SceneListing.save_target(
+            self.c.workspaces.workspace_dir(),
+            name,
+            case_style,
+            suffix,
+            pattern,
+            self.c.engine.SCENE_SAVE_EXTENSION,
         )
 
     def save_scene_preview(self) -> str:
@@ -120,18 +104,24 @@ class SceneFiles:
         notes = ["e.g. {scenes} · {scenes}/{name} · {scenes}/{name}/versions"]
         if "{scene}" in pattern:
             notes.append("<b>{scene}</b> is not valid — did you mean <b>{scenes}</b>?")
-        resolve_pattern = pattern.replace("{scene}", "{scenes}")
+        resolve_pattern = ptk.SceneListing.normalize_structure_pattern(pattern)
         context = {
-            "scenes": SceneListing.scenes_folder(workspace),
+            "scenes": ptk.SceneListing.scenes_folder(workspace),
             "name": self.default_save_name(case_style, suffix) or "<scene name>",
             "workspace": workspace_name,
             "suffix": suffix,
         }
+        # The folder Save writes, from Save's own target, so the two cannot
+        # drift; where Save would refuse, the reason instead.
         try:
-            rel = ptk.StrUtils.replace_placeholders(resolve_pattern, **context)
-            final = os.path.join(workspace, rel) if workspace else rel
-        except ValueError:
+            final = os.path.dirname(
+                self.resolve_save_target(
+                    context["name"], case_style, suffix, resolve_pattern
+                )
+            )
+        except ValueError as e:
             final = None
+            notes.append(html.escape(str(e), quote=False))
         return self.c.sb.tooltip.placeholder_preview(
             resolve_pattern,
             context,
@@ -330,7 +320,7 @@ class SceneFiles:
         new_base = ptk.StrUtils.strip_suffix(answer, [suffix])
         if not new_base:
             return
-        new_name = SceneListing.format_name(new_base, case_style, suffix) + ext
+        new_name = ptk.SceneListing.format_name(new_base, case_style, suffix) + ext
         if new_name == old_name:
             return  # the conventions give back the name it already has
         new_path = os.path.join(os.path.dirname(path), new_name)
@@ -338,11 +328,52 @@ class SceneFiles:
             self.c.message(f"Target file exists: {html.escape(new_path, quote=False)}")
             return
         folder = (
-            SceneListing.format_name(new_base, case_style)
+            ptk.SceneListing.format_name(new_base, case_style)
             if "{name}" in structure
             else None
         )
         self.rename_path(path, new_path, folder)
+
+    @classmethod
+    def delete_prompt(cls, paths: Sequence[str], permanent: Sequence[str] = ()) -> str:
+        """Confirmation text for deleting *paths*.
+
+        Names each file in full: the row label can hide the suffix/extension, so a
+        count alone gives no way to confirm WHICH file is about to be removed. And
+        it says where each goes: the platform's trash (``ptk.FileUtils.trash_name``),
+        or, for *permanent* -- the ones no trash would take (a network share, a
+        removable drive) -- gone for good, which it says cannot be undone.
+        """
+        trash = ptk.FileUtils.trash_name()
+        gone = {os.path.normcase(os.path.abspath(p)) for p in permanent}
+        marks = [os.path.normcase(os.path.abspath(p)) in gone for p in paths]
+        names = [os.path.basename(p) for p in paths]
+        if len(names) == 1:
+            if marks[0]:
+                return (
+                    f"Delete <hl>{names[0]}</hl> permanently?<br>The {trash} "
+                    "will not take it, so this cannot be undone."
+                )
+            return f"Move <hl>{names[0]}</hl> to the {trash}?"
+        mixed = any(marks) and not all(marks)
+        shown = list(zip(names, marks))[: cls.DELETE_PROMPT_MAX_NAMES]
+        listed = "<br>".join(
+            f"&bull; {n}" + (f" (permanently: no {trash})" if mark and mixed else "")
+            for n, mark in shown
+        )
+        if len(names) > len(shown):
+            listed += f"<br>&bull; ...and {len(names) - len(shown)} more"
+        if all(marks):
+            return (
+                f"Delete {len(names)} file(s) permanently?<br>{listed}<br>The "
+                f"{trash} will not take them, so this cannot be undone."
+            )
+        if mixed:
+            return (
+                f"Delete {len(names)} file(s)?<br>{listed}<br>The rest go to the "
+                f"{trash}; the marked ones cannot be undone."
+            )
+        return f"Move {len(names)} file(s) to the {trash}?<br>{listed}"
 
     def delete_scene(self):
         """Delete the right-clicked row's scene: to the trash, or -- a drive with none,
@@ -355,10 +386,7 @@ class SceneFiles:
         if not os.path.exists(path):
             return
         permanent = [path] if not ptk.FileUtils.can_trash(path) else []
-        if (
-            self.c.message(SceneListing.delete_prompt([path], permanent), "Yes", "No")
-            != "Yes"
-        ):
+        if self.c.message(self.delete_prompt([path], permanent), "Yes", "No") != "Yes":
             return
         # {name} in the folder structure: per-scene folders, removed with their last scene.
         use_folder = "{name}" in self.c.naming_options()[2]
@@ -366,8 +394,7 @@ class SceneFiles:
             path, permanent=bool(permanent), use_folder=use_folder
         )
         if result is None and (
-            self.c.message(SceneListing.delete_prompt([path], [path]), "Yes", "No")
-            == "Yes"
+            self.c.message(self.delete_prompt([path], [path]), "Yes", "No") == "Yes"
         ):
             result = self.c.engine.remove_scene_file(
                 path, permanent=True, use_folder=use_folder

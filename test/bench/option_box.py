@@ -45,12 +45,19 @@ class TentacleOptionBoxBench(OptionBoxInitBench):
 
         return Switchboard(
             ui_source=os.path.join(tentacle_root, "ui"),
-            slot_source=os.path.join(tentacle_root, "slots", "maya"),
+            # The composed Slots classes (one per category, both hosts').
+            slot_source=os.path.join(tentacle_root, "slots"),
             base_dir=tentacle_root,
             log_level="warning",
         )
 
     def post_switchboard(self, sb) -> None:
+        # A composed Slots class reaches Maya through ``sb.tk``, which TclMaya
+        # sets; the bench builds no TclMaya.
+        if getattr(sb, "tk", None) is None:
+            import mayatk
+
+            sb.tk = mayatk
         # tentacle's slot ``__init__`` chain references
         # ``self.sb.handlers.marking_menu``; the bench doesn't construct
         # the marking menu, so populate the attribute defensively.

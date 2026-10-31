@@ -61,6 +61,20 @@ class TestPointedRuns(unittest.TestCase):
         self.assertIn("_modules = ['test_lighting']", source)
         self.assertIn("_patterns = ['*light*']", source)
 
+    def test_the_in_maya_wait_is_long_enough_for_the_whole_suite_and_settable(self):
+        """Regression: the wait was a fixed 600 s, and the whole suite takes
+        ~25 min in one Maya (whose port refuses while it runs), so a full
+        ``--in-maya`` run always ended in [TIMEOUT]. Fixed: 2026-10-31."""
+        for argv, wanted in (
+            (["run_tests.py", "--in-maya"], 2400),
+            (["run_tests.py", "--in-maya", "--timeout", "900"], 900),
+        ):
+            with mock.patch.object(sys, "argv", argv), \
+                    mock.patch.object(rt, "_run_in_maya_gui", return_value=0) as gui:
+                with self.assertRaises(SystemExit):
+                    rt.main()
+            self.assertEqual(gui.call_args.kwargs["timeout"], wanted)
+
     def test_an_unknown_module_exits_two_before_any_run(self):
         argv = ["run_tests.py", "definitely_not_a_module"]
         with mock.patch.object(sys, "argv", argv), \

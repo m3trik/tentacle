@@ -29,6 +29,9 @@ _KB_RIGHT = "→"
 #: Where the window keeps its live controller, so a slots re-init over the same
 #: loaded window tears the previous one down first.
 _CONTROLLER_ATTR = "_shot_seq_controller"
+#: Where it keeps the live graph half (the host's ``GraphSync``), detached the
+#: same way before a re-init builds the next one.
+_GRAPH_SYNC_ATTR = "_shot_seq_graph_sync"
 
 
 class ShotSequencerSlots(Slots, ptk.LoggingMixin):
@@ -154,13 +157,13 @@ class ShotSequencerSlots(Slots, ptk.LoggingMixin):
             # The graph editor's feed and commits (the host's GraphSync),
             # rebuilt with the controller; the previous one is detached first,
             # as the wiring is.
-            prev_graph = getattr(sequencer, "_graph_sync", None)
+            prev_graph = getattr(self.ui, _GRAPH_SYNC_ATTR, None)
             if prev_graph is not None:
                 prev_graph.detach()
             self.graph_sync = self.tk.SequencerHost.graph_sync_cls()(
                 self.controller, sequencer
             )
-            sequencer._graph_sync = self.graph_sync
+            setattr(self.ui, _GRAPH_SYNC_ATTR, self.graph_sync)
             self._register_track_options(sequencer)
         self._setup_shot_nav()
         self.controller._setup_transport_controls()

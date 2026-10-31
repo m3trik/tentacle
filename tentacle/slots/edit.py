@@ -87,12 +87,6 @@ class EditSlots(Slots):
         self.ui = self.sb.loaded_ui.edit
         self.submenu = self.sb.loaded_ui.edit_submenu
 
-    def _requires(self, widget, host):
-        """Tag an option only *host* serves; uitk hides it on the other host."""
-        widget.setProperty("requires", host)
-        self.sb.apply_visibility_policy(widget)
-        return widget
-
     def header_init(self, widget):
         """Header menu: the submenu's Create / Convert lists, Channels and Cut On Axis."""
         # Every entry is a one-shot action: dismiss the menu once one is triggered.
@@ -174,7 +168,7 @@ class EditSlots(Slots):
         for label, data in (("Select (diagnose)", "select"), ("Repair (fix)", "repair")):
             cmb.addItem(label, data)
         # Construction history is Maya's: Blender has none to bake.
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Delete History",
@@ -236,7 +230,7 @@ class EditSlots(Slots):
             ),
         )
         for box in blender:
-            self._requires(box, "blender")
+            self.requires(box, "blender")
 
     def _cleanup_check_options(self, menu):
         menu.add("Separator", setTitle="Topology")
@@ -289,10 +283,10 @@ class EditSlots(Slots):
                 setToolTip="Faces sharing all their edges with another face.",
             ),
         ):
-            self._requires(box, "maya")
+            self.requires(box, "maya")
         menu.add("Separator", setTitle="UVs")
         # Maya's: Blender's UVs are per face corner, so none can be shared.
-        self._requires(
+        self.requires(
             menu.add(
                 "QCheckBox",
                 setText="Shared UVs",

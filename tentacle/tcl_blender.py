@@ -127,12 +127,12 @@ class _QtBootstrap:
     def bootstrap_paths():
         """Put the monorepo packages on ``sys.path`` and pin ``QT_API`` (idempotent)."""
         os.environ.setdefault("QT_API", "pyside6")
-        # ``extapps`` rides along so the in-process external-app launchers (Map Converter / Packer /
-        # Compositor + the photogrammetry workflows) can ``import extapps`` in Blender's own
-        # interpreter — Maya gets it from mayapy's site-packages; Blender's bundled Python has no such
-        # install, and without it ``ExternalAppHandler.launch`` would try a (synchronous,
-        # blender.exe-targeted) pip install and wedge the UI. A pip-installed deployment finds extapps
-        # in site-packages and this path-add simply no-ops (the dir guard below).
+        # ``extapps`` rides along so the standalone panels tentacle launches in process (Map
+        # Converter / Packer / Compositor + the photogrammetry workflows) can import their engines
+        # in Blender's own interpreter -- Maya gets it from mayapy's site-packages; Blender's bundled
+        # Python has no such install, and without it a panel's import fails at launch. A
+        # pip-installed deployment finds extapps in site-packages (a tentacle dependency) and this
+        # path-add simply no-ops (the dir guard below).
         if not _Config.MONOREPO:
             return  # not a monorepo checkout (pip install): site-packages already resolves these
         for pkg in ("pythontk", "uitk", "tentacle", "blendertk", "extapps"):
@@ -1509,9 +1509,7 @@ class TclBlender(MarkingMenu):
     See ``tentacle/docs/archive/BLENDER_PORT_PLAN.md``.
     """
 
-    def __init__(
-        self, parent=None, slot_source="slots/blender", log_level="WARNING", **kwargs
-    ):
+    def __init__(self, parent=None, slot_source=None, log_level="WARNING", **kwargs):
         if not parent:
             try:
                 parent = self.get_main_window()
@@ -1541,9 +1539,8 @@ class TclBlender(MarkingMenu):
             ui_source=("ui", "ui/blender_menus"),
             slot_source=slot_source,
             bindings=bindings,
-            # BlenderUiHandler serves the shared tools (``ui/tools`` + ``slots/tools``) and,
-            # until they move here, the panels still beside their engine in blendertk --
-            # both through ``marking_menu.show("<tool>")``, as MayaUiHandler does in Maya.
+            # BlenderUiHandler wraps Blender's native menus; the shared tools (``ui/tools`` +
+            # ``slots/tools``) open through ``marking_menu.show("<tool>")``, as in Maya.
             handlers={"ui": btk.BlenderUiHandler, "external_app": ExternalAppHandler},
             log_level=log_level,
             suppress_default_on_reentry=True,
@@ -1560,24 +1557,25 @@ class TclBlender(MarkingMenu):
         )
         # The toolkit a Slots class shared by both hosts calls (Slots.tk).
         self.sb.tk = btk
+        # The shot store's host half, injected here; a script that skips this
+        # entry point gets it from the store, resolved on first call.
+        btk.ShotStore.set_host(btk.BlenderShotsHost.resolve())
         # The composed Slots classes and the tool panels both hosts share.
         Tcl.register_shared(self.sb)
 
-        # External apps — the same standalone ``extapps`` panels Maya uses.
-        # They self-describe via ``extapps``'s ``uitk.external_apps.in_process``
+        # The standalone panels -- the same ones Maya opens (tcl_standalone.py).
+        # They self-describe via tentacle's ``uitk.external_apps.in_process``
         # entry points and are auto-registered by ExternalAppHandler on
-        # construction, so the Blender materials slot can launch them verbatim
-        # via ``external_app.launch``. ``context_tags={"blender"}`` (above)
+        # construction, so the materials slot can launch them verbatim via
+        # ``external_app.launch``; each opens in a switchboard of its own
+        # (``slots.tools.STANDALONE``). ``context_tags={"blender"}`` (above)
         # surfaces the Substance/Marmoset panels here (they're gated out of Maya
-        # only). ``extapps`` is an optional, discovered provider (not a hard
-        # dep) put on ``sys.path`` by ``_QtBootstrap``. Registering it means an
-        # absent extapps installs on demand at first launch: the handler can't
-        # pip into ``blender.exe`` itself, but it now routes through Blender's
-        # bundled python (same site-packages), so the install is importable
-        # here. If that still can't be done it raises a clear RuntimeError
-        # rather than wedging the UI.
+        # only). Named as their provider, a tentacle on ``sys.path`` as a source
+        # checkout (``_QtBootstrap``, no installed metadata) has its entry-point
+        # table read from its pyproject.toml instead.
         try:
-            self.sb.handlers.external_app.add_provider("extapps")
+            self.sb.handlers.external_app.add_provider(Tcl.DIST, probe_module="tentacle")
+            self.sb.handlers.external_app.discover()  # now: the checkout's table wins
         except Exception:  # never let provisioning wiring block startup
             pass
 
@@ -1626,16 +1624,12 @@ class TclBlender(MarkingMenu):
         except Exception as error:  # never let the tracker block launch
             print(f"{__file__}: SelectionOrder enable skipped: {error}")
 
-        # Teach uitk how to cancel safely in this host (Esc-hold source and
-        # progress mirror — NOT rollback: BlenderCancelProvider declares
-        # ``supports_rollback = False`` and leaves partial changes in place,
-        # because Blender's undo stack offers no way to count the steps back).
-        # Maya installs its own provider from mayatk's import-time host block;
-        # Blender has no such hook, so the host wires it here — same public
-        # contract, so the slots stay branch-free.
+        # uitk's cancel strategy for this host (BlenderCancelProvider) is installed
+        # by ``BlenderUiHandler`` as it is built, as Maya's is by MayaUiHandler.
+        # The entry point pins the slots' ExecutionMonitor interpreter.
         try:
-            # Both halves, mirroring mayatk's block (which pairs the same
-            # set_interpreter with its install). ExecutionMonitor spawns the
+            # Maya's is resolved beside maya.exe by
+            # ``AppLauncher.companion_python``. ExecutionMonitor spawns the
             # spinner and the over-threshold dialog as subprocesses, so the
             # interpreter it uses has to be a real python: hand it Blender's
             # bundled one rather than relying on its ``sys.executable``
@@ -1648,9 +1642,8 @@ class TclBlender(MarkingMenu):
             import pythontk as ptk
 
             ptk.ExecutionMonitor.set_interpreter(_QtBootstrap.blender_python_exe())
-            btk.BlenderCancelProvider.install()
-        except Exception as error:  # never let cancel wiring block launch
-            print(f"{__file__}: cancel provider install skipped: {error}")
+        except Exception as error:  # never let the interpreter pin block launch
+            print(f"{__file__}: ExecutionMonitor interpreter skipped: {error}")
 
         # Own the overlay to Blender's GHOST window so the OS keeps it stacked above Blender.
         self._parent_to_blender(self)

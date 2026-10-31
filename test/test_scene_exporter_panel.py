@@ -25,6 +25,7 @@ import xml.etree.ElementTree as ET
 from unittest import mock
 
 import pythontk as ptk
+import uitk
 
 import tentacle
 from _host import MAYA_AVAILABLE, maya_module
@@ -115,6 +116,8 @@ def _panel(exporter_class=_FakeExporter, tk=None):
     *exporter_class* (or is *tk*, handed over before the panel is built, as
     ``Slots.tk`` is)."""
     sb = mock.MagicMock()
+    # The real reader, as the switchboard serves it off uitk's namespace.
+    sb.ValueManager = uitk.ValueManager
     if tk is not None:
         sb.tk = tk
     else:
@@ -851,6 +854,58 @@ class TestSceneExporterPanelExport(_PanelCase):
         kwargs = self._run(slots)
         self.assertEqual(slots.exporter.exported_objects, ["<selected>"])
         self.assertIs(kwargs["export_visible"], False)
+
+    def test_each_row_is_read_by_its_declared_reading(self):
+        """The panel reads its rows, never pythontk (which knows no Qt): a row's
+        own ``value_method`` when it names one, else a checkbox's state, else
+        the combo's item data (uitk's ``ValueManager.combo_value``). A row
+        whose widget lacks that reading, or is not built, is not sent."""
+
+        class _Spin:
+            def value(self):
+                return 260
+
+        tasks = {
+            "smart_bake": {},
+            "texture_optimize": {"widget_type": "ComboBox"},
+            "ignore_groups": {"widget_type": "QLineEdit", "value_method": "text"},
+            "not_built": {},
+        }
+        checks = {"check_path_length": {"widget_type": "SpinBox", "value_method": "value"}}
+        slots, sb = self._export(
+            smart_bake=_Widget(checked=True),
+            texture_optimize=_Widget(2048),
+            ignore_groups=_Widget("temp*"),
+            check_path_length=_Spin(),
+        )
+        self.assertEqual(
+            slots._row_values(tasks, checks),
+            {
+                "smart_bake": True,
+                "texture_optimize": 2048,
+                "ignore_groups": "temp*",
+                "check_path_length": 260,
+            },
+        )
+        slots.ui.smart_bake = _Spin()  # no isChecked: nothing to read
+        self.assertNotIn("smart_bake", slots._row_values(tasks))
+
+    def test_the_panel_builds_the_format_row_the_engine_reads(self):
+        """The engine reads the Output Format by its declared row's objectName
+        (``SETTINGS_DEFINITIONS``); the panel builds, initializes and reads the
+        widget under its own spelling of it. A saved name, so the two never
+        rename -- held together here, so neither drifts alone."""
+        name = ptk.SceneExporterBase.SETTINGS_DEFINITIONS["output_format"][
+            "object_name"
+        ]
+        self.assertIn(name, SceneExporterSlots._SETTINGS_WIDGETS)
+        self.assertIn(name, SceneExporterSlots.RUNTIME_WIDGETS)
+        self.assertIn(
+            name, [n for _group, names in SceneExporterSlots._SETTINGS_LAYOUT for n in names]
+        )
+        self.assertTrue(callable(getattr(SceneExporterSlots, f"{name}_init", None)))
+        slots, sb = self._export(**{name: _Widget("usd")})
+        self.assertEqual(self._run(slots)["tasks"]["output_format"], "usd")
 
     def test_every_export_keeps_the_run_log_and_sets_no_level(self):
         """No log options (2026-10-14): every run keeps the scene's run log and

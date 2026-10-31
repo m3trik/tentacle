@@ -295,9 +295,7 @@ class SceneSlots(Slots):
         row only one host serves is hidden on the other (uitk's ``requires`` policy)."""
         for label, action, requires in rows:
             item = sublist.add(label, data=action)
-            if requires:
-                item.setProperty("requires", requires)
-                self.sb.apply_visibility_policy(item)
+            self.requires(item, requires)
 
     @staticmethod
     def _run_item(item):
@@ -1009,8 +1007,9 @@ class SceneSlots(Slots):
                 (
                     "Scene Cleanup",
                     "b_cleanup",
-                    "Purge orphan datablocks (meshes, materials, images … with no "
-                    "users).",
+                    "Purge the data-blocks nothing uses (meshes, materials, images …): "
+                    "Blender's File > Clean Up > Purge Unused Data, chains of unused "
+                    "data and linked data included.",
                     "blender",
                 ),
                 (
@@ -1107,8 +1106,7 @@ class SceneSlots(Slots):
 
         def build():
             leaf = self.sb.registered_widgets.PushButton()
-            if requires:
-                leaf.setProperty("requires", requires)
+            self.requires(leaf, requires)
             return leaf
 
         return build
@@ -1133,8 +1131,7 @@ class SceneSlots(Slots):
             cat = root.sublist.add(category)
             hosts = {requires for *_, requires in entries}
             if len(hosts) == 1 and None not in hosts:
-                cat.setProperty("requires", hosts.pop())
-                self.sb.apply_visibility_policy(cat)
+                self.requires(cat, hosts.pop())
             for label, name, tooltip, requires in entries:
                 self.add_slot_widget(
                     cat.sublist,
@@ -1161,7 +1158,7 @@ class SceneSlots(Slots):
 
     # ------------------------------------------------------------------ Tools: bridges
     def b013(self):
-        """Mesh Converter (FBX -> GLB): the DCC-agnostic extapps tool, its file
+        """Mesh Converter (FBX -> GLB): the DCC-agnostic standalone panel, its file
         dialog starting beside the open scene, and its "From FBX references" toggle
         reading the FBX files behind the selected references
         (``ReferenceManager.selected_reference_paths``)."""
@@ -1175,9 +1172,9 @@ class SceneSlots(Slots):
         self.sb.handlers.marking_menu.show(ui)
 
     def b010(self):
-        """The other DCC's bridge: the shared tool named after its TARGET app
-        (``blender_bridge`` in Maya, ``maya_bridge`` in Blender)."""
-        self.sb.handlers.marking_menu.show(f"{self._foreign_app().lower()}_bridge")
+        """The other DCC's bridge: the shared DCC Bridge, over the host's bridge to
+        the other app (the Blender Bridge in Maya, the Maya Bridge in Blender)."""
+        self.sb.handlers.marking_menu.show("dcc_bridge")
 
     def b016(self):
         """Unity Bridge: send the selection to a Unity project's Assets/."""
@@ -1282,15 +1279,14 @@ class SceneSlots(Slots):
         )
 
     def b_cleanup(self):
-        """Scene Cleanup (Blender): purge orphan datablocks (no users, no fake user)."""
-        removed = self.tk.CoreUtils.cleanup_scene()
+        """Scene Cleanup (Blender): purge the data-blocks nothing uses -- Blender's own
+        purge (``CoreUtils.purge_unused_data``), the one Edit's Optimize runs."""
+        removed = self.tk.CoreUtils.purge_unused_data()
         if not removed:
             self.sb.message_box("Scene Cleanup: <hl>nothing to purge</hl>.")
             return
-        total = sum(removed.values())
-        detail = "".join(f"<br> • {coll}: {n}" for coll, n in sorted(removed.items()))
         self.sb.message_box(
-            f"Scene Cleanup: purged <hl>{total}</hl> orphan(s).{detail}"
+            f"Scene Cleanup: purged <hl>{removed}</hl> unused data-block(s)."
         )
 
     def b009(self):
