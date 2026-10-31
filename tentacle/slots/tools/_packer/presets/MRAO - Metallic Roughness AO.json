@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R metallic, G roughness, B occlusion; no alpha."
+    },
+    "cmbR": "Metallic",
+    "cmbG": "Roughness",
+    "cmbB": "Ambient_Occlusion",
+    "cmbA": "None",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_MRAO"
+}

@@ -4,6 +4,7 @@
 (``Tcl.register_shared``). A package, so a class imports by its module path.
 
 :data:`HOSTS` declares the tools one host serves; every other tool serves both.
+:data:`STANDALONE` names the panels that open in a switchboard of their own.
 """
 
 #: ``{tool: hosts it serves}`` (``Tcl.HOSTS`` keys) for the tools that serve one
@@ -13,6 +14,28 @@
 #: for ``marking_menu.show`` to open (CODE_STANDARD section 15: a tool with no
 #: equivalent in a host is hidden there, never a stub). A host that gains the
 #: tool's API adds itself here; the panel already calls only ``self.tk``.
+#: The standalone panels (``tentacle/tcl_standalone.py``): each needs no DCC, so
+#: it opens in a switchboard of its own -- outside any host (``python -m tentacle
+#: <panel>``), or from inside one through the host's external-app handler (the
+#: ``uitk.external_apps.in_process`` entry points), which a host's slots launch it
+#: with and hand their context to (``ui.slots.source_dir``, its scope providers).
+#: No host registers one in its own switchboard (``Tcl.unserved_tools``), so a
+#: host never offers it twice.
+STANDALONE = (
+    "compositor",
+    "converter",
+    "packer",
+    "mesh_convert",
+    "metashape_workflow",
+    "realityscan_workflow",
+    "gaussian_splat_workflow",
+    "substance_workflow",
+    "marmoset_workflow",
+    "unity_workflow",
+    "webxr_preview",
+    "look_match",
+)
+
 HOSTS = {
     # Arnold renders inside Maya alone: Blender has no Arnold, and Cycles and
     # EEVEE read one material graph, so there is no preview network to add.

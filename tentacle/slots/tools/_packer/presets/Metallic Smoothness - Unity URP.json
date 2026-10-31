@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R metallic, A smoothness. Unity URP / Built-in Standard Metallic map."
+    },
+    "cmbR": "Metallic",
+    "cmbG": "None",
+    "cmbB": "None",
+    "cmbA": "Smoothness",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_MetallicSmoothness"
+}

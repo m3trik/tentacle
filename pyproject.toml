@@ -33,6 +33,11 @@ dependencies = [
     # availability gate breaks on a floor-satisfying install.
     "pythontk>=0.18.2",
     "uitk>=1.8.2",
+    # The standalone panels' engines (tcl_standalone.py: the texture-map,
+    # photogrammetry, Painter and Toolbag tools call extapps). Off the release
+    # cascade (it publishes on its own), so nothing syncs this floor: it is
+    # hand-ratcheted. 0.7.0 is the first extapps without the panels.
+    "extapps>=0.7.0",
 ]
 
 # One extra per DCC, and each key MUST equal its `Tcl.HOSTS` key -- that
@@ -57,18 +62,43 @@ Repository = "https://github.com/m3trik/tentacle"
 Changelog = "https://github.com/m3trik/tentacle/blob/main/CHANGELOG.md"
 Issues = "https://github.com/m3trik/tentacle/issues"
 
-# extapps is an OPTIONAL, runtime-discovered provider of the content-pipeline
-# panels (compositor, photogrammetry, texture/mesh tools) — deliberately NOT a
-# pip dependency. It sits outside the ecosystem release chain
-# (pythontk -> uitk -> mayatk -> tentacle) that push.ps1 dep-syncs/cascades, so
-# a hard pin here would escape that tooling (and transitively drag in unitytk,
-# which is likewise off-chain). Instead the panels self-describe via entry
-# points and are auto-registered by uitk's ExternalAppHandler whenever extapps
-# is present in the host env. The provider entry below is *runtime metadata
-# only* (not a build-time pin — invisible to push.ps1): it lets the handler
-# install-on-demand on a standalone host, or self-heal, if extapps is absent.
+# The standalone panels (tentacle/tcl_standalone.py), each a uitk external app:
+# uitk's ExternalAppHandler discovers them here and launches them in process
+# (parented under a host's Qt loop: Maya and Blender reach them this way, never
+# through their own switchboard), and the hub (`python -m tentacle`, __main__.py)
+# lists them. Each name is the panel's .ui stem, which users' settings are saved
+# under. Bracketed extras are entry-point tags read by ExternalAppHandler:
+#   * plain tokens  -> semantic browser-filter tags.
+#   * ``hide_<host>`` -> a host-visibility gate. A host whose switchboard
+#     ``context_tags`` contains <host> won't *list* the app (it stays
+#     launchable by name). Substance/Marmoset are gated out of Maya, which
+#     serves its own bridges (marmoset_bridge, substance_bridge) instead.
+[project.entry-points."uitk.external_apps.in_process"]
+compositor = "tentacle.tcl_standalone:CompositorUI"
+converter = "tentacle.tcl_standalone:ConverterUI"
+packer = "tentacle.tcl_standalone:PackerUI"
+mesh_convert = "tentacle.tcl_standalone:MeshConvertUI"
+metashape_workflow = "tentacle.tcl_standalone:MetashapeWorkflowUI"
+realityscan_workflow = "tentacle.tcl_standalone:RealityScanWorkflowUI"
+gaussian_splat_workflow = "tentacle.tcl_standalone:GaussianSplatWorkflowUI"
+substance_workflow = "tentacle.tcl_standalone:SubstanceWorkflowUI [hide_maya]"
+marmoset_workflow = "tentacle.tcl_standalone:MarmosetWorkflowUI [hide_maya]"
+unity_workflow = "tentacle.tcl_standalone:UnityWorkflowUI"
+webxr_preview = "tentacle.tcl_standalone:WebXrPreviewUI"
+look_match = "tentacle.tcl_standalone:LookMatchUI"
+
+# tentacle is the provider of those apps: a handler that reads this table (an
+# installed tentacle) also reads it from a source checkout's pyproject.toml,
+# which is newer than metadata an editable install wrote. ``<import name> =
+# "<distribution>"``.
 [project.entry-points."uitk.external_app_providers"]
-extapps = "extapps"
+tentacle = "tentacletk"
+
+# `tentacle` opens the standalone panels' browser, `tentacle <panel>` one panel
+# (the names above). A gui-script runs under pythonw on Windows, so no console
+# window opens. `python -m tentacle` runs the same program.
+[project.gui-scripts]
+tentacle = "tentacle.__main__:HUB.run"
 
 # Record hooks (pythontk ``SceneRecords.registered_hooks``): the libraries' FBX
 # exporters and record stores merge these under their own rows, read from this
@@ -83,7 +113,10 @@ where = ["."]
 include = ["tentacle*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.ui", "*.json", "*.txt", "*.md"]
+"*" = ["*.ui", "*.json", "*.txt", "*.md", "*.svg"]
+# The Map Packer's built-in templates sit in a plain data subdir (not a
+# package), which the package-dir "*.json" glob above does not reach.
+"tentacle.slots.tools._packer" = ["presets/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
@@ -149,8 +182,11 @@ max-statements = 100
 # Checked by m3trik/scripts/check_layers.py against a frozen baseline of today's
 # exceptions. tentacle holds only the launcher, the UIs and the Slots classes.
 order = [
-    # The host entry points: each builds the menus and injects its toolkit.
-    "tcl_maya | tcl_blender | tcl_max",
+    # The standalone panels' hub (`python -m tentacle`).
+    "__main__",
+    # The host entry points: each builds the menus and injects its toolkit; the
+    # standalone one builds each standalone panel's own switchboard.
+    "tcl_maya | tcl_blender | tcl_max | tcl_standalone",
     "tcl",
     "slots | ui",
 ]
@@ -162,7 +198,10 @@ maya = ["maya", "pymel", "mayatk"]
 blender = ["bpy", "bmesh", "mathutils", "blendertk"]
 qt = ["qtpy", "uitk", "PySide6", "PySide2", "shiboken6", "shiboken2"]
 ui = ["tentacle.ui", "tentacle.slots"]
-entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max"]
+entry = [
+    "tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max",
+    "tentacle.tcl_standalone", "tentacle.__main__",
+]
 
 [tool.m3trik.roles.forbid]
 # Strict from the first file, never frozen; the most specific path wins. A Slots

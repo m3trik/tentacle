@@ -1,6 +1,8 @@
 # tentacle — Changelog
 
 ## 2026
+- **2026-10-29 -- The standalone panels live in tentacle (`tcl_standalone.py`, `__main__.py`, `slots/tools/`, `ui/tools/`).** extapps' twelve Qt panels are tentacle's: one `.ui` and one Slots class each, over the engines that stay in extapps. `tentacle` / `python -m tentacle` opens their browser and `tentacle <panel>` one panel; the `uitk.external_apps.in_process` entry points let a host launch them in process; `slots.tools.STANDALONE` names them, so no host registers one in its own switchboard. Depends on `extapps>=0.7.0`.
+  - Test(s): the twelve `test_<panel>_panel.py` modules and `test_tcl_standalone.py`, moved with their panels.
 - **2026-10-28 -- The live Blender sequencer check reads an object's own keys and expects Move to Shot's Copy toggle (`test/blender/shot_sequencer_live_check.py`).** It failed 5 of 53 since Oct 10-12 against two deliberate changes (the Copy toggle; the downstream shot's claimed pose sample); test-only.
   - Test(s): `shot_sequencer_live` --in-blender 53/53 (main tree and clean HEAD).
 - **2026-10-28 -- Scene's import and foreign export use the switchboard's busy cursor (`slots/scene.py`).** The raw `setOverrideCursor` / `restoreOverrideCursor` pair restored whatever cursor sat on top of the stack, not its own; `self.sb.busy_cursor()` pops its own entry. The launcher's lint exemption (`pyproject.toml`) keeps only `T201` and `C901`, for the host-console prints and the live-input poller.

@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R transmission, G volume thickness. glTF KHR_materials_transmission + KHR_materials_volume."
+    },
+    "cmbR": "Transmission",
+    "cmbG": "Thickness",
+    "cmbB": "None",
+    "cmbA": "None",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_TransmissionPacked"
+}

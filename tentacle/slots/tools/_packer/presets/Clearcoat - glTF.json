@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R clearcoat, G clearcoat roughness. glTF KHR_materials_clearcoat (both textures may be one image)."
+    },
+    "cmbR": "Clearcoat",
+    "cmbG": "Clearcoat_Roughness",
+    "cmbB": "None",
+    "cmbA": "None",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_ClearcoatPacked"
+}

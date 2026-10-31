@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R occlusion, G roughness, B metallic; no alpha. Unreal Engine, glTF 2.0 (metallicRoughnessTexture + occlusionTexture), Godot."
+    },
+    "cmbR": "Ambient_Occlusion",
+    "cmbG": "Roughness",
+    "cmbB": "Metallic",
+    "cmbA": "None",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_ORM"
+}

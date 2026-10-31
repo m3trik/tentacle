@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R metallic, G occlusion, B detail mask (left empty), A smoothness. Unity HDRP Lit Mask Map."
+    },
+    "cmbR": "Metallic",
+    "cmbG": "Ambient_Occlusion",
+    "cmbB": "None",
+    "cmbA": "Smoothness",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_MSAO"
+}

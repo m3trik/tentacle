@@ -1,0 +1,13 @@
+{
+    "_meta": {
+        "version": 1,
+        "affix_mode": "suffix",
+        "description": "R iridescence (thin film), G iridescence thickness. glTF KHR_materials_iridescence."
+    },
+    "cmbR": "Thin_Film",
+    "cmbG": "Thin_Film_Thickness",
+    "cmbB": "None",
+    "cmbA": "None",
+    "cmbFormat": "PNG",
+    "txtSuffix": "_IridescencePacked"
+}

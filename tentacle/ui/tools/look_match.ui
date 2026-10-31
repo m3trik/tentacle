@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QtUi</class>
+ <widget class="QMainWindow" name="QtUi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>760</height>
+   </rect>
+  </property>
+  <widget class="QWidget" name="central_widget">
+   <layout class="QVBoxLayout" name="lay_main">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
+     <number>2</number>
+    </property>
+    <item>
+     <widget class="Header" name="header" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>LOOK MATCH</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="lay_toolbar">
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="lbl_session">
+        <property name="text">
+         <string>Session</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ComboBox" name="cmb_session">
+        <property name="minimumSize">
+         <size>
+          <width>180</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>The session: a reference, its regions and the baked light layers. Open, reveal and forget sessions in its option box.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbl_mix">
+        <property name="text">
+         <string>Mix</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ComboBox" name="cmb_mix">
+        <property name="minimumSize">
+         <size>
+          <width>140</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>The saved mixes of this session. Save, save as and delete in its option box.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_undo">
+        <property name="toolTip">
+         <string>Undo the last change to the mix (Ctrl+Z).</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_redo">
+        <property name="toolTip">
+         <string>Redo (Ctrl+Shift+Z).</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="spc_toolbar">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_fit">
+        <property name="text">
+         <string>Fit</string>
+        </property>
+        <property name="toolTip">
+         <string>Propose weights for the layers ticked in the Fit column, scored on the selected regions (or all). Nothing changes until you accept the proposal. Options in its option box.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_update">
+        <property name="text">
+         <string>Update layers</string>
+        </property>
+        <property name="toolTip">
+         <string>Bake again the layers an older save of the scene made: a Maya opens minimized to bake them from the scene as saved, and closes a few minutes after the last.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_render">
+        <property name="text">
+         <string>Render in WebXR</string>
+        </property>
+        <property name="toolTip">
+         <string>Render this mix in the real WebXR viewer (highlights and specular included) and show it as "WebXR frame". The first render starts the viewer, which takes a few minutes.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PushButton" name="b_save_rig">
+        <property name="text">
+         <string>Save to Rig Library</string>
+        </property>
+        <property name="toolTip">
+         <string>Save this mix as a light rig in the rig library every host shares: apply it in Maya's Light Rigs panel to build and bake it.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QFrame" name="frm_proposal">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <layout class="QHBoxLayout" name="lay_proposal">
+       <property name="leftMargin">
+        <number>6</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="lbl_proposal">
+         <property name="text">
+          <string>Proposal</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="spc_proposal">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="PushButton" name="b_accept">
+         <property name="text">
+          <string>Accept</string>
+         </property>
+         <property name="toolTip">
+          <string>Take the proposed weights into the mix (one undo step).</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="PushButton" name="b_discard">
+         <property name="text">
+          <string>Discard</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="spl_main">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="pane_mix">
+       <layout class="QVBoxLayout" name="lay_mix">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="lay_mix_head">
+          <item>
+           <widget class="QLabel" name="lbl_mix_title">
+            <property name="text">
+             <string>IN THIS MIX</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chk_all">
+            <property name="text">
+             <string>All layers</string>
+            </property>
+            <property name="toolTip">
+             <string>Show every layer in the session's store, not only those in the mix: raise a layer's weight to add it.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="TableWidget" name="tbl_mix">
+          <property name="minimumSize">
+           <size>
+            <width>360</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pane_view">
+       <layout class="QVBoxLayout" name="lay_view">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="lay_view_head">
+          <item>
+           <widget class="QLabel" name="lbl_a">
+            <property name="text">
+             <string>A</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ComboBox" name="cmb_a">
+            <property name="toolTip">
+             <string>What the left (or first) image is.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ComboBox" name="cmb_mode">
+            <property name="toolTip">
+             <string>How A and B are compared. Split: drag the line. Blink: hold Space for B. Difference: red where A is brighter, blue where darker.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_b">
+            <property name="text">
+             <string>B</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="ComboBox" name="cmb_b">
+            <property name="toolTip">
+             <string>What the right (or second) image is.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="CompareView" name="cmp_view" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>420</width>
+            <height>260</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_trust">
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>How far to trust what is shown: the preview is the sum of the baked layers; a WebXR frame is the real viewer.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="pane_regions">
+       <layout class="QVBoxLayout" name="lay_regions">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbl_headline">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="lay_region_head">
+          <item>
+           <widget class="PushButton" name="b_edit_regions">
+            <property name="text">
+             <string>Edit regions</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Draw, rename, weigh and delete the regions the mix is judged on (saved to the session's target as you go).</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QFrame" name="frm_region_tools">
+          <layout class="QHBoxLayout" name="lay_region_tools">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="PushButton" name="b_draw_rect">
+             <property name="text">
+              <string>Rect</string>
+             </property>
+             <property name="toolTip">
+              <string>Drag a rectangle on the picture (Esc cancels).</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_draw_ellipse">
+             <property name="text">
+              <string>Ellipse</string>
+             </property>
+             <property name="toolTip">
+              <string>Drag the box an ellipse fills (Esc cancels).</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_draw_poly">
+             <property name="text">
+              <string>Polygon</string>
+             </property>
+             <property name="toolTip">
+              <string>Click its corners; double-click or Enter closes it (Esc cancels).</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_draw_line">
+             <property name="text">
+              <string>Line</string>
+             </property>
+             <property name="toolTip">
+              <string>Drag a line: a profile measured along it (Esc cancels).</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_region_delete">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+             <property name="toolTip">
+              <string>Delete the selected region.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_paint">
+             <property name="text">
+              <string>Paint…</string>
+             </property>
+             <property name="toolTip">
+              <string>Paint the reference's regions in any image editor: writes a marker layer (each area region its own colour) and a guide; repaint the layer, save it, then Reload.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="PushButton" name="b_reload">
+             <property name="text">
+              <string>Reload</string>
+             </property>
+             <property name="toolTip">
+              <string>Read the regions again from the session's target (after painting, or editing the file).</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="TableWidget" name="tbl_regions">
+          <property name="minimumSize">
+           <size>
+            <width>280</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_detail">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>120</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_litby">
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="lay_solve">
+          <item>
+           <widget class="ComboBox" name="cmb_solve">
+            <property name="toolTip">
+             <string>The layer to solve: its weight that brings the selected region's brightness to the reference's, the rest of the mix held.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="PushButton" name="b_solve">
+            <property name="text">
+             <string>Solve</string>
+            </property>
+            <property name="toolTip">
+             <string>Propose the weight of the chosen layer that matches the selected region's brightness.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="Footer" name="footer" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>19</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>19</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Footer</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.footer</header>
+  </customwidget>
+  <customwidget>
+   <class>Header</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.header</header>
+  </customwidget>
+  <customwidget>
+   <class>ComboBox</class>
+   <extends>QComboBox</extends>
+   <header>uitk.widgets.comboBox</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>uitk.widgets.pushButton</header>
+  </customwidget>
+  <customwidget>
+   <class>TableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uitk.widgets.tableWidget</header>
+  </customwidget>
+  <customwidget>
+   <class>CompareView</class>
+   <extends>QWidget</extends>
+   <header>uitk.widgets.compare_view</header>
+   <container>0</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
