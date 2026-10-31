@@ -9,7 +9,7 @@ engine with its registry, template folder and ``(template, mode)`` list
 (``BakeSourceSet``), which also greys the suffix-fallback rows. A fake toolkit
 stands in for ``mtk`` / ``btk`` and records what the panel asks of it. The shared
 base's own cases (Scope, closure, the Bake Source row's three actions) are
-``test_unity_bridge_panel.py``'s; these pin what this bridge adds.
+``test_host_bridge.py``'s; these pin what this bridge adds.
 
 The unit cases run the panel's methods on an instance never built (``__new__``:
 the bridge base is a plain class, not a ``QObject``). Then the panel loads for

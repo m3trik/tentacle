@@ -51,6 +51,10 @@ MOVED_NAMES = {
         "tentacle.slots.tools.workspaces.WorkspacesSlots",
         "0.17.0",
     ),
+    # The Unity Bridge panel folded into the one Unity app, extapps' Unity
+    # Workflow; the Scene menu opens it with the host's engine (``b016``).
+    "UnityBridgeSlots": ("extapps.UnityWorkflowSlots", "0.17.0"),
+    "UnityPanelMixin": ("extapps.UnityWorkflowSlots", "0.17.0"),
     # The native-menu wrappers (slots/maya, slots/blender): the chord menu's pages
     # need no Slots class; each host's UI handler builds its own menus.
     "BlenderSlots": ("blendertk.BlenderUiHandler", "0.17.0"),

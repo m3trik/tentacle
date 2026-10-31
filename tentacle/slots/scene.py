@@ -942,10 +942,10 @@ class SceneSlots(Slots):
                     None,
                 ),
                 (
-                    "Unity Bridge",
+                    "Unity Workflow",
                     "b016",
-                    "Send the selected objects to a Unity project (export FBX + copy "
-                    "into Assets/).",
+                    "Send the scene to a Unity project: the Scope exported (FBX + the "
+                    "scene's records) and copied into Assets/, or a model file copied.",
                     None,
                 ),
             ],
@@ -1178,9 +1178,54 @@ class SceneSlots(Slots):
         the other app (the Blender Bridge in Maya, the Maya Bridge in Blender)."""
         self.sb.handlers.marking_menu.show("dcc_bridge")
 
+    # ------------------------------------------------------------------ b016  Unity Workflow
+    # A LAUNCH of the one Unity app (extapps' ``unity_workflow``), as the WebXR
+    # Preview is: the app owns the delivery (unitytk, the project, the Editor
+    # launch) and this supplies what is the host's, its engine class. The engine
+    # exports the Scope and hands the FBX to the app's delivery.
+    #: The Unity Bridge panel this entry opened before the app took its place,
+    #: and the widget the app names differently. Its users' values carry into
+    #: the app's store once per host (:meth:`_carry_unity_bridge_values`).
+    UNITY_BRIDGE_PANEL = "unity_bridge"
+    UNITY_BRIDGE_RENAMED = {"unity_bridge_output_dir": "unity_workflow_output_dir"}
+
     def b016(self):
-        """Unity Bridge: send the selection to a Unity project's Assets/."""
-        self.sb.handlers.marking_menu.show("unity_bridge")
+        """Unity Workflow: the one Unity app, with this scene as its Current Scene
+        source -- the host's ``UnityBridge`` exports the Scope, the app copies it
+        into the Unity project."""
+        ui = self.launch_app("unity_workflow", show=False)
+        if ui is None:
+            return
+        self._carry_unity_bridge_values(ui)
+        # The CLASS: the app builds it once, with its own delivery attached.
+        ui.slots.engine = self.tk.UnityBridge
+        self.sb.handlers.marking_menu.show(ui)
+
+    def _carry_unity_bridge_values(self, ui):
+        """Carry the retired Unity Bridge panel's saved values and presets into
+        the app.
+
+        uitk's ``PanelRenames``, run on the app's OWN switchboard, before its
+        first show restores the widgets: the panel kept one store per host
+        (``unity_bridge_maya``, ``_blender``) on this switchboard, while the app
+        keeps one, unsuffixed, for every host and standalone -- so the former
+        store is named here as the host stored it, and a value the app already
+        holds (another host's, carried first) wins. The same once its presets
+        (``<host library>/unity_bridge``, keyed by the widget names the app
+        keeps) are copied beside the app's. Once per host, then a no-op.
+        """
+        former = self.host_key(self.UNITY_BRIDGE_PANEL)
+        classes = {"unity_workflow": ["UnityWorkflowSlots"], former: ["UnityBridgeSlots"]}
+        carried = self.sb.PanelRenames.carry(
+            ui.sb,
+            {"unity_workflow": {former: self.UNITY_BRIDGE_RENAMED}},
+            slot_class_names=lambda panel: classes.get(panel, [panel]),
+        )
+        if former in (carried or ()):
+            library = self.tk.__name__.split(".")[0]
+            self.sb.PresetManager.carry_presets(
+                f"{library}/{self.UNITY_BRIDGE_PANEL}", ui.slots.PRESETS_ROOT
+            )
 
     # ------------------------------------------------------------------ Tools: manage
     def b001(self):

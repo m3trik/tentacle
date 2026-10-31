@@ -11,7 +11,8 @@ bridge panel shares, reached through ``self.tk`` like any tentacle Slots class:
   (``<X>Bridge.params_registry()``), template folder (``<X>Bridge.TEMPLATE_DIR``)
   and ``(template, mode)`` list (``<X>Bridge.list_template_modes()``) off it.
 * **Presets** stay where each host has always kept them,
-  ``<host library>/<UI_NAME>`` (``mayatk/unity_bridge``, ``blendertk/unity_bridge``).
+  ``<host library>/<UI_NAME>`` (``mayatk/marmoset_bridge``,
+  ``blendertk/marmoset_bridge``).
 * **Scope**: ``self.tk.BridgeHost`` resolves a ``SCOPE`` word to the host's objects
   and closes them over what a send ships; it also installs an optional package
   where this session imports it from.

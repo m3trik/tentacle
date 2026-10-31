@@ -35,7 +35,10 @@ HOSTS = {
 #: (CODE_STANDARD section 5: saved names keep their spelling, so a merge carries
 #: them); ``check_saved_names.py`` reads this table to judge a former panel's
 #: names in its tool's ``.ui``. A widget whose name the merge gave to another
-#: keeps its values under its new name.
+#: keeps its values under its new name. A panel folded into an extapps app is
+#: not a row: the app keeps one store, unsuffixed, on its own switchboard, so
+#: the slot that launches it carries the values (``SceneSlots.b016``: the Unity
+#: Bridge into the Unity Workflow).
 RENAMED_FROM = {
     # The cross-DCC bridges, one panel over the host's bridge to the other DCC:
     # the Blender Bridge in Maya, the Maya Bridge in Blender.

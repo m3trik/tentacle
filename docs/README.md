@@ -104,10 +104,13 @@ Map Packer and Mesh Converter, the Metashape / RealityCapture / Brush Splat
 photogrammetry workflows, the Substance, Marmoset and Unity workflows, the WebXR
 Preview and Look Match -- are [extapps](https://github.com/m3trik/extapps)', a
 separate product: each app's engine, panel and Slots class live there. In Maya or
-Blender the menus open eight of them by name through uitk's external-app handler,
+Blender the menus open nine of them by name through uitk's external-app handler,
 which finds them wherever extapps is installed: the Map Packer, Converter and
 Compositor and the three photogrammetry workflows (Materials), the Mesh Converter
-(Scene) and the WebXR Preview (Rendering); the UI Browser lists them all. Outside
+and the Unity Workflow (Scene) and the WebXR Preview (Rendering); the UI Browser
+lists them all. The Unity Workflow and the WebXR Preview get the host's engine
+(`mtk` / `btk` `UnityBridge`, `WebXrPreview`), so they send the scene as well as a
+file: the host exports, the app delivers. Outside
 a DCC, `extapps` (or `python -m extapps [app]`) opens them. tentacle does not
 depend on extapps.
 

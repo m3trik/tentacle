@@ -9,7 +9,7 @@ list and template metadata (``SubstanceBridge``), the Scope (``BridgeHost``) and
 the Bake Source row (``BakeSourceSet``). A fake toolkit stands in for ``mtk`` /
 ``btk`` and records what the panel asks of it. The shared base's own cases
 (Scope, closure, the Bake Source row's three actions) are
-``test_unity_bridge_panel.py``'s; these pin what this bridge adds: a template
+``test_host_bridge.py``'s; these pin what this bridge adds: a template
 that exports nothing needs no selection, the Output Dir row starts blank and
 clears, and Texture Affix greys while Include Textures is off.
 

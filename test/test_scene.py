@@ -360,16 +360,83 @@ class TestToolsLaunchers(_SlotsCase):
 
     def test_the_shared_tool_panels(self):
         self.assertEqual(
-            self._shown("b001", "b004", "b005", "b003", "b015", "b016"),
+            self._shown("b001", "b004", "b005", "b003", "b015"),
             [
                 "reference_manager",
                 "hierarchy_sync",
                 "naming",
                 "audio_clips",
                 "blendshape_animator",
-                "unity_bridge",
             ],
         )
+
+    def test_unity_opens_the_one_unity_app_with_the_hosts_engine(self):
+        """The Unity Workflow app (extapps'), opened by name, with the host's
+        engine class injected before it shows: the app's Current Scene source.
+        Added: 2026-10-31 (tentacle's Unity Bridge panel folded into the app)."""
+        ui = self.sb.handlers.external_app.launch.return_value
+        events = []
+        self.sb.PanelRenames.carry.side_effect = lambda *a, **k: events.append("carry")
+        self.sb.handlers.marking_menu.show.side_effect = lambda w: events.append("show")
+        self.slots.b016()
+        self.sb.handlers.external_app.launch.assert_called_once_with(
+            "unity_workflow", show=False
+        )
+        self.assertIs(ui.slots.engine, self.tk.UnityBridge)
+        self.sb.handlers.marking_menu.show.assert_called_once_with(ui)
+        self.assertEqual(events, ["carry", "show"], "carried before the first show")
+
+    def test_a_unity_app_that_will_not_open_injects_nothing(self):
+        self.sb.handlers.external_app.launch.side_effect = RuntimeError("no extapps")
+        self.slots.b016()
+        self.sb.PanelRenames.carry.assert_not_called()
+        self.sb.handlers.marking_menu.show.assert_not_called()
+        self.assertIn("Unity Workflow", self._message())
+
+    @unittest.skipUnless(qt_widgets_available(), "the settings stores are QSettings")
+    def test_the_unity_bridges_saved_values_land_in_the_apps_store(self):
+        """The panel stored per host on this switchboard (``unity_bridge_maya``);
+        the app's window reads one unsuffixed branch on its own switchboard
+        (``unity_workflow``). The carry moves them there, the Unity Project
+        field under the app's name for it, once."""
+        from uitk import PanelRenames, SettingsManager, ShortcutManager
+        from uitk.testing import TestSandbox
+
+        TestSandbox.activate()
+        root = SettingsManager(namespace="switchboard")
+        former = root.branch("unity_bridge_maya")
+        former.setValue("unity_bridge_output_dir/textChanged", "C:/UnityProj")
+        former.setValue("param_assets_subdir/textChanged", "Models")
+        app = root.branch("unity_workflow")
+        configurable = root.branch("configurable")
+        self.addCleanup(configurable.clear, PanelRenames.CARRIED_KEY)
+        self.addCleanup(app.clear)
+        self.addCleanup(former.clear)
+        app_sb = NS(
+            settings=root,
+            configurable=configurable,
+            context_tags=set(),
+            handlers=NS(),
+            logger=None,
+        )
+        self.sb.PanelRenames = PanelRenames
+        self.sb.ShortcutManager = ShortcutManager
+        self.sb.context_tags = {"maya"}
+        self.tk.__name__ = "mayatk"
+        ui = NS(sb=app_sb, slots=NS(PRESETS_ROOT="extapps/unity_workflow"))
+        self.slots._carry_unity_bridge_values(ui)
+        self.assertEqual(
+            app.value("unity_workflow_output_dir/textChanged"), "C:/UnityProj"
+        )
+        self.assertEqual(app.value("param_assets_subdir/textChanged"), "Models")
+        # Its presets, keyed by the widget names the app keeps, beside the app's.
+        self.sb.PresetManager.carry_presets.assert_called_once_with(
+            "mayatk/unity_bridge", "extapps/unity_workflow"
+        )
+        app.setValue("param_assets_subdir/textChanged", "Mine")
+        self.slots._carry_unity_bridge_values(ui)  # once: a later edit stays
+        self.assertEqual(app.value("param_assets_subdir/textChanged"), "Mine")
+        self.sb.PresetManager.carry_presets.assert_called_once()
 
     def test_the_other_dcc_s_bridge_is_the_one_dcc_bridge(self):
         """One tool in both hosts: its engine, the host's bridge to the other app,
