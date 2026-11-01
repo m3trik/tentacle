@@ -619,25 +619,22 @@ class TestEditsAskTheEngine(_PureHostCase):
 # ---------------------------------------------------------------------- refusals
 
 
-class _GuardStore:
-    """What ``_boundary_edit`` reaches on a store, counting restore points."""
+class _GuardStore(_Store):
+    """The pure store ``_boundary_edit`` brackets in, counting the restore
+    points its ``scene_edit`` pushes and drops."""
 
     def __init__(self):
+        super().__init__()
         self.pushed = 0
         self.discarded = 0
 
     def push_boundary_snapshot(self, *args, **kwargs):
         self.pushed += 1
+        return super().push_boundary_snapshot(*args, **kwargs)
 
     def discard_boundary_snapshot(self, *args, **kwargs):
         self.discarded += 1
-
-    @contextlib.contextmanager
-    def scene_edit(self, label="edit", snapshot=True):
-        # The real bracket's contract: the restore point is pushed on entry.
-        if snapshot:
-            self.push_boundary_snapshot()
-        yield
+        return super().discard_boundary_snapshot(*args, **kwargs)
 
 
 def _refuse():
@@ -756,6 +753,21 @@ class TestEveryRefusableEditUsesTheGuard(unittest.TestCase):
             if hit and "_boundary_edit" not in calls:
                 offenders.append(f"{fn.name} (line {fn.lineno}) calls {sorted(hit)}")
         self.assertEqual(offenders, [], "these edits escape _boundary_edit")
+
+    def test_no_method_catches_the_refusal_by_hand(self):
+        """``_boundary_edit``'s ``scene_edit(on_refusal=)`` answers it: a
+        hand-written ``except`` is the bracket that drifted."""
+        offenders = [
+            f"{fn.name} (line {node.lineno})"
+            for cls in [n for n in ast.walk(self.tree) if isinstance(n, ast.ClassDef)]
+            for fn in cls.body
+            if isinstance(fn, ast.FunctionDef)
+            for node in ast.walk(fn)
+            if isinstance(node, ast.ExceptHandler)
+            and node.type is not None
+            and "ShotBoundaryConflict" in ast.unparse(node.type)
+        ]
+        self.assertEqual(offenders, [])
 
     def test_no_method_pushes_a_restore_point_by_hand(self):
         offenders = [

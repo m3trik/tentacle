@@ -5,9 +5,9 @@
 Provides :class:`GapManagerMixin` -- mixed into
 :class:`~.controller.ShotSequencerController` to handle gap resize, move,
 lock, and range-highlight interactions.  Every edit brackets through the
-store's ``scene_edit`` (one named undo step, paired with its restore point)
-and is expressed through the host-neutral ``ShotSequencer`` surface, so one
-copy serves both hosts.
+store's ``scene_edit`` (one named undo step, paired with its restore point,
+a refusal answered by ``_report_boundary_refusal``) and is expressed through
+the host-neutral ``ShotSequencer`` surface, so one copy serves both hosts.
 """
 
 from __future__ import annotations
@@ -32,7 +32,8 @@ class GapManagerMixin:
     * ``_segment_cache`` / ``_sub_row_cache`` — dicts flushed by
       ``_gap_edit_epilogue`` after boundary edits
     * ``_set_footer()`` — status line (a refused drag is an answer, not a
-      silent no-op)
+      silent no-op), and ``_report_boundary_refusal()`` — the answer to an
+      edit the planner refused
     * ``_neighbour_shots()`` — prev/next around a shot id
     * ``logger``
     """
@@ -79,18 +80,23 @@ class GapManagerMixin:
         if abs(ds - de) < TIME_SNAP_EPS and abs(ds) > TIME_SNAP_EPS:
             self._syncing = True
             try:
-                with self.sequencer.store.scene_edit("Move Shot"):
+                with self.sequencer.store.scene_edit(
+                    "Move Shot", on_refusal=self._report_boundary_refusal
+                ) as edit:
                     self.sequencer.move_shot(self.active_shot_id, start)
             finally:
                 self._syncing = False
-            self._gap_edit_epilogue()
+            if not edit.refused:
+                self._gap_edit_epilogue()
             return
 
         # One edge moved: Shift retimes, Ctrl moves the bound and nothing
         # else, a plain drag moves the bound and ripples the neighbours.
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Resize Shot"):
+            with self.sequencer.store.scene_edit(
+                "Resize Shot", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 if shift_held:
                     self.sequencer.resize_shot(self.active_shot_id, start, end)
                 elif ctrl_held:
@@ -107,7 +113,8 @@ class GapManagerMixin:
                     self.sequencer.resize_shot_bounds(self.active_shot_id, start, end)
         finally:
             self._syncing = False
-        self._gap_edit_epilogue()
+        if not edit.refused:
+            self._gap_edit_epilogue()
 
     def _drag_modifiers(self):
         """``(ctrl, shift)`` as the widget recorded them at the press."""
@@ -214,7 +221,9 @@ class GapManagerMixin:
 
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Resize Gap"):
+            with self.sequencer.store.scene_edit(
+                "Resize Gap", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 if ctrl_held or shift_held:
                     if self.sequencer.set_shot_edge(
                         target.shot_id,
@@ -235,7 +244,8 @@ class GapManagerMixin:
                     )
         finally:
             self._syncing = False
-        self._gap_edit_epilogue()
+        if not edit.refused:
+            self._gap_edit_epilogue()
 
     def on_gap_left_resized(
         self, original_prev_end: float, new_prev_end: float
@@ -273,7 +283,9 @@ class GapManagerMixin:
 
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Resize Gap"):
+            with self.sequencer.store.scene_edit(
+                "Resize Gap", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 if ctrl_held or shift_held:
                     if self.sequencer.set_shot_edge(
                         target.shot_id,
@@ -294,7 +306,8 @@ class GapManagerMixin:
                     )
         finally:
             self._syncing = False
-        self._gap_edit_epilogue()
+        if not edit.refused:
+            self._gap_edit_epilogue()
 
     def on_gap_moved(
         self,
@@ -336,7 +349,9 @@ class GapManagerMixin:
 
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Move Gap"):
+            with self.sequencer.store.scene_edit(
+                "Move Gap", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 # Determine which shot is inner (active, gets scaled)
                 # and which is outer (gets slid intact).
                 # Order: slide the outer shot first, then resize the
@@ -410,7 +425,8 @@ class GapManagerMixin:
                 self.sequencer.reconcile_system_edits()
         finally:
             self._syncing = False
-        self._gap_edit_epilogue()
+        if not edit.refused:
+            self._gap_edit_epilogue()
 
     # ---- gap lock --------------------------------------------------------
 

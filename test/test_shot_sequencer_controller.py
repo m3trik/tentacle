@@ -22,8 +22,10 @@ Run::
     python tentacle/test/run_tests.py test_shot_sequencer_controller --in-maya
 """
 
+import ast
 import logging
 import unittest
+from pathlib import Path
 from unittest import mock
 from unittest.mock import patch
 
@@ -38,6 +40,7 @@ from tentacle.slots.tools._shot_sequencer.clip_motion import (
 )
 from tentacle.slots.tools._shot_sequencer.marker_manager import MarkerManagerMixin
 from tentacle.slots.tools._shot_sequencer.shot_nav import ShotNavMixin
+from test_shots_panel import _pure_host, _refusing_engine_calls
 
 cmds = maya_module("maya.cmds")
 mtk = maya_module("mayatk")
@@ -194,6 +197,11 @@ class TestKeysBatchAuditRegressions(unittest.TestCase):
 
             def _set_footer(self, text, *a, **k):
                 self.footers.append(text)
+
+            def _report_boundary_refusal(self, exc, **_kw):
+                # The controller's answer (the clip drags' ``on_refusal``),
+                # less its redraw.
+                self.footers.append(str(exc))
 
         return Host()
 
@@ -2405,6 +2413,309 @@ class TestKeyTangentDrag(unittest.TestCase):
         self.assertTrue(self._tangent(10, lock=True), "unbroken: the key stays unified")
 
 
+# =========================================================================
+# A refused edit is answered, never raised
+# =========================================================================
+
+
+def _answering_controller(seq, ctrl=False, shift=False, active=None):
+    """A bare controller over *seq*, a widget pressed with *ctrl* / *shift*
+    and *active* the active shot. What it answers lands in its ``heard``, in
+    order: ``("warning", text)``, ``("redraw", shot_id)``, ``("footer", text)``.
+    """
+    heard = []
+
+    class _Widget:
+        ctrl_held_at_press = ctrl
+        shift_held_at_press = shift
+
+    class _Log:
+        def warning(self, msg, *a, **k):
+            heard.append(("warning", msg))
+
+        def __getattr__(self, _name):
+            return lambda *a, **k: None
+
+    class _Ctl(ShotSequencerController):
+        def __init__(self):  # bypass the panel's __init__
+            self._syncing = False
+
+        sequencer = seq
+        active_shot_id = active
+        logger = _Log()
+
+        def _get_sequencer_widget(self):
+            return _Widget()
+
+        def _set_footer(self, text, **kw):
+            heard.append(("footer", text))
+
+        def _after_shot_change(self, shot_id=None):
+            heard.append(("redraw", shot_id))
+
+    ctl = _Ctl()
+    ctl.heard = heard
+    return ctl
+
+
+#: The refusal :class:`_RefusingSequencer` raises: the curve it would merge.
+_CONFLICT = [("cube_translateX", 15.0, [0.0, 7.0])]
+
+
+class _RefusingSequencer(ptk.ShotSequencer):
+    """pythontk's sequencer over a scene whose every content write is refused
+    before it writes, where mayatk's plan apply refuses one
+    (``_reconcile_boundaries``; measured headless 2026-11-01: a plain drag of a
+    gap's edge sliding a shot's opening key onto a gap key of another pose)."""
+
+    def _scene_available(self):
+        return True
+
+    def _reconcile_boundaries(self, plan):
+        raise ptk.ShotBoundaryConflict(_CONFLICT)
+
+    def _apply_plan(self, plan, retime_gaps=False):
+        self._reconcile_boundaries(plan)  # where mayatk's runs
+        super()._apply_plan(plan, retime_gaps)
+
+
+class TestARefusedDragIsAnswered(unittest.TestCase):
+    """Every gap and bound handle answers a refused edit: the refusal logged
+    by its own words (they name the curves), the panel redrawn to the scene
+    the refusal left as it was, and the refusal the footer's last word.
+
+    Bug: the four gap handlers ran their engine calls in a bare
+    ``scene_edit``, so a refusal came out of the drag as a traceback; the
+    seven sites that did catch it each wrote the bracket by hand, and the
+    copies drifted (a clip drag and the shot cells reported before the redraw
+    that overwrote the notice). The bracket is the store's now
+    (``scene_edit(on_refusal=)``), answered by one controller method.
+    Fixed: 2026-11-01
+    """
+
+    BEFORE = [(0.0, 10.0), (20.0, 30.0)]
+    WANT = str(ptk.ShotBoundaryConflict(_CONFLICT))
+
+    def setUp(self):
+        _pure_host(self.addCleanup)
+        self.seq = _RefusingSequencer(store=ptk.ShotStore())
+        self.a = self.seq.define_shot("A", 0, 10)
+        self.b = self.seq.define_shot("B", 20, 30)
+
+    def _bounds(self):
+        return [(s.start, s.end) for s in self.seq.sorted_shots()]
+
+    def _assert_answered(self, ctl):
+        self.assertEqual(self._bounds(), self.BEFORE, "nothing half-applied")
+        self.assertEqual(
+            [h for h in ctl.heard if h[0] == "warning"], [("warning", self.WANT)]
+        )
+        self.assertEqual(
+            ctl.heard[-2:],
+            [("redraw", None), ("footer", self.WANT)],
+            "redrawn first, so the refusal is the notice left standing",
+        )
+        self.assertFalse(ctl._syncing, "the sync guard is released")
+
+    def _drag(self, gesture, **pressed):
+        ctl = _answering_controller(self.seq, **pressed)
+        gesture(ctl)  # must not raise
+        self._assert_answered(ctl)
+
+    def test_a_gap_edge_slides_its_shot(self):
+        self._drag(lambda c: c.on_gap_resized(20.0, 15.0))
+        self._drag(lambda c: c.on_gap_left_resized(10.0, 15.0))
+
+    def test_the_cap_handles_move_their_bound(self):
+        self._drag(lambda c: c.on_gap_resized(0.0, -5.0))  # the first shot's head
+        self._drag(lambda c: c.on_gap_left_resized(30.0, 35.0))  # the last's tail
+
+    def test_a_gap_body_drag_slides_both_shots(self):
+        self._drag(lambda c: c.on_gap_moved(10.0, 20.0, 15.0, 25.0))
+
+    def test_the_active_shots_band_and_edges(self):
+        sid = self.a.shot_id
+        self._drag(lambda c: c.on_range_highlight_changed(5.0, 15.0), active=sid)
+        self._drag(lambda c: c.on_range_highlight_changed(0.0, 15.0), active=sid)
+        self._drag(
+            lambda c: c.on_range_highlight_changed(0.0, 15.0), active=sid, shift=True
+        )
+
+    def test_without_a_refusal_the_drag_lands_and_says_nothing_of_it(self):
+        seq = ptk.ShotSequencer(store=ptk.ShotStore())
+        seq.define_shot("A", 0, 10)
+        seq.define_shot("B", 20, 30)
+        ctl = _answering_controller(seq)
+        ctl.on_gap_resized(20.0, 15.0)
+        self.assertEqual([(s.start, s.end) for s in seq.sorted_shots()][1], (15.0, 25.0))
+        self.assertNotIn("warning", [h[0] for h in ctl.heard])
+
+
+class TestEveryRefusableBracketAnswersTheRefusal(unittest.TestCase):
+    """A source check over the sequencer's handlers (``_shot_sequencer/``): a
+    method that can be refused -- it makes a refusing engine call, or calls a
+    handler that does -- passes ``on_refusal`` to each ``scene_edit`` it opens,
+    and nothing catches the refusal by hand. The Shots panel's twin is
+    ``test_shots_panel.TestEveryRefusableEditUsesTheGuard``."""
+
+    PKG = Path(_controller.__file__).resolve().parent
+
+    @classmethod
+    def setUpClass(cls):
+        cls.refusing = _refusing_engine_calls()
+        cls.methods = {}
+        for path in sorted(cls.PKG.glob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            for cls_node in [n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)]:
+                for fn in cls_node.body:
+                    if isinstance(fn, ast.FunctionDef):
+                        cls.methods.setdefault(fn.name, []).append((path.name, fn))
+
+    @staticmethod
+    def _reached(nodes, own):
+        """The names *nodes* reach: on ``self`` (*own*), else on anything else
+        (``self.sequencer.slide_shot``, ``seq.new_shot``)."""
+        return {
+            n.attr
+            for node in nodes
+            for n in ast.walk(node)
+            if isinstance(n, ast.Attribute)
+            and (isinstance(n.value, ast.Name) and n.value.id == "self") == own
+        }
+
+    def _refusable(self):
+        """The handler methods a refusal can come out of: each makes a
+        refusing engine call, or calls a handler that does."""
+        reach = {
+            name
+            for name, defs in self.methods.items()
+            if any(self._reached([fn], own=False) & self.refusing for _, fn in defs)
+        }
+        grew = True
+        while grew:
+            grew = False
+            for name, defs in self.methods.items():
+                if name not in reach and any(
+                    self._reached([fn], own=True) & reach for _, fn in defs
+                ):
+                    reach.add(name)
+                    grew = True
+        return reach
+
+    @staticmethod
+    def _brackets(fn):
+        """``(call, body)`` per ``with`` *fn* opens on a ``scene_edit``: the
+        call, and the nodes its body runs -- a local alias's value included
+        (``send = self.sequencer.copy_sequences_to_shot``)."""
+        aliases = {}
+        for node in ast.walk(fn):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        aliases.setdefault(target.id, []).append(node.value)
+        for node in ast.walk(fn):
+            if not isinstance(node, ast.With):
+                continue
+            for item in node.items:
+                call = item.context_expr
+                if (
+                    isinstance(call, ast.Call)
+                    and isinstance(call.func, ast.Attribute)
+                    and call.func.attr == "scene_edit"
+                ):
+                    names = {
+                        n.id
+                        for b in node.body
+                        for n in ast.walk(b)
+                        if isinstance(n, ast.Name)
+                    }
+                    yield call, list(node.body) + [
+                        v for name in names for v in aliases.get(name, ())
+                    ]
+
+    def test_the_refusing_set_resolves(self):
+        self.assertLessEqual(
+            {"slide_shot", "move_shot", "resize_shot_bounds", "new_shot"},
+            self.refusing,
+        )
+        self.assertLessEqual(
+            {"on_gap_resized", "on_gap_moved", "on_clip_moved"}, self._refusable()
+        )
+
+    def test_every_refusable_bracket_names_on_refusal(self):
+        reach = self._refusable()
+        offenders = [
+            f"{file}:{call.lineno} {name}"
+            for name, defs in sorted(self.methods.items())
+            for file, fn in defs
+            for call, body in self._brackets(fn)
+            if (
+                self._reached(body, own=False) & self.refusing
+                or self._reached(body, own=True) & reach
+            )
+            and "on_refusal" not in {k.arg for k in call.keywords}
+        ]
+        self.assertEqual(offenders, [], "these brackets let a refusal raise")
+
+    def test_no_handler_catches_the_refusal_by_hand(self):
+        offenders = [
+            f"{file}:{node.lineno} {name}"
+            for name, defs in self.methods.items()
+            for file, fn in defs
+            for node in ast.walk(fn)
+            if isinstance(node, ast.ExceptHandler)
+            and node.type is not None
+            and "ShotBoundaryConflict" in ast.unparse(node.type)
+        ]
+        self.assertEqual(offenders, [])
+
+
+@unittest.skipUnless(HAS_MAYA and HAS_QT, _SKIP_MSG)
+class TestARefusedGapDragInMaya(unittest.TestCase):
+    """The refusal a gap drag meets in Maya (measured headless 2026-11-01): an
+    animator key in the gap at 15 holds another pose than B's opening key, so
+    a plain drag of B's gap edge to 15 slides that key onto it, and mayatk's
+    plan apply refuses before it writes anything (``_reconcile_boundaries``).
+    It came out of ``on_gap_resized`` as a traceback at the end of the drag."""
+
+    def setUp(self):
+        cmds.file(new=True, force=True)
+        ShotStore.clear_active()
+        self.store = ShotStore()
+        ShotStore.set_active(self.store)
+        self.seq = ShotSequencer(store=self.store)
+        self.cube = cmds.polyCube(name="refuseGap")[0]
+        for t, v in ((0, 0.0), (10, 5.0), (15, 7.0), (20, 0.0), (30, 9.0)):
+            cmds.setKeyframe(self.cube, attribute="translateX", time=t, value=v)
+        self.seq.define_shot("A", 0, 10, objects=[self.cube])
+        self.seq.define_shot("B", 20, 30, objects=[self.cube])
+
+    def tearDown(self):
+        ShotStore.clear_active()
+
+    def _scene(self):
+        keys = cmds.keyframe(self.cube, q=True, at="translateX", tc=True, vc=True)
+        return [(s.start, s.end) for s in self.seq.sorted_shots()], keys
+
+    def test_a_gap_edge_dragged_onto_a_gap_key_is_refused_and_says_why(self):
+        before = self._scene()
+        ctl = _answering_controller(self.seq)
+        ctl.on_gap_resized(20.0, 15.0)  # must not raise
+        self.assertEqual(self._scene(), before, "refused before it wrote")
+        warned = [h[1] for h in ctl.heard if h[0] == "warning"]
+        self.assertEqual(len(warned), 1, ctl.heard)
+        self.assertIn("refuseGap_translateX", warned[0], "it names the curve")
+        self.assertEqual(ctl.heard[-1], ("footer", warned[0]))
+
+    def test_the_band_moved_onto_a_gap_key_is_refused_too(self):
+        before = self._scene()
+        b = self.seq.shot_by_name("B").shot_id
+        ctl = _answering_controller(self.seq, active=b)
+        ctl.on_range_highlight_changed(15.0, 25.0)  # the band's body: a move
+        self.assertEqual(self._scene(), before)
+        self.assertEqual(ctl.heard[-1][0], "footer", ctl.heard)
+
+
 @unittest.skipUnless(HAS_MAYA and HAS_QT, _SKIP_MSG)
 class TestARefusedDragReportsInsteadOfRaising(unittest.TestCase):
     """A clip dragged past the bound must never answer with a traceback.
@@ -2471,6 +2782,9 @@ class TestARefusedDragReportsInsteadOfRaising(unittest.TestCase):
 
             def _sync_combobox(self):
                 pass
+
+            def _after_shot_change(self, shot_id=None):
+                pass  # the refusal's redraw (``_report_boundary_refusal``)
 
             def _expand_shot_range(self, *_a, **_kw):
                 # The refusal's real origin: expanding past the bound ripples
@@ -3677,8 +3991,9 @@ class TestCopyToShotFromThePanel(_ControllerCase):
 
     def test_a_refused_landing_is_reported_not_raised(self):
         """A landing that would make two shots share a sample whose poses
-        disagree is refused by the engine; the menu says so in the footer
-        (the shot lane's edits do) instead of handing over a traceback."""
+        disagree is refused by the engine; the menu says so in the footer,
+        as every refusable edit does (``_report_boundary_refusal``), instead
+        of handing over a traceback."""
         from unittest.mock import patch
         from pythontk import ShotBoundaryConflict
 
@@ -3693,8 +4008,7 @@ class TestCopyToShotFromThePanel(_ControllerCase):
             side_effect=ShotBoundaryConflict([("ctlA_translateX", 60.0, [5.0, 0.0])]),
         ):
             self.ctrl._send_to_shot(seqs, self._shot("S1").shot_id, copy=True)
-        self.assertTrue(footers[-1].startswith("Copy to Shot: "), footers)
-        self.assertIn("ctlA_translateX", footers[-1])
+        self.assertIn("ctlA_translateX", footers[-1], footers)
 
 
 class TestANewShotUndoes(_ControllerCase):

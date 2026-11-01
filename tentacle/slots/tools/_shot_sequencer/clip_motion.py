@@ -13,7 +13,6 @@ the per-curve key commit and key deletes.  The shot edits are the engine's
 
 import math
 
-from pythontk import ShotBoundaryConflict
 
 #: Near-zero guard for floating-point comparisons.
 FLOAT_ZERO_EPS = 1e-6
@@ -32,9 +31,10 @@ class ClipMotionMixin:
     ``_audio_segments_cache`` (invalidated after audio-clip moves),
     ``_syncing`` (the re-entrancy guard shared with the store listener),
     ``_sync_to_widget()`` / ``_sync_combobox()``, ``_gap_edit_epilogue()``
-    (:class:`~.gap_manager.GapManagerMixin`), ``_set_footer()`` and ``logger``.
-    Edits bracket through ``sequencer.store.scene_edit()``, which records the
-    restore point; an edit that turned out a no-op cancels it.
+    (:class:`~.gap_manager.GapManagerMixin`), ``_set_footer()``,
+    ``_report_boundary_refusal()`` and ``logger``.  Edits bracket through
+    ``sequencer.store.scene_edit()``, which records the restore point and
+    answers a refusal; an edit that turned out a no-op cancels it.
     """
 
     def _edit_bracket(self, label: str):
@@ -130,7 +130,9 @@ class ClipMotionMixin:
         was_syncing = self._syncing
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Resize Clip") as edit:
+            with self.sequencer.store.scene_edit(
+                "Resize Clip", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 for clip_id, new_start, new_duration in resizes:
                     label = self._resize_one_clip(
                         widget, clip_id, new_start, new_duration
@@ -145,7 +147,7 @@ class ClipMotionMixin:
                     edit.cancel()
         finally:
             self._syncing = was_syncing
-        if not labels:
+        if edit.refused or not labels:
             return
         # Full edit epilogue: resize_object can move shot boundaries and
         # ripple downstream -- without the cache flush, adjacent/all view
@@ -534,24 +536,6 @@ class ClipMotionMixin:
             shot.end,
         )
 
-    def _report_boundary_refusal(self, exc) -> None:
-        """Surface a declined boundary edit instead of raising through a drag.
-
-        Overrunning a shot's bound expands it and ripples the neighbour,
-        which the planner can REFUSE (:class:`ShotBoundaryConflict`) when
-        the ripple would force two shots' disagreeing poses onto one frame.
-        A refusal is an answer, not a crash -- and this arrives on the end
-        of a mouse drag, where a traceback is the worst possible reply.
-
-        The restore point is deliberately KEPT: each ripple declines before
-        it writes, and a clip makes its room before it lands, but
-        :meth:`_expand_shot_range` ripples the head before the tail: a refused
-        tail can follow a head that already moved the scene, and the user
-        must still be able to undo it.
-        """
-        self.logger.warning(str(exc))
-        self._set_footer(str(exc))
-
     def on_clip_moved(self, clip_id: int, new_start: float) -> None:
         """Handle clip move -- routes to audio or shot-level logic."""
         widget = self._get_sequencer_widget()
@@ -568,23 +552,22 @@ class ClipMotionMixin:
             return
 
         # Guarded commit (see _commit_clip_resizes); the rebuild runs after
-        # the guard is released -- _rebuild_content resets _syncing in its
-        # own finally, so a guard spanning it would be silently dropped.
+        # the guard is released.  Overrunning a bound expands the shot and
+        # ripples its neighbour, which the planner can refuse; the refusal's
+        # answer redraws what a ripple that ran first left
+        # (:meth:`_expand_shot_range` ripples the head before the tail).
         was_syncing = self._syncing
         self._syncing = True
-        refused = None
         try:
-            with self.sequencer.store.scene_edit("Move Clip") as edit:
+            with self.sequencer.store.scene_edit(
+                "Move Clip", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 applied = self._apply_clip_move(clip_id, new_start)
                 if not applied:
                     edit.cancel()
-        except ShotBoundaryConflict as exc:
-            applied, refused = True, exc  # a ripple may have run (see the report)
         finally:
             self._syncing = was_syncing
-        if refused is not None:
-            self._report_boundary_refusal(refused)
-        if not applied:
+        if edit.refused or not applied:
             return
         self.logger.debug(
             "[CLIP MOVED] sync triggered -- cache_keys=%s shifted_out=%s",
@@ -593,9 +576,7 @@ class ClipMotionMixin:
         )
         self._sync_to_widget(shot_id=shot_id)
         self._sync_combobox()
-        # A refusal already owns the footer; "Moved ..." would overwrite the
-        # only notice the user gets, and claim a move that was declined.
-        if obj_name and refused is None:
+        if obj_name:
             self._set_footer(f"Moved {obj_name} → {new_start:.0f}")
 
     def on_clips_batch_moved(self, moves) -> None:
@@ -623,27 +604,23 @@ class ClipMotionMixin:
         was_syncing = self._syncing
         self._syncing = True  # see _commit_clip_resizes -- own edits must not
         needs_sync = False
-        refused = None
         try:  # arm the debounce into a second rebuild
-            with self.sequencer.store.scene_edit("Move Clips") as edit:
+            # Whatever landed before a refusal stands: its answer draws it.
+            with self.sequencer.store.scene_edit(
+                "Move Clips", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 for clip_id, new_start in moves:
                     if self._apply_clip_move(clip_id, new_start):
                         needs_sync = True
                 if not needs_sync:
                     edit.cancel()
-        except ShotBoundaryConflict as exc:
-            # Whatever landed before the refusal stands and must be drawn.
-            needs_sync, refused = True, exc
         finally:
             self._syncing = was_syncing
-        if refused is not None:
-            self._report_boundary_refusal(refused)
-        if not needs_sync:
+        if edit.refused or not needs_sync:
             return
         self._sync_to_widget(shot_id=shot_id)
         self._sync_combobox()
-        if refused is None:  # see on_clip_moved -- a refusal keeps the footer
-            self._set_footer(f"Moved {len(moves)} clip{'s' if len(moves) != 1 else ''}")
+        self._set_footer(f"Moved {len(moves)} clip{'s' if len(moves) != 1 else ''}")
 
     # -- per-key handlers ---------------------------------------------------
 

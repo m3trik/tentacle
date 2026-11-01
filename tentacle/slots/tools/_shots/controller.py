@@ -750,26 +750,24 @@ class ShotsController(ptk.LoggingMixin):
 
         :class:`ShotBoundaryConflict` means the edit was declined: the shots
         would have had to share a sample whose two poses disagree, which one
-        frame cannot hold.  The restore point stays with the step
-        ``scene_edit`` pushed: a multi-stage edit can write before it is
-        declined (a "both" Add Space slides the head before the tail ripple
-        refuses), and undoing that step must put the bounds and claims back
-        with the keys.  An edit declined before it wrote anything strands
-        nothing: Maya's ``scene_edit`` drops the point of an edit that changed
-        nothing, and where Blender keeps it, restoring it changes nothing.
-        (mayatk's twin discarded the point here, which left a step whose keys
-        an undo took back without their bounds.)
+        frame cannot hold.  The store answers it (``on_refusal``) once the
+        step has closed, its restore point settled by the store's own rule: a
+        multi-stage edit can write before it is declined (a "both" Add Space
+        slides the head before the tail ripple refuses), and undoing that
+        step must put the bounds and claims back with the keys.  The refusal
+        is logged and put in the footer.
 
         Returns ``True`` when the edit ran, ``False`` when it was refused.
         """
-        try:
-            with store.scene_edit(label):
-                fn(*args, **kwargs)
-        except ptk.ShotBoundaryConflict as exc:
-            self.logger.warning(str(exc))
-            self._set_footer(str(exc))
-            return False
-        return True
+        with store.scene_edit(label, on_refusal=self._report_refusal) as edit:
+            fn(*args, **kwargs)
+        return edit.refused is None
+
+    def _report_refusal(self, exc) -> None:
+        """Answer a refused edit (:meth:`_boundary_edit`): logged, and the
+        footer says why."""
+        self.logger.warning(str(exc))
+        self._set_footer(str(exc))
 
     def on_gap_changed(
         self, value, scope: str = "all", respect_locks: bool = True

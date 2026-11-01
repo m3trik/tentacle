@@ -8,12 +8,12 @@ merging, splitting, padding and trimming shots, growing a shot over new keys,
 and the timeline / shot-lane context menus that offer them.
 
 Every edit is the host's ``ShotSequencer`` (``self.tk.ShotSequencer``) inside
-its store's ``scene_edit`` -- one undo step per edit, in either host -- so
-nothing here names the host.
+its store's ``scene_edit`` -- one undo step per edit, in either host, a
+refusal answered by ``_report_boundary_refusal`` -- so nothing here names the
+host.
 """
 
 import pythontk as ptk
-from pythontk import ShotBoundaryConflict
 from qtpy import QtWidgets
 
 
@@ -240,23 +240,15 @@ class ShotLaneMixin:
         """
         if self.sequencer is None:
             return
-        try:
-            with self.sequencer.store.scene_edit("Add Space") as edit:
-                head, tail = self.sequencer.add_shot_space(shot_id, frames, edge=edge)
-                if abs(head) < 1e-6 and abs(tail) < 1e-6:
-                    # Nothing moved: a restore point would make the next undo
-                    # visibly do nothing.
-                    edit.cancel()
-        except ShotBoundaryConflict as exc:
-            # Two shots would have had to share a sample whose poses
-            # disagree.  A refusal is an answer, not a crash: report it
-            # instead of handing the user a traceback for a menu click.
-            # The restore point is the store's to keep or drop
-            # (``scene_edit``): refused before anything was written, the edit
-            # leaves none; a "both" pad slides the head BEFORE the tail ripple
-            # can be declined, and that write keeps its point for Ctrl+Z.
-            self.logger.warning(str(exc))
-            self._set_footer(str(exc))
+        with self.sequencer.store.scene_edit(
+            "Add Space", on_refusal=self._report_boundary_refusal
+        ) as edit:
+            head, tail = self.sequencer.add_shot_space(shot_id, frames, edge=edge)
+            if abs(head) < 1e-6 and abs(tail) < 1e-6:
+                # Nothing moved: a restore point would make the next undo
+                # visibly do nothing.
+                edit.cancel()
+        if edit.refused:
             return
         if abs(head) < 1e-6 and abs(tail) < 1e-6:
             self._set_footer(f"Add {edge} space: nothing to do")
@@ -332,8 +324,12 @@ class ShotLaneMixin:
         )
         if reply != QtWidgets.QMessageBox.Yes:
             return
-        with self.sequencer.store.scene_edit("Delete Shot"):
+        with self.sequencer.store.scene_edit(
+            "Delete Shot", on_refusal=self._report_boundary_refusal
+        ) as edit:
             result = self.sequencer.delete_shot(shot_id)
+        if edit.refused:
+            return
         self._after_shot_change()
         cut = result.get("curves_cut", 0)
         closed = result.get("closed", 0.0)
@@ -387,8 +383,12 @@ class ShotLaneMixin:
         """
         if self.sequencer is None:
             return
-        with self.sequencer.store.scene_edit("Reorder Shot"):
+        with self.sequencer.store.scene_edit(
+            "Reorder Shot", on_refusal=self._report_boundary_refusal
+        ) as edit:
             self.sequencer.move_shot_to_position(shot_id, position)
+        if edit.refused:
+            return
         self._after_shot_change(shot_id=shot_id)
         shot = self.sequencer.shot_by_id(shot_id)
         if shot is not None:
@@ -412,7 +412,9 @@ class ShotLaneMixin:
         if self.sequencer is None:
             return
         try:
-            with self.sequencer.store.scene_edit("Split Shot") as edit:
+            with self.sequencer.store.scene_edit(
+                "Split Shot", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 try:
                     tail = self.sequencer.split_shot(shot_id, time)
                 except ValueError:
@@ -422,6 +424,8 @@ class ShotLaneMixin:
                     raise
         except ValueError as exc:
             self._set_footer(str(exc))
+            return
+        if edit.refused:
             return
         self._after_shot_change(shot_id=tail.shot_id)  # it becomes active
         self._set_footer(
@@ -438,12 +442,16 @@ class ShotLaneMixin:
         """
         if self.sequencer is None:
             return
-        with self.sequencer.store.scene_edit("Trim Shot") as edit:
+        with self.sequencer.store.scene_edit(
+            "Trim Shot", on_refusal=self._report_boundary_refusal
+        ) as edit:
             head, tail = self.sequencer.trim_shot_to_content(shot_id, edge=edge)
             if abs(head) < 1e-6 and abs(tail) < 1e-6:
                 # Nothing moved: no restore point (a dead one would make the
                 # next undo visibly do nothing) and no empty undo step.
                 edit.cancel()
+        if edit.refused:
+            return
         if abs(head) < 1e-6 and abs(tail) < 1e-6:
             self._set_footer("Nothing to trim — the shot already fits its content.")
             return
@@ -521,7 +529,10 @@ class ShotLaneMixin:
         # its own guard where it needs one (``_rebuild_content``).
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("Extend Shot") as edit:
+            with self.sequencer.store.scene_edit(
+                "Extend Shot",
+                on_refusal=lambda exc: self._report_boundary_refusal(exc, quiet=quiet),
+            ) as edit:
                 head, tail = self.sequencer.extend_shot_to_fit(
                     shot_id, edge=edge, reach=self._extend_reach_arg
                 )
@@ -530,15 +541,10 @@ class ShotLaneMixin:
                     # "nothing to extend to" is the normal answer: it must not
                     # leave an empty step in the user's history each time.
                     edit.cancel()
-        except ShotBoundaryConflict as exc:
-            # A refusal is reported, never raised (see _add_shot_space; the
-            # restore point is the store's to keep or drop).
-            self.logger.warning(str(exc))
-            if not quiet:
-                self._set_footer(str(exc))
-            return False
         finally:
             self._syncing = was_syncing
+        if edit.refused:
+            return False
         if abs(head) < 1e-6 and abs(tail) < 1e-6:
             if not quiet:
                 reach = self._extend_reach_arg
@@ -581,10 +587,14 @@ class ShotLaneMixin:
         was_syncing = self._syncing
         self._syncing = True
         try:
-            with seq.store.scene_edit("Insert Shot"):
+            with seq.store.scene_edit(
+                "Insert Shot", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 shot = seq.new_shot(at_position=(idx + 1) if before else (idx + 2))
         finally:
             self._syncing = was_syncing
+        if edit.refused:
+            return
         self._take_new_shot(shot)
         self._set_footer(f"Inserted {shot.name} · {shot.start:.0f}–{shot.end:.0f}")
 
@@ -619,10 +629,14 @@ class ShotLaneMixin:
         was_syncing = self._syncing
         self._syncing = True
         try:
-            with self.sequencer.store.scene_edit("New Shot"):
+            with self.sequencer.store.scene_edit(
+                "New Shot", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 shot = self.sequencer.new_shot()
         finally:
             self._syncing = was_syncing
+        if edit.refused:
+            return
         self._take_new_shot(shot)
         self._set_footer(f"Created {shot.name} · {shot.start:.0f}–{shot.end:.0f}")
 

@@ -13,7 +13,6 @@ them (``delete_span_keys``, ``delete_keys_at``, ``stash_keys``); stored clips
 are listed and retrieved through the host's ``KeyStash``.
 """
 
-from pythontk import ShotBoundaryConflict
 from qtpy import QtWidgets
 
 
@@ -284,16 +283,11 @@ class ClipMenuMixin:
             if copy
             else self.sequencer.move_sequences_to_shot
         )
-        try:
-            with self.sequencer.store.scene_edit(title):
-                send(movable, dest_shot_id)
-        except ShotBoundaryConflict as exc:
-            # A refusal is an answer, not a crash (the shot lane reports its
-            # own the same way).  The restore point stays: room may have been
-            # opened before a ripple was declined, and Ctrl+Z takes it back.
-            self.logger.warning(str(exc))
-            self._after_shot_change()  # the redraw sets a footer of its own
-            self._set_footer(f"{title}: {exc}", color="#E0A0A0")
+        with self.sequencer.store.scene_edit(
+            title, on_refusal=self._report_boundary_refusal
+        ) as edit:
+            send(movable, dest_shot_id)
+        if edit.refused:
             return
         self._after_shot_change()
         n = (

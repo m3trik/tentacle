@@ -11,8 +11,6 @@ shot's objects selected, the view's playback range -- are the host's
 
 from __future__ import annotations
 
-from pythontk import ShotBoundaryConflict
-
 __all__ = ["ShotNavMixin"]
 
 
@@ -224,7 +222,11 @@ class ShotNavMixin:
         was_syncing = self._syncing
         self._syncing = True
         try:
-            with store.scene_edit("Edit Shot"):
+            # The rename and the move may already have run when the resize is
+            # declined: the refusal's answer redraws what they left.
+            with store.scene_edit(
+                "Edit Shot", on_refusal=self._report_boundary_refusal
+            ) as edit:
                 if fields:
                     store.update_shot(shot.shot_id, **fields)
                 if "start" in cells and abs(float(cells["start"]) - shot.start) > 1e-6:
@@ -233,15 +235,10 @@ class ShotNavMixin:
                     self.sequencer.resize_shot_bounds(
                         shot.shot_id, shot.start, float(cells["end"])
                     )
-        except ShotBoundaryConflict as exc:
-            # The rename and the move may already have run when the resize is
-            # declined; what that leaves on the ledger is the store's call
-            # (its ``scene_edit``), so the refusal is only reported here.
-            self.logger.warning(str(exc))
-            self._set_footer(str(exc))
         finally:
             self._syncing = was_syncing
-        self._after_shot_change(shot_id=shot.shot_id)
+        if not edit.refused:
+            self._after_shot_change(shot_id=shot.shot_id)
 
     def _update_shot_nav_state(self) -> None:
         """Enable/disable prev/next option box actions based on combobox index."""

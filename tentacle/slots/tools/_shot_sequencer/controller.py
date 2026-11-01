@@ -191,6 +191,27 @@ class ShotSequencerController(
             return
         footer.setText(text, color=color or None)
 
+    def _report_boundary_refusal(self, exc, *, quiet: bool = False) -> None:
+        """Answer an edit the planner refused: every refusable bracket's
+        ``on_refusal`` (``ShotStore.scene_edit``).
+
+        The refusal (:class:`ShotBoundaryConflict`: two shots would have to
+        share a sample whose poses disagree) is an answer, not a crash, and
+        it often ends a mouse drag, where a traceback is the worst reply.  It
+        is logged, the panel redrawn to the scene the refusal left -- a drag
+        left its item where the cursor let go, and a staged edit can write
+        before a later stage is refused (a "both" pad slides the head before
+        the tail ripple is declined; the store keeps the restore point that
+        undoes it) -- and only then put in the footer, since the redraw's
+        shot summary would overwrite it.  *quiet* (the automatic Extend to
+        Keys, on every keying burst) logs it alone: its caller redraws.
+        """
+        self.logger.warning(str(exc))
+        if quiet:
+            return
+        self._after_shot_change()
+        self._set_footer(str(exc))
+
     def _update_footer_shot_summary(self) -> None:
         """Update the footer with a summary of the active shot."""
         if self.sequencer is None:
