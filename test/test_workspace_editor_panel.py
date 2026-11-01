@@ -179,7 +179,7 @@ def _qt_widgets():
 @unittest.skipIf(_qt_widgets() is None, "Qt not available")
 class TestWorkspaceEditorPanelLoads(unittest.TestCase):
     """The panel loaded through a real (offscreen) Qt / Switchboard /
-    ``BlenderUiHandler`` stack over ``btk``, the way ``tcl_blender`` stands it
+    ``BlenderUiHandler`` stack over ``btk``, the way ``Tcl.build`` stands it
     up: one root field, a RULE / LOCATION table with per-row reset and remove
     icons, and rule edits that write through to ``workspace.mel`` at once. The
     template store is sandboxed (``TestSandbox``)."""

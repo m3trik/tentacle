@@ -84,7 +84,7 @@ class MayaChordMenuRelease(unittest.TestCase):
             patcher.start()
             cls.addClassCleanup(patcher.stop)
 
-        # context_tags={'maya'} mirrors TclMaya, so the nav visibility policy runs as live.
+        # context_tags={'maya'} mirrors Tcl.build, so the nav visibility policy runs as live.
         cls.sb = Switchboard(
             ui_source=[str(_UI_DIR), str(_MAYA_UI_DIR)],
             log_level="ERROR",

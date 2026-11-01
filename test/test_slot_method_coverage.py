@@ -278,8 +278,7 @@ class TestEveryUiPairsToASlotFile(unittest.TestCase):
                 continue  # Submenu — paired via base
             if ui_path.stem in slot_stems:
                 continue
-            # Allow known non-slot UIs (e.g. tcl_max.ui pairs with tcl_max.py)
-            # by also accepting if a same-named slot exists.
+            # Allow known non-slot UIs by also accepting if a same-named slot exists.
             orphans.append(ui_path.name)
         # Some UIs (popup_window.ui, etc.) intentionally have no slot pair —
         # we only fail when the count is unreasonably high (>5) so this

@@ -832,22 +832,22 @@ class TestToolkit(unittest.TestCase):
     def test_without_one_tk_is_none(self):
         self.assertIsNone(Slots(_Sb()).tk)
 
-    def test_each_host_entry_point_sets_its_toolkit(self):
-        """Read off the source: the entry points import only inside their host."""
+    def test_the_one_launcher_sets_the_hosts_toolkit(self):
+        """Read off the source: ``Tcl.build`` sets ``sb.tk`` to the host's toolkit, once,
+        for every host -- the launcher imports no toolkit by name."""
         import ast
         from pathlib import Path
 
         package = Path(__file__).resolve().parents[1] / "tentacle"
-        for module, toolkit in (("tcl_maya.py", "mtk"), ("tcl_blender.py", "btk")):
-            tree = ast.parse((package / module).read_text(encoding="utf-8"))
-            sets = [
-                node.value.id
-                for node in ast.walk(tree)
-                if isinstance(node, ast.Assign)
-                and isinstance(node.value, ast.Name)
-                and any(ast.unparse(t) == "self.sb.tk" for t in node.targets)
-            ]
-            self.assertEqual(sets, [toolkit], module)
+        tree = ast.parse((package / "tcl.py").read_text(encoding="utf-8"))
+        sets = [
+            node.value.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Assign)
+            and isinstance(node.value, ast.Name)
+            and any(ast.unparse(t).endswith("sb.tk") for t in node.targets)
+        ]
+        self.assertEqual(sets, ["toolkit"])
 
 
 if __name__ == "__main__":

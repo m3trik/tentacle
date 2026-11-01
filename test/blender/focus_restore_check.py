@@ -164,7 +164,7 @@ def _steps():
     app = QtWidgets.QApplication.instance()
     ghost = int(getattr(app, "_blender_native_hwnd", 0))
     R["ghost_hwnd"] = ghost
-    _ck("host up: live TclBlender + GHOST hwnd cached", tcl is not None and ghost != 0)
+    _ck("host up: live marking menu + GHOST hwnd cached", tcl is not None and ghost != 0)
     _ck("poller installed (watchdog host)", btk.KeymapBridge.poller is not None)
 
     if not _fg_is_ours():

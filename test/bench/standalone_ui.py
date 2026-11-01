@@ -4,7 +4,7 @@ Subclass of :class:`bench.standalone_ui_init.StandaloneUiInitBench`
 that drives the **real** path users hit when they open a mayatk tool
 window from a tentacle slot:
 
-1.  ``TclMaya`` is constructed (registers tentacle UIs + slots and,
+1.  ``Tcl.build("maya")`` is constructed (registers tentacle UIs + slots and,
     via the bundled ``MayaUiHandler``, mayatk's UIs + slots onto the
     same :class:`Switchboard`).
 2.  The user's slot calls ``sb.handlers.ui.show("hierarchy_sync")``
@@ -12,7 +12,7 @@ window from a tentacle slot:
     + ``ui.show()``.
 
 Phase ``02_construct`` therefore measures the bundled
-``TclMaya + MayaUiHandler + register-everything`` cost (~2 s on a
+``Maya's marking menu + MayaUiHandler + register-everything`` cost (~2 s on a
 fresh Maya).  Phases 03-08 isolate the per-UI cost the user actually
 feels when they first open *this* tool.
 
@@ -46,13 +46,13 @@ class TentacleStandaloneUiBench(StandaloneUiInitBench):
         # Imports happen inside the method so this module can be
         # imported outside Maya (e.g. for static analysis) without
         # exploding on ``import maya.cmds``.
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
-        # ``TclMaya.__init__`` builds its own ``Switchboard`` and
+        # ``Maya's marking menu.__init__`` builds its own ``Switchboard`` and
         # registers tentacle UIs + slots; the bundled ``MayaUiHandler``
         # then registers mayatk UIs (hierarchy_sync, color_id,
         # naming, etc.) onto the *same* switchboard.  We retain a
         # reference so the marking menu doesn't get garbage-collected
         # mid-bench.
-        self._mm = TclMaya(log_level="WARNING")
+        self._mm = Tcl.build("maya", log_level="WARNING")
         return self._mm.sb

@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # coding=utf-8
-"""Tests for the host-agnostic launcher and the shared activation-key contract (``tentacle.tcl``).
+"""Tests for the one launcher and the shared activation-key contract (``tentacle.tcl``).
 
-The three ``tcl_<dcc>`` entry classes need their DCC to construct, so what is pinned here is the
-contract they all consume — key normalization, the chord table, host detection, and that ``launch``
-forwards to the right host — plus (by source, the only way without a DCC) that each fork actually
-routes through it rather than re-hardcoding a fourth copy of the table.
+``Tcl.launch`` defers through the host toolkit's ``<Host>MarkingMenuHost`` and ``Tcl.build``
+makes ONE ``uitk.MarkingMenu(host=...)`` for every host; what is pinned here is that path (from
+a stub toolkit, so no DCC is needed), key normalization, the chord table and host detection --
+plus, by source, that nothing re-grows a per-host subclass or a per-host table.
 
 **These must pass in a plain interpreter AND inside a live DCC**, since tentacle's canonical run is
 ``run_tests.py --in-maya``. That rules out the obvious-looking approach of faking the host via
@@ -34,21 +34,6 @@ if str(ROOT) not in sys.path:
 from tentacle.tcl import Tcl  # noqa: E402
 
 
-def _user_keymap_row(key_type, value="PRESS"):
-    """A stand-in for a merged user-keyconfig keymap item, with every field the
-    bridge reads (``_is_bare_press`` checks the modifier flags)."""
-    return types.SimpleNamespace(
-        type=key_type,
-        value=value,
-        idname="tentacle.show_marking_menu",
-        any=False,
-        ctrl=False,
-        alt=False,
-        shift=False,
-        oskey=False,
-    )
-
-
 def _fake_bpy():
     """A stand-in ``bpy`` that survives being imported.
 
@@ -60,26 +45,6 @@ def _fake_bpy():
     module = types.ModuleType("bpy")
     module.app = mock.MagicMock()
     return module
-
-
-@contextlib.contextmanager
-def _as_blender(bpy, entry):
-    """Make ``import bpy`` and ``from tentacle import tcl_blender`` resolve to the given stubs.
-
-    The entry module is patched onto the ``tentacle`` package's ``__dict__``, not into
-    ``sys.modules``: ``from tentacle import tcl_blender`` resolves the package ATTRIBUTE first and
-    only falls back to ``sys.modules``, so a sys.modules-only patch is ignored once anything else
-    in the suite has imported the real module — which ran the real Blender registration mid-test
-    (a full-suite-only failure). Patching the dict also avoids the lazy package resolver importing
-    the whole Blender/Qt stack just to snapshot the original.
-    """
-    import tentacle
-
-    with (
-        mock.patch.dict(sys.modules, {"bpy": bpy}),
-        mock.patch.dict(tentacle.__dict__, {"tcl_blender": entry}),
-    ):
-        yield
 
 
 class TestActivationKeyContract(unittest.TestCase):
@@ -203,19 +168,21 @@ class TestSharedRoots(unittest.TestCase):
                     set(hosts) & set(Tcl.ENGINES), set(Tcl.ENGINES), "serves both: no row"
                 )
 
-    def test_each_host_entry_point_registers_it(self):
-        """Read off the source: the entry points import only inside their host."""
+    def test_the_one_build_registers_it_once(self):
+        """Read off the source: ``Tcl.build`` registers the shared roots, once, for every
+        host -- no entry point of a host's own does it again."""
         import ast
 
-        for module in ("tcl_maya.py", "tcl_blender.py"):
-            tree = ast.parse((PKG / module).read_text(encoding="utf-8"))
+        for module in sorted(PKG.glob("tcl*.py")):
+            tree = ast.parse(module.read_text(encoding="utf-8"))
             calls = [
                 ast.unparse(node)
                 for node in ast.walk(tree)
                 if isinstance(node, ast.Call)
-                and ast.unparse(node.func) == "Tcl.register_shared"
+                and ast.unparse(node.func).endswith(".register_shared")
             ]
-            self.assertEqual(calls, ["Tcl.register_shared(self.sb)"], module)
+            expected = ["cls.register_shared(menu.sb)"] if module.name == "tcl.py" else []
+            self.assertEqual(calls, expected, module.name)
 
 
 class TestRenamedPanels(unittest.TestCase):
@@ -312,13 +279,15 @@ class TestHostDetection(unittest.TestCase):
 
     def test_host_table_maps_each_dcc_to_its_marker_module(self):
         """Environment-independent: the probe strings themselves."""
-        self.assertEqual(
-            Tcl.HOSTS, {"maya": "maya.cmds", "blender": "bpy", "max": "pymxs"}
-        )
+        self.assertEqual(Tcl.HOSTS, {"maya": "maya.cmds", "blender": "bpy"})
 
     def test_host_table_checks_maya_first(self):
         """Order is load-bearing — a mayapy with a pip-installed ``bpy`` must read as Maya."""
-        self.assertEqual(list(Tcl.HOSTS), ["maya", "blender", "max"])
+        self.assertEqual(list(Tcl.HOSTS), ["maya", "blender"])
+
+    def test_every_host_has_a_toolkit(self):
+        """The host name names its toolkit -- and through it, its adapter."""
+        self.assertEqual(set(Tcl.HOSTS), set(Tcl.ENGINES))
 
     def test_detects_the_host_from_sys_modules(self):
         for name, probe in Tcl.HOSTS.items():
@@ -337,8 +306,20 @@ class TestHostDetection(unittest.TestCase):
         self.assertEqual(Tcl.host(), expected)
 
 
+class _Adapter:
+    """A host adapter that records the launch's deferral instead of scheduling it."""
+
+    def __init__(self):
+        self.deferred = []
+
+    def defer(self, fn):
+        self.deferred.append(fn)
+        return None
+
+
 class TestLaunchDispatch(unittest.TestCase):
-    """``launch`` — routes to the host's entry point and forwards the caller's arguments."""
+    """``launch`` — defers the ONE build through the host's adapter, forwarding the caller's
+    arguments."""
 
     def setUp(self):
         """Clear the once-per-process banner latch.
@@ -354,37 +335,65 @@ class TestLaunchDispatch(unittest.TestCase):
         _TclInternal._BANNERED = False
 
     def _launch_in(self, host, **kwargs):
-        """Run launch() as if hosted by ``host``, returning the kwargs its branch received.
+        """Run launch() as if hosted by ``host``; return (the adapter, what ``build`` got).
 
         Detection is stubbed rather than simulated — inside a live Maya (the canonical suite's
         interpreter) the real ``host()`` always and correctly answers "maya", and what these
         tests are about is the dispatch, not the detection (covered by TestHostDetection).
         """
-        with mock.patch.object(Tcl, "host", classmethod(lambda cls: host)):
-            with mock.patch.object(Tcl, f"_launch_{host}") as launcher:
-                # launch() banners (see Tcl.banner) — swallow it so a dispatch
-                # test doesn't scatter greetings through the suite's output.
-                with contextlib.redirect_stdout(io.StringIO()):
-                    Tcl.launch(**kwargs)
-        self.assertTrue(launcher.called, f"_launch_{host} was not called")
-        return launcher.call_args.kwargs
+        adapter, built = _Adapter(), []
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: host)),
+            mock.patch.object(
+                Tcl, "host_adapter", classmethod(lambda cls, h: adapter)
+            ),
+            mock.patch.object(
+                Tcl,
+                "build",
+                classmethod(lambda cls, *a, **kw: built.append((a, kw)) or "menu"),
+            ),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertIsNone(Tcl.launch(**kwargs))
+            self.assertEqual(built, [], "the build must wait for the adapter's deferral")
+            self.assertEqual(len(adapter.deferred), 1, "one deferral per launch")
+            self.assertEqual(adapter.deferred[0](), "menu")
+        self.assertEqual(len(built), 1, "one menu per launch")
+        return adapter, built[0]
 
-    def test_each_host_routes_to_its_own_entry(self):
+    def test_each_host_defers_one_build_through_its_adapter(self):
         for host in Tcl.HOSTS:
             with self.subTest(host=host):
-                self._launch_in(host)  # asserts the matching launcher fired
+                adapter, (args, kwargs) = self._launch_in(host)
+                self.assertEqual(args, (host,))
+                self.assertIs(kwargs["adapter"], adapter)
 
     def test_key_show_is_forwarded(self):
-        self.assertEqual(self._launch_in("blender", key_show="F11")["key_show"], "F11")
+        self.assertEqual(self._launch_in("blender", key_show="F11")[1][1]["key_show"], "F11")
 
-    def test_unset_key_show_is_not_forwarded(self):
-        """Omitting it must let each entry class apply its own default (Blender reads
-        TENTACLE_KEY) — forwarding None would look identical but bypasses that chain."""
-        self.assertNotIn("key_show", self._launch_in("blender"))
+    def test_unset_key_show_reaches_build_as_none(self):
+        """None lets ``build`` apply the default chain (``TENTACLE_KEY``, then the shipped
+        default, a persisted key over both)."""
+        self.assertIsNone(self._launch_in("maya")[1][1]["key_show"])
 
     def test_extra_kwargs_are_forwarded(self):
-        kwargs = self._launch_in("maya", key_show="Z", log_level="DEBUG")
+        kwargs = self._launch_in("maya", key_show="Z", log_level="DEBUG")[1][1]
         self.assertEqual(kwargs["log_level"], "DEBUG")
+
+    def test_an_immediate_host_hands_the_menu_back(self):
+        """A host whose ``defer`` runs now (a mayapy with no idle queue) returns the menu."""
+
+        class Now(_Adapter):
+            def defer(self, fn):
+                return fn()
+
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: "maya")),
+            mock.patch.object(Tcl, "host_adapter", classmethod(lambda cls, h: Now())),
+            mock.patch.object(Tcl, "build", classmethod(lambda cls, *a, **kw: "menu")),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            self.assertEqual(Tcl.launch(), "menu")
 
     def test_launch_issues_the_startup_banner(self):
         """The banner moved off ``import tentacle`` (imports must be side-effect free) onto
@@ -392,7 +401,9 @@ class TestLaunchDispatch(unittest.TestCase):
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             with mock.patch.object(Tcl, "host", classmethod(lambda cls: "maya")):
-                with mock.patch.object(Tcl, "_launch_maya"):
+                with mock.patch.object(
+                    Tcl, "host_adapter", classmethod(lambda cls, host: _Adapter())
+                ):
                     Tcl.launch()
         self.assertIn("tentacle v", buf.getvalue())
 
@@ -438,116 +449,131 @@ class TestLaunchDispatch(unittest.TestCase):
             with self.assertRaises(RuntimeError) as ctx:
                 Tcl.launch()
         self.assertIn("no supported DCC host", str(ctx.exception))
+        self.assertNotIn("Max", str(ctx.exception))
 
-    def test_blender_timer_callback_returns_none(self):
-        """bpy.app.timers unregisters a one-shot only when its callback returns None; returning
-        the menu instance would re-run the whole registration every 0.5s."""
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender(key_show="Z")
-            callback = bpy.app.timers.register.call_args.args[0]
-            self.assertIsNone(callback())
 
-        entry.register.assert_called_once_with(key_show="Z")
+class _StubToolkit(types.ModuleType):
+    """A host toolkit stand-in: its ``<Host>MarkingMenuHost``, ``ShotStore`` and ``Macros``,
+    each recording what the build asked of it."""
 
-    def test_a_missing_engine_reaches_the_user_not_the_hidden_console(self):
-        """The install hint is the whole point of the missing-engine ImportError.
+    def __init__(self, host):
+        super().__init__(f"stub_{host}tk")
+        from uitk import PureMarkingMenuHost
 
-        Raised from a ``bpy.app.timers`` callback it has no handler, so Blender
-        prints a traceback to the SYSTEM CONSOLE -- hidden by default on Windows
-        -- and the user sees the launcher do nothing at all. The one place the
-        hint can still be read is a popup.
-        """
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        entry.register.side_effect = ImportError(
-            "tentacle: the blender engine (blendertk) is not installed. "
-            'pip install "tentacletk[blender]".'
+        self.calls = calls = []
+
+        class Adapter(PureMarkingMenuHost):
+            def start(self):
+                calls.append("start")
+
+            def attach(self, menu):
+                calls.append(("attach", menu))
+
+        setattr(self, f"{host.title()}MarkingMenuHost", Adapter)
+        self.ShotStore = types.SimpleNamespace(
+            running_host=lambda: calls.append("shot store host")
         )
-        drawn = []
-
-        def _popup(draw, **_kw):
-            """Run the draw callback the way Blender does, capturing its labels."""
-            menu = mock.MagicMock()
-            menu.layout.label.side_effect = lambda text: drawn.append(text)
-            draw(menu, None)
-
-        bpy.context = mock.MagicMock()
-        bpy.context.window_manager.popup_menu.side_effect = _popup
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender()
-            callback = bpy.app.timers.register.call_args.args[0]
-            self.assertIsNone(callback())  # must NOT propagate out of the timer
-
-        self.assertTrue(drawn, "the missing-engine hint never reached a popup")
-        # The pip line is the payload; splitting the message must not corrupt it.
-        # An earlier draft appended "." to every piece, which double-punctuated
-        # the last one -- i.e. exactly the line the user has to copy.
-        self.assertIn('pip install "tentacletk[blender]".', drawn)
-        self.assertEqual(
-            " ".join(drawn),
-            "tentacle: the blender engine (blendertk) is not installed. "
-            'pip install "tentacletk[blender]".',
+        self.Macros = types.SimpleNamespace(
+            apply_saved_macros=lambda: calls.append("macros")
         )
 
-    def test_a_popup_that_cannot_render_still_does_not_escape_the_timer(self):
-        """A timer callback has no guaranteed UI context, so the popup itself can
-        raise. Falling back to the console is a poor surface; letting the original
-        ImportError out of the callback is a worse one -- Blender then unregisters
-        nothing and reports the add-on as broken instead of un-installed."""
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        entry.register.side_effect = ImportError("engine missing")
-        bpy.context = mock.MagicMock()
-        bpy.context.window_manager.popup_menu.side_effect = RuntimeError("no context")
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender()
-            self.assertIsNone(bpy.app.timers.register.call_args.args[0]())
 
-    def test_a_non_import_failure_is_left_alone(self):
-        """Scoped to the ImportError that carries a fix. A real bug in registration
-        must keep its traceback rather than be dressed up as 'not installed'."""
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        entry.register.side_effect = ValueError("a real bug")
-        bpy.context = mock.MagicMock()
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender()
-            with self.assertRaises(ValueError):
-                bpy.app.timers.register.call_args.args[0]()
+class TestBuildMakesOneMenu(unittest.TestCase):
+    """``Tcl.launch`` builds ONE ``uitk.MarkingMenu(host=...)`` per host, from a stub toolkit.
 
-    def test_blender_startup_is_deferred_not_immediate(self):
-        """Blender startup scripts run before the UI settles — the entry must be called from the
-        timer callback, never during launch()."""
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender()
-            entry.register.assert_not_called()  # scheduled, not run
-            bpy.app.timers.register.call_args.args[0]()
-            entry.register.assert_called_once()
+    The real menu, Switchboard and shared roots, offscreen; only the toolkit is a stand-in, so
+    no DCC is needed. Everything per host comes from the host name: the toolkit, its adapter
+    (``<Host>MarkingMenuHost``), the native-menu pages (``ui/<host>_menus``), the both-button
+    chord's ``<host>#startmenu`` and the ``{host}`` context tag.
+    """
 
-    def test_blender_startup_survives_the_file_the_user_opened(self):
-        """A default timer is dropped when Blender loads a .blend -- and Blender enables
-        add-ons (and runs startup scripts) BEFORE it opens the file a user double-clicked.
+    def setUp(self):
+        try:
+            from qtpy import QtWidgets
+            from uitk import MarkingMenu, PureMarkingMenuHost  # noqa: F401
+        except Exception as error:  # noqa: BLE001 - no Qt binding here
+            self.skipTest(f"needs Qt + uitk: {error}")
+        self.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication(["t"])
+        self.menus = []
+        self.addCleanup(self._retire)
 
-        Measured on 5.1.2, GUI, a timer registered from an add-on's register() at start:
-        with a .blend on the command line the default timer never fired and a
-        ``persistent=True`` one did; with no file both fired. So every start that opened
-        a scene brought up no menu at all.
-        """
-        bpy, entry = _fake_bpy(), mock.MagicMock()
-        with _as_blender(bpy, entry):
-            Tcl._launch_blender()
-        self.assertIs(
-            bpy.app.timers.register.call_args.kwargs.get("persistent"),
-            True,
-            "the build timer must survive the file load that follows a start",
-        )
+    def _retire(self):
+        for menu in self.menus:
+            try:
+                menu.retire()
+                menu.deleteLater()
+            except RuntimeError:
+                pass
+
+    def _launch(self, host):
+        toolkit = _StubToolkit(host)
+        from uitk import MarkingMenu
+
+        built = []
+        real_init = MarkingMenu.__init__
+
+        def counting_init(menu, *args, **kwargs):
+            built.append(menu)
+            toolkit.calls.append("menu")
+            real_init(menu, *args, **kwargs)
+
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: host)),
+            mock.patch.object(
+                Tcl, "_import_entry", classmethod(lambda cls, h, module, attr=None: toolkit)
+            ),
+            mock.patch.object(MarkingMenu, "__init__", counting_init),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            menu = Tcl.launch(key_show="F9")  # the pure defer builds at once
+        self.menus.extend(built)
+        return toolkit, built, menu
+
+    def test_each_host_gets_one_menu_hosted_by_its_adapter(self):
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                toolkit, built, menu = self._launch(host)
+                self.assertEqual(len(built), 1, "ONE MarkingMenu per launch")
+                self.assertIs(menu, built[0])
+                adapter_type = getattr(toolkit, f"{host.title()}MarkingMenuHost")
+                self.assertIsInstance(menu.host, adapter_type)
+                self.assertEqual(type(menu).__name__, "MarkingMenu", "no per-host subclass")
+
+    def test_the_host_names_everything_per_host(self):
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                toolkit, _built, menu = self._launch(host)
+                self.assertEqual(menu.sb.context_tags, {host})
+                key = Tcl.resolve_key("F9", {host})  # a key a user persisted outranks F9
+                self.assertEqual(
+                    menu.default_bindings.get(f"{key}|LeftButton|RightButton"),
+                    f"{host}#startmenu",
+                )
+                self.assertTrue(
+                    menu.sb.is_registered_ui(f"{host}#startmenu"),
+                    f"ui/{host}_menus is not registered",
+                )
+                self.assertTrue(menu.sb.is_registered_ui("hud#startmenu"))
+
+    def test_the_shared_wiring_is_done_once(self):
+        toolkit, _built, menu = self._launch("maya")
+        self.assertIs(menu.sb.tk, toolkit)
+        self.assertEqual(toolkit.calls.count("shot store host"), 1)
+        self.assertEqual(toolkit.calls.count("macros"), 1)
+
+    def test_qt_is_stood_up_before_the_menu(self):
+        toolkit, _built, menu = self._launch("blender")
+        self.assertLess(toolkit.calls.index("start"), toolkit.calls.index("menu"))
+        self.assertIn(("attach", menu), toolkit.calls)
 
 
 class TestQtPlatformErrorReachesTheUser(unittest.TestCase):
     """blendertk's ``QtPlatformUnavailable`` (Qt cannot open a window here) carries its fix, so,
-    like the missing engine, the launcher's timer shows it in a popup rather than the hidden
-    system console. Driven through the REAL ``tcl_blender`` and ``btk.QtRuntime``: only the
-    probe's ``subprocess.run``, the platform and ``bpy`` are faked. The preflight itself is
-    blendertk's ``test_qt_runtime``."""
+    like the missing engine, the launch's timer shows it in a popup rather than the hidden
+    system console. Driven through the REAL ``Tcl.launch``, ``btk.BlenderMarkingMenuHost`` and
+    ``btk.QtRuntime``: only the probe's ``subprocess.run``, the platform and ``bpy`` are faked.
+    The preflight itself is blendertk's ``test_qt_runtime``, the popup its
+    ``test_marking_menu_host``."""
 
     ABORTED = subprocess.CompletedProcess(
         args=[],
@@ -562,10 +588,12 @@ class TestQtPlatformErrorReachesTheUser(unittest.TestCase):
 
     def setUp(self):
         try:
-            from tentacle import tcl_blender
+            import blendertk
+            from qtpy import QtWidgets  # noqa: F401
+
+            blendertk.BlenderMarkingMenuHost  # noqa: B018 - an older install has none
         except Exception as error:  # noqa: BLE001 - any import-time miss = not testable here
-            self.skipTest(f"needs the live tcl_blender (Qt + blendertk): {error}")
-        self.tcl_blender = tcl_blender
+            self.skipTest(f"needs Qt + this blendertk: {error}")
 
     @contextlib.contextmanager
     def _linux_without_a_qapp(self, probe):
@@ -606,10 +634,11 @@ class TestQtPlatformErrorReachesTheUser(unittest.TestCase):
         bpy.context.window_manager.popup_menu.side_effect = _popup
         with (
             self._linux_without_a_qapp(self.ABORTED),
-            _as_blender(bpy, self.tcl_blender),
+            mock.patch.dict(sys.modules, {"bpy": bpy}),
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: "blender")),
             contextlib.redirect_stdout(io.StringIO()),
         ):
-            Tcl._launch_blender()
+            self.assertIsNone(Tcl.launch())
             callback = bpy.app.timers.register.call_args.args[0]
             self.assertIsNone(callback())  # must NOT propagate out of the timer
 
@@ -713,36 +742,114 @@ class TestActivationKeyPrecedence(unittest.TestCase):
             self.assertEqual(Tcl.resolve_key("F12", {"maya"}), "Key_F12")
 
 
-class TestForksUseTheSharedContract(unittest.TestCase):
-    """The forks must consume ``Tcl``, not re-hardcode the table — the drift this module prevents.
+class TestOneLauncher(unittest.TestCase):
+    """One launcher builds every host's menu: no ``MarkingMenu`` subclass per host, no per-host
+    table beyond ``Tcl.HOSTS`` detection, the chord table built in one place.
 
-    Source-level because constructing any fork needs its DCC. A literal ``hud#startmenu`` outside
-    ``tcl.py`` is the signature of a re-inlined copy.
+    Source-level because the forks this replaced were only constructible in their DCC. A literal
+    ``hud#startmenu`` or a host's ``<host>#startmenu`` / ``<host>_menus`` outside the convention
+    is the signature of a re-grown fork.
     """
 
-    FORKS = ("tcl_maya.py", "tcl_blender.py", "tcl_max.py")
+    def _launchers(self):
+        return sorted(PKG.glob("tcl*.py"))
 
-    def _source(self, name):
-        return (PKG / name).read_text(encoding="utf-8")
+    def test_the_per_host_forks_are_gone(self):
+        for name in ("tcl_maya.py", "tcl_max.py"):
+            with self.subTest(module=name):
+                self.assertFalse((PKG / name).exists(), f"{name} is back")
 
-    def test_forks_call_the_shared_helpers(self):
-        for name in self.FORKS:
-            with self.subTest(fork=name):
-                src = self._source(name)
-                self.assertIn("Tcl.resolve_key(", src)
-                self.assertIn("Tcl.chord_bindings(", src)
+    def test_no_module_subclasses_the_marking_menu(self):
+        import ast
 
-    def test_forks_do_not_rebuild_the_chord_table(self):
-        for name in self.FORKS:
-            with self.subTest(fork=name):
-                self.assertNotIn("hud#startmenu", self._source(name))
+        for path in sorted(PKG.rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            bases = [
+                ast.unparse(base)
+                for node in ast.walk(tree)
+                if isinstance(node, ast.ClassDef)
+                for base in node.bases
+            ]
+            with self.subTest(module=path.name):
+                self.assertFalse(
+                    [b for b in bases if b.endswith("MarkingMenu")],
+                    "host behavior is the adapter's, never a MarkingMenu subclass",
+                )
+
+    @staticmethod
+    def _code_strings(tree):
+        """Every string constant in *tree*'s code -- docstrings, which may name a host
+        to explain, left out."""
+        import ast
+
+        docstrings = {
+            id(node.body[0].value)
+            for node in ast.walk(tree)
+            if isinstance(
+                node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+            )
+            and node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+        }
+        return [
+            node.value
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and id(node) not in docstrings
+        ]
+
+    def test_nothing_spells_a_host_out(self):
+        """The native-menu pages, the both-button target, the context tag and the UI
+        handler come from the host name or its adapter; a literal one in code is a
+        per-host table growing back."""
+        import ast
+
+        for path in self._launchers():
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+            strings = self._code_strings(tree)
+            for literal in (
+                "maya#startmenu",
+                "blender#startmenu",
+                "maya_menus",
+                "blender_menus",
+                "MayaUiHandler",
+                "BlenderUiHandler",
+                "MayaMarkingMenuHost",
+                "BlenderMarkingMenuHost",
+            ):
+                with self.subTest(module=path.name, literal=literal):
+                    self.assertFalse([s for s in strings if literal in s])
+            host_sets = [
+                ast.unparse(node)
+                for node in ast.walk(tree)
+                if isinstance(node, ast.Set)
+                and any(
+                    isinstance(e, ast.Constant) and e.value in Tcl.HOSTS
+                    for e in node.elts
+                )
+            ]
+            with self.subTest(module=path.name, literal="a host's context tag"):
+                self.assertEqual(host_sets, [])
+
+    def test_the_chord_table_is_built_in_one_place(self):
+        for path in self._launchers():
+            with self.subTest(module=path.name):
+                src = path.read_text(encoding="utf-8")
+                count = src.count('"hud#startmenu"')
+                self.assertEqual(count, 1 if path.name == "tcl.py" else 0)
 
     def test_default_key_is_defined_once(self):
-        """Any fork carrying its own bare default re-opens the drift this replaced."""
-        for name in self.FORKS:
-            with self.subTest(fork=name):
-                src = self._source(name)
+        """A launcher carrying its own bare default re-opens the drift this replaced."""
+        for path in self._launchers():
+            with self.subTest(module=path.name):
+                src = path.read_text(encoding="utf-8")
                 self.assertNotIn(f'"key_show", "{Tcl.DEFAULT_KEY}"', src)
+
+    def test_the_blender_stub_builds_through_the_launcher(self):
+        src = (PKG / "tcl_blender.py").read_text(encoding="utf-8")
+        self.assertIn('Tcl.build("blender"', src)
 
 
 class TestStyleDefaults(unittest.TestCase):
@@ -792,9 +899,8 @@ class TestEngineExtras(unittest.TestCase):
         self.assertEqual(Tcl.engine_dists("blender"), ("blendertk",))
 
     def test_a_host_without_an_extra_is_a_no_op(self):
-        """``max`` ships no engine (there is no ``maxtk``) — that must read as "nothing
-        to install", not as an error, so the launcher stays uniform across hosts."""
-        self.assertEqual(Tcl.engine_dists("max"), ())
+        """A host that ships no engine must read as "nothing to install", not as an
+        error, so the launcher stays uniform across hosts."""
         self.assertEqual(Tcl.engine_dists("no-such-host"), ())
 
     def test_no_host_is_not_the_base_set(self):
@@ -836,8 +942,8 @@ class TestEngineExtras(unittest.TestCase):
         self.assertIn("-m pip install", hint)
 
     def test_a_hostless_hint_lists_only_hosts_that_declare_an_engine(self):
-        """Asked outside any DCC. ``[None]`` would be nonsense, and offering ``[max]``
-        — a host with no engine — sends the reader to a pip line resolving to nothing."""
+        """Asked outside any DCC. ``[None]`` would be nonsense, and offering a host with
+        no engine sends the reader to a pip line resolving to nothing."""
         if not Tcl._requires():
             self.skipTest("no installed metadata (source checkout)")
         with mock.patch.object(Tcl, "host", classmethod(lambda cls: None)):
@@ -845,22 +951,20 @@ class TestEngineExtras(unittest.TestCase):
         self.assertNotIn("None", hint)
         self.assertIn("[maya]", hint)
         self.assertIn("[blender]", hint)
-        self.assertNotIn("[max]", hint)
 
     def test_a_host_with_no_engine_gets_no_pip_line_for_it(self):
-        """``max`` ships no engine, so ``"tentacletk[max]"`` names an extra that does
-        not exist — pip warns and no-ops. The named host must fall through to the same
-        "here are the hosts that DO ship one" answer as the hostless call."""
+        """A host with no extra (``"tentacletk[other]"`` names one that does not exist —
+        pip warns and no-ops) must fall through to the same "here are the hosts that DO
+        ship one" answer as the hostless call."""
         if not Tcl._requires():
             self.skipTest("no installed metadata (source checkout)")
-        hint = Tcl.engine_install_hint("max")
-        self.assertNotIn("[max]", hint)
+        hint = Tcl.engine_install_hint("other")
+        self.assertNotIn("[other]", hint)
         self.assertIn("[maya]", hint)
 
     def test_a_source_checkout_keeps_the_named_hosts_pip_line(self):
         """With no metadata EVERY host reads as engine-less. Demoting a real Maya user
-        onto the hostless branch there would cost the interpreter-specific line and
-        still print ``[max]`` via its ``or list(HOSTS)`` fallback."""
+        onto the hostless branch there would cost the interpreter-specific line."""
         with mock.patch.object(
             Tcl, "_requires", classmethod(lambda cls, extra=None: ())
         ):
@@ -1073,7 +1177,7 @@ class TestMissingEngineDiagnostic(unittest.TestCase):
         real = tcl_module.importlib.import_module
 
         def fake(name):
-            if name == "tentacle.tcl_maya":
+            if name == "mayatk":
                 raise error
             return real(name)
 
@@ -1086,13 +1190,8 @@ class TestMissingEngineDiagnostic(unittest.TestCase):
             yield
 
     def _import_maya_entry(self):
-        """Import the Maya entry the way ``_launch_maya`` does, bypassing the package
-        attribute so the patched importer is the thing that answers."""
-        import tentacle
-
-        with mock.patch.dict(tentacle.__dict__, {}, clear=False):
-            tentacle.__dict__.pop("tcl_maya", None)
-            return Tcl._import_entry("maya", "tentacle.tcl_maya", "TclMaya")
+        """Import the Maya toolkit the way a launch does (``Tcl.toolkit``)."""
+        return Tcl.toolkit("maya")
 
     def test_a_missing_engine_names_the_dist_and_the_pip_line(self):
         error = ModuleNotFoundError("No module named 'mayatk'", name="mayatk")
@@ -1165,22 +1264,33 @@ class TestMissingEngineDiagnostic(unittest.TestCase):
                 self.assertEqual(offenders, [], f"{banned} reached tcl.py")
 
 
-class TestEntryForksRouteThroughTheGuard(unittest.TestCase):
-    """Each ``_launch_*`` imports its entry through ``_import_entry``.
+class TestTheToolkitRoutesThroughTheGuard(unittest.TestCase):
+    """The launch imports the host's toolkit through ``_import_entry``.
 
-    By source: a fork that re-inlines ``from tentacle.tcl_maya import ...`` loses the
-    missing-engine diagnostic silently — nothing fails, the user just gets a raw
-    ModuleNotFoundError with no fix in it.
+    By source: a launcher that re-inlines ``import mayatk`` loses the missing-engine diagnostic
+    silently — nothing fails, the user just gets a raw ModuleNotFoundError with no fix in it.
     """
 
-    def test_every_launcher_uses_the_guarded_import(self):
+    def test_the_toolkit_uses_the_guarded_import(self):
         source = (PKG / "tcl.py").read_text(encoding="utf-8")
-        for host in ("maya", "blender", "max"):
-            with self.subTest(host=host):
-                body = source.split(f"def _launch_{host}")[1].split("\n    @")[0]
-                self.assertIn("_import_entry(", body)
-                self.assertNotIn("from tentacle.tcl_", body)
-                self.assertNotIn("from tentacle import tcl_", body)
+        body = source.split("def toolkit(")[1].split("\n    @")[0]
+        self.assertIn("_import_entry(", body)
+        import ast
+
+        tree = ast.parse(source)
+        imported = {
+            alias.name.split(".")[0]
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Import)
+            for alias in node.names
+        } | {
+            (node.module or "").split(".")[0]
+            for node in ast.walk(tree)
+            if isinstance(node, ast.ImportFrom)
+        }
+        self.assertFalse(
+            imported & set(Tcl.ENGINES.values()), "the launcher imports a toolkit by name"
+        )
 
 
 class TestReloadTeardown(unittest.TestCase):
@@ -1265,7 +1375,7 @@ class TestReloadTeardown(unittest.TestCase):
 
     def test_a_host_with_no_engine_is_not_an_error(self):
         with self._patched():
-            self.assertEqual(Tcl.prepare_reload("max"), [])
+            self.assertEqual(Tcl.prepare_reload("other"), [])
 
     def test_the_retired_instances_come_from_uitks_public_surface(self):
         """Not from a private module path: the Maya fork's previous teardown
@@ -1292,7 +1402,7 @@ class TestReloadTeardown(unittest.TestCase):
         module.MarkingMenu.retire_all = staticmethod(lambda: len(instances))
         with mock.patch.dict(sys.modules, {"uitk": module}):
             with contextlib.redirect_stdout(io.StringIO()):
-                retired = Tcl.prepare_reload("max")
+                retired = Tcl.prepare_reload("other")
         self.assertEqual(retired, [])
         Tcl.dispose_retired(retired)  # must not raise
 
@@ -1412,7 +1522,9 @@ class TestReloadRoutesThroughTheSharedTeardown(unittest.TestCase):
         module the reload re-executes, and constructing a marking menu while Qt
         is still delivering the click that triggered it destroys and rebuilds
         widget trees underneath the event."""
-        self.assertNotIn("TclMaya(", self._maya_reload(), "must not construct in-frame")
+        body = self._maya_reload()
+        for constructor in ("MarkingMenu(", ".build("):
+            self.assertNotIn(constructor, body, "must not construct in-frame")
 
     def test_blender_reload_tears_down_then_rebuilds_deferred(self):
         source = self._source("tcl_blender.py")
@@ -1434,7 +1546,7 @@ class TestReloadDispatch(unittest.TestCase):
                 self.assertEqual(Tcl.reload(), 7)
 
     def test_no_host_or_one_without_a_reload_raises(self):
-        for host in (None, "max"):
+        for host in (None, "other"):
             with self.subTest(host=host), mock.patch.object(
                 Tcl, "host", classmethod(lambda cls, h=host: h)
             ):

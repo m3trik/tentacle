@@ -33,9 +33,13 @@ class TestBlenderPlumbingParses(unittest.TestCase):
         tree = ast.parse(source)
         funcs = {n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
         self.assertTrue(
-            {"launch", "register", "unregister", "ensure_qapp", "start_event_pump", "diagnose"}
-            <= funcs,
-            f"Consolidated entry point missing host/add-on functions: have {sorted(funcs)}",
+            {"launch", "register", "unregister", "reload", "diagnose"} <= funcs,
+            f"The add-on entry point is missing its add-on/console functions: have {sorted(funcs)}",
+        )
+        # The Qt-host helpers are blendertk's (btk.QtRuntime, btk.ClickDebugger).
+        self.assertFalse(
+            {"ensure_qapp", "start_event_pump", "enable_click_debug"} & funcs,
+            "Qt hosting belongs to blendertk",
         )
         self.assertTrue(
             any(isinstance(n, ast.Assign)

@@ -95,9 +95,11 @@ def _viewport_point(hwnd):
 
 
 def _phase_a(tb, tcl):
+    import blendertk as btk
+
     _lines.append("=== A: parenting after normal startup ===")
     handle = tcl.windowHandle()
-    native = tb.blender_native_window()
+    native = btk.BlenderWindow.main_qwindow()
     owner = _u.GetWindowLongPtrW(wintypes.HWND(int(tcl.winId())), _GWLP_HWNDPARENT)
     _lines.append(f"ghost_windows      : {_input.ghost_windows()}")
     _lines.append(f"windowHandle       : {handle!r}")
@@ -105,7 +107,7 @@ def _phase_a(tb, tcl):
     _lines.append(f"GWLP_HWNDPARENT    : {owner:#x}")
     _lines.append(f"blender_native_now : {native!r}")
     # Retry the parenting NOW (proves whether the failure was construction-time timing).
-    tb.TclBlender._parent_to_blender(tcl, tcl)
+    tcl.host.adopt_window(tcl)
     owner2 = _u.GetWindowLongPtrW(wintypes.HWND(int(tcl.winId())), _GWLP_HWNDPARENT)
     _lines.append(f"owner after retry  : {owner2:#x}")
 

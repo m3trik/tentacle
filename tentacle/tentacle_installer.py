@@ -1577,10 +1577,19 @@ class TentacleInstaller:
 
     @classmethod
     def shutdown(cls):
-        """Blender add-on teardown: tear down the keymap bridge if tentacle ever came up."""
+        """Blender add-on teardown: tear down the keymap bridge if tentacle ever came up.
+
+        Through the add-on stub when something imported it, else blendertk's bridge
+        directly: ``Tcl.launch`` (this installer's route) builds the menu without the
+        stub. ``sys.modules`` only -- a teardown never imports what never came up.
+        """
         module = sys.modules.get("tentacle.tcl_blender")
         if module is not None:
             module.unregister()
+            return
+        bridge = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+        if bridge is not None:
+            bridge.KeymapBridge.teardown()
 
     # ------------------------------------------------------------------ orchestration
     @classmethod

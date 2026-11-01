@@ -7,10 +7,7 @@ __version__ = "0.16.4"
 
 
 DEFAULT_INCLUDE = {
-    "tcl": "Tcl",  # host-detecting launcher — the documented entry point for every DCC
-    "tcl_blender": "TclBlender",
-    "tcl_max": "TclMax",
-    "tcl_maya": "TclMaya",
+    "tcl": "Tcl",  # the one launcher — the documented entry point for every DCC
     "slots._slots": "Slots",
 }
 
@@ -152,6 +149,21 @@ MOVED_NAMES = {
     # keymap bridge and its report, the native-window helpers, the click tracer.
     "QtPlatformUnavailable": ("blendertk.QtPlatformUnavailable", "0.17.0"),
     "Diagnostics": ("blendertk.ActivationDiagnostics", "0.17.0"),
+    # One launcher (2026-10-31): Tcl.build makes ONE uitk.MarkingMenu(host=...) for every
+    # host; host behavior is the toolkit's MarkingMenuHost adapter. 3ds Max is dropped.
+    "TclMaya": ("tentacle.Tcl.build", "0.17.0"),
+    "TclBlender": ("tentacle.Tcl.build", "0.17.0"),
+    "TclMax": ("tentacle.Tcl.build", "0.17.0"),
+    "Tcl.BLENDER_START_DELAY": (
+        "blendertk.BlenderMarkingMenuHost.START_DELAY",
+        "0.17.0",
+    ),
+    "ensure_qapp": ("blendertk.QtRuntime.ensure_qapp", "0.17.0"),
+    "ensure_blender_widget": ("blendertk.QtRuntime.ensure_widget", "0.17.0"),
+    "start_event_pump": ("blendertk.QtRuntime.start_pump", "0.17.0"),
+    "blender_native_window": ("blendertk.BlenderWindow.main_qwindow", "0.17.0"),
+    "enable_click_debug": ("blendertk.ClickDebugger.enable", "0.17.0"),
+    "disable_click_debug": ("blendertk.ClickDebugger.disable", "0.17.0"),
 }
 
 

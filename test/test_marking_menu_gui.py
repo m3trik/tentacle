@@ -1,6 +1,6 @@
 """GUI-level integration tests for the tentacle marking menu.
 
-Drives the gesture pipeline against the real ``TclMaya`` instance with
+Drives the gesture pipeline against the real ``Tcl.build("maya")`` instance with
 real ``cameras#startmenu`` / ``main#startmenu`` / ``animation#submenu``
 .ui files. Verifies the user-facing flow end-to-end: each registered
 menu actually loads, becomes visible, and lands on screen.
@@ -18,13 +18,13 @@ cropped-cameras regression is unit-tested in uitk:
   startmenu / submenu UIs.
 
 This file stays as the integration smoke test: it confirms the upstream
-fix actually wires up correctly when bound to tentacle's TclMaya.
+fix actually wires up correctly when bound to tentacle's Maya's marking menu.
 
 ## Skip behaviour
 
 Requires both an interactive-Qt context and a Maya runtime, since
-``TclMaya`` imports ``maya.cmds`` at module load and the marking-menu
-shows real ``QMainWindow`` widgets.
+Maya's menu (``Tcl.build("maya")``) is built over mayatk and the marking
+menu shows real ``QMainWindow`` widgets.
 
 * Plain Python:                      skip — no Maya
 * ``mayapy --include-slots`` (batch): skip — Qt is a stub, widgets crash
@@ -39,10 +39,10 @@ import unittest
 
 
 def _can_run_marking_menu_tests() -> bool:
-    """True iff TclMaya can be instantiated and shown.
+    """True iff Maya's marking menu can be instantiated and shown.
 
     Needs real-widget Qt (not the mayapy.standalone stub) and a Maya
-    runtime — TclMaya imports maya.cmds at module load.
+    runtime — Maya's menu is built over mayatk.
     """
     try:
         import maya.cmds as cmds
@@ -73,7 +73,7 @@ _MIDDLE = 0x00000004
 class MarkingMenuGuiTest(unittest.TestCase):
     """Drives the gesture pipeline against real widgets.
 
-    Each test gets a fresh ``QMainWindow`` parent and ``TclMaya`` so that
+    Each test gets a fresh ``QMainWindow`` parent and ``Tcl.build("maya")`` so that
     state (registry-persisted geometry, hover transitions, submenu cache)
     cannot leak between cases.
     """
@@ -90,7 +90,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
 
     def setUp(self):
         from qtpy import QtWidgets, QtGui
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
         self.parent = QtWidgets.QMainWindow()
         self.parent.resize(1920, 1080)
@@ -110,7 +110,7 @@ class MarkingMenuGuiTest(unittest.TestCase):
         QtGui.QCursor.setPos(sx + sw // 2, sy + sh // 2)
         self._process()
 
-        self.mm = TclMaya(parent=self.parent)
+        self.mm = Tcl.build("maya", parent=self.parent)
         self._process()
         self.mm._activation_key_held = True
 
@@ -526,18 +526,18 @@ class MarkingMenuGuiTest(unittest.TestCase):
         """A tick fired inside a script's processEvents (mayatk's
         test_shot_manifest) built a page mid-test and faulted Maya: Maya's loop
         is native, so the warm-up must wait whenever Python is beneath it."""
-        self.assertTrue(self.mm.PRELOAD_ONLY_FROM_HOST_LOOP)
+        self.assertTrue(self.mm.host.preload_only_from_host_loop)
 
 
 @unittest.skipUnless(_can_run_marking_menu_tests(), _SKIP_REASON)
 class BrowserPolicyGuiTest(unittest.TestCase):
-    """Launcher-surface policy + hosted-page launch delegation on real TclMaya.
+    """Launcher-surface policy + hosted-page launch delegation on real Maya's marking menu.
 
     The mechanism layers are unit-tested in uitk
     (``test_switchboard_browser.py::EntryFilterStructural``,
     ``test_marking_menu.py::TestMarkingMenuBrowserEntryFilter``,
     ``test_ui_handler.py`` delegation suites); this smoke test confirms they
-    wire up when bound to tentacle's TclMaya:
+    wire up when bound to tentacle's Maya's marking menu:
 
     * the UI Browser built off tentacle's switchboard never lists the
       marking-menu gesture pages (``*#startmenu*`` / ``*#submenu*``), and
@@ -555,13 +555,13 @@ class BrowserPolicyGuiTest(unittest.TestCase):
 
     def setUp(self):
         from qtpy import QtWidgets
-        from tentacle.tcl_maya import TclMaya
+        from tentacle import Tcl
 
         self.parent = QtWidgets.QMainWindow()
         self.parent.resize(1280, 720)
         self.parent.show()
         self._process()
-        self.mm = TclMaya(parent=self.parent)
+        self.mm = Tcl.build("maya", parent=self.parent)
         self._process()
 
     def tearDown(self):
@@ -708,7 +708,7 @@ class BrowserPolicyGuiTest(unittest.TestCase):
 
     def test_a_tool_maya_does_not_serve_is_never_offered(self):
         """A tool ``tentacle.slots.tools.HOSTS`` keeps out of Maya is left out of
-        TclMaya's registration, and a former panel name (``RENAMED_FROM``: the
+        Maya's marking menu's registration, and a former panel name (``RENAMED_FROM``: the
         tool that took it over registers instead) is no tool at all: nothing
         resolves either, so no menu, UI Browser row or ``marking_menu.show`` can
         open it."""

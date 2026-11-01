@@ -1,11 +1,13 @@
 # !/usr/bin/python
 # coding=utf-8
-"""The host-agnostic entry point — one launcher snippet for every DCC.
+"""The one launcher — the same marking menu, built the same way, in every DCC.
 
-A startup script should not have to know which class its DCC needs, nor how that DCC wants
-startup deferred (Maya: ``executeDeferred``; Blender: a one-shot ``bpy.app.timers``; 3ds Max:
-immediately). :meth:`Tcl.launch` detects the host and does the right thing, so the documented
-snippet is the same two lines everywhere::
+A startup script should not have to know what its DCC needs, nor how that DCC wants startup
+deferred. :meth:`Tcl.launch` detects the host, asks the host's toolkit for its marking-menu
+host adapter (``mtk.MayaMarkingMenuHost`` / ``btk.BlenderMarkingMenuHost``, both
+``uitk.MarkingMenuHost``), defers through it (Maya: ``executeDeferred``; Blender: a one-shot
+``bpy.app.timers``) and :meth:`Tcl.build` makes ONE ``uitk.MarkingMenu(host=...)``, so the
+documented snippet is the same two lines everywhere::
 
     from tentacle import Tcl
     Tcl.launch(key_show="Z")
@@ -14,13 +16,16 @@ snippet is the same two lines everywhere::
 shortcut editor (or a DCC-side rebind) persists and outranks it, so the snippet can keep
 naming its default without overwriting the user's choice (see :meth:`Tcl.resolve_key`).
 
-This module is also the single source for the **activation-key contract** the three ``tcl_<dcc>``
-entry classes share: the ``Key_``-prefix normalization and the default chord→menu table
-(:meth:`Tcl.chord_bindings`), which were three near-verbatim copies differing only in the
-both-button target. Import-safe everywhere — stdlib only, and every DCC module it dispatches to is
-imported lazily inside the launch path (so ``import tentacle`` in a ``userSetup.py`` stays cheap
-and the heavy DCC imports happen on the deferred tick, as they did when each snippet imported its
-own class).
+Nothing here is per host beyond :attr:`_TclInternal.HOSTS` detection: the host name names
+the toolkit (:attr:`_TclInternal.ENGINES`), its adapter (``<Host>MarkingMenuHost``), the
+chord menus' native-menu pages (``ui/<host>_menus``), the both-button chord's target
+(``<host>#startmenu``) and the ``context_tags`` the menus' ``requires`` tags filter on. What a
+host answers differently -- its main window, its activation-key half, its mouse, how its
+windows stack, its UI handler -- is its adapter's. This module is also the single source for
+the **activation-key contract**: the ``Key_``-prefix normalization and the default chord→menu
+table (:meth:`Tcl.chord_bindings`). Import-safe everywhere — stdlib only; the toolkit is
+imported when a launch resolves its adapter (its root is lazy, so that costs only the
+adapter's module), and Qt on the deferred build.
 
 The **DCC engine** (``mayatk`` / ``blendertk``) is an *extra*, not a hard dependency: the two
 hosts install into separate interpreters and each imports exactly one engine. Every extra in
@@ -54,17 +59,16 @@ class _TclInternal:
     HOSTS = {
         "maya": "maya.cmds",
         "blender": "bpy",
-        "max": "pymxs",
     }
 
-    # Blender startup scripts run before the UI has settled; the Qt host needs a beat (the
-    # interval the launch snippet carried before this module existed).
-    BLENDER_START_DELAY = 0.5
-
-    #: host -> the engine package holding HOST-OWNED state that an in-place reload
-    #: would orphan (registered scriptJobs / OpenMaya callbacks). ``max`` has no
-    #: engine yet, so it contributes nothing to :meth:`Tcl.prepare_reload`.
+    #: host -> its toolkit: the engine package a Slots class reaches through
+    #: ``Slots.tk``, whose ``<Host>MarkingMenuHost`` adapter hosts the menu, and whose
+    #: HOST-OWNED state an in-place reload would orphan (registered scriptJobs /
+    #: OpenMaya callbacks; see :meth:`Tcl.prepare_reload`).
     ENGINES = {"maya": "mayatk", "blender": "blendertk"}
+
+    #: Env var naming the DEFAULT activation key when a launch names none.
+    KEY_ENV = "TENTACLE_KEY"
 
     #: Distribution this package installs as — the base of every ``[extra]`` spec. Each
     #: extra is named after a HOSTS key above, so ``host()`` resolves which one applies.
@@ -76,130 +80,6 @@ class _TclInternal:
     # (``python_version >= "3.10" and extra == "maya"``) still resolves.
     _REQ_BOUNDARY = re.compile(r"""[<>=!~;\[\s]""")
     _EXTRA_CLAUSE = re.compile(r"""extra\s*==\s*["']([^"']+)["']""")
-
-    @staticmethod
-    def _maya_is_batch():
-        """True under ``maya -batch`` / ``maya.standalone`` (no GUI, no real Qt)."""
-        try:
-            from maya import cmds
-
-            return bool(cmds.about(batch=True))
-        except Exception:  # cmds unavailable/uninitialized — assume interactive
-            return False
-
-    @classmethod
-    def _launch_maya(cls, **kwargs):
-        """Maya: build on an idle event — ``userSetup.py`` runs before the UI exists.
-
-        A batch/standalone session is a deliberate, quiet no-op. The same ``userSetup.py`` also
-        runs under ``mayapy`` / ``maya -batch``, so raising there would break every headless run —
-        and there is nothing to build anyway: batch has no GUI Qt (QWidget construction on Maya's
-        non-GUI stub takes the interpreter down natively — 0xC0000409, no traceback) and no idle
-        queue to defer onto. Checked up front rather than relying on which branch below happens to
-        fire: ``mayapy`` ships ``maya.utils`` *without* ``executeDeferred`` until
-        ``standalone.initialize()`` has run, so the fallback's meaning flips mid-session.
-        """
-        if cls._maya_is_batch():
-            return None
-
-        def build():
-            TclMaya = cls._import_entry("maya", "tentacle.tcl_maya", "TclMaya")
-
-            return TclMaya(**kwargs)
-
-        try:
-            from maya.utils import executeDeferred
-        except (
-            ImportError
-        ):  # no idle queue to defer onto — interactive but unusual; build now.
-            return build()
-        executeDeferred(build)
-        return None
-
-    @classmethod
-    def _launch_blender(cls, **kwargs):
-        """Blender: build on a one-shot timer, through the add-on entry (Qt host + diagnostics)."""
-        import bpy
-
-        def build():
-            try:
-                tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
-                tcl_blender.register(**kwargs)
-            except Exception as error:
-                if not cls._is_blender_startup_error(error):
-                    raise
-                # A timer callback has no handler, so this would print a traceback
-                # to the SYSTEM console -- hidden by default on Windows -- and the
-                # user would see the launcher simply do nothing. Each error carries
-                # its fix (the install line; the Qt libraries Linux lacks), which is
-                # its entire value, so it has to reach a surface they are looking
-                # at. Scoped to these two deliberately: a real bug in registration
-                # keeps its traceback rather than being dressed up as one of them.
-                cls._report_blender_startup_error(error)
-            return None  # a timer returning None is unregistered — one shot, not a poll
-
-        # persistent: Blender enables add-ons (and runs startup scripts) BEFORE it opens a
-        # .blend named on the command line -- a double-clicked scene -- and a file load drops
-        # every non-persistent timer, so the menu never came up on such a start.
-        bpy.app.timers.register(
-            build, first_interval=cls.BLENDER_START_DELAY, persistent=True
-        )
-        return None
-
-    @staticmethod
-    def _is_blender_startup_error(error):
-        """True for the two errors that carry their fix: a missing install
-        (``ImportError``) and blendertk's ``QtPlatformUnavailable`` (Qt cannot open a
-        window here; the system libraries to install). Resolved through
-        ``sys.modules``: when Qt's preflight raised, blendertk is loaded, and when it
-        is not, the error cannot be its."""
-        if isinstance(error, ImportError):
-            return True
-        btk = sys.modules.get("blendertk")
-        platform_error = getattr(btk, "QtPlatformUnavailable", None) if btk else None
-        return isinstance(platform_error, type) and isinstance(error, platform_error)
-
-    @staticmethod
-    def _report_blender_startup_error(error):
-        """Show *error* in Blender, falling back to the console.
-
-        ``popup_menu`` is the only surface available here: there is no operator to
-        ``self.report`` from, and a timer callback is not guaranteed a UI context,
-        so the call itself can raise. Both the popup and the fallback are inside
-        the guard because the thing that must not happen is the ORIGINAL error
-        escaping the callback -- Blender then reports the add-on as broken, which
-        is a worse answer than the one this exists to deliver.
-
-        The message is split on sentences and line breaks rather than drawn as one
-        label: Blender does not wrap a ``layout.label``, so the pip line -- the part
-        the user has to read -- would be clipped at the popup's edge, and a
-        multi-line error (the Qt preflight's) would draw its breaks inside a label.
-        """
-        import bpy
-
-        text = str(error)
-        try:
-            # Split AFTER the terminator, keeping it: appending "." to each
-            # piece double-punctuates the last one -- and the last one is the
-            # pip line, the part that has to be readable.
-            lines = [
-                s for s in (p.strip() for p in re.split(r"(?<=\.)\s+|\n", text)) if s
-            ]
-
-            def draw(self, _context):
-                for line in lines:
-                    self.layout.label(text=line)
-
-            bpy.context.window_manager.popup_menu(draw, title="Tentacle", icon="ERROR")
-        except Exception:  # noqa: BLE001 -- no UI context; the console is all that is left
-            print(f"[tentacle] {text}")
-
-    @classmethod
-    def _launch_max(cls, **kwargs):
-        """3ds Max: no deferral needed — its startup scripts already run against a live UI."""
-        TclMax = cls._import_entry("max", "tentacle.tcl_max", "TclMax")
-
-        return TclMax(**kwargs)
 
     # ---------------------------------------------------------------- reload (Settings)
     @classmethod
@@ -268,7 +148,7 @@ class _TclInternal:
     @classmethod
     def _reload_blender(cls):
         """Blender: ``tcl_blender.reload()`` tears tentacle's own surface down
-        (keymap, operator, poller, the Script Output dock) on top of
+        (blendertk's keymap, operator, poller, the Script Output dock) on top of
         :meth:`prepare_reload`, reloads, and re-registers on the next timer tick.
         It raises when the reload itself fails, before re-registering."""
         tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
@@ -283,7 +163,7 @@ class _TclInternal:
 
         Read from the INSTALLED metadata rather than a second copy in code, so the pins
         push.ps1 syncs stay the only source of truth. Returns ``()`` for an unknown host,
-        for a host with no extra (``max``, until a ``maxtk`` exists), and on a source
+        for a host with no extra, and on a source
         checkout with no ``.egg-info``/``.dist-info`` — where the engines are on
         ``sys.path`` anyway and there is nothing to install.
 
@@ -298,8 +178,8 @@ class _TclInternal:
         """This host's already-imported engine package, or None.
 
         ``sys.modules`` only — never an import: the engine is being torn down,
-        not stood up, and a host with no engine (``max``) must answer None
-        rather than raise.
+        not stood up, and a host with no engine must answer None rather than
+        raise.
         """
         name = cls.ENGINES.get(host)
         return sys.modules.get(name) if name else None
@@ -414,7 +294,7 @@ class _TclInternal:
         to describe the interpreter than to name a fatal one.
         """
         host = host or cls.host()
-        # A host that declares no engine has no extra to install — ``"tentacletk[max]"``
+        # A host that declares no engine has no extra to install — ``"tentacletk[<host>]"``
         # resolves to nothing and pip merely warns. Fall through to the hostless branch,
         # which names the hosts that DO ship one. Gated on metadata being readable: on a
         # source checkout every host reads as engine-less, and demoting a real Maya user
@@ -423,8 +303,8 @@ class _TclInternal:
             host = None
         spec = f'"{cls.DIST}[{host}]"'
         if not host:  # asked outside any DCC — name the hosts rather than "[None]"
-            # Only hosts that actually DECLARE an extra: offering ``[max]``, which
-            # ships no engine, sends the reader to a pip line that resolves to nothing.
+            # Only hosts that actually DECLARE an extra: offering one that ships no
+            # engine sends the reader to a pip line that resolves to nothing.
             hosts = [h for h in cls.HOSTS if cls.engine_dists(h)] or list(cls.HOSTS)
             spec = " / ".join(f'"{cls.DIST}[{h}]"' for h in hosts)
             return f"Install it with:  python -m pip install {spec}"
@@ -465,11 +345,11 @@ class Tcl(_TclInternal):
 
     @classmethod
     def host(cls):
-        """The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
+        """The DCC hosting this process (``'maya'``/``'blender'``), or None.
 
         Checks ``sys.modules`` first — inside a running DCC its own module is always already
         imported, so the answer is free and unambiguous — then falls back to an import attempt for
-        a host that hasn't touched it yet (3ds Max does not pre-import ``pymxs``).
+        a host that hasn't touched it yet.
         """
         for name, probe in cls.HOSTS.items():
             if probe in sys.modules:
@@ -656,7 +536,7 @@ class Tcl(_TclInternal):
         * **default** — nothing named, nothing chosen: :attr:`DEFAULT_KEY`.
 
         ``context_tags`` selects the host's store (``{"maya"}`` / ``{"blender"}``) and must
-        match the tags the entry class passes to ``MarkingMenu``, or it reads another host's key.
+        match the tags :meth:`build` passes to ``MarkingMenu``, or it reads another host's key.
         """
         try:  # lazy: keeps this module importable without Qt/uitk (see the module docstring)
             from uitk import MarkingMenu
@@ -675,8 +555,8 @@ class Tcl(_TclInternal):
         dev switchboard) serves every tool, uitk's rule for ``requires``.
 
         Parameters:
-            context_tags (iterable): The host's tags (``{"maya"}``), as its entry
-                    point hands them to ``MarkingMenu``.
+            context_tags (iterable): The host's tags (``{"maya"}``), as
+                    :meth:`build` hands them to ``MarkingMenu``.
 
         Returns:
             list: Tool names, sorted.
@@ -702,7 +582,7 @@ class Tcl(_TclInternal):
         serves (``slots.tools.HOSTS``) is left out of the other (:meth:`unserved_tools` of
         the switchboard's ``context_tags``), so nothing there offers it. A tool that took
         over other panels' names (``slots.tools.RENAMED_FROM``) first receives their saved
-        values (uitk's ``PanelRenames.carry``, once per host). Both entry points call this,
+        values (uitk's ``PanelRenames.carry``, once per host). :meth:`build` calls this,
         so the shared roots are written once.
         """
         from uitk import PanelRenames, UiHandler
@@ -759,8 +639,8 @@ class Tcl(_TclInternal):
         """The default chord→menu table for ``key_show`` (bare or Qt-named).
 
         ``chord_target`` is the both-buttons chord's page — each DCC's own native menu set
-        (``'maya#startmenu'`` / ``'blender#startmenu'``). Omitted, that chord is left unbound:
-        3ds Max ships no native-menu page, and binding a gesture to a target that cannot resolve
+        (``'maya#startmenu'`` / ``'blender#startmenu'``, :meth:`build` names it from the host).
+        Omitted, that chord is left unbound: binding a gesture to a target that cannot resolve
         is worse than leaving the gesture free.
         """
         key = cls.qt_key_name(key_show)
@@ -822,7 +702,7 @@ class Tcl(_TclInternal):
 
         Emits ONCE per process, which is exactly what the retired import-time call gave
         (a module body runs once). That guard is what lets every launch entry point call
-        this unconditionally: a host entered directly (``tcl_blender.launch``) banners, and
+        this unconditionally: Blender's add-on entry (``tcl_blender.launch``) banners, and
         the same host reached through :meth:`launch` does not banner twice.
 
         Parameters:
@@ -845,35 +725,146 @@ class Tcl(_TclInternal):
         return text
 
     @classmethod
+    def toolkit(cls, host=None):
+        """The engine package for *host* (``mayatk`` / ``blendertk``), imported.
+
+        A missing engine raises the ``ImportError`` that names the pip line fixing it
+        (:meth:`_import_entry`); a host with no toolkit raises ``RuntimeError``.
+        """
+        host = host or cls.host()
+        name = cls.ENGINES.get(host)
+        if name is None:
+            raise RuntimeError(f"tentacle: no toolkit for host {host!r}.")
+        return cls._import_entry(host, name)
+
+    @classmethod
+    def host_adapter(cls, host=None, toolkit=None):
+        """A new ``uitk.MarkingMenuHost`` adapter for *host*: its toolkit's
+        ``<Host>MarkingMenuHost`` (``mtk.MayaMarkingMenuHost``), named by convention."""
+        host = host or cls.host()
+        toolkit = toolkit or cls.toolkit(host)
+        return getattr(toolkit, f"{host.title()}MarkingMenuHost")()
+
+    @classmethod
+    def build(cls, host=None, adapter=None, key_show=None, **kwargs):
+        """Build tentacle's marking menu for *host* now, and return it.
+
+        ONE ``uitk.MarkingMenu`` for every host: the host's adapter stands Qt up
+        (``start``) and answers what the host does differently; everything else is by
+        convention from the host name -- the native-menu pages ``ui/<host>_menus``, the
+        both-button chord's ``<host>#startmenu``, the ``{host}`` context tag -- and the
+        wiring both hosts share is done here once: the toolkit (``Slots.tk``), the shot
+        store's host, the shared Slots and tool panels (:meth:`register_shared`), the
+        user's active macro preset.
+
+        Parameters:
+            host (str): A :attr:`HOSTS` key; ``None`` resolves the running host.
+            adapter: The host's ``uitk.MarkingMenuHost``; ``None`` resolves it
+                    (:meth:`host_adapter`).
+            key_show (str): DEFAULT activation key (see :meth:`launch`); ``None`` falls
+                    back to :attr:`KEY_ENV`, then :attr:`DEFAULT_KEY`, and a key the user
+                    persisted outranks all of them (:meth:`resolve_key`).
+            **kwargs: Forwarded to ``MarkingMenu`` (``parent``, ``slot_source``,
+                    ``log_level``, an explicit ``bindings`` dict, …).
+
+        Returns:
+            uitk.MarkingMenu: The menu.
+
+        Raises:
+            RuntimeError: No supported DCC detected.
+            ImportError: The host's engine is not installed (the message names the fix).
+        """
+        host = host or cls.host()
+        if host is None:
+            raise RuntimeError(cls._no_host_message())
+        toolkit = cls.toolkit(host)
+        adapter = adapter if adapter is not None else cls.host_adapter(host, toolkit)
+        adapter.start()  # Qt usable in this process (Blender provisions it) before any import
+        from uitk import ExternalAppHandler, MarkingMenu
+
+        tags = {host}
+        key = cls.resolve_key(key_show or os.environ.get(cls.KEY_ENV), tags)
+        bindings = kwargs.pop("bindings", None) or cls.chord_bindings(
+            key, f"{host}#startmenu"
+        )
+        ui = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui")
+        kwargs.setdefault("log_level", "WARNING")
+        menu = MarkingMenu(
+            # The chord menus' pages, and each host's native-menu pages: pure navigation
+            # (no Slots class) onto menus the host's UI handler builds the first time the
+            # switchboard resolves one.
+            ui_source=(ui, os.path.join(ui, f"{host}_menus")),
+            bindings=bindings,
+            # The host's UI handler (it wraps the host's own menus) comes from the adapter.
+            handlers={"external_app": ExternalAppHandler},
+            host=adapter,
+            suppress_default_on_reentry=True,
+            precompile=True,
+            # Scoped preloading: once the host's event loop is idle, warm the binding-target
+            # startmenus, then the submenus they open, so the FIRST activation and the first
+            # hover into each submenu behave like every later one.
+            preload=True,
+            context_tags=tags,  # `requires` widget filtering
+            **kwargs,
+        )
+        # The toolkit a Slots class shared by both hosts calls (Slots.tk).
+        menu.sb.tk = toolkit
+        # The shot store's host half, resolved now; a script that skips this entry
+        # point gets it from the store, resolved on first call.
+        toolkit.ShotStore.running_host()
+        # The composed Slots classes and the tool panels both hosts share; the
+        # standalone apps are extapps' (Tcl.register_apps, from here), opened by name.
+        cls.register_shared(menu.sb)
+        # Apply the user's active macro preset so its hotkeys are live immediately --
+        # the deterministic source of truth over a rebind made in the host's own hotkey
+        # editor, and required on Blender, whose addon keyconfig doesn't outlive the
+        # process. No active preset -> a no-op (the shipped 'default' set is empty).
+        try:
+            toolkit.Macros.apply_saved_macros()
+        except Exception as error:  # never let a preset issue block launch
+            print(f"# Warning: tentacle: apply_saved_macros failed: {error} #")
+        return menu
+
+    @classmethod
+    def _no_host_message(cls):
+        return (
+            "tentacle: no supported DCC host detected (looked for "
+            f"{', '.join(cls.HOSTS.values())}). Tcl.launch() must be called from inside "
+            "Maya or Blender."
+        )
+
+    @classmethod
     def launch(cls, key_show=None, **kwargs):
         """Start tentacle in the host DCC, deferring startup the way that host requires.
+
+        Resolves the host's adapter (:meth:`host_adapter`) and builds the menu
+        (:meth:`build`) through the adapter's ``defer``: Maya's idle queue (a quiet no-op
+        in batch), Blender's one-shot timer.
 
         Parameters:
             key_show (str): DEFAULT activation key — bare (``'Z'``, ``'Space'``) or Qt-named
                     (``'Key_Z'``). A key the user persisted (shortcut editor / DCC rebind)
-                    outranks it. Omitted, each entry class applies its own default (Blender
-                    additionally honors ``TENTACLE_KEY``; all fall back to :attr:`DEFAULT_KEY`).
-            **kwargs: Forwarded verbatim to the DCC's entry class (``slot_source``, ``log_level``,
-                    an explicit ``bindings`` dict, …).
+                    outranks it. Omitted, :attr:`KEY_ENV` names the default, then
+                    :attr:`DEFAULT_KEY`.
+            **kwargs: Forwarded to :meth:`build` (``slot_source``, ``log_level``, an explicit
+                    ``bindings`` dict, …).
 
         Returns:
-            The marking-menu instance when startup is immediate (3ds Max, and a ``mayapy`` with no
-            idle queue), else None — a deferred build has nothing to hand back yet.
+            The marking-menu instance when startup is immediate (a ``mayapy`` with no idle
+            queue), else None — a deferred build has nothing to hand back yet.
 
         Raises:
             RuntimeError: No supported DCC detected (see :meth:`host`).
+            ImportError: The host's engine is not installed (the message names the fix).
         """
         host = cls.host()
         if host is None:
-            raise RuntimeError(
-                "tentacle: no supported DCC host detected (looked for "
-                f"{', '.join(cls.HOSTS.values())}). Tcl.launch() must be called from inside "
-                "Maya, Blender or 3ds Max."
-            )
+            raise RuntimeError(cls._no_host_message())
         cls.banner()
-        if key_show is not None:
-            kwargs["key_show"] = key_show
-        return getattr(cls, f"_launch_{host}")(**kwargs)
+        adapter = cls.host_adapter(host)
+        return adapter.defer(
+            lambda: cls.build(host, adapter=adapter, key_show=key_show, **kwargs)
+        )
 
     @classmethod
     def reload(cls):

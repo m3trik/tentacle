@@ -139,7 +139,7 @@ def _go():
         import blendertk as btk  # noqa: E402
 
         if btk.KeymapBridge.tcl is None:
-            tb.launch()  # TclBlender.__init__ runs script_output.restore()
+            tb.launch()  # BlenderMarkingMenuHost.attach runs script_output.restore()
 
         inst = so.ScriptConsole.instance()
         _ck(
@@ -546,7 +546,7 @@ def _cold_restore():
     restore the streams while LEAVING the persisted flag alone — without it the old
     module's draw handler, widget and docked area survive a reload and the reloaded
     ``restore()`` docks a SECOND area. Then a fresh instance's ``restore()`` (what
-    TclBlender.__init__ runs at launch) must re-open the console from the saved flag by
+    BlenderMarkingMenuHost.attach runs at launch) must re-open the console from the saved flag by
     itself."""
     try:
         from qtpy import QtWidgets

@@ -136,7 +136,7 @@ def _run():
 
     tcl = btk.KeymapBridge.tcl or tb.launch()
     app = QtWidgets.QApplication.instance()
-    tb.enable_click_debug()
+    btk.ClickDebugger.enable()
     geo = QtWidgets.QApplication.primaryScreen().availableGeometry()
     center = (geo.center().x(), geo.center().y())
     try:
@@ -161,7 +161,7 @@ def _run():
         _log(traceback.format_exc())
     finally:
         try:
-            tb.disable_click_debug()
+            btk.ClickDebugger.disable()
         except Exception:
             pass
         report = "\n".join(_lines)

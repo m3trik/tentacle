@@ -250,7 +250,7 @@ def _run_one_sample(
     maya_exe = _find_maya_exe()
     print(f"[run_in_maya] launching fresh Maya ({maya_exe})")
     # Skip the user's userSetup.py: a typical one launches tentacle and opens
-    # command ports at idle, so a second TclMaya would be built (retiring the
+    # command ports at idle, so a second marking menu would be built (retiring the
     # bench's instance) while the bench pumps the event loop.
     env = {**os.environ, "MAYA_SKIP_USERSETUP_PY": "1"}
     process = AppLauncher.launch(maya_exe, args=args, detached=True, env=env)

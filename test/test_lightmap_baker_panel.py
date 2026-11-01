@@ -1948,7 +1948,7 @@ def _qt_widgets():
 @unittest.skipIf(_qt_widgets() is None, "Qt not available")
 class TestLightmapBakerPanelLoads(unittest.TestCase):
     """The shared panel loaded through a real (offscreen) Qt / Switchboard /
-    ``BlenderUiHandler`` stack over ``btk``, the way ``tcl_blender`` stands it
+    ``BlenderUiHandler`` stack over ``btk``, the way ``Tcl.build`` stands it
     up: what only real widgets answer -- the option-box wraps, the window's
     state, the Manage table and the footer controls. The dry run and the map
     rows are stood in for (``LightmapBaker.stale_report`` / ``bake_maps``)."""

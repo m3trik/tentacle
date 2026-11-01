@@ -95,7 +95,7 @@ def _b009():
         import shutil
         from blendertk.env_utils import script_output as so
 
-        # Sandbox the console's persisted visible-flag BEFORE tb.launch() — TclBlender's
+        # Sandbox the console's persisted visible-flag BEFORE tb.launch() — the launch's
         # __init__ runs script_output.restore(), and without the override both it and the
         # b010 toggles below would read/clobber the user's REAL Blender config.
         shutil.rmtree(SANDBOX, ignore_errors=True)

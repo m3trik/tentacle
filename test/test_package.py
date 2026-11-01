@@ -71,7 +71,7 @@ class TestPackageMetadata(unittest.TestCase):
 
         pkg_dir = Path(tentacle.__file__).parent
         for mod_path in tentacle.DEFAULT_INCLUDE:
-            # e.g. "tcl_maya" -> tentacle/tcl_maya.py
+            # e.g. "tcl" -> tentacle/tcl.py
             # e.g. "slots._slots" -> tentacle/slots/_slots.py
             rel = mod_path.replace(".", "/") + ".py"
             full = pkg_dir / rel
@@ -114,7 +114,7 @@ class TestExternalAppRegistration(unittest.TestCase):
     the host's external-app handler, which discovers them from extapps' own
     ``uitk.external_apps.in_process`` entry points.
 
-    The old per-app ``(name, module, entry)`` loop in tcl_maya / tcl_blender
+    The old per-app ``(name, module, entry)`` loop in the per-host launchers
     drifted from the entry points (and from each other) every time an app was
     added or moved. The refactor deleted it in favour of
     ``ExternalAppHandler.discover()`` reading the entry points directly. These
@@ -213,8 +213,8 @@ class TestExternalAppRegistration(unittest.TestCase):
         return {ep.name for ep in eps if ep.group == group}
 
     def test_hosts_have_no_manual_registration_table(self):
-        """Regression guard: neither host may hand-enumerate the standalone apps."""
-        for filename in ("tcl_maya.py", "tcl_blender.py"):
+        """Regression guard: no launcher may hand-enumerate the standalone apps."""
+        for filename in ("tcl.py", "tcl_blender.py"):
             self.assertEqual(
                 self._registered_modules(filename),
                 {},

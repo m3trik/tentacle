@@ -3,7 +3,7 @@
 """Every shared tool (``ui/tools/`` + ``slots/tools/``) loads in Blender's handler.
 
 Needs **Qt, not bpy**: a real (offscreen) Qt / Switchboard / BlenderUiHandler
-stack with tentacle's shared roots registered, the way ``tcl_blender`` stands
+stack with tentacle's shared roots registered, the way ``Tcl.build`` stands
 it up. Each tool's ``.ui`` compiles and binds to its one tentacle Slots class
 over blendertk (``Slots.tk``); a Preview panel's Create button is enabled (the
 ``.ui`` ships it disabled and Preview takes it over); the panel opens sticky by
@@ -63,7 +63,7 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
         Tcl.register_shared(cls.sb)
         cls.tools_dir = Path(tentacle.__file__).resolve().parent / "ui" / "tools"
         # This switchboard may be another module's, built with no context (every
-        # tool registered): load only what tcl_blender's {"blender"} context serves.
+        # tool registered): load only what Tcl.build's {"blender"} context serves.
         cls.unserved = Tcl.unserved_tools({"blender"})
         cls.names = sorted(
             p.stem for p in cls.tools_dir.glob("*.ui") if p.stem not in cls.unserved
@@ -97,7 +97,7 @@ class TestEverySharedToolLoadsInBlender(unittest.TestCase):
 
     def test_a_tool_blender_does_not_serve_is_never_registered(self):
         """The launcher leaves a Maya tool out (``Tcl.register_shared`` under
-        tcl_blender's context): no .ui to load, no Slots class to bind, so no
+        Blender's context): no .ui to load, no Slots class to bind, so no
         menu, UI Browser row or ``marking_menu.show`` can open it."""
         from uitk import Switchboard
 

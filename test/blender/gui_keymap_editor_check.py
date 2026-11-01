@@ -75,7 +75,7 @@ _result = {}
 
 
 def _set_activation_key(new_key):
-    """Stand in for ``TclBlender.set_activation_key`` — record, then move Blender's half."""
+    """Stand in for ``MarkingMenu.set_activation_key`` — record, then move Blender's half."""
     _events.append(f"setkey:{new_key}")
     _stub._activation_key_str = new_key
     btk.KeymapBridge.rebind(_stub, new_key)

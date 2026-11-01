@@ -7,7 +7,7 @@ Requires a real Blender binary (it ``import bpy``), so it is **not** a CI/unitte
     blender --background --factory-startup --python tentacle/test/blender/keymap_bridge_check.py
 
 Qt deps: set ``TENTACLE_QT_DEPS`` to a folder holding PySide6 + qtpy (or let ``tcl_blender``
-pip-install them on first run). Exercises the bridge helpers in isolation — no full TclBlender /
+pip-install them on first run). Exercises the bridge helpers in isolation — no full the marking menu /
 Qt host needed: key translation, operator registration, the viewport-scoped ``3D View`` keymap
 item, activation→show() routing (no mouse grab on a bare key-hold), re-install safety, error
 reporting, no-active-menu pass-through, and teardown.
@@ -134,13 +134,14 @@ try:
     check("launch() reuses the live instance", tb.launch() is stub)
     btk.KeymapBridge.tcl = None
 
-    # the consolidated entry point exposes the host + add-on surface (host/add-on/diagnose)
-    check("tcl_blender exposes launch/register/unregister/diagnose + bl_info",
+    # the add-on stub exposes the add-on + console surface; the Qt host is blendertk's
+    check("tcl_blender exposes launch/register/unregister/reload/diagnose + bl_info",
           callable(tb.launch) and callable(tb.register) and callable(tb.unregister)
-          and callable(tb.diagnose) and "name" in tb.bl_info)
-    check("tcl_blender exposes the Qt host fns",
-          callable(tb.ensure_qapp) and callable(tb.ensure_blender_widget)
-          and callable(tb.start_event_pump))
+          and callable(tb.reload) and callable(tb.diagnose) and "name" in tb.bl_info)
+    check("blendertk exposes the Qt host + the marking-menu host",
+          callable(btk.QtRuntime.ensure_qapp) and callable(btk.QtRuntime.ensure_widget)
+          and callable(btk.QtRuntime.start_pump)
+          and callable(btk.BlenderMarkingMenuHost().start))
 
 except Exception as e:
     lines.append(f"FAIL setup: {e!r}")

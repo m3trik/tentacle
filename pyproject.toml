@@ -40,8 +40,7 @@ dependencies = [
 # it doubles as the extra resolver with no second table to drift (see
 # `Tcl.declared_dists`, and the contract test in
 # test/test_tcl_launcher.py::TestEngineExtrasContract that fails if a key here
-# stops matching a host). A host with no row (`max`, until a `maxtk` exists) is
-# simply a no-op.
+# stops matching a host).
 #     mayapy.exe   -m pip install "tentacletk[maya]"
 #     blender-py   -m pip install "tentacletk[blender]"
 [project.optional-dependencies]
@@ -126,8 +125,7 @@ max-statements = 100
 [tool.ruff.lint.per-file-ignores]
 "**/templates/**" = ["F821"]  # exec-templates carry __PLACEHOLDER__ tokens substituted at run time
 # The launcher writes to the host console (Maya's "# Warning: ... #" lines, Blender's
-# console before any logger exists); install_poller's tick is live-input code that only
-# real key gestures verify.
+# console before any logger exists).
 "tentacle/tcl*.py" = ["C901", "T201"]
 # A bootstrap: it runs before qtpy is installed, and prints to the host console.
 "tentacle/tentacle_installer.py" = ["C901", "PLR0904", "PLR0915", "T201", "TID251"]
@@ -140,8 +138,9 @@ max-statements = 100
 # Checked by m3trik/scripts/check_layers.py against a frozen baseline of today's
 # exceptions. tentacle holds only the launcher, the UIs and the Slots classes.
 order = [
-    # The host entry points: each builds the menus and injects its toolkit.
-    "tcl_maya | tcl_blender | tcl_max",
+    # Blender's add-on stub, over the one launcher.
+    "tcl_blender",
+    # The one launcher: builds every host's menu and injects its toolkit.
     "tcl",
     "slots | ui",
 ]
@@ -153,7 +152,7 @@ maya = ["maya", "pymel", "mayatk"]
 blender = ["bpy", "bmesh", "mathutils", "blendertk"]
 qt = ["qtpy", "uitk", "PySide6", "PySide2", "shiboken6", "shiboken2"]
 ui = ["tentacle.ui", "tentacle.slots"]
-entry = ["tentacle.tcl", "tentacle.tcl_maya", "tentacle.tcl_blender", "tentacle.tcl_max"]
+entry = ["tentacle.tcl", "tentacle.tcl_blender"]
 
 [tool.m3trik.roles.forbid]
 # Strict from the first file, never frozen; the most specific path wins. A Slots

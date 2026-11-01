@@ -11,7 +11,7 @@ the hover harnesses this needs no flaky radial hover: it shows ``normals#submenu
 overlay (the same stacked submenu the gesture lands on), makes Blender's GHOST window hold OS
 foreground (the real state after a key-hold — the overlay is visible but may not be OS-active),
 then injects ONE real click on each named leaf and records whether its ``clicked`` fired. Runs
-with ``tcl_blender.enable_click_debug()`` on, so its trace log (managed scratch —
+with ``btk.ClickDebugger.enable()`` on, so its trace log (managed scratch —
 ``btk.ClickDebugger.log_path()``, printed by ``enable()``) captures what each click actually hit.
 
 Steals foreground + moves the real mouse for a few seconds — throwaway instance only. Report to
@@ -145,7 +145,7 @@ def _run():
 
     tcl = btk.KeymapBridge.tcl or tb.launch()
     app = QtWidgets.QApplication.instance()
-    tb.enable_click_debug()
+    btk.ClickDebugger.enable()
     ghost = _input.main_ghost_hwnd()
     geo = QtWidgets.QApplication.primaryScreen().availableGeometry()
     center = (geo.center().x(), geo.center().y())
@@ -162,7 +162,7 @@ def _run():
         _log(traceback.format_exc())
     finally:
         try:
-            tb.disable_click_debug()
+            btk.ClickDebugger.disable()
         except Exception:
             pass
         # Tail the click-debug log so the captured events show up in this report too.

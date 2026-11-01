@@ -95,7 +95,7 @@ class BlenderChordMenuStructure(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
-        # context_tags={'blender'} mirrors TclBlender so the nav visibility policy runs as live.
+        # context_tags={'blender'} mirrors Tcl.build so the nav visibility policy runs as live.
         cls.sb = Switchboard(
             ui_source=[str(_UI_DIR), str(_BLENDER_UI_DIR)],
             log_level="ERROR",

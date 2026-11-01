@@ -78,7 +78,7 @@ def _finish(tb=None):
     import blendertk as btk
     if tb is not None:
         try:
-            tb.disable_click_debug()
+            btk.ClickDebugger.disable()
         except Exception:
             pass
         try:
@@ -224,7 +224,7 @@ def _run():
 
         tcl = btk.KeymapBridge.tcl or tb.launch()
         app = QtWidgets.QApplication.instance()
-        tb.enable_click_debug()
+        btk.ClickDebugger.enable()
 
         try:
             _input.force_foreground(int(tcl.winId()), allow_minimize=False)

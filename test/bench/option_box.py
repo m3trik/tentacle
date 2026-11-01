@@ -52,8 +52,8 @@ class TentacleOptionBoxBench(OptionBoxInitBench):
         )
 
     def post_switchboard(self, sb) -> None:
-        # A composed Slots class reaches Maya through ``sb.tk``, which TclMaya
-        # sets; the bench builds no TclMaya.
+        # A composed Slots class reaches Maya through ``sb.tk``, which Tcl.build
+        # sets; the bench builds no marking menu.
         if getattr(sb, "tk", None) is None:
             import mayatk
 
