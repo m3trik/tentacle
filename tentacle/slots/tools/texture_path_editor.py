@@ -515,10 +515,14 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                 f"columns: {labels['file_node']}, File Size, Dimensions and "
                 "Image Type start hidden, and a hidden column's values are never "
                 "read.",
-                "Collision policy on Copy / Move: same-name + same-size files "
-                "rebind without overwriting; different-size hits skip with a "
-                "warning (never silently rebinds to a wrong texture, never "
-                "destroys the external).",
+                "Set Directory and Find &amp; Copy, on Copy / Move: a file "
+                "already at the destination is reused only when its bytes are "
+                "identical, and a different file of the name is never "
+                "overwritten (Set Directory leaves that texture on its path, "
+                "warned; Find &amp; Copy keeps it apart under its own parent "
+                "folders). Move removes an original only once its copy "
+                "compares byte for byte, and copies one another texture still "
+                "reads.",
                 "Blender: Normalize Paths, Make Paths Absolute and copying or "
                 "moving into the project need the .blend saved.",
             ],
@@ -535,9 +539,11 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
                 "• Leave in place — only rewrite the path.\n"
                 "• Copy — duplicate each texture into the chosen directory.\n"
                 "• Move — relocate each texture into the chosen directory.\n\n"
-                "Collision policy: same-name + same-size at destination is a "
-                "safe rebind (no overwrite). Different size is skipped + "
-                "warned — never silently rebind to a wrong texture."
+                "Copy / Move: a same-named file at the destination is reused "
+                "only when its bytes are identical; a different one is never "
+                "overwritten — that texture keeps its path, warned. Move "
+                "copies a file another texture still reads, and removes an "
+                "original only once its copy compares byte for byte."
             ),
             addItems=[label for label, _key in self._RELOCATE_MODE_ITEMS],
         )
