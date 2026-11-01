@@ -33,6 +33,7 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
 
 import bpy
 from tentacle import tcl_blender as tb
+import blendertk as btk  # noqa: E402
 
 # Every Blender slot domain (slot-file stems); hud's UI is the hud#startmenu overlay.
 # The blender_menus tool panels (mirror, duplicate_*, cut_on_axis) open as standalone
@@ -69,7 +70,7 @@ def _run():
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
-        tcl = tb._KeymapBridge.tcl
+        tcl = btk.KeymapBridge.tcl
         for name in DOMAINS:
             try:
                 # show() returns the shown widget: the overlay for startmenu/submenu-tagged

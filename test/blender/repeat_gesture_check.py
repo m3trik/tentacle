@@ -9,9 +9,9 @@ Launch a **fresh** GUI Blender (never an existing session — session-safety rul
 The user reports the marking menu registers an action once, then the *next* time needs several
 presses — intermittent, any menu. That's a stateful leak (something stays armed after an action),
 which single-shot harnesses miss. This drives the REAL bridge entry points the keymap operator
-uses — ``_KeymapBridge.drive_press`` / ``_KeymapBridge.drive_release`` — to run the same leaf click
+uses — ``btk.KeymapBridge.drive_press`` / ``btk.KeymapBridge.drive_release`` — to run the same leaf click
 several times in a row, and snapshots the activation state machine before/after each gesture
-(``_activation_key_held``, ``_standalone_suppress``, ``_KeymapBridge.gesture_active``, the mouse-grab owner)
+(``_activation_key_held``, ``_standalone_suppress``, ``KeymapBridge.gesture_active``, the mouse-grab owner)
 plus whether the click fired on the FIRST try. A degrade on gesture N>1, or state that doesn't
 reset between gestures, pins the leak.
 
@@ -39,8 +39,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -78,12 +78,13 @@ def _find(ui, name):
 
 
 def _state(tcl, tb):
+    import blendertk as btk
     from qtpy import QtWidgets
 
     g = QtWidgets.QWidget.mouseGrabber()
     grab = None if g is None else ("tcl" if g is tcl else type(g).__name__)
     return (f"held={tcl._activation_key_held} suppress={tcl._standalone_suppress} "
-            f"gesture_active={tb._KeymapBridge.gesture_active} grab={grab} visible={tcl.isVisible()}")
+            f"gesture_active={btk.KeymapBridge.gesture_active} grab={grab} visible={tcl.isVisible()}")
 
 
 def _gesture(app, tcl, tb, name, center, n, do_release):
@@ -93,7 +94,7 @@ def _gesture(app, tcl, tb, name, center, n, do_release):
     _log(f"    pre : {_state(tcl, tb)}")
     _u.SetCursorPos(*center)
     time.sleep(0.05)
-    bpy.ops.tentacle.show_marking_menu()          # phase 'press' → _KeymapBridge.drive_press
+    bpy.ops.tentacle.show_marking_menu()          # phase 'press' → KeymapBridge.drive_press
     for _ in range(20):
         app.processEvents()
     tcl.show("normals#submenu", force=True)
@@ -131,8 +132,9 @@ def _run():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.tcl or tb.launch()
     app = QtWidgets.QApplication.instance()
     tb.enable_click_debug()
     geo = QtWidgets.QApplication.primaryScreen().availableGeometry()
@@ -142,7 +144,7 @@ def _run():
         a = [_gesture(app, tcl, tb, "b006", center, i, do_release=True) for i in range(1, 5)]
         # reset any residue before pass B
         try:
-            tb._KeymapBridge.drive_release()
+            btk.KeymapBridge.drive_release()
         except Exception:
             pass
         for _ in range(20):

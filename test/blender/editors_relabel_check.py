@@ -36,6 +36,7 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
 
 import bpy  # noqa: E402 - after the sandbox, as every GUI harness
 from tentacle import tcl_blender as tb  # noqa: E402
+import blendertk as btk  # noqa: E402
 
 lines = []
 
@@ -73,7 +74,7 @@ def _run():
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
-        tcl = tb._KeymapBridge.tcl
+        tcl = btk.KeymapBridge.tcl
         shown = tcl.show("editors#startmenu")
         for _ in range(20):
             app.processEvents()

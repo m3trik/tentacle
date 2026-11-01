@@ -103,8 +103,9 @@ def _b009():
         so.ScriptConsole._state_dir_override = SANDBOX
 
         from tentacle import tcl_blender as tb
+        import blendertk as btk  # noqa: E402
 
-        if tb._KeymapBridge.tcl is None:
+        if btk.KeymapBridge.tcl is None:
             tb.launch()
         from tentacle.slots.editors import EditorsSlots
 

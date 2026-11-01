@@ -136,8 +136,9 @@ def _go():
         from tentacle import (
             tcl_blender as tb,
         )  # greeting banner prints INTO the capture
+        import blendertk as btk  # noqa: E402
 
-        if tb._KeymapBridge.tcl is None:
+        if btk.KeymapBridge.tcl is None:
             tb.launch()  # TclBlender.__init__ runs script_output.restore()
 
         inst = so.ScriptConsole.instance()

@@ -47,7 +47,8 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
     TestSandbox.activate()
 
 import bpy
-from tentacle import tcl_blender as tb
+from tentacle import tcl_blender  # noqa: F401 — provisions Qt (qtpy/PySide6)
+import blendertk as btk  # noqa: E402
 
 _VK = {"F12": 0x7B, "Z": 0x5A, "ESC": 0x1B}
 _KEYUP = 0x0002
@@ -166,9 +167,9 @@ def _report_and_quit():
 
 
 def _go():
-    tb._KeymapBridge.install_keymap(_stub, "Z")  # the real product path for the contested key
+    btk.KeymapBridge.install_keymap(_stub, "Z")  # the real product path for the contested key
     # F12 control pair on the SAME addon keymap, same operator — proves delivery + mechanism.
-    km = tb._KeymapBridge.keymaps[0][0]
+    km = btk.KeymapBridge.keymaps[0][0]
     for value, phase in (("PRESS", "press"), ("RELEASE", "release")):
         kmi = km.keymap_items.new("tentacle.show_marking_menu", type="F12", value=value)
         kmi.properties.phase = phase

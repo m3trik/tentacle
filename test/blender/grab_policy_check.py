@@ -9,7 +9,7 @@ Launch a **fresh** GUI Blender (never an existing session — session-safety rul
 
 Deterministic by design (no injected mouse / hover — those are timing-flaky over GHOST; see
 ``hover_nav_check.py`` for the input-level demonstration). It drives the genuine bridge entry
-point ``tcl_blender._KeymapBridge.drive_press`` and asserts the resulting **mouse-grab owner**,
+point ``btk.KeymapBridge.drive_press`` and asserts the resulting **mouse-grab owner**,
 which is the exact product state the fix turns on:
 
   * plain key-hold (``buttons=None``)         → overlay must NOT hold the mouse grab. An explicit
@@ -39,8 +39,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -82,30 +82,31 @@ def _run():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.tcl or tb.launch()
     app = QtWidgets.QApplication.instance()
     results = []
     try:
         # --- plain key-hold: must NOT grab ------------------------------------------------
-        tb._KeymapBridge.drive_press()                 # buttons=None (keymap-operator path)
+        btk.KeymapBridge.drive_press()                 # buttons=None (keymap-operator path)
         for _ in range(20):
             app.processEvents()
         keyhold_grabbed = _grabber_is_tcl(tcl)
         _log(f"key-hold (no button): overlay holds grab = {keyhold_grabbed}  (want False)")
         results.append(not keyhold_grabbed)
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
         for _ in range(20):
             app.processEvents()
 
         # --- chord (button held at activation): SHOULD grab --------------------------------
-        tb._KeymapBridge.drive_press(buttons=QtCore.Qt.LeftButton)
+        btk.KeymapBridge.drive_press(buttons=QtCore.Qt.LeftButton)
         for _ in range(20):
             app.processEvents()
         chord_grabbed = _grabber_is_tcl(tcl)
         _log(f"chord (LeftButton)  : overlay holds grab = {chord_grabbed}  (want True)")
         results.append(chord_grabbed)
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
         for _ in range(20):
             app.processEvents()
 

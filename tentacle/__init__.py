@@ -148,6 +148,10 @@ MOVED_NAMES = {
         "tentacle.slots.transform.TransformSlots",
         "0.17.0",
     ),
+    # Blender's Qt hosting is blendertk's (2026-10-31): the Qt bootstrap and runtime, the
+    # keymap bridge and its report, the native-window helpers, the click tracer.
+    "QtPlatformUnavailable": ("blendertk.QtPlatformUnavailable", "0.17.0"),
+    "Diagnostics": ("blendertk.ActivationDiagnostics", "0.17.0"),
 }
 
 

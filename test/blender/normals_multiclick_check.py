@@ -42,8 +42,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -75,13 +75,14 @@ def _log(*args):
 def _finish(tb=None):
     """Always write the report and quit Blender — even on an early error (so the throwaway
     instance never sits open)."""
+    import blendertk as btk
     if tb is not None:
         try:
             tb.disable_click_debug()
         except Exception:
             pass
         try:
-            with open(tb._ClickDebugger.log_path(), encoding="utf-8") as f:
+            with open(btk.ClickDebugger.log_path(), encoding="utf-8") as f:
                 tail = f.read().splitlines()[-50:]
             _log("\n--- tentacle_click_debug.log (tail) ---")
             for ln in tail:
@@ -130,15 +131,16 @@ def _rearm_chord_on_normals(app, tcl, tb):
     """Reset to the exact unlucky live state: a chord grab held by the MENU (grab=tcl), normals
     submenu shown, and NO MouseTracking.track() run yet (so the grab has not migrated to the
     button). This is the window a click falls into when it beats the 0.02s poller tick."""
+    import blendertk as btk
     from qtpy import QtCore
 
     try:
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
     except Exception:
         pass
     for _ in range(15):
         app.processEvents()
-    tb._KeymapBridge.drive_press(buttons=QtCore.Qt.RightButton)  # grab=tcl, chord_active=True
+    btk.KeymapBridge.drive_press(buttons=QtCore.Qt.RightButton)  # grab=tcl, chord_active=True
     for _ in range(15):
         app.processEvents()
     _show_normals(app, tcl)
@@ -208,7 +210,7 @@ def _click_leaf(app, tcl, tb, name, label, attempts=3):
 def _run():
     tb = None
     try:
-        # Provision the monorepo + a Qt binding FIRST (importing tcl_blender runs _QtBootstrap,
+        # Provision the monorepo + a Qt binding FIRST (importing tcl_blender runs btk.QtBootstrap,
         # which puts PySide6 + qtpy on sys.path), THEN import qtpy — under --factory-startup the
         # normal startup provisioning is skipped, so importing qtpy first would ModuleNotFoundError.
         for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
@@ -217,9 +219,10 @@ def _run():
                 sys.path.insert(0, _p)
         os.environ.setdefault("QT_API", "pyside6")
         from tentacle import tcl_blender as tb  # noqa: F811  (provisions Qt on import)
+        import blendertk as btk  # noqa: E402
         from qtpy import QtWidgets
 
-        tcl = tb._KeymapBridge.tcl or tb.launch()
+        tcl = btk.KeymapBridge.tcl or tb.launch()
         app = QtWidgets.QApplication.instance()
         tb.enable_click_debug()
 
@@ -237,7 +240,7 @@ def _run():
         results["Average"] = _click_leaf(app, tcl, tb, "tb004", "Average", ATTEMPTS)
 
         try:
-            tb._KeymapBridge.drive_release()
+            btk.KeymapBridge.drive_release()
         except Exception:
             pass
         for _ in range(20):

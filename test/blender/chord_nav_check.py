@@ -184,8 +184,9 @@ def _open_startmenu(tb, tcl, app):
 
 
 def _close(tb, tcl, app):
+    import blendertk as btk
     try:
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
     except Exception:
         pass
     try:
@@ -281,11 +282,12 @@ def _run():
             TestSandbox.activate()
         # tcl_blender first — it provisions qtpy/PySide6 for Blender's bundled Python.
         from tentacle import tcl_blender as tb
+        import blendertk as btk  # noqa: E402
         from qtpy import QtWidgets
 
         _instrument()
         _log("harness: launching tentacle ...")
-        tcl = tb._KeymapBridge.tcl or tb.launch()
+        tcl = btk.KeymapBridge.tcl or tb.launch()
         app = QtWidgets.QApplication.instance()
         _log("harness: tentacle up")
 

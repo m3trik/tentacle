@@ -35,6 +35,7 @@ except ImportError:  # a first launch: tentacle provisions Qt as it imports
 
 import bpy
 from tentacle import tcl_blender as tb
+import blendertk as btk  # noqa: E402
 
 _u = ctypes.windll.user32 if sys.platform == "win32" else None
 
@@ -77,7 +78,7 @@ def _run():
 
         log("=== MENU-INTERACTION ===")
         tb.register()
-        tcl = tb._KeymapBridge.tcl
+        tcl = btk.KeymapBridge.tcl
         app = QtWidgets.QApplication.instance()
 
         # Path A: what the bridge does today — show() directly.

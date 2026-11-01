@@ -107,7 +107,7 @@ class TentacleInstaller:
     #: Blender ships no Qt; installed with the package on a FRESH install so tentacle's own
     #: on-demand Qt bootstrap finds a binding and no-ops. Never named on an update: with
     #: ``--upgrade`` that would pull a newer Qt nobody asked for. Must equal
-    #: ``tentacle.tcl_blender._QtBootstrap.QT_SPECS`` (drift-guarded by the test suite).
+    #: ``blendertk.QtBootstrap.QT_SPECS`` (drift-guarded by the test suite).
     QT_SPECS = ("PySide6", "qtpy")
     #: pip settings for a provisioning run: bounded waits -- pip's defaults stack to over a
     #: minute against a firewall that drops rather than refuses -- and no upgrade notice.
@@ -1244,13 +1244,13 @@ class TentacleInstaller:
         Blender's target is ``addons/modules``, SHARED with every other add-on,
         and the removal is driven entirely by recorded pins -- so anything that
         arrived by another route is invisible to it. The on-demand Qt bootstrap
-        is exactly that route: ``_QtBootstrap`` installs PySide6/qtpy into this
+        is exactly that route: blendertk's ``QtBootstrap`` installs PySide6/qtpy into this
         same directory through its own path and records no pin.
 
         Deliberately keyed on what is PRESENT rather than on a list of names
-        this class would have to keep in step with ``_QtBootstrap.QT_SPECS``.
-        Importing that constant would couple the installer to ``tcl_blender``,
-        which is a standalone drop-in and absent in monorepo mode, and copying
+        this class would have to keep in step with ``QtBootstrap.QT_SPECS``.
+        Importing that constant would couple the installer to blendertk, which
+        this standalone drop-in runs before (it is what installs it), and copying
         it here would be one more pair of lists to drift -- while the directory
         itself cannot be out of date about its own contents.
 

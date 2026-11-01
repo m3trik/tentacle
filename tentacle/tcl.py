@@ -36,18 +36,6 @@ import sys
 import importlib
 
 
-class QtPlatformUnavailable(RuntimeError):
-    """Qt cannot open a window in this host process, so the marking menu is off.
-
-    Raised by a host's Qt bootstrap BEFORE a QApplication is built: on Linux a Qt
-    platform plug-in that fails to load aborts the process from C++ -- in-process,
-    the DCC, with the user's unsaved work (``tcl_blender._QtHost``). Like a missing
-    engine, the message carries the fix (the system libraries to install), so the
-    launcher shows it where the user is looking (:meth:`Tcl._launch_blender`).
-    A ``RuntimeError``, so a caller that catches that keeps catching it.
-    """
-
-
 class _TclInternal:
     """Host detection data + the per-DCC startup mechanics behind :class:`Tcl`."""
 
@@ -137,7 +125,9 @@ class _TclInternal:
             try:
                 tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
                 tcl_blender.register(**kwargs)
-            except (ImportError, QtPlatformUnavailable) as error:
+            except Exception as error:
+                if not cls._is_blender_startup_error(error):
+                    raise
                 # A timer callback has no handler, so this would print a traceback
                 # to the SYSTEM console -- hidden by default on Windows -- and the
                 # user would see the launcher simply do nothing. Each error carries
@@ -155,6 +145,19 @@ class _TclInternal:
             build, first_interval=cls.BLENDER_START_DELAY, persistent=True
         )
         return None
+
+    @staticmethod
+    def _is_blender_startup_error(error):
+        """True for the two errors that carry their fix: a missing install
+        (``ImportError``) and blendertk's ``QtPlatformUnavailable`` (Qt cannot open a
+        window here; the system libraries to install). Resolved through
+        ``sys.modules``: when Qt's preflight raised, blendertk is loaded, and when it
+        is not, the error cannot be its."""
+        if isinstance(error, ImportError):
+            return True
+        btk = sys.modules.get("blendertk")
+        platform_error = getattr(btk, "QtPlatformUnavailable", None) if btk else None
+        return isinstance(platform_error, type) and isinstance(error, platform_error)
 
     @staticmethod
     def _report_blender_startup_error(error):

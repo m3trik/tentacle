@@ -47,13 +47,14 @@ def check(name, cond, detail=""):
 try:
     import bpy
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
     # key translation (incl. special keys that don't match the naive strip-upper)
-    check("Key_F12 -> F12", tb._KeymapBridge.qt_key_to_blender_type("Key_F12") == "F12")
-    check("F12 -> F12", tb._KeymapBridge.qt_key_to_blender_type("F12") == "F12")
-    check("Key_A -> A", tb._KeymapBridge.qt_key_to_blender_type("Key_A") == "A")
-    check("Key_Meta -> OSKEY (Windows key)", tb._KeymapBridge.qt_key_to_blender_type("Key_Meta") == "OSKEY")
-    check("Key_Super_L -> OSKEY", tb._KeymapBridge.qt_key_to_blender_type("Key_Super_L") == "OSKEY")
+    check("Key_F12 -> F12", btk.KeymapBridge.qt_key_to_blender_type("Key_F12") == "F12")
+    check("F12 -> F12", btk.KeymapBridge.qt_key_to_blender_type("F12") == "F12")
+    check("Key_A -> A", btk.KeymapBridge.qt_key_to_blender_type("Key_A") == "A")
+    check("Key_Meta -> OSKEY (Windows key)", btk.KeymapBridge.qt_key_to_blender_type("Key_Meta") == "OSKEY")
+    check("Key_Super_L -> OSKEY", btk.KeymapBridge.qt_key_to_blender_type("Key_Super_L") == "OSKEY")
 
     # install bridge with a stubbed marking menu (no real Qt host needed). The operator drives the
     # Maya interaction state machine: _on_activation_press on key-down, _on_activation_release on
@@ -70,17 +71,17 @@ try:
         raise_=lambda: None,
         activateWindow=lambda: None,
     )
-    tb._KeymapBridge.install_keymap(stub, "F12")
+    btk.KeymapBridge.install_keymap(stub, "F12")
     check("operator registered", hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
     kc = bpy.context.window_manager.keyconfigs.addon
     if kc:
         check("keymap items added (F12 PRESS+RELEASE)",
-              len(tb._KeymapBridge.keymaps) == 2
-              and {k.value for _, k in tb._KeymapBridge.keymaps} == {"PRESS", "RELEASE"}
-              and all(k.type == "F12" for _, k in tb._KeymapBridge.keymaps),
-              f"items={[k.value for _, k in tb._KeymapBridge.keymaps]}")
+              len(btk.KeymapBridge.keymaps) == 2
+              and {k.value for _, k in btk.KeymapBridge.keymaps} == {"PRESS", "RELEASE"}
+              and all(k.type == "F12" for _, k in btk.KeymapBridge.keymaps),
+              f"items={[k.value for _, k in btk.KeymapBridge.keymaps]}")
     else:
-        check("keymap skipped headless (no addon keyconfig)", tb._KeymapBridge.keymaps == [])
+        check("keymap skipped headless (no addon keyconfig)", btk.KeymapBridge.keymaps == [])
 
     # key-down drives the press state machine but does NOT grab the mouse (no-button path) — the
     # overlay stays ungrabbed so child enter/leave events fire (hover-nav) and clicks reach buttons.
@@ -95,16 +96,16 @@ try:
     # keymap is viewport-scoped (3D View), not a global override — it wins over render only when
     # the viewport has focus, leaving every other F12 (render elsewhere) untouched.
     if kc:
-        check("keymap is 3D View (viewport-scoped)", tb._KeymapBridge.keymaps[0][0].name == "3D View",
-              f"km={tb._KeymapBridge.keymaps[0][0].name}" if tb._KeymapBridge.keymaps else "none")
+        check("keymap is 3D View (viewport-scoped)", btk.KeymapBridge.keymaps[0][0].name == "3D View",
+              f"km={btk.KeymapBridge.keymaps[0][0].name}" if btk.KeymapBridge.keymaps else "none")
 
     # re-install (re-launch) is keymap-safe — no duplicate items (still exactly PRESS+RELEASE)
-    tb._KeymapBridge.install_keymap(stub, "F12")
+    btk.KeymapBridge.install_keymap(stub, "F12")
     if kc:
-        check("re-install -> still PRESS+RELEASE (no dupes)", len(tb._KeymapBridge.keymaps) == 2, f"n={len(tb._KeymapBridge.keymaps)}")
+        check("re-install -> still PRESS+RELEASE (no dupes)", len(btk.KeymapBridge.keymaps) == 2, f"n={len(btk.KeymapBridge.keymaps)}")
 
     # operator error is reported (Blender raises it for script callers)
-    tb._KeymapBridge.tcl = NS(
+    btk.KeymapBridge.tcl = NS(
         _on_activation_press=lambda: (_ for _ in ()).throw(RuntimeError("boom")),
         grabMouse=lambda: None, raise_=lambda: None, activateWindow=lambda: None,
     )
@@ -116,22 +117,22 @@ try:
     check("host error -> reported (not crashed)", reported)
 
     # no active menu -> press CANCELLED (passes F12 through to render); release FINISHED (harmless)
-    tb._KeymapBridge.tcl = None
+    btk.KeymapBridge.tcl = None
     res = bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT")
     check("no active menu (press) -> CANCELLED", res == {"CANCELLED"}, f"res={res}")
     res = bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT", phase="release")
     check("no active menu (release) -> CANCELLED", res == {"CANCELLED"}, f"res={res}")
 
     # teardown removes keymap + unregisters operator
-    tb._KeymapBridge.teardown()
+    btk.KeymapBridge.teardown()
     check("teardown -> operator gone + keymaps cleared",
-          not hasattr(bpy.types, "TENTACLE_OT_show_marking_menu") and tb._KeymapBridge.keymaps == [])
+          not hasattr(bpy.types, "TENTACLE_OT_show_marking_menu") and btk.KeymapBridge.keymaps == [])
 
     # launch() reuses the live instance (repeat register() must not stack marking menus);
-    # teardown cleared _KeymapBridge.tcl above, so a fresh stub stands in for the live menu.
-    tb._KeymapBridge.tcl = stub
+    # teardown cleared KeymapBridge.tcl above, so a fresh stub stands in for the live menu.
+    btk.KeymapBridge.tcl = stub
     check("launch() reuses the live instance", tb.launch() is stub)
-    tb._KeymapBridge.tcl = None
+    btk.KeymapBridge.tcl = None
 
     # the consolidated entry point exposes the host + add-on surface (host/add-on/diagnose)
     check("tcl_blender exposes launch/register/unregister/diagnose + bl_info",

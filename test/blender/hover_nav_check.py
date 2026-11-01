@@ -9,7 +9,7 @@ Launch a **fresh** GUI Blender (never an existing session — session-safety rul
 The shared marking menu navigates submenus on **hover** (``child_enterEvent`` opens a
 ``MenuButton``'s target), and executes a leaf by clicking it. In Maya the plain key-hold does
 NOT grab the mouse, so child enter/leave events reach the buttons (hover-nav works) and a leaf
-click reaches the leaf (executes). The Blender bridge's ``_KeymapBridge.drive_press`` grabs the
+click reaches the leaf (executes). The Blender bridge's ``btk.KeymapBridge.drive_press`` grabs the
 mouse unconditionally — and an explicit Qt mouse grab suppresses enter/leave delivery to other
 widgets, so hover-nav can't fire and the click is re-read as the ``F12|LeftButton`` chord.
 
@@ -21,7 +21,7 @@ button's target submenu (hover-nav worked).
   * ``no_grab``   — the Maya path. Expected (fix): hover opens the target submenu.
 
 If ``no_grab`` navigates on hover while ``with_grab`` doesn't, the fix is to stop grabbing for
-the no-button activation in ``tcl_blender._KeymapBridge.drive_press`` (grab only when a button is
+the no-button activation in ``btk.KeymapBridge.drive_press`` (grab only when a button is
 held, matching the shared ``_transfer_mouse_control``).
 
 Steals foreground + moves the real mouse for a few seconds — throwaway instance only. Report to
@@ -46,8 +46,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -106,6 +106,7 @@ def _hover_to(app, x, y, steps=14):
 
 
 def _run_case(tb, tcl, name, grab):
+    import blendertk as btk
     from qtpy import QtWidgets
 
     app = QtWidgets.QApplication.instance()
@@ -140,7 +141,7 @@ def _run_case(tb, tcl, name, grab):
         _log(f"  VERDICT: {'OK — hover opened target submenu' if navigated else 'NO hover-nav'}")
 
     try:
-        tb._KeymapBridge.drive_release()
+        btk.KeymapBridge.drive_release()
     except Exception:
         pass
     for _ in range(20):
@@ -154,8 +155,9 @@ def _run():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.tcl or tb.launch()
     try:
         _run_case(tb, tcl, "with_grab", grab=True)
         _run_case(tb, tcl, "no_grab", grab=False)

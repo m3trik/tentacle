@@ -17,7 +17,7 @@ SOLVED (2026-07-18) — this harness found the real root cause of the freeze fam
   wndproc -> ``wglSwapBuffers`` -> nested dispatch -> WM_TIMER -> pump again, ~4 layers
   until the innermost dispatch never returns. Same mechanism as the cross-DPI freeze
   (``console_dpi_drag_check``).
-* THE FIX (``tcl_blender._QtHost.start_pump``): the pump delivers Qt's POSTED events
+* THE FIX (``btk.QtRuntime.start_pump``): the pump delivers Qt's POSTED events
   only (``sendPostedEvents``) and never dispatches native messages — GHOST's own loop
   already dispatches those for every thread window. All modes/legs pass with it.
 * The QtDock modal guard was REVERTED during this investigation and stays gone: its
@@ -829,8 +829,9 @@ def _go():
         so.ScriptConsole.begin_capture()
 
         from tentacle import tcl_blender as tb
+        import blendertk as btk  # noqa: E402
 
-        if tb._KeymapBridge.tcl is None:
+        if btk.KeymapBridge.tcl is None:
             tb.launch()
 
         from qtpy import QtCore, QtWidgets

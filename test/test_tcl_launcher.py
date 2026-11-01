@@ -542,19 +542,12 @@ class TestLaunchDispatch(unittest.TestCase):
         )
 
 
-class TestLinuxQtHost(unittest.TestCase):
-    """The Linux-only parts of ``tcl_blender._QtHost``: the platform preflight and the pump.
-
-    Preflight: a Qt platform plug-in that fails to load aborts the process from C++ -- in-process
-    that is Blender, with the user's unsaved work -- so ``_QtHost`` starts a QApplication in a
-    CHILD first and raises instead. The error carries the fix (the system libraries to
-    install), so, like the missing engine, it must reach a popup rather than the hidden system
-    console. Measured before the fix: the launcher's timer caught ImportError alone, so the
-    probe's RuntimeError escaped it and the user saw nothing.
-
-    Driven through the REAL ``tcl_blender``: only the probe's ``subprocess.run``, the platform
-    and ``bpy`` are faked -- no Blender, no child process.
-    """
+class TestQtPlatformErrorReachesTheUser(unittest.TestCase):
+    """blendertk's ``QtPlatformUnavailable`` (Qt cannot open a window here) carries its fix, so,
+    like the missing engine, the launcher's timer shows it in a popup rather than the hidden
+    system console. Driven through the REAL ``tcl_blender`` and ``btk.QtRuntime``: only the
+    probe's ``subprocess.run``, the platform and ``bpy`` are faked. The preflight itself is
+    blendertk's ``test_qt_runtime``."""
 
     ABORTED = subprocess.CompletedProcess(
         args=[],
@@ -600,27 +593,6 @@ class TestLinuxQtHost(unittest.TestCase):
         ):
             yield
 
-    def test_a_failing_probe_raises_the_dedicated_error(self):
-        from tentacle.tcl import QtPlatformUnavailable
-
-        with self._linux_without_a_qapp(self.ABORTED):
-            with self.assertRaises(QtPlatformUnavailable) as ctx:
-                self.tcl_blender._QtHost.ensure_qapp()
-        # Still a RuntimeError: a caller that caught the old error keeps catching it.
-        self.assertIsInstance(ctx.exception, RuntimeError)
-        message = str(ctx.exception)
-        self.assertIn("marking menu is off", message)
-        self.assertIn('Could not load the Qt platform plugin "xcb"', message)
-        self.assertIn("libxcb-cursor0", message)
-
-    def test_a_probe_that_cannot_run_raises_it_too(self):
-        from tentacle.tcl import QtPlatformUnavailable
-
-        with self._linux_without_a_qapp(OSError("no interpreter")):
-            with self.assertRaises(QtPlatformUnavailable) as ctx:
-                self.tcl_blender._QtHost.ensure_qapp()
-        self.assertIn("marking menu is off", str(ctx.exception))
-
     def test_a_qt_platform_that_cannot_start_reaches_the_user(self):
         bpy, drawn = _fake_bpy(), []
 
@@ -646,45 +618,6 @@ class TestLinuxQtHost(unittest.TestCase):
         self.assertTrue(any("libxcb-cursor0" in s for s in drawn), drawn)
         # One line per label: Blender draws a label unwrapped, a newline included.
         self.assertEqual([s for s in drawn if "\n" in s], [])
-
-    def test_the_pump_runs_qts_own_loop_on_linux_only(self):
-        """X11/Wayland: Qt owns its display connection, so the pump runs Qt's loop there.
-        Elsewhere the queue is shared with Blender -- the Windows thread queue, macOS's
-        NSApplication -- and draining it re-enters Blender (see ``start_pump``), so only
-        posted events are flushed. Measured before the fix: the gate read ``!= "win32"``,
-        so macOS drained the shared queue too."""
-        from qtpy import QtCore
-
-        host, calls = self.tcl_blender._QtHost, []
-        bpy = _fake_bpy()
-        with (
-            mock.patch.dict(sys.modules, {"bpy": bpy}),
-            mock.patch.object(host, "_pump_registered", False),
-            mock.patch.object(
-                self.tcl_blender._NativeWindow,
-                "native_modal_loop_active",
-                new=staticmethod(lambda **_kw: False),
-            ),
-            mock.patch.object(
-                QtCore.QCoreApplication,
-                "processEvents",
-                new=staticmethod(lambda *_a: calls.append("processEvents")),
-            ),
-            mock.patch.object(
-                QtCore.QCoreApplication,
-                "sendPostedEvents",
-                new=staticmethod(lambda *_a: None),
-            ),
-        ):
-            host.start_pump(types.SimpleNamespace())
-            pump = bpy.app.timers.register.call_args.args[0]
-            ran = {}
-            for platform in ("linux", "darwin", "win32"):
-                calls.clear()
-                with mock.patch.object(sys, "platform", platform):
-                    pump()
-                ran[platform] = bool(calls)
-        self.assertEqual(ran, {"linux": True, "darwin": False, "win32": False})
 
 
 class TestDefaultKeyUpgradePath(unittest.TestCase):
@@ -778,198 +711,6 @@ class TestActivationKeyPrecedence(unittest.TestCase):
             MarkingMenu, "stored_activation_key", side_effect=RuntimeError("no backend")
         ):
             self.assertEqual(Tcl.resolve_key("F12", {"maya"}), "Key_F12")
-
-
-class TestBlenderKeyTranslation(unittest.TestCase):
-    """The Qt ↔ Blender keymap-``type`` translation — the Blender fork's half of the key contract.
-
-    It has to work in BOTH directions: forward to install the keymap item, and backward to name
-    the Qt key for a rebind a user made in Preferences ▸ Keymap (measured as a working rebind
-    route in ``test/blender/gui_keymap_editor_check.py``). A backward translation that produces a
-    name ``QtCore.Qt`` doesn't have would make the adoption a silent no-op.
-    """
-
-    @classmethod
-    def setUpClass(cls):
-        try:
-            from tentacle.tcl_blender import _KeymapBridge
-        except Exception as error:  # no Qt binding available in this interpreter
-            raise unittest.SkipTest(f"tcl_blender unimportable: {error}")
-        cls.bridge = _KeymapBridge
-
-    def test_forward_translation(self):
-        for qt_key, expected in (
-            ("Key_F12", "F12"),
-            ("Key_Z", "Z"),
-            ("Key_Meta", "OSKEY"),
-            ("Key_1", "ONE"),
-            ("Key_BracketLeft", "LEFT_BRACKET"),
-        ):
-            with self.subTest(qt_key=qt_key):
-                self.assertEqual(self.bridge.qt_key_to_blender_type(qt_key), expected)
-
-    def test_forward_translation_accepts_any_casing(self):
-        """Callers pass bare or Qt-named keys in whatever case the user typed."""
-        for form in ("Key_META", "meta", "Meta", "Key_Meta"):
-            with self.subTest(form=form):
-                self.assertEqual(self.bridge.qt_key_to_blender_type(form), "OSKEY")
-
-    def test_backward_translation_names_a_real_qt_key(self):
-        from qtpy import QtCore
-
-        for key_type in ("F12", "Z", "OSKEY", "ONE", "SPACE", "LEFT_ARROW", "ESC"):
-            with self.subTest(key_type=key_type):
-                name = self.bridge.blender_type_to_qt_key(key_type)
-                self.assertIsNotNone(name, f"{key_type} produced no Qt name")
-                self.assertTrue(hasattr(QtCore.Qt, name), f"{name} is not a Qt key")
-
-    def test_shared_blender_types_name_the_canonical_qt_spelling(self):
-        """Meta/Super_L/Super_R all map to OSKEY; coming back it must be the first — ``Meta``."""
-        self.assertEqual(self.bridge.blender_type_to_qt_key("OSKEY"), "Key_Meta")
-        self.assertEqual(self.bridge.blender_type_to_qt_key("RET"), "Key_Return")
-
-    def test_round_trip_is_stable_for_every_alias(self):
-        """Qt name → Blender type → Qt name → the SAME Blender type (aliases may collapse)."""
-        for qt_name, key_type in self.bridge._BLENDER_KEY_ALIASES.items():
-            with self.subTest(qt_name=qt_name):
-                back = self.bridge.blender_type_to_qt_key(key_type)
-                self.assertIsNotNone(back, f"{key_type} has no Qt name")
-                self.assertEqual(self.bridge.qt_key_to_blender_type(back), key_type)
-
-    def test_types_with_no_qt_counterpart_return_none(self):
-        """Blender binds things Qt has no key for; adopting one must be declined, not faked."""
-        for key_type in ("LEFTMOUSE", "NDOF_BUTTON_1", "WHEELUPMOUSE", "", None):
-            with self.subTest(key_type=key_type):
-                self.assertIsNone(self.bridge.blender_type_to_qt_key(key_type))
-
-    def test_rebind_moves_existing_items_in_place(self):
-        """A rebind is a MOVE: retype the installed items, never tear them down and rebuild.
-
-        Recreating would briefly unbind the very item the user just edited in the keymap editor."""
-        bridge = self.bridge
-        before = (bridge.keymaps, bridge.active_vk, bridge.key_down)
-        item = types.SimpleNamespace(type="Z")
-        try:
-            bridge.keymaps = [(None, item)]
-            with mock.patch.object(bridge, "install_keymap") as reinstall:
-                bridge.rebind(None, "Key_F12")
-            self.assertEqual(item.type, "F12")
-            reinstall.assert_not_called()
-        finally:
-            bridge.keymaps, bridge.active_vk, bridge.key_down = before
-
-    def test_rebind_installs_when_nothing_is_bound_yet(self):
-        bridge = self.bridge
-        before = (bridge.keymaps, bridge.active_vk, bridge.key_down)
-        try:
-            bridge.keymaps = []
-            with mock.patch.object(bridge, "install_keymap") as install:
-                bridge.rebind("tcl-sentinel", "Key_F12")
-            install.assert_called_once_with("tcl-sentinel", "F12")
-        finally:
-            bridge.keymaps, bridge.active_vk, bridge.key_down = before
-
-    def test_rebind_survives_a_platform_without_virtual_keys(self):
-        """``rebind`` runs on every platform; only the poller's key is Windows-specific.
-
-        A single-character key used to reach ``ctypes.windll`` from here and take the whole
-        rebind — keymap item included — down with it off Windows."""
-        bridge = self.bridge
-        before = (bridge.keymaps, bridge.active_vk, bridge.key_down)
-        item = types.SimpleNamespace(type="F12")
-        try:
-            bridge.keymaps = [(None, item)]
-            with mock.patch("tentacle.tcl_blender.sys.platform", "linux"):
-                bridge.rebind(None, "Key_Z")
-            self.assertEqual(item.type, "Z")  # the keymap half still moved
-            self.assertIsNone(
-                bridge.active_vk
-            )  # the Windows-only half declined cleanly
-        finally:
-            bridge.keymaps, bridge.active_vk, bridge.key_down = before
-
-    def test_rebind_moves_the_user_keyconfig_rows_too(self):
-        """A Qt-side rebind must retype the merged user-keyconfig rows, not just our addon items.
-
-        Blender's keymap editor edits a MERGED copy of our item (see ``user_keymap_items``), and
-        that copy — including any customization saved in userpref.blend — does not follow an
-        addon-item retype. Left behind on the old key, ``sync_keymap_rebind`` reads it as a fresh
-        Preferences ▸ Keymap edit and adopts the OLD key right back: the shortcut-editor rebind
-        reverts within a second, and the store resets to the stale key across sessions."""
-        bridge = self.bridge
-        before = (bridge.keymaps, bridge.active_vk, bridge.key_down)
-        addon_item = types.SimpleNamespace(type="Z")
-        user_row = _user_keymap_row("Z")
-        try:
-            bridge.keymaps = [(None, addon_item)]
-            with mock.patch.object(
-                bridge, "user_keymap_items", return_value=[user_row]
-            ):
-                bridge.rebind(None, "Key_F12")
-            self.assertEqual(addon_item.type, "F12")
-            self.assertEqual(user_row.type, "F12")
-        finally:
-            bridge.keymaps, bridge.active_vk, bridge.key_down = before
-
-    def test_editor_rebind_survives_the_keymap_scan(self):
-        """The scan must not re-adopt the key a Qt-side rebind just moved away from.
-
-        The end-to-end regression: rebind to F12 through the shortcut-editor route, then run the
-        throttled ``sync_keymap_rebind`` scan against a user-keyconfig row that carried the old
-        key. Pre-fix the scan saw live=Z ≠ installed=F12 and called ``set_activation_key(Key_Z)``
-        — silently reverting the user's choice."""
-        bridge = self.bridge
-        before = (
-            bridge.keymaps,
-            bridge.active_vk,
-            bridge.key_down,
-            bridge.tcl,
-            bridge.gesture_active,
-            bridge._last_key_scan,
-            bridge._declined,
-        )
-        addon_item = types.SimpleNamespace(type="Z")
-        user_row = _user_keymap_row("Z")
-        tcl = types.SimpleNamespace(
-            _activation_key_held=False, set_activation_key=mock.Mock()
-        )
-        try:
-            bridge.keymaps = [(None, addon_item)]
-            bridge.tcl = tcl
-            bridge.gesture_active = False
-            bridge._declined = None
-            with mock.patch.object(
-                bridge, "user_keymap_items", return_value=[user_row]
-            ):
-                bridge.rebind(tcl, "Key_F12")
-                bridge._last_key_scan = 0.0  # defeat the once-a-second throttle
-                bridge.sync_keymap_rebind(tcl)
-            tcl.set_activation_key.assert_not_called()
-        finally:
-            (
-                bridge.keymaps,
-                bridge.active_vk,
-                bridge.key_down,
-                bridge.tcl,
-                bridge.gesture_active,
-                bridge._last_key_scan,
-                bridge._declined,
-            ) = before
-
-    @unittest.skipUnless(sys.platform == "win32", "virtual-keys are a Windows concept")
-    def test_rebind_moves_the_pollers_virtual_key(self):
-        """The poller watches by virtual-key; left on the old one it ends the gesture instantly."""
-        bridge = self.bridge
-        before = (bridge.active_vk, bridge.key_down)
-        try:
-            bridge.key_down = True
-            # No keymap items installed (no Blender here) → rebind only moves the poller.
-            with mock.patch.object(bridge, "addon_key_type", return_value="F12"):
-                bridge.rebind(None, "Key_F12")
-            self.assertEqual(bridge.active_vk, 0x7B)  # VK_F12
-            self.assertFalse(bridge.key_down)  # edge state reset for the new key
-        finally:
-            bridge.active_vk, bridge.key_down = before
 
 
 class TestForksUseTheSharedContract(unittest.TestCase):

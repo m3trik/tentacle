@@ -22,7 +22,7 @@ masks 1/4/2 DURING the hold (Qt: Left=1, Right=2, Middle=4); LR (both buttons, t
 render would open a new GHOST window).
 Phase C (watchdog): arm ``_activation_key_held`` with the key physically up — a simulated lost
 key-up (focus tussle ate it) — and expect the poll watchdog to drive the release within a tick.
-Phase D (gesture pairing): arm ``_KeymapBridge.gesture_active`` with the held flag CLEARED — the state uitk's
+Phase D (gesture pairing): arm ``btk.KeymapBridge.gesture_active`` with the held flag CLEARED — the state uitk's
 ``_show_window`` leaves when a standalone window opens mid-gesture — and expect the release
 anyway (it's what clears ``_standalone_suppress`` and hides unpinned standalone windows).
 Steals foreground and moves the real mouse for ~10 s — throwaway instance only. Report goes to
@@ -50,8 +50,8 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
     if os.path.isdir(_dir) and _dir not in sys.path:
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
-_built = sys.modules.get("tentacle.tcl_blender")
-if getattr(getattr(_built, "_KeymapBridge", None), "tcl", None) is not None:
+_built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
+if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -172,13 +172,14 @@ def _go():
             sys.path.insert(0, _p)
     os.environ.setdefault("QT_API", "pyside6")
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
     # Self-sufficient: use the startup module's instance when present (normal launch),
     # otherwise stand the host up ourselves (--factory-startup).
-    tcl = tb._KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.tcl or tb.launch()
 
     _phase_a(tb, tcl)
-    tb._Config.DEBUG = True  # operator self-reports each fire (visible in captured stdout)
+    btk.KeymapBridge.DEBUG = True  # operator self-reports each fire (visible in captured stdout)
 
     # Phase B — stub the interaction entry points on the LIVE instance: dispatch is measured at
     # the operator/poller level; no overlay ever shows, so Blender keeps focus between
@@ -228,10 +229,12 @@ def _phase_c():
 def _phase_d():
     """Simulate the standalone-window aftermath: uitk's ``_show_window`` cleared the held
     flag but the bridge-initiated gesture still owes its key-up — only the gesture pairing
-    (``_KeymapBridge.gesture_active``) can drive this release."""
+    (``btk.KeymapBridge.gesture_active``) can drive this release."""
     _events.append(("phase_d_armed",))
     _ctx["tcl"]._activation_key_held = False
-    _ctx["tb"]._KeymapBridge.gesture_active = True
+    import blendertk as btk
+
+    btk.KeymapBridge.gesture_active = True
     return None
 
 

@@ -153,18 +153,19 @@ def _pump(n=30):
 def _steps():
     """Sequential probe steps; each ``yield seconds`` waits (poller + pump keep ticking)."""
     from tentacle import tcl_blender as tb
+    import blendertk as btk  # noqa: E402
 
     tb.register()  # stands up the Qt host — qtpy is only importable after this
     yield 2.0  # host + keymap settle
     from qtpy import QtWidgets
-    tcl = tb._KeymapBridge.tcl
-    nw = tb._NativeWindow
-    nw.blender_window()  # cache the GHOST hwnd
+    tcl = btk.KeymapBridge.tcl
+    nw = btk.BlenderWindow
+    nw.main_qwindow()  # cache the GHOST hwnd
     app = QtWidgets.QApplication.instance()
     ghost = int(getattr(app, "_blender_native_hwnd", 0))
     R["ghost_hwnd"] = ghost
     _ck("host up: live TclBlender + GHOST hwnd cached", tcl is not None and ghost != 0)
-    _ck("poller installed (watchdog host)", tb._KeymapBridge.poller is not None)
+    _ck("poller installed (watchdog host)", btk.KeymapBridge.poller is not None)
 
     if not _fg_is_ours():
         user32.SetForegroundWindow(ctypes.c_void_p(ghost))
