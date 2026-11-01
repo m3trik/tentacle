@@ -9,9 +9,9 @@
 | Layer | What it measures | Result |
 |:--|:--|:--|
 | **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 10 *(presence)*; 0 hollow handlers |
-| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 465 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
-| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 779 chains at 1132 sites; 41 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1492/2375 names); 0 modules absent |
+| **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 466 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
+| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 761 chains at 1103 sites; 42 one-host operations; **0 gap sites** |
+| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1495/2377 names); 0 modules absent |
 
 **Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 63% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
@@ -27,7 +27,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | anim_utils | 333 | 297 | 247 | 74% |
 | audio_utils | 81 | 36 | 21 | 26% |
 | cam_utils | 21 | 21 | 16 | 76% |
-| core_utils | 198 | 102 | 80 | 40% |
+| core_utils | 197 | 102 | 80 | 41% |
 | display_utils | 61 | 63 | 40 | 66% |
 | edit_utils | 168 | 200 | 134 | 80% |
 | env_utils | 420 | 301 | 239 | 57% |
@@ -37,10 +37,10 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | nurbs_utils | 20 | 31 | 9 | 45% |
 | render_utils | 14 | 11 | 11 | 79% |
 | rig_utils | 246 | 224 | 165 | 67% |
-| ui_utils | 81 | 128 | 38 | 47% |
-| uv_utils | 127 | 110 | 99 | 78% |
+| ui_utils | 82 | 130 | 39 | 48% |
+| uv_utils | 132 | 115 | 104 | 79% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2375** | **1917** | **1492** | **63%** |
+| **TOTAL (unique)** | **2377** | **1922** | **1495** | **63%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
@@ -55,7 +55,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | _app_bridge | shared helpers | 12 | 14 | 0 | 0 |
 | arnold_bridge | maya | 5 | 5 | 0 | 0 |
 | articulated_rig | both | 27 | 48 | 0 | 0 |
-| audio_clips | both | 37 | 80 | 19 | 0 |
+| audio_clips | both | 38 | 81 | 20 | 0 |
 | bevel | both | 3 | 3 | 0 | 0 |
 | blendshape_animator | both | 26 | 40 | 1 | 0 |
 | bridge | both | 5 | 8 | 0 | 0 |
@@ -84,7 +84,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | mat_updater | both | 13 | 17 | 0 | 0 |
 | mirror | both | 10 | 13 | 1 | 0 |
 | naming | both | 23 | 29 | 0 | 0 |
-| reference_manager | both | 30 | 39 | 1 | 0 |
+| reference_manager | both | 30 | 38 | 1 | 0 |
 | render_effects | both | 22 | 28 | 0 | 0 |
 | rizom_bridge | both | 3 | 3 | 0 | 0 |
 | scene_exporter | both | 38 | 43 | 0 | 0 |
@@ -98,8 +98,8 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | snap | both | 4 | 5 | 0 | 0 |
 | substance_bridge | both | 3 | 3 | 0 | 0 |
 | telescope_rig | both | 7 | 8 | 0 | 0 |
-| texture_combine | both | 53 | 87 | 0 | 0 |
-| texture_path_editor | both | 47 | 82 | 0 | 0 |
+| texture_combine | both | 34 | 59 | 0 | 0 |
+| texture_path_editor | both | 47 | 81 | 0 | 0 |
 | tube_rig | both | 14 | 18 | 2 | 0 |
 | wheel_rig | both | 6 | 6 | 0 | 0 |
 | workspaces | both | 18 | 27 | 0 | 0 |
@@ -129,7 +129,7 @@ Each marking-menu category's one Slots class (`slots/<category>.py`) over its `u
 | pivot | 8 | 0 / 0 | 12 | 11 | 5 | 5 | 0 | 0 |  |
 | polygons | 27 | 0 / 1 | 28 | 19 | 26 | 27 | 1 | 0 |  |
 | preferences | 13 | 0 / 0 | 7 | 0 | 18 | 26 | 0 | 0 |  |
-| rendering | 6 | 0 / 0 | 19 | 4 | 30 | 41 | 2 | 0 |  |
+| rendering | 6 | 0 / 0 | 19 | 4 | 30 | 42 | 2 | 0 |  |
 | rigging | 8 | 0 / 1 | 24 | 12 | 23 | 34 | 2 | 0 |  |
 | scene | 7 | 0 / 0 | 24 | 7 | 50 | 64 | 9 | 0 |  |
 | selection | 19 | 0 / 1 | 21 | 10 | 18 | 18 | 0 | 0 |  |

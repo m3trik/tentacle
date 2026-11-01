@@ -568,7 +568,7 @@ Preferences: one Slots class for both hosts.
 
 Rendering: one Slots class for both hosts.
 
-- **[`class RenderingSlots(Slots)`](tentacle/tentacle/slots/rendering.py#L25)**
+- **[`class RenderingSlots(Slots)`](tentacle/tentacle/slots/rendering.py#L24)**
   - `RenderingSlots.tb000_init(self, widget)` — Export Playblast: built once, then re-run on every panel show.
   - `RenderingSlots.tb000(self, widget)` — Export Playblast
   - `RenderingSlots.tb001_init(self, widget)` — Render: camera, renderer, IPR, smart redo, key settings and presets.
@@ -819,8 +819,9 @@ Rename the panel's target in place: the target field, and the footer in
 The Hierarchy Sync panel's state: the reference path, the paths the user
 
 - [`RECENT_LIMIT`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L24) — constant
-- [`LOG_LIMIT`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L27) — constant
-- **[`class HierarchySyncController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L30)** — The panel's state and the orchestration between it, the host's session
+- [`LEGACY_RECENT_KEY`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L28) — constant
+- [`LOG_LIMIT`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L31) — constant
+- **[`class HierarchySyncController(pythontk.LoggingMixin)`](tentacle/tentacle/slots/tools/_hierarchy_sync/controller.py#L34)** — The panel's state and the orchestration between it, the host's session
   - `HierarchySyncController.diff_result(self) -> Optional[dict]` *(property)* — The session's last analysis (``None`` before one).
   - `HierarchySyncController.reference_path(self) -> str` *(property)* — The reference scene's path (``""`` when none is set).
   - `HierarchySyncController.update_header_tooltips(self) -> None` — Each tree's header tooltip: its file's full path.
@@ -834,10 +835,11 @@ The Hierarchy Sync panel's state: the reference path, the paths the user
   - `HierarchySyncController.clear_ignored_paths(self) -> None` — Forget every ignored path, in both trees.
   - `HierarchySyncController.effective_diff(self) -> Dict[str, list]` — The analysis' differences, the ignored paths left out (a reparent or
   - `HierarchySyncController.log_diff_results(self) -> None` — Log the differences (ignored ones left out): the top-level missing
-  - `HierarchySyncController.write_diff_report(missing, extra, reparented, fuzzy_matches) -> Optional[str]` *(static)* — Write the full diff to a text file.
-  - `HierarchySyncController.coerce_str_list(value) -> List[str]` *(static)* — A settings value as a list: QSettings hands a one-item list back as
-  - `HierarchySyncController.get_recent_reference_scenes(self) -> List[str]` — The recent reference scenes that still exist (the last ten).
-  - `HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None` — Put *scene_path* last in the recent references (the last ten kept).
+  - `HierarchySyncController.diff_records(missing, extra, reparented, fuzzy_matches) -> List[ptk.HierarchyDifference]` *(static)* — The session's diff as the analyzer's records: a reparented node and
+  - `HierarchySyncController.write_diff_report(cls, missing, extra, reparented, fuzzy_matches) -> Optional[str]` *(class)* — Write the full diff to a text file: the analyzer's report
+  - `HierarchySyncController.recent_references(self)` *(property)* — The recent reference scenes: uitk's ``RecentValuesStore`` in the
+  - `HierarchySyncController.get_recent_reference_scenes(self) -> List[str]` — The recent reference scenes that still exist, most recent first.
+  - `HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None` — Put *scene_path* first in the recent references.
 
 <a id="slots--tools--_hierarchy_sync--tree_matcher"></a>
 ### `slots/tools/_hierarchy_sync/tree_matcher.py`
@@ -1100,7 +1102,7 @@ Where the Shot Manifest's steps come from: a build sheet (a CSV path or link,
 
 The Shot Manifest's mapping template: its own popup on the build sheet
 
-- **[`class MappingPickerMixin`](tentacle/tentacle/slots/tools/_shot_manifest/mapping_picker.py#L19)** — The mapping template, mixed into ``ShotManifestController``.
+- **[`class MappingPickerMixin`](tentacle/tentacle/slots/tools/_shot_manifest/mapping_picker.py#L23)** — The mapping template, mixed into ``ShotManifestController``.
 
 <a id="slots--tools--_shot_manifest--range_column"></a>
 ### `slots/tools/_shot_manifest/range_column.py`
@@ -1145,7 +1147,7 @@ The Shot Manifest's view row, above the table: Select, Expand, Collapse,
 
 Clip context menus and clip-level key operations.
 
-- **[`class ClipMenuMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_menu.py#L20)** — Clip and gap context menus, and the clip-level key operations they run.
+- **[`class ClipMenuMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_menu.py#L19)** — Clip and gap context menus, and the clip-level key operations they run.
   - `ClipMenuMixin.on_clip_menu(self, menu, clip_id: int) -> None` — Add domain-specific actions to a clip's context menu.
   - `ClipMenuMixin.on_gap_menu(self, menu, gap_start: float, gap_end: float) -> None` — Add domain-specific actions to a gap overlay's context menu.
 
@@ -1154,9 +1156,9 @@ Clip context menus and clip-level key operations.
 
 Clip and key motion for the Shot Sequencer panel: moving and resizing clips,
 
-- [`FLOAT_ZERO_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L19) — constant
-- [`KEY_MATCH_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L21) — constant
-- **[`class ClipMotionMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L26)** — Clip move / resize, per-key drag and delete handlers.
+- [`FLOAT_ZERO_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L18) — constant
+- [`KEY_MATCH_EPS`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L20) — constant
+- **[`class ClipMotionMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/clip_motion.py#L25)** — Clip move / resize, per-key drag and delete handlers.
   - `ClipMotionMixin.on_clip_resized(self, clip_id: int, new_start: float, new_duration: float) -> None` — Handle one clip's edge drag -- see :meth:`_commit_clip_resizes`.
   - `ClipMotionMixin.on_clips_batch_resized(self, resizes) -> None` — Handle an edge drag that scaled a SELECTION of clips as one unit.
   - `ClipMotionMixin.on_clip_moved(self, clip_id: int, new_start: float) -> None` — Handle clip move -- routes to audio or shot-level logic.
@@ -1302,7 +1304,7 @@ The shot layer: the Shot Sequencer's shots on uitk's timeline.
 
 Shot navigation and combobox synchronization.
 
-- **[`class ShotNavMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_nav.py#L19)** — Mixin supplying shot selection and navigation.
+- **[`class ShotNavMixin`](tentacle/tentacle/slots/tools/_shot_sequencer/shot_nav.py#L17)** — Mixin supplying shot selection and navigation.
   - `ShotNavMixin.select_shot(self, shot_id: int) -> None` — Set the view's playback range to the shot and select its objects.
   - `ShotNavMixin.on_shot_block_clicked(self, shot_name: str) -> None` — Select a shot by name when its block is clicked in the shot lane.
 
@@ -1377,7 +1379,7 @@ The Shots panel's controller: the scene's shot settings, the selected shot's
 
 The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 
-- **[`class TransferMode`](tentacle/tentacle/slots/tools/_texture_combine/transfer_mode.py#L30)** — Transfer mode's decisions and its run, over the panel's widgets.
+- **[`class TransferMode`](tentacle/tentacle/slots/tools/_texture_combine/transfer_mode.py#L26)** — Transfer mode's widgets, and the words for its run's result.
   - `TransferMode.ui(self)` *(property)*
   - `TransferMode.tk(self)` *(property)* — The host toolkit (the panel's ``Slots.tk``).
   - `TransferMode.terms(self)` *(property)* — The host's words for its selection convention and UV channels.
@@ -1391,20 +1393,16 @@ The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
   - `TransferMode.capture_source(self) -> None`
   - `TransferMode.select_source(self) -> None` — Select the stored source meshes -- the capture, made visible.
   - `TransferMode.clear_source(self) -> None`
-  - `TransferMode.passes(cls, source_mode, transfer_mode) -> Tuple[bool, bool]` *(class)* — ``(do_uvs, do_textures)`` for a Source / Transfer pair (Auto unresolved
-  - `TransferMode.resolve_auto(self, source_meshes, has_lightmap=None) -> str` — Auto's run-time pick: Textures once any source material carries a map
+  - `TransferMode.sync(self) -> None` — Grey every row the current Source / Transfer pair makes meaningless.
+  - `TransferMode.run(self) -> None` — Transfer UVs OR textures: the host's ``TextureCombine.run_transfer`` (one
+  - `TransferMode.report(self, result) -> str` — What a run's *result* (``ptk.TransferResult``) says: why it
+  - `TransferMode.refusal_text(self, result, auto_note='', source_note='') -> str` — Why the run stopped (``result.refusal``), in the host's words.
   - `TransferMode.source_note(self, mode) -> str`
   - `TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
-  - `TransferMode.pair(self, targets, sources, do_uvs)` — ``(pairs, error)`` for mesh sources (Stored / Last).
-  - `TransferMode.gate(self, mode, scope, source, targets, do_uvs, do_textures, notes=('', ''))` — ``(pairs, targets, others, refusal)`` -- the run's refusals and pairs.
-  - `TransferMode.lightmap_probe(self)`
-  - `TransferMode.sync(self) -> None` — Grey every row the current Source / Transfer pair makes meaningless.
-  - `TransferMode.run(self) -> None` — Transfer UVs OR textures -- one pass per run, one undo step.
-  - `TransferMode.derived_name(self, source, targets) -> str` — A blank Output Name: the source's common name (else the targets').
-  - `TransferMode.texture_pass(self, targets, source) -> str` — The texture pass (and, with Include Lightmaps, the lightmap pass).
-  - `TransferMode.read_files(self, targets) -> set` — Path keys of the maps the materials *targets* wear read now.
-  - `TransferMode.overwrite_note(cls, before, results, warnings) -> str` *(class)* — Overwrite target's report: the files rewritten where they are (the
-  - `TransferMode.lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]`
+  - `TransferMode.uv_note(result) -> str` *(static)* — The UV pass: how many it reached, and the ones sampled by proximity.
+  - `TransferMode.texture_note(self, result) -> str` — The texture pass (and, with Include Lightmaps, the lightmap pass).
+  - `TransferMode.overwrite_note(cls, result) -> str` *(class)* — Overwrite target's report: the files rewritten where they are (the
+  - `TransferMode.lightmap_note(self, result) -> str` — The lightmap pass: bound to the source's map, or resampled (and
 
 <a id="slots--tools--_texture_path_editor--collect_plan_table"></a>
 ### `slots/tools/_texture_path_editor/collect_plan_table.py`
@@ -2540,7 +2538,7 @@ UV: one Slots class for both hosts.
 
 The one launcher — the same marking menu, built the same way, in every DCC.
 
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L395)** — Launch tentacle in whichever DCC is hosting this process.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L333)** — Launch tentacle in whichever DCC is hosting this process.
   - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``), or None.
   - `Tcl.headless(cls, host=None)` *(class)* — True when *host* runs with no GUI to build a menu for (:attr:`HEADLESS`).
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
@@ -2556,10 +2554,10 @@ The one launcher — the same marking menu, built the same way, in every DCC.
   - `Tcl.greeting(string, outputToConsole=True)` *(static)* — Format a string using preset variables.
   - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :meth:`greeting`.
   - `Tcl.toolkit(cls, host=None)` *(class)* — The engine package for *host* (``mayatk`` / ``blendertk``), imported.
-  - `Tcl.host_adapter(cls, host=None, toolkit=None)` *(class)* — A new ``uitk.MarkingMenuHost`` adapter for *host*: its toolkit's
+  - `Tcl.host_adapter(cls, host=None, toolkit=None)` *(class)* — A new adapter for *host*: the class :attr:`ADAPTERS` names on its toolkit
   - `Tcl.build(cls, host=None, adapter=None, key_show=None, **kwargs)` *(class)* — Build tentacle's marking menu for *host* now, and return it.
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
-  - `Tcl.reload(cls)` *(class)* — Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
+  - `Tcl.reload(cls)` *(class)* — Settings > Reload Scripts: tear tentacle down, reload the ecosystem in place
   - `Tcl.engine_dists(cls, host)` *(class)* — Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
   - `Tcl.engine_install_hint(cls, host=None)` *(class)* — The pip line that installs *host*'s engine, naming the interpreter to use.
 
@@ -2568,16 +2566,15 @@ The one launcher — the same marking menu, built the same way, in every DCC.
 
 Blender add-on entry for tentacle's marking menu: the add-on stub over ``Tcl`` and blendertk.
 
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L219) — Build the marking menu and return it (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L224) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L229) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L234) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L239) — Return (and print) the live activation state.
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L119)** — Blender add-on lifecycle: launch / register / unregister / reload.
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L171) — Build the marking menu and return it (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L176) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L181) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L186) — Reload the tentacle ecosystem in place and rebuild the menu -- the Blender "Reload
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L193) — Return (and print) the live activation state.
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L124)** — Blender add-on lifecycle: launch / register / unregister.
   - `BlenderHost.launch(**kwargs)` *(static)* — Build tentacle's marking menu in Blender now and return it (``Tcl.build``).
   - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: build the menu (:meth:`launch`).
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.
-  - `BlenderHost.reload()` *(static)* — Reload the tentacle ecosystem in place and re-register — the Blender "Reload Scripts".
 
 <a id="tentacle_installer"></a>
 ### `tentacle_installer.py`

@@ -3051,7 +3051,7 @@
         {
           "name": "RenderingSlots",
           "summary": "",
-          "line": 25,
+          "line": 24,
           "bases": [
             "Slots"
           ],
@@ -3062,7 +3062,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast: built once, then re-run on every panel show.",
-              "line": 180,
+              "line": 149,
               "deprecated": false
             },
             {
@@ -3071,7 +3071,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Export Playblast",
-              "line": 377,
+              "line": 346,
               "deprecated": false
             },
             {
@@ -3080,7 +3080,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: camera, renderer, IPR, smart redo, key settings and presets.",
-              "line": 472,
+              "line": 441,
               "deprecated": false
             },
             {
@@ -3089,7 +3089,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Render: render the current frame through the selected camera and renderer.",
-              "line": 691,
+              "line": 660,
               "deprecated": false
             },
             {
@@ -3098,7 +3098,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "WebXR Preview: open the live preview panel, wired to this scene.",
-              "line": 742,
+              "line": 711,
               "deprecated": false
             },
             {
@@ -3107,7 +3107,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Global Settings: the render settings (Blender: Properties > Render).",
-              "line": 754,
+              "line": 723,
               "deprecated": false
             },
             {
@@ -3116,7 +3116,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Render Setup: the render-layer manager (Blender: Properties > View Layer).",
-              "line": 758,
+              "line": 727,
               "deprecated": false
             },
             {
@@ -3125,7 +3125,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rendering Flags: per-object render flags (Blender: Properties > Object,",
-              "line": 762,
+              "line": 731,
               "deprecated": false
             }
           ]
@@ -3413,7 +3413,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Tools list: the scene actions grouped into one expandable row.",
-              "line": 1114,
+              "line": 1117,
               "deprecated": false
             },
             {
@@ -3422,7 +3422,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Dispatch a Tools leaf to its own slot.",
-              "line": 1145,
+              "line": 1148,
               "deprecated": false
             },
             {
@@ -3431,7 +3431,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Mesh Converter (FBX -> GLB): the DCC-agnostic standalone panel, its file",
-              "line": 1160,
+              "line": 1163,
               "deprecated": false
             },
             {
@@ -3440,7 +3440,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The other DCC's bridge: the shared DCC Bridge, over the host's bridge to",
-              "line": 1176,
+              "line": 1179,
               "deprecated": false
             },
             {
@@ -3449,7 +3449,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Unity Workflow: the one Unity app, with this scene as its Current Scene",
-              "line": 1192,
+              "line": 1195,
               "deprecated": false
             },
             {
@@ -3458,7 +3458,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reference Manager (Maya references, Blender linked libraries).",
-              "line": 1231,
+              "line": 1234,
               "deprecated": false
             },
             {
@@ -3467,7 +3467,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Hierarchy Sync: diff / pull / fix the hierarchy against a reference scene.",
-              "line": 1235,
+              "line": 1238,
               "deprecated": false
             },
             {
@@ -3476,7 +3476,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Naming: the shared Naming tool.",
-              "line": 1239,
+              "line": 1242,
               "deprecated": false
             },
             {
@@ -3485,7 +3485,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Audio Clips: the shared tool over the host's ``AudioClips``.",
-              "line": 1243,
+              "line": 1246,
               "deprecated": false
             },
             {
@@ -3494,7 +3494,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Blendshape Animator: the shared tool over the host's ``BlendshapeAnimator``.",
-              "line": 1247,
+              "line": 1250,
               "deprecated": false
             },
             {
@@ -3503,7 +3503,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Save to Original Scene: enabled, labelled and tooltipped from the",
-              "line": 1252,
+              "line": 1255,
               "deprecated": false
             },
             {
@@ -3512,7 +3512,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Save to Original Scene: save the open autosave back to its original, the",
-              "line": 1291,
+              "line": 1294,
               "deprecated": false
             },
             {
@@ -3521,7 +3521,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Cleanup Unknown (Maya): unknown nodes and plugins, legacy XGen expressions.",
-              "line": 1313,
+              "line": 1316,
               "deprecated": false
             },
             {
@@ -3530,7 +3530,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Cleanup (Blender): purge the data-blocks nothing uses -- Blender's own",
-              "line": 1328,
+              "line": 1331,
               "deprecated": false
             },
             {
@@ -3539,7 +3539,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix OCIO (Maya): repair the Color Management / OCIO config preferences.",
-              "line": 1339,
+              "line": 1342,
               "deprecated": false
             },
             {
@@ -3548,7 +3548,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Color Spaces: each texture's color space by its map type",
-              "line": 1346,
+              "line": 1349,
               "deprecated": false
             },
             {
@@ -3557,7 +3557,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Fix Mangled Names (Maya): the selection, or the whole scene when nothing is",
-              "line": 1367,
+              "line": 1370,
               "deprecated": false
             },
             {
@@ -3566,7 +3566,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Toggle Command Ports (Maya): MEL :7001, Python :7002.",
-              "line": 1385,
+              "line": 1388,
               "deprecated": false
             },
             {
@@ -3575,7 +3575,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Scene Metadata: the tool-authored data-node channels (``DataNodes.dump``)",
-              "line": 1397,
+              "line": 1400,
               "deprecated": false
             },
             {
@@ -3584,7 +3584,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check GLB / FBX: the Scene Exporter's post-write gates over files on disk.",
-              "line": 1411,
+              "line": 1414,
               "deprecated": false
             },
             {
@@ -3593,7 +3593,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info -- option box: scope, profile, and one toggle per section.",
-              "line": 1546,
+              "line": 1549,
               "deprecated": false
             },
             {
@@ -3602,7 +3602,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Get Scene Info -- render the sectioned audit report to the viewer dialog.",
-              "line": 1593,
+              "line": 1596,
               "deprecated": false
             },
             {
@@ -3611,7 +3611,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes -- option box.",
-              "line": 1651,
+              "line": 1654,
               "deprecated": false
             },
             {
@@ -3620,7 +3620,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Fix Non-Orthogonal Axes.",
-              "line": 1694,
+              "line": 1697,
               "deprecated": false
             }
           ]
@@ -4079,7 +4079,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Check the whole ecosystem for updates and upgrade what's outdated.",
-              "line": 114,
+              "line": 115,
               "deprecated": false
             },
             {
@@ -4088,7 +4088,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "UI Style Editor",
-              "line": 174,
+              "line": 175,
               "deprecated": false
             },
             {
@@ -4097,7 +4097,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Shortcut Editor",
-              "line": 178,
+              "line": 179,
               "deprecated": false
             },
             {
@@ -4106,7 +4106,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "UI Browser: open the tentacle UI browser (search, show/hide registered UIs).",
-              "line": 182,
+              "line": 183,
               "deprecated": false
             },
             {
@@ -4115,7 +4115,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Global Shortcuts: the shortcut editor focused on the global triggers --",
-              "line": 186,
+              "line": 187,
               "deprecated": false
             },
             {
@@ -4124,7 +4124,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Preset Editor: every tool's presets in one window -- lock, group into",
-              "line": 192,
+              "line": 193,
               "deprecated": false
             },
             {
@@ -4133,7 +4133,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Default menu (activation key only).",
-              "line": 243,
+              "line": 244,
               "deprecated": false
             },
             {
@@ -4142,7 +4142,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Left mouse button.",
-              "line": 248,
+              "line": 249,
               "deprecated": false
             },
             {
@@ -4151,7 +4151,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Middle mouse button.",
-              "line": 255,
+              "line": 256,
               "deprecated": false
             },
             {
@@ -4160,7 +4160,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Right mouse button.",
-              "line": 262,
+              "line": 263,
               "deprecated": false
             },
             {
@@ -4169,7 +4169,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Left + Right mouse buttons.",
-              "line": 269,
+              "line": 270,
               "deprecated": false
             },
             {
@@ -4178,7 +4178,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Reset marking-menu bindings (routes + activation key) to defaults.",
-              "line": 276,
+              "line": 277,
               "deprecated": false
             }
           ]
@@ -4474,7 +4474,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host's engine class for this panel: ``self.tk.<X>Bridge``.",
-              "line": 55,
+              "line": 65,
               "deprecated": false
             },
             {
@@ -4483,7 +4483,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "A fresh engine;",
-              "line": 59,
+              "line": 69,
               "deprecated": false
             },
             {
@@ -4492,7 +4492,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The engine's parameter registry (a ``uitk.bridge.ParamRegistry``).",
-              "line": 65,
+              "line": 75,
               "deprecated": false
             },
             {
@@ -4501,7 +4501,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The engine's template folder.",
-              "line": 70,
+              "line": 80,
               "deprecated": false
             },
             {
@@ -4510,7 +4510,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The engine's ``[(template, mode), ...]`` for the template combo.",
-              "line": 74,
+              "line": 84,
               "deprecated": false
             },
             {
@@ -4519,7 +4519,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "``<host library>/<UI_NAME>``: each host's presets stay where they were.",
-              "line": 79,
+              "line": 89,
               "deprecated": false
             },
             {
@@ -4528,7 +4528,7 @@
               "kind": "method",
               "signature": "(self, scope: str)",
               "summary": "The host's objects for a ``SCOPE`` word;",
-              "line": 84,
+              "line": 94,
               "deprecated": false
             },
             {
@@ -4537,7 +4537,7 @@
               "kind": "method",
               "signature": "(self, params, warn: bool = True)",
               "summary": "The Scope's objects closed over what a send of them ships.",
-              "line": 89,
+              "line": 99,
               "deprecated": false
             },
             {
@@ -4546,7 +4546,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Append the Bake Source set's CURRENT members to its row's tooltips.",
-              "line": 116,
+              "line": 126,
               "deprecated": false
             },
             {
@@ -4555,7 +4555,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Store the selection as the scene's bake source.",
-              "line": 141,
+              "line": 151,
               "deprecated": false
             },
             {
@@ -4564,7 +4564,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Select the bake-source set's members.",
-              "line": 161,
+              "line": 171,
               "deprecated": false
             },
             {
@@ -4573,7 +4573,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Remove the bake-source set;",
-              "line": 187,
+              "line": 197,
               "deprecated": false
             }
           ]
@@ -4709,7 +4709,7 @@
         {
           "name": "HierarchySyncController",
           "summary": "The panel's state and the orchestration between it, the host's session",
-          "line": 30,
+          "line": 34,
           "bases": [
             "pythontk.LoggingMixin"
           ],
@@ -4720,7 +4720,7 @@
               "kind": "property",
               "signature": "(self) -> Optional[dict]",
               "summary": "The session's last analysis (``None`` before one).",
-              "line": 59,
+              "line": 66,
               "deprecated": false
             },
             {
@@ -4729,7 +4729,7 @@
               "kind": "property",
               "signature": "(self) -> str",
               "summary": "The reference scene's path (``\"\"`` when none is set).",
-              "line": 64,
+              "line": 71,
               "deprecated": false
             },
             {
@@ -4738,7 +4738,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Each tree's header tooltip: its file's full path.",
-              "line": 88,
+              "line": 95,
               "deprecated": false
             },
             {
@@ -4747,7 +4747,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Drop the analysis and the held reference (the session's) and the",
-              "line": 97,
+              "line": 104,
               "deprecated": false
             },
             {
@@ -4756,7 +4756,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Release the reference while the panel is hidden.",
-              "line": 103,
+              "line": 110,
               "deprecated": false
             },
             {
@@ -4765,7 +4765,7 @@
               "kind": "method",
               "signature": "(self, tree_widget, reference_path: str = None) -> None",
               "summary": "Fill the reference tree from *reference_path*, loading it (or",
-              "line": 110,
+              "line": 117,
               "deprecated": false
             },
             {
@@ -4774,7 +4774,7 @@
               "kind": "method",
               "signature": "(self, restore_selection: bool = True) -> None",
               "summary": "Rebuild both trees.",
-              "line": 139,
+              "line": 146,
               "deprecated": false
             },
             {
@@ -4783,7 +4783,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Diff colours (or none), then the ignored styling, on both trees.",
-              "line": 179,
+              "line": 186,
               "deprecated": false
             },
             {
@@ -4792,7 +4792,7 @@
               "kind": "method",
               "signature": "(self, tree_widget) -> set",
               "summary": "The ignored paths of *tree_widget* (an empty set for another widget).",
-              "line": 191,
+              "line": 198,
               "deprecated": false
             },
             {
@@ -4801,7 +4801,7 @@
               "kind": "method",
               "signature": "(self, tree_widget, path: str) -> bool",
               "summary": "Whether *path*, or an ancestor of it, is ignored in *tree_widget*.",
-              "line": 199,
+              "line": 206,
               "deprecated": false
             },
             {
@@ -4810,7 +4810,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Forget every ignored path, in both trees.",
-              "line": 204,
+              "line": 211,
               "deprecated": false
             },
             {
@@ -4819,7 +4819,7 @@
               "kind": "method",
               "signature": "(self) -> Dict[str, list]",
               "summary": "The analysis' differences, the ignored paths left out (a reparent or",
-              "line": 209,
+              "line": 216,
               "deprecated": false
             },
             {
@@ -4828,25 +4828,34 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Log the differences (ignored ones left out): the top-level missing",
-              "line": 238,
+              "line": 245,
+              "deprecated": false
+            },
+            {
+              "name": "diff_records",
+              "qualname": "HierarchySyncController.diff_records",
+              "kind": "staticmethod",
+              "signature": "(missing, extra, reparented, fuzzy_matches) -> List[ptk.HierarchyDifference]",
+              "summary": "The session's diff as the analyzer's records: a reparented node and",
+              "line": 323,
               "deprecated": false
             },
             {
               "name": "write_diff_report",
               "qualname": "HierarchySyncController.write_diff_report",
-              "kind": "staticmethod",
-              "signature": "(missing, extra, reparented, fuzzy_matches) -> Optional[str]",
-              "summary": "Write the full diff to a text file.",
-              "line": 316,
+              "kind": "classmethod",
+              "signature": "(cls, missing, extra, reparented, fuzzy_matches) -> Optional[str]",
+              "summary": "Write the full diff to a text file: the analyzer's report",
+              "line": 359,
               "deprecated": false
             },
             {
-              "name": "coerce_str_list",
-              "qualname": "HierarchySyncController.coerce_str_list",
-              "kind": "staticmethod",
-              "signature": "(value) -> List[str]",
-              "summary": "A settings value as a list: QSettings hands a one-item list back as",
-              "line": 370,
+              "name": "recent_references",
+              "qualname": "HierarchySyncController.recent_references",
+              "kind": "property",
+              "signature": "(self)",
+              "summary": "The recent reference scenes: uitk's ``RecentValuesStore`` in the",
+              "line": 385,
               "deprecated": false
             },
             {
@@ -4854,8 +4863,8 @@
               "qualname": "HierarchySyncController.get_recent_reference_scenes",
               "kind": "method",
               "signature": "(self) -> List[str]",
-              "summary": "The recent reference scenes that still exist (the last ten).",
-              "line": 379,
+              "summary": "The recent reference scenes that still exist, most recent first.",
+              "line": 409,
               "deprecated": false
             },
             {
@@ -4863,8 +4872,8 @@
               "qualname": "HierarchySyncController.save_recent_reference_scene",
               "kind": "method",
               "signature": "(self, scene_path: str) -> None",
-              "summary": "Put *scene_path* last in the recent references (the last ten kept).",
-              "line": 386,
+              "summary": "Put *scene_path* first in the recent references.",
+              "line": 413,
               "deprecated": false
             }
           ]
@@ -4881,12 +4890,21 @@
           "deprecated": false
         },
         {
+          "name": "LEGACY_RECENT_KEY",
+          "qualname": "LEGACY_RECENT_KEY",
+          "kind": "constant",
+          "signature": "",
+          "summary": "",
+          "line": 28,
+          "deprecated": false
+        },
+        {
           "name": "LOG_LIMIT",
           "qualname": "LOG_LIMIT",
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 27,
+          "line": 31,
           "deprecated": false
         }
       ]
@@ -5434,7 +5452,7 @@
               "kind": "method",
               "signature": "(self, file_names, file_list)",
               "summary": "(Re)fill the table with *file_list* labelled *file_names*: items reused",
-              "line": 409,
+              "line": 369,
               "deprecated": false
             },
             {
@@ -5443,7 +5461,7 @@
               "kind": "method",
               "signature": "(self, listed: int, referenced: int)",
               "summary": "The footer's listing summary -- files shown, rows referenced, files the",
-              "line": 503,
+              "line": 463,
               "deprecated": false
             },
             {
@@ -5452,7 +5470,7 @@
               "kind": "method",
               "signature": "(self, item, file_path, is_current)",
               "summary": "The current scene's name cell: enabled (rename / delete / open) but not",
-              "line": 520,
+              "line": 480,
               "deprecated": false
             },
             {
@@ -5461,7 +5479,7 @@
               "kind": "method",
               "signature": "(self, path) -> list",
               "summary": "The references a row stands for -- through the bake standing in for it too.",
-              "line": 558,
+              "line": 518,
               "deprecated": false
             },
             {
@@ -5470,7 +5488,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The reference and display-mode icons of every row, from the live references.",
-              "line": 570,
+              "line": 530,
               "deprecated": false
             },
             {
@@ -5479,7 +5497,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select exactly the rows the scene references (selectable rows only).",
-              "line": 587,
+              "line": 547,
               "deprecated": false
             },
             {
@@ -5488,7 +5506,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The selection changed: reference the newly selected rows, remove the",
-              "line": 603,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -5497,7 +5515,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Show the Notes column only while Show Notes Column is checked (view-only:",
-              "line": 646,
+              "line": 606,
               "deprecated": false
             },
             {
@@ -5506,7 +5524,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Re-filter when a naming field changes while a filter / display option",
-              "line": 653,
+              "line": 613,
               "deprecated": false
             },
             {
@@ -5515,7 +5533,7 @@
               "kind": "method",
               "signature": "(self, row)",
               "summary": "The path on *row*'s name cell (None for no row).",
-              "line": 666,
+              "line": 626,
               "deprecated": false
             },
             {
@@ -5524,7 +5542,7 @@
               "kind": "method",
               "signature": "(self, pos)",
               "summary": "Store the right-clicked row (the menu acts on it, not the selection) and",
-              "line": 671,
+              "line": 631,
               "deprecated": false
             },
             {
@@ -5533,7 +5551,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The right-clicked row, validated against the row count, or None.",
-              "line": 679,
+              "line": 639,
               "deprecated": false
             },
             {
@@ -5542,7 +5560,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Read the context menu's Open as 'Reopen' on the open scene's row: opening",
-              "line": 686,
+              "line": 646,
               "deprecated": false
             },
             {
@@ -5551,7 +5569,7 @@
               "kind": "method",
               "signature": "(self, item, selected: bool) -> None",
               "summary": "Set *item*'s selection without firing the selection -> reference sync.",
-              "line": 699,
+              "line": 659,
               "deprecated": false
             },
             {
@@ -5560,7 +5578,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Show the full file name in the name cell an inline rename edits.",
-              "line": 709,
+              "line": 669,
               "deprecated": false
             },
             {
@@ -5569,7 +5587,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Restore the name cell's label after an edit.",
-              "line": 718,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -5578,7 +5596,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Double-click a name to rename it inline (editable rows only: never a",
-              "line": 728,
+              "line": 688,
               "deprecated": false
             },
             {
@@ -5587,7 +5605,7 @@
               "kind": "method",
               "signature": "(self, item)",
               "summary": "Commit an inline rename (the name column) or a note (the Notes column).",
-              "line": 740,
+              "line": 700,
               "deprecated": false
             },
             {
@@ -5596,7 +5614,7 @@
               "kind": "method",
               "signature": "(self, *_args)",
               "summary": "The inline editor closed: the name cell shows its label again.",
-              "line": 784,
+              "line": 744,
               "deprecated": false
             }
           ]
@@ -6658,7 +6676,7 @@
         {
           "name": "MappingPickerMixin",
           "summary": "The mapping template, mixed into ``ShotManifestController``.",
-          "line": 19,
+          "line": 23,
           "bases": [],
           "members": []
         }
@@ -6777,7 +6795,7 @@
         {
           "name": "ClipMenuMixin",
           "summary": "Clip and gap context menus, and the clip-level key operations they run.",
-          "line": 20,
+          "line": 19,
           "bases": [],
           "members": [
             {
@@ -6786,7 +6804,7 @@
               "kind": "method",
               "signature": "(self, menu, clip_id: int) -> None",
               "summary": "Add domain-specific actions to a clip's context menu.",
-              "line": 25,
+              "line": 24,
               "deprecated": false
             },
             {
@@ -6795,7 +6813,7 @@
               "kind": "method",
               "signature": "(self, menu, gap_start: float, gap_end: float) -> None",
               "summary": "Add domain-specific actions to a gap overlay's context menu.",
-              "line": 347,
+              "line": 341,
               "deprecated": false
             }
           ]
@@ -6811,7 +6829,7 @@
         {
           "name": "ClipMotionMixin",
           "summary": "Clip move / resize, per-key drag and delete handlers.",
-          "line": 26,
+          "line": 25,
           "bases": [],
           "members": [
             {
@@ -6838,7 +6856,7 @@
               "kind": "method",
               "signature": "(self, clip_id: int, new_start: float) -> None",
               "summary": "Handle clip move -- routes to audio or shot-level logic.",
-              "line": 555,
+              "line": 539,
               "deprecated": false
             },
             {
@@ -6847,7 +6865,7 @@
               "kind": "method",
               "signature": "(self, moves) -> None",
               "summary": "Handle a batch of clip moves (group drag), syncing once at the end.",
-              "line": 601,
+              "line": 582,
               "deprecated": false
             },
             {
@@ -6856,7 +6874,7 @@
               "kind": "method",
               "signature": "(self, clip_id: int, changes: list) -> None",
               "summary": "Move individual keyframes on the curves, then refresh.",
-              "line": 801,
+              "line": 778,
               "deprecated": false
             },
             {
@@ -6865,7 +6883,7 @@
               "kind": "method",
               "signature": "(self, groups) -> None",
               "summary": "Commit one key drag that spanned any number of clips.",
-              "line": 810,
+              "line": 787,
               "deprecated": false
             },
             {
@@ -6874,7 +6892,7 @@
               "kind": "method",
               "signature": "(self, clip_id: int, times: list) -> None",
               "summary": "Delete individual keyframes from the curves, then refresh.",
-              "line": 868,
+              "line": 845,
               "deprecated": false
             }
           ]
@@ -6887,7 +6905,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 19,
+          "line": 18,
           "deprecated": false
         },
         {
@@ -6896,7 +6914,7 @@
           "kind": "constant",
           "signature": "",
           "summary": "",
-          "line": 21,
+          "line": 20,
           "deprecated": false
         }
       ]
@@ -6941,7 +6959,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "Return the host's ShotSequencer, lazily created over the active store.",
-              "line": 225,
+              "line": 246,
               "deprecated": false
             },
             {
@@ -6950,7 +6968,7 @@
               "kind": "property",
               "signature": "(self) -> Optional[int]",
               "summary": "Return the shot_id currently selected, or the first shot's id.",
-              "line": 342,
+              "line": 363,
               "deprecated": false
             }
           ]
@@ -6975,7 +6993,7 @@
               "kind": "method",
               "signature": "(self, start: float, end: float) -> None",
               "summary": "Update the active shot when a range-highlight handle is dragged.",
-              "line": 42,
+              "line": 43,
               "deprecated": false
             },
             {
@@ -6984,7 +7002,7 @@
               "kind": "method",
               "signature": "(self, original_next_start: float, new_next_start: float) -> None",
               "summary": "Handle a right-edge gap drag: the following shot's ``.start``.",
-              "line": 180,
+              "line": 187,
               "deprecated": false
             },
             {
@@ -6993,7 +7011,7 @@
               "kind": "method",
               "signature": "(self, original_prev_end: float, new_prev_end: float) -> None",
               "summary": "Handle a left-edge gap drag: the preceding shot's ``.end``.",
-              "line": 240,
+              "line": 250,
               "deprecated": false
             },
             {
@@ -7002,7 +7020,7 @@
               "kind": "method",
               "signature": "(self, old_start: float, old_end: float, new_start: float, new_end: float) -> None",
               "summary": "Handle body gap drag — slide the gap while preserving its width.",
-              "line": 299,
+              "line": 312,
               "deprecated": false
             },
             {
@@ -7011,7 +7029,7 @@
               "kind": "method",
               "signature": "(self, gap_start: float, gap_end: float, locked: bool) -> None",
               "summary": "Handle a single gap's lock state being toggled via context menu.",
-              "line": 417,
+              "line": 433,
               "deprecated": false
             },
             {
@@ -7020,7 +7038,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Lock all gaps so they are preserved during respace.",
-              "line": 472,
+              "line": 488,
               "deprecated": false
             },
             {
@@ -7029,7 +7047,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Unlock all gaps so they follow the global gap value.",
-              "line": 481,
+              "line": 497,
               "deprecated": false
             }
           ]
@@ -7335,7 +7353,7 @@
               "kind": "method",
               "signature": "(self, shot_id: int) -> None",
               "summary": "Delete *shot_id* with its contents, closing the timeline behind it.",
-              "line": 313,
+              "line": 305,
               "deprecated": false
             },
             {
@@ -7344,7 +7362,7 @@
               "kind": "method",
               "signature": "(self, scope: str = 'stale') -> None",
               "summary": "Delete the shots of *scope*, after naming them.",
-              "line": 347,
+              "line": 343,
               "deprecated": false
             },
             {
@@ -7353,7 +7371,7 @@
               "kind": "method",
               "signature": "(self, shot_id: int, position: int) -> None",
               "summary": "Re-slot *shot_id* at 1-based *position*, pushing the rest along.",
-              "line": 379,
+              "line": 375,
               "deprecated": false
             },
             {
@@ -7692,7 +7710,7 @@
         {
           "name": "ShotNavMixin",
           "summary": "Mixin supplying shot selection and navigation.",
-          "line": 19,
+          "line": 17,
           "bases": [],
           "members": [
             {
@@ -7701,7 +7719,7 @@
               "kind": "method",
               "signature": "(self, shot_id: int) -> None",
               "summary": "Set the view's playback range to the shot and select its objects.",
-              "line": 39,
+              "line": 37,
               "deprecated": false
             },
             {
@@ -7710,7 +7728,7 @@
               "kind": "method",
               "signature": "(self, shot_name: str) -> None",
               "summary": "Select a shot by name when its block is clicked in the shot lane.",
-              "line": 325,
+              "line": 322,
               "deprecated": false
             }
           ]
@@ -7920,7 +7938,7 @@
               "kind": "method",
               "signature": "(self, value, scope: str = 'all', respect_locks: bool = True) -> None",
               "summary": "Set the store gap and re-space per *scope*.",
-              "line": 774,
+              "line": 772,
               "deprecated": false
             },
             {
@@ -7929,7 +7947,7 @@
               "kind": "method",
               "signature": "(self, index: int) -> None",
               "summary": "User picked a different shot from the combobox.",
-              "line": 807,
+              "line": 805,
               "deprecated": false
             },
             {
@@ -7938,7 +7956,7 @@
               "kind": "method",
               "signature": "(self, text: str) -> None",
               "summary": "Push a name the store accepts;",
-              "line": 826,
+              "line": 824,
               "deprecated": false
             },
             {
@@ -7947,7 +7965,7 @@
               "kind": "method",
               "signature": "(self, value: float) -> None",
               "summary": "",
-              "line": 859,
+              "line": 857,
               "deprecated": false
             },
             {
@@ -7956,7 +7974,7 @@
               "kind": "method",
               "signature": "(self, value: float) -> None",
               "summary": "",
-              "line": 878,
+              "line": 876,
               "deprecated": false
             },
             {
@@ -7965,7 +7983,7 @@
               "kind": "method",
               "signature": "(self, text: str) -> None",
               "summary": "",
-              "line": 900,
+              "line": 898,
               "deprecated": false
             },
             {
@@ -7974,7 +7992,7 @@
               "kind": "method",
               "signature": "(self) -> str",
               "summary": "The scope Delete Shots takes (``\"stale\"`` until one is picked).",
-              "line": 987,
+              "line": 985,
               "deprecated": false
             },
             {
@@ -7983,7 +8001,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Name the picked scope on Delete Shots: \"Delete Empty Shots\".",
-              "line": 993,
+              "line": 991,
               "deprecated": false
             },
             {
@@ -7992,7 +8010,7 @@
               "kind": "method",
               "signature": "(self) -> str",
               "summary": "Swap With's mode: ``\"swap\"`` (until one is picked) or ``\"copy\"``.",
-              "line": 1084,
+              "line": 1082,
               "deprecated": false
             },
             {
@@ -8001,7 +8019,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "The other shot's id -- swapped with, or copied over -- or ``None``.",
-              "line": 1090,
+              "line": 1088,
               "deprecated": false
             },
             {
@@ -8010,7 +8028,7 @@
               "kind": "method",
               "signature": "(self) -> list",
               "summary": "The fields Swap With leaves in place: its checked Retain options.",
-              "line": 1095,
+              "line": 1093,
               "deprecated": false
             },
             {
@@ -8019,7 +8037,7 @@
               "kind": "method",
               "signature": "(self, *_args) -> None",
               "summary": "Name the mode and the picked shot on Swap With: \"Swap With: Shot_3\",",
-              "line": 1103,
+              "line": 1101,
               "deprecated": false
             },
             {
@@ -8028,7 +8046,7 @@
               "kind": "method",
               "signature": "(self, *_args) -> None",
               "summary": "Name the frame on Shift To: \"Shift To: 1\".",
-              "line": 1207,
+              "line": 1205,
               "deprecated": false
             },
             {
@@ -8037,7 +8055,7 @@
               "kind": "method",
               "signature": "(self, *_args) -> None",
               "summary": "Name the amount on Apply Gap: \"Apply Gap: 12\".",
-              "line": 1257,
+              "line": 1255,
               "deprecated": false
             },
             {
@@ -8046,7 +8064,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Delete the active shot after confirmation.",
-              "line": 1269,
+              "line": 1267,
               "deprecated": false
             },
             {
@@ -8055,7 +8073,7 @@
               "kind": "method",
               "signature": "(self, shots, scope: str = 'stale') -> bool",
               "summary": "Ask before ``ShotStore.remove_shots_in_scope``, naming *shots*.",
-              "line": 1327,
+              "line": 1325,
               "deprecated": false
             },
             {
@@ -8064,7 +8082,7 @@
               "kind": "method",
               "signature": "(self, scope: str = 'stale') -> None",
               "summary": "Delete the shots of *scope* after naming them (All Shots group).",
-              "line": 1342,
+              "line": 1340,
               "deprecated": false
             },
             {
@@ -8073,7 +8091,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Move the active shot to the position specified by spn_move_to.",
-              "line": 1372,
+              "line": 1370,
               "deprecated": false
             },
             {
@@ -8082,7 +8100,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Swap With, in the mode its option box picks: trade the active",
-              "line": 1398,
+              "line": 1396,
               "deprecated": false
             },
             {
@@ -8091,7 +8109,7 @@
               "kind": "method",
               "signature": "(self, edge: str = 'both') -> None",
               "summary": "Trim empty space from the active shot, at *edge*.",
-              "line": 1439,
+              "line": 1437,
               "deprecated": false
             },
             {
@@ -8100,7 +8118,7 @@
               "kind": "method",
               "signature": "(self, edge: str = 'both') -> None",
               "summary": "Trim empty space from every shot, at *edge*.",
-              "line": 1460,
+              "line": 1458,
               "deprecated": false
             },
             {
@@ -8109,7 +8127,7 @@
               "kind": "method",
               "signature": "(self, start: float) -> None",
               "summary": "Shift every shot so the first one starts on *start*.",
-              "line": 1483,
+              "line": 1481,
               "deprecated": false
             },
             {
@@ -8118,7 +8136,7 @@
               "kind": "method",
               "signature": "(self, edge: str = 'leading') -> None",
               "summary": "Pad the active shot with ``spn_space`` frames of room at *edge*.",
-              "line": 1509,
+              "line": 1507,
               "deprecated": false
             }
           ]
@@ -8133,8 +8151,8 @@
       "classes": [
         {
           "name": "TransferMode",
-          "summary": "Transfer mode's decisions and its run, over the panel's widgets.",
-          "line": 30,
+          "summary": "Transfer mode's widgets, and the words for its run's result.",
+          "line": 26,
           "bases": [],
           "members": [
             {
@@ -8143,7 +8161,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "",
-              "line": 50,
+              "line": 51,
               "deprecated": false
             },
             {
@@ -8152,7 +8170,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host toolkit (the panel's ``Slots.tk``).",
-              "line": 54,
+              "line": 55,
               "deprecated": false
             },
             {
@@ -8161,7 +8179,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host's words for its selection convention and UV channels.",
-              "line": 59,
+              "line": 60,
               "deprecated": false
             },
             {
@@ -8170,7 +8188,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 64,
+              "line": 65,
               "deprecated": false
             },
             {
@@ -8179,7 +8197,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 96,
+              "line": 97,
               "deprecated": false
             },
             {
@@ -8188,7 +8206,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 148,
+              "line": 149,
               "deprecated": false
             },
             {
@@ -8197,7 +8215,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 193,
+              "line": 194,
               "deprecated": false
             },
             {
@@ -8206,7 +8224,7 @@
               "kind": "method",
               "signature": "(self, src, dst) -> None",
               "summary": "",
-              "line": 205,
+              "line": 206,
               "deprecated": false
             },
             {
@@ -8215,7 +8233,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 236,
+              "line": 237,
               "deprecated": false
             },
             {
@@ -8224,7 +8242,7 @@
               "kind": "method",
               "signature": "(self) -> str",
               "summary": "Live tooltip for the Store Source Meshes icon -- what is stored NOW.",
-              "line": 255,
+              "line": 256,
               "deprecated": false
             },
             {
@@ -8233,7 +8251,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 276,
+              "line": 277,
               "deprecated": false
             },
             {
@@ -8242,7 +8260,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Select the stored source meshes -- the capture, made visible.",
-              "line": 290,
+              "line": 291,
               "deprecated": false
             },
             {
@@ -8251,70 +8269,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "",
-              "line": 321,
-              "deprecated": false
-            },
-            {
-              "name": "passes",
-              "qualname": "TransferMode.passes",
-              "kind": "classmethod",
-              "signature": "(cls, source_mode, transfer_mode) -> Tuple[bool, bool]",
-              "summary": "``(do_uvs, do_textures)`` for a Source / Transfer pair (Auto unresolved",
-              "line": 327,
-              "deprecated": false
-            },
-            {
-              "name": "resolve_auto",
-              "qualname": "TransferMode.resolve_auto",
-              "kind": "method",
-              "signature": "(self, source_meshes, has_lightmap=None) -> str",
-              "summary": "Auto's run-time pick: Textures once any source material carries a map",
-              "line": 336,
-              "deprecated": false
-            },
-            {
-              "name": "source_note",
-              "qualname": "TransferMode.source_note",
-              "kind": "method",
-              "signature": "(self, mode) -> str",
-              "summary": "",
-              "line": 359,
-              "deprecated": false
-            },
-            {
-              "name": "auto_note",
-              "qualname": "TransferMode.auto_note",
-              "kind": "method",
-              "signature": "(self, auto, do_textures, source_mode=None, lightmaps=False) -> str",
-              "summary": "",
-              "line": 369,
-              "deprecated": false
-            },
-            {
-              "name": "pair",
-              "qualname": "TransferMode.pair",
-              "kind": "method",
-              "signature": "(self, targets, sources, do_uvs)",
-              "summary": "``(pairs, error)`` for mesh sources (Stored / Last).",
-              "line": 387,
-              "deprecated": false
-            },
-            {
-              "name": "gate",
-              "qualname": "TransferMode.gate",
-              "kind": "method",
-              "signature": "(self, mode, scope, source, targets, do_uvs, do_textures, notes=('', ''))",
-              "summary": "``(pairs, targets, others, refusal)`` -- the run's refusals and pairs.",
-              "line": 401,
-              "deprecated": false
-            },
-            {
-              "name": "lightmap_probe",
-              "qualname": "TransferMode.lightmap_probe",
-              "kind": "method",
-              "signature": "(self)",
-              "summary": "",
-              "line": 463,
+              "line": 322,
               "deprecated": false
             },
             {
@@ -8323,7 +8278,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Grey every row the current Source / Transfer pair makes meaningless.",
-              "line": 470,
+              "line": 327,
               "deprecated": false
             },
             {
@@ -8331,53 +8286,80 @@
               "qualname": "TransferMode.run",
               "kind": "method",
               "signature": "(self) -> None",
-              "summary": "Transfer UVs OR textures -- one pass per run, one undo step.",
-              "line": 507,
+              "summary": "Transfer UVs OR textures: the host's ``TextureCombine.run_transfer`` (one",
+              "line": 364,
               "deprecated": false
             },
             {
-              "name": "derived_name",
-              "qualname": "TransferMode.derived_name",
+              "name": "report",
+              "qualname": "TransferMode.report",
               "kind": "method",
-              "signature": "(self, source, targets) -> str",
-              "summary": "A blank Output Name: the source's common name (else the targets').",
-              "line": 597,
+              "signature": "(self, result) -> str",
+              "summary": "What a run's *result* (``ptk.TransferResult``) says: why it",
+              "line": 397,
               "deprecated": false
             },
             {
-              "name": "texture_pass",
-              "qualname": "TransferMode.texture_pass",
+              "name": "refusal_text",
+              "qualname": "TransferMode.refusal_text",
               "kind": "method",
-              "signature": "(self, targets, source) -> str",
+              "signature": "(self, result, auto_note='', source_note='') -> str",
+              "summary": "Why the run stopped (``result.refusal``), in the host's words.",
+              "line": 416,
+              "deprecated": false
+            },
+            {
+              "name": "source_note",
+              "qualname": "TransferMode.source_note",
+              "kind": "method",
+              "signature": "(self, mode) -> str",
+              "summary": "",
+              "line": 468,
+              "deprecated": false
+            },
+            {
+              "name": "auto_note",
+              "qualname": "TransferMode.auto_note",
+              "kind": "method",
+              "signature": "(self, auto, do_textures, source_mode=None, lightmaps=False) -> str",
+              "summary": "",
+              "line": 478,
+              "deprecated": false
+            },
+            {
+              "name": "uv_note",
+              "qualname": "TransferMode.uv_note",
+              "kind": "staticmethod",
+              "signature": "(result) -> str",
+              "summary": "The UV pass: how many it reached, and the ones sampled by proximity.",
+              "line": 497,
+              "deprecated": false
+            },
+            {
+              "name": "texture_note",
+              "qualname": "TransferMode.texture_note",
+              "kind": "method",
+              "signature": "(self, result) -> str",
               "summary": "The texture pass (and, with Include Lightmaps, the lightmap pass).",
-              "line": 602,
-              "deprecated": false
-            },
-            {
-              "name": "read_files",
-              "qualname": "TransferMode.read_files",
-              "kind": "method",
-              "signature": "(self, targets) -> set",
-              "summary": "Path keys of the maps the materials *targets* wear read now.",
-              "line": 690,
+              "line": 513,
               "deprecated": false
             },
             {
               "name": "overwrite_note",
               "qualname": "TransferMode.overwrite_note",
               "kind": "classmethod",
-              "signature": "(cls, before, results, warnings) -> str",
+              "signature": "(cls, result) -> str",
               "summary": "Overwrite target's report: the files rewritten where they are (the",
-              "line": 701,
+              "line": 542,
               "deprecated": false
             },
             {
-              "name": "lightmap_pass",
-              "qualname": "TransferMode.lightmap_pass",
+              "name": "lightmap_note",
+              "qualname": "TransferMode.lightmap_note",
               "kind": "method",
-              "signature": "(self, targets, source, out_name) -> Tuple[str, bool]",
-              "summary": "",
-              "line": 728,
+              "signature": "(self, result) -> str",
+              "summary": "The lightmap pass: bound to the source's map, or resampled (and",
+              "line": 568,
               "deprecated": false
             }
           ]
@@ -9169,7 +9151,7 @@
               "kind": "method",
               "signature": "(self, widget=None) -> None",
               "summary": "Place the selected track or clip at the playhead (Maya: key an audio",
-              "line": 731,
+              "line": 733,
               "deprecated": false
             },
             {
@@ -9178,7 +9160,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Show where the audio lives (Maya: the carrier node;",
-              "line": 771,
+              "line": 773,
               "deprecated": false
             },
             {
@@ -9187,7 +9169,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Rebuild the sound nodes and the composite from the keys (Maya).",
-              "line": 781,
+              "line": 783,
               "deprecated": false
             },
             {
@@ -9196,7 +9178,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 802,
+              "line": 804,
               "deprecated": false
             },
             {
@@ -9205,7 +9187,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "",
-              "line": 809,
+              "line": 811,
               "deprecated": false
             },
             {
@@ -9214,7 +9196,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Apply Trim: the Start/End frames off the selected clip's ends.",
-              "line": 812,
+              "line": 814,
               "deprecated": false
             },
             {
@@ -9223,7 +9205,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Sync Scene Range: its fit mode in the option box.",
-              "line": 838,
+              "line": 840,
               "deprecated": false
             },
             {
@@ -9232,7 +9214,7 @@
               "kind": "method",
               "signature": "(self, widget=None) -> None",
               "summary": "Fit the scene frame range to the clips.",
-              "line": 859,
+              "line": 861,
               "deprecated": false
             }
           ]
@@ -10657,7 +10639,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Create Network: pick texture files and build their material(s).",
-              "line": 296,
+              "line": 261,
               "deprecated": false
             }
           ]
@@ -11145,7 +11127,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Browse…: queue image files from a file dialog (no duplicates).",
-              "line": 154,
+              "line": 122,
               "deprecated": false
             },
             {
@@ -11154,7 +11136,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Clear: empty the queue.",
-              "line": 173,
+              "line": 141,
               "deprecated": false
             },
             {
@@ -11163,7 +11145,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Create Planes: one textured plane per queued image.",
-              "line": 182,
+              "line": 150,
               "deprecated": false
             },
             {
@@ -11172,7 +11154,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Remove Selected: delete the selected planes and their materials.",
-              "line": 215,
+              "line": 183,
               "deprecated": false
             }
           ]
@@ -11832,7 +11814,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The engine's logger: the run report and this panel's notes share it.",
-              "line": 64,
+              "line": 68,
               "deprecated": false
             },
             {
@@ -11841,7 +11823,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Format global options in the header menu.",
-              "line": 157,
+              "line": 124,
               "deprecated": false
             },
             {
@@ -11850,7 +11832,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "",
-              "line": 418,
+              "line": 385,
               "deprecated": false
             },
             {
@@ -11859,7 +11841,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "",
-              "line": 422,
+              "line": 389,
               "deprecated": false
             },
             {
@@ -11868,7 +11850,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The selected retype target, or None for \"keep the current type\"",
-              "line": 426,
+              "line": 393,
               "deprecated": false
             },
             {
@@ -11877,7 +11859,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Presets.",
-              "line": 433,
+              "line": 400,
               "deprecated": false
             },
             {
@@ -11886,7 +11868,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Update Materials",
-              "line": 492,
+              "line": 459,
               "deprecated": false
             }
           ]
@@ -11958,7 +11940,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The host engine's logger (``Naming.logger``): what the operations",
-              "line": 138,
+              "line": 139,
               "deprecated": false
             },
             {
@@ -11967,7 +11949,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The Scope combo, at the top of the window: what every operation acts on.",
-              "line": 151,
+              "line": 152,
               "deprecated": false
             },
             {
@@ -11976,7 +11958,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Configure header menu with tool description and workflow instructions.",
-              "line": 183,
+              "line": 184,
               "deprecated": false
             },
             {
@@ -11985,7 +11967,7 @@
               "kind": "property",
               "signature": "(self) -> str",
               "summary": "",
-              "line": 281,
+              "line": 282,
               "deprecated": false
             },
             {
@@ -11994,7 +11976,7 @@
               "kind": "property",
               "signature": "(self) -> bool",
               "summary": "",
-              "line": 285,
+              "line": 286,
               "deprecated": false
             },
             {
@@ -12003,7 +11985,7 @@
               "kind": "property",
               "signature": "(self) -> bool",
               "summary": "",
-              "line": 289,
+              "line": 290,
               "deprecated": false
             },
             {
@@ -12012,7 +11994,7 @@
               "kind": "property",
               "signature": "(self) -> bool",
               "summary": "Operate on map-suffix-free base names — file scopes only.",
-              "line": 293,
+              "line": 294,
               "deprecated": false
             },
             {
@@ -12021,7 +12003,7 @@
               "kind": "property",
               "signature": "(self)",
               "summary": "The current Suffix By Type strings (non-empty), from the tb003 option box.",
-              "line": 492,
+              "line": 457,
               "deprecated": false
             },
             {
@@ -12030,7 +12012,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Find",
-              "line": 520,
+              "line": 485,
               "deprecated": false
             },
             {
@@ -12039,7 +12021,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Find: select scene objects (or browse for files) whose name matches the pattern.",
-              "line": 574,
+              "line": 539,
               "deprecated": false
             },
             {
@@ -12048,7 +12030,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Rename",
-              "line": 638,
+              "line": 603,
               "deprecated": false
             },
             {
@@ -12057,7 +12039,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Rename: rename matched objects or files (find → replace, with regex / suffix options).",
-              "line": 695,
+              "line": 660,
               "deprecated": false
             },
             {
@@ -12066,7 +12048,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Convert Case",
-              "line": 753,
+              "line": 718,
               "deprecated": false
             },
             {
@@ -12075,7 +12057,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Convert Case",
-              "line": 777,
+              "line": 742,
               "deprecated": false
             },
             {
@@ -12084,7 +12066,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Suffix By Location",
-              "line": 807,
+              "line": 772,
               "deprecated": false
             },
             {
@@ -12093,7 +12075,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Suffix By Location: number the objects in scope by location -- by",
-              "line": 869,
+              "line": 834,
               "deprecated": false
             },
             {
@@ -12102,7 +12084,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Strip Chars",
-              "line": 907,
+              "line": 872,
               "deprecated": false
             },
             {
@@ -12111,7 +12093,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Strip Chars: remove a number of leading/trailing characters from the names in scope.",
-              "line": 925,
+              "line": 890,
               "deprecated": false
             },
             {
@@ -12120,7 +12102,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Initialize Suffix By Type — the editor for the shared naming convention.",
-              "line": 984,
+              "line": 949,
               "deprecated": false
             },
             {
@@ -12129,7 +12111,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Suffix By Type",
-              "line": 1021,
+              "line": 986,
               "deprecated": false
             }
           ]
@@ -14657,7 +14639,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The Set Directory option box: the relocate mode and Allow Missing Targets.",
-              "line": 531,
+              "line": 530,
               "deprecated": false
             },
             {
@@ -14666,7 +14648,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The Normalize Paths option box: what becomes of external textures.",
-              "line": 564,
+              "line": 563,
               "deprecated": false
             },
             {
@@ -14675,7 +14657,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "The Resolve Missing option box: one checkbox per strategy.",
-              "line": 585,
+              "line": 584,
               "deprecated": false
             },
             {
@@ -14684,7 +14666,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Build the row menu once, then (re)populate the table.",
-              "line": 637,
+              "line": 636,
               "deprecated": false
             },
             {
@@ -14693,7 +14675,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Re-read the scene into the table (the header's refresh button).",
-              "line": 747,
+              "line": 746,
               "deprecated": false
             },
             {
@@ -14702,7 +14684,7 @@
               "kind": "method",
               "signature": "(self, widget)",
               "summary": "Mark the path cell red when its file is missing (amber when over-long",
-              "line": 856,
+              "line": 855,
               "deprecated": false
             },
             {
@@ -14711,7 +14693,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the project's texture folder in the file explorer.",
-              "line": 1213,
+              "line": 1188,
               "deprecated": false
             },
             {
@@ -14720,7 +14702,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Re-read every scene texture from disk.",
-              "line": 1223,
+              "line": 1198,
               "deprecated": false
             },
             {
@@ -14729,7 +14711,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Repath the scope's textures under a chosen directory.",
-              "line": 1233,
+              "line": 1208,
               "deprecated": false
             },
             {
@@ -14738,7 +14720,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Open the Find & Copy panel over the current scope.",
-              "line": 1277,
+              "line": 1252,
               "deprecated": false
             },
             {
@@ -14747,7 +14729,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Rewrite the scope's paths inside the project to relative;",
-              "line": 1297,
+              "line": 1272,
               "deprecated": false
             },
             {
@@ -14756,7 +14738,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Rewrite the scope's relative paths to absolute -- inverse of Normalize.",
-              "line": 1321,
+              "line": 1296,
               "deprecated": false
             },
             {
@@ -14765,7 +14747,7 @@
               "kind": "method",
               "signature": "(self, widget=None)",
               "summary": "Rebind the scope's missing textures to files found in the project's",
-              "line": 1351,
+              "line": 1326,
               "deprecated": false
             },
             {
@@ -14774,7 +14756,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select the rows whose textures the scene selection's materials read.",
-              "line": 1372,
+              "line": 1347,
               "deprecated": false
             },
             {
@@ -14783,7 +14765,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select the rows whose texture file is missing.",
-              "line": 1388,
+              "line": 1363,
               "deprecated": false
             },
             {
@@ -14792,7 +14774,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Select the rows whose path is stored absolute -- Normalize candidates",
-              "line": 1402,
+              "line": 1377,
               "deprecated": false
             },
             {
@@ -14801,7 +14783,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Repath the row's texture to a picked file (several rows: a folder).",
-              "line": 1485,
+              "line": 1460,
               "deprecated": false
             },
             {
@@ -14810,7 +14792,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Rename one row's texture file, edited in its own cell: the path cell",
-              "line": 1698,
+              "line": 1673,
               "deprecated": false
             },
             {
@@ -14819,7 +14801,7 @@
               "kind": "method",
               "signature": "(self, row: int, col: int)",
               "summary": "An edited cell: the shader / node cells rename what they name, the",
-              "line": 1740,
+              "line": 1715,
               "deprecated": false
             },
             {
@@ -14828,7 +14810,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Select the scene objects using the selected rows' materials (a",
-              "line": 1860,
+              "line": 1835,
               "deprecated": false
             },
             {
@@ -14837,7 +14819,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Select the selected rows' texture nodes.",
-              "line": 1879,
+              "line": 1854,
               "deprecated": false
             },
             {
@@ -14846,7 +14828,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Graph the selected rows' textures in the node editor.",
-              "line": 1893,
+              "line": 1868,
               "deprecated": false
             },
             {
@@ -14855,7 +14837,7 @@
               "kind": "method",
               "signature": "(self, selection=None)",
               "summary": "Delete the selected rows' texture nodes, confirmed with what it would",
-              "line": 1901,
+              "line": 1876,
               "deprecated": false
             },
             {
@@ -14864,7 +14846,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Open the Find & Copy panel over EVERY texture in the scene -- the",
-              "line": 2030,
+              "line": 2005,
               "deprecated": false
             },
             {
@@ -14873,7 +14855,7 @@
               "kind": "method",
               "signature": "(self)",
               "summary": "Drop the scene-change subscriptions.",
-              "line": 2420,
+              "line": 2400,
               "deprecated": false
             }
           ]
@@ -16050,7 +16032,7 @@
         {
           "name": "Tcl",
           "summary": "Launch tentacle in whichever DCC is hosting this process.",
-          "line": 395,
+          "line": 333,
           "bases": [
             "_TclInternal"
           ],
@@ -16061,7 +16043,7 @@
               "kind": "classmethod",
               "signature": "(cls)",
               "summary": "The DCC hosting this process (``'maya'``/``'blender'``), or None.",
-              "line": 407,
+              "line": 345,
               "deprecated": false
             },
             {
@@ -16070,7 +16052,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "True when *host* runs with no GUI to build a menu for (:attr:`HEADLESS`).",
-              "line": 426,
+              "line": 364,
               "deprecated": false
             },
             {
@@ -16079,7 +16061,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None, include_self=True)",
               "summary": "Every ecosystem distribution THIS install actually uses, for *host*.",
-              "line": 448,
+              "line": 386,
               "deprecated": false
             },
             {
@@ -16088,7 +16070,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "Release the host resources an in-place reload would ORPHAN.",
-              "line": 478,
+              "line": 416,
               "deprecated": false
             },
             {
@@ -16097,7 +16079,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "Re-execute the ecosystem packages in dependency order, in place.",
-              "line": 539,
+              "line": 477,
               "deprecated": false
             },
             {
@@ -16106,7 +16088,7 @@
               "kind": "staticmethod",
               "signature": "(instances)",
               "summary": "Schedule deletion of the pre-reload marking menus in *instances*.",
-              "line": 578,
+              "line": 516,
               "deprecated": false
             },
             {
@@ -16115,7 +16097,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None)",
               "summary": "Normalize an activation key to its Qt name: ``'Z'`` and ``'Key_Z'`` both → ``'Key_Z'``.",
-              "line": 594,
+              "line": 532,
               "deprecated": false
             },
             {
@@ -16124,7 +16106,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, context_tags=None)",
               "summary": "The activation key to launch with: **user-persisted > ``key_show`` > :attr:`DEFAULT_KEY`**.",
-              "line": 604,
+              "line": 542,
               "deprecated": false
             },
             {
@@ -16133,7 +16115,7 @@
               "kind": "staticmethod",
               "signature": "(context_tags=None)",
               "summary": "The shared tools no host in *context_tags* serves (``slots.tools.HOSTS``):",
-              "line": 634,
+              "line": 572,
               "deprecated": false
             },
             {
@@ -16142,7 +16124,7 @@
               "kind": "staticmethod",
               "signature": "(switchboard)",
               "summary": "Register on *switchboard* what every host shares (CODE_STANDARD section 3).",
-              "line": 657,
+              "line": 595,
               "deprecated": false
             },
             {
@@ -16151,7 +16133,7 @@
               "kind": "classmethod",
               "signature": "(cls, switchboard) -> None",
               "summary": "Let *switchboard*'s external-app handler open extapps' apps by name.",
-              "line": 695,
+              "line": 633,
               "deprecated": false
             },
             {
@@ -16160,7 +16142,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, chord_target=None)",
               "summary": "The default chord→menu table for ``key_show`` (bare or Qt-named).",
-              "line": 720,
+              "line": 658,
               "deprecated": false
             },
             {
@@ -16169,7 +16151,7 @@
               "kind": "staticmethod",
               "signature": "(string, outputToConsole=True)",
               "summary": "Format a string using preset variables.",
-              "line": 740,
+              "line": 678,
               "deprecated": false
             },
             {
@@ -16178,7 +16160,7 @@
               "kind": "classmethod",
               "signature": "(cls, template=None, force=False)",
               "summary": "Print the startup banner — the one sanctioned emitter of :meth:`greeting`.",
-              "line": 777,
+              "line": 715,
               "deprecated": false
             },
             {
@@ -16187,7 +16169,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The engine package for *host* (``mayatk`` / ``blendertk``), imported.",
-              "line": 810,
+              "line": 748,
               "deprecated": false
             },
             {
@@ -16195,8 +16177,8 @@
               "qualname": "Tcl.host_adapter",
               "kind": "classmethod",
               "signature": "(cls, host=None, toolkit=None)",
-              "summary": "A new ``uitk.MarkingMenuHost`` adapter for *host*: its toolkit's",
-              "line": 823,
+              "summary": "A new adapter for *host*: the class :attr:`ADAPTERS` names on its toolkit",
+              "line": 761,
               "deprecated": false
             },
             {
@@ -16205,7 +16187,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None, adapter=None, key_show=None, **kwargs)",
               "summary": "Build tentacle's marking menu for *host* now, and return it.",
-              "line": 831,
+              "line": 770,
               "deprecated": false
             },
             {
@@ -16214,7 +16196,7 @@
               "kind": "classmethod",
               "signature": "(cls, key_show=None, **kwargs)",
               "summary": "Start tentacle in the host DCC, deferring startup the way that host requires.",
-              "line": 932,
+              "line": 872,
               "deprecated": false
             },
             {
@@ -16222,8 +16204,8 @@
               "qualname": "Tcl.reload",
               "kind": "classmethod",
               "signature": "(cls)",
-              "summary": "Settings > Reload Scripts: tear tentacle down, reload the ecosystem in",
-              "line": 979,
+              "summary": "Settings > Reload Scripts: tear tentacle down, reload the ecosystem in place",
+              "line": 919,
               "deprecated": false
             },
             {
@@ -16232,7 +16214,7 @@
               "kind": "classmethod",
               "signature": "(cls, host)",
               "summary": "Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.",
-              "line": 221,
+              "line": 159,
               "deprecated": false
             },
             {
@@ -16241,7 +16223,7 @@
               "kind": "classmethod",
               "signature": "(cls, host=None)",
               "summary": "The pip line that installs *host*'s engine, naming the interpreter to use.",
-              "line": 343,
+              "line": 281,
               "deprecated": false
             }
           ]
@@ -16259,7 +16241,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Build the marking menu and return it (idempotent).",
-          "line": 219,
+          "line": 171,
           "deprecated": false
         },
         {
@@ -16268,7 +16250,7 @@
           "kind": "function",
           "signature": "(**kwargs)",
           "summary": "Blender add-on / startup entry.",
-          "line": 224,
+          "line": 176,
           "deprecated": false
         },
         {
@@ -16277,7 +16259,7 @@
           "kind": "function",
           "signature": "()",
           "summary": "Blender add-on teardown.",
-          "line": 229,
+          "line": 181,
           "deprecated": false
         },
         {
@@ -16285,8 +16267,8 @@
           "qualname": "reload",
           "kind": "function",
           "signature": "()",
-          "summary": "Reload the tentacle ecosystem in place and re-register.",
-          "line": 234,
+          "summary": "Reload the tentacle ecosystem in place and rebuild the menu -- the Blender \"Reload",
+          "line": 186,
           "deprecated": false
         },
         {
@@ -16295,15 +16277,15 @@
           "kind": "function",
           "signature": "()",
           "summary": "Return (and print) the live activation state.",
-          "line": 239,
+          "line": 193,
           "deprecated": false
         }
       ],
       "classes": [
         {
           "name": "BlenderHost",
-          "summary": "Blender add-on lifecycle: launch / register / unregister / reload.",
-          "line": 119,
+          "summary": "Blender add-on lifecycle: launch / register / unregister.",
+          "line": 124,
           "bases": [],
           "members": [
             {
@@ -16312,7 +16294,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Build tentacle's marking menu in Blender now and return it (``Tcl.build``).",
-              "line": 126,
+              "line": 131,
               "deprecated": false
             },
             {
@@ -16321,7 +16303,7 @@
               "kind": "staticmethod",
               "signature": "(**kwargs)",
               "summary": "Blender add-on / startup entry: build the menu (:meth:`launch`).",
-              "line": 140,
+              "line": 145,
               "deprecated": false
             },
             {
@@ -16330,15 +16312,6 @@
               "kind": "staticmethod",
               "signature": "()",
               "summary": "Blender add-on teardown: remove the keymap items + bridge operator.",
-              "line": 156,
-              "deprecated": false
-            },
-            {
-              "name": "reload",
-              "qualname": "BlenderHost.reload",
-              "kind": "staticmethod",
-              "signature": "()",
-              "summary": "Reload the tentacle ecosystem in place and re-register — the Blender \"Reload Scripts\".",
               "line": 161,
               "deprecated": false
             }

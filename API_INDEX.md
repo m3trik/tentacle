@@ -130,9 +130,9 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
   - methods: edit
 
 ### `slots/tools/_hierarchy_sync/controller.py` — The Hierarchy Sync panel's state: the reference path, the paths the user
-- constants: RECENT_LIMIT, LOG_LIMIT
+- constants: RECENT_LIMIT, LEGACY_RECENT_KEY, LOG_LIMIT
 - `class HierarchySyncController(pythontk.LoggingMixin)`
-  - methods: diff_result, reference_path, update_header_tooltips, clear_analysis, on_window_hidden, populate_reference_tree, refresh_trees, refresh_styling, ignored_set, is_path_ignored, clear_ignored_paths, effective_diff, log_diff_results, write_diff_report, coerce_str_list, get_recent_reference_scenes, save_recent_reference_scene
+  - methods: diff_result, reference_path, update_header_tooltips, clear_analysis, on_window_hidden, populate_reference_tree, refresh_trees, refresh_styling, ignored_set, is_path_ignored, clear_ignored_paths, effective_diff, log_diff_results, diff_records, write_diff_report, recent_references, get_recent_reference_scenes, save_recent_reference_scene
 
 ### `slots/tools/_hierarchy_sync/tree_matcher.py` — Find the Hierarchy Sync trees' items by the hierarchy paths a diff names.
 - constants: PLACEHOLDERS
@@ -274,7 +274,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 
 ### `slots/tools/_texture_combine/transfer_mode.py` — The Texture Combine panel's Transfer mode: UVs or textures, source -> targets.
 - `class TransferMode`
-  - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, passes, resolve_auto, source_note, auto_note, pair, gate, lightmap_probe, sync, run, derived_name, texture_pass, read_files, overwrite_note, lightmap_pass
+  - methods: ui, tk, terms, init_transfer, init_source, init_targets, init_resolution, init_uv_sets, init_lightmaps, source_tooltip, capture_source, select_source, clear_source, sync, run, report, refusal_text, source_note, auto_note, uv_note, texture_note, overwrite_note, lightmap_note
 
 ### `slots/tools/_texture_path_editor/collect_plan_table.py` — The Find & Copy panel's plan table: what a Collect would do, row by row.
 - `class CollectPlanTable`
@@ -513,7 +513,7 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `reload()`
 - `diagnose()`
 - `class BlenderHost`
-  - methods: launch, register, unregister, reload
+  - methods: launch, register, unregister
 
 ### `tentacle_installer.py` — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 - `register()`

@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Moved out (210)
+## Moved out (211)
 
 - `__init__.py::greeting` → `tentacle.Tcl.greeting` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
@@ -195,6 +195,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/maya/visualize.py::VisualizeSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/windows.py::WindowsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `tcl.py::QtPlatformUnavailable` → `blendertk.QtPlatformUnavailable` (from 0.17.0)
+- `tcl_blender.py::BlenderHost.reload` → `tentacle.Tcl.reload` (from 0.17.0)
 - `tcl_blender.py::Diagnostics` → `blendertk.ActivationDiagnostics` (from 0.17.0)
 - `tcl_blender.py::Diagnostics.report` → `blendertk.ActivationDiagnostics` (from 0.17.0)
 - `tcl_blender.py::TclBlender` → `tentacle.Tcl.build` (from 0.17.0)
@@ -215,7 +216,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `tcl_max.py::TclMax.showEvent` → `tentacle.Tcl.build` (from 0.17.0)
 - `tcl_maya.py::TclMaya` → `tentacle.Tcl.build` (from 0.17.0)
 
-## Added (1662)
+## Added (1660)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -703,7 +704,7 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController(class)`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_analysis(self) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.clear_ignored_paths(self) -> None`
-- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.coerce_str_list(value) -> List[str]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.diff_records(missing, extra, reparented, fuzzy_matches) -> List[ptk.HierarchyDifference]`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.diff_result(self) -> Optional[dict]`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.effective_diff(self) -> Dict[str, list]`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.get_recent_reference_scenes(self) -> List[str]`
@@ -712,12 +713,14 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.log_diff_results(self) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.on_window_hidden(self) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.populate_reference_tree(self, tree_widget, reference_path: str = None) -> None`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.recent_references(self)`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.reference_path(self) -> str`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_styling(self) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.refresh_trees(self, restore_selection: bool = True) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.save_recent_reference_scene(self, scene_path: str) -> None`
 - `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.update_header_tooltips(self) -> None`
-- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.write_diff_report(missing, extra, reparented, fuzzy_matches) -> Optional[str]`
+- `slots/tools/_hierarchy_sync/controller.py::HierarchySyncController.write_diff_report(cls, missing, extra, reparented, fuzzy_matches) -> Optional[str]`
+- `slots/tools/_hierarchy_sync/controller.py::LEGACY_RECENT_KEY(constant)`
 - `slots/tools/_hierarchy_sync/controller.py::LOG_LIMIT(constant)`
 - `slots/tools/_hierarchy_sync/controller.py::RECENT_LIMIT(constant)`
 - `slots/tools/_hierarchy_sync/tree_matcher.py::PLACEHOLDERS(constant)`
@@ -1053,30 +1056,26 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.auto_note(self, auto, do_textures, source_mode=None, lightmaps=False) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.capture_source(self) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.clear_source(self) -> None`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.derived_name(self, source, targets) -> str`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.gate(self, mode, scope, source, targets, do_uvs, do_textures, notes=('', ''))`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_lightmaps(self, widget) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_resolution(self, widget) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_source(self, widget) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_targets(self, widget) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_transfer(self, widget) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.init_uv_sets(self, src, dst) -> None`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_pass(self, targets, source, out_name) -> Tuple[str, bool]`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_probe(self)`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.overwrite_note(cls, before, results, warnings) -> str`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.pair(self, targets, sources, do_uvs)`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.passes(cls, source_mode, transfer_mode) -> Tuple[bool, bool]`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.read_files(self, targets) -> set`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.resolve_auto(self, source_meshes, has_lightmap=None) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.lightmap_note(self, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.overwrite_note(cls, result) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.refusal_text(self, result, auto_note='', source_note='') -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.report(self, result) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.run(self) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.select_source(self) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_note(self, mode) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.source_tooltip(self) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.sync(self) -> None`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.terms(self)`
-- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.texture_pass(self, targets, source) -> str`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.texture_note(self, result) -> str`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.tk(self)`
 - `slots/tools/_texture_combine/transfer_mode.py::TransferMode.ui(self)`
+- `slots/tools/_texture_combine/transfer_mode.py::TransferMode.uv_note(result) -> str`
 - `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable(class)`
 - `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.clear(self) -> None`
 - `slots/tools/_texture_path_editor/collect_plan_table.py::CollectPlanTable.destination_text(self, row) -> str`
