@@ -2311,6 +2311,11 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
         self.refresh_texture_table()
         if not (dry_run and (planned or plan.pending)):
             return None
+        # The engine says only that nothing was written; the button is ours.
+        logger = getattr(panel, "logger", None) or self.logger
+        logger.warning(
+            f"Press Apply to {self._find_mode(values)} and repath exactly this."
+        )
         return partial(
             self._commit_plan, node_names, dict(values, dry_run=False), lightmaps
         )

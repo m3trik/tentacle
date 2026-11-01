@@ -1237,6 +1237,20 @@ class TestFindAndCopyRun(_PanelCase):
         self.assertEqual(call.kwargs["lightmaps"], [{"map": "m.exr"}], "as previewed")
         self.assertEqual([r["owner"] for r in call.kwargs["plan"]], ["tex_a"])
 
+    def test_an_armed_preview_says_how_to_commit_it(self):
+        """The panel names its own button: the engine's report says only that
+        nothing was written (``ptk.FileCollect.preview``). Added: 2026-11-01"""
+        _slots, sb, _engine, commit, _lent = self._run(True, True)
+        self.assertTrue(callable(commit))
+        said = " ".join(
+            str(call.args[0]) for call in sb.form_panel.return_value.logger.mock_calls
+            if call.args
+        )
+        self.assertIn("Press Apply to copy and repath exactly this.", said)
+        _slots, sb, _engine, commit, _lent = self._run(False, True)
+        self.assertIsNone(commit)
+        self.assertNotIn("Apply", str(sb.form_panel.return_value.logger.mock_calls))
+
     def test_a_live_run_or_an_empty_preview_arms_nothing(self):
         self.assertIsNone(self._run(True, False)[3])
         self.assertIsNone(self._run(False, True)[3])
