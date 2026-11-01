@@ -11472,7 +11472,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Wire Reset to Defaults to uitk's shared reset grammar.",
-              "line": 503,
+              "line": 499,
               "deprecated": false
             },
             {
@@ -11481,7 +11481,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Populate the Packing combobox (Atlas by Material is the default) and",
-              "line": 707,
+              "line": 703,
               "deprecated": false
             },
             {
@@ -11490,7 +11490,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Populate the Scope combobox (Selected is the default) and hang the",
-              "line": 751,
+              "line": 747,
               "deprecated": false
             },
             {
@@ -11499,7 +11499,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Hang Select / Clear off the Exclude row (:meth:`_init_set_row`).",
-              "line": 940,
+              "line": 936,
               "deprecated": false
             },
             {
@@ -11508,7 +11508,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Make the selection the Exclude set;",
-              "line": 944,
+              "line": 940,
               "deprecated": false
             },
             {
@@ -11517,7 +11517,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Select the Exclude set's members (:meth:`_select_set_row`).",
-              "line": 948,
+              "line": 944,
               "deprecated": false
             },
             {
@@ -11526,7 +11526,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Remove the Exclude set;",
-              "line": 952,
+              "line": 948,
               "deprecated": false
             },
             {
@@ -11535,7 +11535,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Hang Select / Clear off the Isolate row (:meth:`_init_set_row`).",
-              "line": 957,
+              "line": 953,
               "deprecated": false
             },
             {
@@ -11544,7 +11544,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Make the selection the Isolate set;",
-              "line": 961,
+              "line": 957,
               "deprecated": false
             },
             {
@@ -11553,7 +11553,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Select the Isolate set's members (:meth:`_select_set_row`).",
-              "line": 965,
+              "line": 961,
               "deprecated": false
             },
             {
@@ -11562,7 +11562,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Remove the Isolate set;",
-              "line": 969,
+              "line": 965,
               "deprecated": false
             },
             {
@@ -11571,7 +11571,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Populate the Resolution combobox (value carried as item data,",
-              "line": 977,
+              "line": 973,
               "deprecated": false
             },
             {
@@ -11580,7 +11580,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Range and seed the Samples field in the host's units, and hang the",
-              "line": 1012,
+              "line": 1008,
               "deprecated": false
             },
             {
@@ -11589,7 +11589,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Seed GI Samples from the default tier, or hide it where the host's",
-              "line": 1043,
+              "line": 1039,
               "deprecated": false
             },
             {
@@ -11598,7 +11598,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Seed Bounces from the default tier, under the host engine's key for",
-              "line": 1052,
+              "line": 1048,
               "deprecated": false
             },
             {
@@ -11607,7 +11607,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Populate the Processor combobox (value carried as item data);",
-              "line": 1059,
+              "line": 1055,
               "deprecated": false
             },
             {
@@ -11616,7 +11616,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Add the folder browser and the Beside Material Textures toggle.",
-              "line": 1094,
+              "line": 1090,
               "deprecated": false
             },
             {
@@ -11625,7 +11625,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Add the Prefix / Suffix / Auto picker to the name-affix field.",
-              "line": 1208,
+              "line": 1204,
               "deprecated": false
             },
             {
@@ -11634,7 +11634,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "The Bake page's run button: bake the Scope minus the Exclude set",
-              "line": 1235,
+              "line": 1231,
               "deprecated": false
             },
             {
@@ -11643,7 +11643,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "Populate the page picker (Bake first);",
-              "line": 1454,
+              "line": 1450,
               "deprecated": false
             },
             {
@@ -11652,7 +11652,7 @@
               "kind": "method",
               "signature": "(self, index) -> None",
               "summary": "Show the picked page (:meth:`_refresh_page`).",
-              "line": 1470,
+              "line": 1466,
               "deprecated": false
             },
             {
@@ -11661,7 +11661,7 @@
               "kind": "method",
               "signature": "(self, widget) -> None",
               "summary": "The Manage table: one row per map the scene reads",
-              "line": 1494,
+              "line": 1490,
               "deprecated": false
             },
             {
@@ -11670,7 +11670,7 @@
               "kind": "method",
               "signature": "(self, kind: str) -> None",
               "summary": "The footer's **Select**: highlight the maps in *kind*'s state on",
-              "line": 1693,
+              "line": 1689,
               "deprecated": false
             },
             {
@@ -11679,7 +11679,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Open the highlighted map's folder in the file manager: its home,",
-              "line": 1751,
+              "line": 1747,
               "deprecated": false
             },
             {
@@ -11688,7 +11688,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Pack the highlighted split maps' groups into one atlas each, no",
-              "line": 1766,
+              "line": 1762,
               "deprecated": false
             },
             {
@@ -11697,7 +11697,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "The footer's **Fix All**: every map that needs it, once confirmed",
-              "line": 1844,
+              "line": 1840,
               "deprecated": false
             },
             {
@@ -11706,7 +11706,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Start tracking the selected untracked objects as they stand",
-              "line": 1966,
+              "line": 1962,
               "deprecated": false
             },
             {
@@ -11715,7 +11715,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Take the lightmaps off the selected objects, once confirmed.",
-              "line": 1990,
+              "line": 1986,
               "deprecated": false
             },
             {
@@ -11724,7 +11724,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Re-bake the selected baked objects the way each was baked, changed",
-              "line": 2040,
+              "line": 2036,
               "deprecated": false
             },
             {
@@ -11733,7 +11733,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Show the scene's bake state, map by map, in a viewer",
-              "line": 2076,
+              "line": 2072,
               "deprecated": false
             },
             {
@@ -11742,7 +11742,7 @@
               "kind": "method",
               "signature": "(self) -> None",
               "summary": "Open the bake's output folder in the file manager.",
-              "line": 2148,
+              "line": 2144,
               "deprecated": false
             }
           ]

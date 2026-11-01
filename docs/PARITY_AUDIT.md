@@ -10,8 +10,8 @@
 |:--|:--|:--|
 | **1. Menu buttons** | category `.ui` widgets with a handler in the one Slots class | 242 across 27 categories; hidden by `requires` on Maya 6, on Blender 10 *(presence)*; 0 hollow handlers |
 | **2. Category toolkit calls** | `self.tk` chains the categories call, per host | 377 chains at 466 sites; 21 one-host operations (hidden or guarded); **0 gap sites** |
-| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 761 chains at 1103 sites; 42 one-host operations; **0 gap sites** |
-| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1495/2377 names); 0 modules absent |
+| **3. Tool panels** | the shared tools, per host | 50 tools: 48 both, 2 maya; 760 chains at 1102 sites; 42 one-host operations; **0 gap sites** |
+| **4. Helper surface** | public names, Blender covers of mayatk | **63%** (1494/2376 names); 0 modules absent |
 
 **Bottom line:** the gate PASSES — 0 gap(s): a call one host cannot resolve, or a signature that does not take it. Helper library at 63% with 0 module(s) absent; a name blendertk lacks is a gap only where a shared panel calls it.
 
@@ -31,7 +31,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | display_utils | 61 | 63 | 40 | 66% |
 | edit_utils | 168 | 200 | 134 | 80% |
 | env_utils | 420 | 301 | 239 | 57% |
-| light_utils | 133 | 111 | 88 | 66% |
+| light_utils | 132 | 110 | 87 | 66% |
 | mat_utils | 365 | 290 | 259 | 71% |
 | node_utils | 170 | 87 | 78 | 46% |
 | nurbs_utils | 20 | 31 | 9 | 45% |
@@ -40,7 +40,7 @@ Idiom-neutral: all public functions + class methods flattened to bare names (so 
 | ui_utils | 82 | 130 | 39 | 48% |
 | uv_utils | 132 | 115 | 104 | 79% |
 | xform_utils | 92 | 46 | 41 | 45% |
-| **TOTAL (unique)** | **2377** | **1922** | **1495** | **63%** |
+| **TOTAL (unique)** | **2376** | **1921** | **1494** | **63%** |
 
 > Caveat: a Maya name with no Blender twin is often Maya machinery the Blender side does natively (`bpy.ops`) or does not need; it matters only where a shared panel calls it, which Layers 2-3 measure.
 
@@ -79,7 +79,7 @@ Each tool's one Slots class (`slots/tools/<tool>.py`, its helpers in `_<tool>/`)
 | image_tracer | both | 2 | 3 | 1 | 0 |
 | key_stash | both | 6 | 6 | 0 | 0 |
 | light_rig | maya | 26 | 37 | 0 | 0 |
-| lightmap_baker | both | 38 | 51 | 0 | 0 |
+| lightmap_baker | both | 37 | 50 | 0 | 0 |
 | marmoset_bridge | both | 2 | 2 | 0 | 0 |
 | mat_updater | both | 13 | 17 | 0 | 0 |
 | mirror | both | 10 | 13 | 1 | 0 |
