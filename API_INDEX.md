@@ -502,36 +502,18 @@ _Auto-generated. Do not edit by hand. Compact symbol index — grep this for a n
 - `class UvSlots(Slots)`
   - methods: get_map_size, cmb003, s003, header_init, uv_snapshot, uv_editor, tb000_init, tb000, tb001_init, tb001, tb004_init, tb004, tb007_init, tb007, tb009_init, tb009, b003, b004, b005, b011, b021, tb022_init, tb022, b029_init, b029, b030_init, b030, b031, b032, b033, b000_init, b000
 
-### `tcl.py` — The host-agnostic entry point — one launcher snippet for every DCC.
-- `class QtPlatformUnavailable(RuntimeError)`
+### `tcl.py` — The one launcher — the same marking menu, built the same way, in every DCC.
 - `class Tcl(_TclInternal)`
-  - methods: host, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, register_apps, chord_bindings, greeting, banner, launch, reload, engine_dists, engine_install_hint
+  - methods: host, headless, declared_dists, prepare_reload, reload_packages, dispose_retired, qt_key_name, resolve_key, unserved_tools, register_shared, register_apps, chord_bindings, greeting, banner, toolkit, host_adapter, build, launch, reload, engine_dists, engine_install_hint
 
-### `tcl_blender.py` — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
-- `ensure_qapp()`
-- `ensure_blender_widget(app)`
-- `start_event_pump(app, interval=0.01)`
-- `blender_native_window()`
+### `tcl_blender.py` — Blender add-on entry for tentacle's marking menu: the add-on stub over ``Tcl`` and blendertk.
 - `launch(**kwargs)`
 - `register(**kwargs)`
 - `unregister()`
 - `reload()`
 - `diagnose()`
-- `enable_click_debug()`
-- `disable_click_debug()`
-- `class TclBlender(MarkingMenu)`
-  - methods: get_main_window, set_activation_key, showEvent, keyPressEvent, keyReleaseEvent
-- `class Diagnostics`
-  - methods: report
 - `class BlenderHost`
   - methods: launch, register, unregister, reload
-
-### `tcl_max.py`
-- `class TclMax(MarkingMenu)`
-  - methods: get_main_window, showEvent, hideEvent
-
-### `tcl_maya.py`
-- `class TclMaya(MarkingMenu)`
 
 ### `tentacle_installer.py` — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 - `register()`

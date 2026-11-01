@@ -128,10 +128,8 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 - [`slots/transform.py`](#slots--transform) — Transform: one Slots class for both hosts.
 - [`slots/utilities.py`](#slots--utilities) — Utilities: one Slots class for both hosts.
 - [`slots/uv.py`](#slots--uv) — UV: one Slots class for both hosts.
-- [`tcl.py`](#tcl) — The host-agnostic entry point — one launcher snippet for every DCC.
-- [`tcl_blender.py`](#tcl_blender) — Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
-- [`tcl_max.py`](#tcl_max)
-- [`tcl_maya.py`](#tcl_maya)
+- [`tcl.py`](#tcl) — The one launcher — the same marking menu, built the same way, in every DCC.
+- [`tcl_blender.py`](#tcl_blender) — Blender add-on entry for tentacle's marking menu: the add-on stub over ``Tcl`` and blendertk.
 - [`tentacle_installer.py`](#tentacle_installer) — Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
 ---
@@ -140,7 +138,7 @@ _Auto-generated. Do not edit by hand. Refresh via `m3trik/scripts/generate_api_r
 ### `__init__.py`
 
 - [`DEFAULT_INCLUDE`](tentacle/tentacle/__init__.py#L9) — constant
-- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L20) — constant
+- [`MOVED_NAMES`](tentacle/tentacle/__init__.py#L17) — constant
 
 <a id="slots--_slots"></a>
 ### `slots/_slots.py`
@@ -2540,11 +2538,11 @@ UV: one Slots class for both hosts.
 <a id="tcl"></a>
 ### `tcl.py`
 
-The host-agnostic entry point — one launcher snippet for every DCC.
+The one launcher — the same marking menu, built the same way, in every DCC.
 
-- **[`class QtPlatformUnavailable(RuntimeError)`](tentacle/tentacle/tcl.py#L39)** — Qt cannot open a window in this host process, so the marking menu is off.
-- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L452)** — Launch tentacle in whichever DCC is hosting this process.
-  - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``/``'max'``), or None.
+- **[`class Tcl(_TclInternal)`](tentacle/tentacle/tcl.py#L395)** — Launch tentacle in whichever DCC is hosting this process.
+  - `Tcl.host(cls)` *(class)* — The DCC hosting this process (``'maya'``/``'blender'``), or None.
+  - `Tcl.headless(cls, host=None)` *(class)* — True when *host* runs with no GUI to build a menu for (:attr:`HEADLESS`).
   - `Tcl.declared_dists(cls, host=None, include_self=True)` *(class)* — Every ecosystem distribution THIS install actually uses, for *host*.
   - `Tcl.prepare_reload(cls, host=None)` *(class)* — Release the host resources an in-place reload would ORPHAN.
   - `Tcl.reload_packages(cls, host=None)` *(class)* — Re-execute the ecosystem packages in dependency order, in place.
@@ -2557,6 +2555,9 @@ The host-agnostic entry point — one launcher snippet for every DCC.
   - `Tcl.chord_bindings(cls, key_show=None, chord_target=None)` *(class)* — The default chord→menu table for ``key_show`` (bare or Qt-named).
   - `Tcl.greeting(string, outputToConsole=True)` *(static)* — Format a string using preset variables.
   - `Tcl.banner(cls, template=None, force=False)` *(class)* — Print the startup banner — the one sanctioned emitter of :meth:`greeting`.
+  - `Tcl.toolkit(cls, host=None)` *(class)* — The engine package for *host* (``mayatk`` / ``blendertk``), imported.
+  - `Tcl.host_adapter(cls, host=None, toolkit=None)` *(class)* — A new ``uitk.MarkingMenuHost`` adapter for *host*: its toolkit's
+  - `Tcl.build(cls, host=None, adapter=None, key_show=None, **kwargs)` *(class)* — Build tentacle's marking menu for *host* now, and return it.
   - `Tcl.launch(cls, key_show=None, **kwargs)` *(class)* — Start tentacle in the host DCC, deferring startup the way that host requires.
   - `Tcl.reload(cls)` *(class)* — Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
   - `Tcl.engine_dists(cls, host)` *(class)* — Distribution names ``pyproject``'s ``[project.optional-dependencies]`` declares for *host*.
@@ -2565,54 +2566,27 @@ The host-agnostic entry point — one launcher snippet for every DCC.
 <a id="tcl_blender"></a>
 ### `tcl_blender.py`
 
-Blender entry point for tentacle's Qt marking menu — host + keymap bridge + launcher in one.
+Blender add-on entry for tentacle's marking menu: the add-on stub over ``Tcl`` and blendertk.
 
-- [`ensure_qapp()`](tentacle/tentacle/tcl_blender.py#L2248) — Return the process QApplication, creating one if Blender has none.
-- [`ensure_blender_widget(app)`](tentacle/tentacle/tcl_blender.py#L2253) — Establish ``app.blender_widget`` — the parent for the marking menu.
-- [`start_event_pump(app, interval=0.01)`](tentacle/tentacle/tcl_blender.py#L2258) — Pump Qt events from Blender's timer loop so the Qt UI stays responsive (idempotent).
-- [`blender_native_window()`](tentacle/tentacle/tcl_blender.py#L2263) — Blender's main GHOST window wrapped as a foreign ``QWindow`` (cached on the QApplication).
-- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2268) — Stand up the Qt host and return a :class:`TclBlender` (idempotent).
-- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L2273) — Blender add-on / startup entry.
-- [`unregister()`](tentacle/tentacle/tcl_blender.py#L2278) — Blender add-on teardown.
-- [`reload()`](tentacle/tentacle/tcl_blender.py#L2283) — Reload the tentacle ecosystem in place and re-register.
-- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L2288) — Return (and print) the live activation state.
-- [`enable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2293) — Turn on the opt-in click tracer.
-- [`disable_click_debug()`](tentacle/tentacle/tcl_blender.py#L2298) — Remove the click tracer.
-- **[`class TclBlender(MarkingMenu)`](tentacle/tentacle/tcl_blender.py#L1504)** — Marking Menu class overridden for use with Blender.
-  - `TclBlender.get_main_window(cls)` *(class)* — Blender parent widget for the marking menu (set by :meth:`_QtHost.ensure_widget`).
-  - `TclBlender.set_activation_key(self, new_key)` — Rebind the activation key — and move Blender's half of the binding with it.
-  - `TclBlender.showEvent(self, event)`
-  - `TclBlender.keyPressEvent(self, event)`
-  - `TclBlender.keyReleaseEvent(self, event)`
-- **[`class Diagnostics`](tentacle/tentacle/tcl_blender.py#L2013)** — The live-activation-state report — run in Blender's Python console to see why the key isn't
-  - `Diagnostics.report(emit=True)` *(static)* — Return (and, when ``emit``, print) the live activation state — run in Blender's Python
-- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L2126)** — Launcher + Blender add-on lifecycle coordinator — ties the Qt host, keymap bridge and menu
-  - `BlenderHost.launch(**kwargs)` *(static)* — Stand up the Qt host (QApplication + ``blender_widget`` + event pump) and return a
-  - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: stand up the host.
+- [`launch(**kwargs)`](tentacle/tentacle/tcl_blender.py#L219) — Build the marking menu and return it (idempotent).
+- [`register(**kwargs)`](tentacle/tentacle/tcl_blender.py#L224) — Blender add-on / startup entry.
+- [`unregister()`](tentacle/tentacle/tcl_blender.py#L229) — Blender add-on teardown.
+- [`reload()`](tentacle/tentacle/tcl_blender.py#L234) — Reload the tentacle ecosystem in place and re-register.
+- [`diagnose()`](tentacle/tentacle/tcl_blender.py#L239) — Return (and print) the live activation state.
+- **[`class BlenderHost`](tentacle/tentacle/tcl_blender.py#L119)** — Blender add-on lifecycle: launch / register / unregister / reload.
+  - `BlenderHost.launch(**kwargs)` *(static)* — Build tentacle's marking menu in Blender now and return it (``Tcl.build``).
+  - `BlenderHost.register(**kwargs)` *(static)* — Blender add-on / startup entry: build the menu (:meth:`launch`).
   - `BlenderHost.unregister()` *(static)* — Blender add-on teardown: remove the keymap items + bridge operator.
   - `BlenderHost.reload()` *(static)* — Reload the tentacle ecosystem in place and re-register — the Blender "Reload Scripts".
-
-<a id="tcl_max"></a>
-### `tcl_max.py`
-
-- **[`class TclMax(MarkingMenu)`](tentacle/tentacle/tcl_max.py#L12)** — Marking Menu class overridden for use with Autodesk 3ds Max.
-  - `TclMax.get_main_window(cls)` *(class)* — Get the 3DS MAX main window.
-  - `TclMax.showEvent(self, event)`
-  - `TclMax.hideEvent(self, event)`
-
-<a id="tcl_maya"></a>
-### `tcl_maya.py`
-
-- **[`class TclMaya(MarkingMenu)`](tentacle/tentacle/tcl_maya.py#L9)** — Marking Menu class overridden for use with Autodesk Maya.
 
 <a id="tentacle_installer"></a>
 ### `tentacle_installer.py`
 
 Install, update or uninstall tentacle in a DCC -- one file, dropped in, no administrator rights.
 
-- [`register()`](tentacle/tentacle/tentacle_installer.py#L2279) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
-- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L2285) — Blender add-on teardown.
-- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L2291) — Maya drop hook: first drop installs and launches;
+- [`register()`](tentacle/tentacle/tentacle_installer.py#L2288) — Blender add-on entry: preferences UI, then finish any pending verb / install / launch.
+- [`unregister()`](tentacle/tentacle/tentacle_installer.py#L2294) — Blender add-on teardown.
+- [`onMayaDroppedPythonFile(*_args)`](tentacle/tentacle/tentacle_installer.py#L2300) — Maya drop hook: first drop installs and launches;
 - **[`class TentacleInstaller`](tentacle/tentacle/tentacle_installer.py#L94)** — Provision tentacle into the host's per-user import dir, launch it, update or remove it.
   - `TentacleInstaller.host()` *(static)* — ``"blender"`` / ``"maya"`` for the DCC this interpreter is embedded in, else None.
   - `TentacleInstaller.headless(host)` *(static)* — True with no UI to report into (``blender --background``, ``mayapy`` / ``maya -batch``).

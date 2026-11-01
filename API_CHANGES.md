@@ -2,7 +2,7 @@
 
 _Diff vs the last release (origin/main @ 08708eb0)._
 
-## Moved out (190)
+## Moved out (210)
 
 - `__init__.py::greeting` → `tentacle.Tcl.greeting` (from 0.17.0)
 - `slots/_animation.py::AnimationMixin` → `tentacle.slots.animation.AnimationSlots` (from 0.17.0)
@@ -194,8 +194,28 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/maya/transform.py::TransformSlots.setTransformSnap` → `tentacle.slots.transform.TransformSlots` (from 0.17.0)
 - `slots/maya/visualize.py::VisualizeSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
 - `slots/maya/windows.py::WindowsSlots` → `mayatk.MayaUiHandler` (from 0.17.0)
+- `tcl.py::QtPlatformUnavailable` → `blendertk.QtPlatformUnavailable` (from 0.17.0)
+- `tcl_blender.py::Diagnostics` → `blendertk.ActivationDiagnostics` (from 0.17.0)
+- `tcl_blender.py::Diagnostics.report` → `blendertk.ActivationDiagnostics` (from 0.17.0)
+- `tcl_blender.py::TclBlender` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.get_main_window` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.keyPressEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.keyReleaseEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.set_activation_key` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::TclBlender.showEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_blender.py::blender_native_window` → `blendertk.BlenderWindow.main_qwindow` (from 0.17.0)
+- `tcl_blender.py::disable_click_debug` → `blendertk.ClickDebugger.disable` (from 0.17.0)
+- `tcl_blender.py::enable_click_debug` → `blendertk.ClickDebugger.enable` (from 0.17.0)
+- `tcl_blender.py::ensure_blender_widget` → `blendertk.QtRuntime.ensure_widget` (from 0.17.0)
+- `tcl_blender.py::ensure_qapp` → `blendertk.QtRuntime.ensure_qapp` (from 0.17.0)
+- `tcl_blender.py::start_event_pump` → `blendertk.QtRuntime.start_pump` (from 0.17.0)
+- `tcl_max.py::TclMax` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.get_main_window` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.hideEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_max.py::TclMax.showEvent` → `tentacle.Tcl.build` (from 0.17.0)
+- `tcl_maya.py::TclMaya` → `tentacle.Tcl.build` (from 0.17.0)
 
-## Added (1658)
+## Added (1662)
 
 - `__init__.py::MOVED_NAMES(constant)`
 - `slots/_slots.py::Slots.activate_tool(self, tool) -> bool`
@@ -1850,10 +1870,14 @@ _Diff vs the last release (origin/main @ 08708eb0)._
 - `slots/uv.py::UvSlots.tb022_init(self, widget)`
 - `slots/uv.py::UvSlots.uv_editor(self)`
 - `slots/uv.py::UvSlots.uv_snapshot(self)`
+- `tcl.py::Tcl.build(cls, host=None, adapter=None, key_show=None, **kwargs)`
 - `tcl.py::Tcl.greeting(string, outputToConsole=True)`
+- `tcl.py::Tcl.headless(cls, host=None)`
+- `tcl.py::Tcl.host_adapter(cls, host=None, toolkit=None)`
 - `tcl.py::Tcl.register_apps(cls, switchboard) -> None`
 - `tcl.py::Tcl.register_shared(switchboard)`
 - `tcl.py::Tcl.reload(cls)`
+- `tcl.py::Tcl.toolkit(cls, host=None)`
 - `tcl.py::Tcl.unserved_tools(context_tags=None)`
 
 ## Moved (825)
