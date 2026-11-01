@@ -44,6 +44,7 @@ def _fake_bpy():
     """
     module = types.ModuleType("bpy")
     module.app = mock.MagicMock()
+    module.app.background = False  # a Blender with a UI, unless a test says otherwise
     return module
 
 
@@ -450,6 +451,129 @@ class TestLaunchDispatch(unittest.TestCase):
                 Tcl.launch()
         self.assertIn("no supported DCC host", str(ctx.exception))
         self.assertNotIn("Max", str(ctx.exception))
+
+
+class TestHeadlessLaunch(unittest.TestCase):
+    """A host with no GUI to build for (``mayapy`` / ``maya -batch``, ``blender --background``)
+    is a quiet no-op, decided BEFORE the toolkit is imported: ``userSetup.py`` runs in every
+    headless Maya session -- every test chunk included -- and importing mayatk's root there
+    costs a third of a second for nothing (batch has no GUI Qt; building a QWidget on Maya's
+    non-GUI stub takes the interpreter down natively)."""
+
+    def _probe_module(self, host, headless):
+        if host == "maya":
+            module = types.ModuleType("maya.cmds")
+            module.about = lambda batch=False: headless if batch else None
+            return "maya.cmds", module
+        module = _fake_bpy()
+        module.app.background = headless
+        return "bpy", module
+
+    def test_a_headless_launch_imports_no_toolkit(self):
+        engines = set(Tcl.ENGINES.values())
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                name, module = self._probe_module(host, headless=True)
+                resolved = []
+                before = set(sys.modules)
+                with (
+                    mock.patch.object(Tcl, "host", classmethod(lambda cls, h=host: h)),
+                    mock.patch.dict(sys.modules, {name: module}),
+                    mock.patch.object(
+                        Tcl,
+                        "toolkit",
+                        classmethod(lambda cls, h=None: resolved.append(h)),
+                    ),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    self.assertIsNone(Tcl.launch())
+                self.assertEqual(resolved, [], "a headless launch resolved the toolkit")
+                new = {m for m in set(sys.modules) - before if m.split(".")[0] in engines}
+                self.assertEqual(new, set(), "a headless launch imported the toolkit")
+
+    def test_each_host_says_whether_it_is_headless(self):
+        for host in Tcl.HOSTS:
+            for headless in (True, False):
+                with self.subTest(host=host, headless=headless):
+                    name, module = self._probe_module(host, headless)
+                    with mock.patch.dict(sys.modules, {name: module}):
+                        self.assertIs(Tcl.headless(host), headless)
+
+    def test_an_unanswerable_probe_assumes_a_gui(self):
+        """``cmds.about`` raises in a mayapy before ``standalone.initialize``: unknown is not
+        headless (the launch goes on, as the Maya check always did)."""
+        module = types.ModuleType("maya.cmds")
+
+        def about(**_kw):
+            raise RuntimeError("not initialized")
+
+        module.about = about
+        with mock.patch.dict(sys.modules, {"maya.cmds": module}):
+            self.assertIs(Tcl.headless("maya"), False)
+        self.assertIs(Tcl.headless("other"), False)
+
+
+class TestMissingToolkitReachesTheUser(unittest.TestCase):
+    """A launch in Blender whose toolkit (blendertk) is missing cannot be reported by the
+    toolkit's adapter -- it is the missing part -- so the launcher shows it: a popup on a
+    one-shot timer (a startup script has no window yet), else the console. Raised instead,
+    Blender prints the install line to the SYSTEM console, hidden by default on Windows, and
+    the user sees the launcher do nothing. Scoped to the ImportError: anything else keeps its
+    traceback."""
+
+    MISSING = (
+        "tentacle: the blender engine (blendertk) is not installed. "
+        'Install it with:  python -m pip install "tentacletk[blender]"'
+    )
+
+    def _launch_without_a_toolkit(self, bpy, error, host="blender"):
+        def toolkit(cls, h=None):
+            raise error
+
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: host)),
+            mock.patch.dict(sys.modules, {"bpy": bpy}),
+            mock.patch.object(Tcl, "toolkit", classmethod(toolkit)),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            return Tcl.launch()
+
+    def test_the_install_line_reaches_a_popup(self):
+        bpy, drawn = _fake_bpy(), []
+
+        def _popup(draw, **_kw):
+            menu = mock.MagicMock()
+            menu.layout.label.side_effect = lambda text: drawn.append(text)
+            draw(menu, None)
+
+        bpy.context = mock.MagicMock()
+        bpy.context.window_manager.popup_menu.side_effect = _popup
+        self.assertIsNone(self._launch_without_a_toolkit(bpy, ImportError(self.MISSING)))
+        callback = bpy.app.timers.register.call_args.args[0]
+        self.assertIs(bpy.app.timers.register.call_args.kwargs.get("persistent"), True)
+        bpy.context.window_manager.popup_menu.assert_not_called()  # waits for a window
+        self.assertIsNone(callback())  # one shot
+        self.assertEqual(" ".join(drawn), self.MISSING)
+        self.assertIn('Install it with:  python -m pip install "tentacletk[blender]"', drawn)
+
+    def test_a_popup_that_cannot_render_falls_back_to_the_console(self):
+        bpy = _fake_bpy()
+        bpy.context = mock.MagicMock()
+        bpy.context.window_manager.popup_menu.side_effect = RuntimeError("no window")
+        self._launch_without_a_toolkit(bpy, ImportError(self.MISSING))
+        callback = bpy.app.timers.register.call_args.args[0]
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertIsNone(callback())
+        self.assertIn("tentacletk[blender]", out.getvalue())
+
+    def test_a_real_bug_keeps_its_traceback(self):
+        with self.assertRaises(ValueError):
+            self._launch_without_a_toolkit(_fake_bpy(), ValueError("a real bug"))
+
+    def test_maya_raises_into_its_script_editor(self):
+        """Maya shows a startup script's traceback where the user looks: no popup needed."""
+        with self.assertRaises(ImportError):
+            self._launch_without_a_toolkit(_fake_bpy(), ImportError("x"), host="maya")
 
 
 class _StubToolkit(types.ModuleType):

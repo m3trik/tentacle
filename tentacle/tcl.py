@@ -72,6 +72,64 @@ class _TclInternal:
     #: Env var naming the DEFAULT activation key when a launch names none.
     KEY_ENV = "TENTACLE_KEY"
 
+    #: host -> (module, attribute, call kwargs) that answers "no GUI to build a menu for"
+    #: (``mayapy`` / ``maya -batch``, ``blender --background``). Read BEFORE the toolkit is
+    #: imported, so a headless start -- every test chunk's ``userSetup.py`` -- pays nothing
+    #: for a menu it cannot have (batch Maya has no GUI Qt: a QWidget on its stub takes the
+    #: interpreter down natively). ``None`` kwargs read the attribute as a value.
+    HEADLESS = {
+        "maya": ("maya.cmds", "about", {"batch": True}),
+        "blender": ("bpy", "app.background", None),
+    }
+
+    #: host -> the method that shows an error carrying its fix when the host's toolkit --
+    #: whose adapter would show it -- is the part that failed to import. A host not listed
+    #: raises it (Maya shows a startup script's traceback in its script editor).
+    STARTUP_ERROR_REPORTERS = {"blender": "_report_blender_startup_error"}
+
+    @staticmethod
+    def _report_blender_startup_error(error):
+        """Show *error* in Blender on a one-shot timer, falling back to the console.
+
+        A startup script runs before Blender has a window (``popup_menu`` raises
+        'context "window" is None' there), so the popup waits for a timer tick;
+        ``persistent`` keeps the timer through the .blend a start may open. Raised
+        instead, the error would print to the SYSTEM console -- hidden by default on
+        Windows -- and the user would see the launcher simply do nothing, though the
+        message carries its fix (the install line).
+
+        The message is split on sentences and line breaks rather than drawn as one
+        label: Blender does not wrap a ``layout.label``, so the pip line -- the part
+        the user has to read -- would be clipped at the popup's edge.
+        """
+        import bpy
+
+        text = str(error)
+
+        def show():
+            try:
+                # Split AFTER the terminator, keeping it: appending "." to each
+                # piece double-punctuates the last one -- and the last one is the
+                # pip line, the part that has to be readable.
+                lines = [
+                    s
+                    for s in (p.strip() for p in re.split(r"(?<=\.)\s+|\n", text))
+                    if s
+                ]
+
+                def draw(self, _context):
+                    for line in lines:
+                        self.layout.label(text=line)
+
+                bpy.context.window_manager.popup_menu(
+                    draw, title="Tentacle", icon="ERROR"
+                )
+            except Exception:  # noqa: BLE001 -- no UI context; the console is all that is left
+                print(f"[tentacle] {text}")
+            return None  # one shot
+
+        bpy.app.timers.register(show, first_interval=0.1, persistent=True)
+
     #: Distribution this package installs as — the base of every ``[extra]`` spec. Each
     #: extra is named after a HOSTS key above, so ``host()`` resolves which one applies.
     DIST = "tentacletk"
@@ -363,6 +421,28 @@ class Tcl(_TclInternal):
             except ImportError:
                 continue
         return None
+
+    @classmethod
+    def headless(cls, host=None):
+        """True when *host* runs with no GUI to build a menu for (:attr:`HEADLESS`).
+
+        Asks the host's own module, never the toolkit, so it costs nothing before a
+        launch decides to import one. An answer the host cannot give (``cmds.about`` in a
+        ``mayapy`` before ``standalone.initialize``) and a host with no probe read as a
+        GUI, as the launch always assumed.
+        """
+        host = cls.host() if host is None else host
+        spec = cls.HEADLESS.get(host)
+        if spec is None:
+            return False
+        module, attribute, call = spec
+        try:
+            value = importlib.import_module(module)
+            for part in attribute.split("."):
+                value = getattr(value, part)
+            return bool(value(**call) if call is not None else value)
+        except Exception:  # unanswerable: assume a GUI
+            return False
 
     @classmethod
     def declared_dists(cls, host=None, include_self=True):
@@ -852,9 +932,12 @@ class Tcl(_TclInternal):
     def launch(cls, key_show=None, **kwargs):
         """Start tentacle in the host DCC, deferring startup the way that host requires.
 
-        Resolves the host's adapter (:meth:`host_adapter`) and builds the menu
-        (:meth:`build`) through the adapter's ``defer``: Maya's idle queue (a quiet no-op
-        in batch), Blender's one-shot timer.
+        A host with no GUI to build for (:meth:`headless`) is a quiet no-op, decided before
+        the toolkit is imported. Otherwise resolves the host's adapter (:meth:`host_adapter`)
+        and builds the menu (:meth:`build`) through the adapter's ``defer``: Maya's idle
+        queue, Blender's one-shot timer. A toolkit that fails to import is shown where the
+        user looks on a host that would hide it (:attr:`STARTUP_ERROR_REPORTERS`: Blender's
+        popup) and raised elsewhere.
 
         Parameters:
             key_show (str): DEFAULT activation key — bare (``'Z'``, ``'Space'``) or Qt-named
@@ -866,17 +949,28 @@ class Tcl(_TclInternal):
 
         Returns:
             The marking-menu instance when startup is immediate (a ``mayapy`` with no idle
-            queue), else None — a deferred build has nothing to hand back yet.
+            queue), else None — a deferred build, a headless host and a reported error
+            have nothing to hand back.
 
         Raises:
             RuntimeError: No supported DCC detected (see :meth:`host`).
-            ImportError: The host's engine is not installed (the message names the fix).
+            ImportError: The host's engine is not installed (the message names the fix),
+                on a host with no startup-error reporter.
         """
         host = cls.host()
         if host is None:
             raise RuntimeError(cls._no_host_message())
         cls.banner()
-        adapter = cls.host_adapter(host)
+        if cls.headless(host):
+            return None
+        try:
+            adapter = cls.host_adapter(host)
+        except ImportError as error:
+            report = cls.STARTUP_ERROR_REPORTERS.get(host)
+            if report is None:
+                raise
+            getattr(cls, report)(error)
+            return None
         return adapter.defer(
             lambda: cls.build(host, adapter=adapter, key_show=key_show, **kwargs)
         )
