@@ -296,9 +296,8 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
             default="convention",
             convention_key="material",
             settings_key="texture_path_editor_shader_affix",
-            on_change=lambda _mode, w=shader_affix: self._apply_shader_affix_hint(w),
+            noun=labels["shader"],  # the placeholder and tooltip follow the mode
         )
-        self._apply_shader_affix_hint(shader_affix)
         flyout.add(
             self.sb.registered_widgets.LineEdit,
             setObjectName="txt_file_node_suffix",
@@ -1039,30 +1038,6 @@ class TexturePathEditorSlots(Slots, ptk.LoggingMixin):
         """What the engine's renames take as ``sync``: the affixes while Keep
         Names In Sync is on, ``None`` while it is off."""
         return self._sync_affixes() if self._sync_names_enabled() else None
-
-    def _apply_shader_affix_hint(self, widget) -> None:
-        """The material affix field's placeholder and tooltip, per its mode."""
-        noun = self.labels["shader"]
-        mode = widget.option_box.affix_mode
-        hints = {
-            "convention": (
-                "Scene Convention",
-                "The material takes the scene's naming convention for materials "
-                "(edit it in the Naming panel's Suffix By Type).\nClick the "
-                "button beside the field to type your own instead.",
-            ),
-            "prefix": (f"{noun} Prefix", "Prepended to the base name: MAT_stone."),
-            "suffix": (f"{noun} Suffix", "Appended to the base name: stone_MAT."),
-        }
-        placeholder, tip = hints.get(
-            mode,
-            (
-                f"{noun} Affix",
-                "Placement read from the '_': '_MAT' is a suffix, 'MAT_' a prefix.",
-            ),
-        )
-        widget.setPlaceholderText(placeholder)
-        widget.setToolTip(tip)
 
     # ------------------------------------------------------------------
     # Scope -- the selected rows, else everything shown

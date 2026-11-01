@@ -253,45 +253,10 @@ class GameShaderSlots(Slots, ptk.LoggingMixin):
         """Add a prefix/suffix/auto-mode picker to the affix field."""
         widget.option_box.set_affix(
             default="prefix",
-            on_change=lambda _mode, w=widget: self._apply_affix_placeholder(w),
             settings_key="game_shader_affix",  # ``txt002`` alone is too generic
             convention_key="material",  # fourth state: the shared convention
+            noun="Material",  # the field's placeholder and tooltip follow the mode
         )
-        self._apply_affix_placeholder(widget)
-
-    @staticmethod
-    def _apply_affix_placeholder(widget):
-        mode = widget.option_box.affix_mode
-        if mode == "prefix":
-            widget.setPlaceholderText("Prefix")
-            widget.setToolTip(
-                "Prefix prepended to the material name.\n"
-                'Example: "MAT_" + "brick" → "MAT_brick".'
-            )
-        elif mode == "suffix":
-            widget.setPlaceholderText("Suffix")
-            widget.setToolTip(
-                "Suffix appended to the material name.\n"
-                'Example: "brick" + "_MAT" → "brick_MAT".'
-            )
-        elif mode == "convention":
-            # The field is showing (and locked to) the shared convention, so
-            # the placeholder would never be seen — name the source instead, so
-            # a user wondering why they cannot type has the answer in the tip.
-            widget.setPlaceholderText("Scene Convention")
-            widget.setToolTip(
-                "Following the shared naming convention for materials.\n"
-                "Edit it in the Naming panel (Suffix By Type); every tool set "
-                "to this mode follows.\n"
-                "Click the button beside the field to type your own instead."
-            )
-        else:  # auto
-            widget.setPlaceholderText("Affix")
-            widget.setToolTip(
-                "Affix — placement inferred from '_' position.\n"
-                "  '_MAT' → suffix (appended)\n"
-                "  'MAT_' → prefix (prepended)"
-            )
 
     def b000(self):
         """Create Network: pick texture files and build their material(s)."""

@@ -21,6 +21,7 @@ from pathlib import Path
 from unittest import mock
 
 import pythontk as ptk
+from uitk import FooterApply
 
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots._slots import Slots
@@ -76,6 +77,7 @@ def _panel(tk=None, scope="Selection", dry_run=False, selection=("|a", "|b")):
     before the panel is built, as ``Slots.tk`` is). The fake host's selection
     scope reads *selection*."""
     sb = mock.MagicMock()
+    sb.FooterApply = FooterApply  # the real affordance over the mock footer
     if tk is not None:
         sb.tk = tk
     else:
@@ -129,16 +131,18 @@ class TestNamingPanelSetup(_PanelCase):
             "action://select?node=a", slots.logger
         )
 
-    def test_the_footer_apply_button_starts_hidden(self):
+    def test_the_footer_has_no_apply_button_until_a_dry_run_arms_one(self):
         slots, sb = _panel()
         footer = sb.loaded_ui.naming.footer
+        footer.add_action_button.assert_not_called()
+        self.assertIsNone(slots._apply.button)
+        slots._apply.arm(lambda: None)
         footer.add_action_button.assert_called_once_with(
             text="Apply",
             icon_name="check",
             tooltip="Apply the changes the last dry run previewed.",
-            callback=slots._apply_dry_run,
+            callback=slots._apply.apply,
         )
-        slots._apply_btn.setVisible.assert_called_once_with(False)
 
     def test_the_header_builds_base_names_and_dry_run(self):
         slots, sb = _panel()
@@ -476,7 +480,7 @@ class TestNamingPanelScene(_PanelCase):
         slots.txt001(ui.txt001)
         self.assertIs(sb.tk.Naming.rename.call_args.kwargs["dry_run"], True)
         sb.tk.CoreUtils.undo_chunk.assert_not_called()
-        slots._apply_btn.setVisible.assert_called_with(True)
+        slots._apply.button.setVisible.assert_called_with(True)
         ui.footer.setText.assert_called_with(
             "Dry run — Apply to commit", level="warning"
         )
@@ -485,13 +489,13 @@ class TestNamingPanelScene(_PanelCase):
         # selection since the preview change nothing.
         ui.txt001.text.return_value = "**_WRONG"
         sb.tk.Naming.scope_objects.side_effect = lambda scene=False: ["|other"]
-        slots._apply_dry_run()
+        slots._apply.apply()
         args, kwargs = sb.tk.Naming.rename.call_args
         self.assertEqual(args, (["|a", "|b"], "**_v2", ui.txt000.text.return_value))
         self.assertIs(kwargs["dry_run"], False)
         sb.tk.CoreUtils.undo_chunk.assert_called_once_with("Rename")
-        self.assertIsNone(slots._pending)
-        slots._apply_btn.setVisible.assert_called_with(False)
+        self.assertIsNone(slots._apply.pending)
+        slots._apply.button.setVisible.assert_called_with(False)
 
     def test_scene_only_operations_report_in_a_file_scope(self):
         for button, engine, label in (
@@ -630,11 +634,11 @@ class TestNamingPanelFiles(_PanelCase):
             self.listing(),
             ["note.txt", "rock_AO.png", "rock_Normal.png", "rock_ORM.1001.png"],
         )
-        slots._apply_btn.setVisible.assert_called_with(True)
+        slots._apply.button.setVisible.assert_called_with(True)
 
         ui.txt001.text.return_value = "**_WRONG"  # the armed call is frozen
-        slots._apply_dry_run()
-        self.assertIsNone(slots._pending)
+        slots._apply.apply()
+        self.assertIsNone(slots._apply.pending)
         self.assertEqual(
             self.listing(),
             [
@@ -657,7 +661,7 @@ class TestNamingPanelFiles(_PanelCase):
                 slots, sb, ui = self._directory_panel(dry_run=True)
                 self._find(slots, ui, "")
                 self._rename(slots, ui, "**_v2")
-                self.assertIsNotNone(slots._pending)
+                self.assertIsNotNone(slots._apply.pending)
                 if stale == "scope change":
                     _set_scope(ui, "Selection")
                     slots._on_scope_changed()
@@ -665,8 +669,8 @@ class TestNamingPanelFiles(_PanelCase):
                     self._write()
                     sb.dir_dialog.side_effect = lambda *a, **k: ""
                     self._rename(slots, ui, "**_v2")
-                self.assertIsNone(slots._pending)
-                slots._apply_btn.setVisible.assert_called_with(False)
+                self.assertIsNone(slots._apply.pending)
+                slots._apply.button.setVisible.assert_called_with(False)
 
 
 @unittest.skipUnless(MAYA_AVAILABLE, "drives the real mtk; runs in a fresh Maya")

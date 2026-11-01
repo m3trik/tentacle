@@ -89,41 +89,9 @@ class ImageToPlaneSlots(Slots):
         widget.option_box.clear_option = True
         widget.option_box.set_affix(
             default="auto",
-            on_change=lambda _mode, w=widget: self._apply_affix_placeholder(w),
             convention_key="material",  # fourth state: the shared convention
+            noun="Material",  # the field's placeholder and tooltip follow the mode
         )
-        self._apply_affix_placeholder(widget)
-
-    @staticmethod
-    def _apply_affix_placeholder(widget):
-        mode = widget.option_box.affix_mode
-        if mode == "prefix":
-            widget.setPlaceholderText("Material Prefix")
-            widget.setToolTip(
-                "Prefix prepended to the image name for material naming.\n"
-                'Example: image "brick" with prefix "MAT_" → material "MAT_brick".'
-            )
-        elif mode == "suffix":
-            widget.setPlaceholderText("Material Suffix")
-            widget.setToolTip(
-                "Suffix appended to the image name for material naming.\n"
-                'Example: image "brick" with suffix "_MAT" → material "brick_MAT".'
-            )
-        elif mode == "convention":
-            widget.setPlaceholderText("Scene Convention")
-            widget.setToolTip(
-                "Following the shared naming convention for materials.\n"
-                "Edit it in the Naming panel (Suffix By Type); every tool set "
-                "to this mode follows.\n"
-                "Click the button beside the field to type your own instead."
-            )
-        else:  # auto
-            widget.setPlaceholderText("Material Affix")
-            widget.setToolTip(
-                "Material affix — placement inferred from '_' position.\n"
-                "  '_MAT' → suffix (appended)\n"
-                "  'MAT_' → prefix (prepended)"
-            )
 
     def _material_affix(self):
         """The field's ``(prefix, suffix)``; empty, the shared convention's.

@@ -50,6 +50,16 @@ class HostBridge(Slots.ParamPanelSlots):
     #: The host toolkit (``mtk`` / ``btk``) the entry point set on the switchboard.
     tk = Slots.tk
 
+    #: The Output Dir row's words for a hand-off to another application (uitk's
+    #: defaults name no artifact).
+    OUTPUT_DIR_PLACEHOLDER = "(blank: the bridge's default)"
+    OUTPUT_DIR_TOOLTIP = (
+        "Directory where the export artifacts (FBX, manifest, rendered\n"
+        "scripts, baked maps) all land. Leave blank to let the bridge\n"
+        "choose: hand-off intermediates go to a temp folder, and what\n"
+        "is kept goes to the scene's project."
+    )
+
     # ------------------------------------------------------------------ engine
     @property
     def bridge_class(self):

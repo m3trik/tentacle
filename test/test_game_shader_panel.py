@@ -290,21 +290,15 @@ class TestGameShaderWidgets(_PanelCase):
         header.set_help_text.assert_called_once()
 
     def test_the_affix_field_follows_its_mode(self):
+        """The placeholder and tooltip follow the mode: uitk's ``AffixOption``
+        names them for the noun (``"Material Prefix"``)."""
         slots, _ = _panel()
         widget = mock.MagicMock()
-        for mode, placeholder in (
-            ("prefix", "Prefix"),
-            ("suffix", "Suffix"),
-            ("convention", "Scene Convention"),
-            ("auto", "Affix"),
-        ):
-            with self.subTest(mode=mode):
-                widget.option_box.affix_mode = mode
-                slots.txt002_init(widget)
-                widget.setPlaceholderText.assert_called_with(placeholder)
+        slots.txt002_init(widget)
+        kwargs = widget.option_box.set_affix.call_args.kwargs
         self.assertEqual(
-            widget.option_box.set_affix.call_args.kwargs["settings_key"],
-            "game_shader_affix",
+            (kwargs["settings_key"], kwargs["noun"], kwargs["convention_key"]),
+            ("game_shader_affix", "Material", "material"),
         )
 
 

@@ -19,6 +19,7 @@ import unittest
 from unittest import mock
 
 import pythontk as ptk
+from uitk import FooterApply
 
 from _host import MAYA_AVAILABLE, maya_module
 from tentacle.slots._slots import Slots
@@ -80,6 +81,7 @@ def _panel(
     before the panel is built, as ``Slots.tk`` is); returns it and the
     switchboard. ``slots.calls`` records each ``update_materials`` call."""
     sb = mock.MagicMock()
+    sb.FooterApply = FooterApply  # the real affordance over the fake footer
     if tk is not None:
         sb.tk = tk
     else:
@@ -308,8 +310,8 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
 
         self.assertEqual(len(slots.calls), 1)
         self.assertIs(slots.calls[0]["config"]["dry_run"], True)
-        self.assertTrue(slots._apply_btn.isVisible())
-        self.assertIsNotNone(slots._pending)
+        self.assertTrue(slots._apply.button.isVisible())
+        self.assertIsNotNone(slots._apply.pending)
         self.assertEqual(slots.ui.footer.status[1], "warning")
 
     def test_a_live_run_never_arms(self):
@@ -318,13 +320,13 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
 
         self.assertEqual(len(slots.calls), 1)
         self.assertIs(slots.calls[0]["config"]["dry_run"], False)
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertIsNone(slots._apply.button, "never armed, never built")
+        self.assertIsNone(slots._apply.pending)
 
     def test_apply_commits_the_previewed_call_with_dry_run_off(self):
         slots, _ = _panel(dry_run=True)
         slots.b001()
-        slots._apply_dry_run()
+        slots._apply.apply()
 
         self.assertEqual(len(slots.calls), 2)
         preview, commit = slots.calls
@@ -338,8 +340,8 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
         )
         self.assertEqual(preview["materials"], commit["materials"])
         # And it disarms: the plan has been spent.
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertFalse(slots._apply.button.isVisible())
+        self.assertIsNone(slots._apply.pending)
         self.assertIsNone(slots._committing)
         self.assertEqual(slots.ui.footer.status, ("", None))
 
@@ -364,7 +366,7 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
             return {}
 
         slots.engine.update_materials = _reenter
-        slots._apply_dry_run()
+        slots._apply.apply()
 
         self.assertTrue(reentered, "the probe never re-entered b001")
         self.assertEqual(len(slots.calls), 3, "expected preview, commit, new run")
@@ -381,7 +383,7 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
         slots.b001()
         self.assertEqual(slots.calls[0]["materials"], ["previewed_mat"])
 
-        slots._apply_dry_run()  # the artist has moved on meanwhile
+        slots._apply.apply()  # the artist has moved on meanwhile
 
         self.assertEqual(slots.calls[1]["materials"], ["previewed_mat"])
         self.assertEqual(engine.selected_materials.call_count, 1)
@@ -392,21 +394,21 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
         slots.b001()  # the panel reports the failure; it must not propagate
 
         self.assertEqual(len(slots.calls), 1)
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertIsNone(slots._apply.button, "never armed, never built")
+        self.assertIsNone(slots._apply.pending)
 
     def test_a_new_run_supersedes_the_armed_plan(self):
         slots, _ = _panel(dry_run=True)
         slots.b001()
-        self.assertTrue(slots._apply_btn.isVisible())
+        self.assertTrue(slots._apply.button.isVisible())
 
         slots.ui.header.menu.chk_dry_run.isChecked.return_value = False
         slots.b001()  # a live run of its own, not the armed plan
 
         self.assertEqual(len(slots.calls), 2)
         self.assertIs(slots.calls[1]["config"]["dry_run"], False)
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertFalse(slots._apply.button.isVisible())
+        self.assertIsNone(slots._apply.pending)
 
     def test_an_aborted_run_clears_the_report_and_the_plan(self):
         """An empty scope ("Nothing selected.") is a new run: it supersedes the
@@ -423,23 +425,23 @@ class TestMatUpdaterDryRunArmsApply(_PanelCase):
 
         self.assertEqual(len(slots.calls), 1)  # nothing ran
         self.assertGreater(txt001.clear.call_count, cleared_after_preview)
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertFalse(slots._apply.button.isVisible())
+        self.assertIsNone(slots._apply.pending)
 
     def test_changing_the_selection_mode_disarms(self):
         """The plan was built over the old mode's material set."""
         slots, _ = _panel(dry_run=True)
         slots.b001()
-        self.assertTrue(slots._apply_btn.isVisible())
+        self.assertTrue(slots._apply.button.isVisible())
 
-        slots._disarm_apply("Selected Objects")  # what the combo's signal calls
+        slots._apply.disarm("Selected Objects")  # what the combo's signal calls
 
-        self.assertFalse(slots._apply_btn.isVisible())
-        self.assertIsNone(slots._pending)
+        self.assertFalse(slots._apply.button.isVisible())
+        self.assertIsNone(slots._apply.pending)
 
     def test_apply_without_a_plan_is_a_no_op(self):
         slots, _ = _panel(dry_run=True)
-        slots._apply_dry_run()
+        slots._apply.apply()
         self.assertEqual(slots.calls, [])
 
 
@@ -453,7 +455,7 @@ class TestMatUpdaterHeader(_PanelCase):
             ["Selected Objects", "All Scene Materials", "Browse..."],
         )
         added["cmb_selection_mode"].currentTextChanged.connect.assert_called_once_with(
-            slots._disarm_apply
+            slots._apply.disarm
         )
 
     def test_the_shader_type_combo_lists_the_hosts_retype_targets(self):
@@ -552,7 +554,7 @@ class TestMatUpdaterPanelInMaya(_PanelCase):
         self.assertEqual(previewed, [first])
 
         self.cmds.select(second_geo, replace=True)  # the artist moves on
-        slots._apply_dry_run()
+        slots._apply.apply()
 
         self.assertEqual(slots.calls[1]["materials"], previewed)
         self.assertNotIn(second, slots.calls[1]["materials"])

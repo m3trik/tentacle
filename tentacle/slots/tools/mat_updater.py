@@ -29,12 +29,16 @@ class MatUpdaterSlots(Slots):
         super().__init__(switchboard)
         self.ui = self.sb.loaded_ui.mat_updater
         self.engine = self.tk.MatUpdater()
-        self._pending = None  # the live call an armed Apply button would make
-        self._committing = None  # that call, handed to b001 for one dispatch
-        # Built here rather than at the end of init: ``_disarm_apply`` is a
-        # signal handler (the selection-mode combo restores its state during
-        # header init) and reads this, so it must already be bound.
-        self._apply_btn = self._add_apply_button()
+        # The footer's Apply: holds the live call a dry run previewed. Built
+        # here rather than at the end of init: its ``disarm`` is a signal
+        # handler (the selection-mode combo restores its state during header
+        # init), so it must already be bound.
+        self._apply = self.sb.FooterApply(
+            getattr(self.ui, "footer", None),
+            self._apply_dry_run,
+            tooltip="Apply the update the last dry run previewed.",
+        )
+        self._committing = None  # the armed call, handed to b001 for one dispatch
 
         # Stream the engine's log into txt001. ``update_materials`` is a
         # classmethod logging through MatUpdater's class logger, so that is the
@@ -73,42 +77,8 @@ class MatUpdaterSlots(Slots):
     # Dry run / Apply
     # ------------------------------------------------------------------
 
-    def _add_apply_button(self):
-        """The footer button that commits the last dry run; hidden until one is armed."""
-        footer = getattr(self.ui, "footer", None)
-        if footer is None or not hasattr(footer, "add_action_button"):
-            return None
-        button = footer.add_action_button(
-            text="Apply",
-            icon_name="check",
-            tooltip="Apply the update the last dry run previewed.",
-            callback=self._apply_dry_run,
-        )
-        button.setVisible(False)
-        return button
-
-    def _arm_apply(self, commit) -> None:
-        """Hold *commit* -- the identical live call -- for the Apply button."""
-        self._pending = commit
-        if self._apply_btn is not None:
-            self._apply_btn.setVisible(True)
-            self.ui.footer.setText("Dry run — Apply to commit", level="warning")
-
-    def _disarm_apply(self, *_args) -> None:
-        """Drop any armed preview and hide the Apply button.
-
-        Gated on having been armed, not on ``isVisible()`` -- a child of an
-        unshown window reads as invisible however it was set, which would leave
-        the footer note behind.
-        """
-        was_armed = self._pending is not None
-        self._pending = None
-        if was_armed and self._apply_btn is not None:
-            self._apply_btn.setVisible(False)
-            self.ui.footer.setText("")
-
-    def _apply_dry_run(self) -> None:
-        """Commit the plan the last dry run previewed.
+    def _apply_dry_run(self, commit) -> None:
+        """Commit the plan the last dry run previewed (the footer Apply's click).
 
         Routed back through the Update button rather than called straight,
         because the commit is the run that actually writes: going through the
@@ -118,9 +88,6 @@ class MatUpdaterSlots(Slots):
         dialog and the spinner. ``b001`` consumes ``_committing`` and calls
         ``_begin``, which is what disarms this button.
         """
-        commit = self._pending
-        if commit is None:
-            return
         self._committing = commit
         try:
             self.ui.b001.click()
@@ -152,7 +119,7 @@ class MatUpdaterSlots(Slots):
         plan, including when it goes on to abort with nothing in scope.
         """
         self.ui.txt001.clear()
-        self._disarm_apply()
+        self._apply.disarm()
 
     def header_init(self, widget):
         """Format global options in the header menu."""
@@ -173,7 +140,7 @@ class MatUpdaterSlots(Slots):
         # A new mode stales any armed preview: the plan on screen was built
         # over the old mode's material set, and committing it under a mode the
         # panel no longer shows is exactly the surprise Apply exists to avoid.
-        cmb_mode.currentTextChanged.connect(self._disarm_apply)
+        cmb_mode.currentTextChanged.connect(self._apply.disarm)
         # Dry Run — kept at the top so it's the first thing reached under the
         # selection mode; simulate the run without writing files or editing nodes.
         widget.menu.add(
@@ -574,7 +541,7 @@ class MatUpdaterSlots(Slots):
             # re-resolving it at Apply is what that mode means; a resolved
             # list is copied so a later selection change cannot rewrite it.
             if dry_run:
-                self._arm_apply(
+                self._apply.arm(
                     partial(run, False, None if materials is None else list(materials))
                 )
         except Exception as e:

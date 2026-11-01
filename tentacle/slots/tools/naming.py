@@ -116,7 +116,10 @@ class NamingSlots(Slots):
         self.ui = self.sb.loaded_ui.naming
         self._files: List[str] = []  # working set for the Directory / Files scopes
         self._last_dir = ""
-        self._pending = None  # the live call an armed Apply button would make
+        # The footer's Apply: holds the live call a dry run previewed.
+        self._apply = self.sb.FooterApply(
+            getattr(self.ui, "footer", None), self._apply_dry_run
+        )
 
         self.ui.txt002.setText(self.msg_intro)
         self.ui.txt002.restore_state = False  # a report, not a setting
@@ -131,8 +134,6 @@ class NamingSlots(Slots):
         logger.setup_logging_redirect(self.ui.txt002)
         if hasattr(self.ui.txt002, "anchorClicked"):
             self.ui.txt002.anchorClicked.connect(self._on_log_link_clicked)
-
-        self._apply_btn = self._add_apply_button()
 
     @property
     def logger(self):
@@ -301,52 +302,16 @@ class NamingSlots(Slots):
     def _on_scope_changed(self, *_args) -> None:
         """A new scope re-gates the file-only options and stales any armed preview."""
         self._sync_scope_options()
-        self._disarm_apply()
+        self._apply.disarm()
 
     # ------------------------------------------------------------------
     # Dry run / Apply
     # ------------------------------------------------------------------
 
-    def _add_apply_button(self):
-        """The footer button that commits the last dry run; hidden until one is armed."""
-        footer = getattr(self.ui, "footer", None)
-        if footer is None or not hasattr(footer, "add_action_button"):
-            return None
-        button = footer.add_action_button(
-            text="Apply",
-            icon_name="check",
-            tooltip="Apply the changes the last dry run previewed.",
-            callback=self._apply_dry_run,
-        )
-        button.setVisible(False)
-        return button
-
-    def _arm_apply(self, commit) -> None:
-        """Hold *commit* — the identical live call — for the Apply button."""
-        self._pending = commit
-        if self._apply_btn is not None:
-            self._apply_btn.setVisible(True)
-            self.ui.footer.setText("Dry run — Apply to commit", level="warning")
-
-    def _disarm_apply(self) -> None:
-        """Drop any armed preview and hide the Apply button.
-
-        Gated on having been armed, not on ``isVisible()`` — a child of an
-        unshown window reads as invisible however it was set, which would leave
-        the footer note behind.
-        """
-        was_armed = self._pending is not None
-        self._pending = None
-        if self._apply_btn is not None and was_armed:
-            self._apply_btn.setVisible(False)
-            self.ui.footer.setText("")
-
-    def _apply_dry_run(self) -> None:
-        """Commit the plan the last dry run previewed."""
-        commit = self._pending
+    def _apply_dry_run(self, commit) -> None:
+        """Commit the plan the last dry run previewed (the footer Apply's click)."""
         self._begin()  # the applied run is an operation of its own, reported as one
-        if commit is not None:
-            commit()
+        commit()
 
     def _begin(self) -> None:
         """Start a new operation: clear the report and drop any pending preview.
@@ -355,7 +320,7 @@ class NamingSlots(Slots):
         run's plan, including when it goes on to abort with nothing in scope.
         """
         self.ui.txt002.clear()
-        self._disarm_apply()
+        self._apply.disarm()
 
     def _run(
         self, operation, targets, *args, before=None, after=None, undo=None, **kwargs
@@ -396,7 +361,7 @@ class NamingSlots(Slots):
         # Arm only once the preview has actually reported: an operation that
         # raised must not leave a button offering to commit it.
         result = run(True, targets)
-        self._arm_apply(partial(run, False, list(targets)))
+        self._apply.arm(partial(run, False, list(targets)))
         return result
 
     def _scene_targets(self) -> List:

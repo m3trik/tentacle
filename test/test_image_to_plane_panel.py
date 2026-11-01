@@ -90,19 +90,6 @@ class TestImageToPlanePanelSetup(_PanelCase):
         self.assertEqual(names, ["chk_group_result"])
         header.set_help_text.assert_called_once()
 
-    def test_the_affix_placeholder_follows_the_mode(self):
-        for mode, placeholder in (
-            ("prefix", "Material Prefix"),
-            ("suffix", "Material Suffix"),
-            ("convention", "Scene Convention"),
-            ("auto", "Material Affix"),
-        ):
-            with self.subTest(mode=mode):
-                widget = mock.MagicMock()
-                widget.option_box.affix_mode = mode
-                ImageToPlaneSlots._apply_affix_placeholder(widget)
-                widget.setPlaceholderText.assert_called_once_with(placeholder)
-
     def test_the_affix_field_gets_its_mode_picker(self):
         slots, _ = _panel()
         widget = mock.MagicMock()
@@ -110,9 +97,9 @@ class TestImageToPlanePanelSetup(_PanelCase):
         slots.txt_suffix_init(widget)
         kwargs = widget.option_box.set_affix.call_args.kwargs
         self.assertEqual(
-            (kwargs["default"], kwargs["convention_key"]), ("auto", "material")
+            (kwargs["default"], kwargs["convention_key"], kwargs["noun"]),
+            ("auto", "material", "Material"),
         )
-        widget.setPlaceholderText.assert_called_once_with("Material Affix")
 
 
 class TestImageToPlanePanelActions(_PanelCase):

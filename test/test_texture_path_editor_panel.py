@@ -263,15 +263,16 @@ class TestHeaderMenu(_PanelCase):
         )
         self.assertTrue(all(c["setChecked"] for c in calls))
 
-    def test_the_affix_hint_follows_the_mode(self):
-        slots, _sb = _panel()
-        field = mock.MagicMock()
-        field.option_box.affix_mode = "convention"
-        slots._apply_shader_affix_hint(field)
-        field.setPlaceholderText.assert_called_with("Scene Convention")
-        field.option_box.affix_mode = "prefix"
-        slots._apply_shader_affix_hint(field)
-        field.setPlaceholderText.assert_called_with("Shader Prefix")
+    def test_the_material_affix_field_names_the_hosts_shader(self):
+        """Its placeholder and tooltip follow the mode, named for the host's
+        shader noun (uitk's ``AffixOption(noun=)``)."""
+        for labels in (MAYA_LABELS, BLENDER_LABELS):
+            with self.subTest(shader=labels["shader"]):
+                _slots, _h, added = self._built(labels=labels)
+                field = added["chk_sync_names"][0].option_box.menu.add.return_value
+                kwargs = field.option_box.set_affix.call_args.kwargs
+                self.assertEqual(kwargs["noun"], labels["shader"])
+                self.assertEqual(kwargs["convention_key"], "material")
 
 
 class TestMenuStateReaders(_PanelCase):
