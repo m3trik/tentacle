@@ -16,12 +16,14 @@ documented snippet is the same two lines everywhere::
 shortcut editor (or a DCC-side rebind) persists and outranks it, so the snippet can keep
 naming its default without overwriting the user's choice (see :meth:`Tcl.resolve_key`).
 
-Nothing here is per host beyond :attr:`_TclInternal.HOSTS` detection: the host name names
-the toolkit (:attr:`_TclInternal.ENGINES`), its adapter (``<Host>MarkingMenuHost``), the
-chord menus' native-menu pages (``ui/<host>_menus``), the both-button chord's target
-(``<host>#startmenu``) and the ``context_tags`` the menus' ``requires`` tags filter on. What a
-host answers differently -- its main window, its activation-key half, its mouse, how its
-windows stack, its UI handler -- is its adapter's. This module is also the single source for
+Nothing in the launch and build is per host beyond :attr:`_TclInternal.HOSTS` detection: the
+host name names the toolkit (:attr:`_TclInternal.ENGINES`), its adapter
+(``<Host>MarkingMenuHost``), the chord menus' native-menu pages (``ui/<host>_menus``), the
+both-button chord's target (``<host>#startmenu``) and the ``context_tags`` the menus'
+``requires`` tags filter on. What a host answers differently -- its main window, its
+activation-key half, its mouse, how its windows stack, its UI handler -- is its adapter's.
+Settings > Reload is still a method per host (``_reload_maya`` / ``_reload_blender``): each
+tears down what that host holds before the reload. This module is also the single source for
 the **activation-key contract**: the ``Key_``-prefix normalization and the default chord→menu
 table (:meth:`Tcl.chord_bindings`). Import-safe everywhere — stdlib only; the toolkit is
 imported when a launch resolves its adapter (its root is lazy, so that costs only the
@@ -765,10 +767,13 @@ class Tcl(_TclInternal):
                     back to :attr:`KEY_ENV`, then :attr:`DEFAULT_KEY`, and a key the user
                     persisted outranks all of them (:meth:`resolve_key`).
             **kwargs: Forwarded to ``MarkingMenu`` (``parent``, ``slot_source``,
-                    ``log_level``, an explicit ``bindings`` dict, …).
+                    ``log_level``, an explicit ``bindings`` dict, …). A relative
+                    ``slot_source`` / ``widget_source`` is relative to this package.
 
         Returns:
-            uitk.MarkingMenu: The menu.
+            uitk.MarkingMenu: The menu -- the host's live one when it drives one already
+            (``adapter.live_menu()``: Blender's keymap bridge drives one per process), so a
+            repeat launch never stacks a second menu over it.
 
         Raises:
             RuntimeError: No supported DCC detected.
@@ -779,15 +784,25 @@ class Tcl(_TclInternal):
             raise RuntimeError(cls._no_host_message())
         toolkit = cls.toolkit(host)
         adapter = adapter if adapter is not None else cls.host_adapter(host, toolkit)
+        live = adapter.live_menu()
+        if live is not None:
+            return live
         adapter.start()  # Qt usable in this process (Blender provisions it) before any import
         from uitk import ExternalAppHandler, MarkingMenu
+
+        root = os.path.dirname(os.path.abspath(__file__))
+        for source in ("slot_source", "widget_source"):
+            # Relative to this package, as the per-host subclasses resolved them.
+            value = kwargs.get(source)
+            if isinstance(value, str) and not os.path.isabs(value):
+                kwargs[source] = os.path.join(root, value)
 
         tags = {host}
         key = cls.resolve_key(key_show or os.environ.get(cls.KEY_ENV), tags)
         bindings = kwargs.pop("bindings", None) or cls.chord_bindings(
             key, f"{host}#startmenu"
         )
-        ui = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ui")
+        ui = os.path.join(root, "ui")
         kwargs.setdefault("log_level", "WARNING")
         menu = MarkingMenu(
             # The chord menus' pages, and each host's native-menu pages: pure navigation

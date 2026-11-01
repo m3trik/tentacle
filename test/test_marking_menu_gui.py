@@ -37,13 +37,18 @@ from __future__ import annotations
 
 import unittest
 
+from _host import MAYA_AVAILABLE
+
 
 def _can_run_marking_menu_tests() -> bool:
     """True iff Maya's marking menu can be instantiated and shown.
 
     Needs real-widget Qt (not the mayapy.standalone stub) and a Maya
-    runtime — Maya's menu is built over mayatk.
+    runtime — Maya's menu is built over mayatk. ``MAYA_AVAILABLE`` (the suite's
+    shared probe) is what routes this module to ``--in-maya``.
     """
+    if not MAYA_AVAILABLE:
+        return False
     try:
         import maya.cmds as cmds
     except ImportError:

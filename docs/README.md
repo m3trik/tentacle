@@ -83,7 +83,7 @@ Submenu routing: a widget's `accessibleName` (e.g. `"cameras#lower"`) names the 
 
 ## Customization
 
-`Tcl.launch` forwards anything extra to the DCC's entry class:
+`Tcl.launch` forwards anything extra to `Tcl.build` and the `uitk.MarkingMenu` it makes (a relative `slot_source` is relative to the `tentacle` package):
 
 ```python
 Tcl.launch(

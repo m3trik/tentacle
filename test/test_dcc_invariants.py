@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SLOTS_ROOT = ROOT / "tentacle" / "slots"
 
 #: The hosts, none of which keeps a slot package of its own (``slots/<host>/``).
-HOSTS = ("maya", "blender", "max")
+HOSTS = ("maya", "blender")
 
 
 def _parse_classes(source):

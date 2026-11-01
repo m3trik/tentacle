@@ -469,6 +469,12 @@ class _StubToolkit(types.ModuleType):
             def attach(self, menu):
                 calls.append(("attach", menu))
 
+            def live_menu(self):
+                return toolkit.live
+
+        toolkit = self
+        self.live = None
+
         setattr(self, f"{host.title()}MarkingMenuHost", Adapter)
         self.ShotStore = types.SimpleNamespace(
             running_host=lambda: calls.append("shot store host")
@@ -505,7 +511,7 @@ class TestBuildMakesOneMenu(unittest.TestCase):
             except RuntimeError:
                 pass
 
-    def _launch(self, host):
+    def _launch(self, host, key_show="F9"):
         toolkit = _StubToolkit(host)
         from uitk import MarkingMenu
 
@@ -525,7 +531,7 @@ class TestBuildMakesOneMenu(unittest.TestCase):
             mock.patch.object(MarkingMenu, "__init__", counting_init),
             contextlib.redirect_stdout(io.StringIO()),
         ):
-            menu = Tcl.launch(key_show="F9")  # the pure defer builds at once
+            menu = Tcl.launch(key_show=key_show)  # the pure defer builds at once
         self.menus.extend(built)
         return toolkit, built, menu
 
@@ -560,6 +566,73 @@ class TestBuildMakesOneMenu(unittest.TestCase):
         self.assertIs(menu.sb.tk, toolkit)
         self.assertEqual(toolkit.calls.count("shot store host"), 1)
         self.assertEqual(toolkit.calls.count("macros"), 1)
+
+    def test_a_host_that_drives_a_live_menu_gets_it_back(self):
+        """Blender's keymap bridge drives one menu per process: a second launch hands it
+        back instead of stacking a second menu (and a second keymap wiring) over it."""
+        toolkit = _StubToolkit("blender")
+        from uitk import MarkingMenu
+
+        built = []
+        real_init = MarkingMenu.__init__
+
+        def counting_init(menu, *args, **kwargs):
+            built.append(menu)
+            real_init(menu, *args, **kwargs)
+
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: "blender")),
+            mock.patch.object(
+                Tcl, "_import_entry", classmethod(lambda cls, h, module, attr=None: toolkit)
+            ),
+            mock.patch.object(MarkingMenu, "__init__", counting_init),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            first = Tcl.launch()
+            self.menus.extend(built)
+            toolkit.live = first
+            second = Tcl.launch()
+        self.assertIs(second, first)
+        self.assertEqual(len(built), 1, "the live menu was built over")
+
+    def test_the_env_names_the_default_key(self):
+        """``TENTACLE_KEY`` (``Tcl.KEY_ENV``) is the default a launch names none for, on
+        every host; an explicit ``key_show`` names it over the env."""
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host), mock.patch.dict(
+                os.environ, {Tcl.KEY_ENV: "F7"}
+            ):
+                _toolkit, _built, menu = self._launch(host, key_show=None)
+                key = Tcl.resolve_key("F7", {host})
+                self.assertIn(key, menu.default_bindings)
+                _toolkit, _built, menu = self._launch(host, key_show="F8")
+                self.assertIn(Tcl.resolve_key("F8", {host}), menu.default_bindings)
+
+    def test_a_relative_slot_source_is_relative_to_tentacle(self):
+        """As the per-host subclasses resolved it (their module's folder), never uitk's."""
+        captured = {}
+        from uitk import MarkingMenu
+
+        real_init = MarkingMenu.__init__
+
+        def capturing_init(menu, *args, **kwargs):
+            captured.update(kwargs)
+            real_init(menu, *args, **kwargs)
+
+        toolkit = _StubToolkit("maya")
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: "maya")),
+            mock.patch.object(
+                Tcl, "_import_entry", classmethod(lambda cls, h, module, attr=None: toolkit)
+            ),
+            mock.patch.object(MarkingMenu, "__init__", capturing_init),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            menu = Tcl.build("maya", slot_source="slots")
+        self.menus.append(menu)
+        self.assertEqual(
+            os.path.normcase(captured["slot_source"]), os.path.normcase(str(PKG / "slots"))
+        )
 
     def test_qt_is_stood_up_before_the_menu(self):
         toolkit, _built, menu = self._launch("blender")
@@ -1467,7 +1540,7 @@ class TestReloadPackages(unittest.TestCase):
 
     def test_a_host_with_no_engine_drops_it_from_the_order(self):
         with self._stub_ptk(self._Report()) as calls:
-            Tcl.reload_packages("max")
+            Tcl.reload_packages("other")
         self.assertEqual(calls[0][1]["dependencies_first"], ("pythontk", "uitk"))
 
     def test_a_module_that_did_not_reload_is_named(self):

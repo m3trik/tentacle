@@ -132,11 +132,8 @@ class BlenderHost:
         ``key_show``, ``log_level``) and only take effect when a new instance is built.
         """
         Tcl.banner()  # no-op when Tcl.launch already bannered (once-per-process latch)
-        live = (
-            btk.KeymapBridge.tcl
-        )  # the menu the keymap bridge drives; None after unregister
-        if live is not None:
-            return live
+        # Tcl.build hands back the menu the keymap bridge drives (the adapter's
+        # live_menu); there is none after unregister.
         return Tcl.build("blender", **kwargs)
 
     @staticmethod
