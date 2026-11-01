@@ -62,6 +62,32 @@ def qt_widgets_available() -> bool:
     except Exception:
         return False
 
+
+def blendertk_on_path() -> bool:
+    """Put the sibling blendertk checkout on ``sys.path``; True iff blendertk resolves.
+
+    blendertk is no install of the workspace Python: a monorepo checkout keeps
+    its repo beside tentacle's, and without that repo on the path the monorepo
+    folder imports as an empty namespace package (every later module in the run
+    gets that instead) -- so a namespace match is no blendertk. CI's test job
+    checks out tentacle alone, where the Blender panel tests skip on this.
+    Found, not imported: an ImportError raised inside blendertk must still fail
+    its test loudly.
+    """
+    import importlib.util
+    import os
+    import sys
+
+    repo = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+        "blendertk",
+    )
+    if os.path.isdir(repo) and repo not in sys.path:
+        sys.path.insert(0, repo)
+    spec = importlib.util.find_spec("blendertk")
+    return spec is not None and spec.origin is not None
+
+
 def standalone_interpreter():
     """``(path, "")`` of a Python interpreter a test can spawn, or ``(None, reason)``.
 

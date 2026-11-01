@@ -27,11 +27,13 @@ import unittest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_API", "pyside6")
 
+from _host import blendertk_on_path
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-# blendertk is no install of the workspace Python: its repo goes on the path.
-_BLENDERTK = os.path.join(os.path.dirname(os.path.dirname(HERE)), "blendertk")
-if os.path.isdir(_BLENDERTK) and _BLENDERTK not in sys.path:
-    sys.path.insert(0, _BLENDERTK)
+#: blendertk is the sibling checkout's (or an install's): CI's test job has none.
+_needs_blendertk = unittest.skipUnless(
+    blendertk_on_path(), "blendertk is not on the path (a monorepo checkout)"
+)
 
 try:
     from qtpy import QtWidgets
@@ -45,6 +47,7 @@ if QtWidgets is not None:
     TestSandbox.activate()
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
 class TestShotManifestPanelLoads(unittest.TestCase):
     """The Shot Manifest panel loads through the real discovery + compile path."""
@@ -870,6 +873,7 @@ class TestShotManifestPanelLoads(unittest.TestCase):
         self.assertEqual(ctrl._user_ranges["A01"], (12.5, None))
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
 class TestShotManifestLocalEdits(unittest.TestCase):
     """Local Edits, acted out on the real panel: double-click a cell, type,
@@ -1442,6 +1446,7 @@ class TestShotManifestLocalEdits(unittest.TestCase):
         self.assertEqual(self.ctrl._sheet_steps[0].objects[0].behaviors, ["fade_in"])
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
 class TestShotManifestRowTags(unittest.TestCase):
     """Colour tags on the real panel: the ``.ui``'s tree carries the strip,
@@ -1544,6 +1549,7 @@ class TestShotManifestRowTags(unittest.TestCase):
         )
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
 class TestShotManifestUnlistedShots(unittest.TestCase):
     """mayatk's ``TestShotsTheDocDoesNotList`` on the real panel: a shot no
@@ -1683,6 +1689,7 @@ class TestShotManifestUnlistedShots(unittest.TestCase):
         self.assertEqual(self._names(), ["A01", "A01_2", "A02"])
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available (Blender headless Python)")
 class TestShotManifestIncrementalPlacement(unittest.TestCase):
     """mayatk's ``TestIncrementalPlacement`` on the real panel: on a built

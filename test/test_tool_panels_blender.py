@@ -13,18 +13,19 @@ never registered here, so nothing offers it. Maya's twin is
 """
 
 import os
-import sys
 import unittest
 from pathlib import Path
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ.setdefault("QT_API", "pyside6")
 
+from _host import blendertk_on_path
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-# blendertk is no install of the workspace Python: its repo goes on the path.
-_BLENDERTK = os.path.join(os.path.dirname(os.path.dirname(HERE)), "blendertk")
-if os.path.isdir(_BLENDERTK) and _BLENDERTK not in sys.path:
-    sys.path.insert(0, _BLENDERTK)
+#: blendertk is the sibling checkout's (or an install's): CI's test job has none.
+_needs_blendertk = unittest.skipUnless(
+    blendertk_on_path(), "blendertk is not on the path (a monorepo checkout)"
+)
 
 try:
     from qtpy import QtWidgets
@@ -43,6 +44,7 @@ if QtWidgets is not None:
 NEEDS_BPY = frozenset()
 
 
+@_needs_blendertk
 @unittest.skipIf(QtWidgets is None, "Qt not available")
 class TestEverySharedToolLoadsInBlender(unittest.TestCase):
     @classmethod

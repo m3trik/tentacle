@@ -29,7 +29,6 @@ pop (which need bpy) are proven under a live Blender by ``test/blender/blender_m
 from __future__ import annotations
 
 import os
-import sys
 import unittest
 from pathlib import Path
 
@@ -39,12 +38,10 @@ os.environ.setdefault("QT_API", "pyside6")
 _UI_DIR = Path(__file__).resolve().parents[1] / "tentacle" / "ui"
 _BLENDER_UI_DIR = _UI_DIR / "blender_menus"
 
-# blendertk is no install of the workspace Python: its repo goes on the path, or
-# the monorepo folder imports as an empty namespace package and every later
-# module in the run gets that instead.
-_BLENDERTK = str(Path(__file__).resolve().parents[2] / "blendertk")
-if os.path.isdir(_BLENDERTK) and _BLENDERTK not in sys.path:
-    sys.path.insert(0, _BLENDERTK)
+# blendertk is no install of the workspace Python: its repo goes on the path.
+from _host import blendertk_on_path, qt_widgets_available as _can_create_widgets  # noqa: E402
+
+blendertk_on_path()
 
 try:
     from qtpy import QtWidgets  # noqa: F401
@@ -58,8 +55,6 @@ try:
 except Exception:  # pragma: no cover - environment without a Qt binding / blendertk
     _QT_OK = False
 
-
-from _host import qt_widgets_available as _can_create_widgets
 
 
 _QT_OK = _QT_OK and _can_create_widgets()
