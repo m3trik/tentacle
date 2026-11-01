@@ -462,7 +462,11 @@ class LightmapBakerSlots(Slots, ptk.LoggingMixin):
         SELECTION, from the store's active pointer; every dial restores its own
         session value, so nothing is re-applied at open. That pointer owns the
         selection outright: a restored index would second-guess it against a
-        list that grows whenever a preset is saved.
+        list that grows whenever a preset is saved. A pointer on a name the
+        store no longer has -- a deleted preset, or the tier renamed from
+        ``quest`` to ``mobile``, which stopped resolving in mayatk 0.30.0 /
+        blendertk 0.23.0 -- opens on the placeholder: the combo never stands
+        another preset in for it.
         """
         baker = self.tk.LightmapBaker
         store = baker.preset_store()
@@ -475,14 +479,6 @@ class LightmapBakerSlots(Slots, ptk.LoggingMixin):
         # The manager's user-facing lines (a preset that fails to load) reach
         # this panel's log rather than only the console.
         self._presets.use_logger(self.logger)
-        # A pointer left on a retired tier name ("quest", now "mobile") names a
-        # preset the store no longer has; follow the rename rather than open
-        # on no selection.
-        active = self._presets.active_preset
-        if active and not self._presets.exists(active):
-            current = baker.preset_name(active)
-            if current != active:
-                self._presets.active_preset = current
         # Seeded ONCE per machine: a reset (or deleting the active user
         # preset) clears the pointer, and read as "never set" it was reseeded
         # on the next open -- the reset values then showed as that preset,

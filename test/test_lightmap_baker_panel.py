@@ -11,7 +11,7 @@ read back through the panel's own readers. The ``.ui`` is read as XML for the
 layout the panel relies on. Then the panel loads for real through Blender's
 handler (Qt, no bpy) over ``btk``, and in Maya drives the real ``mtk`` on a
 real scene. The engines' own side (``scope_meshes`` / ``scope_lights`` /
-``select`` / ``preset_name``, the bake) is the libraries':
+``select``, the bake) is the libraries':
 ``test_lightmap_baker.py`` in each.
 """
 
@@ -160,10 +160,6 @@ class _Engine:
     @classmethod
     def preset_store(cls):
         return _Store(cls.TIERS)
-
-    @classmethod
-    def preset_name(cls, name):
-        return {"quest": "mobile"}.get(name, name)
 
     @classmethod
     def scope_meshes(cls, scope):
@@ -959,7 +955,7 @@ class TestLightmapBakerPanelPresets(_PanelCase):
         ui.txt_output_dir.option_box.toggles[0].toggled.connect.assert_called_once()
         slots._presets.refresh_modified_state.assert_called()
 
-    # Seeding: once per machine; a pointer on a retired tier follows the rename.
+    # Seeding: once per machine; a pointer on a tier the store lacks stays put.
 
     def _open(self, settings, pointer):
         slots, sb, ui, tk = _panel()
@@ -992,10 +988,15 @@ class TestLightmapBakerPanelPresets(_PanelCase):
         self._open(settings, None)  # the first open seeds it
         self.assertIsNone(self._open(settings, None), "a reset cleared it")
 
-    def test_a_pointer_left_on_a_renamed_tier_follows_the_rename(self):
+    def test_a_pointer_left_on_the_removed_quest_tier_is_not_remapped(self):
+        """``quest`` (``mobile`` since 2026-09-23) stopped resolving in mayatk
+        0.30.0 / blendertk 0.23.0. The panel no longer moves a pointer left on
+        it onto ``mobile``: it names a preset the store lacks, which uitk's
+        combo shows as the placeholder -- as for a deleted preset -- and no
+        other tier stands in for it."""
         settings = self._Settings()
         settings.setValue(LightmapBakerSlots._PRESET_SEEDED_KEY, True)
-        self.assertEqual(self._open(settings, "quest"), "mobile")
+        self.assertEqual(self._open(settings, "quest"), "quest")
 
     # Reset to Defaults: uitk's grammar; what the panel owes is the pointer.
 
