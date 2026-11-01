@@ -386,7 +386,7 @@ class TestCombineMode(_PanelCase):
 
 
 class _TransferCase(_PanelCase):
-    """The run is the host's (``TextureTransfer.run``: ``ptk.TransferRun``
+    """The run is the host's (``TextureCombine.run_transfer``: ``ptk.TransferRun``
     over the host, pinned in pythontk's ``test_uv_transfer_run.py``): these
     cases hand the panel a ``ptk.TransferResult`` and read what it says, and
     read the rows it hands the run."""
@@ -395,7 +395,7 @@ class _TransferCase(_PanelCase):
         slots, sb, ui = _panel(
             values, host=host, mode="transfer", affix=affix, affix_mode=affix_mode
         )
-        sb.tk.TextureTransfer.run.return_value = (
+        slots.engine.run_transfer.return_value = (
             result if result is not None else ptk.TransferResult(mode="first")
         )
         slots.transfer.run()
@@ -403,8 +403,8 @@ class _TransferCase(_PanelCase):
 
     def _kwargs(self, values=None, **kwargs):
         slots, sb, ui = self._run(values=values, **kwargs)
-        sb.tk.TextureTransfer.run.assert_called_once()
-        return sb.tk.TextureTransfer.run.call_args.kwargs
+        slots.engine.run_transfer.assert_called_once()
+        return slots.engine.run_transfer.call_args.kwargs
 
 
 class TestTransferRows(_TransferCase):
@@ -428,9 +428,9 @@ class TestTransferRows(_TransferCase):
         slots, sb, ui = _panel(mode="transfer")
         slots.transfer.sources = ["|a"]
         slots.transfer.similarity = mock.MagicMock(**{"value.return_value": 0.7})
-        sb.tk.TextureTransfer.run.return_value = ptk.TransferResult(mode="first")
+        slots.engine.run_transfer.return_value = ptk.TransferResult(mode="first")
         slots.transfer.run()
-        kw = sb.tk.TextureTransfer.run.call_args.kwargs
+        kw = slots.engine.run_transfer.call_args.kwargs
         self.assertEqual((kw["stored"], kw["similarity"]), (["|a"], 0.7))
 
     def test_the_affix_picker(self):
@@ -457,7 +457,7 @@ class TestTransferRows(_TransferCase):
 
     def test_each_pass_names_its_progress_in_the_hosts_words(self):
         slots, sb, ui = self._run(host=BLENDER)
-        progress = sb.tk.TextureTransfer.run.call_args.kwargs["progress"]
+        progress = slots.engine.run_transfer.call_args.kwargs["progress"]
         tick = sb.progress.return_value.__enter__.return_value
         progress("uvs")
         tick.assert_called_with(text="Working: Transfer UV Map")
@@ -474,7 +474,7 @@ class TestTransferRows(_TransferCase):
             result.typed = typed
             slots, sb, ui = _panel(mode="transfer")
             slots._name_recent = mock.MagicMock()  # the Output Name's history
-            sb.tk.TextureTransfer.run.return_value = result
+            slots.engine.run_transfer.return_value = result
             slots.transfer.run()
             self.assertEqual(slots._name_recent.record.call_args_list, recorded)
 
@@ -741,14 +741,16 @@ class TestTextureCombinePanelInMaya(_PanelCase):
 
     def _capture_textures(self):
         captured = []
-        real = self.mtk.TextureTransfer
 
-        class Capturing(real):
-            def transfer(self, targets, source=None, **kwargs):
-                captured.append((list(targets), source, kwargs))
-                return {"m": {"baseColor": "/out/hero_BaseColor.png"}}
+        def transfer(engine, targets, source=None, **kwargs):
+            captured.append((list(targets), source, kwargs))
+            return {"m": {"baseColor": "/out/hero_BaseColor.png"}}
 
-        patcher = mock.patch.object(self.mtk, "TextureTransfer", Capturing)
+        # The engine the host's run builds (``TextureTransfer()``), wherever
+        # it is imported from: the class's own method.
+        patcher = mock.patch.object(
+            self.mtk.TextureTransfer, "transfer", autospec=True, side_effect=transfer
+        )
         patcher.start()
         self.addCleanup(patcher.stop)
         return captured

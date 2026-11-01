@@ -5,8 +5,8 @@
 One tool, two transfers that are ALTERNATIVES -- the source's UV layout onto
 the targets, or its textures re-mapped into each target's own layout; *Auto*
 defers the pick to run time. The run and every decision in it are the
-library's: the host's ``TextureTransfer.run`` (``ptk.TransferRun`` over the
-host) takes the rows as plain values and returns a ``ptk.TransferResult``,
+library's: the host's ``TextureCombine.run_transfer`` (``ptk.TransferRun`` over
+the host) takes the rows as plain values and returns a ``ptk.TransferResult``,
 which this mode words. Which selected mesh is the source is the host's
 convention (Maya: the selection order; Blender: the active object), worded by
 its ``TextureTransfer.TERMS``.
@@ -362,14 +362,14 @@ class TransferMode:
 
     # ------------------------------------------------------------ run
     def run(self) -> None:
-        """Transfer UVs OR textures: the host's ``TextureTransfer.run`` (one
+        """Transfer UVs OR textures: the host's ``TextureCombine.run_transfer`` (one
         pass per run, one undo step) over the rows, its result worded here."""
         ui = self.ui
         slots = self.slots
         prefix, suffix = slots.material_affix()
         uv = self.terms["uv"]
         with self.sb.progress(text="Working: Transfer") as tick:
-            result = self.tk.TextureTransfer.run(
+            result = slots.engine.run_transfer(
                 source=ui.cmb_tt_source.currentData() or self.SOURCE_AUTO,
                 transfer=ui.cmb_tt_transfer.currentData(),
                 scope=ui.cmb_tt_targets.currentData() or "order",
