@@ -67,7 +67,7 @@ flowchart LR
     C --> E[slots/*.py]
 ```
 
-`Tcl.launch` resolves the host's adapter from its toolkit (`mtk.MayaMarkingMenuHost` / `btk.BlenderMarkingMenuHost`, both `uitk.MarkingMenuHost`), defers through it, and `Tcl.build` makes the one `uitk.MarkingMenu(host=…)`: the host's main window, activation-key half, mouse and window stacking are the adapter's; the native-menu pages (`ui/<host>_menus`), the both-button chord's `<host>#startmenu` and the `{host}` context tag come from the host name.
+`Tcl.launch` resolves the host's adapter from its toolkit (`Tcl.ADAPTERS`: `mtk.MayaMarkingMenuHost` / `btk.BlenderMarkingMenuHost`, each a `uitk.MarkingMenuHost` to the menu and a `uitk.MarkingMenuLaunchHost` to the launcher), defers through it, and `Tcl.build` makes the one `uitk.MarkingMenu(host=…)`: the host's main window, activation-key half, mouse and window stacking are the adapter's; the native-menu pages (`ui/<host>_menus`), the both-button chord's `<host>#startmenu` and the `{host}` context tag come from the host name.
 
 `uitk.Switchboard` pairs each `.ui` file with a slot module **of the same basename**, then connects each widget's `objectName` to a method of the same name on the slot class:
 

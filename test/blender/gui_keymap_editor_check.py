@@ -82,9 +82,9 @@ def _set_activation_key(new_key):
 
 
 _stub = NS(
-    _on_activation_press=lambda: _events.append("press"),
-    _on_activation_release=lambda: _events.append("release"),
-    _activation_key_held=False,
+    activate=lambda buttons=None: _events.append("press"),
+    release=lambda: _events.append("release"),
+    armed=False,
     _activation_key_str="Key_Z",
     isVisible=lambda: False,
     grabMouse=lambda: _events.append("grab"),
@@ -270,7 +270,7 @@ def _report_and_quit():
     )
     # One press, still armed mid-hold, released by key-up. The release can legitimately arrive
     # twice — the RELEASE keymap item and the poller's key-up level check both complete the
-    # gesture, which is pre-existing and idempotent (``drive_release`` / ``_on_activation_release``
+    # gesture, which is pre-existing and idempotent (``drive_release`` / ``menu.release``
     # only clear already-clear state). What must NOT happen is a release DURING the hold: that is
     # the signature of a poller left watching the old key, i.e. the rebind reading as "no effect".
     # Verdict on the STATE-MACHINE events only — ``op:`` markers just record that the operator was

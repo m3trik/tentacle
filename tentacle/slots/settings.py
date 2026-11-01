@@ -97,8 +97,9 @@ class SettingsSlots(Slots):
 
     def tb001(self):
         """Reload Scripts: tear tentacle down, reload the ecosystem in place, and
-        rebuild it on the host's next idle tick (``Tcl.reload``). Maya reports
-        through Maya itself, never this panel, which the reload retires."""
+        rebuild it on the host's next idle tick (``Tcl.reload``). The host reports
+        the outcome (its adapter's ``report``), never this panel, which the reload
+        retires."""
         from tentacle import Tcl
 
         try:

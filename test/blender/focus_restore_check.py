@@ -158,7 +158,7 @@ def _steps():
     tb.register()  # stands up the Qt host — qtpy is only importable after this
     yield 2.0  # host + keymap settle
     from qtpy import QtWidgets
-    tcl = btk.KeymapBridge.tcl
+    tcl = btk.KeymapBridge.menu
     nw = btk.BlenderWindow
     nw.main_qwindow()  # cache the GHOST hwnd
     app = QtWidgets.QApplication.instance()

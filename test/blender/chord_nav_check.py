@@ -173,7 +173,7 @@ def _drill(app, tcl, chain):
 def _open_startmenu(tb, tcl, app):
     _u.SetCursorPos(760, 480)
     time.sleep(0.1)
-    tcl._on_activation_press()
+    tcl.activate()
     for _ in range(30):
         app.processEvents()
     tcl.show("blender#startmenu", force=True)
@@ -287,7 +287,7 @@ def _run():
 
         _instrument()
         _log("harness: launching tentacle ...")
-        tcl = btk.KeymapBridge.tcl or tb.launch()
+        tcl = btk.KeymapBridge.menu or tb.launch()
         app = QtWidgets.QApplication.instance()
         _log("harness: tentacle up")
 

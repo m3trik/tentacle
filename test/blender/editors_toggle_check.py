@@ -105,7 +105,7 @@ def _b009():
         from tentacle import tcl_blender as tb
         import blendertk as btk  # noqa: E402
 
-        if btk.KeymapBridge.tcl is None:
+        if btk.KeymapBridge.menu is None:
             tb.launch()
         from tentacle.slots.editors import EditorsSlots
 

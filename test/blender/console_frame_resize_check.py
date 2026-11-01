@@ -831,7 +831,7 @@ def _go():
         from tentacle import tcl_blender as tb
         import blendertk as btk  # noqa: E402
 
-        if btk.KeymapBridge.tcl is None:
+        if btk.KeymapBridge.menu is None:
             tb.launch()
 
         from qtpy import QtCore, QtWidgets

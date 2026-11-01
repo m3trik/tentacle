@@ -57,16 +57,16 @@ try:
     check("Key_Super_L -> OSKEY", btk.KeymapBridge.qt_key_to_blender_type("Key_Super_L") == "OSKEY")
 
     # install bridge with a stubbed marking menu (no real Qt host needed). The operator drives the
-    # Maya interaction state machine: _on_activation_press on key-down, _on_activation_release on
-    # key-up; raise_/activateWindow mirror the QWidget methods it nudges after press. The bridge
+    # Maya interaction state machine through the menu's public surface: activate on key-down,
+    # release on key-up; raise_/activateWindow mirror the QWidget methods it nudges after press. The bridge
     # must NOT grab the mouse on the no-button key-hold (an explicit grab kills hover-nav and
     # re-reads clicks as the F12+LMB chord — the "buttons need several clicks" bug); the grab is
     # established by the shared _transfer_mouse_control only when a button is held (the chord),
     # so a `grab` event appearing here on a bare press is a regression.
     events = []
     stub = NS(
-        _on_activation_press=lambda: events.append("press"),
-        _on_activation_release=lambda: events.append("release"),
+        activate=lambda buttons=None: events.append("press"),
+        release=lambda: events.append("release"),
         grabMouse=lambda: events.append("grab"),
         raise_=lambda: None,
         activateWindow=lambda: None,
@@ -86,11 +86,11 @@ try:
     # key-down drives the press state machine but does NOT grab the mouse (no-button path) — the
     # overlay stays ungrabbed so child enter/leave events fire (hover-nav) and clicks reach buttons.
     bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT")  # phase defaults to "press"
-    check("press -> _on_activation_press, no grab on key-hold", events == ["press"], f"events={events}")
+    check("press -> menu.activate, no grab on key-hold", events == ["press"], f"events={events}")
     events.clear()
     # key-up drives the release (completes/hides, releases the grab)
     bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT", phase="release")
-    check("release -> _on_activation_release", events == ["release"], f"events={events}")
+    check("release -> menu.release", events == ["release"], f"events={events}")
     events.clear()
 
     # keymap is viewport-scoped (3D View), not a global override — it wins over render only when
@@ -105,8 +105,8 @@ try:
         check("re-install -> still PRESS+RELEASE (no dupes)", len(btk.KeymapBridge.keymaps) == 2, f"n={len(btk.KeymapBridge.keymaps)}")
 
     # operator error is reported (Blender raises it for script callers)
-    btk.KeymapBridge.tcl = NS(
-        _on_activation_press=lambda: (_ for _ in ()).throw(RuntimeError("boom")),
+    btk.KeymapBridge.menu = NS(
+        activate=lambda buttons=None: (_ for _ in ()).throw(RuntimeError("boom")),
         grabMouse=lambda: None, raise_=lambda: None, activateWindow=lambda: None,
     )
     reported = False
@@ -117,7 +117,7 @@ try:
     check("host error -> reported (not crashed)", reported)
 
     # no active menu -> press CANCELLED (passes F12 through to render); release FINISHED (harmless)
-    btk.KeymapBridge.tcl = None
+    btk.KeymapBridge.menu = None
     res = bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT")
     check("no active menu (press) -> CANCELLED", res == {"CANCELLED"}, f"res={res}")
     res = bpy.ops.tentacle.show_marking_menu("EXEC_DEFAULT", phase="release")
@@ -129,10 +129,10 @@ try:
           not hasattr(bpy.types, "TENTACLE_OT_show_marking_menu") and btk.KeymapBridge.keymaps == [])
 
     # launch() reuses the live instance (repeat register() must not stack marking menus);
-    # teardown cleared KeymapBridge.tcl above, so a fresh stub stands in for the live menu.
-    btk.KeymapBridge.tcl = stub
+    # teardown cleared KeymapBridge.menu above, so a fresh stub stands in for the live menu.
+    btk.KeymapBridge.menu = stub
     check("launch() reuses the live instance", tb.launch() is stub)
-    btk.KeymapBridge.tcl = None
+    btk.KeymapBridge.menu = None
 
     # the add-on stub exposes the add-on + console surface; the Qt host is blendertk's
     check("tcl_blender exposes launch/register/unregister/reload/diagnose + bl_info",

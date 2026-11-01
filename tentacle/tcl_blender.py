@@ -5,8 +5,9 @@
 Blender's add-on contract requires module-scope ``bl_info`` / :func:`register` /
 :func:`unregister`; :func:`launch` / :func:`reload` / :func:`diagnose` are the documented console
 API. Each forwards to :class:`BlenderHost`, which builds the menu through tentacle's one
-launcher (``Tcl.build``, the same ``uitk.MarkingMenu`` every host gets) and leaves Blender's Qt
-hosting to blendertk (``btk.BlenderMarkingMenuHost`` over ``btk.QtRuntime``,
+launcher (``Tcl.build``, the same ``uitk.MarkingMenu`` every host gets), or to the launcher
+itself (:func:`reload` is ``Tcl.reload``, the same reload every host gets), and leaves
+Blender's Qt hosting to blendertk (``btk.BlenderMarkingMenuHost`` over ``btk.QtRuntime``,
 ``btk.KeymapBridge`` and ``btk.BlenderWindow``).
 
 What only this file can own is the path bootstrap (:class:`_Config`): a monorepo checkout's
@@ -14,8 +15,9 @@ sibling packages go on ``sys.path`` before blendertk is importable. It runs here
 installer-written startup script, because this file is what a Text-Editor ▸ Run-Script or
 ``blender --python`` runs, and its own location is what finds the checkout; a pip install
 (the installer's route) resolves everything from site-packages and the bootstrap no-ops. Qt is
-provisioned on import too (``btk.QtBootstrap.ensure_qt``), so importing this module is what a
-Blender harness does to get a Qt binding.
+provisioned on import too (``btk.QtBootstrap.ensure_qt``, for the application named
+``Tcl.APP_NAME``: ``btk.HostedApp``), so importing this module is what a Blender harness does
+to get a Qt binding.
 
 Usage (inside a running Blender — console, startup script, or add-on)::
 
@@ -58,8 +60,9 @@ class _Config:
     path bootstrap that must run before blendertk is importable.
 
     Class attributes rather than module globals so the stub reads one source. The Qt-deps folder
-    (``TENTACLE_QT_DEPS``) is ``btk.QtBootstrap.QT_DEPS``; the default key (``TENTACLE_KEY``) is
-    ``Tcl.KEY_ENV``; the activation-fire log switch is ``btk.KeymapBridge.DEBUG``.
+    (``TENTACLE_QT_DEPS``) is ``btk.HostedApp.env("QT_DEPS")``, spelled from ``Tcl.APP_NAME``;
+    the default key (``TENTACLE_KEY``) is ``Tcl.KEY_ENV``; the activation-fire log switch is
+    ``btk.KeymapBridge.DEBUG``.
     """
 
     # Where the sibling package dirs (pythontk/uitk/tentacle/blendertk/extapps) live: the explicit
@@ -105,22 +108,24 @@ class _Config:
 
 # The import-time side effect that makes this file a self-contained drop-in: the sibling
 # packages first (blendertk has to be importable), then a Qt binding (``QT_API`` has to be set
-# before qtpy is first imported). A normal ``import tentacle`` has already satisfied both, so
-# every guard no-ops.
+# before qtpy is first imported), provisioned for tentacle: the application blendertk names its
+# env vars, its qt_deps folder and its messages after. A normal ``import tentacle`` has already
+# satisfied the first two, so their guards no-op.
 _Config.bootstrap_paths()
+
+from tentacle.tcl import Tcl  # noqa: E402  (needs bootstrap_paths; stdlib only)
 
 import blendertk as btk  # noqa: E402  (needs bootstrap_paths; lazy resolver)
 
+btk.HostedApp.name = Tcl.APP_NAME
 btk.QtBootstrap.ensure_qt()
-
-from tentacle.tcl import Tcl  # noqa: E402  (needs bootstrap_paths)
 
 
 class BlenderHost:
-    """Blender add-on lifecycle: launch / register / unregister / reload. The menu itself is
-    ``Tcl.build``'s and its Qt hosting blendertk's. The thin module-level functions below
-    delegate here (Blender's add-on contract requires module-scope ``register``/``unregister``;
-    the rest are the documented console API)."""
+    """Blender add-on lifecycle: launch / register / unregister. The menu itself is
+    ``Tcl.build``'s, its reload ``Tcl.reload``'s and its Qt hosting blendertk's. The thin
+    module-level functions below delegate here (Blender's add-on contract requires
+    module-scope ``register``/``unregister``; the rest are the documented console API)."""
 
     @staticmethod
     def launch(**kwargs):
@@ -157,59 +162,6 @@ class BlenderHost:
         """Blender add-on teardown: remove the keymap items + bridge operator."""
         btk.KeymapBridge.teardown()
 
-    @staticmethod
-    def reload():
-        """Reload the tentacle ecosystem in place and re-register — the Blender "Reload Scripts".
-
-        ``bpy.ops.script.reload()`` would tear down the Qt host with it; this instead tears down
-        tentacle's own surface (keymap / operator / poller; blendertk's event pump retires itself via its
-        generation token) on top of the shared ``Tcl.prepare_reload``, reloads the monorepo
-        packages in dependency order via ``Tcl.reload_packages`` (Qt bindings are never touched),
-        and re-registers from the freshly loaded module on the next timer tick — after the stale frames (including the slot that
-        called this) have unwound. Returns the number of modules reloaded.
-        """
-        import importlib
-
-        import bpy
-
-        from tentacle.tcl import Tcl
-
-        # Shared, DCC-agnostic teardown, FIRST — retiring hides the menu (ending any
-        # live gesture) while the keymap and poller that drive it are still installed,
-        # which is the order the bridge expects. It also retires the activation
-        # shortcut, which would otherwise keep servicing the gesture from pre-reload
-        # code, and resets blendertk's ScriptJobManager, whose handles to its
-        # registered scene callbacks the reload would drop while Blender still holds
-        # the callbacks themselves.
-        retired = Tcl.prepare_reload("blender")
-        btk.KeymapBridge.teardown()
-        # Tear down the Script Output console from the OLD module before reloading: its
-        # draw-handler glue, liveness watchdog, embedded widget, stdout tee and docked
-        # Info Log area would all survive the reload, and the reloaded module's restore()
-        # (``BlenderMarkingMenuHost.attach``) would then dock a SECOND area. teardown() leaves the
-        # persisted visible-flag untouched, so the post-reload restore() re-opens it
-        # fresh. Guarded via sys.modules — never import during teardown
-        # (tentacle_startup.unregister pattern).
-        so_mod = sys.modules.get("blendertk.env_utils.script_output")
-        if so_mod is not None:
-            try:  # attribute access inside the guard — tolerate blendertk version skew
-                console = so_mod.ScriptConsole._instance
-                if console is not None:
-                    console.teardown()
-            except Exception:
-                pass
-        reloaded = Tcl.reload_packages("blender")
-
-        def _re_register():
-            try:
-                importlib.import_module("tentacle.tcl_blender").register()
-            finally:
-                Tcl.dispose_retired(retired)
-            return None
-
-        bpy.app.timers.register(_re_register, first_interval=0.2)
-        return len(reloaded)
-
 
 # --------------------------------------------------------------------------------------------
 # Module-level surface — Blender's add-on contract requires module-scope ``bl_info`` +
@@ -232,8 +184,10 @@ def unregister():
 
 
 def reload():
-    """Reload the tentacle ecosystem in place and re-register. See :meth:`BlenderHost.reload`."""
-    return BlenderHost.reload()
+    """Reload the tentacle ecosystem in place and rebuild the menu -- the Blender "Reload
+    Scripts" (``bpy.ops.script.reload()`` would tear the Qt host down with it). The same reload
+    every host gets: ``Tcl.reload``. Returns the number of modules reloaded."""
+    return Tcl.reload()
 
 
 def diagnose():

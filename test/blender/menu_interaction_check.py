@@ -5,10 +5,10 @@ Launch a fresh GUI Blender (never an existing session)::
     blender --python tentacle/test/blender/menu_interaction_check.py
 
 The activation works (F12 → menu shows), but the menu's interaction is a hold-drag-release state
-machine driven by ``_on_activation_press`` / ``_on_activation_release`` (Maya wires these to a Qt
-``GlobalShortcut``). The Blender bridge currently calls ``show()`` directly and skips the state
+machine driven by ``activate`` / ``release`` (Maya's Qt ``GlobalShortcut`` drives the same
+handlers). The Blender bridge currently calls ``show()`` directly and skips the state
 machine, and GHOST keeps OS foreground so the Qt overlay may never get input focus / a working mouse
-grab. This reports the live state both ways — ``show()`` vs ``_on_activation_press()`` — plus whether
+grab. This reports the live state both ways — ``show()`` vs ``activate()`` — plus whether
 the overlay is the OS-foreground window and whether forcing it foreground (same-process, allowed) and
 grabbing the mouse takes. Read the dump, then fix the bridge accordingly. Windows-only for the hwnd bits.
 """
@@ -58,7 +58,7 @@ def _state(tcl, app):
     return {
         "isVisible": bool(tcl.isVisible()),
         "isActiveWindow": bool(tcl.isActiveWindow()),
-        "activation_key_held": getattr(tcl, "_activation_key_held", "?"),
+        "armed": getattr(tcl, "armed", "?"),
         "mouseGrabber_is_self": grabber is tcl,
         "current_widget": cur.objectName() if cur is not None else None,
         "active_ui": (tcl.sb.active_ui.objectName() if tcl.sb.active_ui is not None else None),
@@ -78,7 +78,7 @@ def _run():
 
         log("=== MENU-INTERACTION ===")
         tb.register()
-        tcl = btk.KeymapBridge.tcl
+        tcl = btk.KeymapBridge.menu
         app = QtWidgets.QApplication.instance()
 
         # Path A: what the bridge does today — show() directly.
@@ -89,9 +89,9 @@ def _run():
         # Path B: the real Maya entry point — drives the interaction state machine.
         tcl.hide()
         _pump(app)
-        tcl._on_activation_press()
+        tcl.activate()
         _pump(app)
-        log("after _on_activation_press():", _state(tcl, app))
+        log("after activate():", _state(tcl, app))
 
         # OS focus: is the overlay the foreground window, or does GHOST still own it?
         if _u is not None:
@@ -149,20 +149,20 @@ def _run():
         # must hide the menu; if it doesn't, the menu stays "stuck open" (the user's report).
         from qtpy import QtCore as _QtCore, QtGui as _QtGui
 
-        tcl._on_activation_press()
+        tcl.activate()
         try:
             tcl.grabMouse()
         except Exception:
             pass
         _pump(app)
         log("re-shown for release test:", _state(tcl, app))
-        rel = _QtGui.QKeyEvent(_QtCore.QEvent.KeyRelease, tcl._activation_key,
+        rel = _QtGui.QKeyEvent(_QtCore.QEvent.KeyRelease, tcl.activation_key,
                                _QtCore.Qt.KeyboardModifier())
         QtWidgets.QApplication.sendEvent(tcl, rel)
         _pump(app)
         st = _state(tcl, app)
         log("after synthesized activation-key RELEASE:", st)
-        log("RELEASE-HIDES-MENU:", (not st["isVisible"]) and (st["activation_key_held"] is False)
+        log("RELEASE-HIDES-MENU:", (not st["isVisible"]) and (st["armed"] is False)
             and (not st["mouseGrabber_is_self"]))
     except Exception as error:
         import traceback

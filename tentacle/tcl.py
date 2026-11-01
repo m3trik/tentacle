@@ -4,10 +4,11 @@
 
 A startup script should not have to know what its DCC needs, nor how that DCC wants startup
 deferred. :meth:`Tcl.launch` detects the host, asks the host's toolkit for its marking-menu
-host adapter (``mtk.MayaMarkingMenuHost`` / ``btk.BlenderMarkingMenuHost``, both
-``uitk.MarkingMenuHost``), defers through it (Maya: ``executeDeferred``; Blender: a one-shot
-``bpy.app.timers``) and :meth:`Tcl.build` makes ONE ``uitk.MarkingMenu(host=...)``, so the
-documented snippet is the same two lines everywhere::
+host adapter (``mtk.MayaMarkingMenuHost`` / ``btk.BlenderMarkingMenuHost``: each a
+``uitk.MarkingMenuHost`` to the menu and a ``uitk.MarkingMenuLaunchHost`` to this launcher),
+defers through it (Maya: ``executeDeferred``; Blender: a one-shot ``bpy.app.timers``) and
+:meth:`Tcl.build` makes ONE ``uitk.MarkingMenu(host=...)``, so the documented snippet is the
+same two lines everywhere::
 
     from tentacle import Tcl
     Tcl.launch(key_show="Z")
@@ -16,16 +17,17 @@ documented snippet is the same two lines everywhere::
 shortcut editor (or a DCC-side rebind) persists and outranks it, so the snippet can keep
 naming its default without overwriting the user's choice (see :meth:`Tcl.resolve_key`).
 
-Nothing in the launch and build is per host beyond :attr:`_TclInternal.HOSTS` detection: the
-host name names the toolkit (:attr:`_TclInternal.ENGINES`), its adapter
-(``<Host>MarkingMenuHost``), the chord menus' native-menu pages (``ui/<host>_menus``), the
+Nothing in the launch, build or reload is per host beyond :attr:`_TclInternal.HOSTS`
+detection: the host name names the toolkit (:attr:`_TclInternal.ENGINES`), its adapter
+(:attr:`_TclInternal.ADAPTERS`), the chord menus' native-menu pages (``ui/<host>_menus``), the
 both-button chord's target (``<host>#startmenu``) and the ``context_tags`` the menus'
 ``requires`` tags filter on. What a host answers differently -- its main window, its
-activation-key half, its mouse, how its windows stack, its UI handler -- is its adapter's.
-Settings > Reload is still a method per host (``_reload_maya`` / ``_reload_blender``): each
-tears down what that host holds before the reload. This module is also the single source for
-the **activation-key contract**: the ``Key_``-prefix normalization and the default chord→menu
-table (:meth:`Tcl.chord_bindings`). Import-safe everywhere — stdlib only; the toolkit is
+activation-key half, its mouse, how its windows stack, its UI handler, how it defers, what it
+releases before a reload (``teardown``) and where it tells the user (``report``) -- is its
+adapter's. The one host-named member left is the error shown when the toolkit itself, whose
+adapter would show it, is missing (:attr:`_TclInternal.STARTUP_ERROR_REPORTERS`). This module
+is also the single source for the **activation-key contract**: the ``Key_``-prefix
+normalization and the default chord→menu table (:meth:`Tcl.chord_bindings`). Import-safe everywhere — stdlib only; the toolkit is
 imported when a launch resolves its adapter (its root is lazy, so that costs only the
 adapter's module), and Qt on the deferred build.
 
@@ -64,10 +66,20 @@ class _TclInternal:
     }
 
     #: host -> its toolkit: the engine package a Slots class reaches through
-    #: ``Slots.tk``, whose ``<Host>MarkingMenuHost`` adapter hosts the menu, and whose
+    #: ``Slots.tk``, whose adapter (:attr:`ADAPTERS`) hosts the menu, and whose
     #: HOST-OWNED state an in-place reload would orphan (registered scriptJobs /
     #: OpenMaya callbacks; see :meth:`Tcl.prepare_reload`).
     ENGINES = {"maya": "mayatk", "blender": "blendertk"}
+
+    #: host -> the adapter class its toolkit's root exports: a ``uitk.MarkingMenuHost``
+    #: to the menu and a ``uitk.MarkingMenuLaunchHost`` to this launcher.
+    ADAPTERS = {"maya": "MayaMarkingMenuHost", "blender": "BlenderMarkingMenuHost"}
+
+    #: The application this launcher stands a host's Qt up for (``start(app=)``): a host
+    #: that provisions Qt itself names what it makes after it (Blender's
+    #: ``TENTACLE_QT_DEPS`` / ``TENTACLE_CLICK_DEBUG_LOG`` env vars, its qt_deps folder,
+    #: its messages).
+    APP_NAME = "tentacle"
 
     #: Env var naming the DEFAULT activation key when a launch names none.
     KEY_ENV = "TENTACLE_KEY"
@@ -76,7 +88,8 @@ class _TclInternal:
     #: (``mayapy`` / ``maya -batch``, ``blender --background``). Read BEFORE the toolkit is
     #: imported, so a headless start -- every test chunk's ``userSetup.py`` -- pays nothing
     #: for a menu it cannot have (batch Maya has no GUI Qt: a QWidget on its stub takes the
-    #: interpreter down natively). ``None`` kwargs read the attribute as a value.
+    #: interpreter down natively). ``None`` kwargs read the attribute as a value. Maya's row
+    #: asks what ``mtk.MayaMarkingMenuHost.is_batch`` asks once mayatk is loaded: keep them alike.
     HEADLESS = {
         "maya": ("maya.cmds", "about", {"batch": True}),
         "blender": ("bpy", "app.background", None),
@@ -140,81 +153,6 @@ class _TclInternal:
     # (``python_version >= "3.10" and extra == "maya"``) still resolves.
     _REQ_BOUNDARY = re.compile(r"""[<>=!~;\[\s]""")
     _EXTRA_CLAUSE = re.compile(r"""extra\s*==\s*["']([^"']+)["']""")
-
-    # ---------------------------------------------------------------- reload (Settings)
-    @classmethod
-    def _reload_maya(cls):
-        """Maya: retire, reload, then rebuild DEFERRED onto the idle queue.
-
-        The rebuild cannot run in this frame: the slot that asked belongs to a
-        module the reload re-executes, and building a marking menu while Qt is
-        still dispatching that click destroys and constructs widget trees under
-        the event being delivered. ``Tcl.launch`` defers on its own, so the new
-        instance comes up on an idle tick with every stale frame unwound. The
-        report goes through Maya (:meth:`_report_maya`), never the retired panel.
-        """
-        import html
-
-        from maya.utils import executeDeferred
-
-        retired = cls.prepare_reload("maya")
-
-        def rebuild():
-            from tentacle import Tcl as ReloadedTcl
-
-            try:
-                ReloadedTcl.launch()
-            finally:
-                cls.dispose_retired(retired)
-            return None
-
-        try:
-            reloaded = cls.reload_packages("maya")
-        except Exception as error:
-            # The teardown already retired the menu, so returning here would
-            # strand the session with no marking menu at all -- a worse place than
-            # the stale one it started from. Rebuild from whatever is loaded.
-            print(f"# Error: tentacle: reload failed: {error} #")
-            executeDeferred(rebuild)
-            cls._report_maya(f"Tentacle reload FAILED: {html.escape(str(error))}")
-            return 0
-
-        executeDeferred(rebuild)
-        # reload_packages already NAMED each failure on the console; the line here
-        # only says the reload was partial. Tolerant access: an older pythontk
-        # returns a plain list rather than a ReloadReport.
-        failed = getattr(reloaded, "failed", ())
-        if failed:
-            cls._report_maya(
-                f"Tentacle reloaded {len(reloaded)} modules, "
-                f"{len(failed)} FAILED (see the script editor)."
-            )
-        else:
-            cls._report_maya(f"Tentacle reloaded ({len(reloaded)} modules).")
-        return len(reloaded)
-
-    @staticmethod
-    def _report_maya(message):
-        """Report through MAYA (an in-view message and the script editor): a
-        ``message_box`` would render on the switchboard the reload just retired."""
-        try:
-            from maya import cmds
-
-            cmds.inViewMessage(amg=message, pos="topCenter", fade=True)
-        except Exception:  # no viewport (batch) -- the console still gets it
-            pass
-        print(f"# Result: {message} #")
-
-    @classmethod
-    def _reload_blender(cls):
-        """Blender: ``tcl_blender.reload()`` tears tentacle's own surface down
-        (blendertk's keymap, operator, poller, the Script Output dock) on top of
-        :meth:`prepare_reload`, reloads, and re-registers on the next timer tick.
-        It raises when the reload itself fails, before re-registering."""
-        tcl_blender = cls._import_entry("blender", "tentacle.tcl_blender")
-        count = tcl_blender.reload()
-        print(f"tentacle: reloaded {count} module(s); re-registering on the next tick.")
-        return count
 
     # ---------------------------------------------------------------- engine extras
     @classmethod
@@ -371,7 +309,7 @@ class _TclInternal:
 
         python = None
         try:  # the sibling that can actually run pip (maya.exe -> mayapy.exe)
-            from uitk.managers.optional_package_manager import OptionalPackageManager
+            from uitk import OptionalPackageManager
 
             python = OptionalPackageManager.pip_python()
         except Exception:
@@ -821,28 +759,29 @@ class Tcl(_TclInternal):
 
     @classmethod
     def host_adapter(cls, host=None, toolkit=None):
-        """A new ``uitk.MarkingMenuHost`` adapter for *host*: its toolkit's
-        ``<Host>MarkingMenuHost`` (``mtk.MayaMarkingMenuHost``), named by convention."""
+        """A new adapter for *host*: the class :attr:`ADAPTERS` names on its toolkit
+        (``mtk.MayaMarkingMenuHost``), a ``uitk.MarkingMenuHost`` to the menu and a
+        ``uitk.MarkingMenuLaunchHost`` to this launcher."""
         host = host or cls.host()
         toolkit = toolkit or cls.toolkit(host)
-        return getattr(toolkit, f"{host.title()}MarkingMenuHost")()
+        return getattr(toolkit, cls.ADAPTERS[host])()
 
     @classmethod
     def build(cls, host=None, adapter=None, key_show=None, **kwargs):
         """Build tentacle's marking menu for *host* now, and return it.
 
-        ONE ``uitk.MarkingMenu`` for every host: the host's adapter stands Qt up
-        (``start``) and answers what the host does differently; everything else is by
-        convention from the host name -- the native-menu pages ``ui/<host>_menus``, the
-        both-button chord's ``<host>#startmenu``, the ``{host}`` context tag -- and the
-        wiring both hosts share is done here once: the toolkit (``Slots.tk``), the shot
-        store's host, the shared Slots and tool panels (:meth:`register_shared`), the
-        user's active macro preset.
+        ONE ``uitk.MarkingMenu`` for every host: the host's adapter stands Qt up for
+        tentacle (``start(app=APP_NAME)``) and answers what the host does differently;
+        everything else is by convention from the host name -- the native-menu pages
+        ``ui/<host>_menus``, the both-button chord's ``<host>#startmenu``, the ``{host}``
+        context tag -- and the wiring both hosts share is done here once: the toolkit
+        (``Slots.tk``), the shot store's host, the shared Slots and tool panels
+        (:meth:`register_shared`), the user's active macro preset.
 
         Parameters:
             host (str): A :attr:`HOSTS` key; ``None`` resolves the running host.
-            adapter: The host's ``uitk.MarkingMenuHost``; ``None`` resolves it
-                    (:meth:`host_adapter`).
+            adapter: The host's adapter (``uitk.MarkingMenuHost`` and
+                    ``uitk.MarkingMenuLaunchHost``); ``None`` resolves it (:meth:`host_adapter`).
             key_show (str): DEFAULT activation key (see :meth:`launch`); ``None`` falls
                     back to :attr:`KEY_ENV`, then :attr:`DEFAULT_KEY`, and a key the user
                     persisted outranks all of them (:meth:`resolve_key`).
@@ -867,7 +806,8 @@ class Tcl(_TclInternal):
         live = adapter.live_menu()
         if live is not None:
             return live
-        adapter.start()  # Qt usable in this process (Blender provisions it) before any import
+        # Qt usable in this process (Blender provisions it) before any import.
+        adapter.start(app=cls.APP_NAME)
         from uitk import ExternalAppHandler, MarkingMenu
 
         root = os.path.dirname(os.path.abspath(__file__))
@@ -977,25 +917,68 @@ class Tcl(_TclInternal):
 
     @classmethod
     def reload(cls):
-        """Settings > Reload Scripts: tear tentacle down, reload the ecosystem in
-        place and rebuild it, the way the running host requires (the twin of
-        :meth:`launch`: ``_reload_maya`` / ``_reload_blender``).
+        """Settings > Reload Scripts: tear tentacle down, reload the ecosystem in place
+        and rebuild it -- one path for every host, its differences the adapter's.
+
+        In order: retire every marking menu and the engine's callbacks
+        (:meth:`prepare_reload`); let the host release what it holds for the menu
+        (``adapter.teardown()``: Blender's keymap bridge and docked console), while the
+        handles are still reachable from the code about to be replaced; reload the
+        packages (:meth:`reload_packages`); then rebuild on the host's next tick
+        (``adapter.defer``) and tell the user through the host (``adapter.report``),
+        never through the retired panel.
+
+        The rebuild cannot run in this frame: the slot that asked belongs to a module the
+        reload re-executes, and building a marking menu while Qt is still dispatching that
+        click destroys and constructs widget trees under the event being delivered. A
+        failed reload still rebuilds, from whatever is loaded: the teardown already retired
+        the menu, and bailing out would strand the session with none.
 
         Returns:
-            int: The number of modules reloaded (0 after a Maya reload that failed
-            and rebuilt from what was loaded).
+            int: The number of modules reloaded (0 after a reload that failed and rebuilt
+            from what was loaded).
 
         Raises:
-            RuntimeError: No supported host, or one with no reload; Blender's
-                reload when it fails.
+            RuntimeError: No supported host.
         """
         host = cls.host()
-        reload = getattr(cls, f"_reload_{host}", None) if host else None
-        if reload is None:
+        if host is None or host not in cls.ENGINES:
             raise RuntimeError(
                 f"tentacle: Reload Scripts runs inside Maya or Blender (host: {host})."
             )
-        return reload()
+        adapter = cls.host_adapter(host)
+        retired = cls.prepare_reload(host)
+        adapter.teardown()
+
+        def rebuild():
+            from tentacle import Tcl as ReloadedTcl
+
+            try:
+                ReloadedTcl.build(host)
+            finally:
+                cls.dispose_retired(retired)
+            return None
+
+        try:
+            reloaded = cls.reload_packages(host)
+        except Exception as error:
+            adapter.defer(rebuild)
+            adapter.report(f"Tentacle reload FAILED: {error}", error=True)
+            return 0
+
+        adapter.defer(rebuild)
+        # reload_packages already NAMED each failure; this line only says the reload was
+        # partial. Tolerant access: an older pythontk returns a plain list.
+        failed = getattr(reloaded, "failed", ())
+        if failed:
+            adapter.report(
+                f"Tentacle reloaded {len(reloaded)} modules, {len(failed)} FAILED "
+                "(each is named above).",
+                error=True,
+            )
+        else:
+            adapter.report(f"Tentacle reloaded ({len(reloaded)} modules).")
+        return len(reloaded)
 
 
 # --------------------------------------------------------------------------------------------

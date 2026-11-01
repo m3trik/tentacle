@@ -46,7 +46,7 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
         sys.path.insert(0, os.path.join(_MONO, _pkg))
 os.environ.setdefault("QT_API", "pyside6")
 _built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
-if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -139,14 +139,14 @@ def _step():
         if state["phase"] == "wait":
             tb = sys.modules.get("tentacle.tcl_blender")
             btk = sys.modules.get("blendertk")
-            if tb is None or btk is None or btk.KeymapBridge.tcl is None:
+            if tb is None or btk is None or btk.KeymapBridge.menu is None:
                 return 0.5  # startup script hasn't registered yet
             state["tb"] = tb
             state["phase"] = "show"
             return 0.5
 
         if state["phase"] == "show":
-            tcl = btk.KeymapBridge.tcl
+            tcl = btk.KeymapBridge.menu
             ui = tcl.sb.loaded_ui.preferences
             ui.show()
             state["ui"] = ui

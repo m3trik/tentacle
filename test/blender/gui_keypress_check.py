@@ -63,8 +63,8 @@ _u = ctypes.windll.user32
 # RELEASE item — if it didn't, the live menu's mouse grab would stay stuck.
 _events = []
 _stub = NS(
-    _on_activation_press=lambda: _events.append("press"),
-    _on_activation_release=lambda: _events.append("release"),
+    activate=lambda buttons=None: _events.append("press"),
+    release=lambda: _events.append("release"),
     grabMouse=lambda: _events.append("grab"),
     raise_=lambda: None,
     activateWindow=lambda: None,

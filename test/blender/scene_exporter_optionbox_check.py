@@ -51,7 +51,7 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
 _built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
-if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -377,7 +377,7 @@ def _go():
     from tentacle import tcl_blender as tb
     import blendertk as btk  # noqa: E402
 
-    tcl = btk.KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     app = QtWidgets.QApplication.instance()
     _shim_setup_as_popup(_log)
 

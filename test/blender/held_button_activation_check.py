@@ -20,7 +20,7 @@ key tap → button(s) up → ESC. Expected: control = press(None); L/M/R held = 
 masks 1/4/2 DURING the hold (Qt: Left=1, Right=2, Middle=4); LR (both buttons, the
 ``F12|LeftButton|RightButton`` → ``blender#startmenu`` chord) = mask 3; ghost_count stays 1 (a
 render would open a new GHOST window).
-Phase C (watchdog): arm ``_activation_key_held`` with the key physically up — a simulated lost
+Phase C (watchdog): arm the menu (``armed``) with the key physically up — a simulated lost
 key-up (focus tussle ate it) — and expect the poll watchdog to drive the release within a tick.
 Phase D (gesture pairing): arm ``btk.KeymapBridge.gesture_active`` with the held flag CLEARED — the state uitk's
 ``_show_window`` leaves when a standalone window opens mid-gesture — and expect the release
@@ -51,7 +51,7 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
 _built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
-if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -178,15 +178,16 @@ def _go():
 
     # Self-sufficient: use the startup module's instance when present (normal launch),
     # otherwise stand the host up ourselves (--factory-startup).
-    tcl = btk.KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
 
     _phase_a(tb, tcl)
     btk.KeymapBridge.DEBUG = True  # operator self-reports each fire (visible in captured stdout)
 
-    # Phase B — stub the interaction entry points on the LIVE instance: dispatch is measured at
-    # the operator/poller level; no overlay ever shows, so Blender keeps focus between
-    # scenarios. Stubs mimic the real state machine's _activation_key_held arming so the
-    # poller's dedup + release-safety-net branches are exercised as in production.
+    # Phase B — stub the interaction entry points the bridge calls (``activate`` / ``release``)
+    # on the LIVE instance: dispatch is measured at the operator/poller level; no overlay ever
+    # shows, so Blender keeps focus between scenarios. Stubs mimic the real state machine's
+    # arming (what ``armed`` reports) so the poller's dedup + release-safety-net branches are
+    # exercised as in production.
     t0 = time.monotonic()
 
     def _press(buttons=None):
@@ -198,8 +199,8 @@ def _go():
         tcl._activation_key_held = False
         _events.append(("release", round(time.monotonic() - t0, 2)))
 
-    tcl._on_activation_press = _press
-    tcl._on_activation_release = _release
+    tcl.activate = _press
+    tcl.release = _release
     tcl.grabMouse = lambda: None
     tcl.raise_ = lambda: None
     tcl.activateWindow = lambda: None

@@ -11,7 +11,7 @@ presses — intermittent, any menu. That's a stateful leak (something stays arme
 which single-shot harnesses miss. This drives the REAL bridge entry points the keymap operator
 uses — ``btk.KeymapBridge.drive_press`` / ``btk.KeymapBridge.drive_release`` — to run the same leaf click
 several times in a row, and snapshots the activation state machine before/after each gesture
-(``_activation_key_held``, ``_standalone_suppress``, ``KeymapBridge.gesture_active``, the mouse-grab owner)
+(``armed``, ``_standalone_suppress``, ``KeymapBridge.gesture_active``, the mouse-grab owner)
 plus whether the click fired on the FIRST try. A degrade on gesture N>1, or state that doesn't
 reset between gestures, pins the leak.
 
@@ -40,7 +40,7 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
 _built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
-if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -83,7 +83,7 @@ def _state(tcl, tb):
 
     g = QtWidgets.QWidget.mouseGrabber()
     grab = None if g is None else ("tcl" if g is tcl else type(g).__name__)
-    return (f"held={tcl._activation_key_held} suppress={tcl._standalone_suppress} "
+    return (f"held={tcl.armed} suppress={tcl._standalone_suppress} "
             f"gesture_active={btk.KeymapBridge.gesture_active} grab={grab} visible={tcl.isVisible()}")
 
 
@@ -134,7 +134,7 @@ def _run():
     from tentacle import tcl_blender as tb
     import blendertk as btk  # noqa: E402
 
-    tcl = btk.KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     app = QtWidgets.QApplication.instance()
     btk.ClickDebugger.enable()
     geo = QtWidgets.QApplication.primaryScreen().availableGeometry()

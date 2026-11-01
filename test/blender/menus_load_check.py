@@ -70,7 +70,7 @@ def _run():
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
-        tcl = btk.KeymapBridge.tcl
+        tcl = btk.KeymapBridge.menu
         for name in DOMAINS:
             try:
                 # show() returns the shown widget: the overlay for startmenu/submenu-tagged

@@ -482,7 +482,7 @@ def _gui_tick():
                 from tentacle import tcl_blender as tb
                 import blendertk as btk  # noqa: E402
 
-                if btk.KeymapBridge.tcl is None:
+                if btk.KeymapBridge.menu is None:
                     tb.launch()
             _ctx["launch_tentacle_done"] = True
         except Exception:

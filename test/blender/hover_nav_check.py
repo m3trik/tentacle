@@ -47,7 +47,7 @@ for _pkg in ("pythontk", "uitk", "tentacle", "blendertk"):
         sys.path.insert(0, _dir)
 os.environ.setdefault("QT_API", "pyside6")
 _built = sys.modules.get("blendertk.ui_utils.marking_menu_host.keymap_bridge")
-if getattr(getattr(_built, "KeymapBridge", None), "tcl", None) is not None:
+if getattr(getattr(_built, "KeymapBridge", None), "menu", None) is not None:
     raise RuntimeError(
         "tentacle's UI was built before this harness could sandbox its settings; "
         "run it with --factory-startup, or with the tentacle add-on disabled"
@@ -113,7 +113,7 @@ def _run_case(tb, tcl, name, grab):
     _log(f"\n=== case: {name} (grab={grab}) ===")
     _u.SetCursorPos(700, 450)
     time.sleep(0.1)
-    tcl._on_activation_press()
+    tcl.activate()
     if grab:
         try:
             tcl.grabMouse()
@@ -157,7 +157,7 @@ def _run():
     from tentacle import tcl_blender as tb
     import blendertk as btk  # noqa: E402
 
-    tcl = btk.KeymapBridge.tcl or tb.launch()
+    tcl = btk.KeymapBridge.menu or tb.launch()
     try:
         _run_case(tb, tcl, "with_grab", grab=True)
         _run_case(tb, tcl, "no_grab", grab=False)

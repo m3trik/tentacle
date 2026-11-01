@@ -74,7 +74,7 @@ def _run():
         from qtpy import QtWidgets
 
         app = QtWidgets.QApplication.instance()
-        tcl = btk.KeymapBridge.tcl
+        tcl = btk.KeymapBridge.menu
         shown = tcl.show("editors#startmenu")
         for _ in range(20):
             app.processEvents()

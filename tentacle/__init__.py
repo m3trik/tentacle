@@ -164,6 +164,9 @@ MOVED_NAMES = {
     "blender_native_window": ("blendertk.BlenderWindow.main_qwindow", "0.17.0"),
     "enable_click_debug": ("blendertk.ClickDebugger.enable", "0.17.0"),
     "disable_click_debug": ("blendertk.ClickDebugger.disable", "0.17.0"),
+    # One reload for every host (2026-11-01): the adapter releases what Blender holds
+    # (``btk.BlenderMarkingMenuHost.teardown``); ``tcl_blender.reload`` forwards to it.
+    "BlenderHost.reload": ("tentacle.Tcl.reload", "0.17.0"),
 }
 
 

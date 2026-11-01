@@ -54,14 +54,14 @@ try:
     token0 = getattr(app, "_tentacle_pump_token", None)
     check("register stands up the operator",
           hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
-    check("register wires a live instance", btk.KeymapBridge.tcl is not None)
+    check("register wires a live instance", btk.KeymapBridge.menu is not None)
     check("pump token stamped", token0 is not None)
 
     n = tb.reload()
     check("reload reloads modules", n > 0, f"n={n}")
     check("reload tears down the operator",
           not hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
-    check("reload clears the live instance", btk.KeymapBridge.tcl is None)
+    check("reload clears the live instance", btk.KeymapBridge.menu is None)
 
     # Background Blender doesn't run the timer loop for us — drive the deferred step.
     fresh = importlib.import_module("tentacle.tcl_blender")
@@ -70,7 +70,7 @@ try:
     fresh.register()
     check("re-register restores the operator",
           hasattr(bpy.types, "TENTACLE_OT_show_marking_menu"))
-    check("re-register restores a live instance", btk.KeymapBridge.tcl is not None)
+    check("re-register restores a live instance", btk.KeymapBridge.menu is not None)
     check("re-register restores the keymap", len(btk.KeymapBridge.keymaps) > 0,
           f"items={len(btk.KeymapBridge.keymaps)}")
     token1 = getattr(app, "_tentacle_pump_token", None)

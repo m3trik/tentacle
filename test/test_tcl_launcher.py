@@ -2,7 +2,7 @@
 # coding=utf-8
 """Tests for the one launcher and the shared activation-key contract (``tentacle.tcl``).
 
-``Tcl.launch`` defers through the host toolkit's ``<Host>MarkingMenuHost`` and ``Tcl.build``
+``Tcl.launch`` defers through the host toolkit's adapter (``Tcl.ADAPTERS``) and ``Tcl.build``
 makes ONE ``uitk.MarkingMenu(host=...)`` for every host; what is pinned here is that path (from
 a stub toolkit, so no DCC is needed), key normalization, the chord table and host detection --
 plus, by source, that nothing re-grows a per-host subclass or a per-host table.
@@ -577,7 +577,7 @@ class TestMissingToolkitReachesTheUser(unittest.TestCase):
 
 
 class _StubToolkit(types.ModuleType):
-    """A host toolkit stand-in: its ``<Host>MarkingMenuHost``, ``ShotStore`` and ``Macros``,
+    """A host toolkit stand-in: its adapter (``Tcl.ADAPTERS``), ``ShotStore`` and ``Macros``,
     each recording what the build asked of it."""
 
     def __init__(self, host):
@@ -587,8 +587,9 @@ class _StubToolkit(types.ModuleType):
         self.calls = calls = []
 
         class Adapter(PureMarkingMenuHost):
-            def start(self):
+            def start(self, app=None):
                 calls.append("start")
+                toolkit.app = app
 
             def attach(self, menu):
                 calls.append(("attach", menu))
@@ -599,7 +600,7 @@ class _StubToolkit(types.ModuleType):
         toolkit = self
         self.live = None
 
-        setattr(self, f"{host.title()}MarkingMenuHost", Adapter)
+        setattr(self, Tcl.ADAPTERS[host], Adapter)
         self.ShotStore = types.SimpleNamespace(
             running_host=lambda: calls.append("shot store host")
         )
@@ -613,7 +614,7 @@ class TestBuildMakesOneMenu(unittest.TestCase):
 
     The real menu, Switchboard and shared roots, offscreen; only the toolkit is a stand-in, so
     no DCC is needed. Everything per host comes from the host name: the toolkit, its adapter
-    (``<Host>MarkingMenuHost``), the native-menu pages (``ui/<host>_menus``), the both-button
+    (``Tcl.ADAPTERS``), the native-menu pages (``ui/<host>_menus``), the both-button
     chord's ``<host>#startmenu`` and the ``{host}`` context tag.
     """
 
@@ -665,7 +666,7 @@ class TestBuildMakesOneMenu(unittest.TestCase):
                 toolkit, built, menu = self._launch(host)
                 self.assertEqual(len(built), 1, "ONE MarkingMenu per launch")
                 self.assertIs(menu, built[0])
-                adapter_type = getattr(toolkit, f"{host.title()}MarkingMenuHost")
+                adapter_type = getattr(toolkit, Tcl.ADAPTERS[host])
                 self.assertIsInstance(menu.host, adapter_type)
                 self.assertEqual(type(menu).__name__, "MarkingMenu", "no per-host subclass")
 
@@ -757,6 +758,13 @@ class TestBuildMakesOneMenu(unittest.TestCase):
         self.assertEqual(
             os.path.normcase(captured["slot_source"]), os.path.normcase(str(PKG / "slots"))
         )
+
+    def test_the_launcher_names_the_application_it_stands_qt_up_for(self):
+        """The host names what it makes for the app after it (Blender's env vars, its
+        qt_deps folder, its messages): tentacle says it is tentacle."""
+        toolkit, _built, _menu = self._launch("blender")
+        self.assertEqual(toolkit.app, Tcl.APP_NAME)
+        self.assertEqual(Tcl.APP_NAME, "tentacle")
 
     def test_qt_is_stood_up_before_the_menu(self):
         toolkit, _built, menu = self._launch("blender")
@@ -1013,8 +1021,6 @@ class TestOneLauncher(unittest.TestCase):
                 "blender_menus",
                 "MayaUiHandler",
                 "BlenderUiHandler",
-                "MayaMarkingMenuHost",
-                "BlenderMarkingMenuHost",
             ):
                 with self.subTest(module=path.name, literal=literal):
                     self.assertFalse([s for s in strings if literal in s])
@@ -1043,6 +1049,48 @@ class TestOneLauncher(unittest.TestCase):
             with self.subTest(module=path.name):
                 src = path.read_text(encoding="utf-8")
                 self.assertNotIn(f'"key_show", "{Tcl.DEFAULT_KEY}"', src)
+
+    def test_each_hosts_adapter_is_declared_and_its_toolkit_exports_it(self):
+        """``Tcl.ADAPTERS`` names each host's adapter class, which its toolkit's root
+        publishes (read off the sibling checkout's ``DEFAULT_INCLUDE``, never imported)."""
+        import ast
+
+        self.assertEqual(set(Tcl.ADAPTERS), set(Tcl.HOSTS))
+        for host, name in Tcl.ADAPTERS.items():
+            engine = Tcl.ENGINES[host]
+            init = ROOT.parent / engine / engine / "__init__.py"
+            if not init.is_file():
+                continue  # no sibling checkout here (CI installs one engine)
+            with self.subTest(host=host):
+                tree = ast.parse(init.read_text(encoding="utf-8"))
+                published = {
+                    node.value
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.Constant) and isinstance(node.value, str)
+                }
+                self.assertIn(name, published)
+
+    def test_the_launcher_holds_no_host_named_method(self):
+        """Host behavior is the adapter's: no ``_reload_<host>`` / ``_report_<host>`` and no
+        dispatch by a host-built method name. The one host-named method left is the
+        fallback for a MISSING toolkit, whose adapter cannot report its own absence."""
+        import ast
+
+        tree = ast.parse((PKG / "tcl.py").read_text(encoding="utf-8"))
+        methods = {
+            node.name
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        host_named = {
+            m for m in methods for host in Tcl.HOSTS if host in m.lower()
+        }
+        self.assertEqual(host_named, {"_report_blender_startup_error"})
+        self.assertNotIn('f"_reload_{host}"', (PKG / "tcl.py").read_text(encoding="utf-8"))
+
+    def test_the_blender_stub_reaches_no_private_console_state(self):
+        src = (PKG / "tcl_blender.py").read_text(encoding="utf-8")
+        self.assertNotIn("ScriptConsole._instance", src)
 
     def test_the_blender_stub_builds_through_the_launcher(self):
         src = (PKG / "tcl_blender.py").read_text(encoding="utf-8")
@@ -1685,77 +1733,141 @@ class TestReloadPackages(unittest.TestCase):
         self.assertEqual(out.getvalue(), "")
 
 
-class TestReloadRoutesThroughTheSharedTeardown(unittest.TestCase):
-    """Each DCC's Reload Scripts must use it — checked by source, the only way
-    without the DCC (same rationale as ``TestChordBindings``' source check)."""
+class _ReloadAdapter:
+    """A host adapter recording what a reload asks of it."""
 
-    def _source(self, *parts):
-        return (PKG.joinpath(*parts)).read_text(encoding="utf-8")
+    def __init__(self):
+        self.calls = []
+        self.deferred = []
 
-    def _maya_reload(self):
-        source = self._source("tcl.py")
-        return source[source.index("def _reload_maya") : source.index("def _report_maya")]
+    def teardown(self):
+        self.calls.append("teardown")
+
+    def defer(self, fn):
+        self.calls.append("defer")
+        self.deferred.append(fn)
+
+    def report(self, message, error=False):
+        self.calls.append(("report", message, error))
+
+
+class _Report(list):
+    """``ptk.ReloadReport``: the reloaded modules, and the ones that failed."""
+
+    def __init__(self, items, failed=()):
+        super().__init__(items)
+        self.failed = list(failed)
+
+
+class TestReload(unittest.TestCase):
+    """``Settings > Reload Scripts`` -- ONE path for every host: retire the menus and the
+    engine's callbacks (``prepare_reload``), let the host release what it holds
+    (``adapter.teardown``: Blender's keymap bridge and docked console), reload the packages,
+    then rebuild on the host's next tick (``adapter.defer``) and tell the user through the
+    host (``adapter.report``), never through the retired panel."""
+
+    def _reload(self, host="blender", packages=None, error=None):
+        adapter, order = _ReloadAdapter(), []
+        retired = [mock.Mock()]
+
+        def prepare(cls, h=None):
+            order.append(("prepare", h))
+            return retired
+
+        def reload_packages(cls, h=None):
+            order.append(("reload", h))
+            if error is not None:
+                raise error
+            return packages if packages is not None else _Report(["a", "b", "c"])
+
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: host)),
+            mock.patch.object(
+                Tcl, "host_adapter", classmethod(lambda cls, h=None, toolkit=None: adapter)
+            ),
+            mock.patch.object(Tcl, "prepare_reload", classmethod(prepare)),
+            mock.patch.object(Tcl, "reload_packages", classmethod(reload_packages)),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            count = Tcl.reload()
+        return count, adapter, order, retired
+
+    def test_every_host_reloads_the_same_way(self):
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                count, adapter, order, _retired = self._reload(host)
+                self.assertEqual(count, 3)
+                self.assertEqual(order, [("prepare", host), ("reload", host)])
+                self.assertEqual(adapter.calls[:2], ["teardown", "defer"])
+                self.assertEqual(
+                    adapter.calls[2], ("report", "Tentacle reloaded (3 modules).", False)
+                )
+
+    def test_the_host_lets_go_before_the_packages_reload(self):
+        """Its handles (keymap items, the docked console's glue) are reachable only from
+        the code the reload is about to replace."""
+        adapter, events = _ReloadAdapter(), []
+        adapter.teardown = lambda: events.append("teardown")
+        with (
+            mock.patch.object(Tcl, "host", classmethod(lambda cls: "blender")),
+            mock.patch.object(
+                Tcl, "host_adapter", classmethod(lambda cls, h=None, toolkit=None: adapter)
+            ),
+            mock.patch.object(Tcl, "prepare_reload", classmethod(lambda cls, h=None: [])),
+            mock.patch.object(
+                Tcl,
+                "reload_packages",
+                classmethod(lambda cls, h=None: events.append("reload") or _Report([])),
+            ),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            Tcl.reload()
+        self.assertEqual(events, ["teardown", "reload"])
+
+    def test_the_rebuild_waits_for_the_host_and_disposes_the_old_menus(self):
+        _count, adapter, _order, retired = self._reload("maya")
+        self.assertEqual(len(adapter.deferred), 1, "the rebuild is deferred, never in-frame")
+        with mock.patch.object(Tcl, "build", classmethod(lambda cls, h=None, **kw: h)) as _:
+            adapter.deferred[0]()
+        retired[0].deleteLater.assert_called_once_with()
+
+    def test_a_failed_reload_still_rebuilds_and_says_so(self):
+        """The teardown already retired the menu: bailing out would strand the session
+        with no marking menu at all (Blender's reload used to)."""
+        for host in Tcl.HOSTS:
+            with self.subTest(host=host):
+                count, adapter, _order, _retired = self._reload(
+                    host, error=RuntimeError("a module raised")
+                )
+                self.assertEqual(count, 0)
+                self.assertIn("defer", adapter.calls)
+                report = [c for c in adapter.calls if isinstance(c, tuple)]
+                self.assertEqual(len(report), 1)
+                self.assertTrue(report[0][2], "the failure is reported as an error")
+                self.assertIn("FAILED", report[0][1])
+                self.assertIn("a module raised", report[0][1])
+
+    def test_a_partial_reload_is_reported(self):
+        _count, adapter, _order, _retired = self._reload(
+            "maya", packages=_Report(["a", "b"], failed=[("c", "boom")])
+        )
+        report = [c for c in adapter.calls if isinstance(c, tuple)][0]
+        self.assertIn("1 FAILED", report[1])
+
+    def test_no_host_raises(self):
+        with mock.patch.object(Tcl, "host", classmethod(lambda cls: None)):
+            with self.assertRaises(RuntimeError):
+                Tcl.reload()
 
     def test_the_settings_slot_reloads_through_the_launcher(self):
-        source = self._source("slots", "settings.py")
+        source = (PKG / "slots" / "settings.py").read_text(encoding="utf-8")
         body = source[source.index("def tb001") : source.index("def check_for_update")]
         self.assertIn("Tcl.reload()", body)
 
-    def test_maya_reload_tears_down_then_rebuilds_deferred(self):
-        body = self._maya_reload()
-        self.assertIn("prepare_reload(", body)
-        self.assertIn("executeDeferred(", body)
-        self.assertIn("dispose_retired(", body)
-
-    def test_maya_reload_rebuilds_even_when_the_reload_raises(self):
-        """The teardown has already retired the menu by then, so bailing out
-        would strand the session with no marking menu at all."""
-        body = self._maya_reload()
-        handler = body[body.index("except Exception as error:") :]
-        self.assertIn("executeDeferred(rebuild)", handler)
-
-    def test_maya_reload_does_not_rebuild_inside_the_click(self):
-        """The rebuild belongs on the idle queue: the slot that asked is in a
-        module the reload re-executes, and constructing a marking menu while Qt
-        is still delivering the click that triggered it destroys and rebuilds
-        widget trees underneath the event."""
-        body = self._maya_reload()
-        for constructor in ("MarkingMenu(", ".build("):
-            self.assertNotIn(constructor, body, "must not construct in-frame")
-
-    def test_blender_reload_tears_down_then_rebuilds_deferred(self):
-        source = self._source("tcl_blender.py")
-        self.assertIn('Tcl.prepare_reload("blender")', source)
-        self.assertIn("dispose_retired(", source)
-
-
-class TestReloadDispatch(unittest.TestCase):
-    """``Tcl.reload`` routes to the running host's reload, as ``launch`` routes
-    to its launch, so the shared Settings slot calls it without a host branch."""
-
-    def test_each_host_reaches_its_own_reload(self):
-        for host in ("maya", "blender"):
-            with self.subTest(host=host), mock.patch.object(
-                Tcl, "host", classmethod(lambda cls, h=host: h)
-            ), mock.patch.object(
-                Tcl, f"_reload_{host}", classmethod(lambda cls: 7)
-            ):
-                self.assertEqual(Tcl.reload(), 7)
-
-    def test_no_host_or_one_without_a_reload_raises(self):
-        for host in (None, "other"):
-            with self.subTest(host=host), mock.patch.object(
-                Tcl, "host", classmethod(lambda cls, h=host: h)
-            ):
-                with self.assertRaises(RuntimeError):
-                    Tcl.reload()
-
-    def test_blender_reload_is_tcl_blenders(self):
-        reloaded = types.SimpleNamespace(reload=lambda: 12)
-        with mock.patch.object(
-            Tcl, "_import_entry", classmethod(lambda cls, host, module: reloaded)
-        ), contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(Tcl._reload_blender(), 12)
+    def test_the_blender_console_reload_is_the_launchers(self):
+        src = (PKG / "tcl_blender.py").read_text(encoding="utf-8")
+        body = src[src.index("\ndef reload():") :].split("\ndef ", 2)[1]
+        self.assertIn("Tcl.reload()", body)
 
 
 if __name__ == "__main__":
