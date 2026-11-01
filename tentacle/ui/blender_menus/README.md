@@ -1,7 +1,7 @@
 # `ui/blender_menus/`
 
 Blender-specific marking-menu overlays, layered on top of the shared `ui/` menus by
-`TclBlender` (`ui_source=("ui", "ui/blender_menus")`) — the Blender counterpart to
+`Tcl.build` (`ui/<host>_menus` by convention) — the Blender counterpart to
 `ui/maya_menus/`.
 
 ## Both-button chord menu — a thin launcher for Blender's own menus

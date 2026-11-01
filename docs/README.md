@@ -7,7 +7,7 @@
 
 A Qt marking-menu launcher for DCC apps.
 
-Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships 60+ tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name; a thin 3ds Max wrapper exists to build on.
+Built on [`uitk.MarkingMenu`](https://github.com/m3trik/uitk/blob/main/uitk/widgets/marking_menu/_marking_menu.py), it ships 60+ tool panels spanning the full pipeline (modeling, UV, materials, rigging, animation, rendering, …), each one panel for both Maya and Blender — a starting set you can build on, or replace wholesale with your own — and opens extapps' [standalone apps](#standalone-apps) by name.
 
 ![Demo](https://raw.githubusercontent.com/m3trik/tentacle/main/docs/demo.gif)
 
@@ -37,7 +37,7 @@ from tentacle import Tcl
 Tcl.launch(key_show="Z")   # bare ("Z", "Space") or Qt-named ("Key_F11")
 ```
 
-Maya: `userSetup.py` (in `~/Documents/maya/<version>/scripts/`); Blender: `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`. `Tcl.launch` recognizes 3ds Max too and starts `TclMax` there — the menu opens, but its slot library isn't ported yet, so the panels have no behavior wired. See [Platform support](#platform-support).
+Maya: `userSetup.py` (in `~/Documents/maya/<version>/scripts/`); Blender: `startup.py` in `%APPDATA%\Blender Foundation\Blender\<version>\scripts\startup\`. See [Platform support](#platform-support).
 
 ## Bindings
 
@@ -61,11 +61,13 @@ The table is built in [`tcl.py`](../tentacle/tcl.py); chord syntax, gesture mech
 
 ```mermaid
 flowchart LR
-    A[Tcl.launch → TclMaya] --> B[uitk.MarkingMenu]
+    A[Tcl.launch → Tcl.build] --> B["uitk.MarkingMenu(host=…)"]
     B --> C[uitk.Switchboard]
     C --> D[ui/*.ui]
     C --> E[slots/*.py]
 ```
+
+`Tcl.launch` resolves the host's adapter from its toolkit (`mtk.MayaMarkingMenuHost` / `btk.BlenderMarkingMenuHost`, both `uitk.MarkingMenuHost`), defers through it, and `Tcl.build` makes the one `uitk.MarkingMenu(host=…)`: the host's main window, activation-key half, mouse and window stacking are the adapter's; the native-menu pages (`ui/<host>_menus`), the both-button chord's `<host>#startmenu` and the `{host}` context tag come from the host name.
 
 `uitk.Switchboard` pairs each `.ui` file with a slot module **of the same basename**, then connects each widget's `objectName` to a method of the same name on the slot class:
 
@@ -118,10 +120,9 @@ depend on extapps.
 
 ```
 tentacle/
-├── tcl.py                 Tcl.launch — host detection + the shared activation-key/chord contract
-├── tcl_maya.py            TclMaya entry point
-├── tcl_max.py             TclMax  (wrapper, no slot library yet)
-├── tcl_blender.py         TclBlender entry point — Qt host + keymap bridge + launcher + add-on
+├── tcl.py                 Tcl.launch / Tcl.build — the one launcher: host detection, ONE
+│                          uitk.MarkingMenu(host=…) per host, the activation-key/chord contract
+├── tcl_blender.py         Blender add-on stub — bl_info, register/unregister, launch/reload/diagnose
 ├── slots/
 │   ├── _slots.py          Slots base — repeat-last-command shortcut
 │   ├── <category>.py      one Slots class per marking-menu category, both hosts
@@ -135,8 +136,7 @@ tentacle/
 | DCC         | Status                                                 |
 | ----------- | ------------------------------------------------------ |
 | Maya 2025+  | Full — entry point, slot library, all menus wired.     |
-| Blender     | Full — entry point + keymap activation ([`TclBlender`](../tentacle/tcl_blender.py)), the same slot library and tool panels as Maya (a Maya-only tool is hidden). |
-| 3ds Max     | Wrapper only ([`TclMax`](../tentacle/tcl_max.py)).         |
+| Blender     | Full — the same launcher, slot library and tool panels as Maya (a Maya-only tool is hidden); blendertk hosts Qt and bridges the activation key from the 3D View keymap ([`tcl_blender.py`](../tentacle/tcl_blender.py) is the add-on stub). |
 
 ## Development
 
